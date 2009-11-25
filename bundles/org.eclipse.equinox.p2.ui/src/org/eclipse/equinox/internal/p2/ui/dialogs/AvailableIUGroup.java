@@ -117,7 +117,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		else
 			this.queryContext = queryContext;
 		repoFlags = ui.getRepositoryTracker().getMetadataRepositoryFlags();
-		this.queryableManager = new QueryableMetadataRepositoryManager(getSession(), ui.getRepositoryTracker(), false);
+		this.queryableManager = new QueryableMetadataRepositoryManager(ui, false);
 		this.filterConstant = filterConstant;
 		this.filter = new AvailableIUPatternFilter(getColumnConfig());
 		this.filter.setIncludeLeadingWildcard(true);

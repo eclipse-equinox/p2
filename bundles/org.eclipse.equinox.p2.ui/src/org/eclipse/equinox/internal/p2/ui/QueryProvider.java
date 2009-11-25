@@ -11,9 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.query.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactKeyQuery;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
@@ -38,6 +39,7 @@ public class QueryProvider {
 	public static final int AVAILABLE_IUS = 4;
 	public static final int AVAILABLE_UPDATES = 5;
 	public static final int INSTALLED_IUS = 6;
+	public static final int AVAILABLE_ARTIFACTS = 7;
 
 	private IQuery allQuery = new MatchQuery() {
 		public boolean isMatch(Object candidate) {
@@ -62,14 +64,8 @@ public class QueryProvider {
 		RepositoryTracker tracker = ui.getRepositoryTracker();
 		switch (queryType) {
 			case ARTIFACT_REPOS :
-				queryable = new QueryableArtifactRepositoryManager(ui.getSession(), tracker, false);
-				return new ElementQueryDescriptor(queryable, new RepositoryLocationQuery(), new Collector() {
-					public boolean accept(Object object) {
-						if (object instanceof URI)
-							return super.accept(new ArtifactRepositoryElement(element, (URI) object));
-						return true;
-					}
-				});
+				queryable = new QueryableArtifactRepositoryManager(ui, false);
+				return new ElementQueryDescriptor(queryable, new RepositoryLocationQuery(), new Collector(), new ArtifactRepositoryElementWrapper(null, element));
 
 			case AVAILABLE_IUS :
 				// Things get more complicated if the user wants to filter out installed items. 
@@ -162,10 +158,10 @@ public class QueryProvider {
 			case METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {
 					if (queryable == null) {
-						queryable = new QueryableMetadataRepositoryManager(ui.getSession(), tracker, ((MetadataRepositories) element).getIncludeDisabledRepositories());
+						queryable = new QueryableMetadataRepositoryManager(ui, ((MetadataRepositories) element).getIncludeDisabledRepositories());
 						element.setQueryable(queryable);
 					}
-					return new ElementQueryDescriptor(element.getQueryable(), new RepositoryLocationQuery(), new Collector(), new MetadataRepositoryElementWrapper(element.getQueryable(), element));
+					return new ElementQueryDescriptor(element.getQueryable(), new RepositoryLocationQuery(), new Collector(), new MetadataRepositoryElementWrapper(null, element));
 				}
 				return null;
 
@@ -176,6 +172,11 @@ public class QueryProvider {
 						return ProvUI.getAdapter(candidate, IProfile.class) != null;
 					}
 				}, new Collector(), new ProfileElementWrapper(null, element));
+
+			case AVAILABLE_ARTIFACTS :
+				if (!(queryable instanceof IArtifactRepository))
+					return null;
+				return new ElementQueryDescriptor(queryable, ArtifactKeyQuery.ALL_KEYS, new Collector(), new ArtifactKeyWrapper((IArtifactRepository) queryable, element));
 
 			default :
 				return null;

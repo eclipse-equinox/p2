@@ -11,30 +11,22 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URI;
-import java.util.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
- * An object that adds provides specialized/optimized queryable support 
- * for a metadata repository.  The repository manipulator determines which repositories 
- * are included in the query.  Callers interested in only the resulting repository URIs
- * should specify a {@link RepositoryLocationQuery}, in which case the 
- * query is performed over the URI's.  Otherwise the query is performed over
- * the repositories themselves.
+ * An object that queries a particular set of metadata repositories.
  */
 public class QueryableMetadataRepositoryManager extends QueryableRepositoryManager {
 
-	public QueryableMetadataRepositoryManager(ProvisioningSession session, RepositoryTracker manipulator, boolean includeDisabledRepos) {
-		super(session, manipulator, includeDisabledRepos);
+	public QueryableMetadataRepositoryManager(ProvisioningUI ui, boolean includeDisabledRepos) {
+		super(ui, includeDisabledRepos);
 	}
 
 	protected IRepository getRepository(IRepositoryManager manager, URI location) {
@@ -54,43 +46,6 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 			((IMetadataRepositoryManager) manager).loadRepository(location, monitor);
 		}
 		return null;
-	}
-
-	protected Collector query(URI uris[], IQuery query, Collector collector, IProgressMonitor monitor) {
-		if (query instanceof RepositoryLocationQuery) {
-			query.perform(Arrays.asList(uris).iterator(), collector);
-			monitor.done();
-		} else {
-			SubMonitor sub = SubMonitor.convert(monitor, (uris.length + 1) * 100);
-			ArrayList loadedRepos = new ArrayList(uris.length);
-			for (int i = 0; i < uris.length; i++) {
-				IRepository repo = null;
-				try {
-					repo = loadRepository(getRepositoryManager(), uris[i], sub.newChild(100));
-				} catch (ProvisionException e) {
-					handleLoadFailure(e, uris[i]);
-				} catch (OperationCanceledException e) {
-					// user has canceled
-					repo = null;
-				}
-				if (repo != null)
-					loadedRepos.add(repo);
-			}
-			if (loadedRepos.size() > 0) {
-				IQueryable[] queryables = (IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]);
-				collector = new CompoundQueryable(queryables).query(query, collector, sub.newChild(100));
-			}
-		}
-		return collector;
-	}
-
-	protected URI[] getRepoLocations(IRepositoryManager manager) {
-		Set locations = new HashSet();
-		locations.addAll(Arrays.asList(manager.getKnownRepositories(repositoryFlags)));
-		if (includeDisabledRepos) {
-			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | repositoryFlags)));
-		}
-		return (URI[]) locations.toArray(new URI[locations.size()]);
 	}
 
 	/* (non-Javadoc)

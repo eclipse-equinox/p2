@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.admin;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIProvisioningListener;
+import org.eclipse.equinox.internal.p2.ui.QueryableArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.model.ArtifactRepositories;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
@@ -33,7 +34,7 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	}
 
 	protected Object getInput() {
-		return new ArtifactRepositories(getProvisioningUI());
+		return new ArtifactRepositories(getProvisioningUI(), new QueryableArtifactRepositoryManager(getProvisioningUI(), false));
 	}
 
 	protected String getAddCommandLabel() {

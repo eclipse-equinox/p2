@@ -13,13 +13,16 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.ProvUIProvisioningListener;
+import org.eclipse.equinox.internal.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddMetadataRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositories;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDragAdapter;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -36,6 +39,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 
 	private InstallAction installAction;
 	private RepositoryTracker tracker;
+	MetadataRepositories input;
 
 	/**
 	 * The constructor.
@@ -45,7 +49,18 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	}
 
 	protected Object getInput() {
-		return new MetadataRepositories(getProvisioningUI());
+		if (input == null) {
+			// view by repo
+			IUViewQueryContext context = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_BY_REPO);
+			Policy policy = ProvAdminUIActivator.getDefault().getPolicy();
+			context.setShowLatestVersionsOnly(policy.getShowLatestVersionsOnly());
+			context.setShowInstallChildren(policy.getShowDrilldownRequirements());
+			context.setShowProvisioningPlanChildren(policy.getShowDrilldownRequirements());
+			context.setUseCategories(policy.getGroupByCategory());
+
+			input = new MetadataRepositories(context, getProvisioningUI(), new QueryableMetadataRepositoryManager(getProvisioningUI(), false));
+		}
+		return input;
 	}
 
 	protected String getAddCommandLabel() {

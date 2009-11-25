@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.QueryProvider;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
@@ -24,8 +23,9 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  */
 public class ArtifactRepositories extends RootElement {
 
-	public ArtifactRepositories(ProvisioningUI ui) {
+	public ArtifactRepositories(ProvisioningUI ui, QueryableArtifactRepositoryManager queryable) {
 		super(ui);
+		this.queryable = queryable;
 	}
 
 	protected int getDefaultQueryType() {

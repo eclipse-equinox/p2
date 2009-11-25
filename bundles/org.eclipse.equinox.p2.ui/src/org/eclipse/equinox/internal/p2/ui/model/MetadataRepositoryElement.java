@@ -100,7 +100,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 */
 	public IQueryable getQueryable() {
 		if (queryable == null)
-			return (IQueryable) getRepository(new NullProgressMonitor());
+			queryable = getRepository(new NullProgressMonitor());
 		return queryable;
 	}
 
@@ -115,7 +115,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 
 	private IMetadataRepository getMetadataRepository(IProgressMonitor monitor) throws ProvisionException {
 		if (queryable == null)
-			queryable = getProvisioningUI().loadMetadataRepository(location, monitor);
+			queryable = getProvisioningUI().getSession().getMetadataRepositoryManager().loadRepository(location, monitor);
 		return (IMetadataRepository) queryable;
 
 	}

@@ -10,30 +10,27 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.p2.operations.RepositoryTracker;
-
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
- * An object that provides specialized repository query support in place of
- * a repository manager and its repositories.  The repositories to be included 
- * can be specified using the repository flags defined in the UI policy.  The query
- * itself is run on the the repositories themselves, if supported by the particular
- * kind of repository.  If the repository doesn't support queryies, or the query is
- * a {@link RepositoryLocationQuery}, the query is run over
- * the repository locations instead.  
+ * An object that provides specific/optimized query support for a specified
+ * set of repositories.  The repository tracker flags determine which repositories
+ * are included in the query.  Callers interested in only the resulting repository URIs
+ * should specify a {@link RepositoryLocationQuery}, in which case the 
+ * query is performed over the URI's.  Otherwise the repositories are loaded and
+ * the query is performed over the repositories themselves.
  */
 public abstract class QueryableRepositoryManager implements IQueryable {
 	/**
@@ -49,15 +46,14 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	private MultiStatus accumulatedNotFound = null;
 	private ProvisioningSession session;
 	protected boolean includeDisabledRepos;
-	protected RepositoryTracker manipulator;
+	protected RepositoryTracker tracker;
 	protected int repositoryFlags;
 
-	public QueryableRepositoryManager(ProvisioningSession session, RepositoryTracker manipulator, boolean includeDisabledRepos) {
+	public QueryableRepositoryManager(ProvisioningUI ui, boolean includeDisabledRepos) {
 		this.includeDisabledRepos = includeDisabledRepos;
-		Assert.isNotNull(manipulator);
-		this.manipulator = manipulator;
-		this.session = session;
-		repositoryFlags = getRepositoryFlags(manipulator);
+		this.tracker = ui.getRepositoryTracker();
+		this.session = ui.getSession();
+		repositoryFlags = getRepositoryFlags(tracker);
 	}
 
 	protected ProvisioningSession getSession() {
@@ -114,10 +110,14 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 		}
 	}
 
-	/**
-	 * Returns an array of repository locations.
-	 */
-	protected abstract URI[] getRepoLocations(IRepositoryManager manager);
+	protected URI[] getRepoLocations(IRepositoryManager manager) {
+		Set locations = new HashSet();
+		locations.addAll(Arrays.asList(manager.getKnownRepositories(repositoryFlags)));
+		if (includeDisabledRepos) {
+			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | repositoryFlags)));
+		}
+		return (URI[]) locations.toArray(new URI[locations.size()]);
+	}
 
 	protected void handleLoadFailure(ProvisionException e, URI problemRepo) {
 		int code = e.getStatus().getCode();
@@ -129,12 +129,12 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 			if (notFound.contains(problemRepo))
 				return;
 			// If someone else reported a URL is not found, don't report again.
-			if (manipulator.hasNotFoundStatusBeenReported(problemRepo)) {
+			if (tracker.hasNotFoundStatusBeenReported(problemRepo)) {
 				notFound.add(problemRepo);
 				return;
 			}
 			notFound.add(problemRepo);
-			manipulator.addNotFound(problemRepo);
+			tracker.addNotFound(problemRepo);
 		}
 
 		// Some ProvisionExceptions include an empty multi status with a message.  
@@ -186,7 +186,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 		for (int i = 0; i < repoURIs.length; i++) {
 			IRepository repo = getRepository(mgr, repoURIs[i]);
 			// A not-loaded repo doesn't count if it's considered missing (not found)
-			if (repo == null && !manipulator.hasNotFoundStatusBeenReported(repoURIs[i]))
+			if (repo == null && !tracker.hasNotFoundStatusBeenReported(repoURIs[i]))
 				return false;
 		}
 		return true;
@@ -237,7 +237,33 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 */
 	protected abstract IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException;
 
-	protected abstract Collector query(URI[] uris, IQuery query, Collector collector, IProgressMonitor monitor);
+	protected Collector query(URI uris[], IQuery query, Collector collector, IProgressMonitor monitor) {
+		if (query instanceof RepositoryLocationQuery) {
+			query.perform(Arrays.asList(uris).iterator(), collector);
+			monitor.done();
+		} else {
+			SubMonitor sub = SubMonitor.convert(monitor, (uris.length + 1) * 100);
+			ArrayList loadedRepos = new ArrayList(uris.length);
+			for (int i = 0; i < uris.length; i++) {
+				IRepository repo = null;
+				try {
+					repo = loadRepository(getRepositoryManager(), uris[i], sub.newChild(100));
+				} catch (ProvisionException e) {
+					handleLoadFailure(e, uris[i]);
+				} catch (OperationCanceledException e) {
+					// user has canceled
+					repo = null;
+				}
+				if (repo != null)
+					loadedRepos.add(repo);
+			}
+			if (loadedRepos.size() > 0) {
+				IQueryable[] queryables = (IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]);
+				collector = new CompoundQueryable(queryables).query(query, collector, sub.newChild(100));
+			}
+		}
+		return collector;
+	}
 
 	public void setRespositoryFlags(int flags) {
 		this.repositoryFlags = flags;

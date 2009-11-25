@@ -111,6 +111,8 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	}
 
 	private void readLicenseRegistry() {
+		if (getLicenseManager() == null)
+			return;
 		IPath location = getStateLocation().append(LICENSE_STORAGE);
 		File f = location.toFile();
 		BufferedInputStream stream = null;
@@ -126,6 +128,8 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	}
 
 	private void writeLicenseRegistry() {
+		if (getLicenseManager() == null)
+			return;
 		if (!getLicenseManager().hasAcceptedLicenses())
 			return;
 		IPath location = getStateLocation().append(LICENSE_STORAGE);

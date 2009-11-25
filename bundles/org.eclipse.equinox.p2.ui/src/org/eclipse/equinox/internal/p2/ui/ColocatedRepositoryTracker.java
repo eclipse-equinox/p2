@@ -29,6 +29,10 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 
 	ProvisioningUI ui;
 
+	public ColocatedRepositoryTracker() {
+		this(ProvisioningUI.getDefaultUI());
+	}
+
 	public ColocatedRepositoryTracker(ProvisioningUI ui) {
 		this.ui = ui;
 		setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);

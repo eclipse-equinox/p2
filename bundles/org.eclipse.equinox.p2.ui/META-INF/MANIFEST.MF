@@ -42,7 +42,7 @@ Export-Package: org.eclipse.equinox.internal.p2.ui;x-friends:="org.eclipse.equin
  org.eclipse.equinox.internal.p2.ui.actions;x-friends:="org.eclipse.equinox.p2.ui.admin, org.eclipse.equinox.p2.ui.sdk.scheduler",
  org.eclipse.equinox.internal.p2.ui.dialogs;x-friends:="org.eclipse.equinox.p2.ui.admin, org.eclipse.equinox.p2.ui.sdk.scheduler, org.eclipse.pde.ui",
  org.eclipse.equinox.internal.p2.ui.model;x-friends:="org.eclipse.equinox.p2.ui.admin, org.eclipse.equinox.p2.ui.sdk.scheduler, org.eclipse.equinox.internal.p2.ui.analysis",
- org.eclipse.equinox.internal.p2.ui.query;x-friends:="org.eclipse.equinox.internal.p2.ui.analysis",
+ org.eclipse.equinox.internal.p2.ui.query;x-friends:="org.eclipse.equinox.p2.ui.admin, org.eclipse.equinox.internal.p2.ui.analysis",
  org.eclipse.equinox.internal.p2.ui.viewers;x-friends:="org.eclipse.equinox.p2.ui.admin, org.eclipse.equinox.p2.ui.sdk.scheduler",
  org.eclipse.equinox.p2.ui
 Require-Bundle: org.eclipse.ui,
