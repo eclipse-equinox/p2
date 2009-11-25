@@ -49,6 +49,6 @@ public class QueryableArtifactRepositoryManagerTest extends AbstractQueryTest {
 	}
 
 	private QueryableArtifactRepositoryManager getQueryableManager() {
-		return new QueryableArtifactRepositoryManager(ProvisioningUI.getDefaultUI().getSession(), ProvisioningUI.getDefaultUI().getRepositoryTracker(), false);
+		return new QueryableArtifactRepositoryManager(ProvisioningUI.getDefaultUI(), false);
 	}
 }

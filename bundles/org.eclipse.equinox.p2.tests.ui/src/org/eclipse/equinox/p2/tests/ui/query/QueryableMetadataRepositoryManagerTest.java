@@ -258,6 +258,6 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 	}
 
 	private QueryableMetadataRepositoryManager getQueryableManager() {
-		return new QueryableMetadataRepositoryManager(session, ui.getRepositoryTracker(), false);
+		return new QueryableMetadataRepositoryManager(ui, false);
 	}
 }
