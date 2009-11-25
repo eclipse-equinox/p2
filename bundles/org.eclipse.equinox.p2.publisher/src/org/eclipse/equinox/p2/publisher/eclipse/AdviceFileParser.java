@@ -477,15 +477,19 @@ public class AdviceFileParser {
 		}
 
 		if (version.indexOf(QUALIFIER_SUBSTITUTION) != -1) {
-			String qualifier = hostVersion.isOSGiCompatible() ? hostVersion.getQualifier() : null;
-			if (qualifier == null)
-				qualifier = ""; //$NON-NLS-1$
-			if (qualifier.length() == 0) {
-				// Note: this works only for OSGi versions and version ranges
-				// where the qualifier if present must be at the end of a version string
-				version = replace(version, "." + QUALIFIER_SUBSTITUTION, ""); //$NON-NLS-1$ //$NON-NLS-2$
+			try {
+				String qualifier = Version.toOSGiVersion(hostVersion).getQualifier();
+				if (qualifier == null)
+					qualifier = ""; //$NON-NLS-1$
+				if (qualifier.length() == 0) {
+					// Note: this works only for OSGi versions and version ranges
+					// where the qualifier if present must be at the end of a version string
+					version = replace(version, "." + QUALIFIER_SUBSTITUTION, ""); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+				version = replace(version, QUALIFIER_SUBSTITUTION, qualifier);
+			} catch (UnsupportedOperationException e) {
+				// Version cannot be converted to OSGi
 			}
-			version = replace(version, QUALIFIER_SUBSTITUTION, qualifier);
 		}
 		return version;
 	}

@@ -568,12 +568,14 @@ public class FeaturesAction extends AbstractPublisherAction {
 			return null;
 		if (match.equals("perfect")) //$NON-NLS-1$
 			return new VersionRange(version, true, version, true);
+
+		org.osgi.framework.Version osgiVersion = Version.toOSGiVersion(version);
 		if (match.equals("equivalent")) { //$NON-NLS-1$
-			Version upper = Version.createOSGi(version.getMajor(), version.getMinor() + 1, 0);
+			Version upper = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor() + 1, 0);
 			return new VersionRange(version, true, upper, false);
 		}
 		if (match.equals("compatible")) { //$NON-NLS-1$
-			Version upper = Version.createOSGi(version.getMajor() + 1, 0, 0);
+			Version upper = Version.createOSGi(osgiVersion.getMajor() + 1, 0, 0);
 			return new VersionRange(version, true, upper, false);
 		}
 		if (match.equals("greaterOrEqual")) //$NON-NLS-1$

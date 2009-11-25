@@ -9,11 +9,10 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
-import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
-
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 
 /**
  * This service checks that each IU has a proper version number
@@ -28,7 +27,7 @@ public class VersionAnalyzer extends IUAnalyzer {
 			return;
 		}
 		if (iu.getVersion().isOSGiCompatible()) {
-			String qualifier = iu.getVersion().getQualifier();
+			String qualifier = Version.toOSGiVersion(iu.getVersion()).getQualifier();
 			if (qualifier != null && qualifier.equals("qualifier")) {
 				error(iu, "[ERROR] IU: " + iu.getId() + " has not replaced its qualifiier");
 				return;

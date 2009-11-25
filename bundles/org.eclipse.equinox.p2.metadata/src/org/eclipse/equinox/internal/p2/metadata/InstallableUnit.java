@@ -42,7 +42,7 @@ public class InstallableUnit implements IInstallableUnit {
 
 	private ITouchpointType touchpointType;
 
-	private Version version;
+	private Version version = Version.emptyVersion;
 
 	private IUpdateDescriptor updateInfo;
 	private ILicense[] licenses = NO_LICENSE;

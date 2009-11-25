@@ -111,8 +111,9 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		//Indicate the IU to which this CU apply
 		Version hostVersion = Version.parseVersion(configInfo.getVersion());
+		VersionRange range = hostVersion == Version.emptyVersion ? VersionRange.emptyRange : new VersionRange(hostVersion, true, Version.MAX_VERSION, true);
 		cu.setHost(new IRequiredCapability[] { //
-				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, hostId, new VersionRange(hostVersion, true, Version.OSGi_MAX, true), null, false, false, true), //
+				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, hostId, range, null, false, false, true), //
 						MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
@@ -238,7 +239,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (!base.equals(org.osgi.framework.Version.emptyVersion)) {
 			updateRange = new VersionRange(Version.emptyVersion, true, Version.fromOSGiVersion(base), false);
 		} else {
-			updateRange = new VersionRange("0.0.0"); //$NON-NLS-1$
+			updateRange = VersionRange.emptyRange;
 		}
 		return updateRange;
 	}

@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionFormat;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -19,6 +18,7 @@ import org.eclipse.osgi.util.NLS;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class OSGiVersion extends BasicVersion {
+
 	private static final long serialVersionUID = -4530178927569560877L;
 
 	private static final boolean[] allowedOSGiChars;
@@ -61,13 +61,21 @@ public class OSGiVersion extends BasicVersion {
 		return true;
 	}
 
-	OSGiVersion(Comparable[] vector) {
-		if (vector.length != 4)
+	static BasicVersion fromVector(Comparable[] vector, Comparable pad) {
+		if (vector.length != 4) {
+			if (vector.length == 0) {
+				if (pad == null)
+					return (BasicVersion) emptyVersion;
+				if (pad == VersionVector.MAX_VALUE)
+					return (BasicVersion) MAX_VERSION;
+			}
 			throw new IllegalArgumentException();
-		this.major = ((Integer) vector[0]).intValue();
-		this.minor = ((Integer) vector[1]).intValue();
-		this.micro = ((Integer) vector[2]).intValue();
-		this.qualifier = vector[3];
+		}
+		int major = ((Integer) vector[0]).intValue();
+		int minor = ((Integer) vector[1]).intValue();
+		int micro = ((Integer) vector[2]).intValue();
+		Comparable qualifier = vector[3];
+		return (major == 0 && minor == 0 && micro == 0 && qualifier == VersionVector.MINS_VALUE) ? (BasicVersion) emptyVersion : new OSGiVersion(major, minor, micro, qualifier);
 	}
 
 	public OSGiVersion(int major, int minor, int micro, Comparable qualifier) {
@@ -173,16 +181,6 @@ public class OSGiVersion extends BasicVersion {
 			sb.append('.');
 			sb.append(getQualifier());
 		}
-	}
-
-	// Preserve singletons during deserialization
-	private Object readResolve() {
-		Version v = this;
-		if (equals(OSGi_MIN))
-			v = OSGi_MIN;
-		else if (equals(OSGi_MAX))
-			v = OSGi_MAX;
-		return v;
 	}
 
 	public Comparable[] getVector() {

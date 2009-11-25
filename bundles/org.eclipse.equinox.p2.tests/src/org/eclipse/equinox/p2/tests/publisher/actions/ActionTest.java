@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
-@SuppressWarnings( {"cast", "restriction", "unchecked"})
+@SuppressWarnings({"cast", "restriction", "unchecked"})
 public abstract class ActionTest extends AbstractProvisioningTest {
 	protected static final String COMMA_SEPARATOR = ","; //$NON-NLS-1$
 	protected static final String JAR = "jar";//$NON-NLS-1$
@@ -64,7 +64,7 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		for (int i = 0; i < required.length; i++)
 			if (required[i].getName().equalsIgnoreCase(name) && required[i].getNamespace().equalsIgnoreCase(namespace) && required[i].getRange().equals(range))
 				return;
-		Assert.fail("Missing RequiredCapability: " + name + range.toString()); //$NON-NLS-1$
+		Assert.fail("Missing RequiredCapability: " + name + " " + range.toString()); //$NON-NLS-1$
 	}
 
 	protected IInstallableUnit mockIU(String id, Version version) {

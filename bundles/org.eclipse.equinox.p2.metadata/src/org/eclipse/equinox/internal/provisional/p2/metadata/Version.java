@@ -37,26 +37,17 @@ import org.eclipse.equinox.internal.p2.metadata.*;
  * to test.
  */
 public abstract class Version implements Comparable, Serializable {
-	/**
-	 * The empty OSGi version "0.0.0". Equivalent to calling
-	 * <code>Version.createOSGi(0,0,0)</code>.
-	 */
-	public static final Version OSGi_MIN = new OSGiVersion(0, 0, 0, VersionVector.MINS_VALUE);
-	public static final Version OSGi_MAX = new OSGiVersion(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, VersionVector.MAXS_VALUE);
-
-	public static final Version emptyVersion = OSGi_MIN;
-
 	public static final String RAW_PREFIX = "raw:"; //$NON-NLS-1$
 
 	/**
 	 * The version that is semantically greater then all other versions.
 	 */
-	public static final Version MAX_VERSION = Version.create(RAW_PREFIX + "MpM"); //$NON-NLS-1$
+	public static final Version MAX_VERSION = OmniVersion.createMaxVersion();
 
 	/**
 	 * The version that is semantically less then all other versions.
 	 */
-	public static final Version MIN_VERSION = Version.create(RAW_PREFIX + "-M"); //$NON-NLS-1$
+	public static final Version emptyVersion = OmniVersion.createMinVersion();
 
 	private static final long serialVersionUID = 6218979149720923857L;
 
@@ -136,13 +127,13 @@ public abstract class Version implements Comparable, Serializable {
 		if (version == null)
 			return null;
 		if (version.getMajor() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE)
-			return OSGi_MAX;
+			return MAX_VERSION;
 		return createOSGi(version.getMajor(), version.getMinor(), version.getMicro(), version.getQualifier());
 	}
 
 	/**
 	 * Parses a version identifier from the specified string. This method is for backward
-	 * compatibility with OSGi and will return the OSGi {@link #emptyVersion} when
+	 * compatibility with OSGi and will return the OSGi &quot;0.0.0&quot; version when
 	 * the provided string is empty or <code>null</code>.
 	 * 
 	 * @param version String representation of the version identifier. Leading
@@ -157,9 +148,9 @@ public abstract class Version implements Comparable, Serializable {
 	 */
 	public static Version parseVersion(String version) {
 		if (version == null || version.length() == 0)
-			return emptyVersion;
+			return Version.emptyVersion;
 		Version v = create(version);
-		return v == null ? emptyVersion : v;
+		return v == null ? Version.emptyVersion : v;
 	}
 
 	/**
@@ -172,47 +163,19 @@ public abstract class Version implements Comparable, Serializable {
 	public static org.osgi.framework.Version toOSGiVersion(Version version) {
 		if (version == null)
 			return null;
-		if (version == OSGi_MIN || version == MIN_VERSION)
+		if (version == emptyVersion)
 			return org.osgi.framework.Version.emptyVersion;
-		if (version == OSGi_MAX || version == MAX_VERSION)
+		if (version == MAX_VERSION)
 			return new org.osgi.framework.Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
-		return new org.osgi.framework.Version(version.getMajor(), version.getMinor(), version.getMicro(), version.getQualifier());
+
+		BasicVersion bv = (BasicVersion) version;
+		return new org.osgi.framework.Version(bv.getMajor(), bv.getMinor(), bv.getMicro(), bv.getQualifier());
 	}
 
 	/**
 	 * Returns the optional format.
 	 */
 	public abstract IVersionFormat getFormat();
-
-	/**
-	 * Returns the OSGi major component of this version identifier.
-	 * 
-	 * @return The major component.
-	 * @throws UnsupportedOperationException if the first element in the
-	 * vector is not a number.
-	 * @see #isOSGiCompatible()
-	 */
-	public abstract int getMajor();
-
-	/**
-	 * Returns the OSGi micro component of this version identifier.
-	 * 
-	 * @return The micro component.
-	 * @throws UnsupportedOperationException if the third element in the
-	 * vector is not a number.
-	 * @see #isOSGiCompatible()
-	 */
-	public abstract int getMicro();
-
-	/**
-	 * Returns the OSGi minor component of this version identifier.
-	 * 
-	 * @return The minor component.
-	 * @throws UnsupportedOperationException if the second element in the
-	 * vector is not a number.
-	 * @see #isOSGiCompatible()
-	 */
-	public abstract int getMinor();
 
 	/**
 	 * Returns the <code>original</code> part of the string for this version
@@ -230,16 +193,6 @@ public abstract class Version implements Comparable, Serializable {
 	 * @return The pad value or <code>null</code> if not set.
 	 */
 	public abstract Comparable getPad();
-
-	/**
-	 * Returns the OSGi qualifier component of this version identifier.
-	 * 
-	 * @return The qualifier component or <code>null</code> if not set.
-	 * @throws UnsupportedOperationException if the fourth element in the
-	 * vector is set to something other then a string.
-	 * @see #isOSGiCompatible()
-	 */
-	public abstract String getQualifier();
 
 	/**
 	 * An element from the raw vector representation of this version.

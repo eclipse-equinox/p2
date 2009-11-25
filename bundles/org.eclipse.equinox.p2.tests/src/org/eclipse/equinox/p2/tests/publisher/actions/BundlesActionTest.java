@@ -71,8 +71,8 @@ public class BundlesActionTest extends ActionTest {
 	private final Version TEST2_PROVX_VERSION = Version.emptyVersion;
 	private final VersionRange TEST2_IUA_VERSION_RANGE = VersionRange.emptyRange;
 	private final VersionRange TEST2_IUB_VERSION_RANGE = VersionRange.emptyRange;
-	private final VersionRange TEST2_IUC_VERSION_RANGE = new VersionRange(Version.create("1.0.0"), true, Version.OSGi_MAX, true);//$NON-NLS-1$
-	private final VersionRange TEST1_IUD_VERSION_RANGE = new VersionRange(Version.create("1.3.0"), true, Version.OSGi_MAX, true);//$NON-NLS-1$
+	private final VersionRange TEST2_IUC_VERSION_RANGE = new VersionRange(Version.create("1.0.0"), true, Version.MAX_VERSION, true);//$NON-NLS-1$
+	private final VersionRange TEST1_IUD_VERSION_RANGE = new VersionRange(Version.create("1.3.0"), true, Version.MAX_VERSION, true);//$NON-NLS-1$
 
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository();
 

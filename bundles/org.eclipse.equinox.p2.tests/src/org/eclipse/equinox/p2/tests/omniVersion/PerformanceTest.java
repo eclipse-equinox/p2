@@ -30,7 +30,7 @@ public class PerformanceTest extends TestCase {
 
 	public void testStringCreationPerformance() {
 		// Ensure that classes are loaded etc.
-		Version.MAX_VERSION.compareTo(Version.MIN_VERSION);
+		Version.MAX_VERSION.compareTo(Version.emptyVersion);
 		org.osgi.framework.Version.emptyVersion.compareTo(org.osgi.framework.Version.emptyVersion);
 
 		// Create all versions in string format
@@ -51,7 +51,7 @@ public class PerformanceTest extends TestCase {
 
 	public void testCreationPerformance() {
 		// Ensure that classes are loaded etc.
-		Version.MAX_VERSION.compareTo(Version.MIN_VERSION);
+		Version.MAX_VERSION.compareTo(Version.emptyVersion);
 		org.osgi.framework.Version.emptyVersion.compareTo(org.osgi.framework.Version.emptyVersion);
 
 		long start = System.currentTimeMillis();

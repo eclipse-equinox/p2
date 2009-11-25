@@ -164,7 +164,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		File file = null;
 		if (propertyToPlatformArchive != null) {
 			property = getValueFor(propertyToPlatformArchive);
-			String message = "Need to set the " + "\"" + property + "\" system property with a valid path to the platform binary drop or copy the archive to be a sibling of the install folder.";
+			String message = "Need to set the " + "\"" + propertyToPlatformArchive + "\" system property with a valid path to the platform binary drop or copy the archive to be a sibling of the install folder.";
 			if (property == null) {
 				fail(message);
 			}

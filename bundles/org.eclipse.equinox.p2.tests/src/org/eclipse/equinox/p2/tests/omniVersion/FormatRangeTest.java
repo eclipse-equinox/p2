@@ -66,7 +66,7 @@ public class FormatRangeTest extends VersionTesting {
 	}
 
 	public void testGreaterThanMinimum() {
-		// any version equal or greater than Version.MIN_VERSION is ok 
+		// any version equal or greater than Version.emptyVersion is ok 
 		VersionRange lowerBound = new VersionRange("raw:-M");
 		assertIncludedInRange("0.1", lowerBound, "raw:-M");
 		assertIncludedInRange("1.0", lowerBound, OSGI_PREFIX + "0.9.0");

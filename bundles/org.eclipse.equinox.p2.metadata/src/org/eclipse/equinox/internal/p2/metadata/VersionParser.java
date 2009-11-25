@@ -89,8 +89,10 @@ public abstract class VersionParser {
 		Comparable pad = null;
 		VersionFormat fmt = null;
 		char c = version.charAt(pos);
-		if (isDigit(c))
-			return new OSGiVersion(VersionFormat.OSGI_FORMAT.parse(version, pos, maxPos, padReturn));
+		if (isDigit(c)) {
+			vector = VersionFormat.OSGI_FORMAT.parse(version, pos, maxPos, padReturn);
+			return OSGiVersion.fromVector(vector, padReturn[0]);
+		}
 
 		if (!isLetter(c))
 			throw new IllegalArgumentException();
@@ -133,7 +135,7 @@ public abstract class VersionParser {
 			if (pos == maxPos)
 				// This was a pure raw version
 				//
-				return new OmniVersion(vector, pad, null, null);
+				return OmniVersion.fromVector(vector, pad, null, null);
 
 			if (version.charAt(pos) != '/')
 				throw new IllegalArgumentException(NLS.bind(Messages.expected_slash_after_raw_vector_0, version.substring(start, maxPos)));
@@ -161,7 +163,7 @@ public abstract class VersionParser {
 				//
 				if (vector == null)
 					throw new IllegalArgumentException(NLS.bind(Messages.only_format_specified_0, version.substring(start, maxPos)));
-				return fmt == VersionFormat.OSGI_FORMAT ? (Version) new OSGiVersion(vector) : (Version) new OmniVersion(vector, pad, fmt, null);
+				return fmt == VersionFormat.OSGI_FORMAT ? OSGiVersion.fromVector(vector, pad) : OmniVersion.fromVector(vector, pad, fmt, null);
 			}
 		}
 
@@ -181,7 +183,7 @@ public abstract class VersionParser {
 			vector = fmt.parse(version, pos, maxPos, padReturn);
 			pad = padReturn[0];
 		}
-		return fmt == VersionFormat.OSGI_FORMAT ? (Version) new OSGiVersion(vector) : (Version) new OmniVersion(vector, pad, fmt, version.substring(pos));
+		return fmt == VersionFormat.OSGI_FORMAT ? OSGiVersion.fromVector(vector, pad) : OmniVersion.fromVector(vector, pad, fmt, version.substring(pos));
 	}
 
 	static boolean isDigit(char c) {

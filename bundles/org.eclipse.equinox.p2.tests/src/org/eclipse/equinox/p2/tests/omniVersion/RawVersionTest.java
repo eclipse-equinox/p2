@@ -150,7 +150,7 @@ public class RawVersionTest extends VersionTesting {
 		assertNotNull(v = Version.create(s = "raw:M"));
 		assertEquals(s, v.toString());
 		assertNotNull(v = Version.create(s = "raw:-M"));
-		assertEquals(s, v.toString());
+		assertEquals("0.0.0", v.toString());
 		assertNotNull(v = Version.create(s = "raw:1.m"));
 		assertEquals(s, v.toString());
 		assertNotNull(v = Version.create(s = "raw:1.M"));

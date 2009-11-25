@@ -115,8 +115,6 @@ public class MetadataGeneratorHelper {
 	//TODO - need to come up with a way to infer launcher version
 	private static final Version LAUNCHER_VERSION = Version.createOSGi(1, 0, 0);
 
-	private static final Version versionMax = Version.OSGi_MAX;
-
 	public static final ITouchpointType TOUCHPOINT_NATIVE = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.native", Version.createOSGi(1, 0, 0)); //$NON-NLS-1$
 	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", Version.createOSGi(1, 0, 0)); //$NON-NLS-1$
 
@@ -215,7 +213,7 @@ public class MetadataGeneratorHelper {
 
 		//Indicate the IU to which this CU apply
 		cu.setHost(new IRequiredCapability[] { //
-				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, iuId, new VersionRange(iuVersion, true, versionMax, true), null, false, false, true), //
+				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, iuId, new VersionRange(iuVersion, true, Version.MAX_VERSION, true), null, false, false, true), //
 						MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
@@ -249,7 +247,7 @@ public class MetadataGeneratorHelper {
 		if (!base.equals(org.osgi.framework.Version.emptyVersion)) {
 			updateRange = new VersionRange(Version.emptyVersion, true, Version.fromOSGiVersion(base), false);
 		} else {
-			updateRange = new VersionRange("0.0.0"); //$NON-NLS-1$
+			updateRange = VersionRange.emptyRange;
 		}
 		return updateRange;
 	}
@@ -939,7 +937,7 @@ public class MetadataGeneratorHelper {
 		String configId = "config." + id;//$NON-NLS-1$
 		cu.setId(configId);
 		cu.setVersion(version);
-		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, versionMax, true), null, false, false)});
+		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, Version.MAX_VERSION, true), null, false, false)});
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configId, version)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);
@@ -1006,7 +1004,7 @@ public class MetadataGeneratorHelper {
 		String configUnitId = configurationFlavor + launcherId;
 		cu.setId(configUnitId);
 		cu.setVersion(LAUNCHER_VERSION);
-		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherId, new VersionRange(LAUNCHER_VERSION, true, versionMax, true), null, false, false)});
+		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherId, new VersionRange(LAUNCHER_VERSION, true, Version.MAX_VERSION, true), null, false, false)});
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, LAUNCHER_VERSION)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);
@@ -1198,14 +1196,16 @@ public class MetadataGeneratorHelper {
 		if (!entry.isRequires())
 			return new VersionRange(version, true, version, true);
 		String match = entry.getMatch();
+
+		org.osgi.framework.Version osgiVersion = Version.toOSGiVersion(version);
 		if (match == null || match.equals("compatible")) { //$NON-NLS-1$
-			Version upper = Version.createOSGi(version.getMajor() + 1, 0, 0);
+			Version upper = Version.createOSGi(osgiVersion.getMajor() + 1, 0, 0);
 			return new VersionRange(version, true, upper, false);
 		}
 		if (match.equals("perfect")) //$NON-NLS-1$
 			return new VersionRange(version, true, version, true);
 		if (match.equals("equivalent")) { //$NON-NLS-1$
-			Version upper = Version.createOSGi(version.getMajor(), version.getMinor() + 1, 0);
+			Version upper = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor() + 1, 0);
 			return new VersionRange(version, true, upper, false);
 		}
 		if (match.equals("greaterOrEqual")) //$NON-NLS-1$

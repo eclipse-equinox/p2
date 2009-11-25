@@ -26,6 +26,17 @@ import org.eclipse.osgi.util.NLS;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class VersionFormat implements IVersionFormat, Serializable {
+
+	/**
+	 * The string representation of the Omni Version format used for parsing OSGi versions.
+	 */
+	public static final String OSGI_FORMAT_STRING = "n[.n=0;[.n=0;[.S='';=[A-Za-z0-9_-];]]]"; //$NON-NLS-1$
+
+	/**
+	 * The string representation of the Omni Version format used for parsing raw versions.
+	 */
+	public static final String RAW_FORMAT_STRING = "r(.r)*p?"; //$NON-NLS-1$
+
 	private static final long serialVersionUID = -5689435955091405520L;
 
 	static class TreeInfo extends ArrayList {
@@ -174,17 +185,7 @@ public class VersionFormat implements IVersionFormat, Serializable {
 		Comparable[] padReturn = new Comparable[1];
 		Comparable[] vector = RAW_FORMAT.parse(version, 0, version.length(), padReturn);
 		Comparable pad = padReturn[0];
-		if (vector.length == 0) {
-			if (pad == null)
-				return (BasicVersion) Version.MIN_VERSION;
-			if (pad == VersionVector.MAX_VALUE)
-				return (BasicVersion) Version.MAX_VERSION;
-		}
-
-		if (originalFormat == OSGI_FORMAT)
-			return new OSGiVersion(vector);
-
-		return new OmniVersion(vector, pad, originalFormat, original);
+		return (originalFormat == OSGI_FORMAT) ? OSGiVersion.fromVector(vector, pad) : OmniVersion.fromVector(vector, pad, originalFormat, original);
 	}
 
 	static void rawToString(StringBuffer sb, boolean forRange, Comparable e) {
@@ -264,17 +265,7 @@ public class VersionFormat implements IVersionFormat, Serializable {
 		Comparable[] padReturn = new Comparable[1];
 		Comparable[] vector = parse(version, 0, version.length(), padReturn);
 		Comparable pad = padReturn[0];
-		if (vector.length == 0) {
-			if (pad == null)
-				return Version.MIN_VERSION;
-			if (pad == VersionVector.MAX_VALUE)
-				return Version.MAX_VERSION;
-		}
-
-		if (this == OSGI_FORMAT)
-			return new OSGiVersion(vector);
-
-		return new OmniVersion(vector, pad, this, version);
+		return (this == OSGI_FORMAT) ? OSGiVersion.fromVector(vector, pad) : OmniVersion.fromVector(vector, pad, this, version);
 	}
 
 	Comparable[] parse(String version, int start, int maxPos, Comparable[] padReturn) {
@@ -344,7 +335,7 @@ class RawFormat extends VersionFormat {
 	public Version parse(String version, int start, int maxPos) {
 		Comparable[] padReturn = new Comparable[1];
 		Comparable[] vector = parse(version, start, maxPos, padReturn);
-		return new OmniVersion(vector, padReturn[0], null, null);
+		return OmniVersion.fromVector(vector, padReturn[0], null, null);
 	}
 
 	// Preserve singleton when deserialized

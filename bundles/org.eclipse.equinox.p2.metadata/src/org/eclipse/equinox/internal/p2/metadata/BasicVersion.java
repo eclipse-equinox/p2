@@ -20,6 +20,46 @@ public abstract class BasicVersion extends Version {
 	private static final long serialVersionUID = -2983093417537485027L;
 
 	/**
+	 * Returns the OSGi major component of this version identifier.
+	 * 
+	 * @return The major component.
+	 * @throws UnsupportedOperationException if the first element in the
+	 * vector is not a number.
+	 * @see #isOSGiCompatible()
+	 */
+	public abstract int getMajor();
+
+	/**
+	 * Returns the OSGi micro component of this version identifier.
+	 * 
+	 * @return The micro component.
+	 * @throws UnsupportedOperationException if the third element in the
+	 * vector is not a number.
+	 * @see #isOSGiCompatible()
+	 */
+	public abstract int getMicro();
+
+	/**
+	 * Returns the OSGi minor component of this version identifier.
+	 * 
+	 * @return The minor component.
+	 * @throws UnsupportedOperationException if the second element in the
+	 * vector is not a number.
+	 * @see #isOSGiCompatible()
+	 */
+	public abstract int getMinor();
+
+	/**
+	 * Returns the OSGi qualifier component of this version identifier.
+	 * 
+	 * @return The qualifier component or <code>null</code> if not set.
+	 * @throws UnsupportedOperationException if the fourth element in the
+	 * vector is set to something other then a string.
+	 * @see #isOSGiCompatible()
+	 */
+	public abstract String getQualifier();
+
+	/**
 	 * Appends the original for this version onto the <code>sb</code> StringBuffer
 	 * if present.
 	 * @param sb The buffer that will receive the raw string format

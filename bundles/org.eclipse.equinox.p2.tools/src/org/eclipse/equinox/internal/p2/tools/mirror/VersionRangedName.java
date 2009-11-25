@@ -46,6 +46,6 @@ public class VersionRangedName {
 	}
 
 	public String toString() {
-		return id + "/" + (range == null ? "0.0.0" : range.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+		return id + "/" + (range == null ? VersionRange.emptyRange.toString() : range.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

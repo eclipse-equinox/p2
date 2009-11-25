@@ -31,6 +31,10 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 public class OmniVersion extends BasicVersion {
 	private static final long serialVersionUID = 1996212688810048879L;
 
+	private static OmniVersion minimumVersion;
+
+	private static OmniVersion maximumVersion;
+
 	private final Comparable[] vector;
 
 	private final Comparable padValue;
@@ -45,7 +49,32 @@ public class OmniVersion extends BasicVersion {
 	 */
 	private final String original;
 
-	public OmniVersion(Comparable[] array, Comparable padValue, IVersionFormat format, String original) {
+	static BasicVersion fromVector(Comparable[] vector, Comparable padValue, IVersionFormat format, String original) {
+		if (vector.length == 0) {
+			if (padValue == null)
+				return (BasicVersion) emptyVersion;
+			if (padValue == VersionVector.MAX_VALUE)
+				return (BasicVersion) MAX_VERSION;
+		}
+		if (vector.length == 3 && padValue == null && vector[0] == VersionParser.ZERO_INT && vector[1] == VersionParser.ZERO_INT && vector[2] == VersionParser.ZERO_INT)
+			return (BasicVersion) emptyVersion;
+
+		return new OmniVersion(vector, padValue, format, original);
+	}
+
+	public static Version createMinVersion() {
+		if (minimumVersion == null)
+			minimumVersion = new OmniVersion(new Comparable[0], null, null, null);
+		return minimumVersion;
+	}
+
+	public static Version createMaxVersion() {
+		if (maximumVersion == null)
+			maximumVersion = new OmniVersion(new Comparable[0], VersionVector.MAX_VALUE, null, null);
+		return maximumVersion;
+	}
+
+	private OmniVersion(Comparable[] array, Comparable padValue, IVersionFormat format, String original) {
 		this.vector = array;
 		this.padValue = padValue;
 		this.format = format;
@@ -108,7 +137,7 @@ public class OmniVersion extends BasicVersion {
 	 */
 	public boolean isOSGiCompatible() {
 		if (vector.length < 3 || vector.length > 4)
-			return false;
+			return (this == emptyVersion || this == MAX_VERSION);
 
 		if (getPad() != null)
 			return false;
@@ -162,15 +191,19 @@ public class OmniVersion extends BasicVersion {
 	 * @param sb The buffer that will receive the version string
 	 */
 	public void toString(StringBuffer sb) {
-		sb.append(RAW_PREFIX);
-		VersionVector.toString(sb, vector, padValue, false);
-		if (format != null || original != null) {
-			sb.append('/');
-			if (format != null)
-				format.toString(sb);
-			if (original != null) {
-				sb.append(':');
-				originalToString(sb, false);
+		if (this == emptyVersion)
+			sb.append("0.0.0"); //$NON-NLS-1$
+		else {
+			sb.append(RAW_PREFIX);
+			VersionVector.toString(sb, vector, padValue, false);
+			if (format != null || original != null) {
+				sb.append('/');
+				if (format != null)
+					format.toString(sb);
+				if (original != null) {
+					sb.append(':');
+					originalToString(sb, false);
+				}
 			}
 		}
 	}
@@ -186,8 +219,8 @@ public class OmniVersion extends BasicVersion {
 		Version v = this;
 		if (equals(MAX_VERSION))
 			v = MAX_VERSION;
-		else if (equals(MIN_VERSION))
-			v = MIN_VERSION;
+		else if (equals(emptyVersion))
+			v = emptyVersion;
 		return v;
 	}
 

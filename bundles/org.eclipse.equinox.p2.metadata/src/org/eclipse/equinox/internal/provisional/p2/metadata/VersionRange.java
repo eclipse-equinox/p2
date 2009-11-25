@@ -32,7 +32,7 @@ public class VersionRange implements Serializable {
 	 *
 	 * An empty OSGi Version range.
 	 */
-	public static final VersionRange emptyRange = new VersionRange(Version.OSGi_MIN, true, Version.OSGi_MAX, true);
+	public static final VersionRange emptyRange = new VersionRange(Version.emptyVersion, true, Version.MAX_VERSION, true);
 
 	private final Version minVersion;
 	private final boolean includeMin;
@@ -71,26 +71,19 @@ public class VersionRange implements Serializable {
 	public VersionRange(Version minVersion, boolean includeMin, Version maxVersion, boolean includeMax) {
 		if (minVersion == null) {
 			if (maxVersion == null) {
-				// For backward compatibility with the OSGi version version range
-				minVersion = Version.OSGi_MIN;
-				maxVersion = Version.OSGi_MAX;
+				minVersion = Version.emptyVersion;
+				maxVersion = Version.MAX_VERSION;
 			} else
-				minVersion = maxVersion.getFormat() == VersionFormat.OSGI_FORMAT ? Version.OSGi_MIN : Version.MIN_VERSION;
+				minVersion = Version.emptyVersion;
 		} else {
 			if (maxVersion == null)
-				maxVersion = minVersion.getFormat() == VersionFormat.OSGI_FORMAT ? Version.OSGi_MAX : Version.MAX_VERSION;
+				maxVersion = Version.MAX_VERSION;
 			else {
 				if (minVersion != maxVersion && minVersion.equals(maxVersion))
 					maxVersion = minVersion;
 				else if (!(minVersion.getFormat() == null ? maxVersion.getFormat() == null : minVersion.getFormat().equals(maxVersion.getFormat()))) {
-					// We always allow the MIN and MAX boundaries but if the other end is OSGi, then they too must be OSGi
-					if (minVersion.equals(Version.MIN_VERSION)) {
-						if (maxVersion.getFormat() == VersionFormat.OSGI_FORMAT)
-							minVersion = Version.OSGi_MIN;
-					} else if (maxVersion.equals(Version.MAX_VERSION)) {
-						if (minVersion.getFormat() == VersionFormat.OSGI_FORMAT)
-							maxVersion = Version.OSGi_MAX;
-					} else
+					// We always allow the MIN and MAX boundaries
+					if (!(minVersion.equals(Version.emptyVersion) || maxVersion.equals(Version.MAX_VERSION)))
 						throw new IllegalArgumentException(NLS.bind(Messages.range_boundaries_0_and_1_cannot_have_different_formats, minVersion, maxVersion));
 				}
 			}
@@ -117,9 +110,9 @@ public class VersionRange implements Serializable {
 		}
 
 		if (pos >= top) {
-			minVersion = Version.OSGi_MIN;
+			minVersion = Version.emptyVersion;
 			includeMin = true;
-			maxVersion = Version.OSGi_MAX;
+			maxVersion = Version.MAX_VERSION;
 			includeMax = true;
 			return;
 		}
@@ -234,27 +227,14 @@ public class VersionRange implements Serializable {
 					}
 				}
 			}
-			BasicVersion minV = VersionFormat.parseRaw(minStr, fmt, origMin);
-
-			// We might have parsed the Version.MIN_VERSION. If so, replace it. The format is incorrect.
-			//
-			boolean isOSGi = (fmt == VersionFormat.OSGI_FORMAT);
-			boolean isMinMin = (minV.getSegmentCount() == 0 && minV.getPad() == null);
-			minVersion = isMinMin ? (isOSGi ? Version.OSGi_MIN : Version.MIN_VERSION) : minV;
-
+			minVersion = VersionFormat.parseRaw(minStr, fmt, origMin);
 			if (maxStr != null) {
 				if (maxStr.equals(minStr))
-					maxVersion = minV;
-				else {
-					BasicVersion maxV = VersionFormat.parseRaw(maxStr, fmt, origMax);
-
-					// We might have parsed the Version.MAX_VERSION. If so, replace it. The format is incorrect.
-					//
-					boolean isMaxMax = (maxV.getSegmentCount() == 0 && maxV.getPad() == VersionVector.MAX_VALUE);
-					maxVersion = isMaxMax ? (isOSGi ? Version.OSGi_MAX : Version.MAX_VERSION) : maxV;
-				}
+					maxVersion = minVersion;
+				else
+					maxVersion = VersionFormat.parseRaw(maxStr, fmt, origMax);
 			} else
-				maxVersion = (fmt == VersionFormat.OSGI_FORMAT ? Version.OSGi_MAX : Version.MAX_VERSION);
+				maxVersion = Version.MAX_VERSION;
 		} else {
 			if (fmt == null)
 				fmt = VersionFormat.OSGI_FORMAT;
@@ -265,7 +245,7 @@ public class VersionRange implements Serializable {
 				else
 					maxVersion = fmt.parse(maxStr);
 			} else {
-				maxVersion = (fmt == VersionFormat.OSGI_FORMAT) ? Version.OSGi_MAX : Version.MAX_VERSION;
+				maxVersion = Version.MAX_VERSION;
 			}
 		}
 		validateRange();
@@ -290,7 +270,7 @@ public class VersionRange implements Serializable {
 	 * Returns the version format.
 	 */
 	public IVersionFormat getFormat() {
-		return minVersion.equals(Version.MIN_VERSION) ? maxVersion.getFormat() : minVersion.getFormat();
+		return minVersion.equals(Version.emptyVersion) ? maxVersion.getFormat() : minVersion.getFormat();
 	}
 
 	/**
@@ -421,9 +401,15 @@ public class VersionRange implements Serializable {
 	}
 
 	public void toString(StringBuffer result) {
+		boolean gtEqual = includeMin && includeMax && Version.MAX_VERSION.equals(maxVersion);
+		if (gtEqual && Version.emptyVersion.equals(minVersion)) {
+			minVersion.toString(result);
+			return;
+		}
+
 		IVersionFormat fmt = getFormat();
 		if (fmt == VersionFormat.OSGI_FORMAT) {
-			if (includeMin && includeMax && Version.OSGi_MAX.equals(maxVersion)) {
+			if (gtEqual) {
 				minVersion.toString(result);
 			} else {
 				result.append(includeMin ? '[' : '(');
@@ -435,7 +421,6 @@ public class VersionRange implements Serializable {
 			return;
 		}
 
-		boolean gtEqual = includeMin && includeMax && Version.MAX_VERSION.equals(maxVersion);
 		result.append("raw:"); //$NON-NLS-1$
 		if (gtEqual) {
 			((BasicVersion) minVersion).rawToString(result, true);
@@ -456,7 +441,7 @@ public class VersionRange implements Serializable {
 				if (gtEqual) {
 					((BasicVersion) minVersion).originalToString(result, true);
 				} else {
-					if (Version.MIN_VERSION.equals(minVersion))
+					if (Version.emptyVersion.equals(minVersion))
 						((BasicVersion) minVersion).rawToString(result, true);
 					else
 						((BasicVersion) minVersion).originalToString(result, true);

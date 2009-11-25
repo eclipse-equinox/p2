@@ -19,16 +19,6 @@ package org.eclipse.equinox.internal.provisional.p2.metadata;
 public interface IVersionFormat {
 
 	/**
-	 * The string representation of the Omni Version format used for parsing OSGi versions.
-	 */
-	static final String OSGI_FORMAT_STRING = "n[.n=0;[.n=0;[.S='';=[A-Za-z0-9_-];]]]"; //$NON-NLS-1$
-
-	/**
-	 * The string representation of the Omni Version format used for parsing raw versions.
-	 */
-	static final String RAW_FORMAT_STRING = "r(.r)*p?"; //$NON-NLS-1$
-
-	/**
 	 * The string that by default will be interpreted as the logical max string when parsing
 	 * optional elements of type string and a default that is the empty string (i.e. OSGi)
 	 */

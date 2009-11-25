@@ -11,7 +11,9 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.VersionFormat;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 
 /**
  * Tests inclusion of original version range string in raw format.
@@ -43,6 +45,11 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 	public void testRawWithSimpleFormatToString() {
 		// range brackets are normalized in toString - not needed in original
 		assertEquals("raw:[1.0,2.0]/format(n.n):1.0,2.0", new VersionRange("raw:[1.0,2.0]/format(n.n):[1.0,2.0]").toString());
+	}
+
+	public void testSimpleFormatToString() {
+		// range brackets are normalized in toString - not needed in original
+		assertEquals("raw:[1.0,2.0]/format(n.n):1.0,2.0", new VersionRange("format(n.n):[1.0,2.0]").toString());
 	}
 
 	public void testRawWithSimpleFormatSerialized() {
@@ -162,7 +169,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 	}
 
 	public void testOSGiMinBoundary() {
-		String rangeString = "raw:[-M,2.1.0.'']/format(" + IVersionFormat.OSGI_FORMAT_STRING + "):-M,2.1.0";
+		String rangeString = "raw:[-M,2.1.0.'']/format(" + VersionFormat.OSGI_FORMAT_STRING + "):-M,2.1.0";
 		VersionRange range = new VersionRange(rangeString);
 
 		VersionRange range1 = new VersionRange("[0.0.0,2.1.0]");
@@ -205,7 +212,7 @@ public class RawRangeWithOriginalTest extends VersionTesting {
 	}
 
 	public void testOSGiMaxBoundary() {
-		String rangeString = "raw:[2.1.0.'',MpM]/format(" + IVersionFormat.OSGI_FORMAT_STRING + "):2.1.0,MpM";
+		String rangeString = "raw:[2.1.0.'',MpM]/format(" + VersionFormat.OSGI_FORMAT_STRING + "):2.1.0,MpM";
 		VersionRange range = new VersionRange(rangeString);
 
 		VersionRange range1 = new VersionRange("2.1.0");

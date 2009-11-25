@@ -73,7 +73,8 @@ public class JREAction extends AbstractPublisherAction {
 		String configId = "config." + iu.getId();//$NON-NLS-1$
 		cu.setId(configId);
 		cu.setVersion(iu.getVersion());
-		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, Version.OSGi_MAX, true), null, false, false)});
+		VersionRange range = iu.getVersion() == Version.emptyVersion ? VersionRange.emptyRange : new VersionRange(iu.getVersion(), true, Version.MAX_VERSION, true);
+		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, null, false, false)});
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configId, iu.getVersion())});
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);

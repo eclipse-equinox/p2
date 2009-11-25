@@ -126,29 +126,37 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		if (version.equals(Version.emptyVersion)) {
 			query = new PipedQuery(new IQuery[] {new InstallableUnitQuery(id), new LatestIUVersionQuery()});
 			collector = new Collector();
-		} else if (version.getQualifier() != null && version.getQualifier().endsWith(QUALIFIER)) {
-			final String v = versionString.substring(0, versionString.indexOf(QUALIFIER));
-			IQuery qualifierQuery = new InstallableUnitQuery(id) {
-				private String qualifierVersion = v.endsWith(".") ? v.substring(0, v.length() - 1) : v; //$NON-NLS-1$
-
-				public boolean isMatch(Object object) {
-					if (super.isMatch(object)) {
-						IInstallableUnit candidate = (IInstallableUnit) object;
-						return candidate.getVersion().toString().startsWith(qualifierVersion);
-					}
-					return false;
-				}
-			};
-			query = new PipedQuery(new IQuery[] {qualifierQuery, new LatestIUVersionQuery()});
-			collector = new Collector();
 		} else {
-			query = new InstallableUnitQuery(id, version);
-			collector = new Collector() {
-				public boolean accept(Object object) {
-					super.accept(object);
-					return false; //stop searching once we've found one
-				}
-			};
+			String qualifier;
+			try {
+				qualifier = Version.toOSGiVersion(version).getQualifier();
+			} catch (UnsupportedOperationException e) {
+				qualifier = null;
+			}
+			if (qualifier != null && qualifier.endsWith(QUALIFIER)) {
+				final String v = versionString.substring(0, versionString.indexOf(QUALIFIER));
+				IQuery qualifierQuery = new InstallableUnitQuery(id) {
+					private String qualifierVersion = v.endsWith(".") ? v.substring(0, v.length() - 1) : v; //$NON-NLS-1$
+
+					public boolean isMatch(Object object) {
+						if (super.isMatch(object)) {
+							IInstallableUnit candidate = (IInstallableUnit) object;
+							return candidate.getVersion().toString().startsWith(qualifierVersion);
+						}
+						return false;
+					}
+				};
+				query = new PipedQuery(new IQuery[] {qualifierQuery, new LatestIUVersionQuery()});
+				collector = new Collector();
+			} else {
+				query = new InstallableUnitQuery(id, version);
+				collector = new Collector() {
+					public boolean accept(Object object) {
+						super.accept(object);
+						return false; //stop searching once we've found one
+					}
+				};
+			}
 		}
 
 		collector = results.query(query, collector, null);
