@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.*;
  * user to approve them.
  * 
  * @since 2.0
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class AcceptLicensesWizardPage extends WizardPage {
 	private static final String DIALOG_SETTINGS_SECTION = "LicensessPage"; //$NON-NLS-1$

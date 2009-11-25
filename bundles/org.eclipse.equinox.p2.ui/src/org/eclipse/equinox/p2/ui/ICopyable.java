@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Control;
  * what should be copied.
  * 
  * @since 2.0
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface ICopyable {
 	/**
