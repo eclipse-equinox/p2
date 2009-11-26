@@ -46,7 +46,6 @@ public class ProvAdminUIMessages extends NLS {
 	public static String Ops_RemoveProfileOperationLabel;
 	public static String AddProfileDialog_OperationLabel;
 	public static String AddProfileDialog_DuplicateProfileID;
-	public static String ProvView_RefreshCommandLabel;
 	public static String ProvView_RefreshCommandTooltip;
 
 	public static String ProfileRootPropertyName;
