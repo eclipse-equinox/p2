@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import org.eclipse.equinox.p2.core.IAgentLocation;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -24,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 
 /**
  * Default implementation of {@link IArtifactRepositoryManager}.
@@ -47,6 +46,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 
 	public IArtifactRepository createRepository(URI location, String name, String type, Map properties) throws ProvisionException {
 		return (IArtifactRepository) doCreateRepository(location, name, type, properties);
+	}
+
+	public IArtifactRepository getRepository(URI location) {
+		return (IArtifactRepository) basicGetRepository(location);
 	}
 
 	protected IRepository factoryCreate(URI location, String name, String type, Map properties, IExtension extension) throws ProvisionException {
