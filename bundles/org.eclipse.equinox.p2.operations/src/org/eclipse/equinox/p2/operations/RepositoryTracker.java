@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
@@ -234,8 +235,16 @@ public abstract class RepositoryTracker {
 	 * @param location the location of the failed repository
 	 * @param status the status of the repository
 	 */
-	public void reportLoadFailure(final URI location, IStatus status) {
-		LogHelper.log(status);
+	public void reportLoadFailure(final URI location, ProvisionException e) {
+		// special handling when the repo location is bad.  We don't want to continually report it
+		int code = e.getStatus().getCode();
+		if (code == IStatusCodes.INVALID_REPOSITORY_LOCATION || code == ProvisionException.REPOSITORY_INVALID_LOCATION || code == ProvisionException.REPOSITORY_NOT_FOUND) {
+			if (hasNotFoundStatusBeenReported(location))
+				return;
+			addNotFound(location);
+		}
+
+		LogHelper.log(e.getStatus());
 	}
 
 	/**
