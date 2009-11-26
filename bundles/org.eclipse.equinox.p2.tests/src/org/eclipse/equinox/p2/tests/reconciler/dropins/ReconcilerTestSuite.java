@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
 import java.util.Enumeration;
 import java.util.Vector;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import junit.framework.*;
 
 public class ReconcilerTestSuite extends TestSuite {
 
@@ -71,4 +70,20 @@ public class ReconcilerTestSuite extends TestSuite {
 	public Test getCleanUpTest() {
 		return new AbstractReconcilerTest("cleanup");
 	}
+
+	/**
+	 * Runs the tests and collects their result in a TestResult.
+	 * 
+	 * We must override this method in order to run against JUnit4 which doesn't
+	 * invoke tests().
+	 */
+	public void run(TestResult result) {
+		for (Enumeration e = tests(); e.hasMoreElements();) {
+			Test each = (Test) e.nextElement();
+			if (result.shouldStop())
+				break;
+			runTest(each, result);
+		}
+	}
+
 }
