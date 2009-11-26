@@ -12,7 +12,7 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.util.EventObject;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
@@ -24,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
  * 
  * @since 3.5
  */
-public abstract class ProvUIProvisioningListener implements ProvisioningListener {
+public abstract class ProvUIProvisioningListener implements SynchronousProvisioningListener {
 
 	public static final int PROV_EVENT_METADATA_REPOSITORY = 0x0001;
 	public static final int PROV_EVENT_IU = 0x0002;
@@ -67,9 +67,9 @@ public abstract class ProvUIProvisioningListener implements ProvisioningListener
 			RepositoryEvent event = (RepositoryEvent) o;
 			// Do not handle unless this is the type of repo that we are interested in
 			if ((event.getRepositoryType() == IRepository.TYPE_METADATA && (eventTypes & PROV_EVENT_METADATA_REPOSITORY) == PROV_EVENT_METADATA_REPOSITORY) || (event.getRepositoryType() == IRepository.TYPE_ARTIFACT && (eventTypes & PROV_EVENT_ARTIFACT_REPOSITORY) == PROV_EVENT_ARTIFACT_REPOSITORY)) {
-				if (event.getKind() == RepositoryEvent.ADDED) {
+				if (event.getKind() == RepositoryEvent.ADDED && event.isRepositoryEnabled()) {
 					repositoryAdded(event);
-				} else if (event.getKind() == RepositoryEvent.REMOVED) {
+				} else if (event.getKind() == RepositoryEvent.REMOVED && event.isRepositoryEnabled()) {
 					repositoryRemoved(event);
 				} else if (event.getKind() == RepositoryEvent.DISCOVERED) {
 					repositoryDiscovered(event);

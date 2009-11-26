@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
@@ -34,10 +34,7 @@ public class QueryableArtifactRepositoryManager extends QueryableRepositoryManag
 	}
 
 	protected IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException {
-		if (manager instanceof IArtifactRepositoryManager) {
-			((IArtifactRepositoryManager) manager).loadRepository(location, monitor);
-		}
-		return null;
+		return ui.loadArtifactRepository(location, false, monitor);
 	}
 
 	/* (non-Javadoc)
@@ -45,5 +42,13 @@ public class QueryableArtifactRepositoryManager extends QueryableRepositoryManag
 	 */
 	protected int getRepositoryFlags(RepositoryTracker repositoryManipulator) {
 		return repositoryManipulator.getArtifactRepositoryFlags();
+	}
+
+	protected IRepository getRepository(IRepositoryManager manager, URI location) {
+		// note the use of ArtifactRepositoryManager (the concrete implementation).
+		if (manager instanceof ArtifactRepositoryManager) {
+			return ((ArtifactRepositoryManager) manager).getRepository(location);
+		}
+		return null;
 	}
 }

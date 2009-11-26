@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * A job that loads a set of metadata repositories and caches the loaded repositories.
@@ -96,30 +97,29 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	}
 
 	private IStatus doLoad(IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.LoadMetadataRepositoryJob_ContactSitesProgress, locations.length * 100);
-		if (sub.isCanceled())
-			return Status.CANCEL_STATUS;
-		for (int i = 0; i < locations.length; i++) {
+		ui.signalRepositoryOperationStart();
+		try {
+			SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.LoadMetadataRepositoryJob_ContactSitesProgress, locations.length * 100);
 			if (sub.isCanceled())
 				return Status.CANCEL_STATUS;
-			try {
-				repoCache.add(getSession().getMetadataRepositoryManager().loadRepository(locations[i], sub.newChild(100)));
-			} catch (ProvisionException e) {
-				handleLoadFailure(e, locations[i]);
+			for (int i = 0; i < locations.length; i++) {
+				if (sub.isCanceled())
+					return Status.CANCEL_STATUS;
+				try {
+					repoCache.add(ui.getSession().getMetadataRepositoryManager().loadRepository(locations[i], sub.newChild(100)));
+				} catch (ProvisionException e) {
+					handleLoadFailure(e, locations[i]);
+				}
 			}
+		} finally {
+			// we only want to update the UI if this was a user visible
+			// job
+			ui.signalRepositoryOperationComplete(null, isUser());
 		}
 		return getCurrentStatus();
 	}
 
 	private void handleLoadFailure(ProvisionException e, URI location) {
-		int code = e.getStatus().getCode();
-		// special handling when the repo location is bad.  We don't want to continually report it
-		if (code == ProvisionException.REPOSITORY_NOT_FOUND || code == ProvisionException.REPOSITORY_INVALID_LOCATION) {
-			if (tracker.hasNotFoundStatusBeenReported(location))
-				return;
-			tracker.addNotFound(location);
-		}
-
 		if (shouldAccumulateFailures()) {
 			// Some ProvisionExceptions include an empty multi status with a message.  
 			// Since empty multi statuses have a severity OK, The platform status handler doesn't handle
@@ -133,10 +133,11 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 			} else {
 				accumulatedStatus.add(status);
 			}
+			ui.getRepositoryTracker().addNotFound(location);
 			// Always log the complete exception so the detailed stack trace is in the log.  
 			LogHelper.log(e);
 		} else {
-			tracker.reportLoadFailure(location, getErrorStatus(null, e));
+			tracker.reportLoadFailure(location, e);
 		}
 	}
 
@@ -154,7 +155,10 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 		if (status.isOK() || status.getSeverity() == IStatus.CANCEL)
 			return;
 		// report status
-		tracker.reportLoadFailure(null, status);
+		int flags = StatusManager.LOG;
+		if (ui.getPolicy().getRepositoriesVisible())
+			flags = flags | StatusManager.SHOW;
+		StatusManager.getManager().handle(status, flags);
 		// Reset the accumulated status so that next time we only report the newly not found repos.
 		accumulatedStatus = null;
 	}

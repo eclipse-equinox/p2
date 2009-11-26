@@ -22,10 +22,9 @@ import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
- * An object that provides specific/optimized query support for a specified
+ * An object that provides query support for a specified
  * set of repositories.  The repository tracker flags determine which repositories
  * are included in the query.  Callers interested in only the resulting repository URIs
  * should specify a {@link RepositoryLocationQuery}, in which case the 
@@ -33,24 +32,15 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * the query is performed over the repositories themselves.
  */
 public abstract class QueryableRepositoryManager implements IQueryable {
-	/**
-	 * List<URI> of locations of repositories that were not found
-	 */
-	private ArrayList notFound = new ArrayList();
-
-	/**
-	 * Map<URI,IRepository> of loaded repositories.
-	 */
-	private HashMap loaded = new HashMap();
-
-	private MultiStatus accumulatedNotFound = null;
 	private ProvisioningSession session;
 	protected boolean includeDisabledRepos;
 	protected RepositoryTracker tracker;
 	protected int repositoryFlags;
+	protected ProvisioningUI ui;
 
 	public QueryableRepositoryManager(ProvisioningUI ui, boolean includeDisabledRepos) {
 		this.includeDisabledRepos = includeDisabledRepos;
+		this.ui = ui;
 		this.tracker = ui.getRepositoryTracker();
 		this.session = ui.getSession();
 		repositoryFlags = getRepositoryFlags(tracker);
@@ -82,32 +72,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		query(getRepoLocations(manager), query, result, monitor);
-		reportAccumulatedStatus();
 		return result;
-	}
-
-	/**
-	 * Load all of the repositories referenced by this queryable.  This is an expensive operation.
-	 * The status of any not found repositories is accumulated and must be reported manually
-	 * using reportAccumulatedStatus()
-	 * 
-	 * @param monitor the progress monitor that should be used
-	 */
-	public void loadAll(IProgressMonitor monitor) {
-		IRepositoryManager manager = getRepositoryManager();
-		URI[] repoLocations = getRepoLocations(manager);
-		SubMonitor sub = SubMonitor.convert(monitor, repoLocations.length * 100);
-		if (sub.isCanceled())
-			return;
-		for (int i = 0; i < repoLocations.length; i++) {
-			if (sub.isCanceled())
-				return;
-			try {
-				loadRepository(manager, repoLocations[i], sub.newChild(100));
-			} catch (ProvisionException e) {
-				handleLoadFailure(e, repoLocations[i]);
-			}
-		}
 	}
 
 	protected URI[] getRepoLocations(IRepositoryManager manager) {
@@ -117,55 +82,6 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | repositoryFlags)));
 		}
 		return (URI[]) locations.toArray(new URI[locations.size()]);
-	}
-
-	protected void handleLoadFailure(ProvisionException e, URI problemRepo) {
-		int code = e.getStatus().getCode();
-		// special handling when the repo is bad.  We don't want to continually report it
-		if (code == ProvisionException.REPOSITORY_NOT_FOUND || code == ProvisionException.REPOSITORY_INVALID_LOCATION) {
-			// If we thought we had loaded it, get rid of the reference
-			loaded.remove(problemRepo);
-			// If we've already reported a URL is not found, don't report again.
-			if (notFound.contains(problemRepo))
-				return;
-			// If someone else reported a URL is not found, don't report again.
-			if (tracker.hasNotFoundStatusBeenReported(problemRepo)) {
-				notFound.add(problemRepo);
-				return;
-			}
-			notFound.add(problemRepo);
-			tracker.addNotFound(problemRepo);
-		}
-
-		// Some ProvisionExceptions include an empty multi status with a message.  
-		// Since empty multi statuses have a severity OK, The platform status handler doesn't handle
-		// this well.  We correct this by recreating a status with error severity
-		// so that the platform status handler does the right thing.
-		IStatus status = e.getStatus();
-		if (status instanceof MultiStatus && ((MultiStatus) status).getChildren().length == 0)
-			status = new Status(IStatus.ERROR, status.getPlugin(), status.getCode(), status.getMessage(), status.getException());
-		if (accumulatedNotFound == null) {
-			accumulatedNotFound = new MultiStatus(ProvUIActivator.PLUGIN_ID, ProvisionException.REPOSITORY_NOT_FOUND, new IStatus[] {status}, ProvUIMessages.QueryableMetadataRepositoryManager_MultipleRepositoriesNotFound, null);
-		} else {
-			accumulatedNotFound.add(status);
-		}
-		// Always log the complete exception so the detailed stack trace is in the log.  
-		ProvUI.handleException(e, NLS.bind(ProvUIMessages.QueryableRepositoryManager_LoadFailure, problemRepo), StatusManager.LOG);
-
-	}
-
-	public void reportAccumulatedStatus() {
-		// If we've discovered not found repos we didn't know about, report them
-		if (accumulatedNotFound != null) {
-			// If there is only missing repo to report, use the specific message rather than the generic.
-			if (accumulatedNotFound.getChildren().length == 1) {
-				ProvUI.reportStatus(accumulatedNotFound.getChildren()[0], StatusManager.SHOW);
-			} else {
-				ProvUI.reportStatus(accumulatedNotFound, StatusManager.SHOW);
-			}
-		}
-		// Reset the accumulated status so that next time we only report the newly not found repos.
-		accumulatedNotFound = null;
 	}
 
 	/**
@@ -192,11 +108,11 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 		return true;
 	}
 
+	protected abstract IRepository getRepository(IRepositoryManager manager, URI location);
+
 	protected IRepository loadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException {
 		monitor.setTaskName(NLS.bind(ProvUIMessages.QueryableMetadataRepositoryManager_LoadRepositoryProgress, URIUtil.toUnencodedString(location)));
 		IRepository repo = doLoadRepository(manager, location, monitor);
-		if (repo != null)
-			loaded.put(location, repo);
 		return repo;
 	}
 
@@ -211,20 +127,6 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 * manipulator.
 	 */
 	protected abstract int getRepositoryFlags(RepositoryTracker repositoryManipulator);
-
-	/**
-	 * Get an already-loaded repository at the specified location.
-	 * 
-	 * @param manager the manager
-	 * @param location the repository location
-	 * @return the repository at that location, or <code>null</code> if no repository is
-	 * yet located at that location.
-	 */
-	protected IRepository getRepository(IRepositoryManager manager, URI location) {
-		// This is only used by the artifact mgr subclass.
-		// MetadataRepositoryManager has a method for getting its cached repo instance
-		return (IRepository) loaded.get(location);
-	}
 
 	/**
 	 * Load the repository located at the specified location.
@@ -249,7 +151,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 				try {
 					repo = loadRepository(getRepositoryManager(), uris[i], sub.newChild(100));
 				} catch (ProvisionException e) {
-					handleLoadFailure(e, uris[i]);
+					tracker.reportLoadFailure(uris[i], e);
 				} catch (OperationCanceledException e) {
 					// user has canceled
 					repo = null;

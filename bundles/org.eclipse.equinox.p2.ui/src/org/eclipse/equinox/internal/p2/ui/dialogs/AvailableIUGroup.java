@@ -355,7 +355,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		Job job = new Job(NLS.bind(ProvUIMessages.AvailableIUGroup_LoadingRepository, URIUtil.toUnencodedString(location))) {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					getProvisioningUI().loadMetadataRepository(location, monitor);
+					getProvisioningUI().loadMetadataRepository(location, true, monitor);
 					return Status.OK_STATUS;
 				} catch (ProvisionException e) {
 					return e.getStatus();

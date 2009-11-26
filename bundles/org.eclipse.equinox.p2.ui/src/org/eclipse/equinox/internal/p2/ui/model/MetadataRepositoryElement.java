@@ -71,7 +71,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			//only invoke super if we successfully loaded the repository
 			return super.fetchChildren(o, sub.newChild(100));
 		} catch (ProvisionException e) {
-			getProvisioningUI().getRepositoryTracker().reportLoadFailure(location, e.getStatus());
+			getProvisioningUI().getRepositoryTracker().reportLoadFailure(location, e);
 			// TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=276784
 			return new Object[] {new EmptyElementExplanation(this, IStatus.ERROR, e.getLocalizedMessage(), "")}; //$NON-NLS-1$
 		}
@@ -108,14 +108,15 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		try {
 			return getMetadataRepository(monitor);
 		} catch (ProvisionException e) {
-			getProvisioningUI().getRepositoryTracker().reportLoadFailure(location, e.getStatus());
+			getProvisioningUI().getRepositoryTracker().reportLoadFailure(location, e);
 		}
 		return null;
 	}
 
 	private IMetadataRepository getMetadataRepository(IProgressMonitor monitor) throws ProvisionException {
-		if (queryable == null)
-			queryable = getProvisioningUI().getSession().getMetadataRepositoryManager().loadRepository(location, monitor);
+		if (queryable == null) {
+			queryable = getProvisioningUI().loadMetadataRepository(location, false, monitor);
+		}
 		return (IMetadataRepository) queryable;
 
 	}

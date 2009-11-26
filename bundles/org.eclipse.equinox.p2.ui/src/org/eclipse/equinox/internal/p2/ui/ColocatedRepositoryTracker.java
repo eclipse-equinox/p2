@@ -12,11 +12,19 @@ package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URI;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.dialogs.RepositoryNameAndLocationDialog;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.repository.*;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.window.Window;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Provides a repository tracker that interprets URLs as colocated
@@ -100,5 +108,57 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		// We have no idea how many repos may have been added/removed as a result of 
 		// refreshing these, this one, so we do not use a specific repository event to represent it.
 		ui.signalRepositoryOperationComplete(null, true);
+	}
+
+	public void reportLoadFailure(final URI location, ProvisionException e) {
+		int code = e.getStatus().getCode();
+		// If the user doesn't have a way to manage repositories, then don't report failures.
+		if (!ui.getPolicy().getRepositoriesVisible()) {
+			super.reportLoadFailure(location, e);
+			return;
+		}
+
+		// Special handling when the location is bad (not found, etc.) vs. a failure
+		// associated with a known repo.
+		if (code == ProvisionException.REPOSITORY_NOT_FOUND || code == ProvisionException.REPOSITORY_INVALID_LOCATION) {
+			if (!hasNotFoundStatusBeenReported(location)) {
+				addNotFound(location);
+				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						IWorkbench workbench = PlatformUI.getWorkbench();
+						if (workbench.isClosing())
+							return;
+						Shell shell = ProvUI.getDefaultParentShell();
+						if (MessageDialog.openQuestion(shell, ProvUIMessages.ColocatedRepositoryTracker_SiteNotFoundTitle, NLS.bind(ProvUIMessages.ColocatedRepositoryTracker_PromptForSiteLocationEdit, URIUtil.toUnencodedString(location)))) {
+							RepositoryNameAndLocationDialog dialog = new RepositoryNameAndLocationDialog(shell, ui) {
+								protected String getInitialLocationText() {
+									return URIUtil.toUnencodedString(location);
+								}
+
+								protected String getInitialNameText() {
+									String nickname = ui.getSession().getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+									return nickname == null ? "" : nickname; //$NON-NLS-1$
+								}
+							};
+							int ret = dialog.open();
+							if (ret == Window.OK) {
+								URI correctedLocation = dialog.getLocation();
+								if (correctedLocation != null) {
+									ui.signalRepositoryOperationStart();
+									try {
+										removeRepositories(new URI[] {location}, ui.getSession());
+										addRepository(correctedLocation, dialog.getName(), ui.getSession());
+									} finally {
+										ui.signalRepositoryOperationComplete(null, true);
+									}
+								}
+							}
+						}
+					}
+				});
+			}
+		} else {
+			ProvUI.handleException(e, null, StatusManager.SHOW | StatusManager.LOG);
+		}
 	}
 }

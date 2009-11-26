@@ -282,6 +282,10 @@ public class ProvisioningUI {
 					return page.getControl();
 				}
 
+				protected boolean isResizable() {
+					return true;
+				}
+
 				protected void okPressed() {
 					if (page.performOk())
 						super.okPressed();
@@ -378,13 +382,14 @@ public class ProvisioningUI {
 	 * before loading, and a repository operation complete event after loading.
 	 * 
 	 * @param location the location of the repository
+	 * @param notify <code>true</code> if the UI should be updated as a result of the load, <code>false</code> if it should not
 	 * @param monitor the progress monitor to be used
 	 * @return the repository
 	 * @throws ProvisionException if the repository could not be loaded
 	 */
 
-	public IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		IMetadataRepository repo;
+	public IMetadataRepository loadMetadataRepository(URI location, boolean notify, IProgressMonitor monitor) throws ProvisionException {
+		IMetadataRepository repo = null;
 		try {
 			signalRepositoryOperationStart();
 			repo = session.getMetadataRepositoryManager().loadRepository(location, monitor);
@@ -396,12 +401,14 @@ public class ProvisioningUI {
 				if (name != null && name.length() > 0)
 					session.getMetadataRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 			}
+		} catch (ProvisionException e) {
+			getRepositoryTracker().reportLoadFailure(location, e);
 		} finally {
 			// We have no idea how many repos may have been touched as a result of loading this one,
 			// so in theory we would not use a specific repository event to represent it.  
 			// In practice this can cause problems in the UI like losing selections in the repo combo.
 			// So we signal an add event.
-			signalRepositoryOperationComplete(new RepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true), true);
+			signalRepositoryOperationComplete(new RepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true), notify);
 		}
 		return repo;
 	}
@@ -411,12 +418,13 @@ public class ProvisioningUI {
 	 * before loading, and a repository operation complete event after loading.
 	 * 
 	 * @param location the location of the repository
+	 * @param notify <code>true</code> if the UI should be updated as a result of the load, <code>false</code> if it should not
 	 * @param monitor the progress monitor to be used
 	 * @return the repository
 	 * @throws ProvisionException if the repository could not be loaded
 	 */
 
-	public IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public IArtifactRepository loadArtifactRepository(URI location, boolean update, IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepository repo;
 		signalRepositoryOperationStart();
 		try {
@@ -433,7 +441,7 @@ public class ProvisioningUI {
 		} finally {
 			// We have no idea how many repos may have been touched as a result of loading this one,
 			// so we do not use a specific repository event to represent it.
-			signalRepositoryOperationComplete(null, true);
+			signalRepositoryOperationComplete(null, update);
 		}
 		return repo;
 	}

@@ -14,7 +14,6 @@ import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
@@ -34,7 +33,7 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 		if (manager instanceof MetadataRepositoryManager) {
 			return ((MetadataRepositoryManager) manager).getRepository(location);
 		}
-		return super.getRepository(manager, location);
+		return null;
 	}
 
 	protected IRepositoryManager getRepositoryManager() {
@@ -42,10 +41,7 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 	}
 
 	protected IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException {
-		if (manager instanceof IMetadataRepositoryManager) {
-			((IMetadataRepositoryManager) manager).loadRepository(location, monitor);
-		}
-		return null;
+		return ui.loadMetadataRepository(location, false, monitor);
 	}
 
 	/* (non-Javadoc)

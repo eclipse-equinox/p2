@@ -11,13 +11,12 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.*;
-import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.QueryableMetadataRepositoryManager;
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
+import org.eclipse.equinox.internal.p2.ui.model.RootElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IInputChangeListener;
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -38,7 +37,6 @@ import org.eclipse.ui.progress.WorkbenchJob;
  */
 public class DelayedFilterCheckboxTree extends FilteredTree {
 
-	private static final String LOAD_JOB_NAME = ProvUIMessages.DeferredFetchFilteredTree_RetrievingList;
 	private static final long FILTER_DELAY = 400;
 
 	ToolBar toolBar;
@@ -218,22 +216,12 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	void scheduleLoadJob() {
 		if (loadJob != null)
 			return;
-		loadJob = new Job(LOAD_JOB_NAME) {
-			protected IStatus run(IProgressMonitor monitor) {
-				QueryableMetadataRepositoryManager q = null;
-				if (viewerInput instanceof QueryableMetadataRepositoryManager)
-					q = (QueryableMetadataRepositoryManager) viewerInput;
-				else if (viewerInput instanceof QueriedElement && ((QueriedElement) viewerInput).getQueryable() instanceof QueryableMetadataRepositoryManager)
-					q = (QueryableMetadataRepositoryManager) ((QueriedElement) viewerInput).getQueryable();
-				if (q != null) {
-					q.loadAll(monitor);
-					q.reportAccumulatedStatus();
-				}
-				if (monitor.isCanceled())
-					return Status.CANCEL_STATUS;
-				return Status.OK_STATUS;
-			}
-		};
+		ProvisioningUI ui;
+		if (viewerInput instanceof RootElement)
+			ui = ((RootElement) viewerInput).getProvisioningUI();
+		else
+			ui = ProvisioningUI.getDefaultUI();
+		loadJob = new LoadMetadataRepositoryJob(ui);
 		loadJob.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
 				if (event.getResult().isOK()) {

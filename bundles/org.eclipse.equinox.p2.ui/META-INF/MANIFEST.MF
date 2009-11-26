@@ -8,6 +8,7 @@ Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.ui.ProvUIActivator
 Import-Package: com.ibm.icu.text,
  javax.xml.parsers,
+ org.eclipse.equinox.internal.p2.artifact.repository,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.metadata,
  org.eclipse.equinox.internal.p2.metadata.repository,

@@ -119,7 +119,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		}
 
 		public void fetchDeferredChildren(Object o, IElementCollector collector, IProgressMonitor monitor) {
-			if (cachedElements == null) {
+			if (cachedElements == null || cachedElements.isEmpty()) {
 				super.fetchDeferredChildren(o, collector, monitor);
 				// now we know we have children
 				Object[] children = getChildren(o);
@@ -281,12 +281,14 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 					} else {
 						return;
 					}
-					changed = true;
-					repo.setNickname(value.toString());
-					if (comparator.getSortKey() == RepositoryDetailsLabelProvider.COL_NAME)
-						repositoryViewer.refresh(true);
-					else
-						repositoryViewer.update(repo, null);
+					if (!value.toString().equals(repo.getName())) {
+						changed = true;
+						repo.setNickname(value.toString());
+						if (comparator.getSortKey() == RepositoryDetailsLabelProvider.COL_NAME)
+							repositoryViewer.refresh(true);
+						else
+							repositoryViewer.update(repo, null);
+					}
 				}
 			}
 
@@ -623,8 +625,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		MetadataRepositoryElement[] selected = getSelectedElements();
 		if (selected.length >= 1) {
 			boolean enableSites = !toggleMeansDisable(selected);
-			for (int i = 0; i < selected.length; i++)
+			for (int i = 0; i < selected.length; i++) {
 				selected[i].setEnabled(enableSites);
+				input.cachedElements.put(URIUtil.toUnencodedString(selected[i].getLocation()), selected[i]);
+			}
 			if (comparator.getSortKey() == RepositoryDetailsLabelProvider.COL_ENABLEMENT)
 				repositoryViewer.refresh(true);
 			else
