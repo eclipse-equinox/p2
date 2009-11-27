@@ -10,16 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.viewers.ProvElementContentProvider;
-
-import org.eclipse.equinox.p2.ui.RevertProfilePage;
-
-import org.eclipse.equinox.internal.p2.ui.ProvUI;
-
 import java.lang.reflect.Field;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.viewers.ProvElementContentProvider;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
+import org.eclipse.equinox.p2.ui.RevertProfilePage;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.AbstractTableViewer;
 import org.eclipse.swt.SWT;

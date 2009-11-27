@@ -14,8 +14,8 @@ package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 import java.io.File;
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 

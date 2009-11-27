@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.actions;
 
-import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
-
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 

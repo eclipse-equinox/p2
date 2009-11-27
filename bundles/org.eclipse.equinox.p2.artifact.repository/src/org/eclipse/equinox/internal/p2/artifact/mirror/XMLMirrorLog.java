@@ -15,7 +15,7 @@ import java.util.Date;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public class XMLMirrorLog implements IArtifactMirrorLog {
 	private static final String DEFAULT_FORMAT = "canonical"; //$NON-NLS-1$

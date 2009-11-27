@@ -15,8 +15,8 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 public class UpdateSiteMetadataRepository implements IMetadataRepository {
 

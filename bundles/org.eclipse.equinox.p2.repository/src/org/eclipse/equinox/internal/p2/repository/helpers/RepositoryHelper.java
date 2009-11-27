@@ -15,7 +15,7 @@ import java.io.File;
 import java.net.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.repository.Activator;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class RepositoryHelper {

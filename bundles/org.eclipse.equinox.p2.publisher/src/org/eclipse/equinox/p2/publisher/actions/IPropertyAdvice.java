@@ -11,10 +11,10 @@
 package org.eclipse.equinox.p2.publisher.actions;
 
 import java.util.Properties;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public interface IPropertyAdvice extends IPublisherAdvice {
 

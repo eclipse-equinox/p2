@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.internal.repository.tools;
 
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class RepositoryDescriptor {

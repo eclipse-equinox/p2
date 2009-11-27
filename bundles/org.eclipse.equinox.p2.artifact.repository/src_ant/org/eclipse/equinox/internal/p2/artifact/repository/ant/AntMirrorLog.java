@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.mirror.IArtifactMirrorLog;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public class AntMirrorLog implements IArtifactMirrorLog {
 

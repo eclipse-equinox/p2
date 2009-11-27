@@ -26,16 +26,17 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.p2.repository.Transport;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleArtifactRepository extends AbstractArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
@@ -980,12 +981,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (monitor != null && monitor.isCanceled())
 			return collector;
 
-		boolean acceptKeys = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_KEYS));
-		boolean acceptDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_DESCRIPTORS));
-		if (!acceptKeys && !acceptDescriptors)
+		boolean excludeKeys = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_KEYS));
+		boolean excludeDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_DESCRIPTORS));
+		if (excludeKeys && excludeDescriptors)
 			return collector;
 
-		Iterator iterator = acceptDescriptors ? new MappedCollectionIterator(artifactMap, acceptKeys) : artifactMap.keySet().iterator();
+		Iterator iterator = !excludeDescriptors ? new MappedCollectionIterator(artifactMap, !excludeKeys) : artifactMap.keySet().iterator();
 		return query.perform(iterator, collector);
 	}
 }

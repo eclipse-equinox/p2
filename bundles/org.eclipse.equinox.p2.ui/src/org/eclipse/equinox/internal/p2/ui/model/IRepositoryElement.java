@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
  * Interface for elements that represent repositories.

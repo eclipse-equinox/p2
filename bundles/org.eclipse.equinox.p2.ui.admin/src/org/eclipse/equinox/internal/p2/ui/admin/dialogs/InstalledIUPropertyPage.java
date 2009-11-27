@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
-
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;

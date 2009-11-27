@@ -10,6 +10,8 @@
 package org.eclipse.equinox.internal.provisional.p2.artifact.repository;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 public interface IArtifactComparator {
 

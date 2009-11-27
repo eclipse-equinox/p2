@@ -8,7 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.repository;
+package org.eclipse.equinox.p2.repository;
 
 import java.net.URI;
 import java.util.List;

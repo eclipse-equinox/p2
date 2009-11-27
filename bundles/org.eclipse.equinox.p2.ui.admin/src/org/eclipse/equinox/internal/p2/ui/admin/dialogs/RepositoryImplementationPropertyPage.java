@@ -10,14 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.model.IRepositoryElement;
-
-import org.eclipse.equinox.internal.p2.ui.ProvUI;
-
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.util.Map;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.IRepositoryElement;
+import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;

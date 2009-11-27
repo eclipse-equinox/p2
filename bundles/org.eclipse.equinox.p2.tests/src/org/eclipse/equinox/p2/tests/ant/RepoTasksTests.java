@@ -12,11 +12,11 @@ package org.eclipse.equinox.p2.tests.ant;
 
 import java.io.File;
 import java.net.URI;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactKeyQuery;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractAntProvisioningTest;
 
 public class RepoTasksTests extends AbstractAntProvisioningTest {

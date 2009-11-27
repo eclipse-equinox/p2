@@ -18,7 +18,9 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.pack200.Pack200ProcessorStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.jarprocessor.PackStep;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.p2.repository.artifact.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class ProcessingStepHandlerTest extends TestCase {

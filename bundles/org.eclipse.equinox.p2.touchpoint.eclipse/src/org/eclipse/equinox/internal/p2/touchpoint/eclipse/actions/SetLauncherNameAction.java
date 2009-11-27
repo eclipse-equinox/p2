@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
-import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -18,6 +16,7 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 
 public class SetLauncherNameAction extends ProvisioningAction {
 	public static final String ID = "setLauncherName"; //$NON-NLS-1$

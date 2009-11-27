@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.artifact.mirror;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public interface IArtifactMirrorLog {
 

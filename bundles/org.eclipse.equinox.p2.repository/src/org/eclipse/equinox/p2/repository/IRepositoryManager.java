@@ -8,10 +8,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.repository;
+package org.eclipse.equinox.p2.repository;
 
 import java.net.URI;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 
 /**
  * The common base class for metadata and artifact repository managers.

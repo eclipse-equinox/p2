@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.query;
 
 import org.eclipse.equinox.internal.p2.ui.model.ArtifactElement;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
  * Wrapper that accepts artifact keys and wraps them in an ArtifactKeyElement.

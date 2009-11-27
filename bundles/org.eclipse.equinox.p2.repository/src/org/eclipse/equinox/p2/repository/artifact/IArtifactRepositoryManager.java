@@ -8,7 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.artifact.repository;
+package org.eclipse.equinox.p2.repository.artifact;
+
 
 import java.net.URI;
 import java.util.Map;
@@ -16,7 +17,7 @@ import java.util.Properties;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 
 /**
  * A metadata repository manager is used to create, access, and manipulate

@@ -12,11 +12,11 @@ package org.eclipse.equinox.internal.p2.extensionlocation;
 
 import java.io.File;
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactKeyQuery;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 
 public class BundlePoolFilteredListener extends DirectoryChangeListener {
 

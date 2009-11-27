@@ -14,8 +14,8 @@ package org.eclipse.equinox.internal.p2.ui;
 import java.util.EventObject;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
  * ProvisioningListener which handles event batching and other

@@ -12,10 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
-import org.eclipse.equinox.p2.engine.IEngine;
-
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,15 +22,19 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.console.ProvisioningHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
@@ -172,6 +172,14 @@ public class Application implements IApplication {
 				missingArgument("artifactRepository"); //$NON-NLS-1$
 		} else {
 			artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+			if (artifactManager == null) {
+				IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.SERVICE_CURRENT);
+				if (agent == null) {
+					IProvisioningAgentProvider provider = (IProvisioningAgentProvider) ServiceHelper.getService(Activator.getContext(), IProvisioningAgentProvider.SERVICE_NAME);
+					agent = provider.createAgent(null);
+				}
+				artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);;
+			}
 			if (artifactManager == null) {
 				if (throwException)
 					throw new ProvisionException(Messages.Application_NoManager);

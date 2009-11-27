@@ -9,9 +9,8 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.equinox.internal.provisional.p2.artifact.repository;
+package org.eclipse.equinox.p2.repository.artifact;
 
-import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
@@ -19,13 +18,13 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 /**
  * An IArtifactQuery returning matching IArtifactKey objects.
  */
-public class ArtifactKeyQuery extends MatchQuery implements IArtifactQuery {
+public class ArtifactKeyQuery extends MatchQuery {
 	public static final ArtifactKeyQuery ALL_KEYS = new ArtifactKeyQuery();
 
 	private String id;
 	private String classifier;
 	private VersionRange range;
-	private ArtifactKey artifactKey;
+	private IArtifactKey artifactKey;
 
 	/**
 	 * Pass the id and/or version range to match IArtifactKeys against.
@@ -44,7 +43,7 @@ public class ArtifactKeyQuery extends MatchQuery implements IArtifactQuery {
 	}
 
 	public ArtifactKeyQuery(IArtifactKey key) {
-		this.artifactKey = (key.getClass() == ArtifactKey.class) ? (ArtifactKey) key : new ArtifactKey(key);
+		this.artifactKey = key;
 	}
 
 	public boolean isMatch(Object candidate) {
@@ -69,17 +68,16 @@ public class ArtifactKeyQuery extends MatchQuery implements IArtifactQuery {
 	}
 
 	protected boolean matchKey(IArtifactKey candidate) {
-		ArtifactKey candidateKey = (candidate.getClass() == ArtifactKey.class) ? (ArtifactKey) candidate : new ArtifactKey(candidate);
-		return artifactKey.equals(candidateKey);
+		return artifactKey.equals(candidate);
 	}
 
 	// We are interested in IArtifactKey objects
-	public Boolean getAcceptArtifactKeys() {
-		return Boolean.TRUE;
+	public Boolean getExcludeArtifactKeys() {
+		return Boolean.FALSE;
 	}
 
 	// We are not interested in IArtifactDescriptor objects
-	public Boolean getAcceptArtifactDescriptors() {
-		return Boolean.FALSE;
+	public Boolean getExcludeArtifactDescriptors() {
+		return Boolean.TRUE;
 	}
 }

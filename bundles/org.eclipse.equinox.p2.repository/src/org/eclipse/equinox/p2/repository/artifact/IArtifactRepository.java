@@ -8,15 +8,15 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.artifact.repository;
+package org.eclipse.equinox.p2.repository.artifact;
 
 import java.io.OutputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
  * A repository containing artifacts.
@@ -28,6 +28,18 @@ import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.Abstr
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IArtifactRepository extends IRepository {
+
+	/**
+	 * See {@link IQuery#getProperty(String)}.  A query should implement "getExcludeArtifactKeys" returning
+	 * Boolean.TRUE to indicate that it is not interested in IArtifactKeys
+	 */
+	public static final String QUERY_EXCLUDE_KEYS = "ExcludeArtifactKeys"; //$NON-NLS-1$
+
+	/**
+	 * See {@link IQuery#getProperty(String)}.  A query should implement "getExcludeArtifactDescriptors" returning
+	 * Boolean.TRUE to indicate that it is not interested in IArtifactKeys
+	 */
+	public static final String QUERY_EXCLUDE_DESCRIPTORS = "ExcludeArtifactDescriptors"; //$NON-NLS-1$
 
 	/** 
 	 * The return code to use when a client could/should retry a failed getArtifact() operation.

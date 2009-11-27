@@ -9,15 +9,16 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.equinox.internal.provisional.p2.artifact.repository;
+package org.eclipse.equinox.p2.repository.artifact;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 /**
  * An implementation of IArtifactQuery that matches IArtifactDescriptors
  */
-public class ArtifactDescriptorQuery extends MatchQuery implements IArtifactQuery {
+public class ArtifactDescriptorQuery extends MatchQuery {
 	public static final ArtifactDescriptorQuery ALL_DESCRIPTORS = new ArtifactDescriptorQuery();
 	private VersionRange range = null;
 	private String id = null;
@@ -92,11 +93,11 @@ public class ArtifactDescriptorQuery extends MatchQuery implements IArtifactQuer
 		return descriptor.equals(candidateDescriptor);
 	}
 
-	public Boolean getAcceptArtifactDescriptors() {
-		return Boolean.TRUE;
+	public Boolean getExcludeArtifactDescriptors() {
+		return Boolean.FALSE;
 	}
 
-	public Boolean getAcceptArtifactKeys() {
-		return Boolean.FALSE;
+	public Boolean getExcludeArtifactKeys() {
+		return Boolean.TRUE;
 	}
 }

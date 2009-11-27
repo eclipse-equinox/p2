@@ -15,8 +15,8 @@ import java.net.URI;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.QueryHelpers;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
  * RepositoryLocationQuery is a query that gathers repository

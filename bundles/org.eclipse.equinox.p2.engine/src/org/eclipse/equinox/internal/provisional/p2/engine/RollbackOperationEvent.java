@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
-import org.eclipse.equinox.p2.engine.IEngine;
-
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 public class RollbackOperationEvent extends TransactionEvent {
 

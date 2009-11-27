@@ -14,11 +14,12 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 public class CachingArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
 
@@ -238,14 +239,14 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		if (monitor != null && monitor.isCanceled())
 			return collector;
 
-		final boolean acceptKeys = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_KEYS));
-		final boolean acceptDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_DESCRIPTORS));
-		if (!acceptKeys && !acceptDescriptors)
+		final boolean excludeKeys = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_KEYS));
+		final boolean excludeDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_DESCRIPTORS));
+		if (excludeKeys && excludeDescriptors)
 			return collector;
 
 		IQueryable cached = new IQueryable() {
 			public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-				Iterator i = acceptDescriptors ? new MappedCollectionIterator(artifactMap, acceptKeys) : artifactMap.keySet().iterator();
+				Iterator i = !excludeDescriptors ? new MappedCollectionIterator(artifactMap, !excludeKeys) : artifactMap.keySet().iterator();
 				return query.perform(i, collector);
 			}
 		};

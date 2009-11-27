@@ -14,7 +14,7 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
 * AbstractRepository defines common properties that may be provided by various kinds

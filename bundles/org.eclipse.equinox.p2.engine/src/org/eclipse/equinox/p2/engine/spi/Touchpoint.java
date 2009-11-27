@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine.spi;
 
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 
 /**
  * A touchpoint is responsible for executing a given phase for a given 

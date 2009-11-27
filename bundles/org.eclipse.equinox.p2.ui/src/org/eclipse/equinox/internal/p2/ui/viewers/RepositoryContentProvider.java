@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 /**
  * Content provider for provisioning repositories. The repositories are the

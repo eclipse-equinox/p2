@@ -1,10 +1,9 @@
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.engine.IEngine;
-
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
+import org.eclipse.equinox.p2.engine.IEngine;
 
 /*******************************************************************************
  * Copyright (c) 2009 IBM Corporation and others.

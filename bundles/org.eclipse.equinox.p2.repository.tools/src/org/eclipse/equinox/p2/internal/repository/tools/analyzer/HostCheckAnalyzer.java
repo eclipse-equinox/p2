@@ -9,13 +9,12 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
-import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
-
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 
 /**
  * This service checks that for each fragment the host can be resolved.

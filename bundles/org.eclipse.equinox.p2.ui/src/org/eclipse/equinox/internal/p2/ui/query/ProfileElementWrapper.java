@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.p2.ui.query;
 
 import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
-
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 

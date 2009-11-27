@@ -8,7 +8,7 @@
 * Contributors:
 * 	compeople AG (Stefan Liebig) - initial API and implementation
 *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing;
+package org.eclipse.equinox.p2.repository.artifact;
 
 /**
  * The description of a processor step.

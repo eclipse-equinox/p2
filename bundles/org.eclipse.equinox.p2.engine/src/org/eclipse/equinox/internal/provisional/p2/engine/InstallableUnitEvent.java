@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
-import org.eclipse.equinox.p2.engine.spi.Touchpoint;
-
 import java.util.EventObject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 
 public class InstallableUnitEvent extends EventObject {
 	public static final int UNINSTALL = 0;

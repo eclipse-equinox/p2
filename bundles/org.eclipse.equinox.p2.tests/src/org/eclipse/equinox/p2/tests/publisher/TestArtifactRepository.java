@@ -17,13 +17,14 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.util.NLS;
 
@@ -294,9 +295,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 		if (monitor != null && monitor.isCanceled())
 			return collector;
 
-		boolean acceptKeys = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_KEYS));
-		boolean acceptDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactQuery.ACCEPT_DESCRIPTORS));
-		if (acceptKeys) {
+		boolean excludeKeys = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_KEYS));
+		boolean excludeDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_DESCRIPTORS));
+		if (!excludeKeys) {
 			Set/*<IArtifactKey>*/result = new HashSet/*<IArtifactKey>*/();
 			for (Iterator/*<IArtifactDescriptor>*/iterator = repo.keySet().iterator(); iterator.hasNext();) {
 				IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
@@ -304,7 +305,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 			}
 			collector = query.perform(result.iterator(), collector);
 		}
-		if (acceptDescriptors)
+		if (!excludeDescriptors)
 			collector = query.perform(repo.keySet().iterator(), collector);
 		return collector;
 	}

@@ -12,9 +12,9 @@ package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 	public static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
