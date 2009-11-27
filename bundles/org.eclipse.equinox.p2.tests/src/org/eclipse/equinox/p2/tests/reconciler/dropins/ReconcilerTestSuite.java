@@ -86,4 +86,20 @@ public class ReconcilerTestSuite extends TestSuite {
 		}
 	}
 
+
+	/**
+	 * Runs the tests and collects their result in a TestResult.
+	 * 
+	 * We must override this method in order to run against JUnit4 which doesn't
+	 * invoke tests().
+	 */
+	public void run(TestResult result) {
+		for (Enumeration e = tests(); e.hasMoreElements();) {
+			Test each = (Test) e.nextElement();
+			if (result.shouldStop())
+				break;
+			runTest(each, result);
+		}
+	}
+
 }
