@@ -41,14 +41,6 @@ public interface IRequiredCapability {
 	 */
 	public VersionRange getRange();
 
-	/**
-	 * Returns the properties to use for evaluating required capability filters 
-	 * downstream from this capability. For example, if the selector "doc"
-	 * is provided, then a downstream InstallableUnit with a required capability
-	 * filtered with "doc=true" will be included.
-	 */
-	public String[] getSelectors();
-
 	public boolean isMultiple();
 
 	public boolean isOptional();
@@ -58,12 +50,6 @@ public interface IRequiredCapability {
 	 * introduces lifecycle issues (how are the changes persisted, etc)
 	 */
 	public void setFilter(String filter);
-
-	/**
-	 * TODO This object shouldn't be mutable since it makes equality unstable, and
-	 * introduces lifecycle issues (how are the changes persisted, etc)
-	 */
-	public void setSelectors(String[] selectors);
 
 	public boolean isGreedy();
 

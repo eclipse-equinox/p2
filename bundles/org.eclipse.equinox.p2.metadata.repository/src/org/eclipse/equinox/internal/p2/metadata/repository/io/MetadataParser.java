@@ -564,7 +564,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private IRequiredCapability currentCapability = null;
 
 		private TextHandler filterHandler = null;
-		private CapabilitySelectorsHandler selectorsHandler = null;
 
 		public RequiredCapabilityHandler(AbstractHandler parentHandler, Attributes attributes, List capabilities) {
 			super(parentHandler, REQUIRED_CAPABILITY_ELEMENT);
@@ -580,8 +579,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(CAPABILITY_FILTER_ELEMENT)) {
 				filterHandler = new TextHandler(this, CAPABILITY_FILTER_ELEMENT, attributes);
-			} else if (name.equals(CAPABILITY_SELECTORS_ELEMENT)) {
-				selectorsHandler = new CapabilitySelectorsHandler(this, attributes);
 			} else {
 				invalidElement(name, attributes);
 			}
@@ -592,9 +589,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				if (currentCapability != null) {
 					if (filterHandler != null) {
 						currentCapability.setFilter(filterHandler.getText());
-					}
-					if (selectorsHandler != null) {
-						currentCapability.setSelectors(selectorsHandler.getSelectors());
 					}
 				}
 			}
@@ -637,29 +631,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public void startElement(String name, Attributes attributes) {
 			invalidElement(name, attributes);
-		}
-	}
-
-	protected class CapabilitySelectorsHandler extends AbstractHandler {
-
-		private List selectors;
-
-		public CapabilitySelectorsHandler(AbstractHandler parentHandler, Attributes attributes) {
-			super(parentHandler, CAPABILITY_SELECTORS_ELEMENT);
-			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			selectors = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
-		}
-
-		public String[] getSelectors() {
-			return (String[]) selectors.toArray(new String[selectors.size()]);
-		}
-
-		public void startElement(String name, Attributes attributes) {
-			if (name.equals(CAPABILITY_SELECTOR_ELEMENT)) {
-				new TextHandler(this, CAPABILITY_SELECTOR_ELEMENT, attributes, selectors);
-			} else {
-				invalidElement(name, attributes);
-			}
 		}
 	}
 

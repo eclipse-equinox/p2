@@ -29,10 +29,6 @@ public class NotRequirement implements IRequiredCapability {
 		return negatedRequirement.getRange();
 	}
 
-	public String[] getSelectors() {
-		return negatedRequirement.getSelectors();
-	}
-
 	public boolean isGreedy() {
 		return negatedRequirement.isGreedy();
 	}
@@ -47,12 +43,6 @@ public class NotRequirement implements IRequiredCapability {
 
 	public void setFilter(String filter) {
 		// TODO Auto-generated method stub
-
-	}
-
-	public void setSelectors(String[] selectors) {
-		// TODO Auto-generated method stub
-
 	}
 
 	public boolean isNegation() {

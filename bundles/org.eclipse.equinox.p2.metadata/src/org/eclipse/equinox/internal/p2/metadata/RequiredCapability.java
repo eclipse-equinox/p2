@@ -28,8 +28,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
  * @see IInstallableUnit#NAMESPACE_IU_ID
  */
 public class RequiredCapability implements IRequiredCapability {
-	private static final String[] NO_SELECTORS = new String[0];
-
 	private String filter;
 	private final boolean multiple;
 	private final String name;//never null
@@ -37,7 +35,6 @@ public class RequiredCapability implements IRequiredCapability {
 	private boolean optional;
 	private boolean greedy = true;
 	private final VersionRange range;//never null
-	private String[] selectors = NO_SELECTORS;//never null
 
 	/**
 	 * TODO replace booleans with int options flag.
@@ -106,16 +103,6 @@ public class RequiredCapability implements IRequiredCapability {
 		return range;
 	}
 
-	/**
-	 * Returns the properties to use for evaluating required capability filters 
-	 * downstream from this capability. For example, if the selector "doc"
-	 * is provided, then a downstream InstallableUnit with a required capability
-	 * filtered with "doc=true" will be included.
-	 */
-	public String[] getSelectors() {
-		return selectors;
-	}
-
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -142,14 +129,6 @@ public class RequiredCapability implements IRequiredCapability {
 	 */
 	public void setFilter(String filter) {
 		this.filter = filter;
-	}
-
-	/**
-	 * TODO This object shouldn't be mutable since it makes equality unstable, and
-	 * introduces lifecycle issues (how are the changes persisted, etc)
-	 */
-	public void setSelectors(String[] selectors) {
-		this.selectors = selectors;
 	}
 
 	public boolean isGreedy() {

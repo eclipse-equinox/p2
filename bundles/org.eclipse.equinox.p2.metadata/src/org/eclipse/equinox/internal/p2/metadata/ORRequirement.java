@@ -33,11 +33,6 @@ public class ORRequirement implements IRequiredCapability {
 		return null;
 	}
 
-	public String[] getSelectors() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public boolean isGreedy() {
 		// TODO Auto-generated method stub
 		return true;
@@ -53,11 +48,6 @@ public class ORRequirement implements IRequiredCapability {
 	}
 
 	public void setFilter(String filter) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void setSelectors(String[] selectors) {
 		// TODO Auto-generated method stub
 
 	}
