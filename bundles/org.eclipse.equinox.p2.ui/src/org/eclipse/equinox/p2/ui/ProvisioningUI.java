@@ -418,12 +418,11 @@ public class ProvisioningUI {
 	 * before loading, and a repository operation complete event after loading.
 	 * 
 	 * @param location the location of the repository
-	 * @param notify <code>true</code> if the UI should be updated as a result of the load, <code>false</code> if it should not
+	 * @param update <code>true</code> if the UI should be updated as a result of the load, <code>false</code> if it should not
 	 * @param monitor the progress monitor to be used
 	 * @return the repository
 	 * @throws ProvisionException if the repository could not be loaded
 	 */
-
 	public IArtifactRepository loadArtifactRepository(URI location, boolean update, IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepository repo;
 		signalRepositoryOperationStart();
