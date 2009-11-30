@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;

@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;

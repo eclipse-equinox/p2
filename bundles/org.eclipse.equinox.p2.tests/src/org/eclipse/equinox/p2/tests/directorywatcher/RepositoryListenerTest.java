@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+
 import java.io.File;
 import junit.framework.Test;
 import junit.framework.TestSuite;

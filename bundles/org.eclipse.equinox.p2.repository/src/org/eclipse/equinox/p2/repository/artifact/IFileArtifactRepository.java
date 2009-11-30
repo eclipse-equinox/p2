@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact;
 
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+
 import java.io.File;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
 public interface IFileArtifactRepository extends IArtifactRepository {
 	/**

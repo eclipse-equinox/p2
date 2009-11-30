@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+
 import java.io.*;
 import java.util.*;
 import java.util.jar.JarFile;

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 

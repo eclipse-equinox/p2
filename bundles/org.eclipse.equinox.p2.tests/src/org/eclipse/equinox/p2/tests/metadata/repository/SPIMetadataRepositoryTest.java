@@ -9,6 +9,8 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -55,17 +57,15 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		String name;
 		String namespace;
 		VersionRange versionRange;
-		String[] selectors = new String[0];
 		boolean isGreedy;
 		boolean isMultiple;
 		boolean isOptional;
 
-		public SPIRequiredCapability(String namespace, String name, VersionRange versionRange, String filter, String[] selectors, boolean isGreedy, boolean isMultiple, boolean isOptional) {
+		public SPIRequiredCapability(String namespace, String name, VersionRange versionRange, String filter, boolean isGreedy, boolean isMultiple, boolean isOptional) {
 			this.namespace = namespace;
 			this.name = name;
 			this.versionRange = versionRange;
 			this.filter = filter;
-			this.selectors = selectors;
 			this.isGreedy = isGreedy;
 			this.isMultiple = isMultiple;
 			this.isOptional = isOptional;
@@ -93,10 +93,6 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.versionRange;
 		}
 
-		public String[] getSelectors() {
-			return selectors;
-		}
-
 		public boolean isGreedy() {
 			return isGreedy;
 		}
@@ -111,10 +107,6 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		public void setFilter(String filter) {
 			this.filter = filter;
-		}
-
-		public void setSelectors(String[] selectors) {
-			this.selectors = selectors;
 		}
 
 		public boolean equals(Object obj) {
@@ -743,13 +735,13 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		iuDescription.setId("foo");
 		iuDescription.setVersion(Version.createOSGi(1, 1, 1));
 
-		SPIRequiredCapability spiRequiredCapability1 = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "bar", new String[] {"foo", "bar"}, true, true, true);
+		SPIRequiredCapability spiRequiredCapability1 = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "bar", true, true, true);
 		IRequiredCapability requiredCapability1 = MetadataFactory.createRequiredCapability("com.example2", "foo", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "bar", false, false, false);
 
 		SPIRequirementChange spiRequirementChange = new SPIRequirementChange(spiRequiredCapability1, requiredCapability1);
 		iuPatchDescription.setRequirementChanges(new IRequirementChange[] {spiRequirementChange});
 
-		IRequiredCapability spiRequiredCapability = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "bar", new String[] {"foo", "bar"}, true, true, true);
+		IRequiredCapability spiRequiredCapability = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "bar", true, true, true);
 		IProvidedCapability spiProvidedCapability = new SPIProvidedCapability("bar", "foo", Version.createOSGi(1, 1, 1));
 
 		ITouchpointData spiTouchpointData = new SPITouchpointData();

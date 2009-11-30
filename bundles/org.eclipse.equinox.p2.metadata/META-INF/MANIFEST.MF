@@ -84,6 +84,7 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata;
    org.eclipse.pde.ui,
    org.eclipse.equinox.p2.repository.tools,
    org.eclipse.pde.core",
+ org.eclipse.equinox.p2.metadata,
  org.eclipse.equinox.p2.metadata.query
 Import-Package: org.eclipse.osgi.service.localization;version="1.0.0",
  org.eclipse.osgi.util,

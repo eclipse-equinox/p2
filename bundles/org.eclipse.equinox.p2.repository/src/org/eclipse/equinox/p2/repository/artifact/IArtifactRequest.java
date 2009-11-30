@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact;
 
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
 /**
  * @noimplement This interface is not intended to be implemented by clients.

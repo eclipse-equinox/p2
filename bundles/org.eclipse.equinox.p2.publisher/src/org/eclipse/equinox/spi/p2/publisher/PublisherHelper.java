@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.spi.p2.publisher;
 
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

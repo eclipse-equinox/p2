@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+
 import java.io.File;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
