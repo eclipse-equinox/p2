@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 /**
  * A touchpoint is responsible for executing a given phase for a given 
  * targeted system (eclipse, native). The order of phases is defined in the {@link PhaseSet}.  
+ * @since 2.0
  */
 public abstract class Touchpoint {
 

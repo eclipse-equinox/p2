@@ -13,6 +13,9 @@ package org.eclipse.equinox.p2.engine.spi;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 
+/**
+ * @since 2.0
+ */
 public abstract class ProvisioningAction {
 
 	private Memento memento = new Memento();
