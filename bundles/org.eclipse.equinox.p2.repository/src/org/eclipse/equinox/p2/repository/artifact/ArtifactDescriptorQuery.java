@@ -17,6 +17,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 /**
  * An implementation of IArtifactQuery that matches IArtifactDescriptors
+ * @since 2.0
  */
 public class ArtifactDescriptorQuery extends MatchQuery {
 	public static final ArtifactDescriptorQuery ALL_DESCRIPTORS = new ArtifactDescriptorQuery();

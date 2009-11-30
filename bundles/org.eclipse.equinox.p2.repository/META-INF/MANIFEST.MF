@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-Localization: plugin
 Bundle-SymbolicName: org.eclipse.equinox.p2.repository;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.repository.Activator
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.ecf.filetransfer,

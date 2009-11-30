@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact;
 
-
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 
 /**
@@ -26,6 +24,7 @@ import org.eclipse.equinox.p2.repository.IRepositoryManager;
  * for a general description of the characteristics of repository managers.
  * 
  * @noimplement This interface is not intended to be implemented by clients.
+ * @since 2.0
  */
 public interface IArtifactRepositoryManager extends IRepositoryManager {
 	/**

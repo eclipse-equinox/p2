@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository;
 
-
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IAdaptable;
@@ -21,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
  * various kinds of repositories.
  * 
  * @noimplement This interface is not intended to be implemented by clients.
+ * @since 2.0
  */
 public interface IRepository extends IAdaptable, IQueryable {
 	/** 

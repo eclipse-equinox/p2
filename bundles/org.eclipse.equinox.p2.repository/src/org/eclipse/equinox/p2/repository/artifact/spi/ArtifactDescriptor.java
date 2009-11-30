@@ -10,16 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact.spi;
 
-
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.util.Arrays;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.*;
 
 /**
  * This represents information about a given artifact stored on a particular byte server.
+ * @since 2.0
  */
 public class ArtifactDescriptor implements IArtifactDescriptor {
 	private static final ProcessingStepDescriptor[] EMPTY_STEPS = new ProcessingStepDescriptor[0];

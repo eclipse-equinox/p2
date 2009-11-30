@@ -23,6 +23,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
  * implementing this interface directly.
  * </p>
  * @noimplement This interface is not intended to be implemented by clients.
+ * @since 2.0
  */
 public interface IMetadataRepository extends IRepository {
 

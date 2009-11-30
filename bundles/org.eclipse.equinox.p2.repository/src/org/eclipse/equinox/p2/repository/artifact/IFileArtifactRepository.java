@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact;
 
+import java.io.File;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
-import java.io.File;
-
+/**
+ * @since 2.0
+ */
 public interface IFileArtifactRepository extends IArtifactRepository {
 	/**
 	 * Return the location of the full local file corresponding to the given 

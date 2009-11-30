@@ -13,6 +13,9 @@ package org.eclipse.equinox.p2.repository;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * @since 2.0
+ */
 public interface ICompositeRepository extends IRepository {
 	/**
 	 * 

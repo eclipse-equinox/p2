@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact;
 
+import java.util.Map;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
-import java.util.Map;
-
+/**
+ * @since 2.0
+ */
 public interface IArtifactDescriptor {
 
 	public static final String DOWNLOAD_SIZE = "download.size"; //$NON-NLS-1$
