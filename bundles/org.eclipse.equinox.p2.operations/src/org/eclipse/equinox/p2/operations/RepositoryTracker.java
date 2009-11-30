@@ -233,18 +233,18 @@ public abstract class RepositoryTracker {
 	 * to provide additional error reporting.
 	 * </p>
 	 * @param location the location of the failed repository
-	 * @param status the status of the repository
+	 * @param exception the failure that occurred
 	 */
-	public void reportLoadFailure(final URI location, ProvisionException e) {
+	public void reportLoadFailure(final URI location, ProvisionException exception) {
 		// special handling when the repo location is bad.  We don't want to continually report it
-		int code = e.getStatus().getCode();
+		int code = exception.getStatus().getCode();
 		if (code == IStatusCodes.INVALID_REPOSITORY_LOCATION || code == ProvisionException.REPOSITORY_INVALID_LOCATION || code == ProvisionException.REPOSITORY_NOT_FOUND) {
 			if (hasNotFoundStatusBeenReported(location))
 				return;
 			addNotFound(location);
 		}
 
-		LogHelper.log(e.getStatus());
+		LogHelper.log(exception.getStatus());
 	}
 
 	/**
