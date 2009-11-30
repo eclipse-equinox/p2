@@ -8,9 +8,9 @@
             class="org.eclipse.equinox.internal.p2.ui.ProvUIAdapterFactory">
          <adapter type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit"/>
          <adapter type="org.eclipse.equinox.internal.provisional.p2.engine.IProfile"/>
-         <adapter type="org.eclipse.equinox.internal.provisional.p2.repository.IRepository"/>
-         <adapter type="org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository"/>
-         <adapter type="org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository"/>
+         <adapter type="org.eclipse.equinox.p2.repository.IRepository"/>
+         <adapter type="org.eclipse.equinox.p2.repository.metadata.IMetadataRepository"/>
+         <adapter type="org.eclipse.equinox.p2.repository.artifact.IArtifactRepository"/>
       </factory>
    </extension>
    
