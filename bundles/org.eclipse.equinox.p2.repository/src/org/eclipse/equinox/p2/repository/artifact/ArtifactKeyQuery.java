@@ -30,8 +30,9 @@ public class ArtifactKeyQuery extends MatchQuery {
 	/**
 	 * Pass the id and/or version range to match IArtifactKeys against.
 	 * Passing null results in matching any id/version
-	 * @param id - the IArtifactKey id
-	 * @param range - A version range
+	 * @param classifier The artifact key classifier, or <code>null</code>
+	 * @param id The artifact key id, or <code>null</code>
+	 * @param range A version range, or <code>null</code>
 	 */
 	public ArtifactKeyQuery(String classifier, String id, VersionRange range) {
 		this.id = id;
