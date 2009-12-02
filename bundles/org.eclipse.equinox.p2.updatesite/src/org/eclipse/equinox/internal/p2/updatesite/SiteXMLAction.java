@@ -290,7 +290,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 
 		// Create set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
-		providedCapabilities.add(PublisherHelper.createSelfCapability(categoryId, Version.emptyVersion));
+		providedCapabilities.add(PublisherHelper.createSelfCapability(categoryId, cat.getVersion()));
 
 		Map localizations = category.getLocalizations();
 		if (localizations != null) {
