@@ -21,94 +21,30 @@ import java.util.*;
  */
 public final class Traverse extends CollectionFilter {
 
-	private static final int maxParallelThreads = 2;
-
 	public static final String OPERATOR = "traverse"; //$NON-NLS-1$
-
-	static class TraverseRequest {
-		Object parent;
-		VariableScope scope;
-	}
-
-	final LinkedList queue = new LinkedList();
-	int waitCount = 0;
-
-	private class Worker extends Thread {
-		private final Map collector;
-		private final ExpressionContext context;
-
-		Worker(Map collector, ExpressionContext context) {
-			this.collector = collector;
-			this.context = context;
-		}
-
-		public void run() {
-			while (!interrupted()) {
-				TraverseRequest request;
-				synchronized (queue) {
-					while (queue.isEmpty()) {
-						try {
-							if (++waitCount == maxParallelThreads) {
-								// The queue is empty and everyone else is waiting so we're done!
-								queue.notifyAll();
-								return;
-							}
-							queue.wait();
-							--waitCount;
-						} catch (InterruptedException e) {
-							queue.clear();
-							queue.notifyAll();
-							return;
-						}
-					}
-					request = (TraverseRequest) queue.removeFirst();
-					if (collector.put(request.parent, Boolean.TRUE) != null)
-						continue;
-				}
-
-				VariableScope scope = new VariableScope(request.scope);
-				variable.setValue(scope, request.parent);
-				Iterator subIterator = lambda.evaluateAsIterator(context, scope);
-				while (subIterator.hasNext()) {
-					TraverseRequest subRequest = new TraverseRequest();
-					subRequest.parent = subIterator.next();
-					subRequest.scope = scope;
-					synchronized (queue) {
-						queue.addLast(subRequest);
-						queue.notifyAll();
-					}
-				}
-			}
-		}
-	}
 
 	public Traverse(Expression collection, LambdaExpression lambda) {
 		super(collection, lambda);
 	}
 
 	Object evaluate(ExpressionContext context, VariableScope scope, Iterator iterator) {
-		Map collector = new IdentityHashMap();
-		Worker[] workers = new Worker[maxParallelThreads];
-		for (int idx = 0; idx < maxParallelThreads; ++idx)
-			workers[idx] = new Worker(collector, context);
-		while (iterator.hasNext()) {
-			TraverseRequest subRequest = new TraverseRequest();
-			subRequest.parent = iterator.next();
-			subRequest.scope = scope;
-			queue.addLast(subRequest);
-		}
-		for (int idx = 0; idx < maxParallelThreads; ++idx)
-			workers[idx].start();
-		try {
-			for (int idx = 0; idx < maxParallelThreads; ++idx)
-				workers[idx].join();
-		} catch (InterruptedException e) {
-			return null;
-		}
-		return collector.keySet();
+		HashSet collector = new HashSet();
+		while (iterator.hasNext())
+			traverse(collector, iterator.next(), context, scope);
+		return collector;
 	}
 
 	String getOperator() {
 		return OPERATOR;
+	}
+
+	void traverse(Set collector, Object parent, ExpressionContext context, VariableScope scope) {
+		if (collector.add(parent)) {
+			scope = new SingleVariableScope(scope, variable);
+			variable.setValue(scope, parent);
+			Iterator subIterator = lambda.evaluateAsIterator(context, scope);
+			while (subIterator.hasNext())
+				traverse(collector, subIterator.next(), context, scope);
+		}
 	}
 }

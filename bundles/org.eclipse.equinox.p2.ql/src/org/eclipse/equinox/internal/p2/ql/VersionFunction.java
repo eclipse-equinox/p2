@@ -12,11 +12,14 @@ package org.eclipse.equinox.internal.p2.ql;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
-public class VersionConstructor extends Constructor {
+/**
+ * A function that creates a {@link Version} from a string
+ */
+public class VersionFunction extends Function {
 
 	static final String KEYWORD = "version"; //$NON-NLS-1$
 
-	public VersionConstructor(Expression[] operands) {
+	public VersionFunction(Expression[] operands) {
 		super(operands);
 	}
 

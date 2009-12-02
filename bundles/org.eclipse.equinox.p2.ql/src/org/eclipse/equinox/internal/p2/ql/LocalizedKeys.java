@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ql;
 import java.util.ArrayList;
 import java.util.Locale;
 
-public class LocalizedKeys extends Constructor {
+public class LocalizedKeys extends Function {
 	static final String KEYWORD = "localizedKeys"; //$NON-NLS-1$
 
 	public LocalizedKeys(Expression[] operands) {

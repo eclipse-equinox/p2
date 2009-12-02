@@ -92,7 +92,7 @@ public class ExpressionQuery extends ContextQuery {
 	}
 
 	public Collector perform(Iterator iterator, Collector collector) {
-		iterator = expression.evaluateAsIterator(new ExpressionContext(instanceClass, parameters, iterator, expression.needsRepeatedIterations()), new VariableScope());
+		iterator = expression.evaluateAsIterator(new ExpressionContext(instanceClass, parameters, iterator, expression.needsRepeatedIterations()), expression.defineScope());
 		while (iterator.hasNext()) {
 			Object nxt = iterator.next();
 			if (!collector.accept(nxt))

@@ -41,6 +41,7 @@ public final class Latest extends UnaryCollectionFilter {
 				return Collections.EMPTY_SET.iterator();
 
 			greatestIUVersion = new HashMap();
+			scope = select.lambda.prolog(context, scope);
 			while (iterator.hasNext()) {
 				Object next = iterator.next();
 				if (!instanceClass.isInstance(next))

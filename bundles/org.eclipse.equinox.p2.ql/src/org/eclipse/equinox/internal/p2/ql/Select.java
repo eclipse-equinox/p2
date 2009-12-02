@@ -26,7 +26,7 @@ public final class Select extends CollectionFilter {
 	Object evaluate(final ExpressionContext context, final VariableScope scope, Iterator iterator) {
 		return new MatchIteratorFilter(Object.class, iterator) {
 			protected boolean isMatch(Object val) {
-				scope.setEach(variable, val);
+				variable.setValue(scope, val);
 				return lambda.evaluate(context, scope) == Boolean.TRUE;
 			}
 		};

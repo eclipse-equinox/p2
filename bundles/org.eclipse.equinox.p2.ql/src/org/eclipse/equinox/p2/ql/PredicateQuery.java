@@ -31,7 +31,7 @@ public class PredicateQuery extends MatchQuery {
 	public PredicateQuery(Class instanceClass, ItemExpression expression, Object[] parameters) {
 		this.expression = expression;
 		this.context = new ExpressionContext(instanceClass, parameters, null);
-		this.scope = new VariableScope();
+		this.scope = expression.defineScope();
 	}
 
 	public PredicateQuery(Class instanceClass, String expression) {

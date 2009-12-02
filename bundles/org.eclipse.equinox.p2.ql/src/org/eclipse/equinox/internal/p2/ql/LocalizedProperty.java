@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ql;
 import java.util.Iterator;
 import java.util.Map;
 
-public final class LocalizedProperty extends Constructor {
+public final class LocalizedProperty extends Function {
 
 	static final String KEYWORD = "localizedProperty"; //$NON-NLS-1$
 
@@ -29,7 +29,7 @@ public final class LocalizedProperty extends Constructor {
 	public synchronized Object evaluate(ExpressionContext context, VariableScope scope) {
 		Object[] args = new Object[] {operands[0].evaluate(context, scope), operands[1].evaluate(context, scope), operands[2].evaluate(context, scope)};
 		ExpressionContext subContext = new ExpressionContext(Map.Entry.class, args, context, false);
-		Iterator itor = localePropertiesExpr.evaluateAsIterator(subContext, new VariableScope());
+		Iterator itor = localePropertiesExpr.evaluateAsIterator(subContext, localePropertiesExpr.defineScope());
 		return itor.hasNext() ? ((Map.Entry) itor.next()).getValue() : null;
 	}
 

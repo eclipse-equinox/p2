@@ -26,7 +26,7 @@ public final class First extends CollectionFilter {
 	Object evaluate(ExpressionContext context, VariableScope scope, Iterator itor) {
 		while (itor.hasNext()) {
 			Object each = itor.next();
-			scope.setEach(variable, each);
+			variable.setValue(scope, each);
 			if (lambda.evaluate(context, scope) == Boolean.TRUE)
 				return each;
 		}

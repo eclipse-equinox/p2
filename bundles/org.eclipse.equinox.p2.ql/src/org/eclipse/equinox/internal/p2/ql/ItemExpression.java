@@ -25,8 +25,12 @@ public final class ItemExpression extends Binary {
 	}
 
 	public boolean isMatch(ExpressionContext context, VariableScope scope, Object value) {
-		scope.setItem(value);
+		((Variable) lhs).setValue(scope, value);
 		return rhs.evaluate(context, scope) == Boolean.TRUE;
+	}
+
+	public VariableScope defineScope() {
+		return new SingleVariableScope((Variable) lhs);
 	}
 
 	public void toString(StringBuffer bld) {

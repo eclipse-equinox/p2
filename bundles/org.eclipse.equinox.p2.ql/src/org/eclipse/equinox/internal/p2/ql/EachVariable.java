@@ -20,15 +20,7 @@ final class EachVariable extends Variable {
 		super(name);
 	}
 
-	public Object evaluate(ExpressionContext context, VariableScope scope) {
-		return scope.getEach(this);
-	}
-
 	int countReferenceToEverything() {
 		return 0;
-	}
-
-	void setValue(VariableScope scope, Object value) {
-		scope.setEach(this, value);
 	}
 }

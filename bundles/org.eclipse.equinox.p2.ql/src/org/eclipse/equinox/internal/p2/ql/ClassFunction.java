@@ -10,11 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
-public class ClassConstructor extends Constructor {
+/**
+ * A function that obtains a class based on a String
+ */
+public class ClassFunction extends Function {
 
 	static final String KEYWORD = "class"; //$NON-NLS-1$
 
-	public ClassConstructor(Expression[] operands) {
+	public ClassFunction(Expression[] operands) {
 		super(operands);
 	}
 

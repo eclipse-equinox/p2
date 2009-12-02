@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.ql;
 
 import java.util.HashSet;
 
-public class SetConstructor extends Constructor {
+public class SetConstructor extends Function {
 
 	static final String KEYWORD = "set"; //$NON-NLS-1$
 

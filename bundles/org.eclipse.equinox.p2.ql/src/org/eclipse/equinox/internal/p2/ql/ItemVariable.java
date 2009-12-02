@@ -19,15 +19,7 @@ final class ItemVariable extends Variable {
 		super(name);
 	}
 
-	public Object evaluate(ExpressionContext context, VariableScope scope) {
-		return scope.getItem();
-	}
-
 	int countReferenceToEverything() {
 		return 0;
-	}
-
-	void setValue(VariableScope scope, Object value) {
-		scope.setItem(value);
 	}
 }

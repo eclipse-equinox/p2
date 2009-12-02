@@ -11,13 +11,13 @@
 package org.eclipse.equinox.internal.p2.ql;
 
 /**
- * An expression that represents a constructor such as filter(&lt;expr&gt;) or version(&lt;expr&gt;)
+ * An expression that represents a function such as filter(&lt;expr&gt;) or version(&lt;expr&gt;)
  */
-public abstract class Constructor extends NAry {
+public abstract class Function extends NAry {
 
 	private Object instance;
 
-	Constructor(Expression[] operands) {
+	Function(Expression[] operands) {
 		super(operands);
 	}
 

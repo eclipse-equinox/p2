@@ -10,22 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
-import org.osgi.framework.InvalidSyntaxException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 
-public class FilterConstructor extends Constructor {
+/**
+ * A function that creates a {@link VersionRange} from a String
+ */
+public class RangeFunction extends Function {
 
-	static final String KEYWORD = "filter"; //$NON-NLS-1$
+	static final String KEYWORD = "range"; //$NON-NLS-1$
 
-	public FilterConstructor(Expression[] operands) {
+	public RangeFunction(Expression[] operands) {
 		super(operands);
 	}
 
 	Object createInstance(String arg) {
-		try {
-			return QLActivator.context.createFilter(arg);
-		} catch (InvalidSyntaxException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}
+		return new VersionRange(arg);
 	}
 
 	String getOperator() {

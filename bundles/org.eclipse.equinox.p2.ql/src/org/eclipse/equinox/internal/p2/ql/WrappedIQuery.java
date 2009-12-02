@@ -15,7 +15,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IMatchQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
-public final class WrappedIQuery extends Constructor {
+public final class WrappedIQuery extends Function {
 
 	static final String KEYWORD = "iquery"; //$NON-NLS-1$
 

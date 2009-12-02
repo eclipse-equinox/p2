@@ -45,12 +45,12 @@ public class Variable extends Expression {
 		this.name = name;
 	}
 
-	public Object evaluate(ExpressionContext context, VariableScope scope) {
+	public final Object evaluate(ExpressionContext context, VariableScope scope) {
 		return scope.getValue(this);
 	}
 
 	public Iterator evaluateAsIterator(ExpressionContext context, VariableScope scope) {
-		Object value = evaluate(context, scope);
+		Object value = scope.getValue(this);
 		if (value instanceof IRepeatableIterator)
 			return ((IRepeatableIterator) value).getCopy();
 
@@ -75,7 +75,7 @@ public class Variable extends Expression {
 		return ExpressionParser.PRIORITY_VARIABLE;
 	}
 
-	void setValue(VariableScope scope, Object value) {
+	final void setValue(VariableScope scope, Object value) {
 		scope.setValue(this, value);
 	}
 }

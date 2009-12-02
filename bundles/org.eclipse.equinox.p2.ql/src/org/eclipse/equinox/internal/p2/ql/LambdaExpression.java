@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
+
 /**
  * A function that executes some code
  */
@@ -99,12 +100,17 @@ public final class LambdaExpression extends Unary {
 	}
 
 	VariableScope prolog(ExpressionContext context, VariableScope scope) {
-		VariableScope lambdaScope = new VariableScope(scope);
-		for (int idx = 0; idx < currying.length; ++idx) {
-			Expression curry = currying[idx];
-			if (!(curry instanceof EachVariable))
-				variables[idx].setValue(lambdaScope, curry.evaluate(context, scope));
+		if (currying.length == 0)
+			scope = new SingleVariableScope(scope, variables[0]);
+		else {
+			VariableScope lambdaScope = new MultiVariableScope(scope, variables);
+			for (int idx = 0; idx < currying.length; ++idx) {
+				Expression curry = currying[idx];
+				if (!(curry instanceof EachVariable))
+					variables[idx].setValue(lambdaScope, curry.evaluate(context, scope));
+			}
+			scope = lambdaScope;
 		}
-		return lambdaScope;
+		return scope;
 	}
 }

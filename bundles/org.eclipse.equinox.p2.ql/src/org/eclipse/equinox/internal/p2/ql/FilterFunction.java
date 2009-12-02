@@ -10,18 +10,25 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.osgi.framework.InvalidSyntaxException;
 
-public class RangeConstructor extends Constructor {
+/**
+ * A function that creates an OSGi filter based on a String
+ */
+public class FilterFunction extends Function {
 
-	static final String KEYWORD = "range"; //$NON-NLS-1$
+	static final String KEYWORD = "filter"; //$NON-NLS-1$
 
-	public RangeConstructor(Expression[] operands) {
+	public FilterFunction(Expression[] operands) {
 		super(operands);
 	}
 
 	Object createInstance(String arg) {
-		return new VersionRange(arg);
+		try {
+			return QLActivator.context.createFilter(arg);
+		} catch (InvalidSyntaxException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
 	}
 
 	String getOperator() {

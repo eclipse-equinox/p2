@@ -32,7 +32,7 @@ public final class At extends Binary {
 			if (instance instanceof IInstallableUnit && "properties".equals(lm.name)) //$NON-NLS-1$
 				// Avoid full copy of the properties map just to get one member
 				return ((IInstallableUnit) instance).getProperty((String) rhs.evaluate(context, scope));
-			lval = lm.invoke(instance);
+			lval = lm.invoke(instance, Member.NO_ARGS);
 		} else
 			lval = lhs.evaluate(context, scope);
 

@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ql;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
-public final class LocalizedMap extends Constructor {
+public final class LocalizedMap extends Function {
 
 	static final String KEYWORD = "localizedMap"; //$NON-NLS-1$
 
@@ -82,7 +82,7 @@ public final class LocalizedMap extends Constructor {
 		List localePrefixes = getLocalePrefixes(locale);
 		addPrefixedProperties(localePrefixes, properties, iu.getProperties().entrySet().iterator());
 		ExpressionContext subContext = new ExpressionContext(IInstallableUnitFragment.class, new Object[] {iu, locale, IInstallableUnitFragment.class}, context.getCopy(), false);
-		addPrefixedProperties(localePrefixes, properties, localizedPropertiesExpr.evaluateAsIterator(subContext, new VariableScope()));
+		addPrefixedProperties(localePrefixes, properties, localizedPropertiesExpr.evaluateAsIterator(subContext, localizedPropertiesExpr.defineScope()));
 	}
 
 	private static void addPrefixedProperties(List prefixes, Map properties, Iterator entries) {

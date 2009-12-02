@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ql;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import org.eclipse.equinox.internal.p2.ql.Member.*;
 
 public class ExpressionParser extends Stack {
 	private static final long serialVersionUID = 882034383978853143L;
@@ -87,15 +88,16 @@ public class ExpressionParser extends Stack {
 		Class[] args = new Class[] {Expression[].class};
 		constructors = new HashMap();
 		try {
-			constructors.put(FilterConstructor.KEYWORD, FilterConstructor.class.getConstructor(args));
-			constructors.put(VersionConstructor.KEYWORD, VersionConstructor.class.getConstructor(args));
-			constructors.put(RangeConstructor.KEYWORD, RangeConstructor.class.getConstructor(args));
+			constructors.put(FilterFunction.KEYWORD, FilterFunction.class.getConstructor(args));
+			constructors.put(VersionFunction.KEYWORD, VersionFunction.class.getConstructor(args));
+			constructors.put(RangeFunction.KEYWORD, RangeFunction.class.getConstructor(args));
 			constructors.put(SetConstructor.KEYWORD, SetConstructor.class.getConstructor(args));
-			constructors.put(ClassConstructor.KEYWORD, ClassConstructor.class.getConstructor(args));
+			constructors.put(ClassFunction.KEYWORD, ClassFunction.class.getConstructor(args));
 			constructors.put(WrappedIQuery.KEYWORD, WrappedIQuery.class.getConstructor(args));
 			constructors.put(LocalizedKeys.KEYWORD, LocalizedKeys.class.getConstructor(args));
 			constructors.put(LocalizedMap.KEYWORD, LocalizedMap.class.getConstructor(args));
 			constructors.put(LocalizedProperty.KEYWORD, LocalizedProperty.class.getConstructor(args));
+			constructors.put(CapabilityIndexFunction.KEYWORD, CapabilityIndexFunction.class.getConstructor(args));
 		} catch (Exception e) {
 			throw new ExceptionInInitializerError(e);
 		}
@@ -311,7 +313,7 @@ public class ExpressionParser extends Stack {
 						expr = new Flatten(new Select(expr, parseLambdaDefinition()));
 					break;
 				case TOKEN_LIMIT :
-					expr = new Limit(expr, parseMember());
+					expr = new Limit(expr, parseCondition());
 					assertToken(TOKEN_RP);
 					nextToken();
 					break;
@@ -360,7 +362,7 @@ public class ExpressionParser extends Stack {
 						return expr;
 
 					case TOKEN_IDENTIFIER :
-						expr = new Member(expr, (String) tokenValue);
+						expr = new DynamicMember(expr, (String) tokenValue);
 						nextToken();
 						break;
 
@@ -373,6 +375,19 @@ public class ExpressionParser extends Stack {
 				nextToken();
 				expr = new At(expr, atExpr);
 			}
+		}
+		if (expr instanceof Member && currentToken == TOKEN_LP) {
+			nextToken();
+			Expression[] callArgs = parseArray();
+			assertToken(TOKEN_RP);
+			nextToken();
+			Member mbr = (Member) expr;
+			if (mbr.name.equals(CapabilityIndex_satisfiesAny.ID))
+				expr = new CapabilityIndex_satisfiesAny(mbr.operand, callArgs);
+			else if (mbr.name.equals(CapabilityIndex_satisfiesAll.ID))
+				expr = new CapabilityIndex_satisfiesAll(mbr.operand, callArgs);
+			else
+				throw syntaxError();
 		}
 		return expr;
 	}
@@ -606,7 +621,7 @@ public class ExpressionParser extends Stack {
 		if (rootVariable.equals(id))
 			throw syntaxError("No such variable: " + id); //$NON-NLS-1$
 
-		return new Member(getVariableOrRootMember(rootVariable), id);
+		return new DynamicMember(getVariableOrRootMember(rootVariable), id);
 	}
 
 	private void nextToken() {

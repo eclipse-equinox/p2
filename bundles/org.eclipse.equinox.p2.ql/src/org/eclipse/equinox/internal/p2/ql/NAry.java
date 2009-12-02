@@ -23,6 +23,16 @@ abstract class NAry extends Expression {
 		return operands;
 	}
 
+	static Expression[] assertLength(Expression[] operands, int minLength, int maxLength, String operand) {
+		if (operands == null)
+			operands = emptyArray;
+		if (operands.length < minLength)
+			throw new IllegalArgumentException("Not enough operands for " + operand); //$NON-NLS-1$
+		if (operands.length > maxLength)
+			throw new IllegalArgumentException("Too many operands for " + operand); //$NON-NLS-1$
+		return operands;
+	}
+
 	final Expression[] operands;
 
 	NAry(Expression[] operands) {

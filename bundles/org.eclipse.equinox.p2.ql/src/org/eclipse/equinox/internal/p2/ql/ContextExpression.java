@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
-
 /**
  * The context expression is the top expression in context queries. It introduces the
  * variable 'everything' and initialized it with the iterator that represents all
@@ -29,6 +28,10 @@ public final class ContextExpression extends Binary {
 
 	public void toString(StringBuffer bld) {
 		rhs.toString(bld);
+	}
+
+	public VariableScope defineScope() {
+		return new SingleVariableScope((Variable) lhs);
 	}
 
 	int countReferenceToEverything() {
