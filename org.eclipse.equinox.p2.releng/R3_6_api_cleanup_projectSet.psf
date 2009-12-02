@@ -4,7 +4,6 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.frameworkadmin,org.eclipse.equinox.frameworkadmin,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.frameworkadmin.equinox,org.eclipse.equinox.frameworkadmin.equinox,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.frameworkadmin.test,org.eclipse.equinox.frameworkadmin.test,R3_6_api_cleanup"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/incubator/p2/bundles/org.eclipse.equinox.internal.p2.ui.analysis,org.eclipse.equinox.internal.p2.ui.analysis,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/incubator/p2/bundles/org.eclipse.equinox.p2.afterthefact,org.eclipse.equinox.p2.afterthefact,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/org.eclipse.equinox.p2.releng/buildtime-features/org.eclipse.equinox.p2.agent.feature,org.eclipse.equinox.p2.agent.feature,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.artifact.optimizers,org.eclipse.equinox.p2.artifact.optimizers,R3_6_api_cleanup"/>
