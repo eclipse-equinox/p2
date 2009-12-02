@@ -36,7 +36,7 @@ import org.osgi.framework.Filter;
 
 public class EvaluatorTest extends AbstractProvisioningTest {
 	private static final ExpressionParser parser = new ExpressionParser();
-	private static final VariableScope dummyScope = new VariableScope();
+	private static final VariableScope dummyScope = VariableScope.ROOT;
 
 	public void testArguments() throws Exception {
 		Expression expr = parser.parsePredicate("'a' == $0 && 'b' == $1 && 'c' == $2");
@@ -111,8 +111,8 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		// indexes for the parameters
 
 		Variable item = Variable.createEach("item");
-		Expression cmp1 = new Equals(new Member(item, "id"), new KeyedParameter("id"));
-		Expression cmp2 = new Equals(new At(new Member(item, "properties"), new KeyedParameter("propKey")), new KeyedParameter("propValue"));
+		Expression cmp1 = new Equals(Member.createDynamicMember(item, "id"), new KeyedParameter("id"));
+		Expression cmp2 = new Equals(new At(Member.createDynamicMember(item, "properties"), new KeyedParameter("propKey")), new KeyedParameter("propValue"));
 
 		Variable everything = Variable.EVERYTHING;
 		LambdaExpression lambda = new LambdaExpression(new And(new Expression[] {cmp1, cmp2}), item);

@@ -11,10 +11,10 @@
 package org.eclipse.equinox.p2.tests.ql;
 
 import java.net.URI;
-import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.director.app.Activator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -38,16 +38,16 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
 
-		for (int i = 0; i < 10; ++i) {
+		for (int i = 0; i < 5; ++i) {
 			long start = System.currentTimeMillis();
-			for (int idx = 0; idx < 100; ++idx) {
+			for (int idx = 0; idx < 80; ++idx) {
 				result = repo.query(capabilityQuery, new Collector(), new NullProgressMonitor());
 				assertEquals(result.size(), 487);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
-			for (int idx = 0; idx < 100; ++idx) {
+			for (int idx = 0; idx < 80; ++idx) {
 				result = repo.query(predicateQuery, new Collector(), new NullProgressMonitor());
 				assertEquals(result.size(), 487);
 			}
@@ -55,10 +55,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		}
 		System.out.println("CapabilityQuery took: " + tradQueryMS + " milliseconds");
 		System.out.println("PredicateQuery took: " + exprQueryMS + " milliseconds");
-
-		// Assert that expression query is not worse off then 4 / 3 ratio (should typically
-		// be better then that.
-		assertTrue(tradQueryMS * 4 > exprQueryMS * 3);
+		System.out.println();
 	}
 
 	public void testCapabilityQueryPerformance2() throws Exception {
@@ -75,16 +72,16 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
 
-		for (int i = 0; i < 10; ++i) {
+		for (int i = 0; i < 5; ++i) {
 			long start = System.currentTimeMillis();
-			for (int idx = 0; idx < 100; ++idx) {
+			for (int idx = 0; idx < 80; ++idx) {
 				result = repo.query(capabilityQuery, new Collector(), new NullProgressMonitor());
 				assertEquals(result.size(), 446);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
-			for (int idx = 0; idx < 100; ++idx) {
+			for (int idx = 0; idx < 80; ++idx) {
 				result = repo.query(predicateQuery, new Collector(), new NullProgressMonitor());
 				assertEquals(result.size(), 446);
 			}
@@ -92,10 +89,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		}
 		System.out.println("CapabilityQuery took: " + tradQueryMS + " milliseconds");
 		System.out.println("PredicateQuery took: " + exprQueryMS + " milliseconds");
-
-		// Assert that expression query is not worse off then 4 / 3 ratio (should typically
-		// be better then that.
-		assertTrue(tradQueryMS * 4 > exprQueryMS * 3);
+		System.out.println();
 	}
 
 	public void testIUPropertyQueryPerformance() throws Exception {
@@ -108,16 +102,16 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
 
-		for (int i = 0; i < 10; ++i) {
+		for (int i = 0; i < 5; ++i) {
 			long start = System.currentTimeMillis();
-			for (int idx = 0; idx < 100; ++idx) {
+			for (int idx = 0; idx < 80; ++idx) {
 				result = repo.query(propertyQuery, new Collector(), new NullProgressMonitor());
 				assertEquals(result.size(), 965);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
-			for (int idx = 0; idx < 100; ++idx) {
+			for (int idx = 0; idx < 80; ++idx) {
 				result = repo.query(predicateQuery, new Collector(), new NullProgressMonitor());
 				assertEquals(result.size(), 965);
 			}
@@ -125,10 +119,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		}
 		System.out.println("IUPropertyQuery took: " + tradQueryMS + " milliseconds");
 		System.out.println("PredicateQuery took: " + exprQueryMS + " milliseconds");
-
-		// Assert that expression query is not worse off then 4 / 3 ratio (should typically
-		// be better then that.
-		assertTrue(tradQueryMS * 4 > exprQueryMS * 3);
+		System.out.println();
 	}
 
 	public void testSlicerPerformance() throws Exception {
@@ -142,38 +133,36 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		Iterator itor = c.iterator();
 		assertTrue(itor.hasNext());
 		IInstallableUnit[] roots = new IInstallableUnit[] {(IInstallableUnit) itor.next()};
-		Slicer slicer = new Slicer(repo, env, false);
 
-		long startTime = System.currentTimeMillis();
-		IQueryable slice = slicer.slice(roots, new NullProgressMonitor());
+		IQuery query = new ExpressionQuery("" + //
+				"$0.traverse(capabilityIndex(everything), _, {index, parent | " + //
+				"index.satisfiesAny(parent.requiredCapabilities.select(rc | rc.filter == null || $1 ~= filter(rc.filter)))})", roots, env);
 
-		c = slice.query(new MatchQuery() {
-			public boolean isMatch(Object value) {
-				return true;
-			}
-		}, new Collector(), new NullProgressMonitor());
-		long slicerTime = System.currentTimeMillis() - startTime;
+		long sliceTime = 0;
+		long traverseTime = 0;
+		IQueryable slice = null;
+		for (int idx = 0; idx < 20; ++idx) {
+			long startTime = System.currentTimeMillis();
+			c = repo.query(query, new Collector(), new NullProgressMonitor());
+			traverseTime += (System.currentTimeMillis() - startTime);
+			assertEquals(c.size(), 411);
 
-		assertEquals(c.size(), 411);
-		System.out.print("Slicer took: ");
-		System.out.println(slicerTime);
-
-		IQuery query = new ExpressionQuery(//
-				"$0.traverse(set(), _, {requirementsCache, parent | select(" + //
-						"parent.requiredCapabilities.unique(requirementsCache).select(rc | rc.filter == null || $1 ~= filter(rc.filter)), _," + //
-						"{rcs, child | rcs.exists(rc | child ~= rc)})})", roots, env);
-
-		startTime = System.currentTimeMillis();
-		c = repo.query(query, new Collector(), new NullProgressMonitor());
-		long traverseTime = System.currentTimeMillis() - startTime;
-
-		assertEquals(c.size(), 411);
-		System.out.print("Traverse expression took: ");
+			startTime = System.currentTimeMillis();
+			Slicer slicer = new Slicer(new QueryableArray(gatherAvailableInstallableUnits(repo)), env, false);
+			slice = slicer.slice(roots, new NullProgressMonitor());
+			c = slice.query(new MatchQuery() {
+				public boolean isMatch(Object value) {
+					return true;
+				}
+			}, new Collector(), new NullProgressMonitor());
+			sliceTime += (System.currentTimeMillis() - startTime);
+			assertEquals(c.size(), 411);
+		}
+		System.out.print("20 * Slicing took: ");
+		System.out.println(sliceTime);
+		System.out.print("20 * Indexed Traverse expression took: ");
 		System.out.println(traverseTime);
-
-		// Assert that expression query is at least 3/1 ratio ratio (should typically
-		// be better then that.
-		assertTrue(traverseTime * 3 < slicerTime);
+		System.out.println();
 	}
 
 	private IMetadataRepository getMDR(String uri) throws Exception {
@@ -183,5 +172,13 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		assertNotNull(metadataManager);
 
 		return metadataManager.loadRepository(metadataRepo, new NullProgressMonitor());
+	}
+
+	private IInstallableUnit[] gatherAvailableInstallableUnits(IQueryable queryable) {
+		ArrayList list = new ArrayList();
+		Collector matches = queryable.query(InstallableUnitQuery.ANY, new Collector(), null);
+		for (Iterator it = matches.iterator(); it.hasNext();)
+			list.add(it.next());
+		return (IInstallableUnit[]) list.toArray(new IInstallableUnit[list.size()]);
 	}
 }
