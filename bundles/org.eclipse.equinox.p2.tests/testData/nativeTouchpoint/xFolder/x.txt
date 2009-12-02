@@ -1,2 +1,0 @@
-X
-// This x.txt should have the first line being a single X
