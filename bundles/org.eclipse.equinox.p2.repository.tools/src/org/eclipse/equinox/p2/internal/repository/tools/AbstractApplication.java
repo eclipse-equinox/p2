@@ -53,6 +53,12 @@ public abstract class AbstractApplication {
 			for (Iterator iter = metadataReposToRemove.iterator(); iter.hasNext();)
 				metadataRepositoryManager.removeRepository((URI) iter.next());
 		}
+		metadataReposToRemove = null;
+		artifactReposToRemove = null;
+		compositeArtifactRepository = null;
+		compositeMetadataRepository = null;
+		destinationArtifactRepository = null;
+		destinationMetadataRepository = null;
 	}
 
 	public void initializeRepos(IProgressMonitor progress) throws ProvisionException {
