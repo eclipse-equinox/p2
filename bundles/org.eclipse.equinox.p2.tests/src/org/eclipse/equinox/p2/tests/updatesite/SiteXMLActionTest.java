@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
 import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
@@ -54,8 +55,14 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 		Iterator iter = results.iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit unit = (IInstallableUnit) iter.next();
-			assertTrue("1.0", unit.getId().startsWith(URIUtil.toUnencodedString(siteLocation)));
+			String sitelocation = URIUtil.toUnencodedString(siteLocation);
+			assertTrue("1.0", unit.getId().startsWith(sitelocation));
 			assertEquals("2.0", "Test Category Label", unit.getProperty(IInstallableUnit.PROP_NAME));
+
+			IProvidedCapability[] provided = unit.getProvidedCapabilities();
+			assertEquals(1, provided.length);
+			assertTrue(provided[0].getName().startsWith(sitelocation));
+			assertEquals(provided[0].getVersion(), unit.getVersion());
 		}
 	}
 
