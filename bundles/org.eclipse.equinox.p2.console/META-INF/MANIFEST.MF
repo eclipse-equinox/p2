@@ -7,7 +7,7 @@ Bundle-Localization: plugin
 Bundle-Version: 1.0.100.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.console.Activator
 Bundle-ActivationPolicy: lazy
-Export-Package: org.eclipse.equinox.internal.p2.console;x-friends:="org.eclipse.equinox.p2.director.app,org.eclipse.equinox.p2.tools"
+Export-Package: org.eclipse.equinox.internal.p2.console;x-friends:="org.eclipse.equinox.p2.director.app"
 Import-Package: org.eclipse.core.runtime;common=split,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.provisional.p2.core,
