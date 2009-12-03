@@ -38,7 +38,6 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.tests.ui,org.eclipse.equinox.p2.tests.ui,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.tests.verifier,org.eclipse.equinox.p2.tests.verifier,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.testserver,org.eclipse.equinox.p2.testserver,R3_6_api_cleanup"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.tools,org.eclipse.equinox.p2.tools,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.touchpoint.eclipse,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.touchpoint.natives,org.eclipse.equinox.p2.touchpoint.natives,R3_6_api_cleanup"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/incubator/p2/bundles/org.eclipse.equinox.p2.touchpoint.osgi,org.eclipse.equinox.p2.touchpoint.osgi,R3_6_api_cleanup"/>
