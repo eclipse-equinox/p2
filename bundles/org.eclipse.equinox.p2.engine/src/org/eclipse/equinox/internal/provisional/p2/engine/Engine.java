@@ -117,11 +117,11 @@ public class Engine implements IEngine {
 	}
 
 	public IPhaseSet createPhaseSetExcluding(String[] excludes) {
-		return null;
+		return PhaseSet.createPhaseSetExcluding(excludes);
 	}
 
 	public IPhaseSet createPhaseSetIncluding(String[] includes) {
-		return null;
+		return PhaseSet.createPhaseSetIncluding(includes);
 	}
 
 	public IProvisioningPlan createCustomPlan(IProfile profile, Operand[] operands, ProvisioningContext context) {

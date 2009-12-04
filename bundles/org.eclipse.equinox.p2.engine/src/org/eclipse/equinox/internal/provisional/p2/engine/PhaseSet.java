@@ -10,17 +10,54 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.internal.provisional.p2.engine.phases.*;
 import org.eclipse.equinox.p2.engine.IPhaseSet;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
-public abstract class PhaseSet implements IPhaseSet {
+public class PhaseSet implements IPhaseSet {
+
+	public static final List DEFAULT_PHASES = Arrays.asList(new String[] {IPhaseSet.PHASE_COLLECT, IPhaseSet.PHASE_UNCONFIGURE, IPhaseSet.PHASE_UNINSTALL, IPhaseSet.PHASE_PROPERTY, IPhaseSet.PHASE_CHECK_TRUST, IPhaseSet.PHASE_INSTALL, IPhaseSet.PHASE_CONFIGURE});
+
+	public static final boolean forcedUninstall = Boolean.valueOf(EngineActivator.getContext().getProperty("org.eclipse.equinox.p2.engine.forcedUninstall")).booleanValue(); //$NON-NLS-1$
+
 	private final Phase[] phases;
+
+	static IPhaseSet createPhaseSetExcluding(String[] excludes) {
+		ArrayList phases = new ArrayList(DEFAULT_PHASES);
+		if (excludes != null) {
+			for (int i = 0; i < excludes.length; i++) {
+				phases.remove(excludes[i]);
+			}
+		}
+		return createPhaseSetIncluding((String[]) phases.toArray(new String[phases.size()]));
+	}
+
+	static IPhaseSet createPhaseSetIncluding(String[] includes) {
+		ArrayList phases = new ArrayList();
+		for (int i = 0; i < includes.length; i++) {
+			String current = includes[i];
+			if (current.equals(IPhaseSet.PHASE_CONFIGURE))
+				phases.add(new Configure(10));
+			else if (current.equals(IPhaseSet.PHASE_CHECK_TRUST))
+				phases.add(new CheckTrust(10));
+			else if (current.equals(IPhaseSet.PHASE_COLLECT))
+				phases.add(new Collect(100));
+			else if (current.equals(IPhaseSet.PHASE_INSTALL))
+				phases.add(new Install(50));
+			else if (current.equals(IPhaseSet.PHASE_PROPERTY))
+				phases.add(new Property(1));
+			else if (current.equals(IPhaseSet.PHASE_UNCONFIGURE))
+				phases.add(new Unconfigure(10, forcedUninstall));
+			else if (current.equals(IPhaseSet.PHASE_UNINSTALL))
+				phases.add(new Uninstall(50, forcedUninstall));
+		}
+		return new PhaseSet((Phase[]) phases.toArray(new Phase[phases.size()]));
+	}
 
 	public PhaseSet(Phase[] phases) {
 		if (phases == null)

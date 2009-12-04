@@ -202,6 +202,67 @@ public class EngineTest extends AbstractProvisioningTest {
 		}
 	}
 
+	/*
+	 * Tests for {@link IEngine#createPhaseSetExcluding}.
+	 */
+	public void testCreatePhaseSetExcluding() {
+		//null argument
+		IPhaseSet set = engine.createPhaseSetExcluding(null);
+		assertEquals("1.0", 7, set.getPhaseIds().length);
+
+		//empty argument
+		set = engine.createPhaseSetExcluding(new String[0]);
+		assertEquals("2.0", 7, set.getPhaseIds().length);
+
+		//bogus argument
+		set = engine.createPhaseSetExcluding(new String[] {"blort"});
+		assertEquals("3.0", 7, set.getPhaseIds().length);
+
+		//valid argument
+		set = engine.createPhaseSetExcluding(new String[] {IPhaseSet.PHASE_CHECK_TRUST});
+		final String[] phases = set.getPhaseIds();
+		assertEquals("4.0", 6, phases.length);
+		for (int i = 0; i < phases.length; i++)
+			if (phases[i].equals(IPhaseSet.PHASE_CHECK_TRUST))
+				fail("4.1." + i);
+
+	}
+
+	/*
+	 * Tests for {@link IEngine#createPhaseSetIncluding}.
+	 */
+	public void testCreatePhaseSetIncluding() {
+		//null argument
+		try {
+			engine.createPhaseSetIncluding(null);
+			fail("1.0");
+		} catch (RuntimeException e) {
+			//expected
+		}
+		//empty argument
+		IPhaseSet set = engine.createPhaseSetIncluding(new String[0]);
+		assertNotNull("2.0", set);
+		assertEquals("2.1", 0, set.getPhaseIds().length);
+
+		//unknown argument
+		set = engine.createPhaseSetIncluding(new String[] {"blort", "not a phase", "bad input"});
+		assertNotNull("3.0", set);
+		assertEquals("3.1", 0, set.getPhaseIds().length);
+
+		//one valid phase
+		set = engine.createPhaseSetIncluding(new String[] {IPhaseSet.PHASE_COLLECT});
+		assertNotNull("4.0", set);
+		assertEquals("4.1", 1, set.getPhaseIds().length);
+		assertEquals("4.2", IPhaseSet.PHASE_COLLECT, set.getPhaseIds()[0]);
+
+		//one valid phase and one bogus
+		set = engine.createPhaseSetIncluding(new String[] {IPhaseSet.PHASE_COLLECT, "bogus"});
+		assertNotNull("4.0", set);
+		assertEquals("4.1", 1, set.getPhaseIds().length);
+		assertEquals("4.2", IPhaseSet.PHASE_COLLECT, set.getPhaseIds()[0]);
+
+	}
+
 	public void testEmptyOperands() {
 
 		IProfile profile = createProfile("test");

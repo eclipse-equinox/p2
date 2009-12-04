@@ -18,13 +18,13 @@ public class DefaultPhaseSet extends PhaseSet {
 
 	private static final boolean forcedUninstall = Boolean.valueOf(EngineActivator.getContext().getProperty("org.eclipse.equinox.p2.engine.forcedUninstall")).booleanValue(); //$NON-NLS-1$
 
-	public static int PHASE_CHECK_TRUST = 0x01;
 	public static int PHASE_COLLECT = 0x02;
-	public static int PHASE_CONFIGURE = 0x04;
-	public static int PHASE_INSTALL = 0x08;
-	public static int PHASE_PROPERTY = 0x10;
 	public static int PHASE_UNCONFIGURE = 0x20;
 	public static int PHASE_UNINSTALL = 0x40;
+	public static int PHASE_PROPERTY = 0x10;
+	public static int PHASE_CHECK_TRUST = 0x01;
+	public static int PHASE_INSTALL = 0x08;
+	public static int PHASE_CONFIGURE = 0x04;
 
 	public DefaultPhaseSet() {
 		this(new Phase[] {new Collect(100), new Unconfigure(10, forcedUninstall), new Uninstall(50, forcedUninstall), new Property(1), new CheckTrust(10), new Install(50), new Configure(10)});
