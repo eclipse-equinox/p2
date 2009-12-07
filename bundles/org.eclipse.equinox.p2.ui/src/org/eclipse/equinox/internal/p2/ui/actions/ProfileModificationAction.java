@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.internal.p2.ui.actions;
 
+import org.eclipse.equinox.p2.engine.IProfile;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.util.ArrayList;
@@ -22,7 +24,6 @@ import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.p2.common.LicenseManager;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;

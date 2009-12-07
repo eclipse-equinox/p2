@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.net.URI;
@@ -18,7 +20,6 @@ import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.EmptyElementExplanation;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;

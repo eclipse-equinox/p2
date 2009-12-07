@@ -11,13 +11,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.query.IQuery;

@@ -11,13 +11,14 @@
 
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.p2.engine.IProfile;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 
 /**
  * An UninstallOperation describes an operation that uninstalls {@link IInstallableUnit}s from

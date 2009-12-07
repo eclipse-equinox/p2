@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.io.File;
 import java.util.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * @since 1.0

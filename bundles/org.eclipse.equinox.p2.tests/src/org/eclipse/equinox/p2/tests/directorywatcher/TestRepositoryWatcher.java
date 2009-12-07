@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.io.File;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -20,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryLi
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;

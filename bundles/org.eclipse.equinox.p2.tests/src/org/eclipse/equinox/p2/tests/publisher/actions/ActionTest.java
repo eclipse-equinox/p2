@@ -11,19 +11,16 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
-import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
-
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-
 import java.io.*;
 import java.util.*;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;

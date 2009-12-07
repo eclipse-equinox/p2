@@ -11,7 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;

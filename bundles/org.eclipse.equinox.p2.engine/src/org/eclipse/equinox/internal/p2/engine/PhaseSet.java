@@ -8,15 +8,13 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine;
-
-import org.eclipse.equinox.internal.p2.engine.phases.*;
+package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.ActionManager;
-import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.p2.engine.IPhaseSet;
+import org.eclipse.equinox.internal.p2.engine.phases.*;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.Messages;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
@@ -28,7 +26,7 @@ public class PhaseSet implements IPhaseSet {
 
 	private final Phase[] phases;
 
-	static IPhaseSet createPhaseSetExcluding(String[] excludes) {
+	public static IPhaseSet createPhaseSetExcluding(String[] excludes) {
 		ArrayList phases = new ArrayList(DEFAULT_PHASES);
 		if (excludes != null) {
 			for (int i = 0; i < excludes.length; i++) {
@@ -38,7 +36,7 @@ public class PhaseSet implements IPhaseSet {
 		return createPhaseSetIncluding((String[]) phases.toArray(new String[phases.size()]));
 	}
 
-	static IPhaseSet createPhaseSetIncluding(String[] includes) {
+	public static IPhaseSet createPhaseSetIncluding(String[] includes) {
 		ArrayList phases = new ArrayList();
 		for (int i = 0; i < includes.length; i++) {
 			String current = includes[i];

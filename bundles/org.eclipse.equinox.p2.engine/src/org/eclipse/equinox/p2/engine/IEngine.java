@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.engine;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
 
 /**
  * The engine is a service that naively performs a set of requested changes to a provisioned

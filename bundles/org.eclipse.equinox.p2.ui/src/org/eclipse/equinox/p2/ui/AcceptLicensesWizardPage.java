@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.engine.Operand;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.util.*;
@@ -20,8 +23,6 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 import org.eclipse.equinox.p2.common.LicenseManager;
 import org.eclipse.equinox.p2.common.TranslationSupport;

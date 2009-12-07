@@ -8,10 +8,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine;
+package org.eclipse.equinox.p2.engine;
+
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 
 import java.util.EventObject;
-import org.eclipse.equinox.p2.engine.IEngine;
 
 public abstract class TransactionEvent extends EventObject {
 	private static final long serialVersionUID = 6278706971855493984L;

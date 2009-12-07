@@ -15,8 +15,8 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstant
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.SetLauncherNameAction;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SetLauncherNameActionTest extends AbstractProvisioningTest {

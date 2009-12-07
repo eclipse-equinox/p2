@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine.query;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * A query that searches for {@link IInstallableUnit} instances that have

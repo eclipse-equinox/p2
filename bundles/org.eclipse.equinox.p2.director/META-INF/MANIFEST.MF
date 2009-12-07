@@ -6,9 +6,9 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 1.0.100.qualifier
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.internal.p2.engine,
  org.eclipse.equinox.internal.provisional.configurator,
  org.eclipse.equinox.internal.provisional.p2.core,
- org.eclipse.equinox.internal.provisional.p2.engine,
  org.eclipse.equinox.internal.provisional.p2.metadata,
  org.eclipse.equinox.internal.provisional.p2.metadata.query,
  org.eclipse.equinox.p2.core,

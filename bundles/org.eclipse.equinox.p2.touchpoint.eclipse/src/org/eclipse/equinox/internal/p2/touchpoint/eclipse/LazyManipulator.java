@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
+import org.eclipse.equinox.p2.engine.IProfile;
+
 import java.io.IOException;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;

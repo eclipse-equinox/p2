@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.operations;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
+import org.eclipse.equinox.p2.engine.*;
 
 /**
  * A job that modifies a profile according to a specified provisioning plan.  

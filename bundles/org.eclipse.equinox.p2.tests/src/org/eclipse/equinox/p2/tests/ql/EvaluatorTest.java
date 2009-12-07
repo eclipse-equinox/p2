@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ql;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-
 import java.io.File;
 import java.net.URI;
 import java.util.*;
@@ -21,10 +17,12 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.director.app.Activator;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.ql.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;

@@ -10,16 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ql;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
-import org.eclipse.equinox.p2.metadata.IVersionedId;
-
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-
 import org.eclipse.equinox.internal.p2.ql.ExpressionParser;
 import org.eclipse.equinox.internal.p2.ql.ItemExpression;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.ql.PredicateQuery;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;

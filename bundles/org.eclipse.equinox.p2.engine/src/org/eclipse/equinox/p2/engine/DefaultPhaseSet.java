@@ -8,12 +8,13 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine;
+package org.eclipse.equinox.p2.engine;
 
-import org.eclipse.equinox.internal.p2.engine.phases.*;
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 
 import java.util.ArrayList;
-import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.phases.*;
 
 public class DefaultPhaseSet extends PhaseSet {
 

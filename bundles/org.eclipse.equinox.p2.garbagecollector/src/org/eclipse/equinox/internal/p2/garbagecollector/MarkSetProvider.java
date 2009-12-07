@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.garbagecollector;
 
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfile;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 

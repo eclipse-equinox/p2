@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.osgi.service.debug.DebugOptions;
 import org.osgi.framework.*;
 import org.osgi.service.prefs.Preferences;

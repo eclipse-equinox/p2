@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,16 +8,17 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine;
+package org.eclipse.equinox.p2.engine;
 
-import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 
 
-/**
- * The common base class for engine operands.
- * 
- * @see IEngine#createCustomPlan(IProfile, Operand[], ProvisioningContext)
- */
-public class Operand {
-	// marker class
+
+public class BeginOperationEvent extends TransactionEvent {
+
+	private static final long serialVersionUID = 6389318375739324865L;
+
+	public BeginOperationEvent(IProfile profile, PhaseSet phaseSet, Operand[] operands, IEngine engine) {
+		super(profile, phaseSet, operands, engine);
+	}
 }

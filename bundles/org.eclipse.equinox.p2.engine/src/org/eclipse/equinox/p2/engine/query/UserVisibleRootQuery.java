@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine.query;
 
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 
 /**
  * A query matching all the {@link IInstallableUnit}s that are marked visible to the user. 

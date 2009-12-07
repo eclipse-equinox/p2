@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
+import org.eclipse.equinox.p2.engine.IProfile;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.io.File;
@@ -18,7 +20,6 @@ import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 

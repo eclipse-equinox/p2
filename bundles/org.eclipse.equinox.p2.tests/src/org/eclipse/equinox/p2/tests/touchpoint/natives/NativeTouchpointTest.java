@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.touchpoint.natives;
 import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class NativeTouchpointTest extends AbstractProvisioningTest {

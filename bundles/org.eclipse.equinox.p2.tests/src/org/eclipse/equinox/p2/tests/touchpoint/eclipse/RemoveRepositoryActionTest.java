@@ -16,7 +16,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.RemoveRepositoryAction;
-import org.eclipse.equinox.internal.provisional.p2.engine.EngineSession;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -37,7 +36,6 @@ public class RemoveRepositoryActionTest extends AbstractProvisioningTest {
 		args.put("location", TEST_LOCATION);
 		args.put("type", Integer.toString(IRepository.TYPE_ARTIFACT));
 		args.put("enabled", "true");
-		args.put("session", new EngineSession(getAgent(), null, null));
 		return args;
 	}
 

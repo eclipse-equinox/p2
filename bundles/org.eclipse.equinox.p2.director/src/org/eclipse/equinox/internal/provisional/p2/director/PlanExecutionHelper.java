@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
+
 import java.io.IOException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.p2.director.Messages;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.p2.engine.IEngine;
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.*;
 
 public class PlanExecutionHelper {
 	public static IStatus executePlan(IProvisioningPlan result, IEngine engine, ProvisioningContext context, IProgressMonitor progress) {

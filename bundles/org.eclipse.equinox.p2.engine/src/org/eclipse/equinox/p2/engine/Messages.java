@@ -8,13 +8,13 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine;
+package org.eclipse.equinox.p2.engine;
 
 import org.eclipse.osgi.util.NLS;
 
 //TODO Shouldn't have messages class in API package
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.provisional.p2.engine.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.p2.engine.messages"; //$NON-NLS-1$
 	public static String CertificateChecker_CertificateError;
 	public static String CertificateChecker_CertificateRejected;
 	public static String CertificateChecker_KeystoreConnectionError;
@@ -27,11 +27,8 @@ public class Messages extends NLS {
 	public static String null_phases;
 	public static String null_phaseset;
 	public static String null_profile;
-	public static String phase_error;
 	public static String phase_not_started;
 	public static String phase_started;
-	public static String phaseid_not_positive;
-	public static String phaseid_not_set;
 	public static String Engine_Operation_Canceled_By_User;
 	public static String InstallableUnitEvent_type_not_install_or_uninstall;
 	public static String touchpoint_prepare_error;
@@ -53,8 +50,6 @@ public class Messages extends NLS {
 	public static String committing;
 	public static String rollingback_cancel;
 	public static String rollingback_error;
-	public static String action_undo_error;
-	public static String forced_action_execute_error;
 
 	static {
 		// initialize resource bundle

@@ -8,6 +8,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -17,8 +20,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;

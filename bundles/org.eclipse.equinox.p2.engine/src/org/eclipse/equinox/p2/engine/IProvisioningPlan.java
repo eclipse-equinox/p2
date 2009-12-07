@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * A provisioning plan describes a proposed set of changes to a profile. The

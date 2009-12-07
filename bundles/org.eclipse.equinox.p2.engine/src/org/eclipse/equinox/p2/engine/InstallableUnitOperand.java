@@ -8,11 +8,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+package org.eclipse.equinox.p2.engine;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public class InstallableUnitOperand extends Operand {
 	private final IInstallableUnit first;

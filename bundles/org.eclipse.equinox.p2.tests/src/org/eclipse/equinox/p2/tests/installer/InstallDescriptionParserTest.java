@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.installer;
 
-import org.eclipse.equinox.p2.metadata.IVersionedId;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
@@ -19,6 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.installer.InstallDescriptionParser;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
 

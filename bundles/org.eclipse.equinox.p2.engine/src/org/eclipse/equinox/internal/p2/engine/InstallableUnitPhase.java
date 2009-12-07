@@ -9,17 +9,16 @@
  *     IBM Corporation - initial API and implementation
  *     WindRiver - https://bugs.eclipse.org/bugs/show_bug.cgi?id=227372
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.internal.p2.engine.InstructionParser;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointInstruction;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public abstract class InstallableUnitPhase extends Phase {
 	public static final String PARM_ARTIFACT = "artifact"; //$NON-NLS-1$

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import junit.framework.AssertionFailedError;
@@ -19,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 

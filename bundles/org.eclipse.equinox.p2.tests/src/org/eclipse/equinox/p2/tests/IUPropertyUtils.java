@@ -11,13 +11,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.lang.ref.SoftReference;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;

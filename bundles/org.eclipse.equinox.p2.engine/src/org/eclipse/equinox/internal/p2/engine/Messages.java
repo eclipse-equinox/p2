@@ -65,6 +65,11 @@ class Messages extends NLS {
 	public static String io_FailedRead;
 
 	public static String io_NotFound;
+	public static String phase_error;
+	public static String action_undo_error;
+	public static String forced_action_execute_error;
+	public static String phaseid_not_positive;
+	public static String phaseid_not_set;
 
 	static {
 		// initialize resource bundles

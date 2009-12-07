@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import org.eclipse.equinox.p2.engine.IProfile;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 
 /**
