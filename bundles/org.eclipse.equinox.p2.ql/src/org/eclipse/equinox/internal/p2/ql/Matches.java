@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.osgi.framework.Filter;
 
 /**
@@ -41,8 +44,8 @@ public final class Matches extends Binary {
 		Object lval = lhs.evaluate(context, scope);
 		Object rval = rhs.evaluate(context, scope);
 
-		if (rval instanceof IRequiredCapability) {
-			IRequiredCapability cap = (IRequiredCapability) rval;
+		if (rval instanceof IRequirement) {
+			IRequirement cap = (IRequirement) rval;
 			if (lval instanceof IInstallableUnit)
 				return Boolean.valueOf(((IInstallableUnit) lval).satisfies(cap));
 			if (lval instanceof IProvidedCapability)

@@ -11,8 +11,8 @@
 package org.eclipse.equinox.internal.p2.ql;
 
 import java.util.*;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.ql.CapabilityIndexFunction.IUCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 
 /**
  * An in-memory implementation of a CapabilityIndex based on a Map.

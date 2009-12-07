@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ql;
 
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+
 import java.util.Iterator;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.ql.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.ContextQuery;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;

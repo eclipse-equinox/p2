@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
 
 /**
  * An expression that is especially targeted towards {@link IVersionedId} instances. It will
