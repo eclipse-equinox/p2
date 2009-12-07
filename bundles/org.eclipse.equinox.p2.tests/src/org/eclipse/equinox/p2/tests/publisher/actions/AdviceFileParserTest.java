@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.eclipse.AdviceFileParser;
 
@@ -296,7 +296,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testClassifier2", iu1.getArtifacts()[1].getClassifier());
 		assertEquals("testCopyright", iu1.getCopyright().getBody());
 		assertEquals("http://localhost/test", iu1.getCopyright().getLocation().toString());
-		assertEquals("test=testFilter", iu1.getFilter().getFilter());
+		assertEquals("test=testFilter", ((LDAPQuery) iu1.getFilter()).getFilter());
 		assertEquals("testLicense", iu1.getLicenses()[0].getBody());
 		assertEquals("http://localhost/license", iu1.getLicenses()[0].getLocation().toString());
 		assertEquals("testValue1", iu1.getProperty("testName1"));

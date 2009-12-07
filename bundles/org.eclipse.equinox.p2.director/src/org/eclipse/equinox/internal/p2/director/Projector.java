@@ -11,8 +11,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.math.BigInteger;
 import java.util.*;
 import java.util.Map.Entry;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.PatchQuery;
@@ -321,7 +320,7 @@ public class Projector {
 	}
 
 	private boolean isApplicable(IInstallableUnit iu) {
-		LDAPQuery enablementFilter = iu.getFilter();
+		LDAPQuery enablementFilter = (LDAPQuery) iu.getFilter();
 		if (enablementFilter == null)
 			return true;
 		try {

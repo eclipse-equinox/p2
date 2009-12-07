@@ -11,9 +11,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import org.eclipse.equinox.p2.metadata.query.IQuery;
+
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
-import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 
 
 import java.util.Map;
@@ -105,7 +106,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 * 
 	 * See Profile#getSelectionContext.
 	 */
-	public LDAPQuery getFilter();
+	public IQuery getFilter();
 
 	/**
 	 * Returns the fragments that have been bound to this installable unit, or

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import org.eclipse.equinox.p2.metadata.query.IQuery;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.util.*;
@@ -49,7 +51,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getArtifacts();
 	}
 
-	public LDAPQuery getFilter() {
+	public IQuery getFilter() {
 		return original.getFilter();
 	}
 

@@ -245,7 +245,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.copyright;
 		}
 
-		public LDAPQuery getFilter() {
+		public IQuery getFilter() {
 			return this.filter;
 		}
 

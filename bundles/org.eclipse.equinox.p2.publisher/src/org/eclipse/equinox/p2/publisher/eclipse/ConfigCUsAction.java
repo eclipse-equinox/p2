@@ -10,16 +10,16 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.ManifestElement;
@@ -326,7 +326,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			IInstallableUnit iu = bundle.getIU();
 
 			// If there is no host, or the filters don't match, skip this one.
-			if (iu == null || !filterMatches(iu.getFilter() == null ? null : iu.getFilter().getFilter(), configSpec))
+			if (iu == null || !filterMatches(iu.getFilter() == null ? null : ((LDAPQuery) iu.getFilter()).getFilter(), configSpec))
 				continue;
 
 			// TODO need to factor this out into its own action

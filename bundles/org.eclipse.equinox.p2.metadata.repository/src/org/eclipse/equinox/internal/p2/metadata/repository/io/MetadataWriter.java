@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -25,8 +23,7 @@ import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 
 public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 
@@ -75,7 +72,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeMetaRequiredCapabilities(iu.getMetaRequiredCapabilities());
 		writeProvidedCapabilities(iu.getProvidedCapabilities());
 		writeRequiredCapabilities(iu.getRequiredCapabilities());
-		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter() == null ? null : iu.getFilter().getFilter());
+		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter() == null ? null : ((LDAPQuery) iu.getFilter()).getFilter());
 
 		writeArtifactKeys(iu.getArtifacts());
 		writeTouchpointType(iu.getTouchpointType());

@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -22,6 +20,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -35,8 +34,7 @@ import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -487,7 +485,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 		desc.setCapabilities(newCapabilities);
 		desc.setCopyright(prototype.getCopyright());
-		desc.setFilter(prototype.getFilter() == null ? null : prototype.getFilter().getFilter());
+		desc.setFilter(prototype.getFilter() == null ? null : ((LDAPQuery) prototype.getFilter()).getFilter());
 		desc.setId(prototype.getId());
 		desc.setLicenses(prototype.getLicenses());
 		IRequirement[] originalRequirements = prototype.getRequiredCapabilities();

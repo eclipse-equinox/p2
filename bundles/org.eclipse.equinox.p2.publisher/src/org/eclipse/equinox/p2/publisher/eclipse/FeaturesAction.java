@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,13 +19,13 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -252,7 +250,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (childIUs != null) {
 			for (int i = 0; i < childIUs.size(); i++) {
 				IInstallableUnit child = (IInstallableUnit) childIUs.get(i);
-				required.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter().getFilter(), false, false));
+				required.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), ((LDAPQuery) child.getFilter()).getFilter(), false, false));
 			}
 		}
 		iu.setRequiredCapabilities((IRequirement[]) required.toArray(new IRequirement[required.size()]));
@@ -340,7 +338,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (childIUs != null) {
 			for (int i = 0; i < childIUs.size(); i++) {
 				IInstallableUnit child = (IInstallableUnit) childIUs.get(i);
-				patchRequirements.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter() == null ? null : child.getFilter().getFilter(), false, false));
+				patchRequirements.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter() == null ? null : ((LDAPQuery) child.getFilter()).getFilter(), false, false));
 			}
 		}
 		iu.setRequiredCapabilities((IRequirement[]) patchRequirements.toArray(new IRequirement[patchRequirements.size()]));

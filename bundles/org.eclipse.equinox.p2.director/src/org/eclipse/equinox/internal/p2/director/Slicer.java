@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitPatch;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IRequirementChange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
@@ -105,7 +105,7 @@ public class Slicer {
 	}
 
 	protected boolean isApplicable(IInstallableUnit iu) {
-		LDAPQuery enablementFilter = iu.getFilter();
+		LDAPQuery enablementFilter = (LDAPQuery) iu.getFilter();
 		if (enablementFilter == null)
 			return true;
 		try {

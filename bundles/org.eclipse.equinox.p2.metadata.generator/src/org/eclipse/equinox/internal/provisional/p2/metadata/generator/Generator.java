@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,8 +31,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -237,7 +234,7 @@ public class Generator {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
 			//			boolean isOptional = checkOptionalRootDependency(iu);
-			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, (iu.getFilter()).getFilter(), false, false));
+			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, ((LDAPQuery) iu.getFilter()).getFilter(), false, false));
 		}
 		if (requires != null)
 			reqsConfigurationUnits.addAll(requires);
@@ -663,7 +660,7 @@ public class Generator {
 				}
 			}
 			bundle.setVersion(configuredIU.getVersion().toString());
-			LDAPQuery filter = configuredIU == null ? null : configuredIU.getFilter();
+			LDAPQuery filter = (LDAPQuery) (configuredIU == null ? null : configuredIU.getFilter());
 			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.create(bundle.getVersion()), false, bundle, info.getFlavor(), filter == null ? null : filter.getFilter());
 			//the configuration unit should share the same platform filter as the IU being configured.
 			if (cu != null) {
@@ -712,7 +709,7 @@ public class Generator {
 		ArrayList required = new ArrayList(rootCategory.size());
 		for (Iterator iterator = rootCategory.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			required.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), VersionRange.emptyRange, iu.getFilter().getFilter(), false, false));
+			required.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), VersionRange.emptyRange, ((LDAPQuery) iu.getFilter()).getFilter(), false, false));
 		}
 		cat.setRequiredCapabilities((IRequirement[]) required.toArray(new IRequirement[required.size()]));
 		cat.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, categoryId, Version.emptyVersion)});
