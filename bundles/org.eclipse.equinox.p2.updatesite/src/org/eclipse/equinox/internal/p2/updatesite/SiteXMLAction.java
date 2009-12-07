@@ -151,13 +151,8 @@ public class SiteXMLAction extends AbstractPublisherAction {
 				query = new PipedQuery(new IQuery[] {qualifierQuery, new LatestIUVersionQuery()});
 				collector = new Collector();
 			} else {
-				query = new InstallableUnitQuery(id, version);
-				collector = new Collector() {
-					public boolean accept(Object object) {
-						super.accept(object);
-						return false; //stop searching once we've found one
-					}
-				};
+				query = new LimitQuery(new InstallableUnitQuery(id, version), 1);
+				collector = new Collector();
 			}
 		}
 

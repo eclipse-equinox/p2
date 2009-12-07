@@ -19,7 +19,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
-import org.eclipse.equinox.internal.p2.publisher.*;
+import org.eclipse.equinox.internal.p2.publisher.Activator;
+import org.eclipse.equinox.internal.p2.publisher.QuotedTokenizer;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -524,13 +525,11 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	protected IInstallableUnit queryForIU(IPublisherResult publisherResult, String iuId, Version version) {
 		IQuery query = null;
-		Collector collector = null;
+		Collector collector = new Collector();
 		if (version != null && !Version.emptyVersion.equals(version)) {
-			query = new InstallableUnitQuery(iuId, version);
-			collector = new SingleElementCollector();
+			query = new LimitQuery(new InstallableUnitQuery(iuId, version), 1);
 		} else {
 			query = new PipedQuery(new IQuery[] {new InstallableUnitQuery(iuId), new LatestIUVersionQuery()});
-			collector = new Collector();
 		}
 
 		NullProgressMonitor progress = new NullProgressMonitor();

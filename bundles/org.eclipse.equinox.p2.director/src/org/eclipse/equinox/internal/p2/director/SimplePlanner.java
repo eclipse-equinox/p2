@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
@@ -27,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -373,7 +372,7 @@ public class SimplePlanner implements IPlanner {
 		Collection allMetaRequirements = extractMetaRequirements(newProfile, initialPlan);
 		for (Iterator iterator = allMetaRequirements.iterator(); iterator.hasNext();) {
 			IRequirement requirement = (IRequirement) iterator.next();
-			if (oldProfile.query(requirement.getMatches(), new HasMatchCollector(), null).isEmpty())
+			if (oldProfile.query(new LimitQuery(requirement.getMatches(), 1), new Collector(), null).isEmpty())
 				return allMetaRequirements;
 		}
 		return null;

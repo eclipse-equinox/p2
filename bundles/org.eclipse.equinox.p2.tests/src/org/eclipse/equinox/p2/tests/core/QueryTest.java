@@ -64,19 +64,8 @@ public class QueryTest extends TestCase {
 	}
 
 	/**
-	 * A collector that only accepts the first element and then short-circuits.
-	 */
-	static class ShortCircuitCollector extends Collector {
-		@Override
-		public boolean accept(Object object) {
-			super.accept(object);
-			return false;
-		}
-	}
-
-	/**
-	 * Tests a simple perform where all items match.
-	 */
+	* Tests a simple perform where all items match.
+	*/
 	public void testPerformSimple() {
 		List items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
@@ -264,30 +253,6 @@ public class QueryTest extends TestCase {
 		assertFalse("1.7", query2.isPrepared()); // This should fail, the second query was never executed
 		assertTrue("1.8", query1.areHooksExecutedProperly());
 		assertTrue("1.9", query2.areHooksExecutedProperly());
-	}
-
-	/**
-	 * Tests a perform where the collector decides to short-circuit the query.
-	 */
-	public void testShortCircuit() {
-		List items = Arrays.asList("red", "green", "blue");
-		IQuery query = new AnyStringQuery();
-		Collector collector = new ShortCircuitCollector();
-		query.perform(items.iterator(), collector);
-		Collection result = collector.toCollection();
-		assertEquals("1.0", 1, result.size());
-		assertTrue("1.1", result.contains("red"));
-	}
-
-	public void testShortCircuitWithLimit() {
-		List items = Arrays.asList("red", "green", "blue");
-		IQuery query = new AnyStringQuery();
-		IQuery limitQuery = new LimitQuery(query, 2);
-		Collector collector = new ShortCircuitCollector();
-		limitQuery.perform(items.iterator(), collector);
-		Collection result = collector.toCollection();
-		assertEquals("1.0", 1, result.size());
-		assertTrue("1.1", result.contains("red")); // The short circuit should trump the limit
 	}
 
 	public void testLimitQuery() {
