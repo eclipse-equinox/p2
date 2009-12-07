@@ -11,17 +11,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.query.IQuery;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-
-
-
 import java.util.Map;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
+ * @since 2.0
  */
 public interface IInstallableUnit extends IVersionedId, Comparable {
 
