@@ -250,7 +250,8 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (childIUs != null) {
 			for (int i = 0; i < childIUs.size(); i++) {
 				IInstallableUnit child = (IInstallableUnit) childIUs.get(i);
-				required.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), ((LDAPQuery) child.getFilter()).getFilter(), false, false));
+				String filter = (child.getFilter() instanceof LDAPQuery) ? ((LDAPQuery) child.getFilter()).getFilter() : null;
+				required.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), filter, false, false));
 			}
 		}
 		iu.setRequiredCapabilities((IRequirement[]) required.toArray(new IRequirement[required.size()]));
