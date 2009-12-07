@@ -8,7 +8,9 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine;
+package org.eclipse.equinox.internal.p2.engine.phases;
+
+import org.eclipse.equinox.internal.provisional.p2.engine.Messages;
 
 import java.io.File;
 import java.io.IOException;

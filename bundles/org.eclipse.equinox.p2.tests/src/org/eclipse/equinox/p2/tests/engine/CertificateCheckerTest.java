@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import org.eclipse.equinox.internal.p2.engine.phases.CertificateChecker;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.cert.Certificate;
@@ -17,7 +19,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.ProvisioningAgent;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.engine.CertificateChecker;
 import org.eclipse.equinox.p2.tests.*;
 
 /**
