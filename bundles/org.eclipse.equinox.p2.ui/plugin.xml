@@ -6,7 +6,7 @@
       <factory
             adaptableType="org.eclipse.equinox.internal.p2.ui.model.ProvElement"
             class="org.eclipse.equinox.internal.p2.ui.ProvUIAdapterFactory">
-         <adapter type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit"/>
+         <adapter type="org.eclipse.equinox.p2.metadata.IInstallableUnit"/>
          <adapter type="org.eclipse.equinox.internal.provisional.p2.engine.IProfile"/>
          <adapter type="org.eclipse.equinox.p2.repository.IRepository"/>
          <adapter type="org.eclipse.equinox.p2.repository.metadata.IMetadataRepository"/>
@@ -22,7 +22,7 @@
             id="org.eclipse.equinox.p2.ui.IUCopyrightPropertyPage">
             <enabledWhen>
             <adapt
-                  type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit">
+                  type="org.eclipse.equinox.p2.metadata.IInstallableUnit">
              </adapt>
           </enabledWhen>
       </page>
@@ -32,7 +32,7 @@
             id="org.eclipse.equinox.p2.ui.IUGeneralInfoPropertyPage">
             <enabledWhen>
             <adapt
-                  type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit">
+                  type="org.eclipse.equinox.p2.metadata.IInstallableUnit">
              </adapt>
           </enabledWhen>
       </page>
@@ -42,7 +42,7 @@
             id="org.eclipse.equinox.p2.ui.IULicensePropertyPage">
             <enabledWhen>
             <adapt
-                  type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit">
+                  type="org.eclipse.equinox.p2.metadata.IInstallableUnit">
              </adapt>
           </enabledWhen>
       </page>    

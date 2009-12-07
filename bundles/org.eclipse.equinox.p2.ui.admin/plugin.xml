@@ -74,7 +74,7 @@
             class="org.eclipse.equinox.internal.p2.ui.admin.dialogs.IUImplementationPropertyPage"
             id="org.eclipse.equinox.internal.p2.ui.admin.dialogs.IUImplementationPropertyPage">
             <enabledWhen>
-             <adapt type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit"/>
+             <adapt type="org.eclipse.equinox.p2.metadata.IInstallableUnit"/>
            </enabledWhen>
       </page>
             <page
