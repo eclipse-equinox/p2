@@ -13,9 +13,10 @@
  */
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
+import org.eclipse.equinox.internal.p2.engine.phases.Collect;
+
 import org.eclipse.equinox.internal.provisional.p2.engine.Phase;
 import org.eclipse.equinox.internal.provisional.p2.engine.PhaseSet;
-import org.eclipse.equinox.internal.provisional.p2.engine.phases.Collect;
 
 public class DownloadPhaseSet extends PhaseSet {
 	public DownloadPhaseSet() {

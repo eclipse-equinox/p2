@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
+import org.eclipse.equinox.internal.p2.engine.phases.*;
+
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.internal.provisional.p2.engine.phases.*;
 import org.eclipse.equinox.p2.engine.IPhaseSet;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;

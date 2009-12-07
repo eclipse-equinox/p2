@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     WindRiver - https://bugs.eclipse.org/bugs/show_bug.cgi?id=227372
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine.phases;
+package org.eclipse.equinox.internal.p2.engine.phases;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 

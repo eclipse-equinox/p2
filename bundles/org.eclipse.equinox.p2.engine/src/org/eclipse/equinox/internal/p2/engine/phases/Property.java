@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine.phases;
+package org.eclipse.equinox.internal.p2.engine.phases;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 

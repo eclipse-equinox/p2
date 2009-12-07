@@ -1,14 +1,14 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
- *  All rights reserved. This program and the accompanying materials
- *  are made available under the terms of the Eclipse Public License v1.0
- *  which accompanies this distribution, and is available at
- *  http://www.eclipse.org/legal/epl-v10.html
- * 
- *  Contributors:
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.engine.phases;
+package org.eclipse.equinox.internal.p2.engine.phases;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
@@ -19,37 +19,32 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.p2.engine.IPhaseSet;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.osgi.util.NLS;
 
-public class Unconfigure extends InstallableUnitPhase {
+public class Configure extends InstallableUnitPhase {
 
-	public Unconfigure(int weight, boolean forced) {
-		super(IPhaseSet.PHASE_UNCONFIGURE, weight, forced);
-	}
-
-	public Unconfigure(int weight) {
-		this(weight, false);
+	public Configure(int weight) {
+		super(IPhaseSet.PHASE_CONFIGURE, weight);
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {
-		return (op.first() != null);
+		return (op.second() != null);
 	}
 
 	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
-		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Unconfiguring_IU, unit.getId()));
-
-		IInstallableUnit unit = currentOperand.first();
+		IInstallableUnit unit = currentOperand.second();
 		if (unit.isFragment())
 			return null;
-
 		return getActions(unit, phaseId);
 	}
 
 	protected String getProblemMessage() {
-		return Messages.Phase_Unconfigure_Error;
+		return Messages.Phase_Configure_Error;
 	}
 
 	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
-		IInstallableUnit iu = operand.first();
+		IInstallableUnit iu = operand.second();
+		monitor.subTask(NLS.bind(Messages.Phase_Configure_Task, iu.getId()));
 		parameters.put(PARM_IU, iu);
 
 		IArtifactKey[] artifacts = iu.getArtifacts();

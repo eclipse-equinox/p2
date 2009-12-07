@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.natives;
 
+import org.eclipse.equinox.internal.p2.engine.phases.Collect;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.io.File;
@@ -19,7 +21,6 @@ import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstant
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.CollectAction;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.provisional.p2.engine.phases.Collect;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
