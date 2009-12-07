@@ -69,6 +69,8 @@ public class ConfigurationWriter implements ConfigurationConstants {
 				writer.close();
 			}
 		}
+		// put the config in the cache in case someone in the same session wants to read it
+		ConfigurationCache.put(location, configuration);
 	}
 
 	/*

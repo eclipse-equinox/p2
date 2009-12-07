@@ -189,12 +189,22 @@ public class ConfigurationParser implements ConfigurationConstants {
 	 * Returns null if the file doesn't exist.
 	 */
 	private Configuration internalParse(File file) throws ProvisionException {
-		if (!file.exists())
+		if (!file.exists()) {
+			// remove from cache since it doesn't exist anymore on disk
+			ConfigurationCache.put(file, null);
 			return null;
+		}
+		// have we read this before?
+		Configuration result = ConfigurationCache.get(file);
+		if (result != null)
+			return result;
 		try {
 			InputStream input = new BufferedInputStream(new FileInputStream(file));
 			Document document = load(input);
-			return process(document);
+			result = process(document);
+			// save for future use
+			ConfigurationCache.put(file, result);
+			return result;
 		} catch (IOException e) {
 			throw new ProvisionException(NLS.bind(Messages.error_reading_config, file), e);
 		} catch (ParserConfigurationException e) {
