@@ -11,32 +11,34 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.util.ArrayList;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 public class InstallableUnit implements IInstallableUnit {
 
 	private static final OrderedProperties NO_PROPERTIES = new OrderedProperties();
 	private static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
-	private static final IRequiredCapability[] NO_REQUIRES = new IRequiredCapability[0];
+	private static final IRequirement[] NO_REQUIRES = new IRequirement[0];
 	private static final IArtifactKey[] NO_ARTIFACTS = new IArtifactKey[0];
 	private static final ITouchpointData[] NO_TOUCHPOINT_DATA = new ITouchpointData[0];
 	private static final ILicense[] NO_LICENSE = new ILicense[0];
 
 	private IArtifactKey[] artifacts = NO_ARTIFACTS;
-	private String filter;
+	private LDAPQuery filter;
 
 	private String id;
 
 	private OrderedProperties properties;
 	private OrderedProperties localizedProperties;
 	IProvidedCapability[] providedCapabilities = NO_PROVIDES;
-	private IRequiredCapability[] requires = NO_REQUIRES;
-	private IRequiredCapability[] metaRequires = NO_REQUIRES;
+	private IRequirement[] requires = NO_REQUIRES;
+	private IRequirement[] metaRequires = NO_REQUIRES;
 
 	private boolean singleton;
 
@@ -102,7 +104,7 @@ public class InstallableUnit implements IInstallableUnit {
 		return artifacts;
 	}
 
-	public String getFilter() {
+	public LDAPQuery getFilter() {
 		return filter;
 	}
 
@@ -142,7 +144,7 @@ public class InstallableUnit implements IInstallableUnit {
 		return providedCapabilities;
 	}
 
-	public IRequiredCapability[] getRequiredCapabilities() {
+	public IRequirement[] getRequiredCapabilities() {
 		return requires;
 
 	}
@@ -199,7 +201,8 @@ public class InstallableUnit implements IInstallableUnit {
 	}
 
 	public void setFilter(String filter) {
-		this.filter = filter;
+		if (filter != null)
+			this.filter = new LDAPQuery(filter);
 	}
 
 	public void setId(String id) {
@@ -223,12 +226,12 @@ public class InstallableUnit implements IInstallableUnit {
 		return (String) properties.setProperty(key, value);
 	}
 
-	public void setRequiredCapabilities(IRequiredCapability[] capabilities) {
+	public void setRequiredCapabilities(IRequirement[] capabilities) {
 		if (capabilities.length == 0) {
 			this.requires = NO_REQUIRES;
 		} else {
 			//copy array for safety
-			this.requires = (IRequiredCapability[]) capabilities.clone();
+			this.requires = (IRequirement[]) capabilities.clone();
 		}
 	}
 
@@ -276,24 +279,28 @@ public class InstallableUnit implements IInstallableUnit {
 		return copyright;
 	}
 
-	public boolean satisfies(IRequiredCapability candidate) {
-		IProvidedCapability[] provides = getProvidedCapabilities();
-		for (int i = 0; i < provides.length; i++)
-			if (provides[i].satisfies(candidate))
-				return true;
+	public boolean satisfies(IRequirement candidate) {
+		if (candidate.getMatches() instanceof RequiredCapability) {
+			for (int i = 0; i < providedCapabilities.length; i++) {
+				if (((IRequiredCapability) candidate).satisfiedBy(providedCapabilities[i]))
+					return true;
+			}
+		} else {
+			throw new IllegalArgumentException();
+		}
 		return false;
 	}
 
-	public IRequiredCapability[] getMetaRequiredCapabilities() {
+	public IRequirement[] getMetaRequiredCapabilities() {
 		return metaRequires;
 	}
 
-	public void setMetaRequiredCapabilities(IRequiredCapability[] metaReqs) {
+	public void setMetaRequiredCapabilities(IRequirement[] metaReqs) {
 		if (metaReqs.length == 0) {
 			this.metaRequires = NO_REQUIRES;
 		} else {
 			//copy array for safety
-			this.metaRequires = (IRequiredCapability[]) metaReqs.clone();
+			this.metaRequires = (IRequirement[]) metaReqs.clone();
 		}
 	}
 }

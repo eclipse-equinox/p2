@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.p2.metadata.IRequirement;
+
 /**
  * An installable unit patch is an installable unit that alters the required capabilities of another
  * installable unit. 
@@ -30,7 +34,7 @@ public interface IInstallableUnitPatch extends IInstallableUnit {
 	 * a scope of [[r1, r2, r3], [r4, r5]] will match any unit whose provided capabilities
 	 * satisfy the expression ((r1 ^ r2 ^ r3) | (r4 ^ r5)).
 	 */
-	IRequiredCapability[][] getApplicabilityScope();
+	IRequirement[][] getApplicabilityScope();
 
 	/**
 	 * Returns the requirement changes imposed by the patch.
@@ -44,5 +48,5 @@ public interface IInstallableUnitPatch extends IInstallableUnit {
 	 * is satisfied by some IU in the profile. If a future provisioning operation causes
 	 * the requirement to no longer be satisfied, the patch will be uninstalled.
 	 */
-	IRequiredCapability getLifeCycle();
+	IRequirement getLifeCycle();
 }

@@ -1,5 +1,9 @@
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+
 import java.util.ArrayList;
 import java.util.Properties;
 import org.eclipse.core.runtime.NullProgressMonitor;

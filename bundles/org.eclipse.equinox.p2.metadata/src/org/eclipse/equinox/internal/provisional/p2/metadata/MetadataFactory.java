@@ -12,13 +12,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A factory class for instantiating various p2 metadata objects.
@@ -75,12 +80,12 @@ public class MetadataFactory {
 		public void addRequiredCapabilities(Collection additional) {
 			if (additional == null || additional.size() == 0)
 				return;
-			IRequiredCapability[] current = unit().getRequiredCapabilities();
-			IRequiredCapability[] result = new IRequiredCapability[additional.size() + current.length];
+			IRequirement[] current = unit().getRequiredCapabilities();
+			IRequirement[] result = new IRequirement[additional.size() + current.length];
 			System.arraycopy(current, 0, result, 0, current.length);
 			int j = current.length;
 			for (Iterator i = additional.iterator(); i.hasNext();)
-				result[j++] = (IRequiredCapability) i.next();
+				result[j++] = (IRequirement) i.next();
 			unit().setRequiredCapabilities(result);
 		}
 
@@ -97,11 +102,11 @@ public class MetadataFactory {
 			return unit().getProvidedCapabilities();
 		}
 
-		public IRequiredCapability[] getRequiredCapabilities() {
+		public IRequirement[] getRequiredCapabilities() {
 			return unit().getRequiredCapabilities();
 		}
 
-		public IRequiredCapability[] getMetaRequiredCapabilities() {
+		public IRequirement[] getMetaRequiredCapabilities() {
 			return unit().getMetaRequiredCapabilities();
 		}
 
@@ -148,11 +153,11 @@ public class MetadataFactory {
 			unit().setProperty(key, value);
 		}
 
-		public void setRequiredCapabilities(IRequiredCapability[] requirements) {
+		public void setRequiredCapabilities(IRequirement[] requirements) {
 			unit().setRequiredCapabilities(requirements);
 		}
 
-		public void setMetaRequiredCapabilities(IRequiredCapability[] metaRequirements) {
+		public void setMetaRequiredCapabilities(IRequirement[] metaRequirements) {
 			unit().setMetaRequiredCapabilities(metaRequirements);
 		}
 
@@ -193,7 +198,7 @@ public class MetadataFactory {
 			setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		}
 
-		public void setHost(IRequiredCapability[] hostRequirements) {
+		public void setHost(IRequirement[] hostRequirements) {
 			((InstallableUnitFragment) unit()).setHost(hostRequirements);
 		}
 
@@ -211,13 +216,13 @@ public class MetadataFactory {
 			setProperty(InstallableUnitDescription.PROP_TYPE_PATCH, Boolean.TRUE.toString());
 		}
 
-		public void setApplicabilityScope(IRequiredCapability[][] applyTo) {
+		public void setApplicabilityScope(IRequirement[][] applyTo) {
 			if (applyTo == null)
 				throw new IllegalArgumentException("A patch scope can not be null"); //$NON-NLS-1$
 			((InstallableUnitPatch) unit()).setApplicabilityScope(applyTo);
 		}
 
-		public void setLifeCycle(IRequiredCapability lifeCycle) {
+		public void setLifeCycle(IRequirement lifeCycle) {
 			((InstallableUnitPatch) unit()).setLifeCycle(lifeCycle);
 		}
 
@@ -228,7 +233,7 @@ public class MetadataFactory {
 		InstallableUnit unit() {
 			if (unit == null) {
 				unit = new InstallableUnitPatch();
-				((InstallableUnitPatch) unit()).setApplicabilityScope(new IRequiredCapability[0][0]);
+				((InstallableUnitPatch) unit()).setApplicabilityScope(new IRequirement[0][0]);
 			}
 			return unit;
 		}
@@ -294,7 +299,7 @@ public class MetadataFactory {
 	}
 
 	/**
-	 * Returns a {@link IRequiredCapability} with the given values.
+	 * Returns a {@link IRequirement} with the given values.
 	 * 
 	 * @param namespace The capability namespace
 	 * @param name The required capability name
@@ -310,6 +315,10 @@ public class MetadataFactory {
 		return new RequiredCapability(namespace, name, range, filter, optional, multiple);
 	}
 
+	public static IRequirement createRequiredCapability(String namespace, String name, VersionRange range, IQuery filter, int minCard, int maxCard, boolean greedy) {
+		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy);
+	}
+
 	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
 		return new RequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
 	}
@@ -320,8 +329,10 @@ public class MetadataFactory {
 	 * @param newValue The result of the requirement change - the requirement to replace the source requirement with
 	 * @return a requirement change
 	 */
-	public static IRequirementChange createRequirementChange(IRequiredCapability applyOn, IRequiredCapability newValue) {
-		return new RequirementChange(applyOn, newValue);
+	public static IRequirementChange createRequirementChange(IRequirement applyOn, IRequirement newValue) {
+		if ((applyOn == null || applyOn instanceof IRequiredCapability) && (newValue == null || newValue instanceof IRequiredCapability))
+			return new RequirementChange((IRequiredCapability) applyOn, (IRequiredCapability) newValue);
+		throw new IllegalArgumentException();
 	}
 
 	/**

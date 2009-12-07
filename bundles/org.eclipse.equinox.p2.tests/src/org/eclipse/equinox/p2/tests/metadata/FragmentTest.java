@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import junit.framework.AssertionFailedError;

@@ -11,10 +11,11 @@
 
 package org.eclipse.equinox.p2.tests.ui.actions;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import org.eclipse.equinox.internal.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 /**
  * @since 3.5

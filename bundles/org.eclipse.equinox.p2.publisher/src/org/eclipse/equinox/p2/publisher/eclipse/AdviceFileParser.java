@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -18,6 +16,8 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 public class AdviceFileParser {
 
@@ -229,7 +229,7 @@ public class AdviceFileParser {
 			}
 			next();
 		}
-		IRequiredCapability capability = MetadataFactory.createRequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
+		IRequirement capability = MetadataFactory.createRequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
 		requires.add(capability);
 	}
 
@@ -383,7 +383,7 @@ public class AdviceFileParser {
 			description.setArtifacts((IArtifactKey[]) unitArtifacts.toArray(new IArtifactKey[unitArtifacts.size()]));
 
 		if (!unitHostRequirements.isEmpty())
-			((InstallableUnitFragmentDescription) description).setHost((IRequiredCapability[]) unitHostRequirements.toArray(new IRequiredCapability[unitHostRequirements.size()]));
+			((InstallableUnitFragmentDescription) description).setHost((IRequirement[]) unitHostRequirements.toArray(new IRequirement[unitHostRequirements.size()]));
 
 		if (!unitProperties.isEmpty()) {
 			for (Iterator iterator = unitProperties.entrySet().iterator(); iterator.hasNext();) {
@@ -396,10 +396,10 @@ public class AdviceFileParser {
 			description.setCapabilities((IProvidedCapability[]) unitProvides.toArray(new IProvidedCapability[unitProvides.size()]));
 
 		if (!unitRequires.isEmpty())
-			description.setRequiredCapabilities((IRequiredCapability[]) unitRequires.toArray(new IRequiredCapability[unitRequires.size()]));
+			description.setRequiredCapabilities((IRequirement[]) unitRequires.toArray(new IRequirement[unitRequires.size()]));
 
 		if (!unitMetaRequirements.isEmpty())
-			description.setMetaRequiredCapabilities((IRequiredCapability[]) unitMetaRequirements.toArray(new IRequiredCapability[unitMetaRequirements.size()]));
+			description.setMetaRequiredCapabilities((IRequirement[]) unitMetaRequirements.toArray(new IRequirement[unitMetaRequirements.size()]));
 
 		if (!unitInstructions.isEmpty())
 			description.addTouchpointData(MetadataFactory.createTouchpointData(unitInstructions));
@@ -522,11 +522,11 @@ public class AdviceFileParser {
 		return adviceProperties;
 	}
 
-	public IRequiredCapability[] getRequiredCapabilities() {
+	public IRequirement[] getRequiredCapabilities() {
 		if (adviceRequires.isEmpty())
 			return null;
 
-		return (IRequiredCapability[]) adviceRequires.toArray(new IRequiredCapability[adviceRequires.size()]);
+		return (IRequirement[]) adviceRequires.toArray(new IRequirement[adviceRequires.size()]);
 	}
 
 	public IProvidedCapability[] getProvidedCapabilities() {
@@ -550,10 +550,10 @@ public class AdviceFileParser {
 		return (InstallableUnitDescription[]) adviceOtherIUs.toArray(new InstallableUnitDescription[adviceOtherIUs.size()]);
 	}
 
-	public IRequiredCapability[] getMetaRequiredCapabilities() {
+	public IRequirement[] getMetaRequiredCapabilities() {
 		if (adviceMetaRequires.isEmpty())
 			return null;
 
-		return (IRequiredCapability[]) adviceMetaRequires.toArray(new IRequiredCapability[adviceMetaRequires.size()]);
+		return (IRequirement[]) adviceMetaRequires.toArray(new IRequirement[adviceMetaRequires.size()]);
 	}
 }

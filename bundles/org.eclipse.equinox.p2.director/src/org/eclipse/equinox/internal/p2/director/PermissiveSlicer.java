@@ -8,10 +8,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+
 import java.util.Dictionary;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 public class PermissiveSlicer extends Slicer {
 	private boolean includeOptionalDependencies; //Cause optional dependencies not be followed as part of the
@@ -39,15 +42,18 @@ public class PermissiveSlicer extends Slicer {
 		return evalFilterTo;
 	}
 
-	protected boolean isApplicable(IRequiredCapability req) {
+	protected boolean isApplicable(IRequirement req) {
 		//Every filter in this method needs to continue except when the filter does not pass
 		if (!includeOptionalDependencies)
-			if (req.isOptional())
+			if (req.getMin() == 0)
 				return false;
 
 		if (considerOnlyStrictDependency) {
-			if (!req.getRange().getMinimum().equals(req.getRange().getMaximum()))
-				return false;
+			if (req instanceof IRequiredCapability) {
+				IRequiredCapability reqCap = (IRequiredCapability) req;
+				if (!reqCap.getRange().getMinimum().equals(reqCap.getRange().getMaximum()))
+					return false;
+			}
 		}
 
 		//deal with filters
@@ -65,7 +71,7 @@ public class PermissiveSlicer extends Slicer {
 		return evalFilterTo;
 	}
 
-	protected boolean isGreedy(IRequiredCapability req) {
+	protected boolean isGreedy(IRequirement req) {
 		if (everythingGreedy) {
 			return true;
 		}

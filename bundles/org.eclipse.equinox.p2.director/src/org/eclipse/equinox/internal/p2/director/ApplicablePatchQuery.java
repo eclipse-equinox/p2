@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitPatch;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
  * A query that accepts any patch that applies to a given installable unit.
@@ -32,7 +35,7 @@ public class ApplicablePatchQuery extends MatchQuery {
 		if (!(candidate instanceof IInstallableUnitPatch))
 			return false;
 		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) candidate;
-		IRequiredCapability[][] scopeDescription = patchIU.getApplicabilityScope();
+		IRequirement[][] scopeDescription = patchIU.getApplicabilityScope();
 		if (scopeDescription.length == 0)
 			return true;
 

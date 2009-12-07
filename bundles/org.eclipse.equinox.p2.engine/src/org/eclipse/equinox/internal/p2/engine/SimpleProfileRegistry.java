@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URI;

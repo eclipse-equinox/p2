@@ -10,7 +10,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.p2.metadata.IVersionedId;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,6 +22,8 @@ import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.NLS;
@@ -156,7 +160,7 @@ public class RootIUAction extends AbstractPublisherAction {
 		Collection requiredCapabilities = createIURequirements(children);
 		if (requires != null)
 			requiredCapabilities.addAll(requires);
-		root.setRequiredCapabilities((IRequiredCapability[]) requiredCapabilities.toArray(new IRequiredCapability[requiredCapabilities.size()]));
+		root.setRequiredCapabilities((IRequirement[]) requiredCapabilities.toArray(new IRequirement[requiredCapabilities.size()]));
 		root.setArtifacts(new IArtifactKey[0]);
 
 		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$

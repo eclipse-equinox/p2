@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.io.*;
 import java.util.*;
@@ -25,6 +25,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
@@ -188,7 +190,7 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals("1.1", bundle1IU.getVersion(), BUNDLE1_VERSION);
 
 		// check required capabilities
-		IRequiredCapability[] requiredCapability = bundle1IU.getRequiredCapabilities();
+		IRequirement[] requiredCapability = bundle1IU.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapability, TEST1_IUD_NAMESPACE, TEST1_IUD_NAME, TEST1_IUD_VERSION_RANGE);
 		assertEquals("2.0", 1, requiredCapability.length);
 
@@ -223,7 +225,7 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals(bundle2IU.getVersion(), BUNDLE2_VERSION);
 
 		// check required capabilities
-		IRequiredCapability[] requiredCapabilities = bundle2IU.getRequiredCapabilities();
+		IRequirement[] requiredCapabilities = bundle2IU.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUA_NAMESPACE, TEST2_REQA_NAME, TEST2_IUA_VERSION_RANGE);
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUB_NAMESPACE, TEST2_REQB_NAME, TEST2_IUB_VERSION_RANGE);
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUC_NAMESPACE, TEST2_REQC_NAME, TEST2_IUC_VERSION_RANGE);

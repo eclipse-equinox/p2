@@ -11,11 +11,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.query.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.*;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
@@ -146,9 +148,13 @@ public class QueryProvider {
 			case INSTALLED_IUS :
 				// Querying of IU's.  We are drilling down into the requirements.
 				if (element instanceof IIUElement && context.getShowInstallChildren()) {
-					IQuery meetsAnyRequirementQuery = new CapabilityQuery(((IIUElement) element).getRequirements());
+					IRequirement[] reqs = ((IIUElement) element).getRequirements();
+					IQuery[] meetsAnyRequirementQuery = new IQuery[reqs.length];
+					for (int i = 0; i < meetsAnyRequirementQuery.length; i++) {
+						meetsAnyRequirementQuery[i] = reqs[i].getMatches();
+					}
 					IQuery visibleAsAvailableQuery = policy.getVisibleAvailableIUQuery();
-					return new ElementQueryDescriptor(queryable, CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true), new Collector(), new InstalledIUElementWrapper(queryable, element));
+					return new ElementQueryDescriptor(queryable, CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, CompoundQuery.createCompoundQuery(meetsAnyRequirementQuery, false)}, true), new Collector(), new InstalledIUElementWrapper(queryable, element));
 				}
 				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
 				if (profile == null)

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.io.File;
 import java.net.URI;
 import java.util.*;
@@ -19,10 +21,12 @@ import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -86,7 +90,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 			visited.add(iu);
 			return false;
 		}
-		IRequiredCapability[] caps = iu.getRequiredCapabilities();
+		IRequirement[] caps = iu.getRequiredCapabilities();
 		for (int i = 0; i < caps.length; i++) {
 			boolean result = expandRequirement(iu, caps[i]);
 			if (result) {
@@ -97,8 +101,8 @@ public class NonMinimalState extends AbstractProvisioningTest {
 		return false;
 	}
 
-	private boolean expandRequirement(IInstallableUnit iu, IRequiredCapability req) {
-		Collector matches = profile.query(new CapabilityQuery(req), new Collector(), null);
+	private boolean expandRequirement(IInstallableUnit iu, IRequirement req) {
+		Collector matches = profile.query(req.getMatches(), new Collector(), null);
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (match.getId().equals(searchedId))

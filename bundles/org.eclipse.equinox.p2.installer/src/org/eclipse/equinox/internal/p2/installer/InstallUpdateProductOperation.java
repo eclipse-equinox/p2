@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;

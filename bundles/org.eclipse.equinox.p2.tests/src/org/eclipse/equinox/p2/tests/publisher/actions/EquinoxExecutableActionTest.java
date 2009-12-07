@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,6 +20,8 @@ import java.util.Collections;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxExecutableAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -96,10 +98,10 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				IProvidedCapability[] providedCapability = fragment.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + idBase + ".executable." + configSpec, version); //$NON-NLS-1$ 
 				assertTrue(providedCapability.length == 1);
-				IRequiredCapability[] requiredCapability = fragment.getRequiredCapabilities();
+				IRequirement[] requiredCapability = fragment.getRequiredCapabilities();
 				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$ 
 				assertTrue(requiredCapability.length == 1);
-				assertTrue(fragment.getFilter().equals("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+				assertTrue(fragment.getFilter().getFilter().equals("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 				assertTrue(fragment.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$ //$NON-NLS-2$
 				return;//pass
 			}
@@ -116,7 +118,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				IProvidedCapability[] providedCapability = possibleEclipse.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec + ".eclipse", version); //$NON-NLS-1$ //$NON-NLS-2$ 
 				assertTrue(providedCapability.length == 1);
-				IRequiredCapability[] req = possibleEclipse.getRequiredCapabilities();
+				IRequirement[] req = possibleEclipse.getRequiredCapabilities();
 				assertTrue(req.length == 0);
 				return;//pass
 			}
@@ -134,7 +136,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			IInstallableUnit possibleExec = (IInstallableUnit) iuList.get(i);
 			if (possibleExec.getId().equals(idBase + ".executable." + configSpec)) { //$NON-NLS-1$
 				//keep checking
-				assertTrue(possibleExec.getFilter().equals("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+				assertTrue(possibleExec.getFilter().getFilter().equals("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 				IArtifactKey eKey = possibleExec.getArtifacts()[0];
 				assertTrue(eKey.getClassifier().equals("binary")); //$NON-NLS-1$
 				assertTrue(eKey.getId().equals(idBase + ".executable." + configSpec)); //$NON-NLS-1$
@@ -144,7 +146,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				verifyProvidedCapability(providedCapabilities, flavorArg + idBase, idBase + ".executable", version); //$NON-NLS-1$
 				assertTrue(providedCapabilities.length == 2);
 
-				IRequiredCapability[] requiredCapability = possibleExec.getRequiredCapabilities();
+				IRequirement[] requiredCapability = possibleExec.getRequiredCapabilities();
 				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher." + (idBase.equals("mac") || idBase.equals("macCocoa") ? configSpec.substring(0, configSpec.lastIndexOf(".")) : configSpec), VersionRange.emptyRange); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 				assertTrue(requiredCapability.length == 1);
 				return;//pass

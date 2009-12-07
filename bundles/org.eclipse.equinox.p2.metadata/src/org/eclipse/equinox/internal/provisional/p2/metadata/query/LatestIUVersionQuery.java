@@ -10,8 +10,9 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
 
 /**
  * This query returns the latest version for each unique VersionedID.  

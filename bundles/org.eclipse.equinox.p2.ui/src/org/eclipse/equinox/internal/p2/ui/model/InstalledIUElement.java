@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 
 /**
@@ -82,7 +83,7 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
 	 */
-	public IRequiredCapability[] getRequirements() {
+	public IRequirement[] getRequirements() {
 		return iu.getRequiredCapabilities();
 	}
 

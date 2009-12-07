@@ -9,7 +9,7 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -27,6 +27,9 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -52,23 +55,23 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		super.tearDown();
 	}
 
-	class SPIRequiredCapability implements IRequiredCapability {
-		String filter;
+	class SPIRequiredCapability extends MatchQuery implements IRequiredCapability {
+		LDAPQuery filter;
 		String name;
 		String namespace;
 		VersionRange versionRange;
 		boolean isGreedy;
-		boolean isMultiple;
-		boolean isOptional;
+		int min;
+		int max;
 
 		public SPIRequiredCapability(String namespace, String name, VersionRange versionRange, String filter, boolean isGreedy, boolean isMultiple, boolean isOptional) {
 			this.namespace = namespace;
 			this.name = name;
 			this.versionRange = versionRange;
-			this.filter = filter;
+			setFilter(filter);
 			this.isGreedy = isGreedy;
-			this.isMultiple = isMultiple;
-			this.isOptional = isOptional;
+			this.min = isOptional ? 0 : 1;
+			this.max = 1;
 		}
 
 		public SPIRequiredCapability(String namespace, String name, VersionRange versionRange) {
@@ -77,7 +80,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.versionRange = versionRange;
 		}
 
-		public String getFilter() {
+		public IQuery getFilter() {
 			return this.filter;
 		}
 
@@ -97,16 +100,10 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return isGreedy;
 		}
 
-		public boolean isMultiple() {
-			return this.isMultiple;
-		}
-
-		public boolean isOptional() {
-			return this.isOptional;
-		}
-
 		public void setFilter(String filter) {
-			this.filter = filter;
+			if (filter != null) {
+				this.filter = new LDAPQuery(filter);
+			}
 		}
 
 		public boolean equals(Object obj) {
@@ -122,13 +119,13 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 					return false;
 			} else if (!filter.equals(other.getFilter()))
 				return false;
-			if (isMultiple != other.isMultiple())
-				return false;
 			if (!name.equals(other.getName()))
 				return false;
 			if (!namespace.equals(other.getNamespace()))
 				return false;
-			if (isOptional != other.isOptional())
+			if (other.getMin() != this.getMin())
+				return false;
+			if (other.getMax() != this.getMax())
 				return false;
 			if (!versionRange.equals(other.getRange()))
 				return false;
@@ -147,6 +144,26 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return getRange().isIncluded(cap.getVersion());
 		}
 
+		public int getMin() {
+			return min;
+		}
+
+		public int getMax() {
+			return max;
+		}
+
+		public IQuery getMatches() {
+			return this;
+		}
+
+		public boolean isMatch(Object object) {
+			if (!(object instanceof IInstallableUnit))
+				return false;
+			IInstallableUnit candidate = (IInstallableUnit) object;
+			if (!candidate.satisfies((IRequirement) this))
+				return false;
+			return true;
+		}
 	}
 
 	class SPIProvidedCapability implements IProvidedCapability {
@@ -186,7 +203,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.version;
 		}
 
-		public boolean satisfies(IRequiredCapability candidate) {
+		public boolean satisfies(IRequirement candidate) {
 			return false;
 		}
 
@@ -200,7 +217,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		List providedCapabilities = new ArrayList();
 		List touchpointData = new ArrayList();
 		ICopyright copyright = null;
-		String filter = null;
+		LDAPQuery filter = null;
 		String id = null;
 		ILicense[] license = null;
 		Map properties = new HashMap();
@@ -228,7 +245,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.copyright;
 		}
 
-		public String getFilter() {
+		public LDAPQuery getFilter() {
 			return this.filter;
 		}
 
@@ -290,7 +307,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.isSingleton;
 		}
 
-		public boolean satisfies(IRequiredCapability candidate) {
+		public boolean satisfies(IRequirement candidate) {
 			IProvidedCapability[] provides = getProvidedCapabilities();
 			for (int i = 0; i < provides.length; i++)
 				if (provides[i].satisfies(candidate))
@@ -716,7 +733,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		unit = (IInstallableUnit) collection.iterator().next();
 		assertEquals(unit.getRequiredCapabilities().length, 1);
 		assertTrue(unit.getRequiredCapabilities()[0] instanceof RequiredCapability);
-		assertTrue(unit.getRequiredCapabilities()[0].getName().equals("bar"));
+		assertTrue(((IRequiredCapability) unit.getRequiredCapabilities()[0]).getName().equals("bar"));
 	}
 
 	/**
@@ -788,12 +805,14 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(unit.getRequiredCapabilities().length, 1);
 		assertEquals(unit.getProvidedCapabilities().length, 1);
 		assertEquals(unit.getTouchpointData().length, 1);
-		assertEquals(unit.getRequiredCapabilities()[0], spiRequiredCapability);
+		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities()[0]).getNamespace(), spiRequiredCapability.getNamespace());
+		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities()[0]).getName(), spiRequiredCapability.getName());
+		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities()[0]).getMin(), spiRequiredCapability.getMin());
+		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities()[0]).getMax(), spiRequiredCapability.getMax());
 		assertEquals(unit.getProvidedCapabilities()[0], spiProvidedCapability);
 		assertEquals(unit.getTouchpointData()[0], spiTouchpointData);
 		assertEquals(unit.getTouchpointType(), spiTouchpointType);
 		assertEquals(unit.getLicenses()[0], spiLicense);
-		assertEquals(spiRequiredCapability, unit.getRequiredCapabilities()[0]);
 		assertEquals(spiProvidedCapability, unit.getProvidedCapabilities()[0]);
 		assertEquals(spiTouchpointData, unit.getTouchpointData()[0]);
 		assertEquals(spiTouchpointType, unit.getTouchpointType());

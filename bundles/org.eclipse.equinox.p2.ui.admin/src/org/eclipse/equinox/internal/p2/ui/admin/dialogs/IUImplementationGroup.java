@@ -10,12 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
@@ -159,7 +162,7 @@ public class IUImplementationGroup extends IUGroup {
 		}
 		touchpointData.setItems(items);
 
-		IRequiredCapability[] req = iu.getRequiredCapabilities();
+		IRequirement[] req = iu.getRequiredCapabilities();
 		items = new String[req.length];
 		for (int i = 0; i < req.length; i++) {
 			items[i] = req[i].toString();

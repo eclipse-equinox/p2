@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;

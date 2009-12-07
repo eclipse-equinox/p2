@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -20,9 +20,13 @@ import java.util.Iterator;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 
@@ -71,7 +75,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeMetaRequiredCapabilities(iu.getMetaRequiredCapabilities());
 		writeProvidedCapabilities(iu.getProvidedCapabilities());
 		writeRequiredCapabilities(iu.getRequiredCapabilities());
-		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter());
+		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter() == null ? null : iu.getFilter().getFilter());
 
 		writeArtifactKeys(iu.getArtifacts());
 		writeTouchpointType(iu.getTouchpointType());
@@ -82,7 +86,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(INSTALLABLE_UNIT_ELEMENT);
 	}
 
-	protected void writeLifeCycle(IRequiredCapability capability) {
+	protected void writeLifeCycle(IRequirement capability) {
 		if (capability == null)
 			return;
 		start(LIFECYCLE);
@@ -90,7 +94,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(LIFECYCLE);
 	}
 
-	protected void writeHostRequiredCapabilities(IRequiredCapability[] capabilities) {
+	protected void writeHostRequiredCapabilities(IRequirement[] capabilities) {
 		if (capabilities != null && capabilities.length > 0) {
 			start(HOST_REQUIRED_CAPABILITIES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.length);
@@ -116,7 +120,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	protected void writeMetaRequiredCapabilities(IRequiredCapability[] capabilities) {
+	protected void writeMetaRequiredCapabilities(IRequirement[] capabilities) {
 		if (capabilities != null && capabilities.length > 0) {
 			start(META_REQUIRED_CAPABILITIES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.length);
@@ -127,7 +131,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	protected void writeRequiredCapabilities(IRequiredCapability[] capabilities) {
+	protected void writeRequiredCapabilities(IRequirement[] capabilities) {
 		if (capabilities != null && capabilities.length > 0) {
 			start(REQUIRED_CAPABILITIES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.length);
@@ -150,7 +154,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(UPDATE_DESCRIPTOR_ELEMENT);
 	}
 
-	protected void writeApplicabilityScope(IRequiredCapability[][] capabilities) {
+	protected void writeApplicabilityScope(IRequirement[][] capabilities) {
 		start(APPLICABILITY_SCOPE);
 		for (int i = 0; i < capabilities.length; i++) {
 			start(APPLY_ON);
@@ -172,27 +176,33 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		start(REQUIREMENT_CHANGE);
 		if (change.applyOn() != null) {
 			start(REQUIREMENT_FROM);
-			writeRequiredCapability(change.applyOn());
+			writeRequiredCapability((IRequirement) change.applyOn());
 			end(REQUIREMENT_FROM);
 		}
 		if (change.newValue() != null) {
 			start(REQUIREMENT_TO);
-			writeRequiredCapability(change.newValue());
+			writeRequiredCapability((IRequirement) change.newValue());
 			end(REQUIREMENT_TO);
 		}
 		end(REQUIREMENT_CHANGE);
 	}
 
-	protected void writeRequiredCapability(IRequiredCapability capability) {
-		start(REQUIRED_CAPABILITY_ELEMENT);
-		attribute(NAMESPACE_ATTRIBUTE, capability.getNamespace());
-		attribute(NAME_ATTRIBUTE, capability.getName());
-		attribute(VERSION_RANGE_ATTRIBUTE, capability.getRange());
-		attribute(CAPABILITY_OPTIONAL_ATTRIBUTE, capability.isOptional(), false);
-		attribute(CAPABILITY_MULTIPLE_ATTRIBUTE, capability.isMultiple(), false);
-		attribute(CAPABILITY_GREED_ATTRIBUTE, capability.isGreedy(), true);
-		writeTrimmedCdata(CAPABILITY_FILTER_ELEMENT, capability.getFilter());
-		end(REQUIRED_CAPABILITY_ELEMENT);
+	protected void writeRequiredCapability(IRequirement requirement) {
+		if (requirement instanceof IRequiredCapability) {
+			IRequiredCapability reqCapability = (IRequiredCapability) requirement;
+			start(REQUIRED_CAPABILITY_ELEMENT);
+			attribute(NAMESPACE_ATTRIBUTE, reqCapability.getNamespace());
+			attribute(NAME_ATTRIBUTE, reqCapability.getName());
+			attribute(VERSION_RANGE_ATTRIBUTE, reqCapability.getRange());
+			attribute(CAPABILITY_OPTIONAL_ATTRIBUTE, requirement.getMin() == 0, false);
+			attribute(CAPABILITY_GREED_ATTRIBUTE, requirement.isGreedy(), true);
+			if (requirement.getFilter() != null)
+				writeTrimmedCdata(CAPABILITY_FILTER_ELEMENT, ((LDAPQuery) requirement.getFilter()).getFilter());
+			end(REQUIRED_CAPABILITY_ELEMENT);
+		} else {
+			throw new IllegalStateException();
+		}
+
 	}
 
 	protected void writeArtifactKeys(IArtifactKey[] artifactKeys) {

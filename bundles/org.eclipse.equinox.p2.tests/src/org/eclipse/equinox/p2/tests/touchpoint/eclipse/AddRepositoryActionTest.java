@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;

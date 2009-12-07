@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * A simple data structure describing a possible update.

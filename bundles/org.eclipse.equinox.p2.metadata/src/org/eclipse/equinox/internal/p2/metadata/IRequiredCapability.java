@@ -7,7 +7,14 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.internal.p2.metadata;
+
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IMatchQuery;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.
@@ -25,9 +32,9 @@ package org.eclipse.equinox.internal.provisional.p2.metadata;
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  */
-public interface IRequiredCapability {
+public interface IRequiredCapability extends IMatchQuery, IRequirement {
 
-	public String getFilter();
+	//	public String getFilter();
 
 	public String getName();
 
@@ -41,35 +48,7 @@ public interface IRequiredCapability {
 	 */
 	public VersionRange getRange();
 
-	public boolean isMultiple();
-
-	public boolean isOptional();
-
-	/**
-	 * TODO This object shouldn't be mutable since it makes equality unstable, and
-	 * introduces lifecycle issues (how are the changes persisted, etc)
-	 */
-	public void setFilter(String filter);
-
-	public boolean isGreedy();
-
-	/**
-	 * Returns whether this required capability is equal to the given object.
-	 * 
-	 * This method returns <i>true</i> if:
-	 * <ul>
-	 *  <li> Both this object and the given object are of type IRequiredCapability
-	 *  <li> The result of <b>getFilter()</b> on both objects are equal
-	 *  <li> The result of <b>isMultiple()</b> on both objects are equal
-	 *  <li> The result of <b>getName()</b> on both objects are equal
-	 *  <li> The result of <b>geNamespace()</b> on both objects are equal
-	 *  <li> The result of <b>isOptional()</b> on both objects are equal
-	 *  <li> The result of <b>getRange()</b> on both objects are equal
-	 * </ul> 
-	 */
 	public boolean equals(Object other);
-
-	public boolean isNegation();
 
 	public boolean satisfiedBy(IProvidedCapability cap);
 

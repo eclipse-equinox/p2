@@ -11,6 +11,8 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;

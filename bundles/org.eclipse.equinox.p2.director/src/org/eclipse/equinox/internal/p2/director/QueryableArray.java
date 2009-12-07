@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.ORRequirement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public class QueryableArray implements IQueryable {
@@ -36,29 +40,22 @@ public class QueryableArray implements IQueryable {
 	}
 
 	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-		if (query instanceof CapabilityQuery)
-			return queryCapability((CapabilityQuery) query, collector, monitor);
+		if (query instanceof IRequiredCapability)
+			return queryCapability((IRequiredCapability) query, collector, monitor);
 		return query.perform(dataSet.iterator(), collector);
 	}
 
-	private Collector queryCapability(CapabilityQuery query, Collector collector, IProgressMonitor monitor) {
+	private Collector queryCapability(IRequiredCapability query, Collector collector, IProgressMonitor monitor) {
 		generateNamedCapabilityIndex();
 
-		IRequiredCapability[] requiredCapabilities = query.getRequiredCapabilities();
 		Collection resultIUs = null;
-		for (int i = 0; i < requiredCapabilities.length; i++) {
-			if (requiredCapabilities[i] instanceof ORRequirement) {
-				query.perform(dataSet.iterator(), collector);
-				continue;
-			}
-			Collection matchingIUs = findMatchingIUs(requiredCapabilities[i]);
-			if (matchingIUs == null)
-				return collector;
-			if (resultIUs == null)
-				resultIUs = matchingIUs;
-			else
-				resultIUs.retainAll(matchingIUs);
-		}
+		Collection matchingIUs = findMatchingIUs(query);
+		if (matchingIUs == null)
+			return collector;
+		if (resultIUs == null)
+			resultIUs = matchingIUs;
+		else
+			resultIUs.retainAll(matchingIUs);
 
 		if (resultIUs != null)
 			for (Iterator iterator = resultIUs.iterator(); iterator.hasNext();)
@@ -75,7 +72,7 @@ public class QueryableArray implements IQueryable {
 		Set matchingIUs = new HashSet();
 		for (Iterator iterator = iuCapabilities.iterator(); iterator.hasNext();) {
 			IUCapability iuCapability = (IUCapability) iterator.next();
-			if (iuCapability.capability.satisfies(requiredCapability))
+			if (iuCapability.iu.satisfies(requiredCapability))
 				matchingIUs.add(iuCapability.iu);
 		}
 		return matchingIUs;

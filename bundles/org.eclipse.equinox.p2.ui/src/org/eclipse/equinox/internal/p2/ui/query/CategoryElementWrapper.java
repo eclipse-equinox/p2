@@ -11,13 +11,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+
 import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
  * A collector that converts IU's to category elements as it accepts them.
@@ -37,10 +40,12 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 	protected boolean shouldWrap(Object match) {
 		if (match instanceof IInstallableUnit) {
 			IInstallableUnit iu = (IInstallableUnit) match;
-			IRequiredCapability[] requirements = iu.getRequiredCapabilities();
+			IRequirement[] requirements = iu.getRequiredCapabilities();
 			for (int i = 0; i < requirements.length; i++) {
-				if (requirements[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
-					referredIUs.add(requirements[i].getName());
+				if (requirements[i] instanceof IRequiredCapability) {
+					if (((IRequiredCapability) requirements[i]).getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
+						referredIUs.add(((IRequiredCapability) requirements[i]).getName());
+					}
 				}
 			}
 

@@ -11,15 +11,20 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.math.BigInteger;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
-import org.eclipse.equinox.internal.p2.metadata.NotRequirement;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
@@ -244,11 +249,11 @@ public class Projector {
 		BigInteger optionalWeight = maxWeight.negate();
 		long countOptional = 1;
 		List requestedPatches = new ArrayList();
-		IRequiredCapability[] reqs = metaIu.getRequiredCapabilities();
+		IRequirement[] reqs = metaIu.getRequiredCapabilities();
 		for (int j = 0; j < reqs.length; j++) {
-			if (!reqs[j].isOptional())
+			if (reqs[j].getMin() > 0)
 				continue;
-			Collector matches = picker.query(new CapabilityQuery(reqs[j]), new Collector(), null);
+			Collector matches = picker.query(reqs[j].getMatches(), new Collector(), null);
 			for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 				IInstallableUnit match = (IInstallableUnit) iterator.next();
 				if (match instanceof IInstallableUnitPatch) {
@@ -294,7 +299,7 @@ public class Projector {
 		assumptions.add(iu);
 	}
 
-	private void createNegation(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
+	private void createNegation(IInstallableUnit iu, IRequirement req) throws ContradictionException {
 		if (DEBUG) {
 			Tracing.debug(iu + "=0"); //$NON-NLS-1$
 		}
@@ -302,33 +307,34 @@ public class Projector {
 	}
 
 	// Check whether the requirement is applicable
-	private boolean isApplicable(IRequiredCapability req) {
-		String filter = req.getFilter();
+	private boolean isApplicable(IRequirement req) {
+		IQuery filter = req.getFilter();
 		if (filter == null)
 			return true;
-		try {
-			return DirectorActivator.context.createFilter(filter).match(selectionContext);
-		} catch (InvalidSyntaxException e) {
-			return false;
-		}
+		if (filter instanceof LDAPQuery)
+			try {
+				return DirectorActivator.context.createFilter(((LDAPQuery) filter).getFilter()).match(selectionContext);
+			} catch (InvalidSyntaxException e) {
+				return false;
+			}
+		throw new IllegalArgumentException();
 	}
 
 	private boolean isApplicable(IInstallableUnit iu) {
-		String enablementFilter = iu.getFilter();
+		LDAPQuery enablementFilter = iu.getFilter();
 		if (enablementFilter == null)
 			return true;
 		try {
-			return DirectorActivator.context.createFilter(enablementFilter).match(selectionContext);
+			return DirectorActivator.context.createFilter(enablementFilter.getFilter()).match(selectionContext);
 		} catch (InvalidSyntaxException e) {
 			return false;
 		}
 	}
 
-	private void expandNegatedRequirement(IRequiredCapability req, IInstallableUnit iu, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
-		IRequiredCapability negatedReq = ((NotRequirement) req).getRequirement();
-		if (!isApplicable(negatedReq))
+	private void expandNegatedRequirement(IRequirement req, IInstallableUnit iu, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
+		if (!isApplicable(req))
 			return;
-		List matches = getApplicableMatches(negatedReq);
+		List matches = getApplicableMatches(req);
 		if (matches.isEmpty()) {
 			return;
 		}
@@ -346,8 +352,8 @@ public class Projector {
 		createNegationImplication(iu, matches, explanation);
 	}
 
-	private void expandRequirement(IRequiredCapability req, IInstallableUnit iu, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
-		if (req.isNegation()) {
+	private void expandRequirement(IRequirement req, IInstallableUnit iu, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
+		if (req.getMax() == 0) {
 			expandNegatedRequirement(req, iu, optionalAbstractRequirements, isRootIu);
 			return;
 		}
@@ -357,7 +363,7 @@ public class Projector {
 		if (isHostRequirement(iu, req)) {
 			rememberHostMatches(iu, matches);
 		}
-		if (!req.isOptional()) {
+		if (req.getMin() > 0) {
 			if (matches.isEmpty()) {
 				missingRequirement(iu, req);
 			} else {
@@ -383,7 +389,7 @@ public class Projector {
 		}
 	}
 
-	private void expandRequirements(IRequiredCapability[] reqs, IInstallableUnit iu, boolean isRootIu) throws ContradictionException {
+	private void expandRequirements(IRequirement[] reqs, IInstallableUnit iu, boolean isRootIu) throws ContradictionException {
 		if (reqs.length == 0) {
 			return;
 		}
@@ -414,10 +420,10 @@ public class Projector {
 		}
 	}
 
-	private IRequiredCapability[] getRequiredCapabilities(IInstallableUnit iu) {
+	private IRequirement[] getRequiredCapabilities(IInstallableUnit iu) {
 		if (considerMetaRequirements == false || iu.getMetaRequiredCapabilities().length == 0)
 			return iu.getRequiredCapabilities();
-		IRequiredCapability[] aggregatedCapabilities = new IRequiredCapability[iu.getRequiredCapabilities().length + iu.getMetaRequiredCapabilities().length];
+		IRequirement[] aggregatedCapabilities = new IRequirement[iu.getRequiredCapabilities().length + iu.getMetaRequiredCapabilities().length];
 		System.arraycopy(iu.getRequiredCapabilities(), 0, aggregatedCapabilities, 0, iu.getRequiredCapabilities().length);
 		System.arraycopy(iu.getMetaRequiredCapabilities(), 0, aggregatedCapabilities, iu.getRequiredCapabilities().length, iu.getMetaRequiredCapabilities().length);
 		return aggregatedCapabilities;
@@ -435,7 +441,7 @@ public class Projector {
 		Map nonPatchedRequirements = new HashMap(getRequiredCapabilities(iu).length);
 		for (Iterator iterator = applicablePatches.iterator(); iterator.hasNext();) {
 			IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator.next();
-			IRequiredCapability[][] reqs = mergeRequirements(iu, patch);
+			IRequirement[][] reqs = mergeRequirements(iu, patch);
 			if (reqs.length == 0)
 				return;
 
@@ -463,12 +469,12 @@ public class Projector {
 				//Generate dependency when the patch is applied
 				//P1 -> (A -> D) equiv. (P1 & A) -> D
 				if (isApplicable(reqs[i][1])) {
-					IRequiredCapability req = reqs[i][1];
+					IRequirement req = reqs[i][1];
 					List matches = getApplicableMatches(req);
 					if (isHostRequirement(iu, req)) {
 						rememberHostMatches(iu, matches);
 					}
-					if (!req.isOptional()) {
+					if (req.getMin() > 0) {
 						if (matches.isEmpty()) {
 							missingRequirement(patch, req);
 						} else {
@@ -496,7 +502,7 @@ public class Projector {
 				//Generate dependency when the patch is not applied
 				//-P1 -> (A -> B) ( equiv. A -> (P1 or B) )
 				if (isApplicable(reqs[i][0])) {
-					IRequiredCapability req = reqs[i][0];
+					IRequirement req = reqs[i][0];
 
 					// Fix: if multiple patches apply to the same IU-req, we need to make sure we list each
 					// patch as an optional match
@@ -510,7 +516,7 @@ public class Projector {
 					if (isHostRequirement(iu, req)) {
 						rememberHostMatches(iu, matches);
 					}
-					if (!req.isOptional()) {
+					if (req.getMin() > 0) {
 						if (matches.isEmpty()) {
 							dependencyHelper.implication(new Object[] {iu}).implies(patch).named(new Explanation.HardRequirement(iu, null));
 						} else {
@@ -572,12 +578,12 @@ public class Projector {
 				IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator2.next();
 				requiredPatches.add(patch);
 			}
-			IRequiredCapability req = (IRequiredCapability) entry.getKey();
+			IRequirement req = (IRequirement) entry.getKey();
 			List matches = getApplicableMatches(req);
 			if (isHostRequirement(iu, req)) {
 				rememberHostMatches(iu, matches);
 			}
-			if (!req.isOptional()) {
+			if (req.getMin() > 0) {
 				if (matches.isEmpty()) {
 					if (requiredPatches.isEmpty()) {
 						missingRequirement(iu, req);
@@ -617,13 +623,13 @@ public class Projector {
 		if (!(iu instanceof IInstallableUnitPatch))
 			return;
 		IInstallableUnitPatch patch = (IInstallableUnitPatch) iu;
-		IRequiredCapability req = patch.getLifeCycle();
+		IRequirement req = patch.getLifeCycle();
 		if (req == null)
 			return;
 		expandRequirement(req, iu, Collections.EMPTY_LIST, isRootIu);
 	}
 
-	private void missingRequirement(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
+	private void missingRequirement(IInstallableUnit iu, IRequirement req) throws ContradictionException {
 		result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
 		createNegation(iu, req);
 	}
@@ -632,9 +638,9 @@ public class Projector {
 	 * @param req
 	 * @return a list of mandatory requirements if any, an empty list if req.isOptional().
 	 */
-	private List getApplicableMatches(IRequiredCapability req) {
+	private List getApplicableMatches(IRequirement req) {
 		List target = new ArrayList();
-		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
+		Collector matches = picker.query(req.getMatches(), new Collector(), null);
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (isApplicable(match)) {
@@ -645,36 +651,36 @@ public class Projector {
 	}
 
 	//Return a new array of requirements representing the application of the patch
-	private IRequiredCapability[][] mergeRequirements(IInstallableUnit iu, IInstallableUnitPatch patch) {
+	private IRequirement[][] mergeRequirements(IInstallableUnit iu, IInstallableUnitPatch patch) {
 		if (patch == null)
 			return null;
 		IRequirementChange[] changes = patch.getRequirementsChange();
-		IRequiredCapability[] originalRequirements = new IRequiredCapability[iu.getRequiredCapabilities().length];
+		IRequirement[] originalRequirements = new IRequirement[iu.getRequiredCapabilities().length];
 		System.arraycopy(iu.getRequiredCapabilities(), 0, originalRequirements, 0, originalRequirements.length);
 		List rrr = new ArrayList();
 		boolean found = false;
 		for (int i = 0; i < changes.length; i++) {
 			for (int j = 0; j < originalRequirements.length; j++) {
-				if (originalRequirements[j] != null && changes[i].matches(originalRequirements[j])) {
+				if (originalRequirements[j] != null && changes[i].matches((IRequiredCapability) originalRequirements[j])) {
 					found = true;
 					if (changes[i].newValue() != null)
-						rrr.add(new IRequiredCapability[] {originalRequirements[j], changes[i].newValue()});
+						rrr.add(new IRequirement[] {originalRequirements[j], changes[i].newValue()});
 					else
 						// case where a requirement is removed
-						rrr.add(new IRequiredCapability[] {originalRequirements[j], null});
+						rrr.add(new IRequirement[] {originalRequirements[j], null});
 					originalRequirements[j] = null;
 				}
 				//				break;
 			}
 			if (!found && changes[i].applyOn() == null && changes[i].newValue() != null) //Case where a new requirement is added
-				rrr.add(new IRequiredCapability[] {null, changes[i].newValue()});
+				rrr.add(new IRequirement[] {null, changes[i].newValue()});
 		}
 		//Add all the unmodified requirements to the result
 		for (int i = 0; i < originalRequirements.length; i++) {
 			if (originalRequirements[i] != null)
-				rrr.add(new IRequiredCapability[] {originalRequirements[i], originalRequirements[i]});
+				rrr.add(new IRequirement[] {originalRequirements[i], originalRequirements[i]});
 		}
-		return (IRequiredCapability[][]) rrr.toArray(new IRequiredCapability[rrr.size()][]);
+		return (IRequirement[][]) rrr.toArray(new IRequirement[rrr.size()][]);
 	}
 
 	/**
@@ -930,11 +936,11 @@ public class Projector {
 		existingMatches.retainAll(matches);
 	}
 
-	private boolean isHostRequirement(IInstallableUnit iu, IRequiredCapability req) {
+	private boolean isHostRequirement(IInstallableUnit iu, IRequirement req) {
 		if (!(iu instanceof IInstallableUnitFragment))
 			return false;
 		IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
-		IRequiredCapability[] reqs = fragment.getHost();
+		IRequirement[] reqs = fragment.getHost();
 		for (int i = 0; i < reqs.length; i++) {
 			if (req.equals(reqs[i]))
 				return true;

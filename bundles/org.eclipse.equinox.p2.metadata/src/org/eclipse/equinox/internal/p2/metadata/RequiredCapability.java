@@ -11,8 +11,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.
@@ -27,14 +32,14 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
  * 
  * @see IInstallableUnit#NAMESPACE_IU_ID
  */
-public class RequiredCapability implements IRequiredCapability {
-	private String filter;
-	private final boolean multiple;
+public class RequiredCapability extends MatchQuery implements IRequiredCapability, IRequirement {
+	private LDAPQuery filter;
 	private final String name;//never null
 	private final String namespace;//never null
-	private boolean optional;
 	private boolean greedy = true;
 	private final VersionRange range;//never null
+	private int min;
+	private int max;
 
 	/**
 	 * TODO replace booleans with int options flag.
@@ -45,9 +50,27 @@ public class RequiredCapability implements IRequiredCapability {
 		this.namespace = namespace;
 		this.name = name;
 		this.range = range == null ? VersionRange.emptyRange : range;
-		this.optional = optional;
-		this.filter = filter;
-		this.multiple = multiple;
+		min = optional ? 0 : 1;
+		max = 1;
+		setFilter(filter);
+	}
+
+	public RequiredCapability(String namespace, String name, VersionRange range, IQuery filter, int min, int max, boolean greedy) {
+		Assert.isNotNull(namespace);
+		Assert.isNotNull(name);
+		this.namespace = namespace;
+		this.name = name;
+		this.range = range == null ? VersionRange.emptyRange : range;
+		this.min = min;
+		this.max = max;
+		this.greedy = greedy;
+		if (filter != null) {
+			if (filter instanceof LDAPQuery) {
+				this.filter = (LDAPQuery) filter;
+			} else {
+				throw new IllegalArgumentException();
+			}
+		}
 	}
 
 	public RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
@@ -68,21 +91,13 @@ public class RequiredCapability implements IRequiredCapability {
 				return false;
 		} else if (!filter.equals(other.getFilter()))
 			return false;
-		if (multiple != other.isMultiple())
-			return false;
 		if (!name.equals(other.getName()))
 			return false;
 		if (!namespace.equals(other.getNamespace()))
 			return false;
-		if (optional != other.isOptional())
-			return false;
 		if (!range.equals(other.getRange()))
 			return false;
 		return true;
-	}
-
-	public String getFilter() {
-		return filter;
 	}
 
 	public String getName() {
@@ -107,20 +122,10 @@ public class RequiredCapability implements IRequiredCapability {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((filter == null) ? 0 : filter.hashCode());
-		result = prime * result + (multiple ? 1231 : 1237);
 		result = prime * result + name.hashCode();
 		result = prime * result + namespace.hashCode();
-		result = prime * result + (optional ? 1231 : 1237);
 		result = prime * result + range.hashCode();
 		return result;
-	}
-
-	public boolean isMultiple() {
-		return multiple;
-	}
-
-	public boolean isOptional() {
-		return optional;
 	}
 
 	/**
@@ -128,7 +133,8 @@ public class RequiredCapability implements IRequiredCapability {
 	 * introduces lifecycle issues (how are the changes persisted, etc)
 	 */
 	public void setFilter(String filter) {
-		this.filter = filter;
+		if (filter != null)
+			this.filter = new LDAPQuery(filter);
 	}
 
 	public boolean isGreedy() {
@@ -170,5 +176,30 @@ public class RequiredCapability implements IRequiredCapability {
 		if (getNamespace() == null || !getNamespace().equals(cap.getNamespace()))
 			return false;
 		return getRange().isIncluded(cap.getVersion());
+	}
+
+	public int getMin() {
+		return min;
+	}
+
+	public int getMax() {
+		return max;
+	}
+
+	public IQuery getMatches() {
+		return this;
+	}
+
+	public IQuery getFilter() {
+		return filter;
+	}
+
+	public boolean isMatch(Object object) {
+		if (!(object instanceof IInstallableUnit))
+			return false;
+		IInstallableUnit candidate = (IInstallableUnit) object;
+		if (!candidate.satisfies((IRequirement) this))
+			return false;
+		return true;
 	}
 }

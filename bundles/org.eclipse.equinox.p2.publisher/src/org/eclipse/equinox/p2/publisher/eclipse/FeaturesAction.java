@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.io.File;
 import java.net.URI;
@@ -26,6 +26,8 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -250,10 +252,10 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (childIUs != null) {
 			for (int i = 0; i < childIUs.size(); i++) {
 				IInstallableUnit child = (IInstallableUnit) childIUs.get(i);
-				required.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter(), false, false));
+				required.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter().getFilter(), false, false));
 			}
 		}
-		iu.setRequiredCapabilities((IRequiredCapability[]) required.toArray(new IRequiredCapability[required.size()]));
+		iu.setRequiredCapabilities((IRequirement[]) required.toArray(new IRequirement[required.size()]));
 		iu.setTouchpointType(ITouchpointType.NONE);
 		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		processTouchpointAdvice(iu, null, publisherInfo);
@@ -318,13 +320,16 @@ public class FeaturesAction extends AbstractPublisherAction {
 		ArrayList requirementChanges = new ArrayList();
 		for (int i = 0; i < entries.length; i++) {
 			VersionRange range = getVersionRange(entries[i]);
-			IRequiredCapability req = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
+			IRequirement req = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
 			if (entries[i].isRequires()) {
 				applicabilityScope.add(req);
+				if (applicabilityScope.size() == 1) {
+					iu.setLifeCycle(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, null, false, false, false));
+				}
 				continue;
 			}
 			if (entries[i].isPlugin()) {
-				IRequiredCapability from = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), VersionRange.emptyRange, getFilter(entries[i]), entries[i].isOptional(), false);
+				IRequirement from = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), VersionRange.emptyRange, getFilter(entries[i]), entries[i].isOptional(), false);
 				requirementChanges.add(MetadataFactory.createRequirementChange(from, req));
 				continue;
 			}
@@ -335,20 +340,12 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (childIUs != null) {
 			for (int i = 0; i < childIUs.size(); i++) {
 				IInstallableUnit child = (IInstallableUnit) childIUs.get(i);
-				patchRequirements.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter(), false, false));
+				patchRequirements.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter() == null ? null : child.getFilter().getFilter(), false, false));
 			}
 		}
-		iu.setRequiredCapabilities((IRequiredCapability[]) patchRequirements.toArray(new IRequiredCapability[patchRequirements.size()]));
-		iu.setApplicabilityScope(new IRequiredCapability[][] {(IRequiredCapability[]) applicabilityScope.toArray(new IRequiredCapability[applicabilityScope.size()])});
+		iu.setRequiredCapabilities((IRequirement[]) patchRequirements.toArray(new IRequirement[patchRequirements.size()]));
+		iu.setApplicabilityScope(new IRequirement[][] {(IRequirement[]) applicabilityScope.toArray(new IRequirement[applicabilityScope.size()])});
 		iu.setRequirementChanges((IRequirementChange[]) requirementChanges.toArray(new IRequirementChange[requirementChanges.size()]));
-
-		//Generate lifecycle
-		IRequiredCapability lifeCycle = null;
-		if (applicabilityScope.size() > 0) {
-			IRequiredCapability req = (IRequiredCapability) applicabilityScope.get(0);
-			lifeCycle = MetadataFactory.createRequiredCapability(req.getNamespace(), req.getName(), req.getRange(), null, false, false, false);
-			iu.setLifeCycle(lifeCycle);
-		}
 
 		iu.setTouchpointType(ITouchpointType.NONE);
 		processTouchpointAdvice(iu, null, publisherInfo);

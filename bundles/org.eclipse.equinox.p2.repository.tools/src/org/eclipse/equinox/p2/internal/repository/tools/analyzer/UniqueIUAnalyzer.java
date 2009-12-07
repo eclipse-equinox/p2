@@ -9,9 +9,10 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.util.HashSet;
 import java.util.Set;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 

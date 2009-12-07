@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
@@ -25,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -369,8 +372,8 @@ public class SimplePlanner implements IPlanner {
 	private Collection areMetaRequirementsSatisfied(IProfile oldProfile, Collection newProfile, IProvisioningPlan initialPlan) {
 		Collection allMetaRequirements = extractMetaRequirements(newProfile, initialPlan);
 		for (Iterator iterator = allMetaRequirements.iterator(); iterator.hasNext();) {
-			IRequiredCapability requirement = (IRequiredCapability) iterator.next();
-			if (oldProfile.query(new CapabilityQuery(requirement), new HasMatchCollector(), null).isEmpty())
+			IRequirement requirement = (IRequirement) iterator.next();
+			if (oldProfile.query(requirement.getMatches(), new HasMatchCollector(), null).isEmpty())
 				return allMetaRequirements;
 		}
 		return null;
@@ -381,7 +384,7 @@ public class SimplePlanner implements IPlanner {
 		Set allMetaRequirements = new HashSet();
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			IRequiredCapability[] reqs = iu.getMetaRequiredCapabilities();
+			IRequirement[] reqs = iu.getMetaRequiredCapabilities();
 			for (int i = 0; i < reqs.length; i++) {
 				allMetaRequirements.add(reqs[i]);
 			}
@@ -389,7 +392,7 @@ public class SimplePlanner implements IPlanner {
 		Collector c2 = plan.getRemovals().query(InstallableUnitQuery.ANY, new Collector(), null);
 		for (Iterator iterator = c2.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			IRequiredCapability[] reqs = iu.getMetaRequiredCapabilities();
+			IRequirement[] reqs = iu.getMetaRequiredCapabilities();
 			for (int i = 0; i < reqs.length; i++) {
 				allMetaRequirements.add(reqs[i]);
 			}
@@ -583,7 +586,7 @@ public class SimplePlanner implements IPlanner {
 		String time = Long.toString(System.currentTimeMillis());
 		iud.setId(time);
 		iud.setVersion(Version.createOSGi(0, 0, 0, time));
-		iud.setRequiredCapabilities((IRequiredCapability[]) allRequirements.toArray(new IRequiredCapability[allRequirements.size()]));
+		iud.setRequiredCapabilities((IRequirement[]) allRequirements.toArray(new IRequirement[allRequirements.size()]));
 		return MetadataFactory.createInstallableUnit(iud);
 	}
 
@@ -621,7 +624,7 @@ public class SimplePlanner implements IPlanner {
 		Map iuPropertiesToAdd = profileChangeRequest.getInstallableUnitProfilePropertiesToAdd();
 		for (int i = 0; i < added.length; i++) {
 			Map propertiesForIU = (Map) iuPropertiesToAdd.get(added[i]);
-			IRequiredCapability profileRequirement = null;
+			IRequirement profileRequirement = null;
 			if (propertiesForIU != null) {
 				profileRequirement = createRequirement(added[i], (String) propertiesForIU.get(INCLUSION_RULES));
 			}
@@ -636,7 +639,7 @@ public class SimplePlanner implements IPlanner {
 		for (Iterator iterator = alreadyInstalled.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			Map propertiesForIU = (Map) iuPropertiesToAdd.get(iu);
-			IRequiredCapability profileRequirement = null;
+			IRequirement profileRequirement = null;
 			//Test if the value has changed
 			if (propertiesForIU != null) {
 				profileRequirement = createRequirement(iu, (String) propertiesForIU.get(INCLUSION_RULES));
@@ -653,7 +656,7 @@ public class SimplePlanner implements IPlanner {
 		return new Object[] {createIURepresentingTheProfile(gatheredRequirements), (IInstallableUnit[]) alreadyInstalled.toArray(new IInstallableUnit[alreadyInstalled.size()])};
 	}
 
-	private IRequiredCapability createRequirement(IInstallableUnit iu, String rule) {
+	private IRequirement createRequirement(IInstallableUnit iu, String rule) {
 		if (rule == null)
 			return null;
 		if (rule.equals(PlannerHelper.createStrictInclusionRule(iu))) {
@@ -665,11 +668,11 @@ public class SimplePlanner implements IPlanner {
 		return null;
 	}
 
-	private IRequiredCapability createOptionalRequirement(IInstallableUnit iu) {
+	private IRequirement createOptionalRequirement(IInstallableUnit iu) {
 		return MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, true, false, true);
 	}
 
-	private IRequiredCapability createStrictRequirement(IInstallableUnit iu) {
+	private IRequirement createStrictRequirement(IInstallableUnit iu) {
 		return MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, false, false, true);
 	}
 

@@ -12,19 +12,24 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 
-@SuppressWarnings( {"restriction", "unchecked"})
+@SuppressWarnings({"restriction", "unchecked"})
 public class RootIUActionTest extends ActionTest {
 	private static final int CONTAINS_A = 1;
 	private static final int CONTAINS_B = 2;
@@ -268,7 +273,7 @@ public class RootIUActionTest extends ActionTest {
 		IInstallableUnit iu = (IInstallableUnit) ius.get(0);
 		assertTrue(iu != null);
 		assertTrue(iu.getVersion().equals(versionArg));
-		IRequiredCapability[] required = iu.getRequiredCapabilities();
+		IRequirement[] required = iu.getRequiredCapabilities();
 		if ((testSpec & EMPTY) > 0)
 			assertEquals(required.length, 0);
 		String confirmedIUs = ""; //$NON-NLS-1$
@@ -294,9 +299,9 @@ public class RootIUActionTest extends ActionTest {
 			debug("Confirmed \t\t  Empty"); //$NON-NLS-1$
 	}
 
-	private boolean contains(IRequiredCapability[] required, String iu) {
+	private boolean contains(IRequirement[] required, String iu) {
 		for (int i = 0; i < required.length; i++)
-			if (required[i].getName().equalsIgnoreCase(iu))
+			if (((IRequiredCapability) required[i]).getName().equalsIgnoreCase(iu))
 				return true;
 		return false;
 	}

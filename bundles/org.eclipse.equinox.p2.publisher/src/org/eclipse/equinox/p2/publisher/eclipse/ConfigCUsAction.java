@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
@@ -324,7 +326,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			IInstallableUnit iu = bundle.getIU();
 
 			// If there is no host, or the filters don't match, skip this one.
-			if (iu == null || !filterMatches(iu.getFilter(), configSpec))
+			if (iu == null || !filterMatches(iu.getFilter() == null ? null : iu.getFilter().getFilter(), configSpec))
 				continue;
 
 			// TODO need to factor this out into its own action

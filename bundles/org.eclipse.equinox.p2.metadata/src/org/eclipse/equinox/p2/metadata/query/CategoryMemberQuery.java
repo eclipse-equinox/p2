@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.query;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
 /**
@@ -22,7 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
  * @since 2.0 
  */
 public class CategoryMemberQuery extends MatchQuery {
-	private IRequiredCapability[] required;
+	private IRequirement[] required;
 
 	/**
 	 * Creates a new query that will return the members of the
@@ -35,7 +36,7 @@ public class CategoryMemberQuery extends MatchQuery {
 		if (CategoryQuery.isCategory(category))
 			this.required = category.getRequiredCapabilities();
 		else
-			this.required = new IRequiredCapability[0];
+			this.required = new IRequirement[0];
 	}
 
 	/*

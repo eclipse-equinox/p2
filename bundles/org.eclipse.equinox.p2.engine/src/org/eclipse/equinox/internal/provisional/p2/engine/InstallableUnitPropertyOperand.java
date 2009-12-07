@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 public class InstallableUnitPropertyOperand extends PropertyOperand {
 	private final IInstallableUnit iu;

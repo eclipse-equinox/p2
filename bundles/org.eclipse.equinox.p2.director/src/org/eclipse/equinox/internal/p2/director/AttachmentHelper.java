@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 public class AttachmentHelper {
 	private static final IInstallableUnitFragment[] NO_FRAGMENTS = new IInstallableUnitFragment[0];
@@ -50,7 +53,7 @@ public class AttachmentHelper {
 				IInstallableUnitFragment potentialFragment = (IInstallableUnitFragment) dependentIU;
 
 				// Check to make sure the host meets the requirements of the fragment
-				IRequiredCapability reqsFromFragment[] = potentialFragment.getHost();
+				IRequirement reqsFromFragment[] = potentialFragment.getHost();
 				boolean match = true;
 				boolean requirementMatched = false;
 				for (int l = 0; l < reqsFromFragment.length && match == true; l++) {

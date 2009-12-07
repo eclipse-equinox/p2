@@ -11,6 +11,12 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+
 import java.io.*;
 import java.util.*;
 import junit.framework.Assert;
@@ -18,6 +24,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -60,10 +67,12 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		Assert.fail("Missing ProvidedCapability: " + name + version.toString()); //$NON-NLS-1$
 	}
 
-	protected void verifyRequiredCapability(IRequiredCapability[] required, String namespace, String name, VersionRange range) {
-		for (int i = 0; i < required.length; i++)
-			if (required[i].getName().equalsIgnoreCase(name) && required[i].getNamespace().equalsIgnoreCase(namespace) && required[i].getRange().equals(range))
+	protected void verifyRequiredCapability(IRequirement[] requirement, String namespace, String name, VersionRange range) {
+		for (int i = 0; i < requirement.length; i++) {
+			IRequiredCapability required = (IRequiredCapability) requirement[i].getMatches();
+			if (required.getName().equalsIgnoreCase(name) && required.getNamespace().equalsIgnoreCase(namespace) && required.getRange().equals(range))
 				return;
+		}
 		Assert.fail("Missing RequiredCapability: " + name + " " + range.toString()); //$NON-NLS-1$
 	}
 
@@ -111,21 +120,19 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		fail();
 	}
 
-	protected void contains(IRequiredCapability[] capabilities, String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
+	protected void contains(IRequirement[] capabilities, String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
 		for (int i = 0; i < capabilities.length; i++) {
-			IRequiredCapability capability = capabilities[i];
+			IRequiredCapability capability = (IRequiredCapability) capabilities[i].getMatches();
 			if (filter == null) {
 				if (capability.getFilter() != null)
 					continue;
-			} else if (!filter.equals(capability.getFilter()))
-				continue;
-			if (multiple != capability.isMultiple())
+			} else if (!new LDAPQuery(filter).equals(capability.getFilter()))
 				continue;
 			if (!name.equals(capability.getName()))
 				continue;
 			if (!namespace.equals(capability.getNamespace()))
 				continue;
-			if (optional != capability.isOptional())
+			if (optional != (capability.getMin() == 0))
 				continue;
 			if (!range.equals(capability.getRange()))
 				continue;

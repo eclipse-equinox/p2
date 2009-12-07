@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.io.*;
 import java.util.*;
@@ -19,11 +19,13 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -163,7 +165,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			if (next instanceof IInstallableUnit) {
 				IInstallableUnit iu = (IInstallableUnit) next;
 				VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
+				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter() == null ? null : iu.getFilter().getFilter(), false, false));
 			} else if (next instanceof IVersionedId) {
 				IVersionedId name = (IVersionedId) next;
 				Version version = name.getVersion();
@@ -302,16 +304,24 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
 
 			//process required capabilities
-			IRequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
+			IRequirement[] requiredAdvice = entry.getRequiredCapabilities(iu);
 			if (requiredAdvice != null) {
-				IRequiredCapability[] current = iu.getRequiredCapabilities();
+				IRequirement[] current = iu.getRequiredCapabilities();
 				Set resultRequiredCapabilities = new HashSet(Arrays.asList(current));
 
 				// remove current required capabilities that match (same name and namespace) advice.
 				for (int j = 0; j < current.length; j++) {
-					IRequiredCapability currentRequiredCapability = current[j];
+					IRequiredCapability currentRequiredCapability = null;
+					if (current[j] instanceof IRequiredCapability)
+						currentRequiredCapability = (IRequiredCapability) current[j];
+					else
+						continue;
 					for (int k = 0; k < requiredAdvice.length; k++) {
-						IRequiredCapability requiredCapability = requiredAdvice[k];
+						IRequiredCapability requiredCapability = null;
+						if (requiredAdvice[k] instanceof IRequiredCapability)
+							requiredCapability = (IRequiredCapability) requiredAdvice[k];
+						else
+							continue;
 						if (requiredCapability.getNamespace().equals(currentRequiredCapability.getNamespace()) && requiredCapability.getName().equals(currentRequiredCapability.getName())) {
 							resultRequiredCapabilities.remove(currentRequiredCapability);
 							break;
@@ -320,20 +330,28 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				}
 				// add all advice
 				resultRequiredCapabilities.addAll(Arrays.asList(requiredAdvice));
-				iu.setRequiredCapabilities((IRequiredCapability[]) resultRequiredCapabilities.toArray(new IRequiredCapability[resultRequiredCapabilities.size()]));
+				iu.setRequiredCapabilities((IRequirement[]) resultRequiredCapabilities.toArray(new IRequirement[resultRequiredCapabilities.size()]));
 			}
 
 			//process meta required capabilities
-			IRequiredCapability[] metaRequiredAdvice = entry.getMetaRequiredCapabilities(iu);
+			IRequirement[] metaRequiredAdvice = entry.getMetaRequiredCapabilities(iu);
 			if (metaRequiredAdvice != null) {
-				IRequiredCapability[] current = iu.getMetaRequiredCapabilities();
+				IRequirement[] current = iu.getMetaRequiredCapabilities();
 				Set resultMetaRequiredCapabilities = new HashSet(Arrays.asList(current));
 
 				// remove current meta-required capabilities that match (same name and namespace) advice.
 				for (int j = 0; j < current.length; j++) {
-					IRequiredCapability currentMetaRequiredCapability = current[j];
+					IRequiredCapability currentMetaRequiredCapability = null;
+					if (current[j] instanceof IRequiredCapability)
+						currentMetaRequiredCapability = (IRequiredCapability) current[j];
+					else
+						continue;
 					for (int k = 0; k < metaRequiredAdvice.length; k++) {
-						IRequiredCapability metaRequiredCapability = metaRequiredAdvice[k];
+						IRequiredCapability metaRequiredCapability = null;
+						if (metaRequiredAdvice[k] instanceof IRequiredCapability)
+							metaRequiredCapability = (IRequiredCapability) metaRequiredAdvice[k];
+						else
+							continue;
 						if (metaRequiredCapability.getNamespace().equals(currentMetaRequiredCapability.getNamespace()) && metaRequiredCapability.getName().equals(currentMetaRequiredCapability.getName())) {
 							resultMetaRequiredCapabilities.remove(currentMetaRequiredCapability);
 							break;
@@ -343,7 +361,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 				// add all advice
 				resultMetaRequiredCapabilities.addAll(Arrays.asList(metaRequiredAdvice));
-				iu.setMetaRequiredCapabilities((IRequiredCapability[]) resultMetaRequiredCapabilities.toArray(new IRequiredCapability[resultMetaRequiredCapabilities.size()]));
+				iu.setMetaRequiredCapabilities((IRequirement[]) resultMetaRequiredCapabilities.toArray(new IRequirement[resultMetaRequiredCapabilities.size()]));
 			}
 
 			//process provided capabilities

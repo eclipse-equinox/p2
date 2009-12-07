@@ -10,12 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -85,23 +91,25 @@ public class Slicer {
 	}
 
 	// Check whether the requirement is applicable
-	protected boolean isApplicable(IRequiredCapability req) {
-		String filter = req.getFilter();
+	protected boolean isApplicable(IRequirement req) {
+		IQuery filter = req.getFilter();
 		if (filter == null)
 			return true;
-		try {
-			return DirectorActivator.context.createFilter(filter).match(selectionContext);
-		} catch (InvalidSyntaxException e) {
-			return false;
-		}
+		if (filter instanceof LDAPQuery)
+			try {
+				return DirectorActivator.context.createFilter(((LDAPQuery) filter).getFilter()).match(selectionContext);
+			} catch (InvalidSyntaxException e) {
+				return false;
+			}
+		throw new IllegalArgumentException();
 	}
 
 	protected boolean isApplicable(IInstallableUnit iu) {
-		String enablementFilter = iu.getFilter();
+		LDAPQuery enablementFilter = iu.getFilter();
 		if (enablementFilter == null)
 			return true;
 		try {
-			return DirectorActivator.context.createFilter(enablementFilter).match(selectionContext);
+			return DirectorActivator.context.createFilter(enablementFilter.getFilter()).match(selectionContext);
 		} catch (InvalidSyntaxException e) {
 			return false;
 		}
@@ -115,7 +123,7 @@ public class Slicer {
 			return;
 		}
 
-		IRequiredCapability[] reqs = getRequiredCapabilities(iu);
+		IRequirement[] reqs = getRequiredCapabilities(iu);
 		if (reqs.length == 0) {
 			return;
 		}
@@ -131,24 +139,24 @@ public class Slicer {
 		}
 	}
 
-	protected boolean isGreedy(IRequiredCapability req) {
+	protected boolean isGreedy(IRequirement req) {
 		return req.isGreedy();
 	}
 
-	private IRequiredCapability[] getRequiredCapabilities(IInstallableUnit iu) {
+	private IRequirement[] getRequiredCapabilities(IInstallableUnit iu) {
 		if (!(iu instanceof IInstallableUnitPatch)) {
 			if (iu.getMetaRequiredCapabilities().length == 0 || considerMetaRequirements == false)
 				return iu.getRequiredCapabilities();
-			IRequiredCapability[] aggregatedCapabilities = new IRequiredCapability[iu.getRequiredCapabilities().length + iu.getMetaRequiredCapabilities().length];
+			IRequirement[] aggregatedCapabilities = new IRequirement[iu.getRequiredCapabilities().length + iu.getMetaRequiredCapabilities().length];
 			System.arraycopy(iu.getRequiredCapabilities(), 0, aggregatedCapabilities, 0, iu.getRequiredCapabilities().length);
 			System.arraycopy(iu.getMetaRequiredCapabilities(), 0, aggregatedCapabilities, iu.getRequiredCapabilities().length, iu.getMetaRequiredCapabilities().length);
 			return aggregatedCapabilities;
 		}
-		IRequiredCapability[] aggregatedCapabilities;
+		IRequirement[] aggregatedCapabilities;
 		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) iu;
 		IRequirementChange[] changes = patchIU.getRequirementsChange();
 		int initialRequirementCount = iu.getRequiredCapabilities().length;
-		aggregatedCapabilities = new IRequiredCapability[initialRequirementCount + changes.length];
+		aggregatedCapabilities = new IRequirement[initialRequirementCount + changes.length];
 		System.arraycopy(iu.getRequiredCapabilities(), 0, aggregatedCapabilities, 0, initialRequirementCount);
 		for (int i = 0; i < changes.length; i++) {
 			aggregatedCapabilities[initialRequirementCount++] = changes[i].newValue();
@@ -156,10 +164,10 @@ public class Slicer {
 		return aggregatedCapabilities;
 	}
 
-	private void expandRequirement(IInstallableUnit iu, IRequiredCapability req) {
-		if (req.isNegation())
+	private void expandRequirement(IInstallableUnit iu, IRequirement req) {
+		if (req.getMax() == 0)
 			return;
-		Collector matches = possibilites.query(new CapabilityQuery(req), new Collector(), null);
+		Collector matches = possibilites.query(req.getMatches(), new Collector(), null);
 		int validMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
@@ -171,7 +179,7 @@ public class Slicer {
 		}
 
 		if (validMatches == 0) {
-			if (req.isOptional()) {
+			if (req.getMin() == 0) {
 				if (DEBUG)
 					System.out.println("No IU found to satisfy optional dependency of " + iu + " on req " + req); //$NON-NLS-1$//$NON-NLS-2$
 			} else {

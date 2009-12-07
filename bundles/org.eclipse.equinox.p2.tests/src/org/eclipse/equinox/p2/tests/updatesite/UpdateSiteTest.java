@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatesite;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -35,6 +37,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -606,10 +610,10 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		Collector result = metadataRepo.query(query, new Collector(), null);
 		assertEquals("1.0", 1, result.size());
 		IInstallableUnit featureIU = (IInstallableUnit) result.iterator().next();
-		IRequiredCapability[] required = featureIU.getRequiredCapabilities();
+		IRequirement[] required = featureIU.getRequiredCapabilities();
 		for (int i = 0; i < required.length; i++) {
-			if (required[i].getName().equals("org.eclipse.ui.ide")) {
-				assertEquals("2.0", VersionRange.emptyRange, required[i].getRange());
+			if (((IRequiredCapability) required[i]).getName().equals("org.eclipse.ui.ide")) {
+				assertEquals("2.0", VersionRange.emptyRange, ((IRequiredCapability) required[i]).getRange());
 			}
 		}
 	}

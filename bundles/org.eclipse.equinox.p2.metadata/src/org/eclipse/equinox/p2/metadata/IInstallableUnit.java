@@ -9,9 +9,12 @@
  * 		Genuitec, LLC - added license support
  * 		EclipseSource - ongoing development
  ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+
+import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
+
 
 import java.util.Map;
 
@@ -102,7 +105,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 * 
 	 * See Profile#getSelectionContext.
 	 */
-	public String getFilter();
+	public LDAPQuery getFilter();
 
 	/**
 	 * Returns the fragments that have been bound to this installable unit, or
@@ -125,9 +128,9 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 
 	public IProvidedCapability[] getProvidedCapabilities();
 
-	public IRequiredCapability[] getRequiredCapabilities();
+	public IRequirement[] getRequiredCapabilities();
 
-	public IRequiredCapability[] getMetaRequiredCapabilities();
+	public IRequirement[] getMetaRequiredCapabilities();
 
 	public ITouchpointData[] getTouchpointData();
 
@@ -155,7 +158,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 * @return <code>true</code> if this unit satisfies the given required
 	 * capability, and <code>false</code> otherwise.
 	 */
-	public boolean satisfies(IRequiredCapability candidate);
+	public boolean satisfies(IRequirement candidate);
 
 	/**
 	 * Returns the unresolved equivalent of this installable unit. If this unit is

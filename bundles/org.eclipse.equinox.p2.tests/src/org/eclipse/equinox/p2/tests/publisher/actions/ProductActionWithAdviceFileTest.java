@@ -10,6 +10,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+
 import java.io.File;
 import java.net.URI;
 import java.util.Collection;
@@ -19,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.QueryableFilterAdvice;
@@ -27,7 +34,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestData;
 
-@SuppressWarnings( {"unchecked"})
+@SuppressWarnings({"unchecked"})
 /**
  * Tests the product action when run on a product file that has a corresponding
  * advice file (p2.inf).
@@ -79,16 +86,16 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 		Collector results = publisherResult.query(new IUQuery("org.eclipse.platform.ide", Version.create("3.5.0.I20081118")), new Collector(), null);
 		assertEquals("1.0", 1, results.size());
 		IInstallableUnit unit = (IInstallableUnit) results.iterator().next();
-		IRequiredCapability[] requiredCapabilities = unit.getRequiredCapabilities();
+		IRequirement[] requiredCapabilities = unit.getRequiredCapabilities();
 
 		IRequiredCapability capability = null;
 		for (int i = 0; i < requiredCapabilities.length; i++)
-			if (requiredCapabilities[i].getName().equals("org.eclipse.equinox.p2.user.ui.feature.group")) {
-				capability = requiredCapabilities[i];
+			if ((((IRequiredCapability) requiredCapabilities[i]).getName().equals("org.eclipse.equinox.p2.user.ui.feature.group"))) {
+				capability = (IRequiredCapability) requiredCapabilities[i];
 				break;
 			}
 		assertTrue("1.1", capability != null);
-		assertEquals("1.2", "(org.eclipse.update.install.features=true)", capability.getFilter());
+		assertEquals("1.2", "(org.eclipse.update.install.features=true)", ((LDAPQuery) capability.getFilter()).getFilter());
 	}
 
 	/**

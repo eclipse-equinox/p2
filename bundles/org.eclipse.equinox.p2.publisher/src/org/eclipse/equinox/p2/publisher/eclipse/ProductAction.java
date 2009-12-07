@@ -10,6 +10,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;

@@ -12,6 +12,10 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -304,8 +308,8 @@ public class ProductActionTest extends ActionTest {
 		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
 		assertEquals("1.0", 1, collector.size());
 		IInstallableUnitFragment fragment = (IInstallableUnitFragment) collector.iterator().next();
-		assertEquals("1.1", "org.eclipse.core.runtime", fragment.getHost()[0].getName());
-		assertEquals("1.2", Version.create("4.0.0"), fragment.getHost()[0].getRange().getMinimum());
+		assertEquals("1.1", "org.eclipse.core.runtime", ((IRequiredCapability) fragment.getHost()[0].getMatches()).getName());
+		assertEquals("1.2", Version.create("4.0.0"), ((IRequiredCapability) fragment.getHost()[0].getMatches()).getRange().getMinimum());
 		assertEquals("1.3", Version.create("1.0.0"), fragment.getVersion());
 
 	}

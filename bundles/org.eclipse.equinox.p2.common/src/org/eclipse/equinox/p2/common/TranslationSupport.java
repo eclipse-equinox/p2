@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.common;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.lang.ref.SoftReference;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
@@ -19,11 +21,13 @@ import org.eclipse.equinox.internal.p2.common.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
@@ -163,13 +167,9 @@ public class TranslationSupport {
 				boolean haveHost = false;
 				if (object instanceof IInstallableUnitFragment) {
 					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
-					IRequiredCapability[] hosts = fragment.getHost();
+					IRequirement[] hosts = fragment.getHost();
 					for (int i = 0; i < hosts.length; i++) {
-						IRequiredCapability nextHost = hosts[i];
-						if (IInstallableUnit.NAMESPACE_IU_ID.equals(nextHost.getNamespace()) && //
-								theUnit.getId().equals(nextHost.getName()) && //
-								nextHost.getRange() != null && //
-								nextHost.getRange().isIncluded(theUnit.getVersion())) {
+						if (theUnit.satisfies(hosts[i])) {
 							haveHost = true;
 							break;
 						}
@@ -235,32 +235,12 @@ public class TranslationSupport {
 
 		final List locales = localeVariants;
 
-		MatchQuery hostLocalizationQuery = new MatchQuery() {
-			public boolean isMatch(Object object) {
-				boolean haveLocale = false;
-				if (object instanceof IInstallableUnitFragment) {
-					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
-					IProvidedCapability[] provides = fragment.getProvidedCapabilities();
-					for (int j = 0; j < provides.length && !haveLocale; j++) {
-						IProvidedCapability nextProvide = provides[j];
-						if (NAMESPACE_IU_LOCALIZATION.equals(nextProvide.getNamespace())) {
-							String providedLocale = nextProvide.getName();
-							if (providedLocale != null) {
-								for (Iterator iter = locales.iterator(); iter.hasNext();) {
-									if (providedLocale.equals(iter.next())) {
-										haveLocale = true;
-										break;
-									}
-								}
-							}
-						}
-					}
-				}
-				return haveLocale;
-			}
-		};
+		IQuery[] localeQuery = new IQuery[locales.size()];
+		for (int j = 0; j < locales.size(); j++) {
+			localeQuery[j] = new RequiredCapability(NAMESPACE_IU_LOCALIZATION, (String) locales.get(j), VersionRange.emptyRange, null, false, false);
+		}
 
-		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), hostLocalizationQuery});
+		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), CompoundQuery.createCompoundQuery(localeQuery, false)});
 		Collector collected = fragmentSource.query(iuQuery, new Collector(), null);
 		LocaleCollectorCache.put(locale, new SoftReference(collected));
 		return collected;

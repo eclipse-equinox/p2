@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.io.IOException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -22,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IAgentLocation;

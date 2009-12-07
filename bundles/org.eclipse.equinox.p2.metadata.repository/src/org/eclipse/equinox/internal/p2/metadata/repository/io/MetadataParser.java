@@ -12,16 +12,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -296,9 +299,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 				IProvidedCapability[] providedCapabilities = (providedCapabilitiesHandler == null ? new IProvidedCapability[0] : providedCapabilitiesHandler.getProvidedCapabilities());
 				currentUnit.setCapabilities(providedCapabilities);
-				IRequiredCapability[] requiredCapabilities = (requiredCapabilitiesHandler == null ? new IRequiredCapability[0] : requiredCapabilitiesHandler.getRequiredCapabilities());
+				IRequirement[] requiredCapabilities = (requiredCapabilitiesHandler == null ? new IRequirement[0] : requiredCapabilitiesHandler.getRequiredCapabilities());
 				currentUnit.setRequiredCapabilities(requiredCapabilities);
-				IRequiredCapability[] metaRequiredCapabilities = (metaRequiredCapabilitiesHandler == null ? new IRequiredCapability[0] : metaRequiredCapabilitiesHandler.getMetaRequiredCapabilities());
+				IRequirement[] metaRequiredCapabilities = (metaRequiredCapabilitiesHandler == null ? new IRequirement[0] : metaRequiredCapabilitiesHandler.getMetaRequiredCapabilities());
 				currentUnit.setMetaRequiredCapabilities(metaRequiredCapabilities);
 				if (filterHandler != null) {
 					currentUnit.setFilter(filterHandler.getText());
@@ -337,8 +340,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			}
 		}
 
-		public IRequiredCapability[][] getScope() {
-			return (IRequiredCapability[][]) scopes.toArray(new IRequiredCapability[scopes.size()][]);
+		public IRequirement[][] getScope() {
+			return (IRequirement[][]) scopes.toArray(new IRequirement[scopes.size()][]);
 		}
 	}
 
@@ -414,7 +417,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		protected void finished() {
-			requirementChanges.add(MetadataFactory.createRequirementChange(from.size() == 0 ? null : (IRequiredCapability) from.get(0), to.size() == 0 ? null : (IRequiredCapability) to.get(0)));
+			requirementChanges.add(MetadataFactory.createRequirementChange(from.size() == 0 ? null : (IRequirement) from.get(0), to.size() == 0 ? null : (IRequirement) to.get(0)));
 		}
 	}
 
@@ -444,10 +447,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			lifeCycleRequirement = new ArrayList(1);
 		}
 
-		public IRequiredCapability getLifeCycleRequirement() {
+		public IRequirement getLifeCycleRequirement() {
 			if (lifeCycleRequirement.size() == 0)
 				return null;
-			return (IRequiredCapability) lifeCycleRequirement.get(0);
+			return (IRequirement) lifeCycleRequirement.get(0);
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -504,8 +507,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			requiredCapabilities = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
 		}
 
-		public IRequiredCapability[] getHostRequiredCapabilities() {
-			return (IRequiredCapability[]) requiredCapabilities.toArray(new IRequiredCapability[requiredCapabilities.size()]);
+		public IRequirement[] getHostRequiredCapabilities() {
+			return (IRequirement[]) requiredCapabilities.toArray(new IRequirement[requiredCapabilities.size()]);
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -526,8 +529,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			requiredCapabilities = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
 		}
 
-		public IRequiredCapability[] getMetaRequiredCapabilities() {
-			return (IRequiredCapability[]) requiredCapabilities.toArray(new IRequiredCapability[requiredCapabilities.size()]);
+		public IRequirement[] getMetaRequiredCapabilities() {
+			return (IRequirement[]) requiredCapabilities.toArray(new IRequirement[requiredCapabilities.size()]);
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -548,8 +551,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			requiredCapabilities = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
 		}
 
-		public IRequiredCapability[] getRequiredCapabilities() {
-			return (IRequiredCapability[]) requiredCapabilities.toArray(new IRequiredCapability[requiredCapabilities.size()]);
+		public IRequirement[] getRequiredCapabilities() {
+			return (IRequirement[]) requiredCapabilities.toArray(new IRequirement[requiredCapabilities.size()]);
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -563,7 +566,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 	protected class RequiredCapabilityHandler extends AbstractHandler {
 
-		private IRequiredCapability currentCapability = null;
+		private IRequirement currentCapability = null;
 
 		private TextHandler filterHandler = null;
 
@@ -590,7 +593,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			if (isValidXML()) {
 				if (currentCapability != null) {
 					if (filterHandler != null) {
-						currentCapability.setFilter(filterHandler.getText());
+						((RequiredCapability) currentCapability).setFilter(filterHandler.getText());
 					}
 				}
 			}

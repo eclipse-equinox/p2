@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +25,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
@@ -88,7 +90,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(foo.getProperty("key1").equals("value1")); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(foo.getProperty("key2").equals("value2")); //$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(foo.getArtifacts()[0].equals(FOO_KEY));
-		assertTrue(foo.getFilter().equalsIgnoreCase("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
+		assertTrue(foo.getFilter().getFilter().equalsIgnoreCase("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
 
 		//check touchpointType
 		assertTrue(foo.getTouchpointType().getId().equalsIgnoreCase("org.eclipse.equinox.p2.osgi")); //$NON-NLS-1$
@@ -99,7 +101,7 @@ public class FeaturesActionTest extends ActionTest {
 		String fooValue = ((ITouchpointInstruction) tpData[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
 		assertTrue(fooValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
-		IRequiredCapability[] fooRequiredCapabilities = foo.getRequiredCapabilities();
+		IRequirement[] fooRequiredCapabilities = foo.getRequiredCapabilities();
 		assertTrue(fooRequiredCapabilities.length == 0);
 
 		IProvidedCapability[] fooProvidedCapabilities = foo.getProvidedCapabilities();
@@ -131,17 +133,17 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(bar.getProperties().containsKey("org.eclipse.update.installHandler")); //$NON-NLS-1$
 		assertTrue(bar.getProperties().containsValue("handler=bar handler")); //$NON-NLS-1$
 		assertTrue(bar.getArtifacts()[0].equals(BAR_KEY));
-		assertTrue(bar.getFilter().equalsIgnoreCase("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
+		assertTrue(bar.getFilter().getFilter().equalsIgnoreCase("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
 		assertTrue(bar.isSingleton());
 
 		barIUs = new ArrayList(publisherResult.getIUs("bar.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
 		assertTrue(fooIUs.size() == 1);
 		IInstallableUnit barGroup = (IInstallableUnit) barIUs.get(0);
-		IRequiredCapability[] barRequiredCapabilities = barGroup.getRequiredCapabilities();
+		IRequirement[] barRequiredCapabilities = barGroup.getRequiredCapabilities();
 		//contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), null, false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "org.bar.feature.feature.group", VersionRange.emptyRange, "(&(|(osgi.nl=de)(osgi.nl=en)(osgi.nl=fr)))", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(barGroup.getFilter().equalsIgnoreCase("(&(|(osgi.os=macosx)(osgi.os=win32))(|(osgi.ws=carbon)(osgi.ws=win32))(|(osgi.arch=ppc)(osgi.arch=x86))(osgi.nl=en))"));
+		assertTrue(barGroup.getFilter().getFilter().equalsIgnoreCase("(&(|(osgi.os=macosx)(osgi.os=win32))(|(osgi.ws=carbon)(osgi.ws=win32))(|(osgi.arch=ppc)(osgi.arch=x86))(osgi.nl=en))"));
 
 		//check zipped=true in touchpointData
 		String barValue = ((ITouchpointInstruction) bar.getTouchpointData()[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$

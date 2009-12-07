@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -19,6 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -40,8 +43,8 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 
 	private Map touchpointInstructions;
 	private IProvidedCapability[] providedCapabilities;
-	private IRequiredCapability[] requiredCapabilities;
-	private IRequiredCapability[] metaRequiredCapabilities;
+	private IRequirement[] requiredCapabilities;
+	private IRequirement[] metaRequiredCapabilities;
 	private Properties iuProperties;
 	private InstallableUnitDescription[] additionalIUs;
 	private boolean containsAdvice = false;
@@ -157,11 +160,11 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		return providedCapabilities;
 	}
 
-	public IRequiredCapability[] getRequiredCapabilities(InstallableUnitDescription iu) {
+	public IRequirement[] getRequiredCapabilities(InstallableUnitDescription iu) {
 		return requiredCapabilities;
 	}
 
-	public IRequiredCapability[] getMetaRequiredCapabilities(InstallableUnitDescription iu) {
+	public IRequirement[] getMetaRequiredCapabilities(InstallableUnitDescription iu) {
 		return metaRequiredCapabilities;
 	}
 

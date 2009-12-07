@@ -12,6 +12,8 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.io.File;
 import java.util.ArrayList;
 import org.easymock.EasyMock;
@@ -21,13 +23,14 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.DataLoader;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 
-@SuppressWarnings( {"unchecked", "restriction"})
+@SuppressWarnings({"unchecked", "restriction"})
 public class ConfigCUsActionTest extends ActionTest {
 	private static File configLocation = new File(TestActivator.getTestDataFolder(), "ConfigCUsActionTest/level1/level2/config.ini"); //$NON-NLS-1$
 	private static File executableLocation = new File(TestActivator.getTestDataFolder(), "ConfigCUsActionTest/level1/run.exe"); //$NON-NLS-1$
@@ -62,7 +65,7 @@ public class ConfigCUsActionTest extends ActionTest {
 		assertTrue(providedCapabilities.length == 1);
 
 		//verify RequiredCapabilities
-		IRequiredCapability[] requiredCapability = iu.getRequiredCapabilities();
+		IRequirement[] requiredCapability = iu.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".config." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
 		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".ini." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
 		assertTrue(requiredCapability.length == 2);
@@ -78,7 +81,7 @@ public class ConfigCUsActionTest extends ActionTest {
 		for (int i = 0; i < IUs.size(); i++) {
 			InstallableUnit iu = (InstallableUnit) IUs.get(i);
 			if (iu.getId().equals(flavor + id + "." + cuType + "." + configSpec)) { //$NON-NLS-1$ //$NON-NLS-2$
-				assertTrue(iu.getFilter().equals("(& (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))")); //$NON-NLS-1$
+				assertTrue(iu.getFilter().getFilter().equals("(& (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))")); //$NON-NLS-1$
 				assertTrue(iu.getVersion().equals(version));
 				assertTrue(iu.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$//$NON-NLS-2$
 				assertFalse(iu.isSingleton());

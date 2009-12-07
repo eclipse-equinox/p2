@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -87,9 +89,9 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		TestAction action = new TestAction();
 		action.testProcessCapabilityAdvice(iu, info);
 
-		assertEquals("name1", iu.getRequiredCapabilities()[0].getName());
+		assertEquals("name1", ((IRequiredCapability) iu.getRequiredCapabilities()[0]).getName());
 		assertEquals("name2", iu.getProvidedCapabilities()[0].getName());
-		assertEquals("name3", iu.getMetaRequiredCapabilities()[0].getName());
+		assertEquals("name3", ((IRequiredCapability) iu.getMetaRequiredCapabilities()[0]).getName());
 	}
 
 	public void testAddCapabilitiesIdentityCounts() {

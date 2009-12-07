@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.metadata;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
  * Describes a capability as exposed or required by an installable unit
@@ -70,6 +71,11 @@ public class ProvidedCapability implements IProvidedCapability {
 
 	public String toString() {
 		return namespace + '/' + name + '/' + version;
+	}
+
+	public boolean satisfies(IRequirement candidate) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

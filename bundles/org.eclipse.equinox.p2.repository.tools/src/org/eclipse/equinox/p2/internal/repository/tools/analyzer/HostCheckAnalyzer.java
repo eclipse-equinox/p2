@@ -9,10 +9,14 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 
@@ -27,12 +31,15 @@ public class HostCheckAnalyzer extends IUAnalyzer {
 	public void analyzeIU(IInstallableUnit iu) {
 		if (iu instanceof IInstallableUnitFragment) {
 			IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
-			IRequiredCapability[] hosts = fragment.getHost();
+			IRequirement[] hosts = fragment.getHost();
 			for (int i = 0; i < hosts.length; i++) {
-				if (hosts[i].getNamespace().equals("osgi.bundle")) {
-					Collector results = repository.query(new InstallableUnitQuery(hosts[i].getName(), hosts[i].getRange()), new Collector(), new NullProgressMonitor());
+				IRequiredCapability theHost = null;
+				if (hosts[i] instanceof IRequiredCapability)
+					theHost = (IRequiredCapability) hosts[i];
+				if (theHost.getNamespace().equals("osgi.bundle")) {
+					Collector results = repository.query(new InstallableUnitQuery(theHost.getName(), theHost.getRange()), new Collector(), new NullProgressMonitor());
 					if (results.size() == 0) {
-						error(iu, "IU Fragment: " + iu.getId() + " cannot find host" + hosts[i].getName() + " : " + hosts[i].getRange());
+						error(iu, "IU Fragment: " + iu.getId() + " cannot find host" + theHost.getName() + " : " + theHost.getRange());
 						return;
 					}
 				}

@@ -10,6 +10,8 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
+import org.eclipse.equinox.p2.metadata.IRequirement;
+
 
 
 /**
@@ -43,7 +45,7 @@ public interface IProvidedCapability {
 	 * </ul>
 	 * 
 	 */
-	public boolean satisfies(IRequiredCapability candidate);
+	public boolean satisfies(IRequirement candidate);
 
 	/**
 	 * Returns whether this provided capability is equal to the given object.

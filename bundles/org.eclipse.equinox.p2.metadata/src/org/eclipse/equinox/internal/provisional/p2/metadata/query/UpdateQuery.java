@@ -11,7 +11,10 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
  * A query that finds all IUs that are considered an "Update" of the 
@@ -29,7 +32,7 @@ public class UpdateQuery extends MatchQuery {
 			return false;
 		if (obj instanceof IInstallableUnitPatch && !(updateFrom instanceof IInstallableUnitPatch)) {
 			IInstallableUnitPatch potentialPatch = (IInstallableUnitPatch) obj;
-			IRequiredCapability lifeCycle = potentialPatch.getLifeCycle();
+			IRequirement lifeCycle = potentialPatch.getLifeCycle();
 			if (lifeCycle == null)
 				return false;
 			return updateFrom.satisfies(lifeCycle);

@@ -9,8 +9,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.io.*;
 import java.net.URI;
 import java.util.*;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;

@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import junit.framework.AssertionFailedError;
@@ -25,8 +29,6 @@ public class FragmentMethodTest extends TestCase {
 	private static final String TEST_REQUIRED = "testRequired";
 	IInstallableUnit iu1;
 	IInstallableUnit iu3;
-	IRequiredCapability[] iu1Deps;
-	IRequiredCapability[] iu3Deps;
 	IProvidedCapability[] iu1Caps;
 	IProvidedCapability[] iu3Caps;
 
@@ -36,8 +38,6 @@ public class FragmentMethodTest extends TestCase {
 		iu3 = createIUFragment("iu.fragment");
 		iu1Caps = iu1.getProvidedCapabilities();
 		iu3Caps = iu3.getProvidedCapabilities();
-		iu1Deps = iu1.getRequiredCapabilities();
-		iu3Deps = iu3.getRequiredCapabilities();
 		HashSet hash = new HashSet();
 		hash.add(iu1);
 		hash.add(iu3);
@@ -54,8 +54,6 @@ public class FragmentMethodTest extends TestCase {
 	protected void tearDown() throws Exception {
 		iu1 = null;
 		iu3 = null;
-		iu1Deps = null;
-		iu3Deps = null;
 		iu1Caps = null;
 		iu3Caps = null;
 		super.tearDown();

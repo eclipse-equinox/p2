@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.io.File;
 import java.util.Iterator;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.update.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 /*
  * Tests related to the platform configuration before and after reconciliation.

@@ -1,9 +1,12 @@
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.Slicer;
-import org.eclipse.equinox.internal.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -18,38 +21,34 @@ public class NegationTesting extends AbstractProvisioningTest {
 	private static final String NS = "theNamespace";
 	private static final String N = "theName";
 
-	public void testNot1() {
-		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 1.2.0)"), null, false, false);
-		NotRequirement req = new NotRequirement(req1);
-		ProvidedCapability prov = new ProvidedCapability(NS, N, Version.createOSGi(1, 5, 0));
-		assertTrue(prov.satisfies(req));
-	}
-
-	public void testNot2() {
-		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 1.2.0)"), null, false, false);
-		NotRequirement req = new NotRequirement(req1);
-		ProvidedCapability prov = new ProvidedCapability(NS, N, Version.createOSGi(1, 1, 0));
-		assertFalse(prov.satisfies(req));
-	}
-
-	public void testNot3() {
-		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 1.2.0)"), null, false, false);
-		//		RequiredCapability req2 = new RequiredCapability(NS, N, new VersionRange("[1.5.0, 2.0.0)"), null, false, false);
-		NotRequirement req = new NotRequirement(req1);
-		ProvidedCapability prov = new ProvidedCapability("foo", "bar", Version.createOSGi(1, 5, 0));
-		assertTrue(prov.satisfies(req));
-	}
+	//	public void testNot1() {
+	//		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 1.2.0)"), null, 0, 0, false);
+	//		ProvidedCapability prov = new ProvidedCapability(NS, N, Version.createOSGi(1, 5, 0));
+	//		assertTrue(prov.satisfies(req1));
+	//	}
+	//
+	//	public void testNot2() {
+	//		RequiredCapability req = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 1.2.0)"), null, 0, 0, false);
+	//		ProvidedCapability prov = new ProvidedCapability(NS, N, Version.createOSGi(1, 1, 0));
+	//		assertFalse(prov.satisfies(req));
+	//	}
+	//
+	//	public void testNot3() {
+	//		RequiredCapability req = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 1.2.0)"), null, 0, 0, false);
+	//		//		RequiredCapability req2 = new RequiredCapability(NS, N, new VersionRange("[1.5.0, 2.0.0)"), null, false, false);
+	//		ProvidedCapability prov = new ProvidedCapability("foo", "bar", Version.createOSGi(1, 5, 0));
+	//		assertTrue(prov.satisfies(req));
+	//	}
 
 	//Test the slicer and the resolver. 
 	public void testNot4() {
 		MetadataFactory.InstallableUnitDescription iud1 = new MetadataFactory.InstallableUnitDescription();
 		iud1.setId("TestNegation4");
 		iud1.setVersion(Version.create("1.0.0"));
-		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.1.0, 1.2.0)"), null, false, false);
-		NotRequirement req = new NotRequirement(req1);
+		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.1.0, 1.2.0)"), null, 0, 0, false);
 		RequiredCapability req2 = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 2.0.0)"), null, false, false);
 		Collection requirements = new ArrayList();
-		requirements.add(req);
+		requirements.add(req1);
 		requirements.add(req2);
 		iud1.addRequiredCapabilities(requirements);
 		Collection capabilities = new ArrayList();
@@ -101,11 +100,10 @@ public class NegationTesting extends AbstractProvisioningTest {
 		MetadataFactory.InstallableUnitDescription iud1 = new MetadataFactory.InstallableUnitDescription();
 		iud1.setId("TestNegation4");
 		iud1.setVersion(Version.create("1.0.0"));
-		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.1.0, 1.2.0)"), null, false, false);
-		NotRequirement req = new NotRequirement(req1);
+		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.1.0, 1.2.0)"), null, 0, 0, false);
 		RequiredCapability req2 = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 1.1.0)"), null, false, false);
 		Collection requirements = new ArrayList();
-		requirements.add(req);
+		requirements.add(req1);
 		requirements.add(req2);
 		iud1.addRequiredCapabilities(requirements);
 		Collection capabilities = new ArrayList();
@@ -143,11 +141,10 @@ public class NegationTesting extends AbstractProvisioningTest {
 		MetadataFactory.InstallableUnitDescription iud1 = new MetadataFactory.InstallableUnitDescription();
 		iud1.setId("TestNegation4");
 		iud1.setVersion(Version.create("1.0.0"));
-		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.1.0, 1.2.0)"), null, false, false);
-		NotRequirement req = new NotRequirement(req1);
+		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.1.0, 1.2.0)"), null, 0, 0, false);
 		RequiredCapability req2 = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 1.1.0)"), null, false, false);
 		Collection requirements = new ArrayList();
-		requirements.add(req);
+		requirements.add(req1);
 		requirements.add(req2);
 		iud1.addRequiredCapabilities(requirements);
 		Collection capabilities = new ArrayList();
@@ -186,11 +183,10 @@ public class NegationTesting extends AbstractProvisioningTest {
 		MetadataFactory.InstallableUnitDescription iud1 = new MetadataFactory.InstallableUnitDescription();
 		iud1.setId("TestNegation4");
 		iud1.setVersion(Version.create("1.0.0"));
-		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.1.0, 1.2.0)"), null, false, false);
-		NotRequirement req = new NotRequirement(req1);
+		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.1.0, 1.2.0)"), null, 0, 0, false);
 		RequiredCapability req2 = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 2.0.0)"), null, false, false);
 		Collection requirements = new ArrayList();
-		requirements.add(req);
+		requirements.add(req1);
 		requirements.add(req2);
 		iud1.addRequiredCapabilities(requirements);
 		Collection capabilities = new ArrayList();
@@ -245,11 +241,10 @@ public class NegationTesting extends AbstractProvisioningTest {
 		MetadataFactory.InstallableUnitDescription iud1 = new MetadataFactory.InstallableUnitDescription();
 		iud1.setId("TestNegation4");
 		iud1.setVersion(Version.create("1.0.0"));
-		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.1.0, 1.2.0)"), null, false, false);
-		NotRequirement req = new NotRequirement(req1);
+		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[1.1.0, 1.2.0)"), null, 0, 0, false);
 		RequiredCapability req2 = new RequiredCapability(NS, N, new VersionRange("[1.0.0, 2.0.0)"), null, false, false);
 		Collection requirements = new ArrayList();
-		requirements.add(req);
+		requirements.add(req1);
 		requirements.add(req2);
 		iud1.addRequiredCapabilities(requirements);
 		Collection capabilities = new ArrayList();

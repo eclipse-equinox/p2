@@ -11,10 +11,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 public class ResolvedInstallableUnit implements IInstallableUnit {
 	private static IInstallableUnit[] NO_IU = new IInstallableUnit[0];
@@ -47,7 +49,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getArtifacts();
 	}
 
-	public String getFilter() {
+	public LDAPQuery getFilter() {
 		return original.getFilter();
 	}
 
@@ -72,22 +74,22 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return (IProvidedCapability[]) result.toArray(new IProvidedCapability[result.size()]);
 	}
 
-	public IRequiredCapability[] getRequiredCapabilities() {
+	public IRequirement[] getRequiredCapabilities() {
 		ArrayList result = new ArrayList();
 		result.addAll(Arrays.asList(original.getRequiredCapabilities()));
 		for (int i = 0; i < fragments.length; i++) {
 			result.addAll(Arrays.asList(fragments[i].getRequiredCapabilities()));
 		}
-		return (IRequiredCapability[]) result.toArray(new IRequiredCapability[result.size()]);
+		return (IRequirement[]) result.toArray(new IRequirement[result.size()]);
 	}
 
-	public IRequiredCapability[] getMetaRequiredCapabilities() {
+	public IRequirement[] getMetaRequiredCapabilities() {
 		ArrayList result = new ArrayList();
 		result.addAll(Arrays.asList(original.getMetaRequiredCapabilities()));
 		for (int i = 0; i < fragments.length; i++) {
 			result.addAll(Arrays.asList(fragments[i].getMetaRequiredCapabilities()));
 		}
-		return (IRequiredCapability[]) result.toArray(new IRequiredCapability[result.size()]);
+		return (IRequirement[]) result.toArray(new IRequirement[result.size()]);
 	}
 
 	public ITouchpointData[] getTouchpointData() {
@@ -171,7 +173,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getCopyright();
 	}
 
-	public boolean satisfies(IRequiredCapability candidate) {
+	public boolean satisfies(IRequirement candidate) {
 		IProvidedCapability[] provides = getProvidedCapabilities();
 		for (int i = 0; i < provides.length; i++)
 			if (provides[i].satisfies(candidate))

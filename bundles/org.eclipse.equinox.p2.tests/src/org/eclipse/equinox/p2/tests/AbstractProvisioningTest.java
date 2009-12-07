@@ -8,7 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -34,6 +35,8 @@ import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -53,7 +56,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected static final VersionRange ANY_VERSION = VersionRange.emptyRange;
 	protected static final IProvidedCapability[] BUNDLE_CAPABILITY = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", Version.createOSGi(1, 0, 0))};
 
-	private static final IRequiredCapability[] BUNDLE_REQUIREMENT = new IRequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
+	private static final IRequiredCapability[] BUNDLE_REQUIREMENT = new IRequiredCapability[] {(IRequiredCapability) MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
 
 	protected static final Version DEFAULT_VERSION = Version.createOSGi(1, 0, 0);
 	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", Version.createOSGi(1, 0, 0));
@@ -459,7 +462,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fragment.addTouchpointData(tpData);
 		if (host != null) {
 			VersionRange hostRange = new VersionRange(host.getVersion(), true, host.getVersion(), true);
-			fragment.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, host.getId(), hostRange, null, false, false)});
+			fragment.setHost(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, host.getId(), hostRange, null, false, false)});
 		}
 		fragment.setCapabilities(new IProvidedCapability[] {getSelfCapability(name, version)});
 		return MetadataFactory.createInstallableUnitFragment(fragment);
@@ -484,13 +487,19 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 		desc.setCapabilities(newCapabilities);
 		desc.setCopyright(prototype.getCopyright());
-		desc.setFilter(prototype.getFilter());
+		desc.setFilter(prototype.getFilter() == null ? null : prototype.getFilter().getFilter());
 		desc.setId(prototype.getId());
 		desc.setLicenses(prototype.getLicenses());
-		IRequiredCapability[] originalRequirements = prototype.getRequiredCapabilities();
-		IRequiredCapability[] newRequirements = new IRequiredCapability[originalRequirements.length];
+		IRequirement[] originalRequirements = prototype.getRequiredCapabilities();
+		IRequirement[] newRequirements = new IRequiredCapability[originalRequirements.length];
 		for (int i = 0; i < newRequirements.length; i++) {
-			newRequirements[i] = MetadataFactory.createRequiredCapability(originalRequirements[i].getNamespace(), originalRequirements[i].getName(), originalRequirements[i].getRange(), originalRequirements[i].getFilter(), originalRequirements[i].isOptional(), originalRequirements[i].isMultiple(), originalRequirements[i].isGreedy());
+			if (originalRequirements[i] instanceof IRequirement) {
+				IRequiredCapability reqCapability = (IRequiredCapability) originalRequirements[i];
+				newRequirements[i] = MetadataFactory.createRequiredCapability(reqCapability.getNamespace(), reqCapability.getName(), reqCapability.getRange(), reqCapability.getFilter(), reqCapability.getMin(), reqCapability.getMax(), reqCapability.isGreedy());
+			} else {
+				throw new IllegalStateException();
+			}
+
 		}
 		desc.setRequiredCapabilities(prototype.getRequiredCapabilities());
 		desc.setSingleton(prototype.isSingleton());
@@ -521,7 +530,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Creates and returns a required capability with the provided attributes.
 	 */
 	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
-		return new IRequiredCapability[] {MetadataFactory.createRequiredCapability(namespace, name, range, filter, false, false)};
+		return new IRequiredCapability[] {(IRequiredCapability) MetadataFactory.createRequiredCapability(namespace, name, range, filter, false, false)};
 	}
 
 	public static boolean delete(File file) {

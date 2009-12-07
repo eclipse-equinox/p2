@@ -8,6 +8,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Test;
@@ -50,7 +54,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 
 		// The IU to be installed
 		String filter = createFilter("FilterKey", "true");
-		IRequiredCapability capability = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), ANY_VERSION, filter, false, false);
+		IRequiredCapability capability = (IRequiredCapability) MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), ANY_VERSION, filter, false, false);
 		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new IRequiredCapability[] {capability});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
@@ -78,7 +82,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit requiredIU = createIU("required." + getName(), new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)});
 
 		//The IU that optionally requires the capability
-		IRequiredCapability required = MetadataFactory.createRequiredCapability("test.capability", capabilityId, ANY_VERSION, null, /* optional=> */true, /* multiple=> */false, /* greedy=>*/false);
+		IRequiredCapability required = (IRequiredCapability) MetadataFactory.createRequiredCapability("test.capability", capabilityId, ANY_VERSION, null, /* optional=> */true, /* multiple=> */false, /* greedy=>*/false);
 		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new IRequiredCapability[] {required});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {toInstallIU, requiredIU};
@@ -102,7 +106,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	public void testInstallOptionalUnavailable() {
 		String capabilityId = "test." + getName();
 		//no IU will be available that exports this capability
-		IRequiredCapability required = MetadataFactory.createRequiredCapability("test.capability", capabilityId, ANY_VERSION, null, true, false);
+		IRequiredCapability required = (IRequiredCapability) MetadataFactory.createRequiredCapability("test.capability", capabilityId, ANY_VERSION, null, true, false);
 		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new IRequiredCapability[] {required});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {toInstallIU};
@@ -214,7 +218,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		//The IU that is needed
 		IInstallableUnit requiredIU = createIU("required." + getName());
 
-		IRequiredCapability capability = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), null, null, false, false);
+		IRequiredCapability capability = (IRequiredCapability) MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), null, null, false, false);
 		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new IRequiredCapability[] {capability});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
@@ -242,7 +246,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		//The IU that exports the capability
 		IInstallableUnit requiredIU = createIU("required." + getName());
 
-		IRequiredCapability capability = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), ANY_VERSION, null, false, false);
+		IRequiredCapability capability = (IRequiredCapability) MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), ANY_VERSION, null, false, false);
 		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new IRequiredCapability[] {capability});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};

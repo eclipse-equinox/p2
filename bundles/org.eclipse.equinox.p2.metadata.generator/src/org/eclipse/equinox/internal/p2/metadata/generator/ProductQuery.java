@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.generator;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.io.*;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.ProductFile;

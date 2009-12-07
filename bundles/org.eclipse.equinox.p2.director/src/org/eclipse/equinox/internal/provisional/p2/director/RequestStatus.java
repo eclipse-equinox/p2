@@ -9,12 +9,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.util.*;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.director.*;
 import org.eclipse.equinox.internal.p2.director.Explanation.IUInstalled;
 import org.eclipse.equinox.internal.p2.director.Explanation.IUToInstall;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 public class RequestStatus extends Status {

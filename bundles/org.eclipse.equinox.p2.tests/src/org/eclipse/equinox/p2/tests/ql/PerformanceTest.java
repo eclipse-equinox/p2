@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ql;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -25,6 +29,7 @@ import org.eclipse.equinox.p2.ql.PredicateQuery;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.ql.TestQueryReimplementation.CapabilityQuery;
 
 public class PerformanceTest extends AbstractProvisioningTest {
 	public void testCapabilityQueryPerformance() throws Exception {
@@ -32,7 +37,6 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		IRequiredCapability capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
-		CapabilityQuery capabilityQuery = new CapabilityQuery(capability);
 		PredicateQuery predicateQuery = new PredicateQuery("item ~= $0", capability);
 		Collector result;
 		long tradQueryMS = 0;
@@ -41,7 +45,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		for (int i = 0; i < 5; ++i) {
 			long start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
-				result = repo.query(capabilityQuery, new Collector(), new NullProgressMonitor());
+				result = repo.query(capability, new Collector(), new NullProgressMonitor());
 				assertEquals(result.size(), 487);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
