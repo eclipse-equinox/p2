@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.spi.p2.publisher;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -23,8 +21,7 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
@@ -42,7 +39,6 @@ import org.osgi.framework.Constants;
 public class PublisherHelper {
 	/**
 	 * A capability namespace representing the type of Eclipse resource (bundle, feature, source bundle, etc)
-	 * @see IRequirement#getNamespace()
 	 * @see IProvidedCapability#getNamespace()
 	 */
 	public static final String NAMESPACE_ECLIPSE_TYPE = "org.eclipse.equinox.p2.eclipse.type"; //$NON-NLS-1$
@@ -51,21 +47,20 @@ public class PublisherHelper {
 	/**
 	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
 	 * representing a feature
-	 * @see IRequirement#getName()
+	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_FEATURE = "feature"; //$NON-NLS-1$
 
 	/**
 	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
 	 * representing a source bundle
-	 * @see IRequirement#getName()
+	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_SOURCE = "source"; //$NON-NLS-1$
 
 	/**
 	 * A capability namespace representing the localization (translation)
 	 * of strings from a specified IU in a specified locale
-	 * @see IRequirement#getNamespace()
 	 * @see IProvidedCapability#getNamespace()
 	 * TODO: this should be in API, probably in IInstallableUnit
 	 */
