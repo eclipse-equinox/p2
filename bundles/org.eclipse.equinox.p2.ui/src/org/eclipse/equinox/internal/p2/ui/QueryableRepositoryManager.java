@@ -61,8 +61,6 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 * </p>
 	 * 
 	 * @param query The query to perform..
-	 * @param result Collects the results of the query, run on either the repository URIs, or on
-	 *    the repositories themselves.
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The collector argument
