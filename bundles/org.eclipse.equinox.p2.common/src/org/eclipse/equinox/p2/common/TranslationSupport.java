@@ -11,10 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.common;
 
-import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 import java.lang.ref.SoftReference;
 import java.util.*;
@@ -28,6 +24,9 @@ import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
@@ -242,7 +241,7 @@ public class TranslationSupport {
 		}
 
 		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), CompoundQuery.createCompoundQuery(localeQuery, false)});
-		Collector collected = fragmentSource.query(iuQuery, new Collector(), null);
+		Collector collected = fragmentSource.query(iuQuery, null);
 		LocaleCollectorCache.put(locale, new SoftReference(collected));
 		return collected;
 	}
