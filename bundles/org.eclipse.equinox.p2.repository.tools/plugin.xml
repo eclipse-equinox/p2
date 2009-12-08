@@ -48,6 +48,12 @@
             name="p2.mirror">
       </antTask>
 
+	<antTask
+		library="lib/repository-tools-ant.jar"
+		name="p2.artifact.mirror"
+		class="org.eclipse.equinox.p2.internal.repository.tools.tasks.MirrorArtifactsTask">
+	</antTask>
+		
      <antTask
             class="org.eclipse.equinox.p2.internal.repository.tools.tasks.CompositeRepositoryTask"
             library="lib/repository-tools-ant.jar"
@@ -82,16 +88,19 @@
 			id="org.eclipse.equinox.p2.repository.tools.jar.comparator">
 		</artifactComparator>
 	</extension>
-	 <extension
-       id="org.eclipse.equinox.p2.repository.metadataverifier"
-       point="org.eclipse.core.runtime.applications">
-    <application
-          cardinality="singleton-global"
-          visible="true">
-       <run
-             class="org.eclipse.equinox.p2.internal.repository.tools.RepositoryAnalyzerApplication">
-       </run>
-    </application>
-	 </extension>
+	
+	<extension id="org.eclipse.equinox.p2.repository.metadataverifier" point="org.eclipse.core.runtime.applications">
+		<application cardinality="singleton-global" visible="true">
+			<run class="org.eclipse.equinox.p2.internal.repository.tools.RepositoryAnalyzerApplication" />
+		</application>
+	</extension> 
+	
+	<extension id="org.eclipse.equinox.p2.artifact.repository.mirrorApplication"  point="org.eclipse.core.runtime.applications">
+		<application cardinality="1" thread="main" visible="true">
+			<run class="org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication" >
+				<parameter name="metadataOrArtifacts" value="artifacts" />
+			</run>
+		</application>
+	</extension>
 
 </plugin>

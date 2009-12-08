@@ -55,6 +55,14 @@ public class Messages extends NLS {
 
 	public static String skippingInvalidFilter;
 
+	public static String message_mirroringStatus;
+	public static String Mirroring_compareAndDownload;
+	public static String mirror_alreadyExists;
+	public static String Mirroring_noMatchingDescriptor;
+	public static String Mirroring_ValidationError;
+	public static String Mirroring_missingDescriptor;
+	public static String Mirroring_differentDescriptorProperty;
+
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

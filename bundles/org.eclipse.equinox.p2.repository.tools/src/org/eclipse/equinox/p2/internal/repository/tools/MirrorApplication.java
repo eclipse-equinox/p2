@@ -12,23 +12,26 @@ package org.eclipse.equinox.p2.internal.repository.tools;
 
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.net.URISyntaxException;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.artifact.mirror.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.internal.repository.mirroring.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.osgi.util.NLS;
 
-public class MirrorApplication extends AbstractApplication {
+public class MirrorApplication extends AbstractApplication implements IApplication, IExecutableExtension {
 	private static final String LOG_ROOT = "p2.mirror"; //$NON-NLS-1$
+	private static final String MIRROR_MODE = "metadataOrArtifacts"; //$NON-NLS-1$
 
 	protected SlicingOptions slicingOptions = new SlicingOptions();
 
@@ -39,6 +42,7 @@ public class MirrorApplication extends AbstractApplication {
 	private boolean raw = true;
 	private boolean verbose = false;
 	private boolean validate = false;
+	private String metadataOrArtifacts = null;
 
 	private File mirrorLogFile; // file to log mirror output to (optional)
 	private File comparatorLogFile; // file to comparator output to (optional)
@@ -46,8 +50,99 @@ public class MirrorApplication extends AbstractApplication {
 	private IArtifactMirrorLog comparatorLog;
 
 	public Object start(IApplicationContext context) throws Exception {
+		Map args = context.getArguments();
+		initializeFromArguments((String[]) args.get(IApplicationContext.APPLICATION_ARGS));
 		run(null);
 		return IApplication.EXIT_OK;
+	}
+
+	public void stop() {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * The old "org.eclipse.equinox.p2.artifact.repository.mirrorApplication" application only does artifacts
+	 * @see org.eclipse.core.runtime.IExecutableExtension#setInitializationData(org.eclipse.core.runtime.IConfigurationElement, java.lang.String, java.lang.Object)
+	 */
+	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) {
+		if (data instanceof Map && ((Map) data).containsKey(MIRROR_MODE)) {
+			metadataOrArtifacts = (String) ((Map) data).get(MIRROR_MODE);
+		}
+	}
+
+	public void initializeFromArguments(String[] args) throws Exception {
+		if (args == null)
+			return;
+
+		File comparatorLogLocation = null;
+		File mirrorLogLocation = null;
+
+		RepositoryDescriptor destination = new RepositoryDescriptor();
+		RepositoryDescriptor sourceRepo = new RepositoryDescriptor();
+		if (metadataOrArtifacts != null) {
+			destination.setKind(metadataOrArtifacts);
+			sourceRepo.setKind(metadataOrArtifacts);
+		}
+
+		addDestination(destination);
+		addSource(sourceRepo);
+
+		for (int i = 0; i < args.length; i++) {
+			// check for args without parameters (i.e., a flag arg)
+			if (args[i].equalsIgnoreCase("-raw")) //$NON-NLS-1$
+				raw = true;
+			else if (args[i].equalsIgnoreCase("-ignoreErrors")) //$NON-NLS-1$
+				failOnError = false;
+			else if (args[i].equalsIgnoreCase("-verbose")) //$NON-NLS-1$
+				verbose = true;
+			else if (args[i].equalsIgnoreCase("-compare")) //$NON-NLS-1$
+				compare = true;
+			else if (args[i].equalsIgnoreCase("-validate")) //$NON-NLS-1$
+				validate = true;
+
+			// check for args with parameters. If we are at the last argument or 
+			// if the next one has a '-' as the first character, then we can't have 
+			// an arg with a param so continue.
+			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
+				continue;
+
+			String arg = args[++i];
+
+			if (args[i - 1].equalsIgnoreCase("-comparator")) //$NON-NLS-1$
+				comparatorID = arg;
+			else if (args[i - 1].equalsIgnoreCase("-comparatorLog")) //$NON-NLS-1$
+				comparatorLogLocation = new File(arg);
+			else if (args[i - 1].equalsIgnoreCase("-destinationName")) //$NON-NLS-1$	
+				destination.setName(arg);
+			else if (args[i - 1].equalsIgnoreCase("-writeMode")) { //$NON-NLS-1$
+				if (args[i].equalsIgnoreCase("clean")) //$NON-NLS-1$
+					destination.setAppend(false);
+			} else if (args[i - 1].equalsIgnoreCase("-log")) { //$NON-NLS-1$
+				mirrorLogLocation = new File(arg);
+			} else {
+				try {
+					if (args[i - 1].equalsIgnoreCase("-source")) { //$NON-NLS-1$
+						URI uri = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg));
+						sourceRepo.setLocation(uri);
+						destination.setFormat(uri);
+					} else if (args[i - 1].equalsIgnoreCase("-destination")) //$NON-NLS-1$
+						destination.setLocation(RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg)));
+					else if (args[i - 1].equalsIgnoreCase("-compareAgainst")) { //$NON-NLS-1$
+						baseline = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg));
+						compare = true;
+					}
+				} catch (URISyntaxException e) {
+					throw new IllegalArgumentException(NLS.bind(Messages.ProcessRepo_location_not_url, arg));
+				}
+			}
+		}
+
+		// Create logs
+		if (mirrorLogLocation != null)
+			mirrorLog = getLog(mirrorLogLocation, "p2.artifact.mirror"); //$NON-NLS-1$
+		if (comparatorLogLocation != null && comparatorID != null)
+			comparatorLog = getLog(comparatorLogLocation, comparatorID);
 	}
 
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
@@ -85,8 +180,8 @@ public class MirrorApplication extends AbstractApplication {
 				keys.add(iuKeys[i]);
 			}
 		}
-		Mirroring mirror = new Mirroring(getCompositeArtifactRepository(), destinationArtifactRepository, raw);
 
+		Mirroring mirror = new Mirroring(getCompositeArtifactRepository(), destinationArtifactRepository, raw);
 		mirror.setCompare(compare);
 		mirror.setComparatorId(comparatorID);
 		mirror.setBaseline(initializeBaseline());

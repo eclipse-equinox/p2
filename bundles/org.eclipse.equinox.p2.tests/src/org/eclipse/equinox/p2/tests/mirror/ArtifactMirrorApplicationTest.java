@@ -14,8 +14,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.Messages;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -24,6 +22,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -34,7 +33,6 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.Bundle;
 
 /**
  * Test API of the basic mirror application functionality's implementation.
@@ -83,43 +81,11 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	private void runMirrorApplication(String message, final String[] args) throws Exception {
 		MirrorApplication application = new MirrorApplication();
-		application.start(new IApplicationContext() {
-
-			public void applicationRunning() {
-			}
-
-			public Map getArguments() {
-				Map arguments = new HashMap();
-
-				arguments.put(IApplicationContext.APPLICATION_ARGS, args);
-
-				return arguments;
-			}
-
-			public String getBrandingApplication() {
-				return null;
-			}
-
-			public Bundle getBrandingBundle() {
-				return null;
-			}
-
-			public String getBrandingDescription() {
-				return null;
-			}
-
-			public String getBrandingId() {
-				return null;
-			}
-
-			public String getBrandingName() {
-				return null;
-			}
-
-			public String getBrandingProperty(String key) {
-				return null;
-			}
-		});
+		Map map = new HashMap();
+		map.put("metadataOrArtifacts", "artifacts");
+		application.setInitializationData(null, null, map);
+		application.initializeFromArguments(args);
+		application.run(null);
 	}
 
 	/**
@@ -589,7 +555,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			basicRunMirrorApplication("14.1", sourceRepoLocation.toURL(), invalidDestRepository.toURL(), true);
 			//we're expecting an UnsupportedOperationException so we should never get here
 			fail("14.0 UnsupportedOperationException not thrown");
-		} catch (UnsupportedOperationException e) {
+		} catch (ProvisionException e) {
 			return; //correct type of exception has been thrown
 		} catch (Exception e) {
 			fail("14.2", e);
@@ -737,13 +703,13 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		String[] args = null;
 
 		//create arguments without a "-source"
-		args = new String[] {"-destination", destRepoLocation.toURI().toString()};
+		args = new String[] {"-destination", "file:" + destRepoLocation.getAbsolutePath()};
 
 		try {
 			runMirrorApplication("21.1", args);
 			//We expect the IllegalStateException to be thrown
 			fail("21.3 IllegalStateException not thrown");
-		} catch (IllegalStateException e) {
+		} catch (IllegalArgumentException e) {
 			return; //expected type of exception has been thrown
 		} catch (Exception e) {
 			fail("21.2", e);
@@ -757,13 +723,13 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		String[] args = null;
 
 		//create arguments without a "-destination"
-		args = new String[] {"-source", sourceRepoLocation.toURI().toString()};
+		args = new String[] {"-source", "file:" + sourceRepoLocation.getAbsolutePath()};
 
 		try {
 			runMirrorApplication("22.1", args);
 			//We expect the IllegalStateException to be thrown
 			fail("22.3 IllegalStateException not thrown");
-		} catch (IllegalStateException e) {
+		} catch (IllegalArgumentException e) {
 			return; //expected type of exception has been thrown
 		} catch (Exception e) {
 			fail("22.2", e);
@@ -781,7 +747,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			runMirrorApplication("23.0", args);
 			//We expect the IllegalStateException to be thrown
 			fail("23.2 IllegalStateException not thrown");
-		} catch (IllegalStateException e) {
+		} catch (IllegalArgumentException e) {
 			return; //expected type of exception has been thrown
 		} catch (Exception e) {
 			fail("23.1", e);

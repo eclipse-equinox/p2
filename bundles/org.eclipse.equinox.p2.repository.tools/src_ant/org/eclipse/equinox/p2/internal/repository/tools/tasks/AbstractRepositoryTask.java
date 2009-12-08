@@ -18,7 +18,6 @@ import org.apache.tools.ant.*;
 import org.apache.tools.ant.types.FileSet;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.artifact.repository.ant.AntMirrorLog;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.internal.repository.tools.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;

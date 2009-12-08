@@ -27,12 +27,6 @@
 		<step class="org.eclipse.equinox.internal.p2.artifact.repository.SignatureVerifier"/>
 	</extension>
 
-   <extension id="mirrorApplication"  point="org.eclipse.core.runtime.applications">
-      <application cardinality="1" thread="main" visible="true">
-         <run class="org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication"/>
-      </application>
-   </extension>
-   
    	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
 			id="org.eclipse.equinox.p2.processing.MD5Verifier">
@@ -56,12 +50,6 @@
 			library="ant_tasks/artifactRepository-ant.jar"
 			name="p2.composite.artifact.repository.create"
 			class="org.eclipse.equinox.internal.p2.artifact.repository.ant.CreateCompositeArtifactRepositoryTask">
-		</antTask>
-
-		<antTask
-			library="ant_tasks/artifactRepository-ant.jar"
-			name="p2.artifact.mirror"
-			class="org.eclipse.equinox.internal.p2.artifact.repository.ant.MirrorApplicationTask">
 		</antTask>
 		
 		<antTask

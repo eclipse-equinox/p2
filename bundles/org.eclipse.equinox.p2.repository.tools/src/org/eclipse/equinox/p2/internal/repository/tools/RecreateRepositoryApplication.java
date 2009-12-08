@@ -35,7 +35,6 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 	private Map repoMap = null;
 
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
-
 		try {
 			IArtifactRepository repository = initialize(monitor);
 			removeRepository(repository, monitor);

@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.artifact.mirror;
+package org.eclipse.equinox.p2.internal.repository.mirroring;
 
 import java.io.*;
 import java.util.Date;

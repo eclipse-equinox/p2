@@ -9,15 +9,17 @@
  *     IBM Corporation - initial API and implementation
  *  	Compeople AG (Stefan Liebig) - various ongoing maintenance
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.artifact.mirror;
+package org.eclipse.equinox.p2.internal.repository.mirroring;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactComparatorFactory;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactComparator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.internal.repository.tools.Activator;
+import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -161,7 +163,7 @@ public class Mirroring {
 				destDescriptor = destDescriptors[i];
 		}
 		if (destDescriptor == null)
-			return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, Messages.Mirroring_NO_MATCHING_DESCRIPTOR, null);
+			return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, Messages.Mirroring_noMatchingDescriptor, null);
 		return compare(source, descriptor, destination, destDescriptor);
 	}
 
@@ -229,8 +231,8 @@ public class Mirroring {
 					if (destDescriptors[dest].toString().compareTo((srcDescriptors[src].toString())) > 0) {
 						// Missing an artifact
 						if (verbose)
-							System.out.println(NLS.bind(Messages.Mirroring_MISSING_DESCRIPTOR, srcDescriptors[src]));
-						status.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Mirroring_MISSING_DESCRIPTOR, srcDescriptors[src++])));
+							System.out.println(NLS.bind(Messages.Mirroring_missingDescriptor, srcDescriptors[src]));
+						status.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Mirroring_missingDescriptor, srcDescriptors[src++])));
 					} else {
 						// Its okay if there are extra descriptors in the destination
 						dest++;
@@ -253,8 +255,8 @@ public class Mirroring {
 						String key = (String) iter.next();
 						if (!srcProperties.get(key).equals(destMap.get(key))) {
 							if (verbose)
-								System.out.println(NLS.bind(Messages.Mirroring_DIFFERENT_DESCRIPTOR_PROPERTY, new Object[] {destDescriptors[dest], key, srcProperties.get(key), destMap.get(key)}));
-							status.add(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Mirroring_DIFFERENT_DESCRIPTOR_PROPERTY, new Object[] {destDescriptors[dest], key, srcProperties.get(key), destMap.get(key)})));
+								System.out.println(NLS.bind(Messages.Mirroring_differentDescriptorProperty, new Object[] {destDescriptors[dest], key, srcProperties.get(key), destMap.get(key)}));
+							status.add(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Mirroring_differentDescriptorProperty, new Object[] {destDescriptors[dest], key, srcProperties.get(key), destMap.get(key)})));
 						}
 					}
 					src++;
@@ -265,8 +267,8 @@ public class Mirroring {
 			// If there are still source descriptors they're missing from the destination repository 
 			while (src < srcDescriptors.length) {
 				if (verbose)
-					System.out.println(NLS.bind(Messages.Mirroring_MISSING_DESCRIPTOR, srcDescriptors[src]));
-				status.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Mirroring_MISSING_DESCRIPTOR, srcDescriptors[src++])));
+					System.out.println(NLS.bind(Messages.Mirroring_missingDescriptor, srcDescriptors[src]));
+				status.add(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Mirroring_missingDescriptor, srcDescriptors[src++])));
 			}
 		}
 

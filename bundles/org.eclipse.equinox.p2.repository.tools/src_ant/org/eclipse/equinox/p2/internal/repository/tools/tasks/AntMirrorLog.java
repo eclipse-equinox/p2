@@ -8,12 +8,13 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.artifact.repository.ant;
+package org.eclipse.equinox.p2.internal.repository.tools.tasks;
+
+import org.eclipse.equinox.p2.internal.repository.mirroring.IArtifactMirrorLog;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.artifact.mirror.IArtifactMirrorLog;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 

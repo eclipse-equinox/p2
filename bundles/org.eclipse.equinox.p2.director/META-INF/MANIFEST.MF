@@ -20,7 +20,7 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.p2.repository.metadata,
  org.eclipse.osgi.util;version="1.0.0",
  org.osgi.framework;version="1.3.0"
-Export-Package: org.eclipse.equinox.internal.p2.director;x-friends:="org.eclipse.equinox.p2.exemplarysetup,org.eclipse.pde.core",
+Export-Package: org.eclipse.equinox.internal.p2.director;x-friends:="org.eclipse.equinox.p2.exemplarysetup,org.eclipse.pde.core,org.eclipse.equinox.p2.repository.tools",
  org.eclipse.equinox.internal.p2.rollback;x-friends:="org.eclipse.equinox.p2.ui",
  org.eclipse.equinox.internal.provisional.p2.director;
   x-friends:="org.eclipse.equinox.p2.console,
