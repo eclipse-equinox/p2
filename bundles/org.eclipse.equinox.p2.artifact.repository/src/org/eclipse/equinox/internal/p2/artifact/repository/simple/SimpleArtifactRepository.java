@@ -202,6 +202,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	protected Set artifactDescriptors = new HashSet();
+	/**
+	 * Map<IArtifactKey,List<IArtifactDescriptor>> containing the index of artifacts in the repository.
+	 */
 	protected Map artifactMap = new HashMap();
 	private transient BlobStore blobStore;
 	transient private Mapper mapper = new Mapper();
