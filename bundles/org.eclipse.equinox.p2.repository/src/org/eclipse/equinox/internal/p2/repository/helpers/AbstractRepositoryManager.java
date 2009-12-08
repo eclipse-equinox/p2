@@ -1046,12 +1046,12 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	}
 
 	/**
-	 * Performs a query against all of the installable units of each known 
+	 * Performs a query against the contents of each known 
 	 * repository, accumulating any objects that satisfy the query in the 
 	 * provided collector.
 	 * <p>
 	 * Note that using this method can be quite expensive, as every known
-	 * metadata repository will be loaded in order to query each one.  If a
+	 * repository will be loaded in order to query each one.  If a
 	 * client wishes to query only certain repositories, it is better to use
 	 * {@link #getKnownRepositories(int)} to filter the list of repositories
 	 * loaded and then query each of the returned repositories.
@@ -1059,11 +1059,10 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * This method is long-running; progress and cancellation are provided
 	 * by the given progress monitor. 
 	 * 
-	 * @param query The query to perform against each installable unit in each known repository
-	 * @param collector Collects the results of the query
+	 * @param query The query to perform against each element in each known repository
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
-	 * @return The collector argument
+	 * @return A collector containing the results of the query
 	 */
 	public Collector query(IQuery query, IProgressMonitor monitor) {
 		Collector collector = new Collector();

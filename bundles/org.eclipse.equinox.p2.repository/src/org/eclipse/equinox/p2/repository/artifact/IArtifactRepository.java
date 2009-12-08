@@ -32,13 +32,13 @@ public interface IArtifactRepository extends IRepository {
 
 	/**
 	 * See {@link IQuery#getProperty(String)}.  A query should implement "getExcludeArtifactKeys" returning
-	 * Boolean.TRUE to indicate that it is not interested in IArtifactKeys
+	 * Boolean.TRUE to indicate that it is not interested in {@link IArtifactKey}s.
 	 */
 	public static final String QUERY_EXCLUDE_KEYS = "ExcludeArtifactKeys"; //$NON-NLS-1$
 
 	/**
 	 * See {@link IQuery#getProperty(String)}.  A query should implement "getExcludeArtifactDescriptors" returning
-	 * Boolean.TRUE to indicate that it is not interested in IArtifactKeys
+	 * Boolean.TRUE to indicate that it is not interested in {@link IArtifactDescriptor}s.
 	 */
 	public static final String QUERY_EXCLUDE_DESCRIPTORS = "ExcludeArtifactDescriptors"; //$NON-NLS-1$
 
