@@ -11,14 +11,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
-import org.eclipse.equinox.p2.engine.IProfile;
-
 import java.util.Arrays;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
@@ -33,7 +32,8 @@ public class QueryableProfileRegistry implements IQueryable {
 		this.ui = ui;
 	}
 
-	public Collector query(IQuery query, Collector result, IProgressMonitor monitor) {
+	public Collector query(IQuery query, IProgressMonitor monitor) {
+		Collector result = new Collector();
 		IProfile[] profiles = ui.getSession().getProfileRegistry().getProfiles();
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableProfileRegistry_QueryProfileProgress, profiles.length);
 		try {

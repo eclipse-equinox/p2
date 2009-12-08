@@ -11,11 +11,10 @@
 
 package org.eclipse.equinox.internal.p2.operations;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.HashMap;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.common.TranslationSupport;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * ResolutionResult describes problems in a provisioning plan in a structured

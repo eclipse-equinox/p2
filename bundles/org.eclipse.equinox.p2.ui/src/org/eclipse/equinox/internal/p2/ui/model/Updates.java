@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * Element class that represents available updates.

@@ -64,7 +64,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan, null);
 		assertProfileContainsAll("A1 is missing", profile, new IInstallableUnit[] {a1});
-		Collector allProfileIUs = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
+		Collector allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
 		assertEquals(allProfileIUs.size(), 1);
 
 		//Add a2 with a1. This is an error
@@ -84,10 +84,10 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		engine.perform(plan2, null);
 		profile = getProfile(profile.getProfileId());
 		assertProfileContainsAll("A2 is missing", profile, new IInstallableUnit[] {a2});
-		allProfileIUs = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
+		allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
 		assertEquals(allProfileIUs.size(), 1);
 
-		Collector iuProfileProperties = profile.query(new IUProfilePropertyQuery(SimplePlanner.INCLUSION_RULES, null), new Collector(), null);
+		Collector iuProfileProperties = profile.query(new IUProfilePropertyQuery(SimplePlanner.INCLUSION_RULES, null), null);
 		assertEquals(iuProfileProperties.size(), 1);
 
 		//Remove a1 optionality - should be a no-op
@@ -96,7 +96,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan3, null);
-		allProfileIUs = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
+		allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
 		assertProfileContainsAll("A2 is missing", profile, new IInstallableUnit[] {a2});
 		assertEquals(allProfileIUs.size(), 1);
 	}

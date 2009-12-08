@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-
 import org.eclipse.equinox.internal.p2.jarprocessor.CommandStep;
 import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
 

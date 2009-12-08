@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningPlan;
@@ -73,7 +72,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {x});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
-		assertEquals(1, plan.getCompleteState().query(new InstallableUnitQuery("X"), new Collector(), null).size());
+		assertEquals(1, plan.getCompleteState().query(new InstallableUnitQuery("X"), null).size());
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 	}

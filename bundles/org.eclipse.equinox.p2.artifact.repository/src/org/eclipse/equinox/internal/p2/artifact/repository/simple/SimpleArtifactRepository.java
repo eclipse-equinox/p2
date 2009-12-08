@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,6 +32,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -978,7 +977,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return location.toString();
 	}
 
-	public synchronized Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+	public synchronized Collector query(IQuery query, IProgressMonitor monitor) {
+		Collector collector = new Collector();
 		if (monitor != null && monitor.isCanceled())
 			return collector;
 

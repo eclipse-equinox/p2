@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine.spi;
 
-import org.eclipse.equinox.internal.p2.engine.PhaseSet;
-
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.Operand;
 

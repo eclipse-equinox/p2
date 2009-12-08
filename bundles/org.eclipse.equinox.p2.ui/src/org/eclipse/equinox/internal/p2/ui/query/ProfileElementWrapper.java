@@ -11,10 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
-import org.eclipse.equinox.p2.engine.IProfile;
-
 import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
+import org.eclipse.equinox.p2.engine.IProfile;
 
 /**
  * Collector that accepts the matched Profiles and

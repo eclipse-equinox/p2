@@ -528,7 +528,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(location, new SurrogateProfileHandler(), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
-		Collector collector = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), new Collector(), null);
+		Collector collector = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);
 		return !collector.isEmpty();
 	}
 
@@ -537,7 +537,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(location, new SurrogateProfileHandler(), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
-		Collector collector = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), new Collector(), null);
+		Collector collector = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);
 		assertEquals("1.1 Should not have more than one IU wth the same ID and version.", 1, collector.size());
 		return (IInstallableUnit) collector.iterator().next();
 	}

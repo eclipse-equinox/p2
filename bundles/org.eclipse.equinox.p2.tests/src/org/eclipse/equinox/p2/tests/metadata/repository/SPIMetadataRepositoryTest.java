@@ -632,7 +632,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		repo.addInstallableUnits(new IInstallableUnit[] {new SPIInstallableUnit("foo", Version.createOSGi(1, 1, 1))});
 
-		Collector collector = repo.query(new AllAcceptingQuery(), new Collector(), new NullProgressMonitor());
+		Collector collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
 		Collection collection = collector.toCollection();
 		assertEquals(1, collection.size());
@@ -640,7 +640,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue("Repo contains SPI IU)", collection.iterator().next() instanceof SPIInstallableUnit);
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
-		collector = repo.query(new AllAcceptingQuery(), new Collector(), new NullProgressMonitor());
+		collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
 		collection = collector.toCollection();
 		assertEquals(1, collection.size());
@@ -667,7 +667,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		spiInstallableUnit.addProvidedCapability(providedCapability);
 		repo.addInstallableUnits(new IInstallableUnit[] {spiInstallableUnit});
 
-		Collector collector = repo.query(new AllAcceptingQuery(), new Collector(), new NullProgressMonitor());
+		Collector collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
 		Collection collection = collector.toCollection();
 		assertEquals(1, collection.size());
@@ -678,7 +678,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue(spiUnit.getProvidedCapabilities()[0] instanceof ProvidedCapability);
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
-		collector = repo.query(new AllAcceptingQuery(), new Collector(), new NullProgressMonitor());
+		collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
 		collection = collector.toCollection();
 		assertEquals(1, collection.size());
@@ -712,7 +712,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		repo.addInstallableUnits(new IInstallableUnit[] {MetadataFactory.createInstallableUnit(iuDescription)});
 
-		Collector collector = repo.query(new AllAcceptingQuery(), new Collector(), new NullProgressMonitor());
+		Collector collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
 		Collection collection = collector.toCollection();
 		assertEquals(1, collection.size());
@@ -722,7 +722,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue(unit.getRequiredCapabilities()[0] instanceof SPIRequiredCapability);
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
-		collector = repo.query(new AllAcceptingQuery(), new Collector(), new NullProgressMonitor());
+		collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
 		collection = collector.toCollection();
 		assertEquals(1, collection.size());
@@ -780,7 +780,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		repo.addInstallableUnits(new IInstallableUnit[] {MetadataFactory.createInstallableUnit(iuDescription), MetadataFactory.createInstallableUnitPatch(iuPatchDescription)});
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
-		Collector collector = repo.query(new AllAcceptingQuery(), new Collector(), new NullProgressMonitor());
+		Collector collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
 		Collection collection = collector.toCollection();
 		assertEquals(2, collection.size());

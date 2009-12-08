@@ -49,8 +49,8 @@ public class SWTFragment extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {swt});
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertOK("plan", plan.getStatus());
-		Collector c = plan.getAdditions().query(new InstallableUnitQuery("SWT"), new Collector(), null);
-		plan.getAdditions().query(new InstallableUnitQuery("SWT.WIN32"), c, null);
+		Collector c = plan.getAdditions().query(new InstallableUnitQuery("SWT"), null);
+		c.addAll(plan.getAdditions().query(new InstallableUnitQuery("SWT.WIN32"), null));
 		assertEquals(2, c.size());
 	}
 }

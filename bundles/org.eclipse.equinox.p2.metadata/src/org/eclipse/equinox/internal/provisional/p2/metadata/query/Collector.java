@@ -55,6 +55,17 @@ public class Collector implements IQueryable {
 	}
 
 	/**
+	 * Adds the elements from one collector to this collector
+	 * @param collector The collector from which the elements should be retrieved
+	 */
+	public void addAll(Collector collector) {
+		boolean keepGoing = true;
+		for (Iterator iter = collector.iterator(); iter.hasNext() && keepGoing;) {
+			keepGoing = accept(iter.next());
+		}
+	}
+
+	/**
 	 * Returns the collection that is being used to collect results. Unlike {@linkplain #toCollection()},
 	 * this returns the actual modifiable collection that is being used to store results. The
 	 * return value is only intended to be used within subclasses and should not be exposed
@@ -121,8 +132,9 @@ public class Collector implements IQueryable {
 	/**
 	 * Performs a query on this results of this collector.  
 	 */
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-		Iterator iter = collector == this ? toCollection().iterator() : iterator();
+	public Collector query(IQuery query, IProgressMonitor monitor) {
+		Collector collector = new Collector();
+		Iterator iter = toCollection().iterator();
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		try {

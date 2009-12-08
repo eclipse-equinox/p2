@@ -15,7 +15,6 @@ import java.util.Iterator;
 import junit.framework.AssertionFailedError;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
@@ -29,7 +28,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
 		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2});
-		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, null).iterator();
 		//		ResolutionHelper rh = new ResolutionHelper(new Hashtable(), null);
 		//		HashSet set = new HashSet();
 		//		set.add(iu1);
@@ -52,7 +51,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
 		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3});
-		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, null).iterator();
 		for (; iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(ID1)) {
@@ -73,7 +72,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
 		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2});
-		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, null).iterator();
 		for (; iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(iu1.getId()))

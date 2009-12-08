@@ -300,7 +300,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
@@ -314,7 +314,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		p.setProperty("org.eclipse.update.install.features", String.valueOf(true));
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, true, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
 
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
@@ -330,7 +330,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
@@ -343,7 +343,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, new Properties(), true, false, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
 		} catch (ProvisionException e) {
@@ -358,7 +358,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
@@ -372,7 +372,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		p.setProperty("org.eclipse.update.install.features", String.valueOf(true));
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, false, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
 		} catch (ProvisionException e) {
@@ -387,7 +387,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
@@ -400,7 +400,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		Properties p = getSliceProperties();
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
 		} catch (ProvisionException e) {
@@ -418,7 +418,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
@@ -432,7 +432,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		p.setProperty("org.eclipse.update.install.features", String.valueOf(true));
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
 		} catch (ProvisionException e) {
@@ -450,7 +450,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		// Create task
@@ -464,7 +464,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		Properties p = getSliceProperties();
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
 		} catch (ProvisionException e) {
@@ -482,7 +482,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		// Create task
@@ -497,10 +497,10 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size(), getIUCount(destinationRepo));
-		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
+		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
 		try {
-			assertArtifactKeyContentEquals("Different ArtifactKeys", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()), destinationRepo);
+			assertArtifactKeyContentEquals("Different ArtifactKeys", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()), destinationRepo);
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
 		} catch (ProvisionException e) {
 			fail("Failed to compare contents", e);
@@ -518,7 +518,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		// Create task
@@ -533,8 +533,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 
-		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
-		assertArtifactKeyContentEquals("Different ArtifactKeys", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()), destinationRepo);
+		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
+		assertArtifactKeyContentEquals("Different ArtifactKeys", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()), destinationRepo);
 	}
 
 	/*
@@ -547,10 +547,10 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
-		c = repo.query(new InstallableUnitQuery("RCP_Browser_Example.feature.group"), new Collector(), new NullProgressMonitor());
+		c = repo.query(new InstallableUnitQuery("RCP_Browser_Example.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu2 = (IInstallableUnit) c.iterator().next();
 
 		// Create task
@@ -566,8 +566,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu, iu2}, new NullProgressMonitor());
 
-		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
-		assertArtifactKeyContentEquals("Different ArtifactKeys", result.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()), destinationRepo);
+		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
+		assertArtifactKeyContentEquals("Different ArtifactKeys", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()), destinationRepo);
 	}
 
 	/*
@@ -580,7 +580,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.ui.examples.readmetool"), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.ui.examples.readmetool"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		// Create task
@@ -761,7 +761,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	 */
 	protected int getIUCount(URI location) {
 		try {
-			return getMetadataRepositoryManager().loadRepository(location, null).query(InstallableUnitQuery.ANY, new Collector(), null).size();
+			return getMetadataRepositoryManager().loadRepository(location, null).query(InstallableUnitQuery.ANY, null).size();
 		} catch (ProvisionException e) {
 			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");
 			return -1;
@@ -772,7 +772,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	 * Add all IUs to the parent element
 	 */
 	protected void addAllIUs(AntTaskElement parent, IMetadataRepository repo) {
-		Collector collector = repo.query(InstallableUnitQuery.ANY, new Collector(), null);
+		Collector collector = repo.query(InstallableUnitQuery.ANY, null);
 
 		for (Iterator iter = collector.iterator(); iter.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();

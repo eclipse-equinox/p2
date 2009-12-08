@@ -581,7 +581,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static Iterator getInstallableUnits(IProfile profile2) {
-		return profile2.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		return profile2.query(InstallableUnitQuery.ANY, null).iterator();
 	}
 
 	/**
@@ -797,7 +797,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected IInstallableUnit getIU(IMetadataRepository repository, String name) {
-		Collector collector = repository.query(new InstallableUnitQuery(name), new Collector(), null);
+		Collector collector = repository.query(new InstallableUnitQuery(name), null);
 
 		IInstallableUnit unit = null;
 		if (collector.size() > 0)
@@ -1168,7 +1168,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
 	 */
 	protected static void assertContains(String message, IArtifactRepository sourceRepo, IArtifactRepository destinationRepo) {
-		Collector sourceKeys = sourceRepo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector sourceKeys = sourceRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		for (Iterator iterator = sourceKeys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			IArtifactDescriptor[] destinationDescriptors = destinationRepo.getArtifactDescriptors(key);
@@ -1196,12 +1196,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
 	 */
 	protected static void assertContains(String message, IMetadataRepository sourceRepo, IMetadataRepository destinationRepo) {
-		Collector sourceCollector = sourceRepo.query(InstallableUnitQuery.ANY, new Collector(), null);
+		Collector sourceCollector = sourceRepo.query(InstallableUnitQuery.ANY, null);
 		Iterator it = sourceCollector.iterator();
 
 		while (it.hasNext()) {
 			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
-			Collector destinationCollector = destinationRepo.query(new InstallableUnitQuery(sourceIU), new Collector(), null);
+			Collector destinationCollector = destinationRepo.query(new InstallableUnitQuery(sourceIU), null);
 			assertEquals(message, 1, destinationCollector.size());
 			assertEquals(message, sourceIU, (IInstallableUnit) destinationCollector.iterator().next());
 		}
@@ -1370,14 +1370,14 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected int getArtifactKeyCount(IArtifactRepository repo) {
-		return repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null).size();
+		return repo.query(ArtifactKeyQuery.ALL_KEYS, null).size();
 	}
 
 	protected int getArtifactDescriptorCount(URI location) {
 		int count = 0;
 		try {
 			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(location, null);
-			Collector descriptors = repo.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, new Collector(), null);
+			Collector descriptors = repo.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
 			return descriptors.size();
 		} catch (ProvisionException e) {
 			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");

@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -53,7 +52,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan, null);
 		assertProfileContainsAll("B is missing", profile1, new IInstallableUnit[] {b});
-		assertEquals(1, profile1.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals(1, profile1.query(InstallableUnitQuery.ANY, null).size());
 
 		//Install A
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
@@ -68,7 +67,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan2.getRequestStatus(a).getSeverity());
 		engine.perform(plan2, null);
 		assertProfileContainsAll("A is missing", profile1, new IInstallableUnit[] {a, b});
-		assertEquals(2, profile1.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals(2, profile1.query(InstallableUnitQuery.ANY, null).size());
 
 		//Uninstall B
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);

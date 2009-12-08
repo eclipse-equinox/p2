@@ -139,7 +139,7 @@ public class Projector {
 	}
 
 	protected boolean isInstalled(IInstallableUnit iu) {
-		return lastState.query(new InstallableUnitQuery(iu), new Collector(), null).size() == 0 ? false : true;
+		return lastState.query(new InstallableUnitQuery(iu), null).size() == 0 ? false : true;
 	}
 
 	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IQueryable installedIUs, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
@@ -159,7 +159,7 @@ public class Projector {
 				solver = SolverFactory.newEclipseP2();
 			}
 			solver.setTimeoutOnConflicts(1000);
-			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
+			Collector collector = picker.query(InstallableUnitQuery.ANY, null);
 			dependencyHelper = new DependencyHelper(solver);
 
 			Iterator iusToEncode = collector.iterator();
@@ -252,7 +252,7 @@ public class Projector {
 		for (int j = 0; j < reqs.length; j++) {
 			if (reqs[j].getMin() > 0)
 				continue;
-			Collector matches = picker.query(reqs[j].getMatches(), new Collector(), null);
+			Collector matches = picker.query(reqs[j].getMatches(), null);
 			for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 				IInstallableUnit match = (IInstallableUnit) iterator.next();
 				if (match instanceof IInstallableUnitPatch) {
@@ -639,7 +639,7 @@ public class Projector {
 	 */
 	private List getApplicableMatches(IRequirement req) {
 		List target = new ArrayList();
-		Collector matches = picker.query(req.getMatches(), new Collector(), null);
+		Collector matches = picker.query(req.getMatches(), null);
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (isApplicable(match)) {
@@ -731,9 +731,9 @@ public class Projector {
 	//Return IUPatches that are applicable for the given iu
 	private Collector getApplicablePatches(IInstallableUnit iu) {
 		if (patches == null)
-			patches = new QueryableArray((IInstallableUnit[]) picker.query(new PatchQuery(), new Collector(), null).toArray(IInstallableUnit.class));
+			patches = new QueryableArray((IInstallableUnit[]) picker.query(new PatchQuery(), null).toArray(IInstallableUnit.class));
 
-		return patches.query(new ApplicablePatchQuery(iu), new Collector(), null);
+		return patches.query(new ApplicablePatchQuery(iu), null);
 	}
 
 	//Create constraints to deal with singleton

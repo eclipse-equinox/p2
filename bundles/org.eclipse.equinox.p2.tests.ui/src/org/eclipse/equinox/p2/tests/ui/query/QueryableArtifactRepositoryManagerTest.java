@@ -43,8 +43,7 @@ public class QueryableArtifactRepositoryManagerTest extends AbstractQueryTest {
 	public void testQuery() {
 		QueryableArtifactRepositoryManager manager = getQueryableManager();
 
-		Collector result = new Collector();
-		manager.query(new RepositoryLocationQuery(), result, getMonitor());
+		Collector result = manager.query(new RepositoryLocationQuery(), getMonitor());
 		assertTrue(result.size() == repoCount);
 	}
 

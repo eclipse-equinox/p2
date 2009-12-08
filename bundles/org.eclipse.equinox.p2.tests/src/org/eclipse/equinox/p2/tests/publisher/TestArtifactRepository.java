@@ -291,7 +291,8 @@ public class TestArtifactRepository implements IArtifactRepository {
 		return new ArtifactDescriptor(key);
 	}
 
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, IProgressMonitor monitor) {
+		Collector collector = new Collector();
 		if (monitor != null && monitor.isCanceled())
 			return collector;
 

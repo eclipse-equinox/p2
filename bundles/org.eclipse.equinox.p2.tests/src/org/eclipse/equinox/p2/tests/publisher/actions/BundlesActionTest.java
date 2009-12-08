@@ -117,7 +117,7 @@ public class BundlesActionTest extends ActionTest {
 		ius = results.getIUs(null, null);
 		assertEquals("2.0", 1, ius.size());
 		QueryableArray queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
-		Collector result = queryableArray.query(new InstallableUnitQuery("foo"), new Collector(), null);
+		Collector result = queryableArray.query(new InstallableUnitQuery("foo"), null);
 		assertEquals("3.1", 1, result.size());
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		IUPropertyUtils iuPropertyUtils = new IUPropertyUtils(queryableArray);
@@ -128,7 +128,7 @@ public class BundlesActionTest extends ActionTest {
 		ius = results.getIUs(null, null);
 		assertEquals("2.0", 3, ius.size());
 		queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
-		result = queryableArray.query(new InstallableUnitQuery("foo"), new Collector(), null);
+		result = queryableArray.query(new InstallableUnitQuery("foo"), null);
 		assertEquals("2.1", 1, result.size());
 		iu = (IInstallableUnit) result.iterator().next();
 		iuPropertyUtils = new IUPropertyUtils(queryableArray);

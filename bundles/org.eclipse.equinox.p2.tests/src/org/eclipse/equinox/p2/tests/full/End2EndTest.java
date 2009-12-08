@@ -111,18 +111,18 @@ public class End2EndTest extends AbstractProvisioningTest {
 	}
 
 	private void attemptToUninstallRCP35(IProfile profile2, File installFolder) {
-		Collector collect = profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector collect = profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		assertEquals(1, collect.size());
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) collect.iterator().next()});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		assertOK("Can not uninstall RCP", s);
-		assertEquals(1, profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor()).size());
+		assertEquals(1, profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor()).size());
 	}
 
 	protected void uninstallPlatform(IProfile profile2, File installFolder) {
 		System.out.println("Uninstall the platform");
-		Collector collect = profile2.query(new InstallableUnitQuery("org.eclipse.platform.ide"), new Collector(), new NullProgressMonitor());
+		Collector collect = profile2.query(new InstallableUnitQuery("org.eclipse.platform.ide"), new NullProgressMonitor());
 		assertEquals(1, collect.size());
 		//		Collector collect2 = profile2.query(new InstallableUnitQuery("org.eclipse.platform.source.feature.group"), new Collector(), new NullProgressMonitor());
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
@@ -203,7 +203,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 	 */
 	public IInstallableUnit getIU(String id, Version v) {
 		final InstallableUnitQuery query = new InstallableUnitQuery(id, v);
-		Iterator it = metadataRepoManager.query(query, new Collector(), null).iterator();
+		Iterator it = metadataRepoManager.query(query, null).iterator();
 		if (it.hasNext())
 			return (IInstallableUnit) it.next();
 		//try the repository location directly - retry because eclipse.org can be flaky
@@ -211,7 +211,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		for (int i = 0; i < 3; i++) {
 			try {
 				IMetadataRepository repo = metadataRepoManager.loadRepository(repositoryLocation, null);
-				it = repo.query(query, new Collector(), null).iterator();
+				it = repo.query(query, null).iterator();
 				if (it.hasNext())
 					return (IInstallableUnit) it.next();
 			} catch (ProvisionException e) {

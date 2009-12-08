@@ -13,10 +13,7 @@ package org.eclipse.equinox.internal.p2.jarprocessor.ant;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Properties;
-
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.DirectoryScanner;
-import org.apache.tools.ant.Task;
+import org.apache.tools.ant.*;
 import org.apache.tools.ant.types.FileSet;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 

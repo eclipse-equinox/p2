@@ -48,25 +48,25 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		final Operand[] operands = new Operand[] {new InstallableUnitOperand(null, a1), new InstallableUnitPropertyOperand(a1, "org.eclipse.equinox.p2.internal.inclusion.rules", null, "STRICT")};
 		final ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		assertEquals(IStatus.OK, engine.perform(engine.createCustomPlan(profile, operands, context), new NullProgressMonitor()).getSeverity());
-		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().contains(a1));
+		assertTrue(profile.query(InstallableUnitQuery.ANY, null).toCollection().contains(a1));
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.removeInstallableUnits(new IInstallableUnit[] {a1});
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertEquals(IStatus.OK, PlanExecutionHelper.executePlan(plan, engine, context, new NullProgressMonitor()).getSeverity());
-		assertFalse(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().contains(a1));
+		assertFalse(profile.query(InstallableUnitQuery.ANY, null).toCollection().contains(a1));
 	}
 
 	public void testAvailableVsQueryInProfile() {
 		final Operand[] operands = new Operand[] {new InstallableUnitOperand(null, c1), new InstallableUnitPropertyOperand(c1, "org.eclipse.equinox.p2.internal.inclusion.rules", null, "STRICT")};
 		final ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		assertEquals(IStatus.OK, engine.perform(engine.createCustomPlan(profile, operands, context), new NullProgressMonitor()).getSeverity());
-		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().contains(c1));
+		assertTrue(profile.query(InstallableUnitQuery.ANY, null).toCollection().contains(c1));
 
 		IProfile availableWrapper = new IProfile() {
-			public Collector available(IQuery query, Collector collector, IProgressMonitor monitor) {
-				profile.query(query, collector, monitor);
+			public Collector available(IQuery query, IProgressMonitor monitor) {
+				Collector collector = profile.query(query, monitor);
 
 				Collection ius = new ArrayList();
 				ius.add(b1);
@@ -98,8 +98,8 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 				return profile.getTimestamp();
 			}
 
-			public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-				return profile.query(query, collector, monitor);
+			public Collector query(IQuery query, IProgressMonitor monitor) {
+				return profile.query(query, monitor);
 			}
 		};
 

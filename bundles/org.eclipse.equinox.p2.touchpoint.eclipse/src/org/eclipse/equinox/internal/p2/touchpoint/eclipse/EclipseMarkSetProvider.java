@@ -10,13 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.garbagecollector.MarkSet;
@@ -24,10 +17,15 @@ import org.eclipse.equinox.internal.p2.garbagecollector.MarkSetProvider;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.osgi.framework.ServiceReference;
@@ -96,7 +94,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	}
 
 	private void addArtifactKeys(IProfile aProfile) {
-		Iterator installableUnits = aProfile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		Iterator installableUnits = aProfile.query(InstallableUnitQuery.ANY, null).iterator();
 		while (installableUnits.hasNext()) {
 			IArtifactKey[] keys = ((IInstallableUnit) installableUnits.next()).getArtifacts();
 			if (keys == null)
@@ -120,7 +118,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		VersionRange range = searchedVersion != null ? new VersionRange(searchedVersion, true, searchedVersion, true) : null;
 		ArtifactKeyQuery query = new ArtifactKeyQuery(classifier, searchedId, range);
 		//TODO short-circuit the query when we find one?
-		Collector keys = repo.query(query, new Collector(), null);
+		Collector keys = repo.query(query, null);
 		if (!keys.isEmpty())
 			return (IArtifactKey) keys.iterator().next();
 		return null;

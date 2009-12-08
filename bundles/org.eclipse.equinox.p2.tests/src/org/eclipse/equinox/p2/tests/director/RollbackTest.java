@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.engine.*;
@@ -115,7 +114,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		IStatus status = director.provision(request1, null, new NullProgressMonitor());
 		assertEquals("1.0", IStatus.OK, status.getCode());
 
-		List profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+		List profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, null).toCollection());
 		assertTrue("2.0", profileIUs.contains(a1));
 		assertTrue("3.0", profileIUs.contains(b1));
 
@@ -127,7 +126,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		status = director.provision(request2, null, new NullProgressMonitor());
 		assertEquals("5.0", IStatus.OK, status.getCode());
 
-		profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+		profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, null).toCollection());
 		assertFalse("6.0", profileIUs.contains(a1));
 		assertTrue("7.0", profileIUs.contains(b1));
 		assertTrue("8.0", profileIUs.contains(c1));
@@ -138,7 +137,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		status = director.revert(profile, revertProfile, new ProvisioningContext(), new NullProgressMonitor());
 		assertEquals("10.0", IStatus.OK, status.getCode());
 
-		profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+		profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, null).toCollection());
 		assertTrue("11.0", profileIUs.contains(a1));
 		assertTrue("12.0", profileIUs.contains(b1));
 		assertFalse("13.0", profileIUs.contains(c1));

@@ -188,7 +188,7 @@ public class Generator {
 
 		ProductQuery productQuery = new ProductQuery(productFile, info.getFlavor(), result.configurationIUs, info.getVersionAdvice());
 		PipedQuery query = new PipedQuery(new IQuery[] {productQuery, new LatestIUVersionQuery()});
-		Collector collector = info.getMetadataRepository().query(query, new Collector(), null);
+		Collector collector = info.getMetadataRepository().query(query, null);
 		for (Iterator iterator = collector.iterator(); iterator.hasNext();) {
 			productContents.rootIUs.add(iterator.next());
 		}
@@ -526,8 +526,7 @@ public class Generator {
 
 		//Query the repo
 		IQuery query = new InstallableUnitQuery(name);
-		Collector collector = new Collector();
-		Iterator matches = info.getMetadataRepository().query(query, collector, null).iterator();
+		Iterator matches = info.getMetadataRepository().query(query, null).iterator();
 		//pick the newest match
 		IInstallableUnit newest = null;
 		while (matches.hasNext()) {
@@ -645,7 +644,7 @@ public class Generator {
 				IMetadataRepository metadataRepository = info.getMetadataRepository();
 				if (metadataRepository == null)
 					continue;
-				Iterator matches = metadataRepository.query(query, collector, null).iterator();
+				Iterator matches = metadataRepository.query(query, null).iterator();
 				//pick the newest match
 				IInstallableUnit newest = null;
 				while (matches.hasNext()) {

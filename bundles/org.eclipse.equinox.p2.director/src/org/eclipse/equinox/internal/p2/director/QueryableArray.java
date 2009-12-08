@@ -10,15 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public class QueryableArray implements IQueryable {
@@ -39,7 +37,8 @@ public class QueryableArray implements IQueryable {
 		dataSet = Arrays.asList(ius);
 	}
 
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, IProgressMonitor monitor) {
+		Collector collector = new Collector();
 		if (query instanceof IRequiredCapability)
 			return queryCapability((IRequiredCapability) query, collector, monitor);
 		return query.perform(dataSet.iterator(), collector);

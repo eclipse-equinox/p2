@@ -63,14 +63,14 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	 * Return the list of all the IUs known to the metadata repository this watcher's listener.
 	 */
 	public IInstallableUnit[] getInstallableUnits() {
-		return (IInstallableUnit[]) listener.getMetadataRepository().query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
+		return (IInstallableUnit[]) listener.getMetadataRepository().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class);
 	}
 
 	/*
 	 * Return the list of artifact keys known to this listener's repository.
 	 */
 	public IArtifactKey[] getArtifactKeys() {
-		Collector keys = listener.getArtifactRepository().query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector keys = listener.getArtifactRepository().query(ArtifactKeyQuery.ALL_KEYS, null);
 		return (IArtifactKey[]) keys.toArray(IArtifactKey.class);
 	}
 

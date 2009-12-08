@@ -11,8 +11,6 @@
 
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +19,7 @@ import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.*;

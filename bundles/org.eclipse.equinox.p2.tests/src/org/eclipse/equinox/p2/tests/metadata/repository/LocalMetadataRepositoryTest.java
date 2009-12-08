@@ -124,10 +124,10 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		IInstallableUnit iu = createIU("foo");
 		repo.addInstallableUnits(new IInstallableUnit[] {iu});
-		Collector result = repo.query(new InstallableUnitQuery((String) null), new Collector(), getMonitor());
+		Collector result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
 		assertTrue("1.0", result.size() == 1);
 		repo.removeAll();
-		result = repo.query(new InstallableUnitQuery((String) null), new Collector(), getMonitor());
+		result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
 		assertTrue("1.1", result.isEmpty());
 	}
 
@@ -137,13 +137,13 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createIU("foo");
 		IInstallableUnit iu2 = createIU("bar");
 		repo.addInstallableUnits(new IInstallableUnit[] {iu, iu2});
-		Collector result = repo.query(new InstallableUnitQuery((String) null), new Collector(), getMonitor());
+		Collector result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
 		assertTrue("1.0", result.size() == 2);
 		repo.removeInstallableUnits(new IInstallableUnit[] {iu}, getMonitor());
-		result = repo.query(new InstallableUnitQuery((String) null), new Collector(), getMonitor());
+		result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
 		assertTrue("1.1", result.size() == 1);
 		repo.removeInstallableUnits(new IInstallableUnit[] {iu2}, getMonitor());
-		result = repo.query(new InstallableUnitQuery((String) null), new Collector(), getMonitor());
+		result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
 		assertTrue("1.2", result.isEmpty());
 
 	}

@@ -44,7 +44,7 @@ public class Bug254481dataSet2 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallFeaturePatch() {
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.jdt.feature.patch.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.jdt.feature.patch.feature.group"), new NullProgressMonitor());
 		assertEquals(1, c.size());
 		IInstallableUnit patch = (IInstallableUnit) c.iterator().next();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
@@ -53,7 +53,7 @@ public class Bug254481dataSet2 extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertInstallOperand(plan, patch);
-		assertEquals(1, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.jdt.core"), new Collector(), null).size());
-		assertEquals(1, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.jdt.core.manipulation"), new Collector(), null).size());
+		assertEquals(1, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.jdt.core"), null).size());
+		assertEquals(1, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.jdt.core.manipulation"), null).size());
 	}
 }

@@ -37,7 +37,8 @@ public class MockQueryable implements IQueryable {
 
 	}
 
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, IProgressMonitor monitor) {
+		Collector collector = new Collector();
 		return query.perform(items.iterator(), collector);
 	}
 

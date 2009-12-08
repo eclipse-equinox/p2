@@ -10,11 +10,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.Collection;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * Publisher results represent the result of running a publishing operation.  A result is a 

@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -41,7 +40,7 @@ public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 		iu3 = createBundleFragment("fragment");
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
 		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3});
-		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, null).iterator();
 		for (; iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(iu1.getId())) {

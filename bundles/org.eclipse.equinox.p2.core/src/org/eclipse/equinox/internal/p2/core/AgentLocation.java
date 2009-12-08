@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.core;
 
-import org.eclipse.equinox.p2.core.IAgentLocation;
-
 import java.net.URI;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 
 /**
  * Internal class.

@@ -17,7 +17,6 @@ import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -39,7 +38,7 @@ public class SDKPatchingTest2 extends AbstractProvisioningTest {
 		assertNotNull(profile);
 
 		//create a patch to install a new version of jdt.launching
-		MetadataFactory.InstallableUnitDescription newJDTLaunching = createIUDescriptor((IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.jdt.launching"), new Collector(), new NullProgressMonitor()).iterator().next());
+		MetadataFactory.InstallableUnitDescription newJDTLaunching = createIUDescriptor((IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.jdt.launching"), new NullProgressMonitor()).iterator().next());
 		Version newJDTLaunchingVersion = Version.createOSGi(3, 5, 0, "zeNewVersion");
 		changeVersion(newJDTLaunching, newJDTLaunchingVersion);
 		newIUs.add(MetadataFactory.createInstallableUnit(newJDTLaunching));
@@ -51,7 +50,7 @@ public class SDKPatchingTest2 extends AbstractProvisioningTest {
 		newIUs.add(patchInstallingJDTLaunching);
 
 		//create a patch to install a new version of jdt.debug.ui
-		MetadataFactory.InstallableUnitDescription newDebugUI = createIUDescriptor((IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.jdt.debug.ui"), new Collector(), new NullProgressMonitor()).iterator().next());
+		MetadataFactory.InstallableUnitDescription newDebugUI = createIUDescriptor((IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.jdt.debug.ui"), new NullProgressMonitor()).iterator().next());
 		Version newDebugVersion = Version.createOSGi(3, 3, 0, "zeNewVersion");
 		changeVersion(newDebugUI, newDebugVersion);
 		newIUs.add(MetadataFactory.createInstallableUnit(newDebugUI));

@@ -178,7 +178,7 @@ public class ProductActionTest extends ActionTest {
 		results.addIU(iu, IPublisherResult.NON_ROOT);
 
 		action2.perform(info, results, new NullProgressMonitor());
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + configSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + configSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 1, collector.size());
 	}
 
@@ -201,10 +201,10 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 0, collector.size());
 
-		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("2.0", 0, collector.size());
 	}
 
@@ -227,10 +227,10 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 1, collector.size());
 
-		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("2.0", 0, collector.size());
 	}
 
@@ -252,10 +252,10 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 1, collector.size());
 
-		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("2.0", 0, collector.size());
 	}
 
@@ -278,10 +278,10 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 1, collector.size());
 
-		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("2.0", 0, collector.size());
 	}
 
@@ -303,7 +303,7 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 1, collector.size());
 		IInstallableUnitFragment fragment = (IInstallableUnitFragment) collector.iterator().next();
 		assertEquals("1.1", "org.eclipse.core.runtime", ((IRequiredCapability) fragment.getHost()[0].getMatches()).getName());
@@ -324,10 +324,10 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 0, collector.size());
 
-		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new Collector(), new NullProgressMonitor());
+		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("2.0", 0, collector.size());
 	}
 

@@ -133,7 +133,7 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 		return delegate.createArtifactDescriptor(key);
 	}
 
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-		return delegate.query(query, collector, monitor);
+	public Collector query(IQuery query, IProgressMonitor monitor) {
+		return delegate.query(query, monitor);
 	}
 }

@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.examples.rcp.cloud.p2;
 
-import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
-
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 
 /**
  * InstallNewSoftwareHandler invokes the install wizard

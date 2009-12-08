@@ -64,9 +64,9 @@ public class Bug278668 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallFeaturePatch() {
-		Collector c = repo.query(new InstallableUnitQuery("com.borland.tg.modeling.8.2.0.hotfixexp.patch.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("com.borland.tg.modeling.8.2.0.hotfixexp.patch.feature.group"), new NullProgressMonitor());
 		assertEquals(1, c.size());
-		Collector c2 = repo.query(new InstallableUnitQuery("com.borland.tg.modeling.8.2.0.nl.patch.feature.group"), new Collector(), new NullProgressMonitor());
+		Collector c2 = repo.query(new InstallableUnitQuery("com.borland.tg.modeling.8.2.0.nl.patch.feature.group"), new NullProgressMonitor());
 		assertEquals(1, c2.size());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);

@@ -35,7 +35,7 @@ public class MD5Tests extends AbstractProvisioningTest {
 	}
 
 	public void testCheckMD5() {
-		Collector descriptors = repo.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, new Collector(), null);
+		Collector descriptors = repo.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
 		for (Iterator iterator = descriptors.iterator(); iterator.hasNext();) {
 			IArtifactDescriptor desc = (IArtifactDescriptor) iterator.next();
 			IStatus status = repo.getArtifact(desc, new ByteArrayOutputStream(500), new NullProgressMonitor());

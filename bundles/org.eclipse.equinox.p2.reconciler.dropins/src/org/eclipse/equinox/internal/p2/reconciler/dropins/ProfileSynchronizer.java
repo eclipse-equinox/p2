@@ -311,10 +311,10 @@ public class ProfileSynchronizer {
 		List toRemove = new ArrayList();
 
 		boolean foundIUsToAdd = false;
-		Collection profileIUs = new HashSet(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+		Collection profileIUs = new HashSet(profile.query(InstallableUnitQuery.ANY, null).toCollection());
 
 		// we use IProfile.available(...) here so that we also gather any shared IUs
-		Collection availableProfileIUs = new HashSet(profile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+		Collection availableProfileIUs = new HashSet(profile.available(InstallableUnitQuery.ANY, null).toCollection());
 
 		// get all IUs from all our repos (toAdd)
 		Collector allIUs = getAllIUsFromRepos();
@@ -339,7 +339,7 @@ public class ProfileSynchronizer {
 		}
 
 		// get all IUs from profile with marked property (existing)
-		Collector dropinIUs = profile.query(new IUProfilePropertyQuery(PROP_FROM_DROPINS, Boolean.toString(true)), new Collector(), null);
+		Collector dropinIUs = profile.query(new IUProfilePropertyQuery(PROP_FROM_DROPINS, Boolean.toString(true)), null);
 		Collection all = new HashSet(allIUs.toCollection());
 		for (Iterator iter = dropinIUs.iterator(); iter.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
@@ -422,7 +422,7 @@ public class ProfileSynchronizer {
 		for (Iterator it = repositoryMap.entrySet().iterator(); it.hasNext();) {
 			Entry entry = (Entry) it.next();
 			IMetadataRepository repository = (IMetadataRepository) entry.getValue();
-			repository.query(InstallableUnitQuery.ANY, allRepos, null).iterator();
+			allRepos.addAll(repository.query(InstallableUnitQuery.ANY, null));
 		}
 		return allRepos;
 	}

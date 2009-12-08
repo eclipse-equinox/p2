@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,6 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.ICompositeRepository;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -449,7 +448,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 * Check the two given repositories against each other using the given comparator.
 	 */
 	private boolean isSane(IArtifactRepository one, IArtifactRepository two, IArtifactComparator comparator) {
-		Collector toCheckKeys = one.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector toCheckKeys = one.query(ArtifactKeyQuery.ALL_KEYS, null);
 		for (Iterator iterator = toCheckKeys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			if (!two.contains(key))
@@ -510,7 +509,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		}
 	}
 
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, IProgressMonitor monitor) {
 		// Query all the all the repositories this composite repo contains
 		List repos = new ArrayList();
 		for (Iterator repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
@@ -519,6 +518,6 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 				repos.add(info.repo);
 		}
 		CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) repos.toArray(new IQueryable[repos.size()]));
-		return queryable.query(query, collector, monitor);
+		return queryable.query(query, monitor);
 	}
 }

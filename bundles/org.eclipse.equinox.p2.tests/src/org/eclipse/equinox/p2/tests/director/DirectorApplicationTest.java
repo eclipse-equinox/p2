@@ -528,7 +528,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		URI metadataRepo1 = getTestData("10.1", "/testData/metadataRepo/good").toURI();
 		URI metadataRepo2 = getTestData("10.1", "/testData/metadataRepo/multipleversions1").toURI();
 		Application application = new Application();
-		Method method = application.getClass().getDeclaredMethod("collectRootIUs", URI[].class, IQuery.class, Collector.class);
+		Method method = application.getClass().getDeclaredMethod("collectRootIUs", URI[].class, IQuery.class);
 		method.setAccessible(true);
 		URI[] uris = new URI[] {metadataRepo1, metadataRepo2};
 		IQuery query = new MatchQuery() {
@@ -541,8 +541,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 				return false;
 			}
 		};
-		Collector collector = new Collector();
-		Collector result = (Collector) method.invoke(application, uris, query, collector);
+		Collector result = (Collector) method.invoke(application, uris, query);
 		assertEquals("1.0", 1, result.size());
 	}
 

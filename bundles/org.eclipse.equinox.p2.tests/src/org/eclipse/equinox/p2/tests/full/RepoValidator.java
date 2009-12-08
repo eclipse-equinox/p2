@@ -59,7 +59,7 @@ public class RepoValidator extends AbstractProvisioningTest {
 		q = new InstallableUnitQuery("org.eclipse.rcp.feature.group");
 
 		//		q = InstallableUnitQuery.ANY;
-		Collector iusToTest = validatedRepo.query(q, new Collector(), null);
+		Collector iusToTest = validatedRepo.query(q, null);
 
 		ProvisioningContext pc = new ProvisioningContext(new URI[] {repoLoc});
 		for (Iterator iterator = iusToTest.iterator(); iterator.hasNext();) {

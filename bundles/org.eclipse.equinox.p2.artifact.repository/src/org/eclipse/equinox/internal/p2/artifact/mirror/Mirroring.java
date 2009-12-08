@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.mirror;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
@@ -20,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactC
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactComparator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.util.NLS;
@@ -81,7 +80,7 @@ public class Mirroring {
 		if (keysToMirror != null)
 			keys = keysToMirror.iterator();
 		else {
-			Collector result = source.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+			Collector result = source.query(ArtifactKeyQuery.ALL_KEYS, null);
 			keys = result.iterator();
 		}
 		while (keys.hasNext()) {
@@ -212,7 +211,7 @@ public class Mirroring {
 		if (keysToMirror != null) {
 			keys = keysToMirror.iterator();
 		} else {
-			Collector result = source.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+			Collector result = source.query(ArtifactKeyQuery.ALL_KEYS, null);
 			keys = result.iterator();
 		}
 		while (keys.hasNext()) {

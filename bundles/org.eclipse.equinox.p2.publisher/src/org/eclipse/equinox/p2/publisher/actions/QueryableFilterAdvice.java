@@ -28,13 +28,13 @@ public class QueryableFilterAdvice implements IFilterAdvice {
 
 	public String getFilter(String id, Version version, boolean exact) {
 		InstallableUnitQuery query = new InstallableUnitQuery(id, version);
-		Collector result = queryable.query(query, new Collector(), null);
+		Collector result = queryable.query(query, null);
 		if (!result.isEmpty())
 			return ((LDAPQuery) ((IInstallableUnit) result.iterator().next()).getFilter()).getFilter();
 		if (exact)
 			return null;
 		query = new InstallableUnitQuery(id);
-		result = queryable.query(query, new Collector(), null);
+		result = queryable.query(query, null);
 		if (!result.isEmpty())
 			return ((LDAPQuery) ((IInstallableUnit) result.iterator().next()).getFilter()).getFilter();
 		return null;

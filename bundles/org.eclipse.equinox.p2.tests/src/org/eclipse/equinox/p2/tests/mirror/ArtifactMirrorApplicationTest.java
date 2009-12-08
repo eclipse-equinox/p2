@@ -321,7 +321,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Not Biconditional.
 	 */
 	private void assertFileSizes(String message, SimpleArtifactRepository expected, SimpleArtifactRepository actual) {
-		Collector expectedKeys = expected.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector expectedKeys = expected.query(ArtifactKeyQuery.ALL_KEYS, null);
 		for (Iterator iterator = expectedKeys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			IArtifactDescriptor[] expectedDescriptors = expected.getArtifactDescriptors(key);
@@ -928,7 +928,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			fail("");
 		}
 
-		Collector keys = packedRepo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector keys = packedRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			IArtifactDescriptor[] srcDescriptors = packedRepo.getArtifactDescriptors(key);
@@ -1309,8 +1309,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 				return source.contains(descriptor);
 			}
 
-			public synchronized Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-				return source.query(query, collector, monitor);
+			public synchronized Collector query(IQuery query, IProgressMonitor monitor) {
+				return source.query(query, monitor);
 			}
 		}
 
@@ -1383,7 +1383,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Mirroring full duplicate, so any key will do.
-			Collector descriptors = sourceRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, new Collector(), null);
+			Collector descriptors = sourceRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
 			IArtifactDescriptor descriptor = (IArtifactDescriptor) descriptors.iterator().next();
 			//Mirroring full duplicate, so any descriptor will do.
 			String message = NLS.bind(org.eclipse.equinox.internal.p2.artifact.repository.Messages.mirror_alreadyExists, descriptor, destRepoLocation.toURI());
@@ -1455,7 +1455,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Mirroring full duplicate, so any key will do.
-			Collector descriptors = sourceRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, new Collector(), null);
+			Collector descriptors = sourceRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
 			IArtifactDescriptor descriptor = (IArtifactDescriptor) descriptors.iterator().next();
 			//Mirroring full duplicate, so any descriptor will do.
 			String message = NLS.bind(org.eclipse.equinox.internal.p2.artifact.repository.Messages.mirror_alreadyExists, descriptor, destRepoLocation.toURI());

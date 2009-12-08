@@ -71,7 +71,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull("0.3", profile);
 
-		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("0.4", profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
@@ -85,7 +85,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("0.99", e1);
 		}
 
-		Collector repoCollector = repo.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		Collector repoCollector = repo.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("1.0", repoCollector.isEmpty());
 		assertTrue("1.1", repoCollector.toCollection().containsAll(profileCollector.toCollection()));
 	}
@@ -99,7 +99,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull("0.3", profile);
 
-		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("0.4", profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
@@ -116,7 +116,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("0.99", e1);
 		}
 
-		Collector repoCollector = repo.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		Collector repoCollector = repo.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("1.0", repoCollector.isEmpty());
 		assertTrue("1.1", repoCollector.toCollection().containsAll(profileCollector.toCollection()));
 	}
@@ -136,7 +136,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull("1.0", profile);
 
-		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("1.1", profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(profileRegistryFolder, "SDKPatchingTest.profile");
@@ -157,7 +157,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("2.99", e1);
 		}
 
-		Collector repoCollector = repo.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		Collector repoCollector = repo.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("3.0", repoCollector.isEmpty());
 		assertTrue("3.1", repoCollector.toCollection().containsAll(profileCollector.toCollection()));
 

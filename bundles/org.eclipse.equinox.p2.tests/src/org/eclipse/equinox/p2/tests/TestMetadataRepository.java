@@ -59,7 +59,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public IInstallableUnit find(String id, String versionString) {
-		Iterator result = query(new InstallableUnitQuery(id, Version.create(versionString)), new Collector(), null).iterator();
+		Iterator result = query(new InstallableUnitQuery(id, Version.create(versionString)), null).iterator();
 		return (IInstallableUnit) (result.hasNext() ? result.next() : null);
 	}
 
@@ -70,8 +70,8 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		return null;
 	}
 
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-		return query.perform(units.iterator(), collector);
+	public Collector query(IQuery query, IProgressMonitor monitor) {
+		return query.perform(units.iterator(), new Collector());
 	}
 
 	public void removeAll() {

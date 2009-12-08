@@ -48,7 +48,7 @@ public class LocalUpdatesiteTest extends AbstractProvisioningTest {
 			fail("0.99");
 		}
 		IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repoLocation.toURI(), new NullProgressMonitor());
-		Collector results = repository.query(new CategoryQuery(), new Collector(), new NullProgressMonitor());
+		Collector results = repository.query(new CategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, results.size());
 		Iterator iter = results.iterator();
 		while (iter.hasNext()) {

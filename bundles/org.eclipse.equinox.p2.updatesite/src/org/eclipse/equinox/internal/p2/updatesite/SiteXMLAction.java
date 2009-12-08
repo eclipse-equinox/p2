@@ -124,10 +124,8 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		String versionString = feature.getFeatureVersion();
 		Version version = versionString != null && versionString.length() > 0 ? Version.create(versionString) : Version.emptyVersion;
 		IQuery query = null;
-		Collector collector = null;
 		if (version.equals(Version.emptyVersion)) {
 			query = new PipedQuery(new IQuery[] {new InstallableUnitQuery(id), new LatestIUVersionQuery()});
-			collector = new Collector();
 		} else {
 			String qualifier;
 			try {
@@ -149,18 +147,16 @@ public class SiteXMLAction extends AbstractPublisherAction {
 					}
 				};
 				query = new PipedQuery(new IQuery[] {qualifierQuery, new LatestIUVersionQuery()});
-				collector = new Collector();
 			} else {
 				query = new LimitQuery(new InstallableUnitQuery(id, version), 1);
-				collector = new Collector();
 			}
 		}
 
-		collector = results.query(query, collector, null);
+		Collector collector = results.query(query, null);
 		if (collector.size() == 0)
-			collector = publisherInfo.getMetadataRepository().query(query, collector, null);
+			collector.addAll(publisherInfo.getMetadataRepository().query(query, null));
 		if (collector.size() == 0 && publisherInfo.getContextMetadataRepository() != null)
-			collector = publisherInfo.getContextMetadataRepository().query(query, collector, null);
+			collector.addAll(publisherInfo.getContextMetadataRepository().query(query, null));
 
 		if (collector.size() == 1)
 			return (IInstallableUnit) collector.iterator().next();

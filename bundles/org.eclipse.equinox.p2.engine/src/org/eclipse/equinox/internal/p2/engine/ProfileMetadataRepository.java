@@ -155,8 +155,8 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		// nothing to do
 	}
 
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-		return profile.query(query, collector, monitor);
+	public Collector query(IQuery query, IProgressMonitor monitor) {
+		return profile.query(query, monitor);
 	}
 
 	public static void validate(URI location, IProgressMonitor monitor) throws ProvisionException {

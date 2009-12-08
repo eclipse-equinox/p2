@@ -42,7 +42,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 
 	public void testInstallTwoVersionsOptionaly() {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		Collector allIUs = repo.query(InstallableUnitQuery.ANY, new Collector(), null);
+		Collector allIUs = repo.query(InstallableUnitQuery.ANY, null);
 		req1.addInstallableUnits((IInstallableUnit[]) allIUs.toArray(IInstallableUnit.class));
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
@@ -63,7 +63,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 	public void test2() {
 		//Install everything except com.ibm.icu
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		Collector allIUs = repo.query(InstallableUnitQuery.ANY, new Collector(), null);
+		Collector allIUs = repo.query(InstallableUnitQuery.ANY, null);
 		ArrayList toInstall = new ArrayList(allIUs.size());
 		int removed = 0;
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
@@ -90,7 +90,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 	public void test3() {
 		//Install everything optionaly (except com.ibm.icu that we don't install at all)
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		Collector allIUs = repo.query(InstallableUnitQuery.ANY, new Collector(), null);
+		Collector allIUs = repo.query(InstallableUnitQuery.ANY, null);
 		ArrayList toInstall = new ArrayList(allIUs.size());
 		int removed = 0;
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {

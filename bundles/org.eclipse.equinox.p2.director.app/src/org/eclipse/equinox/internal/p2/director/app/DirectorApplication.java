@@ -54,8 +54,8 @@ public class DirectorApplication implements IApplication {
 			Assert.isNotNull(location);
 		}
 
-		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-			return getInstallableUnits(location, query, collector, monitor);
+		public Collector query(IQuery query, IProgressMonitor monitor) {
+			return getInstallableUnits(location, query, monitor);
 		}
 	}
 
@@ -227,18 +227,17 @@ public class DirectorApplication implements IApplication {
 		}
 	}
 
-	private Collector collectRootIUs(IQuery query, Collector collector) {
+	private Collector collectRootIUs(IQuery query) {
 		IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 		int top = metadataRepositoryLocations.size();
 		if (top == 0)
-			return getInstallableUnits(null, query, collector, nullMonitor);
+			return getInstallableUnits(null, query, nullMonitor);
 
-		Collector result = collector != null ? collector : new Collector();
 		IQueryable[] locationQueryables = new IQueryable[top];
 		for (int i = 0; i < top; i++)
 			locationQueryables[i] = new LocationQueryable((URI) metadataRepositoryLocations.get(i));
-		return new CompoundQueryable(locationQueryables).query(query, result, nullMonitor);
+		return new CompoundQueryable(locationQueryables).query(query, nullMonitor);
 	}
 
 	private IInstallableUnit[] collectRoots(IProfile profile, List rootNames, boolean forInstall) throws CoreException {
@@ -250,11 +249,11 @@ public class DirectorApplication implements IApplication {
 			IQuery query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
 			Collector roots;
 			if (forInstall)
-				roots = collectRootIUs(new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()}), new Collector());
+				roots = collectRootIUs(new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()}));
 			else
 				roots = new Collector();
 			if (roots.size() <= 0)
-				roots = profile.query(query, roots, new NullProgressMonitor());
+				roots.addAll(profile.query(query, new NullProgressMonitor()));
 			if (roots.size() <= 0)
 				throw new CoreException(new Status(IStatus.ERROR, org.eclipse.equinox.internal.p2.director.app.Activator.ID, NLS.bind(Messages.Missing_IU, rootName)));
 			allRoots.addAll(roots.toCollection());
@@ -328,7 +327,6 @@ public class DirectorApplication implements IApplication {
 		if (rootsToInstall.isEmpty() && revertToPreviousState == -1)
 			// Not much point initializing repositories if we have nothing to install
 			return;
-
 		if (artifactRepositoryLocations == null)
 			missingArgument("-artifactRepository"); //$NON-NLS-1$
 
@@ -463,7 +461,7 @@ public class DirectorApplication implements IApplication {
 
 		ArrayList allRoots = new ArrayList();
 		if (rootsToList.size() == 0) {
-			Collector roots = collectRootIUs(InstallableUnitQuery.ANY, null);
+			Collector roots = collectRootIUs(InstallableUnitQuery.ANY);
 			allRoots.addAll(roots.toCollection());
 		} else {
 			Iterator r = rootsToList.iterator();
@@ -471,7 +469,7 @@ public class DirectorApplication implements IApplication {
 				IVersionedId rootName = (IVersionedId) r.next();
 				Version v = rootName.getVersion();
 				IQuery query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
-				Collector roots = collectRootIUs(query, null);
+				Collector roots = collectRootIUs(query);
 				allRoots.addAll(roots.toCollection());
 			}
 		}
@@ -774,7 +772,7 @@ public class DirectorApplication implements IApplication {
 			strm.print(' ');
 	}
 
-	Collector getInstallableUnits(URI location, IQuery query, Collector collector, IProgressMonitor monitor) {
+	Collector getInstallableUnits(URI location, IQuery query, IProgressMonitor monitor) {
 		IQueryable queryable = null;
 		if (location == null) {
 			queryable = metadataManager;
@@ -786,8 +784,8 @@ public class DirectorApplication implements IApplication {
 			}
 		}
 		if (queryable != null)
-			return queryable.query(query, collector, monitor);
-		return collector;
+			return queryable.query(query, monitor);
+		return new Collector();
 	}
 
 	private void deeplyPrint(CoreException ce, PrintStream strm, int level) {

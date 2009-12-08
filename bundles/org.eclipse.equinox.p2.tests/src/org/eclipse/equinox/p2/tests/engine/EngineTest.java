@@ -382,13 +382,13 @@ public class EngineTest extends AbstractProvisioningTest {
 		InstallableUnitOperand[] installOperands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, iu33)};
 		IStatus result = engine.perform(engine.createCustomPlan(profile, installOperands, null), new NullProgressMonitor());
 		assertTrue(result.isOK());
-		Iterator ius = profile.query(new InstallableUnitQuery(iu33), new Collector(), null).iterator();
+		Iterator ius = profile.query(new InstallableUnitQuery(iu33), null).iterator();
 		assertTrue(ius.hasNext());
 
 		InstallableUnitOperand[] updateOperands = new InstallableUnitOperand[] {new InstallableUnitOperand(iu33, iu34)};
 		result = engine.perform(engine.createCustomPlan(profile, updateOperands, null), new NullProgressMonitor());
 		assertTrue(result.isOK());
-		ius = profile.query(new InstallableUnitQuery(iu34), new Collector(), null).iterator();
+		ius = profile.query(new InstallableUnitQuery(iu34), null).iterator();
 		assertTrue(ius.hasNext());
 	}
 
@@ -730,8 +730,8 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testIncompatibleProfile() {
 
 		IProfile profile = new IProfile() {
-			public Collector available(IQuery query, Collector collector, IProgressMonitor monitor) {
-				return null;
+			public Collector available(IQuery query, IProgressMonitor monitor) {
+				return new Collector();
 			}
 
 			public Map getInstallableUnitProperties(IInstallableUnit iu) {
@@ -758,8 +758,8 @@ public class EngineTest extends AbstractProvisioningTest {
 				return 0;
 			}
 
-			public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-				return null;
+			public Collector query(IQuery query, IProgressMonitor monitor) {
+				return new Collector();
 			}
 		};
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};

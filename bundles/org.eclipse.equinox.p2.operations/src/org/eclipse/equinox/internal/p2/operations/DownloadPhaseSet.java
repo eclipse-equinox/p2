@@ -13,10 +13,8 @@
  */
 package org.eclipse.equinox.internal.p2.operations;
 
-import org.eclipse.equinox.internal.p2.engine.PhaseSet;
-
 import org.eclipse.equinox.internal.p2.engine.Phase;
-
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 
 

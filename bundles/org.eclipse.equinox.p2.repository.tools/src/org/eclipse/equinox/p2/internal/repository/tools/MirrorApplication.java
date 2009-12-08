@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
@@ -26,6 +22,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
@@ -78,7 +76,7 @@ public class MirrorApplication extends AbstractApplication {
 
 	private IStatus mirrorArtifacts(IQueryable slice, IProgressMonitor monitor) throws ProvisionException {
 		// Obtain ArtifactKeys from IUs
-		Collector ius = slice.query(InstallableUnitQuery.ANY, new Collector(), monitor);
+		Collector ius = slice.query(InstallableUnitQuery.ANY, monitor);
 		ArrayList keys = new ArrayList(ius.size());
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
@@ -117,7 +115,7 @@ public class MirrorApplication extends AbstractApplication {
 	}
 
 	private void mirrorMetadata(IQueryable slice, IProgressMonitor monitor) {
-		Collector allIUs = slice.query(InstallableUnitQuery.ANY, new Collector(), monitor);
+		Collector allIUs = slice.query(InstallableUnitQuery.ANY, monitor);
 		destinationMetadataRepository.addInstallableUnits((IInstallableUnit[]) allIUs.toArray(IInstallableUnit.class));
 	}
 
@@ -143,7 +141,7 @@ public class MirrorApplication extends AbstractApplication {
 		if (sourceIUs == null || sourceIUs.isEmpty()) {
 			sourceIUs = new ArrayList();
 			IMetadataRepository metadataRepo = getCompositeMetadataRepository();
-			Collector collector = metadataRepo.query(InstallableUnitQuery.ANY, new Collector(), null);
+			Collector collector = metadataRepo.query(InstallableUnitQuery.ANY, null);
 
 			for (Iterator iter = collector.iterator(); iter.hasNext();) {
 				IInstallableUnit iu = (IInstallableUnit) iter.next();
@@ -193,7 +191,7 @@ public class MirrorApplication extends AbstractApplication {
 
 		if (slice != null && slicingOptions.latestVersionOnly()) {
 			Collector collector = new Collector();
-			collector = slice.query(new LatestIUVersionQuery(), collector, monitor);
+			collector = slice.query(new LatestIUVersionQuery(), monitor);
 			slice = collector;
 		}
 		if (slicer.getStatus().getSeverity() != IStatus.OK && mirrorLog != null) {

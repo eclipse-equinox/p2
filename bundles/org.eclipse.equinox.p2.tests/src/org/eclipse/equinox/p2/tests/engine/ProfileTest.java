@@ -82,11 +82,11 @@ public class ProfileTest extends AbstractProvisioningTest {
 		IProfileRegistry registry = getProfileRegistry();
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
-		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
 		profile.addInstallableUnit(createIU("test"));
-		assertEquals(1, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals(1, profile.query(InstallableUnitQuery.ANY, null).size());
 		profile.removeInstallableUnit(createIU("test"));
-		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
 		registry.removeProfile(PROFILE_NAME);
 		assertNull(registry.getProfile(PROFILE_NAME));
 	}
@@ -95,11 +95,11 @@ public class ProfileTest extends AbstractProvisioningTest {
 		IProfileRegistry registry = getProfileRegistry();
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
-		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
 		profile.addInstallableUnit(createIU("test"));
-		assertEquals(1, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals(1, profile.query(InstallableUnitQuery.ANY, null).size());
 		profile.addInstallableUnit(createIU("test"));
-		assertEquals(1, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals(1, profile.query(InstallableUnitQuery.ANY, null).size());
 		registry.removeProfile(PROFILE_NAME);
 		assertNull(registry.getProfile(PROFILE_NAME));
 	}
@@ -108,7 +108,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 		IProfileRegistry registry = getProfileRegistry();
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
-		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
 		profile.addInstallableUnit(createIU("test"));
 		assertNull(profile.getInstallableUnitProperty(createIU("test"), "test"));
 		assertNull(profile.removeInstallableUnitProperty(createIU("test"), "test"));
@@ -118,7 +118,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 		assertEquals("test", profile.getInstallableUnitProperty(createIU("test"), "test"));
 		profile.removeInstallableUnitProperty(createIU("test"), "test");
 		assertNull(profile.getInstallableUnitProperty(createIU("test"), "test"));
-		assertEquals(1, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals(1, profile.query(InstallableUnitQuery.ANY, null).size());
 		registry.removeProfile(PROFILE_NAME);
 		assertNull(registry.getProfile(PROFILE_NAME));
 	}
@@ -127,9 +127,9 @@ public class ProfileTest extends AbstractProvisioningTest {
 		IProfileRegistry registry = getProfileRegistry();
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
-		assertTrue(profile.available(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		assertTrue(profile.available(InstallableUnitQuery.ANY, null).isEmpty());
 		profile.addInstallableUnit(createIU("test"));
-		assertEquals(1, profile.available(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals(1, profile.available(InstallableUnitQuery.ANY, null).size());
 		profile.setSurrogateProfileHandler(new ISurrogateProfileHandler() {
 			public IProfile createProfile(String id) {
 				return null;
@@ -139,16 +139,16 @@ public class ProfileTest extends AbstractProvisioningTest {
 				return false;
 			}
 
-			public Collector queryProfile(IProfile profile, IQuery query, Collector collector, IProgressMonitor monitor) {
-				return collector;
+			public Collector queryProfile(IProfile profile, IQuery query, IProgressMonitor monitor) {
+				return new Collector();
 			}
 
 			public boolean updateProfile(IProfile selfProfile) {
 				return false;
 			}
 		});
-		assertTrue(profile.available(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
-		assertTrue(profile.snapshot().available(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		assertTrue(profile.available(InstallableUnitQuery.ANY, null).isEmpty());
+		assertTrue(profile.snapshot().available(InstallableUnitQuery.ANY, null).isEmpty());
 		registry.removeProfile(PROFILE_NAME);
 		assertNull(registry.getProfile(PROFILE_NAME));
 	}

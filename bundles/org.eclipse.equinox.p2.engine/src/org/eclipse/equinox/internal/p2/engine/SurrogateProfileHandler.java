@@ -56,7 +56,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 				return false;
 			}
 		}}, false);
-		Collector rootIUs = sharedProfile.query(rootIUQuery, new Collector(), null);
+		Collector rootIUs = sharedProfile.query(rootIUQuery, null);
 		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			userProfile.addInstallableUnit(iu);
@@ -68,7 +68,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 	private static void removeUserProfileBaseIUs(final Profile userProfile) {
 		IQuery rootIUQuery = new IUProfilePropertyQuery(PROP_BASE, Boolean.TRUE.toString());
-		Collector rootIUs = userProfile.query(rootIUQuery, new Collector(), null);
+		Collector rootIUs = userProfile.query(rootIUQuery, null);
 		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			userProfile.removeInstallableUnit(iu);
@@ -76,7 +76,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	}
 
 	private static void markRootsOptional(final Profile userProfile) {
-		Collector rootIUs = userProfile.query(new UserVisibleRootQuery(), new Collector(), null);
+		Collector rootIUs = userProfile.query(new UserVisibleRootQuery(), null);
 		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			userProfile.setInstallableUnitProperty(iu, PROP_INCLUSION_RULES, OPTIONAL);
@@ -176,12 +176,14 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler#queryProfile(org.eclipse.equinox.internal.provisional.p2.engine.IProfile, org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public Collector queryProfile(IProfile profile, IQuery query, Collector collector, IProgressMonitor monitor) {
+	public Collector queryProfile(IProfile profile, IQuery query, IProgressMonitor monitor) {
 		IProfile sharedProfile = getSharedProfile(profile.getProfileId());
+		Collector result = new Collector();
 		if (sharedProfile != null)
-			sharedProfile.query(query, collector, monitor);
+			result.addAll(sharedProfile.query(query, monitor));
 
-		return profile.query(query, collector, monitor);
+		result.addAll(profile.query(query, monitor));
+		return result;
 	}
 
 	public boolean updateProfile(IProfile userProfile) {
@@ -198,7 +200,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		Profile writableUserProfile = (Profile) userProfile;
 		updateProperties(sharedProfile, writableUserProfile);
 		removeUserProfileBaseIUs(writableUserProfile);
-		if (!userProfile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty()) {
+		if (!userProfile.query(InstallableUnitQuery.ANY, null).isEmpty()) {
 			writableUserProfile.setProperty(PROP_RESOLVE, Boolean.TRUE.toString());
 			markRootsOptional(writableUserProfile);
 		}

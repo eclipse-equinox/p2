@@ -411,9 +411,9 @@ public class Application implements IApplication {
 
 					IProfile profile = initializeProfile();
 					query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
-					roots = collectRootIUs(metadataRepositoryLocations, new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()}), new Collector());
+					roots = collectRootIUs(metadataRepositoryLocations, new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()}));
 					if (roots.size() <= 0)
-						roots = profile.query(query, roots, new NullProgressMonitor());
+						roots.addAll(profile.query(query, new NullProgressMonitor()));
 					if (roots.size() <= 0) {
 						System.out.println(NLS.bind(Messages.Missing_IU, root));
 						logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, root)));
@@ -447,7 +447,7 @@ public class Application implements IApplication {
 					if (metadataRepositoryLocations == null)
 						missingArgument("metadataRepository"); //$NON-NLS-1$
 
-					roots = collectRootIUs(metadataRepositoryLocations, query, null);
+					roots = collectRootIUs(metadataRepositoryLocations, query);
 					Iterator unitIterator = roots.iterator();
 					while (unitIterator.hasNext()) {
 						IInstallableUnit iu = (IInstallableUnit) unitIterator.next();
@@ -490,23 +490,22 @@ public class Application implements IApplication {
 			this.location = location;
 		}
 
-		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-			return ProvisioningHelper.getInstallableUnits(location, query, collector, monitor);
+		public Collector query(IQuery query, IProgressMonitor monitor) {
+			return ProvisioningHelper.getInstallableUnits(location, query, monitor);
 		}
 	}
 
-	private Collector collectRootIUs(URI[] locations, IQuery query, Collector collector) {
+	private Collector collectRootIUs(URI[] locations, IQuery query) {
 		IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 		if (locations == null || locations.length == 0)
-			return ProvisioningHelper.getInstallableUnits(null, query, collector, nullMonitor);
+			return ProvisioningHelper.getInstallableUnits((URI) null, query, nullMonitor);
 
-		Collector result = collector != null ? collector : new Collector();
 		IQueryable[] locationQueryables = new IQueryable[locations.length];
 		for (int i = 0; i < locations.length; i++) {
 			locationQueryables[i] = new LocationQueryable(locations[i]);
 		}
-		return new CompoundQueryable(locationQueryables).query(query, result, nullMonitor);
+		return new CompoundQueryable(locationQueryables).query(query, nullMonitor);
 	}
 
 	private synchronized void setPackageAdmin(PackageAdmin service) {

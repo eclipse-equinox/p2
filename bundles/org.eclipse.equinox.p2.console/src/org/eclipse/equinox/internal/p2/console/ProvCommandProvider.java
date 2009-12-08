@@ -10,13 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
-import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,8 +18,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.GroupQuery;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -274,7 +272,7 @@ public class ProvCommandProvider implements CommandProvider {
 			if (queryable == null)
 				return;
 		}
-		IInstallableUnit[] units = sort(queryable.query(new GroupQuery(), new Collector(), null));
+		IInstallableUnit[] units = sort(queryable.query(new GroupQuery(), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -301,7 +299,7 @@ public class ProvCommandProvider implements CommandProvider {
 		IArtifactRepository repo = ProvisioningHelper.getArtifactRepository(repoURL);
 		Collector keys = null;
 		try {
-			keys = (repo != null) ? repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null) : null;
+			keys = (repo != null) ? repo.query(ArtifactKeyQuery.ALL_KEYS, null) : null;
 		} catch (UnsupportedOperationException e) {
 			interpreter.println("Repository does not support queries.");
 			return;
@@ -369,7 +367,7 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 
 		// list the profile contents
-		IInstallableUnit[] result = sort(target.query(new InstallableUnitQuery(id, new VersionRange(range)), new Collector(), null));
+		IInstallableUnit[] result = sort(target.query(new InstallableUnitQuery(id, new VersionRange(range)), null));
 		for (int i = 0; i < result.length; i++)
 			interpreter.println(result[i]);
 	}

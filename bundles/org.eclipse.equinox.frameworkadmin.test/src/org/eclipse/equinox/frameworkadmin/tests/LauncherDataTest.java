@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
-
 import junit.framework.TestCase;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 
 /**
  * @since 1.0

@@ -9,8 +9,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.io.File;
 import java.io.OutputStream;
 import java.net.URI;
@@ -18,6 +16,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -236,7 +235,8 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return innerRepo.createArtifactDescriptor(key);
 	}
 
-	public synchronized Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+	public synchronized Collector query(IQuery query, IProgressMonitor monitor) {
+		Collector collector = new Collector();
 		if (monitor != null && monitor.isCanceled())
 			return collector;
 
@@ -246,13 +246,14 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 			return collector;
 
 		IQueryable cached = new IQueryable() {
-			public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+			public Collector query(IQuery query, IProgressMonitor monitor) {
+				Collector collector = new Collector();
 				Iterator i = !excludeDescriptors ? new MappedCollectionIterator(artifactMap, !excludeKeys) : artifactMap.keySet().iterator();
 				return query.perform(i, collector);
 			}
 		};
 
 		CompoundQueryable compound = new CompoundQueryable(new IQueryable[] {cached, innerRepo});
-		return compound.query(query, collector, monitor);
+		return compound.query(query, monitor);
 	}
 }

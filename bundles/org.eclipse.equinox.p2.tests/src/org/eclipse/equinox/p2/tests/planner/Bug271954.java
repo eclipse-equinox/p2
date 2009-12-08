@@ -74,7 +74,7 @@ public class Bug271954 extends AbstractProvisioningTest {
 	}
 
 	public void testUninstallMyBundle() {
-		Collector c = profile.available(new InstallableUnitQuery("A"), new Collector(), new NullProgressMonitor());
+		Collector c = profile.available(new InstallableUnitQuery("A"), new NullProgressMonitor());
 		assertEquals(1, c.size());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.removeInstallableUnits((IInstallableUnit[]) c.toArray(IInstallableUnit.class));
@@ -83,11 +83,11 @@ public class Bug271954 extends AbstractProvisioningTest {
 		ctx.setArtifactRepositories(new URI[0]);
 		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, ctx, new NullProgressMonitor());
 		assertOK("Uninstall plan for myBundle", plan.getStatus());
-		assertEquals(0, plan.getInstallerPlan().getAdditions().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
-		assertEquals(0, plan.getInstallerPlan().getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
+		assertEquals(0, plan.getInstallerPlan().getAdditions().query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size());
+		assertEquals(0, plan.getInstallerPlan().getRemovals().query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size());
 		assertUninstallOperand(plan, (IInstallableUnit) c.iterator().next());
-		assertEquals(2, plan.getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
-		assertEquals(1, plan.getRemovals().query(new InstallableUnitQuery("A", Version.createOSGi(1, 0, 0)), new Collector(), new NullProgressMonitor()).size());
-		assertEquals(1, plan.getRemovals().query(new InstallableUnitQuery("Action1", Version.createOSGi(1, 0, 0)), new Collector(), new NullProgressMonitor()).size());
+		assertEquals(2, plan.getRemovals().query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size());
+		assertEquals(1, plan.getRemovals().query(new InstallableUnitQuery("A", Version.createOSGi(1, 0, 0)), new NullProgressMonitor()).size());
+		assertEquals(1, plan.getRemovals().query(new InstallableUnitQuery("Action1", Version.createOSGi(1, 0, 0)), new NullProgressMonitor()).size());
 	}
 }

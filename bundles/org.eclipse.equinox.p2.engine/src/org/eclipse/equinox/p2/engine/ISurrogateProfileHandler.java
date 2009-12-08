@@ -20,7 +20,7 @@ public interface ISurrogateProfileHandler {
 
 	public abstract boolean isSurrogate(IProfile profile);
 
-	public abstract Collector queryProfile(IProfile profile, IQuery query, Collector collector, IProgressMonitor monitor);
+	public abstract Collector queryProfile(IProfile profile, IQuery query, IProgressMonitor monitor);
 
 	public abstract boolean updateProfile(IProfile selfProfile);
 

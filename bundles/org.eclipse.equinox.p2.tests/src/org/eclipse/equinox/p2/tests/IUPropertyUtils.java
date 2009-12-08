@@ -205,7 +205,7 @@ public class IUPropertyUtils {
 		};
 
 		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), localeFragmentQuery});
-		Collector collected = queryable.query(iuQuery, new Collector(), null);
+		Collector collected = queryable.query(iuQuery, null);
 		LocaleCollectorCache.put(locale, new SoftReference(collected));
 		return collected;
 	}

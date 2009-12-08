@@ -307,7 +307,7 @@ public class ProvisioningSession {
 			query = InstallableUnitQuery.ANY;
 		else
 			query = new UserVisibleRootQuery();
-		Collector collector = profile.query(query, new Collector(), null);
+		Collector collector = profile.query(query, null);
 		return (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 	}
 

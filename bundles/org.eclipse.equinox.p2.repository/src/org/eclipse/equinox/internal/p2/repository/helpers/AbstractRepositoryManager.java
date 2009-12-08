@@ -1065,7 +1065,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 *    reporting is not desired
 	 * @return The collector argument
 	 */
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, IProgressMonitor monitor) {
+		Collector collector = new Collector();
 		URI[] locations = getKnownRepositories(REPOSITORIES_ALL);
 		List queryables = new ArrayList(locations.length); // use a list since we don't know exactly how many will load
 		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
@@ -1081,7 +1082,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		try {
 			IQueryable[] queryablesArray = (IQueryable[]) queryables.toArray(new IQueryable[queryables.size()]);
 			CompoundQueryable compoundQueryable = new CompoundQueryable(queryablesArray);
-			compoundQueryable.query(query, collector, sub.newChild(locations.length * 1));
+			collector = compoundQueryable.query(query, sub.newChild(locations.length * 1));
 		} finally {
 			sub.done();
 		}

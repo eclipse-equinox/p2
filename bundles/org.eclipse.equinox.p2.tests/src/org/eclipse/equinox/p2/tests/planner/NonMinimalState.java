@@ -49,7 +49,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
-		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), new Collector(), null).size());
+		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), null).size());
 		why("slf4j.api");
 		why("slf4j.jcl");
 		why("org.eclipse.tptp.platform.iac.administrator");
@@ -62,13 +62,13 @@ public class NonMinimalState extends AbstractProvisioningTest {
 		ProvisioningContext ctx = new ProvisioningContext(new URI[0]);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
-		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), new Collector(), null).size());
+		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), null).size());
 	}
 
 	private void why(String id) {
 		System.out.println("=-=-=" + id + "=-=-=");
 		visited = new HashSet();
-		Collector roots = profile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", "true"), new Collector(), null);
+		Collector roots = profile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", "true"), null);
 		searchedId = id;
 		for (Iterator iterator = roots.iterator(); iterator.hasNext();) {
 			IInstallableUnit type = (IInstallableUnit) iterator.next();
@@ -99,7 +99,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 	}
 
 	private boolean expandRequirement(IInstallableUnit iu, IRequirement req) {
-		Collector matches = profile.query(req.getMatches(), new Collector(), null);
+		Collector matches = profile.query(req.getMatches(), null);
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (match.getId().equals(searchedId))

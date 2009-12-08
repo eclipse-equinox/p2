@@ -14,7 +14,6 @@ import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryXMLAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
 import org.eclipse.equinox.p2.publisher.*;
@@ -46,7 +45,7 @@ public class CategoryXMLActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testCategoryCreation() throws Exception {
-		Collection result = actionResult.query(new CategoryQuery(), new Collector(), new NullProgressMonitor()).toCollection();
+		Collection result = actionResult.query(new CategoryQuery(), new NullProgressMonitor()).toCollection();
 		assertEquals("1.0", 1, result.size());
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "Test Category Label", iu.getProperty(IInstallableUnit.PROP_NAME));

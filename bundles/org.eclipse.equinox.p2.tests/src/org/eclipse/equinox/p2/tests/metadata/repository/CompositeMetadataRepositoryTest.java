@@ -116,7 +116,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		//Try to remove an InstallableUnit.
 		try {
-			Collector collector = compRepo.query(InstallableUnitQuery.ANY, new Collector(), null);
+			Collector collector = compRepo.query(InstallableUnitQuery.ANY, null);
 			compRepo.removeInstallableUnits((IInstallableUnit[]) collector.toArray(IInstallableUnit.class), null);
 			fail("Should not be able to remove InstallableUnit");
 		} catch (UnsupportedOperationException e) {
@@ -266,7 +266,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertContains("Assert child1's content is in composite repo", repo1, compRepo);
 		assertContains("Assert child2's content is in composite repo", repo2, compRepo);
 		//checks that the destination has the correct number of keys (no extras)
-		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, new Collector(), null), repo2.query(InstallableUnitQuery.ANY, new Collector(), null)), compRepo.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, null), repo2.query(InstallableUnitQuery.ANY, null)), compRepo.query(InstallableUnitQuery.ANY, null).size());
 	}
 
 	public void testRemoveNonexistantChild() {
@@ -431,7 +431,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		compRepo.addChild(repo2Location.toURI());
 
 		//force composite repository to load all children
-		compRepo.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor());
+		compRepo.query(InstallableUnitQuery.ANY, new NullProgressMonitor());
 
 		assertTrue("Ensuring previously loaded repo is enabled", getMetadataRepositoryManager().isEnabled(repo1Location.toURI()));
 		String repo1System = getMetadataRepositoryManager().getRepositoryProperty(repo1Location.toURI(), IRepository.PROP_SYSTEM);
@@ -457,7 +457,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
-		Collector collector = compositeRepo.query(new LatestIUVersionQuery(), new Collector(), monitor);
+		Collector collector = compositeRepo.query(new LatestIUVersionQuery(), monitor);
 		Collection collection = collector.toCollection();
 		assertEquals("1.0", 1, collection.size());
 		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
@@ -489,7 +489,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 				return false;
 			}
 		}, new LatestIUVersionQuery()});
-		Collector collector = compositeRepo.query(cQuery, new Collector(), monitor);
+		Collector collector = compositeRepo.query(cQuery, monitor);
 		Collection collection = collector.toCollection();
 		assertEquals("1.0", 1, collection.size());
 		assertEquals("1.1", Version.createOSGi(2, 2, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
@@ -536,7 +536,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertContains("Assert child1's content is in composite repo", repo1, compRepo);
 		assertContains("Assert child2's content is in composite repo", repo2, compRepo);
 		//checks that the destination has the correct number of keys (no extras)
-		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, new Collector(), null), repo2.query(InstallableUnitQuery.ANY, new Collector(), null)), compRepo.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, null), repo2.query(InstallableUnitQuery.ANY, null)), compRepo.query(InstallableUnitQuery.ANY, null).size());
 	}
 
 	private CompositeMetadataRepository createRepo(boolean compressed) {
@@ -628,7 +628,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		// query the number of IUs
 		List children = repository.getChildren();
 		assertEquals("2.0", 2, children.size());
-		Collector collector = repository.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		Collector collector = repository.query(InstallableUnitQuery.ANY, getMonitor());
 		assertEquals("2.1", 2, collector.size());
 
 		// ensure the child URIs are stored as relative

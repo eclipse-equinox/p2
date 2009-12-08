@@ -16,7 +16,6 @@ import java.net.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -164,7 +163,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		URI location = directory.toURI();
 		try {
 			IMetadataRepository repo = factory.load(location, 0, getMonitor());
-			if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 3)
+			if (repo.query(InstallableUnitQuery.ANY, null).toCollection().size() != 3)
 				fail("2.99");
 		} catch (ProvisionException ex) {
 			fail("2.0");
@@ -180,7 +179,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		URI location = directory.toURI();
 		try {
 			IMetadataRepository repo = factory.load(location, 0, getMonitor());
-			if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 2)
+			if (repo.query(InstallableUnitQuery.ANY, null).toCollection().size() != 2)
 				fail("3.0");
 		} catch (ProvisionException ex) {
 			fail("2.0");
@@ -196,7 +195,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		URI location = directory.toURI();
 		try {
 			IMetadataRepository repo = factory.load(location, 0, getMonitor());
-			if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 1)
+			if (repo.query(InstallableUnitQuery.ANY, null).toCollection().size() != 1)
 				fail("3.0");
 		} catch (ProvisionException ex) {
 			fail("2.0");
@@ -210,7 +209,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
 		try {
 			IMetadataRepository repo = factory.load(directory.toURI(), 0, getMonitor());
-			if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 3)
+			if (repo.query(InstallableUnitQuery.ANY, null).toCollection().size() != 3)
 				fail("3.0");
 		} catch (ProvisionException e) {
 			fail("2.0");

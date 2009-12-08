@@ -77,7 +77,8 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		return false;
 	}
 
-	public synchronized Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+	public synchronized Collector query(IQuery query, IProgressMonitor monitor) {
+		Collector collector = new Collector();
 		return query.perform(units.iterator(), collector);
 	}
 }

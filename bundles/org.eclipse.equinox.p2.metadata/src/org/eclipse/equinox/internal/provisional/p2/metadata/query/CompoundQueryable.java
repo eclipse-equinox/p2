@@ -9,7 +9,6 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-
 import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -27,12 +26,13 @@ public class CompoundQueryable implements IQueryable {
 		this.queryables = queryables;
 	}
 
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, IProgressMonitor monitor) {
+		Collector results = new Collector();
+		Collector subResults = null;
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
 		boolean isMatchQuery = query instanceof IMatchQuery;
-		Collector results = collector;
 		int totalWork = isMatchQuery ? queryables.length : queryables.length + 1;
 
 		try {
@@ -45,19 +45,20 @@ public class CompoundQueryable implements IQueryable {
 			for (int i = 0; i < queryables.length; i++) {
 				if (subMonitor.isCanceled())
 					break;
-				results = queryables[i].query(query, results, subMonitor.newChild(10));
+				subResults = queryables[i].query(query, subMonitor.newChild(10));
+				results.addAll(subResults);
 			}
 
 			if (!isMatchQuery) {
 				// If it is not a MatchQuery then we must query the results.
-				collector = results.query(query, collector, subMonitor.newChild(10));
+				results = results.query(query, subMonitor.newChild(10));
 			} else
-				collector = results;
+				results = results;
 		} finally {
 			monitor.done();
 		}
 
-		return collector;
+		return results;
 	}
 
 	/**

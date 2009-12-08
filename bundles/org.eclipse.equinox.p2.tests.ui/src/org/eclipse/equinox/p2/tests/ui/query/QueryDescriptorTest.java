@@ -25,7 +25,8 @@ public class QueryDescriptorTest extends TestCase {
 	class SimpleQueryable implements IQueryable {
 		List elements = Arrays.asList(new String[] {"a", "b", "c", "d", "e"});
 
-		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+		public Collector query(IQuery query, IProgressMonitor monitor) {
+			Collector collector = new Collector();
 			return query.perform(elements.iterator(), collector);
 		}
 	}

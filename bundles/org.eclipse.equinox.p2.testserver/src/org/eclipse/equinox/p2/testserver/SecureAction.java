@@ -14,7 +14,11 @@ package org.eclipse.equinox.p2.testserver;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.*;
+import java.security.AccessControlContext;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import org.osgi.framework.Bundle;
 
 /**

@@ -61,7 +61,7 @@ public class Bug265577 extends AbstractProvisioningTest {
 
 	// Tests the response to a feature folder inside a jar
 	public void testZippedRepoWithFolderFeature() {
-		Collector collector = metadataRepo.query(new InstallableUnitQuery("Field_Assist_Example.feature.jar"), new Collector(), null);
+		Collector collector = metadataRepo.query(new InstallableUnitQuery("Field_Assist_Example.feature.jar"), null);
 		IInstallableUnit[] ius = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 		IArtifactKey key = (ius[0].getArtifacts())[0];
 
@@ -85,7 +85,7 @@ public class Bug265577 extends AbstractProvisioningTest {
 
 	// Test to retrieve a file from a zipped metadata & artifact repository
 	public void testZippedRepo() {
-		Collector collector = metadataRepo.query(new InstallableUnitQuery("valid.feature.jar"), new Collector(), null);
+		Collector collector = metadataRepo.query(new InstallableUnitQuery("valid.feature.jar"), null);
 		IInstallableUnit[] ius = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 		IArtifactKey key = (ius[0].getArtifacts())[0];
 

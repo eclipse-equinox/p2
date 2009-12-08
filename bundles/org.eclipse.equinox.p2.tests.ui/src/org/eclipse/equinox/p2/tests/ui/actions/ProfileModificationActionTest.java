@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.actions;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * Abstract class to set up different IU selection combinations

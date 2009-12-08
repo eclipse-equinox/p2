@@ -90,14 +90,14 @@ public class FoldersRepositoryTest extends TestCase {
 
 			repo.addDescriptor(descriptor);
 		}
-		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertEquals(2, keys.size());
 		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			repo.removeDescriptor(key);
 		}
 
-		keys = repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertEquals(0, keys.size());
 		assertEquals(0, pluginsFolder.listFiles(filter).length);
 

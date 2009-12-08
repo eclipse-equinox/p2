@@ -195,7 +195,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		throw new UnsupportedOperationException("Method is not implemented by this repository");
 	}
 
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, IProgressMonitor monitor) {
 		// TODO Auto-generated method stub
 		return null;
 	}

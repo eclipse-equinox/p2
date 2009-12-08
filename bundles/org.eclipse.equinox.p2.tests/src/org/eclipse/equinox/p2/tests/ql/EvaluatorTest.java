@@ -74,27 +74,27 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testLatest() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		Collector result = repo.query(new ExpressionQuery("latest(x | x.id == $0)", "test.bundle"), new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(new ExpressionQuery("latest(x | x.id == $0)", "test.bundle"), new NullProgressMonitor());
 		assertTrue(result.size() == 1);
 	}
 
 	public void testRange() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		Collector result = repo.query(new PredicateQuery("version ~= $0", new VersionRange("2.0.0")), new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(new PredicateQuery("version ~= $0", new VersionRange("2.0.0")), new NullProgressMonitor());
 		assertEquals(result.size(), 2);
 	}
 
 	public void testProperty() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
 
-		Collector result = repo.query(new PredicateQuery("properties.exists(p | p.value == $0)", "true"), new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(new PredicateQuery("properties.exists(p | p.value == $0)", "true"), new NullProgressMonitor());
 		assertEquals(result.size(), 3);
 
-		result = repo.query(new PredicateQuery("properties['org.eclipse.equinox.p2.type.group'] == $0", "true"), new Collector(), new NullProgressMonitor());
+		result = repo.query(new PredicateQuery("properties['org.eclipse.equinox.p2.type.group'] == $0", "true"), new NullProgressMonitor());
 		assertEquals(result.size(), 3);
 
 		Filter filter = TestActivator.context.createFilter("(org.eclipse.equinox.p2.type.group=true)");
-		result = repo.query(new PredicateQuery("properties ~= $0", filter), new Collector(), new NullProgressMonitor());
+		result = repo.query(new PredicateQuery("properties ~= $0", filter), new NullProgressMonitor());
 		assertEquals(result.size(), 3);
 	}
 
@@ -129,14 +129,14 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 		// Create the query
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		Collector result = repo.query(new ExpressionQuery(e3, args), new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(new ExpressionQuery(e3, args), new NullProgressMonitor());
 		assertEquals(result.size(), 1);
 	}
 
 	public void testMember() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
 		IProvidedCapability pc = MetadataFactory.createProvidedCapability("org.eclipse.equinox.p2.eclipse.type", "source", null);
-		Collector result = repo.query(new PredicateQuery("fragment && host.exists(h | $0 ~= h)", pc), new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(new PredicateQuery("fragment && host.exists(h | $0 ~= h)", pc), new NullProgressMonitor());
 		assertEquals(result.size(), 1);
 	}
 
@@ -148,29 +148,29 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		applicability[1][1] = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.flavor", "tooling", null, null, false, false);
 
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		Collector result = repo.query(new PredicateQuery("$0.exists(rcs | rcs.all(rc | item ~= rc))", applicability), new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(new PredicateQuery("$0.exists(rcs | rcs.all(rc | item ~= rc))", applicability), new NullProgressMonitor());
 		assertEquals(result.size(), 3);
 	}
 
 	public void testPattern() throws Exception {
 		IProvidedCapability pc = MetadataFactory.createProvidedCapability("org.eclipse.equinox.p2.eclipse.type", "source", null);
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		Collector result = repo.query(new PredicateQuery("id ~= /tooling.*.default/", pc), new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(new PredicateQuery("id ~= /tooling.*.default/", pc), new NullProgressMonitor());
 		assertEquals(result.size(), 3);
 	}
 
 	public void testLimit() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		Collector result = repo.query(new ExpressionQuery("select(x | x.id ~= /tooling.*/).limit(1)"), new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(new ExpressionQuery("select(x | x.id ~= /tooling.*/).limit(1)"), new NullProgressMonitor());
 		assertEquals(result.size(), 1);
 
-		result = repo.query(new ExpressionQuery("select(x | x.id ~= /tooling.*/).limit($0)", new Integer(2)), new Collector(), new NullProgressMonitor());
+		result = repo.query(new ExpressionQuery("select(x | x.id ~= /tooling.*/).limit($0)", new Integer(2)), new NullProgressMonitor());
 		assertEquals(result.size(), 2);
 	}
 
 	public void testNot() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		Collector result = repo.query(new PredicateQuery("!(id ~= /tooling.*/)"), new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(new PredicateQuery("!(id ~= /tooling.*/)"), new NullProgressMonitor());
 		assertEquals(result.size(), 4);
 	}
 
@@ -181,13 +181,13 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		assertNotNull(artifactManager);
 
 		IArtifactRepository repo = artifactManager.loadRepository(artifactRepo, new NullProgressMonitor());
-		Collector result = repo.query(new PredicateQuery(IArtifactKey.class, "classifier ~= /*/"), new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(new PredicateQuery(IArtifactKey.class, "classifier ~= /*/"), new NullProgressMonitor());
 		assertTrue(result.size() > 1);
 		Iterator itor = result.iterator();
 		while (itor.hasNext())
 			assertTrue(itor.next() instanceof IArtifactKey);
 
-		result = repo.query(new PredicateQuery(IArtifactDescriptor.class, "artifactKey.classifier ~= /*/"), new Collector(), new NullProgressMonitor());
+		result = repo.query(new PredicateQuery(IArtifactDescriptor.class, "artifactKey.classifier ~= /*/"), new NullProgressMonitor());
 		assertTrue(result.size() > 1);
 		itor = result.iterator();
 		while (itor.hasNext())
@@ -197,7 +197,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 	public void testClassConstructor() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
 		Collector result = repo.query(new ExpressionQuery(//
-				"select(x | x ~= class('org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment'))"), new Collector(), new NullProgressMonitor());
+				"select(x | x ~= class('org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment'))"), new NullProgressMonitor());
 		assertEquals(result.size(), 4);
 		repo = getMDR("/testData/galileoM7");
 	}
@@ -207,7 +207,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		Collector result = repo.query(new ExpressionQuery( //
 				"select(x | x.id == $0 && x.version == $1).traverse(parent | select(" + //
 						"child | parent.requiredCapabilities.exists(rc | child ~= rc)))", //
-				"org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new Collector(), new NullProgressMonitor());
+				"org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new NullProgressMonitor());
 		assertEquals(result.size(), 463);
 	}
 
@@ -224,7 +224,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		ExpressionQuery query = new ExpressionQuery(IInstallableUnit.class, expr, new Object[] {"org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2"), env});
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		Collector result = repo.query(query, new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(query, new NullProgressMonitor());
 		assertEquals(result.size(), 411);
 	}
 
@@ -242,7 +242,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		ExpressionQuery query = new ExpressionQuery(IInstallableUnit.class, expr, new Object[] {"org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2"), env});
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		Collector result = repo.query(query, new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(query, new NullProgressMonitor());
 		assertEquals(result.size(), 411);
 	}
 
@@ -263,7 +263,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		long startTime = System.currentTimeMillis();
-		Collector result = repo.query(query, new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(query, new NullProgressMonitor());
 		System.out.print("testTraverseWithCurryingAndCache: ");
 		System.out.println(System.currentTimeMillis() - startTime);
 		assertEquals(result.size(), 411);
@@ -293,7 +293,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 						env});
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		Collector result = repo.query(query, new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(query, new NullProgressMonitor());
 		assertEquals(result.size(), 184);
 	}
 
@@ -312,7 +312,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				return "true".equals(((IInstallableUnit) candidate).getProperty("org.eclipse.equinox.p2.type.group"));
 			}
 		};
-		Collector result = repo.query(new PredicateQuery(expr, new Object[] {q1, q2}), new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(new PredicateQuery(expr, new Object[] {q1, q2}), new NullProgressMonitor());
 		assertEquals(result.size(), 497);
 	}
 
@@ -331,7 +331,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				return "true".equals(((IInstallableUnit) candidate).getProperty("org.eclipse.equinox.p2.type.group"));
 			}
 		};
-		Collector result = repo.query(new ExpressionQuery(expr, new Object[] {q1, q2}), new Collector(), new NullProgressMonitor());
+		Collector result = repo.query(new ExpressionQuery(expr, new Object[] {q1, q2}), new NullProgressMonitor());
 		assertEquals(result.size(), 497);
 	}
 
@@ -356,7 +356,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		ius = results.getIUs(null, null);
 		assertEquals("2.0", 3, ius.size());
 		QueryableArray queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
-		Collector result = queryableArray.query(new InstallableUnitQuery("foo"), new Collector(), null);
+		Collector result = queryableArray.query(new InstallableUnitQuery("foo"), null);
 		assertEquals("2.1", 1, result.size());
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 
@@ -365,46 +365,46 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				".collect(f | localizedKeys($2,$1).collect(lk | f.properties[lk])).flatten(), localizedKeys($2,$1).collect(lk | $0.properties[lk])].flatten().first(v | v != null)]");//
 
 		IQuery lq = new ExpressionQuery(localePropertyQuery, new Object[] {iu, "foo", Locale.getDefault()});
-		Collector c = queryableArray.query(lq, new Collector(), null);
+		Collector c = queryableArray.query(lq, null);
 		Object[] pqr = c.toArray(Object.class);
 		assertTrue(pqr.length == 1);
 		assertEquals("3.2", "English Foo", pqr[0]);
 
 		ContextExpression cacheQuery = parser.parseQuery("select(f | f ~= class('org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment') && f.host.exists(h | $0 ~= h) && f.providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.localization' && pc.name ~= $1))");
 		IQuery fragsQuery = new ExpressionQuery(cacheQuery, new Object[] {iu, Locale.GERMAN});
-		Collector frags = queryableArray.query(fragsQuery, new Collector(), null);
+		Collector frags = queryableArray.query(fragsQuery, null);
 		assertEquals(frags.size(), 1);
 
 		localePropertyQuery = parser.parseQuery("[$0].collect(localizedKeys($2,$1), _, { lks, iu | " + //
 				"[$3.collect(f | lks.collect(lk | f.properties[lk])).flatten(), lks.collect(lk | iu.properties[lk])].flatten().first(v | v != null)})");//
 
 		lq = new ExpressionQuery(localePropertyQuery, new Object[] {iu, "foo", Locale.GERMAN, frags});
-		c = queryableArray.query(lq, new Collector(), null);
+		c = queryableArray.query(lq, null);
 		pqr = c.toArray(String.class);
 		assertTrue(pqr.length == 1);
 		assertEquals("2.2", "German Foo", pqr[0]);
 
 		lq = new ExpressionQuery("localizedMap($0, $1).select(e | localizedKeys($0, $2).exists(k | k == e.key)).collect(k | k.value)", Locale.GERMAN, iu, "foo");
-		c = queryableArray.query(lq, new Collector(), null);
+		c = queryableArray.query(lq, null);
 		pqr = c.toArray(String.class);
 		assertTrue(pqr.length == 2);
 		assertEquals("2.3", "German Foo", pqr[0]);
 		assertEquals("2.4", "English Foo", pqr[1]); // Default
 
 		lq = new ExpressionQuery("localizedMap($0, $1).select(e | localizedKeys($0, $2).exists(k | k == e.key)).collect(k | k.value).limit(1)", Locale.GERMAN, iu, "foo");
-		c = queryableArray.query(lq, new Collector(), null);
+		c = queryableArray.query(lq, null);
 		pqr = c.toArray(String.class);
 		assertTrue(pqr.length == 1);
 		assertEquals("2.5", "German Foo", pqr[0]);
 
 		lq = new ExpressionQuery("[localizedProperty($0, $1, $2)]", Locale.GERMAN, iu, "foo");
-		c = queryableArray.query(lq, new Collector(), null);
+		c = queryableArray.query(lq, null);
 		pqr = c.toArray(String.class);
 		assertTrue(pqr.length == 1);
 		assertEquals("2.6", "German Foo", pqr[0]);
 
 		lq = new ExpressionQuery("select(x | localizedProperty($0, x, 'foo') ~= /German*/)", Locale.GERMAN);
-		c = queryableArray.query(lq, new Collector(), null);
+		c = queryableArray.query(lq, null);
 		pqr = c.toArray(IInstallableUnit.class);
 		assertTrue(pqr.length == 1);
 		assertEquals("2.7", "foo", ((IInstallableUnit) pqr[0]).getId());

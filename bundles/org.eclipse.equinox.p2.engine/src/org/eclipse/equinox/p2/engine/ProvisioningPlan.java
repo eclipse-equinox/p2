@@ -51,8 +51,8 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		this.profile = profile;
 		if (futureState == null) {
 			futureState = new IQueryable() {
-				public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-					return collector;
+				public Collector query(IQuery query, IProgressMonitor monitor) {
+					return new Collector();
 				}
 			};
 		}
@@ -126,7 +126,8 @@ public class ProvisioningPlan implements IProvisioningPlan {
 			this.addition = add;
 		}
 
-		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+		public Collector query(IQuery query, IProgressMonitor monitor) {
+			Collector collector = new Collector();
 			if (operands == null || status.getSeverity() == IStatus.ERROR)
 				return collector;
 			Collection list = new ArrayList();

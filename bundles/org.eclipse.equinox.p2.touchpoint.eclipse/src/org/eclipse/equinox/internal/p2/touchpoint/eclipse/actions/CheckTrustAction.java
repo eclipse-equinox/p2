@@ -10,12 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
-import org.eclipse.equinox.p2.engine.IProfile;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;
@@ -23,10 +17,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * This action collects the set of bundle files on which the signature trust check
@@ -46,7 +42,7 @@ public class CheckTrustAction extends ProvisioningAction {
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		//if the IU is already in the profile there is nothing to do
-		if (!profile.available(new InstallableUnitQuery(iu), new Collector(), null).isEmpty())
+		if (!profile.available(new InstallableUnitQuery(iu), null).isEmpty())
 			return null;
 		Collection bundleFiles = (Collection) parameters.get(ActionConstants.PARM_ARTIFACT_FILES);
 		IArtifactKey[] artifacts = iu.getArtifacts();

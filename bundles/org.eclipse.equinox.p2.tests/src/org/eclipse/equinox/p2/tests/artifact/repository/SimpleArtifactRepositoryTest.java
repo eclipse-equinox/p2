@@ -363,14 +363,14 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		repo.addDescriptor(d2);
 		repo.addDescriptor(d3);
 
-		Collector result = repo.query(new ArtifactDescriptorQuery("a", null, null), new Collector(), null);
+		Collector result = repo.query(new ArtifactDescriptorQuery("a", null, null), null);
 		assertEquals(3, result.size());
 
-		result = repo.query(new ArtifactDescriptorQuery(null, new VersionRange("[2.0.0, 3.0.0)"), null), new Collector(), null);
+		result = repo.query(new ArtifactDescriptorQuery(null, new VersionRange("[2.0.0, 3.0.0)"), null), null);
 		assertEquals(2, result.size());
 		assertFalse(result.toCollection().contains(d1));
 
-		result = repo.query(new ArtifactDescriptorQuery(null, null, "packed"), new Collector(), null);
+		result = repo.query(new ArtifactDescriptorQuery(null, null, "packed"), null);
 		assertEquals(1, result.size());
 		assertTrue(result.toCollection().contains(d3));
 	}

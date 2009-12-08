@@ -286,7 +286,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		current.clearInstallableUnits();
 
 		current.addProperties(profile.getLocalProperties());
-		Collector collector = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
+		Collector collector = profile.query(InstallableUnitQuery.ANY, null);
 		for (Iterator collectorIt = collector.iterator(); collectorIt.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) collectorIt.next();
 			current.addInstallableUnit(iu);
@@ -515,7 +515,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			return false;
 
 		//check whether the profile contains the p2 engine from 3.5.0 or earlier
-		return profile.available(new InstallableUnitQuery("org.eclipse.equinox.p2.engine", new VersionRange("[0.0.0, 1.0.101)")), new Collector(), null).isEmpty(); //$NON-NLS-1$//$NON-NLS-2$
+		return profile.available(new InstallableUnitQuery("org.eclipse.equinox.p2.engine", new VersionRange("[0.0.0, 1.0.101)")), null).isEmpty(); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private void deleteProfile(String profileId) {

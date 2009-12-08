@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.internal.p2.engine.PhaseSet;
-
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -195,7 +193,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	private Collector getAllIUs(IMetadataRepository repository, IProgressMonitor monitor) {
 		SubMonitor progress = SubMonitor.convert(monitor, 2);
 		try {
-			return repository.query(InstallableUnitQuery.ANY, new Collector(), progress.newChild(1));
+			return repository.query(InstallableUnitQuery.ANY, progress.newChild(1));
 		} finally {
 			progress.done();
 		}

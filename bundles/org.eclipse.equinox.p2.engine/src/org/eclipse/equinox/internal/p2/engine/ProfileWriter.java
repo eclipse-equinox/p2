@@ -30,7 +30,7 @@ public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants
 		attribute(ID_ATTRIBUTE, profile.getProfileId());
 		attribute(TIMESTAMP_ATTRIBUTE, Long.toString(profile.getTimestamp()));
 		writeProperties(profile.getProperties());
-		Collector collector = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
+		Collector collector = profile.query(InstallableUnitQuery.ANY, null);
 		ArrayList ius = new ArrayList(collector.toCollection());
 		Collections.sort(ius, new Comparator() {
 			public int compare(Object o1, Object o2) {

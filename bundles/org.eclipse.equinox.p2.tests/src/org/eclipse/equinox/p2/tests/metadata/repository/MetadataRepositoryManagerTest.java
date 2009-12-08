@@ -408,7 +408,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		URI location = site.toURI();
 		try {
 			IMetadataRepository repository = manager.loadRepository(location, getMonitor());
-			Collector result = repository.query(new InstallableUnitQuery("test.bundle"), new Collector(), getMonitor());
+			Collector result = repository.query(new InstallableUnitQuery("test.bundle"), getMonitor());
 			assertEquals("1.0", 1, result.size());
 		} catch (ProvisionException e) {
 			fail("=.99", e);

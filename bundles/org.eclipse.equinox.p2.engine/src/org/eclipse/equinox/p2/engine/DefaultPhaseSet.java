@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
-import org.eclipse.equinox.internal.p2.engine.PhaseSet;
-
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.engine.phases.*;

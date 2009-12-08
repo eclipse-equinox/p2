@@ -70,7 +70,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 		Collector collector = numeric.perform(list.iterator(), new Collector());
 		assertEquals("1.0", 7, collector.toCollection().size());
 
-		collector = collector.query(fourOrFiveOrABC, new Collector(), null);
+		collector = collector.query(fourOrFiveOrABC, null);
 		Collection collection = collector.toCollection();
 		assertEquals("2.0", 2, collection.size());
 		assertTrue("2.1", collection.contains("4"));
@@ -101,7 +101,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 		Collector collector = numeric.perform(list.iterator(), new Collector());
 		assertEquals("1.0", 7, collector.toCollection().size());
 
-		collector = collector.query(fourOrFiveOrABC, collector, null);
+		collector.addAll(collector.query(fourOrFiveOrABC, null));
 		Collection collection = collector.toCollection();
 		assertEquals("2.0", 7, collection.size());
 	}
@@ -133,7 +133,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 		Collector collector = eightOrNine.perform(list.iterator(), new Collector());
 		assertEquals("1.0", 0, collector.toCollection().size());
 
-		collector = collector.query(fourOrFiveOrABC, new Collector(), null);
+		collector = collector.query(fourOrFiveOrABC, null);
 		Collection collection = collector.toCollection();
 		assertEquals("2.0", 0, collection.size());
 	}

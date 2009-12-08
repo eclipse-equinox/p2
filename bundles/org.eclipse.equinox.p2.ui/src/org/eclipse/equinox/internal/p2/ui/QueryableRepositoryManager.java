@@ -67,11 +67,11 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 *    reporting is not desired
 	 * @return The collector argument
 	 */
-	public Collector query(IQuery query, Collector result, IProgressMonitor monitor) {
+	public Collector query(IQuery query, IProgressMonitor monitor) {
 		IRepositoryManager manager = getRepositoryManager();
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
-		query(getRepoLocations(manager), query, result, monitor);
+		Collector result = query(getRepoLocations(manager), query, monitor);
 		return result;
 	}
 
@@ -139,7 +139,8 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 */
 	protected abstract IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException;
 
-	protected Collector query(URI uris[], IQuery query, Collector collector, IProgressMonitor monitor) {
+	protected Collector query(URI uris[], IQuery query, IProgressMonitor monitor) {
+		Collector collector = new Collector();
 		if (query instanceof RepositoryLocationQuery) {
 			query.perform(Arrays.asList(uris).iterator(), collector);
 			monitor.done();
@@ -161,7 +162,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 			}
 			if (loadedRepos.size() > 0) {
 				IQueryable[] queryables = (IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]);
-				collector = new CompoundQueryable(queryables).query(query, collector, sub.newChild(100));
+				collector.addAll(new CompoundQueryable(queryables).query(query, sub.newChild(100)));
 			}
 		}
 		return collector;

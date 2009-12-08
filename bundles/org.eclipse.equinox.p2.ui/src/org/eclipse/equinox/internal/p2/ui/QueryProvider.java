@@ -11,13 +11,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.p2.engine.IProfile;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.*;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
@@ -140,7 +138,7 @@ public class QueryProvider {
 				if (profile == null)
 					return null;
 				if (toUpdate == null) {
-					Collector collector = profile.query(policy.getVisibleInstalledIUQuery(), new Collector(), null);
+					Collector collector = profile.query(policy.getVisibleInstalledIUQuery(), null);
 					toUpdate = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 				}
 				QueryableUpdates updateQueryable = new QueryableUpdates(ui, toUpdate);

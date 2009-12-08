@@ -534,11 +534,11 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 		NullProgressMonitor progress = new NullProgressMonitor();
 		if (publisherResult != null)
-			collector = publisherResult.query(query, collector, progress);
+			collector.addAll(publisherResult.query(query, progress));
 		if (collector.isEmpty() && info.getMetadataRepository() != null)
-			collector = info.getMetadataRepository().query(query, collector, progress);
+			collector.addAll(info.getMetadataRepository().query(query, progress));
 		if (collector.isEmpty() && info.getContextMetadataRepository() != null)
-			collector = info.getContextMetadataRepository().query(query, collector, progress);
+			collector.addAll(info.getContextMetadataRepository().query(query, progress));
 
 		if (!collector.isEmpty())
 			return (IInstallableUnit) collector.iterator().next();
@@ -558,11 +558,11 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		query = new InstallableUnitQuery(iuId, versionRange);
 		NullProgressMonitor progress = new NullProgressMonitor();
 		if (publisherResult != null)
-			collector = publisherResult.query(query, collector, progress);
+			collector = publisherResult.query(query, progress);
 		if (collector.isEmpty() && info.getMetadataRepository() != null)
-			collector = info.getMetadataRepository().query(query, collector, progress);
+			collector = info.getMetadataRepository().query(query, progress);
 		if (collector.isEmpty() && info.getContextMetadataRepository() != null)
-			collector = info.getContextMetadataRepository().query(query, collector, progress);
+			collector = info.getContextMetadataRepository().query(query, progress);
 
 		if (!collector.isEmpty())
 			return (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);

@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility.p2;
 
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.operations.UpdateOperation;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
-
-import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.jface.dialogs.MessageDialog;
 
 /**

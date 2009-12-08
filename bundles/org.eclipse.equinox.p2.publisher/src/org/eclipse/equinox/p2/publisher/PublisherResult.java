@@ -10,12 +10,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public class PublisherResult implements IPublisherResult {
@@ -131,7 +130,8 @@ public class PublisherResult implements IPublisherResult {
 			this.map = map;
 		}
 
-		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+		public Collector query(IQuery query, IProgressMonitor monitor) {
+			Collector collector = new Collector();
 			return query.perform(flatten(this.map.values()).iterator(), collector);
 		}
 	}
@@ -139,9 +139,9 @@ public class PublisherResult implements IPublisherResult {
 	/**
 	 * Queries both the root and non root IUs
 	 */
-	public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
+	public Collector query(IQuery query, IProgressMonitor monitor) {
 		IQueryable nonRootQueryable = new QueryableMap(nonRootIUs);
 		IQueryable rootQueryable = new QueryableMap(rootIUs);
-		return new CompoundQueryable(new IQueryable[] {nonRootQueryable, rootQueryable}).query(query, collector, monitor);
+		return new CompoundQueryable(new IQueryable[] {nonRootQueryable, rootQueryable}).query(query, monitor);
 	}
 }

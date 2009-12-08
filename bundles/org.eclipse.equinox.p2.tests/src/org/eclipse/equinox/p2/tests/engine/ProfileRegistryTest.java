@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -138,21 +137,21 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	public void testIUPeristence() throws ProvisionException {
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
-		assertEquals(0, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals(0, profile.query(InstallableUnitQuery.ANY, null).size());
 		profile.addInstallableUnit(createIU("test"));
-		assertEquals(1, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals(1, profile.query(InstallableUnitQuery.ANY, null).size());
 		saveProfile(registry, profile);
 		restart();
 
 		profile = (Profile) registry.getProfile(PROFILE_NAME);
-		assertEquals(1, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals(1, profile.query(InstallableUnitQuery.ANY, null).size());
 		profile.removeInstallableUnit(createIU("test"));
-		assertEquals(0, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals(0, profile.query(InstallableUnitQuery.ANY, null).size());
 		saveProfile(registry, profile);
 		restart();
 
 		profile = (Profile) registry.getProfile(PROFILE_NAME);
-		assertEquals(0, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals(0, profile.query(InstallableUnitQuery.ANY, null).size());
 		registry.removeProfile(PROFILE_NAME);
 		restart();
 		assertNull(registry.getProfile(PROFILE_NAME));

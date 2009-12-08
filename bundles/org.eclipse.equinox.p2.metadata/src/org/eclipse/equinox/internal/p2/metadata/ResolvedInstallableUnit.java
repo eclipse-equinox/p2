@@ -11,14 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.query.IQuery;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 public class ResolvedInstallableUnit implements IInstallableUnit {
 	private static IInstallableUnit[] NO_IU = new IInstallableUnit[0];

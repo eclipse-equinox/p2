@@ -15,7 +15,6 @@ import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -284,7 +283,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1, act1b});
 		assertOK("install A", engine.perform(planUpdateA, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1b, a111, b, c});
-		assertEquals(0, getProfile(IProfileRegistry.SELF).query(new InstallableUnitQuery("Action1", DEFAULT_VERSION), new Collector(), null).size());
+		assertEquals(0, getProfile(IProfileRegistry.SELF).query(new InstallableUnitQuery("Action1", DEFAULT_VERSION), null).size());
 
 		//uninstall A
 		ProfileChangeRequest request3 = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));

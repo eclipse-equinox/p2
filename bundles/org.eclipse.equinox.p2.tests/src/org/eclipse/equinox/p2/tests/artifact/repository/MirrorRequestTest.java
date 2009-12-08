@@ -135,7 +135,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		// Set status sequence, actual Statuses added later
 		source.setSequence(seq);
 		// Grab an ArtifactKey to mirror, doesn't matter which
-		Collector keys = source.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector keys = source.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertTrue("Unable to obtain artifact keys", keys != null && keys.size() > 0);
 
 		IArtifactKey key = (IArtifactKey) keys.iterator().next();
@@ -303,8 +303,8 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			return delegate.getRawArtifact(descriptor, destination, monitor);
 		}
 
-		public Collector query(IQuery query, Collector collector, IProgressMonitor monitor) {
-			return delegate.query(query, collector, monitor);
+		public Collector query(IQuery query, IProgressMonitor monitor) {
+			return delegate.query(query, monitor);
 		}
 	}
 

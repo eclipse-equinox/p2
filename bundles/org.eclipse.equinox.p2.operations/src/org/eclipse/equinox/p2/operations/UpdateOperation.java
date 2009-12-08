@@ -11,10 +11,6 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.p2.engine.IProfile;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
@@ -22,6 +18,8 @@ import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 
 /**
@@ -143,7 +141,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 				// In the case of patches, it's possible that a patch is returned as an available update
 				// even though it is already installed, because we are querying each IU for updates individually.
 				// For now, we ignore any proposed update that is already installed.
-				Collector alreadyInstalled = profile.query(new InstallableUnitQuery(replacements[i]), new Collector(), null);
+				Collector alreadyInstalled = profile.query(new InstallableUnitQuery(replacements[i]), null);
 				if (alreadyInstalled.isEmpty()) {
 					Update update = new Update(iu, replacements[i]);
 					updates.add(update);

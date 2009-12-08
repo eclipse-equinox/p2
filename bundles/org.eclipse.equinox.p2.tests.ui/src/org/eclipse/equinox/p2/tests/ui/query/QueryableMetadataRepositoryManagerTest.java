@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.io.File;
 import java.net.URI;
 import java.util.Collection;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -107,7 +106,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(broken);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
-		Collector result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), new Collector(), new CancelingProgressMonitor());
+		Collector result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), new CancelingProgressMonitor());
 		assertEquals("1.0", 0, result.size());
 	}
 
@@ -176,13 +175,13 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(broken);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
-		Collector result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), new Collector(), getMonitor());
+		Collector result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), getMonitor());
 		assertEquals("1.0", 1, result.size());
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "test.bundle", iu.getId());
 
 		//RepoLocationQuery collects repository URLs
-		result = manager.query(new RepositoryLocationQuery(), new Collector(), getMonitor());
+		result = manager.query(new RepositoryLocationQuery(), getMonitor());
 		assertEquals("2.0", 3, result.size());
 		Collection resultCollection = result.toCollection();
 		assertTrue("2.1", resultCollection.contains(existing));
@@ -190,9 +189,9 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		assertTrue("2.1", resultCollection.contains(broken));
 
 		// null IUPropertyQuery collects all IUs
-		result = manager.query(new InstallableUnitQuery((String) null), new Collector(), getMonitor());
+		result = manager.query(new InstallableUnitQuery((String) null), getMonitor());
 		int iuCount = result.size();
-		result = manager.query(new IUPropertyQuery(null, null), new Collector(), getMonitor());
+		result = manager.query(new IUPropertyQuery(null, null), getMonitor());
 		assertEquals("2.2", iuCount, result.size());
 	}
 

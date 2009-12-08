@@ -11,16 +11,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
-import org.eclipse.equinox.p2.engine.IProfile;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
 
 /**
@@ -83,7 +81,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 		boolean isUpdate = false;
 		boolean isInstalled = false;
 		if (profile != null && iu != null) {
-			Collector collector = profile.query(new InstallableUnitQuery(iu.getId()), new Collector(), null);
+			Collector collector = profile.query(new InstallableUnitQuery(iu.getId()), null);
 			Iterator iter = collector.iterator();
 			// We are typically iterating over only one IU unless it's a non-singleton.
 			while (iter.hasNext()) {

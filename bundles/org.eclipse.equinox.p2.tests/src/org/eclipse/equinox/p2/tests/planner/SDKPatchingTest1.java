@@ -17,7 +17,6 @@ import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -37,7 +36,7 @@ public class SDKPatchingTest1 extends AbstractProvisioningTest {
 		profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull(profile);
 
-		MetadataFactory.InstallableUnitDescription newCommon = createIUDescriptor((IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.equinox.common"), new Collector(), new NullProgressMonitor()).iterator().next());
+		MetadataFactory.InstallableUnitDescription newCommon = createIUDescriptor((IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.equinox.common"), new NullProgressMonitor()).iterator().next());
 		Version newVersionCommon = Version.createOSGi(3, 5, 0, "zeNewVersion");
 		changeVersion(newCommon, newVersionCommon);
 		newIUs.add(MetadataFactory.createInstallableUnit(newCommon));

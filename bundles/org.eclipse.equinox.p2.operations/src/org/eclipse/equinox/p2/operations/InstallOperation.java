@@ -11,17 +11,15 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.p2.engine.IProfile;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 
 /**
@@ -76,7 +74,7 @@ public class InstallOperation extends ProfileChangeOperation {
 				request.setInstallableUnitInclusionRules(toInstall[i], PlannerHelper.createOptionalInclusionRule(toInstall[i]));
 
 			// Check to see if it is already installed.  This may alter the request.
-			Collector alreadyInstalled = profile.query(new InstallableUnitQuery(toInstall[i].getId()), new Collector(), null);
+			Collector alreadyInstalled = profile.query(new InstallableUnitQuery(toInstall[i].getId()), null);
 			// TODO ideally we should only do this check if the iu is a singleton, but in practice many iu's that should
 			// be singletons are not, so we don't check this (yet)
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=230878

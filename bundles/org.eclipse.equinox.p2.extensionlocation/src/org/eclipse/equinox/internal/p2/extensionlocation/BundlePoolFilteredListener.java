@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 
@@ -28,7 +27,7 @@ public class BundlePoolFilteredListener extends DirectoryChangeListener {
 		delegate = listener;
 		IFileArtifactRepository bundlePool = Activator.getBundlePoolRepository();
 		if (bundlePool != null) {
-			Collector keys = bundlePool.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+			Collector keys = bundlePool.query(ArtifactKeyQuery.ALL_KEYS, null);
 			for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
 				IArtifactKey key = (IArtifactKey) iterator.next();
 				File artifactFile = bundlePool.getArtifactFile(key);

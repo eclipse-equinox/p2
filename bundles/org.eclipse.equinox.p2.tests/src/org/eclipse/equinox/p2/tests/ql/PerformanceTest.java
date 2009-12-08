@@ -43,14 +43,14 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		for (int i = 0; i < 5; ++i) {
 			long start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
-				result = repo.query(capability, new Collector(), new NullProgressMonitor());
+				result = repo.query(capability, new NullProgressMonitor());
 				assertEquals(result.size(), 487);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
-				result = repo.query(predicateQuery, new Collector(), new NullProgressMonitor());
+				result = repo.query(predicateQuery, new NullProgressMonitor());
 				assertEquals(result.size(), 487);
 			}
 			exprQueryMS += (System.currentTimeMillis() - start);
@@ -77,14 +77,14 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		for (int i = 0; i < 5; ++i) {
 			long start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
-				result = repo.query(capabilityQuery, new Collector(), new NullProgressMonitor());
+				result = repo.query(capabilityQuery, new NullProgressMonitor());
 				assertEquals(result.size(), 446);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
-				result = repo.query(predicateQuery, new Collector(), new NullProgressMonitor());
+				result = repo.query(predicateQuery, new NullProgressMonitor());
 				assertEquals(result.size(), 446);
 			}
 			exprQueryMS += (System.currentTimeMillis() - start);
@@ -107,14 +107,14 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		for (int i = 0; i < 5; ++i) {
 			long start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
-				result = repo.query(propertyQuery, new Collector(), new NullProgressMonitor());
+				result = repo.query(propertyQuery, new NullProgressMonitor());
 				assertEquals(result.size(), 965);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
-				result = repo.query(predicateQuery, new Collector(), new NullProgressMonitor());
+				result = repo.query(predicateQuery, new NullProgressMonitor());
 				assertEquals(result.size(), 965);
 			}
 			exprQueryMS += (System.currentTimeMillis() - start);
@@ -131,7 +131,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		env.put("osgi.arch", "x86");
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new Collector(), new NullProgressMonitor());
+		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new NullProgressMonitor());
 		Iterator itor = c.iterator();
 		assertTrue(itor.hasNext());
 		IInstallableUnit[] roots = new IInstallableUnit[] {(IInstallableUnit) itor.next()};
@@ -145,7 +145,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IQueryable slice = null;
 		for (int idx = 0; idx < 20; ++idx) {
 			long startTime = System.currentTimeMillis();
-			c = repo.query(query, new Collector(), new NullProgressMonitor());
+			c = repo.query(query, new NullProgressMonitor());
 			traverseTime += (System.currentTimeMillis() - startTime);
 			assertEquals(c.size(), 411);
 
@@ -156,7 +156,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 				public boolean isMatch(Object value) {
 					return true;
 				}
-			}, new Collector(), new NullProgressMonitor());
+			}, new NullProgressMonitor());
 			sliceTime += (System.currentTimeMillis() - startTime);
 			assertEquals(c.size(), 411);
 		}
@@ -178,7 +178,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 
 	private IInstallableUnit[] gatherAvailableInstallableUnits(IQueryable queryable) {
 		ArrayList list = new ArrayList();
-		Collector matches = queryable.query(InstallableUnitQuery.ANY, new Collector(), null);
+		Collector matches = queryable.query(InstallableUnitQuery.ANY, null);
 		for (Iterator it = matches.iterator(); it.hasNext();)
 			list.add(it.next());
 		return (IInstallableUnit[]) list.toArray(new IInstallableUnit[list.size()]);

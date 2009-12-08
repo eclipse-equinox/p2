@@ -9,9 +9,8 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.repository.tools.analyzer;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 /**

@@ -51,7 +51,7 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testQualifier() {
-		Collector results = actionResult.query(new CategoryQuery(), new Collector(), new NullProgressMonitor());
+		Collector results = actionResult.query(new CategoryQuery(), new NullProgressMonitor());
 		Iterator iter = results.iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit unit = (IInstallableUnit) iter.next();

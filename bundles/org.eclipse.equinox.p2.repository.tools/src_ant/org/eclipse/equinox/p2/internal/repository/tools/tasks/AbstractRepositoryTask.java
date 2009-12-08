@@ -167,9 +167,8 @@ public abstract class AbstractRepositoryTask extends Task {
 		for (Iterator iter = iuTasks.iterator(); iter.hasNext();) {
 			IUDescription iu = (IUDescription) iter.next();
 			IQuery iuQuery = iu.createQuery();
-			Collector collector = new Collector();
 
-			repository.query(iuQuery, collector, null);
+			Collector collector = repository.query(iuQuery, null);
 
 			if (iu.isRequired() && collector.isEmpty())
 				throw new BuildException(NLS.bind(Messages.AbstractRepositoryTask_unableToFind, iu.toString()));

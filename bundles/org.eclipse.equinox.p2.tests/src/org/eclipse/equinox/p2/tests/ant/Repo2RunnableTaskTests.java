@@ -61,7 +61,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		IInstallableUnit iu = null;
 		try {
 			IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(source, new NullProgressMonitor());
-			Collection ius = repo.query(new InstallableUnitQuery("helloworldfeature.feature.jar"), new Collector(), new NullProgressMonitor()).toCollection();
+			Collection ius = repo.query(new InstallableUnitQuery("helloworldfeature.feature.jar"), new NullProgressMonitor()).toCollection();
 			assertEquals("Expected number of IUs", 1, ius.size());
 			iu = (IInstallableUnit) ius.iterator().next();
 		} catch (ProvisionException e) {
@@ -117,7 +117,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Failed to load repository", e);
 		}
-		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);

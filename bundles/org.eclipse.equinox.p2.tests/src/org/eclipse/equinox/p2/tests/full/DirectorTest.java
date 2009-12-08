@@ -53,7 +53,7 @@ public class DirectorTest extends AbstractProvisioningTest {
 		}
 
 		String autoInstall = System.getProperty("eclipse.p2.autoInstall");
-		Collector allJobs = mgr.query(new InstallableUnitQuery(autoInstall, VersionRange.emptyRange), new Collector(), null);
+		Collector allJobs = mgr.query(new InstallableUnitQuery(autoInstall, VersionRange.emptyRange), null);
 
 		String installFolder = System.getProperty(IProfile.PROP_INSTALL_FOLDER);
 		IProfileRegistry profileRegistry = getProfileRegistry();
@@ -95,8 +95,8 @@ public class DirectorTest extends AbstractProvisioningTest {
 		if (!operationStatus.isOK())
 			fail("The installation has failed");
 
-		IInstallableUnit[] result = (IInstallableUnit[]) p.query(new InstallableUnitQuery(allRoots[0].getId(), VersionRange.emptyRange), new Collector(), null).toArray(IInstallableUnit.class);
+		IInstallableUnit[] result = (IInstallableUnit[]) p.query(new InstallableUnitQuery(allRoots[0].getId(), VersionRange.emptyRange), null).toArray(IInstallableUnit.class);
 		assertEquals(result.length, (!doUninstall ? 1 : 0));
-		result = (IInstallableUnit[]) p.query(new InstallableUnitQuery("toolingdefault", VersionRange.emptyRange), new Collector(), null).toArray(IInstallableUnit.class);
+		result = (IInstallableUnit[]) p.query(new InstallableUnitQuery("toolingdefault", VersionRange.emptyRange), null).toArray(IInstallableUnit.class);
 	}
 }

@@ -251,7 +251,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 		try {
 			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(artifactRepositoryLocation, null);
 			List fromIUs = getArtifactKeys(ius);
-			Collection fromRepo = repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null).toCollection();
+			Collection fromRepo = repo.query(ArtifactKeyQuery.ALL_KEYS, null).toCollection();
 			assertContains(message, fromIUs, fromRepo);
 			assertContains(message, fromRepo, fromIUs);
 		} catch (ProvisionException e) {
@@ -261,12 +261,12 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	}
 
 	protected static void assertContains(String message, IQueryable source, IQueryable destination) {
-		Collector sourceCollector = source.query(InstallableUnitQuery.ANY, new Collector(), null);
+		Collector sourceCollector = source.query(InstallableUnitQuery.ANY, null);
 		Iterator it = sourceCollector.iterator();
 
 		while (it.hasNext()) {
 			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
-			Collector destinationCollector = destination.query(new InstallableUnitQuery(sourceIU), new Collector(), null);
+			Collector destinationCollector = destination.query(new InstallableUnitQuery(sourceIU), null);
 			assertEquals(message, 1, destinationCollector.size());
 			assertTrue(message, sourceIU.equals(destinationCollector.iterator().next()));
 		}

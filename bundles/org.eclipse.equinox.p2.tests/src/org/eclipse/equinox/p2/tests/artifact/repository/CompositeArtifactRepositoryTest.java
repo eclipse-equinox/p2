@@ -362,7 +362,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//get the keys
-		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertTrue("Error retreaiving artifact keys", keys.size() > 0);
 
 		//test for existing key
@@ -390,7 +390,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//get the descriptors
-		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertTrue("Error retreaiving artifact keys", keys.size() > 0);
 		IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors((IArtifactKey) keys.iterator().next());
 		assertTrue("Error retreaiving artifact descriptors", descriptors.length > 0);
@@ -421,7 +421,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			fail("Error creating destination", e1);
 		}
 
-		Collector keys = compRepo.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector keys = compRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertTrue("Error retreaiving artifact keys", keys.size() > 0);
 		IArtifactKey key = (IArtifactKey) keys.iterator().next();
 		IArtifactDescriptor[] descriptors = compRepo.getArtifactDescriptors(key);
@@ -505,7 +505,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//create a request for a descriptor from repo1
-		Collector keys1 = repo1.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector keys1 = repo1.query(ArtifactKeyQuery.ALL_KEYS, null);
 		IArtifactKey key1 = (IArtifactKey) keys1.iterator().next();
 		assertTrue("Error retreaiving artifact keys", keys1.size() > 0);
 		IArtifactDescriptor[] descriptors1 = repo1.getArtifactDescriptors(key1);
@@ -520,7 +520,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactRequest request1 = ((ArtifactRepositoryManager) getArtifactRepositoryManager()).createMirrorRequest(key1, destinationRepo, null, null);
 
 		//create a request for a descriptor from repo2
-		Collector keys2 = repo2.query(ArtifactKeyQuery.ALL_KEYS, new Collector(), null);
+		Collector keys2 = repo2.query(ArtifactKeyQuery.ALL_KEYS, null);
 		IArtifactKey key2 = (IArtifactKey) keys2.iterator().next();
 		assertTrue("Error retreaiving artifact keys", keys2.size() > 0);
 		IArtifactDescriptor[] descriptors2 = repo2.getArtifactDescriptors(key2);

@@ -10,16 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.rollback;
 
-import org.eclipse.equinox.p2.engine.IProfile;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public class FormerState {
 
@@ -34,8 +31,8 @@ public class FormerState {
 	}
 
 	private static void synchronizeAllIUProperties(ProfileChangeRequest request, IProfile current, IProfile target) {
-		Collection currentIUs = current.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection();
-		Collection targetIUs = target.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection();
+		Collection currentIUs = current.query(InstallableUnitQuery.ANY, null).toCollection();
+		Collection targetIUs = target.query(InstallableUnitQuery.ANY, null).toCollection();
 		List iusToAdd = new ArrayList(targetIUs);
 		iusToAdd.remove(currentIUs);
 

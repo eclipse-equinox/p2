@@ -11,8 +11,6 @@
 
 package org.eclipse.equinox.internal.p2.operations;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.Iterator;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
@@ -20,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
 import org.eclipse.equinox.p2.common.TranslationSupport;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 /**

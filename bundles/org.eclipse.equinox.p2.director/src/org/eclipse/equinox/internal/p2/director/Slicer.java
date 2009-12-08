@@ -167,7 +167,7 @@ public class Slicer {
 	private void expandRequirement(IInstallableUnit iu, IRequirement req) {
 		if (req.getMax() == 0)
 			return;
-		Collector matches = possibilites.query(req.getMatches(), new Collector(), null);
+		Collector matches = possibilites.query(req.getMatches(), null);
 		int validMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();

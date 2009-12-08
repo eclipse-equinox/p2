@@ -9,12 +9,11 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.repository.tools.analyzer;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.internal.repository.tools.Activator;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * An abstract base class for the Analyzer.  Clients are encouraged to extends this 

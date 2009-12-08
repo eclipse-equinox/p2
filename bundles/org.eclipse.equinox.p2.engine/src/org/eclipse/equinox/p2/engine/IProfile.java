@@ -127,6 +127,6 @@ public interface IProfile extends IQueryable {
 
 	public long getTimestamp();
 
-	public Collector available(IQuery query, Collector collector, IProgressMonitor monitor);
+	public Collector available(IQuery query, IProgressMonitor monitor);
 
 }
