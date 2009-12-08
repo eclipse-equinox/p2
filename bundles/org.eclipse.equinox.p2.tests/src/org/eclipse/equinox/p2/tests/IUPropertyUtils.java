@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import org.eclipse.equinox.p2.metadata.ICopyright;
+
 import java.lang.ref.SoftReference;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;

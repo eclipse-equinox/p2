@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import org.eclipse.equinox.p2.metadata.ICopyright;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;

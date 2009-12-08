@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.p2.metadata.ICopyright;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;

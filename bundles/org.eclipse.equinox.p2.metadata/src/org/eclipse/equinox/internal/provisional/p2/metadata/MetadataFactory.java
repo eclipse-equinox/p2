@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
+import org.eclipse.equinox.p2.metadata.ICopyright;
+
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;

@@ -7,7 +7,7 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.p2.metadata;
 
 import java.net.URI;
 

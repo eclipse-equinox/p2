@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import org.eclipse.equinox.p2.metadata.ICopyright;
+
 import java.util.ArrayList;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;

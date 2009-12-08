@@ -12,6 +12,8 @@
 package org.eclipse.equinox.p2.common;
 
 
+import org.eclipse.equinox.p2.metadata.ICopyright;
+
 import java.lang.ref.SoftReference;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
