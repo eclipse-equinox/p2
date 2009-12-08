@@ -152,7 +152,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 					if (touchpointEntries.get(id) == null) {
 						touchpointEntries.put(id, new TouchpointEntry(elements[j]));
 					} else {
-						reportError(NLS.bind(Messages.TouchpointManager_Conflicting_Touchpoint_Types, ATTRIBUTE_TYPE, id));
+						reportError(NLS.bind(Messages.TouchpointManager_Conflicting_Touchpoint_Types, id));
 					}
 				}
 			} catch (InvalidRegistryObjectException e) {
