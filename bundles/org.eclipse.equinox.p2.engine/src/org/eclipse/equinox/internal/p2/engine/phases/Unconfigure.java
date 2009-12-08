@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.engine.phases;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
+import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
