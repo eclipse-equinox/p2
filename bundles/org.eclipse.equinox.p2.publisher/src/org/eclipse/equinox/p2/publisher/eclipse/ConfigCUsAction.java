@@ -230,7 +230,6 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		cu.setId(resultId);
 		cu.setVersion(version);
 		cu.setFilter(createFilterSpec(configSpec));
-		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		IProvidedCapability selfCapability = PublisherHelper.createSelfCapability(resultId, version);
 		String namespace = getAbstractCUCapabilityNamespace(id, type, flavor, configSpec);
 		String abstractId = getAbstractCUCapabilityId(id, type, flavor, configSpec);
