@@ -11,7 +11,8 @@ Export-Package: org.eclipse.equinox.internal.p2.engine;
    org.eclipse.equinox.p2.operations,
    org.eclipse.equinox.p2.director,
    org.eclipse.equinox.p2.ui.sdk.scheduler,
-   org.eclipse.pde.build",
+   org.eclipse.pde.build,
+   org.eclipse.pde.core",
  org.eclipse.equinox.internal.p2.engine.phases;
   x-friends:="org.eclipse.equinox.p2.operations,
    org.eclipse.equinox.p2.ui.sdk.scheduler,
