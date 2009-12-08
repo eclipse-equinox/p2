@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 /**
  * This encapsulates the access to the profile registry. 
  * It deals with persistence in a transparent way.
+ * @since 2.0
  */
 public interface IProfileRegistry {
 	public static final String SELF = "_SELF_"; //$NON-NLS-1$

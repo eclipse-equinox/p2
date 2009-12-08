@@ -24,6 +24,7 @@ import org.eclipse.equinox.security.storage.EncodingUtils;
  * A profile scope contains the preferences associated with a particular profile
  * in a provisioned system.
  * @see IProfile
+ * @since 2.0
  */
 public final class ProfileScope implements IScopeContext {
 

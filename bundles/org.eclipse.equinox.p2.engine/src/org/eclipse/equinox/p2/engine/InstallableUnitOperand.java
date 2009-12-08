@@ -13,6 +13,9 @@ package org.eclipse.equinox.p2.engine;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
+/**
+ * @since 2.0
+ */
 public class InstallableUnitOperand extends Operand {
 	private final IInstallableUnit first;
 	private final IInstallableUnit second;

@@ -17,6 +17,9 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
+/**
+ * @since 2.0
+ */
 public interface IProfile extends IQueryable {
 
 	/**

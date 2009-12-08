@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.engine.phases.*;
 
+/**
+ * @since 2.0
+ */
 public class DefaultPhaseSet extends PhaseSet {
 
 	private static final boolean forcedUninstall = Boolean.valueOf(EngineActivator.getContext().getProperty("org.eclipse.equinox.p2.engine.forcedUninstall")).booleanValue(); //$NON-NLS-1$

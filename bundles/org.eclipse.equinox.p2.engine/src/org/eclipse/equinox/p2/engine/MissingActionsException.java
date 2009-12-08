@@ -10,9 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
+import org.eclipse.equinox.internal.p2.engine.Messages;
+
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * @since 2.0
+ */
 public class MissingActionsException extends ProvisionException {
 
 	private static final long serialVersionUID = 8617693596359747490L;

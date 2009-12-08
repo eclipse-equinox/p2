@@ -14,6 +14,7 @@ import java.util.EventObject;
 
 /**
  * @noextend This class is not intended to be subclassed by clients.
+ * @since 2.0
  */
 public class ProfileEvent extends EventObject {
 	private static final long serialVersionUID = 3082402920617281765L;

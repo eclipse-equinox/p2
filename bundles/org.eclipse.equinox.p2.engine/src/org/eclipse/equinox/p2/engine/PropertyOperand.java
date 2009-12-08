@@ -12,6 +12,9 @@ package org.eclipse.equinox.p2.engine;
 
 import org.eclipse.core.runtime.Assert;
 
+/**
+ * @since 2.0
+ */
 public class PropertyOperand extends Operand {
 	private final Object first;
 	private final Object second;

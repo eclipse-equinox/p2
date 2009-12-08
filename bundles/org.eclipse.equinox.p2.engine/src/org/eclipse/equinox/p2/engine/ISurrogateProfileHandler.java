@@ -14,6 +14,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
+/**
+ * @since 2.0
+ */
 public interface ISurrogateProfileHandler {
 
 	public abstract IProfile createProfile(String id);

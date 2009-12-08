@@ -10,11 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
+import org.eclipse.equinox.internal.p2.engine.Messages;
+
 import java.util.EventObject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 
+/**
+ * @since 2.0
+ */
 public class InstallableUnitEvent extends EventObject {
 	public static final int UNINSTALL = 0;
 	public static final int INSTALL = 1;

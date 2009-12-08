@@ -12,8 +12,9 @@ package org.eclipse.equinox.p2.engine;
 
 import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 
-
-
+/**
+ * @since 2.0
+ */
 public class CommitOperationEvent extends TransactionEvent {
 	private static final long serialVersionUID = -523967775426133720L;
 

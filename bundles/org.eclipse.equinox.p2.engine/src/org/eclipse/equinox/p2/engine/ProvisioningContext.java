@@ -14,6 +14,9 @@ package org.eclipse.equinox.p2.engine;
 import java.net.URI;
 import java.util.*;
 
+/**
+ * @since 2.0
+ */
 public class ProvisioningContext {
 	private URI[] metadataRepositories; //metadata repositories to consult
 	private URI[] artifactRepositories; //artifact repositories to consult
