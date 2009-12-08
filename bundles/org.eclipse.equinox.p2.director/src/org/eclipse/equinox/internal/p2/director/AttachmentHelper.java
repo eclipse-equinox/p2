@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFrag
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 
 public class AttachmentHelper {
 	private static final IInstallableUnitFragment[] NO_FRAGMENTS = new IInstallableUnitFragment[0];
@@ -47,7 +48,7 @@ public class AttachmentHelper {
 			ArrayList applicableFragments = new ArrayList();
 			for (Iterator iterator2 = potentialIUFragments.iterator(); iterator2.hasNext();) {
 				IInstallableUnit dependentIU = (IInstallableUnitFragment) iterator2.next();
-				if (hostIU.equals(dependentIU) || !dependentIU.isFragment())
+				if (hostIU.equals(dependentIU) || !FragmentQuery.isFragment(dependentIU))
 					continue;
 
 				IInstallableUnitFragment potentialFragment = (IInstallableUnitFragment) dependentIU;
@@ -90,7 +91,7 @@ public class AttachmentHelper {
 			if (iu == null)
 				continue;
 			//just return fragments as they are
-			if (iu.isFragment()) {
+			if (FragmentQuery.isFragment(iu)) {
 				result.add(iu);
 				continue;
 			}

@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 
 public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 
@@ -55,7 +56,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		attribute(SINGLETON_ATTRIBUTE, iu.isSingleton(), true);
 		//		attribute(FRAGMENT_ATTRIBUTE, iu.isFragment(), false);
 
-		if (iu.isFragment() && iu instanceof IInstallableUnitFragment) {
+		if (FragmentQuery.isFragment(iu) && iu instanceof IInstallableUnitFragment) {
 			IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
 			writeHostRequiredCapabilities(fragment.getHost());
 		}

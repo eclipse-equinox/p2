@@ -17,6 +17,7 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 
 public class Unconfigure extends InstallableUnitPhase {
 
@@ -36,7 +37,7 @@ public class Unconfigure extends InstallableUnitPhase {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Unconfiguring_IU, unit.getId()));
 
 		IInstallableUnit unit = currentOperand.first();
-		if (unit.isFragment())
+		if (FragmentQuery.isFragment(unit))
 			return null;
 
 		return getActions(unit, phaseId);

@@ -110,10 +110,6 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getVersion();
 	}
 
-	public boolean isFragment() {
-		return original.isFragment();
-	}
-
 	public boolean isSingleton() {
 		return original.isSingleton();
 	}

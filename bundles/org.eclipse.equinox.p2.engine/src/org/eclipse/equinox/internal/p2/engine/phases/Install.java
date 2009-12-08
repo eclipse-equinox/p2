@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.osgi.util.NLS;
 
 public class Install extends InstallableUnitPhase {
@@ -94,7 +95,7 @@ public class Install extends InstallableUnitPhase {
 			afterAction.setTouchpoint(touchpoint);
 		}
 
-		if (unit.isFragment())
+		if (FragmentQuery.isFragment(unit))
 			return new ProvisioningAction[] {beforeAction, afterAction};
 
 		ProvisioningAction[] parsedActions = getActions(unit, phaseId);

@@ -17,6 +17,7 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.osgi.util.NLS;
 
 public class Configure extends InstallableUnitPhase {
@@ -31,7 +32,7 @@ public class Configure extends InstallableUnitPhase {
 
 	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
 		IInstallableUnit unit = currentOperand.second();
-		if (unit.isFragment())
+		if (FragmentQuery.isFragment(unit))
 			return null;
 		return getActions(unit, phaseId);
 	}

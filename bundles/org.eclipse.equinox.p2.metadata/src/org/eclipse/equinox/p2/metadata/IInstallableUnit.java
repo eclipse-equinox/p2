@@ -134,8 +134,6 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 
 	public ITouchpointType getTouchpointType();
 
-	public boolean isFragment();
-
 	/**
 	 * Returns whether this installable unit has been resolved. A resolved
 	 * installable unit represents the union of an installable unit and some

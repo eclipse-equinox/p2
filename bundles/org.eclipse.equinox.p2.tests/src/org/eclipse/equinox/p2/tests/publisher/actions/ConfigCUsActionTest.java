@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -90,7 +91,7 @@ public class ConfigCUsActionTest extends ActionTest {
 				verifyProvidedCapability(providedCapabilities, flavor + id, id + "." + cuType, version); //$NON-NLS-1$
 				assertTrue(providedCapabilities.length == 2);
 				assertTrue(iu.getRequiredCapabilities().length == 0);
-				assertFalse(iu.isFragment());
+				assertTrue(FragmentQuery.isFragment(iu));
 				return; //pass
 			}
 		}

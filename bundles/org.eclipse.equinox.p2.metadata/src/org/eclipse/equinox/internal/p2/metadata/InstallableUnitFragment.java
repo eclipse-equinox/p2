@@ -36,10 +36,6 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 		setRequiredCapabilities(result);
 	}
 
-	public boolean isFragment() {
-		return true;
-	}
-
 	public IRequirement[] getHost() {
 		return hostRequirements;
 	}

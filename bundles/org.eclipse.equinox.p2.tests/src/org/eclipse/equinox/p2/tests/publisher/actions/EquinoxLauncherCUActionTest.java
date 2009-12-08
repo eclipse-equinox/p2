@@ -52,7 +52,6 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 			version = Version.emptyVersion;
 		expect(result.getVersion()).andReturn(version).anyTimes();
 		expect(result.getFilter()).andReturn(null).anyTimes();
-		expect(result.isFragment()).andReturn(fragment).anyTimes();
 		replay(result);
 		return result;
 	}

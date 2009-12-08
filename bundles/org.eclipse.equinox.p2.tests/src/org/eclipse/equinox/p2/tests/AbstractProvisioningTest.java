@@ -33,6 +33,7 @@ import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -1034,15 +1035,15 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (!iu1.equals(iu2))
 			fail(message + " " + iu1 + " is not equal to " + iu2);
 
-		if (iu1.isFragment()) {
-			if (!iu2.isFragment())
+		if (FragmentQuery.isFragment(iu1)) {
+			if (!FragmentQuery.isFragment(iu2))
 				fail(message + " " + iu1 + " is not a fragment.");
 			try {
 				assertEquals(message, ((IInstallableUnitFragment) iu1).getHost(), ((IInstallableUnitFragment) iu2).getHost());
 			} catch (AssertionFailedError failure) {
 				fail(message + " Unequal hosts: " + failure.getMessage());
 			}
-		} else if (iu2.isFragment()) {
+		} else if (FragmentQuery.isFragment(iu2)) {
 			fail(message + " " + iu2 + " is a fragment.");
 		}
 

@@ -168,10 +168,6 @@ public class InstallableUnit implements IInstallableUnit {
 		return result;
 	}
 
-	public boolean isFragment() {
-		return false;
-	}
-
 	public boolean isResolved() {
 		return false;
 	}
