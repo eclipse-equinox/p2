@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public final class LocalizedMap extends Function {
 

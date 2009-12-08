@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-
 import java.util.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * This class represents indexed or keyed access to an indexed collection
