@@ -64,6 +64,7 @@ public class MetadataRepositoryManagerExceptionsTest extends AbstractProvisionin
 		MetadataRepositoryFactory factory;
 
 		factory = new SimpleMetadataRepositoryFactory();
+		factory.setAgent(getAgent());
 		try {
 			factory.load(location, 0, new NullProgressMonitor());
 		} catch (ProvisionException e) {

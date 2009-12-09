@@ -23,17 +23,11 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 	public static final String REPO_PROVIDER_XPT = ID + '.' + "metadataRepositories"; //$NON-NLS-1$
 
 	private static BundleContext bundleContext;
-	//hack - currently set by MetadataRepositoryComponent
-	static CacheManager cacheManager;
 	private ServiceRegistration repositoryManagerRegistration;
 	private ServiceTracker tracker;
 
 	public static BundleContext getContext() {
 		return bundleContext;
-	}
-
-	public static CacheManager getCacheManager() {
-		return cacheManager;
 	}
 
 	public Object addingService(ServiceReference reference) {

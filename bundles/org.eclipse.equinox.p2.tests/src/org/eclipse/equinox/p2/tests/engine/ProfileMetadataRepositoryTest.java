@@ -126,10 +126,12 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		// /p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);
-		new SimpleArtifactRepositoryFactory().create(tempFolder.toURI(), "", "", null);
+		final SimpleArtifactRepositoryFactory simpleFactory = new SimpleArtifactRepositoryFactory();
+		simpleFactory.setAgent(getAgent());
+		simpleFactory.create(tempFolder.toURI(), "", "", null);
 
 		File defaultAgenRepositoryDirectory = new File(tempFolder, "p2/org.eclipse.equinox.p2.core/cache");
-		new SimpleArtifactRepositoryFactory().create(defaultAgenRepositoryDirectory.toURI(), "", "", null);
+		simpleFactory.create(defaultAgenRepositoryDirectory.toURI(), "", "", null);
 
 		File profileRegistryFolder = new File(tempFolder, "p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(profileRegistryFolder, null, false);

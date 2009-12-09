@@ -91,6 +91,7 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) {
 		URI localRepositoryURL = getLocalRepositoryLocation(location);
 		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
+		factory.setAgent(getAgent());
 		try {
 			return factory.load(localRepositoryURL, 0, monitor);
 		} catch (ProvisionException e) {

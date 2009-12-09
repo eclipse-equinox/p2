@@ -39,7 +39,9 @@ public class DoesNotCacheStaleData extends AbstractProvisioningTest {
 		assertNotNull(e);
 		assertTrue(new File(URIUtil.toFile(UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(siteURI)), "content.xml").exists());
 		try {
-			IMetadataRepository repo = new SimpleMetadataRepositoryFactory().load(f.toURI(), 0, new NullProgressMonitor());
+			final SimpleMetadataRepositoryFactory simpleFactory = new SimpleMetadataRepositoryFactory();
+			simpleFactory.setAgent(getAgent());
+			IMetadataRepository repo = simpleFactory.load(f.toURI(), 0, new NullProgressMonitor());
 			assertEquals("0", repo.getProperties().get("site.checksum"));
 		} catch (ProvisionException e1) {
 			fail("3.0", e1);
@@ -60,7 +62,9 @@ public class DoesNotCacheStaleData extends AbstractProvisioningTest {
 		assertNotNull(e);
 		assertTrue(new File(URIUtil.toFile(UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(siteURI)), "artifacts.xml").exists());
 		try {
-			IArtifactRepository repo = new SimpleArtifactRepositoryFactory().load(f.toURI(), 0, new NullProgressMonitor());
+			final SimpleArtifactRepositoryFactory simpleFactory = new SimpleArtifactRepositoryFactory();
+			simpleFactory.setAgent(getAgent());
+			IArtifactRepository repo = simpleFactory.load(f.toURI(), 0, new NullProgressMonitor());
 			assertEquals("0", repo.getProperties().get("site.checksum"));
 		} catch (ProvisionException e1) {
 			fail("3.0", e1);

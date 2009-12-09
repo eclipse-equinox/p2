@@ -57,7 +57,10 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		// file is not local, create a cache of the repository metadata
-		localFile = Activator.getCacheManager().createCache(location, URLMetadataRepository.CONTENT_FILENAME, monitor);
+		CacheManager cache = (CacheManager) getAgent().getService(CacheManager.SERVICE_NAME);
+		if (cache == null)
+			throw new IllegalArgumentException("Cache manager service not available"); //$NON-NLS-1$
+		localFile = cache.createCache(location, URLMetadataRepository.CONTENT_FILENAME, monitor);
 		if (localFile == null) {
 			// there is no remote file in either form - this should not really happen as
 			// createCache should bail out with exception if something is wrong. This is an internal

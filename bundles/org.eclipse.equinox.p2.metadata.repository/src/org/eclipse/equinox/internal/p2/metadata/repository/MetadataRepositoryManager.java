@@ -43,6 +43,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
+		factory.setAgent(agent);
 		return factory.create(location, name, type, properties);
 	}
 
@@ -50,6 +51,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
+		factory.setAgent(agent);
 		return factory.load(location, flags, monitor.newChild(10));
 	}
 

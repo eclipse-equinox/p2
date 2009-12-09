@@ -14,6 +14,7 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
@@ -23,6 +24,8 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
  * <tt>org.eclipse.equinox.p2.artifact.repository.artifactRepositories</tt> extension point.
  */
 public abstract class ArtifactRepositoryFactory {
+
+	private IProvisioningAgent agent;
 
 	/**
 	 * Creates and returns a new empty artifact repository of the given type at 
@@ -41,6 +44,15 @@ public abstract class ArtifactRepositoryFactory {
 	 * </ul>
 	 */
 	public abstract IArtifactRepository create(URI location, String name, String type, Map properties) throws ProvisionException;
+
+	/**
+	 * Returns the provisioning agent associated with this factory, or <code>null</code>
+	 * if this factory is not associated with an agent.
+	 * @return The provisioning agent, or <code>null</code>
+	 */
+	protected IProvisioningAgent getAgent() {
+		return agent;
+	}
 
 	/**
 	 * Loads and returns the repository of this factory's type at the given location. 
@@ -72,4 +84,12 @@ public abstract class ArtifactRepositoryFactory {
 	 * </ul>
 	 */
 	public abstract IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException;
+
+	/**
+	 * Sets the provisioning agent associated with this repository factory.
+	 * @param agent The provisioning agent
+	 */
+	public void setAgent(IProvisioningAgent agent) {
+		this.agent = agent;
+	}
 }

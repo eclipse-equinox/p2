@@ -29,6 +29,9 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
+	public SimpleArtifactRepositoryFactory() {
+		super();
+	}
 
 	public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		final String PROTOCOL_FILE = "file"; //$NON-NLS-1$

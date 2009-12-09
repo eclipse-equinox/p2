@@ -37,8 +37,10 @@ public class ExtensionLocationMetadataRepositoryFactory extends MetadataReposito
 		// ensure that we aren't trying to create a repository at a location
 		// where one already exists
 		boolean failed = false;
+		final SimpleMetadataRepositoryFactory simpleFactory = new SimpleMetadataRepositoryFactory();
+		simpleFactory.setAgent(getAgent());
 		try {
-			new SimpleMetadataRepositoryFactory().load(repoLocation, 0, null);
+			simpleFactory.load(repoLocation, 0, null);
 			failed = true;
 		} catch (ProvisionException e) {
 			// expected
@@ -47,7 +49,7 @@ public class ExtensionLocationMetadataRepositoryFactory extends MetadataReposito
 			String msg = NLS.bind(Messages.repo_already_exists, location.toString());
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_EXISTS, msg, null));
 		}
-		IMetadataRepository repository = new SimpleMetadataRepositoryFactory().create(repoLocation, name, null, properties);
+		IMetadataRepository repository = simpleFactory.create(repoLocation, name, null, properties);
 		return new ExtensionLocationMetadataRepository(location, repository, null);
 	}
 
@@ -70,7 +72,9 @@ public class ExtensionLocationMetadataRepositoryFactory extends MetadataReposito
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
 		// TODO proper progress monitoring
 		try {
-			IMetadataRepository repository = new SimpleMetadataRepositoryFactory().load(repoLocation, flags, null);
+			final SimpleMetadataRepositoryFactory simpleFactory = new SimpleMetadataRepositoryFactory();
+			simpleFactory.setAgent(getAgent());
+			IMetadataRepository repository = simpleFactory.load(repoLocation, flags, null);
 			return new ExtensionLocationMetadataRepository(location, repository, monitor);
 		} catch (ProvisionException e) {
 			return create(location, Activator.getRepositoryName(location), ExtensionLocationMetadataRepository.TYPE, null);

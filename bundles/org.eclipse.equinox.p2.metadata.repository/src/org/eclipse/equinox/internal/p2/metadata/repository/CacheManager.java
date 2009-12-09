@@ -37,6 +37,11 @@ import org.eclipse.osgi.util.NLS;
  * was created for the repository.
  */
 public class CacheManager {
+	/**
+	 * Service name for the internal cache manager service.
+	 */
+	public static final String SERVICE_NAME = CacheManager.class.getName();
+
 	private final IAgentLocation agentLocation;
 
 	/**

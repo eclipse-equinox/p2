@@ -585,11 +585,11 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	 */
 	public void testNonLocalRepo() {
 		try {
-			URI location = new URI("memory:/in/memory");
-			URI childOne = new URI("memory:/in/memory/one");
-			URI childTwo = new URI("memory:/in/memory/two");
-			URI childThree = new URI("memory:/in/memory/three");
-			CompositeMetadataRepository repository = new CompositeMetadataRepository(location, "in memory test", null);
+			URI location = new URI("http://foo.org/in/memory");
+			URI childOne = new URI("http://foo.org/in/memory/one");
+			URI childTwo = new URI("http://foo.org/in/memory/two");
+			URI childThree = new URI("http://foo.org/in/memory/three");
+			CompositeMetadataRepository repository = createRepository(location, "in memory test");
 			repository.addChild(childOne);
 			repository.addChild(childTwo);
 			repository.addChild(childThree);
@@ -607,6 +607,12 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
+	protected CompositeMetadataRepository createRepository(URI location, String name) {
+		CompositeMetadataRepositoryFactory factory = new CompositeMetadataRepositoryFactory();
+		factory.setAgent(getAgent());
+		return (CompositeMetadataRepository) factory.create(location, name, CompositeMetadataRepository.REPOSITORY_TYPE, null);
+	}
+
 	public void testRelativeChildren() {
 		// setup
 		File one = getTestData("0.0", "testData/testRepos/simple.1");
@@ -617,7 +623,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		// create the composite repository and add the children
 		URI location = new File(temp, "comp").toURI();
-		CompositeMetadataRepository repository = new CompositeMetadataRepository(location, "test", null);
+		CompositeMetadataRepository repository = createRepository(location, "test");
 		try {
 			repository.addChild(new URI("../one"));
 			repository.addChild(new URI("../two"));
@@ -645,10 +651,10 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	public void testRelativeRemoveChild() {
 		try {
-			URI location = new URI("memory:/in/memory");
+			URI location = new URI("http://foo.org/in/memory");
 			URI one = new URI("one");
 			URI two = new URI("two");
-			CompositeMetadataRepository repository = new CompositeMetadataRepository(location, "in memory test", null);
+			CompositeMetadataRepository repository = createRepository(location, "in memory test");
 			repository.addChild(one);
 			repository.addChild(two);
 			List children = repository.getChildren();

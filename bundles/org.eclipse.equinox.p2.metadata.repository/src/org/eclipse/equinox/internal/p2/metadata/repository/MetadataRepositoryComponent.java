@@ -26,9 +26,10 @@ public class MetadataRepositoryComponent implements IAgentServiceFactory {
 		final IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 		manager.setEventBus(eventBus);
 		manager.setAgentLocation((IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME));
+		manager.setAgent(agent);
 		CacheManager cache = new CacheManager((IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME));
 		cache.setEventBus(eventBus);
-		Activator.cacheManager = cache;//todo avoid global cache
+		agent.registerService(CacheManager.SERVICE_NAME, cache);
 		return manager;
 	}
 

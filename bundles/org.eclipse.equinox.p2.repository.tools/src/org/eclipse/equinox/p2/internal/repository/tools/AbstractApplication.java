@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
+import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -250,7 +251,9 @@ public abstract class AbstractApplication {
 	public IMetadataRepository getCompositeMetadataRepository() {
 		if (compositeMetadataRepository == null) {
 			try {
-				compositeMetadataRepository = new CompositeMetadataRepository(new URI("memory:/composite"), "parent metadata repo", null);//$NON-NLS-1$ //$NON-NLS-2$
+				CompositeMetadataRepositoryFactory factory = new CompositeMetadataRepositoryFactory();
+				factory.setAgent(agent);
+				compositeMetadataRepository = (CompositeMetadataRepository) factory.create(new URI("memory:/composite"), "parent metadata repo", CompositeMetadataRepository.REPOSITORY_TYPE, null);//$NON-NLS-1$ //$NON-NLS-2$
 			} catch (URISyntaxException e) {
 				//Can't happen
 			}

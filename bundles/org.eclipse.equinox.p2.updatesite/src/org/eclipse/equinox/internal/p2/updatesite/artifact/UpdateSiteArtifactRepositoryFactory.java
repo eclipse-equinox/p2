@@ -74,6 +74,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 	public IArtifactRepository loadRepository(URI location, IProgressMonitor monitor) {
 		URI localRepositoryURL = UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(location);
 		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
+		factory.setAgent(getAgent());
 		try {
 			return factory.load(localRepositoryURL, 0, monitor);
 		} catch (ProvisionException e) {

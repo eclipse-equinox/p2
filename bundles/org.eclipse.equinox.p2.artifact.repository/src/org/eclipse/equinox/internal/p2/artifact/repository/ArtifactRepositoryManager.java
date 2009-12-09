@@ -56,6 +56,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
+		factory.setAgent(agent);
 		return factory.create(location, name, type, properties);
 	}
 
@@ -63,6 +64,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
+		factory.setAgent(agent);
 		return factory.load(location, flags, monitor.newChild(10));
 	}
 

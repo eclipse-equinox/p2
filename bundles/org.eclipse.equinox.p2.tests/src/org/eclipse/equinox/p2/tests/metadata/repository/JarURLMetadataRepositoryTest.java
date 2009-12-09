@@ -16,7 +16,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
@@ -28,12 +27,10 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.ServiceReference;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
-public class JarURLMetadataRepositoryTest extends TestCase {
+public class JarURLMetadataRepositoryTest extends AbstractProvisioningTest {
 
-	private ServiceReference managerRef;
 	private IMetadataRepositoryManager manager;
 	private File testRepoJar;
 
@@ -46,8 +43,7 @@ public class JarURLMetadataRepositoryTest extends TestCase {
 	}
 
 	protected void setUp() throws Exception {
-		managerRef = TestActivator.getContext().getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
-		manager = (IMetadataRepositoryManager) TestActivator.getContext().getService(managerRef);
+		manager = getMetadataRepositoryManager();
 
 		String tempDir = System.getProperty("java.io.tmpdir");
 		File testRepo = new File(tempDir, "testRepo");
@@ -71,7 +67,6 @@ public class JarURLMetadataRepositoryTest extends TestCase {
 	protected void tearDown() throws Exception {
 		manager = null;
 		FileUtils.deleteAll(testRepoJar.getParentFile());
-		TestActivator.getContext().ungetService(managerRef);
 	}
 
 	public void testJarURLRepository() throws ProvisionException {

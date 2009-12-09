@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningLis
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -88,6 +89,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	private Map loadLocks = new HashMap();
 	protected IProvisioningEventBus eventBus;
 	private IAgentLocation agentLocation;
+	protected IProvisioningAgent agent;
 
 	protected AbstractRepositoryManager() {
 		super();
@@ -960,6 +962,14 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			remember(info, true);
 		}
 		broadcastChangeEvent(location, getRepositoryType(), RepositoryEvent.ENABLEMENT, enablement);
+	}
+
+	/**
+	 * Injects the agent service to be used by this repository manager
+	 * @param agent The agent for this repository manager
+	 */
+	public void setAgent(IProvisioningAgent agent) {
+		this.agent = agent;
 	}
 
 	/**

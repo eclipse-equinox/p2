@@ -25,6 +25,7 @@ public class ArtifactRepositoryComponent implements IAgentServiceFactory {
 		final ArtifactRepositoryManager manager = new ArtifactRepositoryManager();
 		manager.setEventBus((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME));
 		manager.setAgentLocation((IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME));
+		manager.setAgent(agent);
 		Activator.addManager(manager, agent);
 		return manager;
 	}

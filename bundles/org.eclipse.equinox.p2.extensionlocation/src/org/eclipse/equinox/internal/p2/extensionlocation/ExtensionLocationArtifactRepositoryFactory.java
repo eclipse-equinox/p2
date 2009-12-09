@@ -38,8 +38,10 @@ public class ExtensionLocationArtifactRepositoryFactory extends ArtifactReposito
 		// make sure that we aren't trying to create a repo at a location
 		// where one already exists
 		boolean failed = false;
+		final SimpleArtifactRepositoryFactory simpleFactory = new SimpleArtifactRepositoryFactory();
+		simpleFactory.setAgent(getAgent());
 		try {
-			new SimpleArtifactRepositoryFactory().load(repoLocation, 0, null);
+			simpleFactory.load(repoLocation, 0, null);
 			failed = true;
 		} catch (ProvisionException e) {
 			// expected
@@ -48,7 +50,7 @@ public class ExtensionLocationArtifactRepositoryFactory extends ArtifactReposito
 			String msg = NLS.bind(Messages.repo_already_exists, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_EXISTS, msg, null));
 		}
-		IFileArtifactRepository repo = (IFileArtifactRepository) new SimpleArtifactRepositoryFactory().create(repoLocation, name, type, properties);
+		IFileArtifactRepository repo = (IFileArtifactRepository) simpleFactory.create(repoLocation, name, type, properties);
 		return new ExtensionLocationArtifactRepository(location, repo, null);
 	}
 
@@ -71,7 +73,9 @@ public class ExtensionLocationArtifactRepositoryFactory extends ArtifactReposito
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
 		// TODO proper progress monitoring
 		try {
-			IFileArtifactRepository repo = (IFileArtifactRepository) new SimpleArtifactRepositoryFactory().load(repoLocation, flags, null);
+			final SimpleArtifactRepositoryFactory simpleFactory = new SimpleArtifactRepositoryFactory();
+			simpleFactory.setAgent(getAgent());
+			IFileArtifactRepository repo = (IFileArtifactRepository) simpleFactory.load(repoLocation, flags, null);
 			return new ExtensionLocationArtifactRepository(location, repo, monitor);
 		} catch (ProvisionException e) {
 			return create(location, Activator.getRepositoryName(location), ExtensionLocationArtifactRepository.TYPE, null);

@@ -161,6 +161,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 
 	public void test_248772() {
 		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
+		factory.setAgent(getAgent());
 		URI location = null;
 		location = new File(getTempFolder(), getUniqueString()).toURI();
 		factory.create(location, "test type", null, null);

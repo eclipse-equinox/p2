@@ -15,6 +15,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
@@ -24,6 +25,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
  * <tt>org.eclipse.equinox.p2.metadata.repository.metadataRepositories</tt> extension point.
  */
 public abstract class MetadataRepositoryFactory {
+	private IProvisioningAgent agent;
 
 	/**
 	 * Creates and returns a new empty metadata repository of the given type at 
@@ -41,6 +43,15 @@ public abstract class MetadataRepositoryFactory {
 	 * </ul>
 	 */
 	public abstract IMetadataRepository create(URI location, String name, String type, Map properties) throws ProvisionException;
+
+	/**
+	 * Returns the provisioning agent associated with this factory, or <code>null</code>
+	 * if this factory is not associated with an agent.
+	 * @return The provisioning agent, or <code>null</code>
+	 */
+	protected IProvisioningAgent getAgent() {
+		return agent;
+	}
 
 	/**
 	 * Loads a repository corresponding to the given URL.
@@ -72,6 +83,14 @@ public abstract class MetadataRepositoryFactory {
 	 * </ul>
 	 */
 	public abstract IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException;
+
+	/**
+	 * Sets the provisioning agent associated with this repository factory.
+	 * @param agent The provisioning agent
+	 */
+	public void setAgent(IProvisioningAgent agent) {
+		this.agent = agent;
+	}
 
 	/**
 	 * Validates a candidate repository URL and returns a status indicating the
