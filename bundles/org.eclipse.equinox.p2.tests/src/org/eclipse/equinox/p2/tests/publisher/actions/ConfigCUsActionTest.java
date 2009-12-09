@@ -24,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -84,14 +83,12 @@ public class ConfigCUsActionTest extends ActionTest {
 			if (iu.getId().equals(flavor + id + "." + cuType + "." + configSpec)) { //$NON-NLS-1$ //$NON-NLS-2$
 				assertTrue(((LDAPQuery) iu.getFilter()).getFilter().equals("(& (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))")); //$NON-NLS-1$
 				assertTrue(iu.getVersion().equals(version));
-				assertTrue(iu.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$//$NON-NLS-2$
 				assertFalse(iu.isSingleton());
 				IProvidedCapability[] providedCapabilities = iu.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + "." + cuType + "." + configSpec, version); //$NON-NLS-1$//$NON-NLS-2$
 				verifyProvidedCapability(providedCapabilities, flavor + id, id + "." + cuType, version); //$NON-NLS-1$
 				assertTrue(providedCapabilities.length == 2);
 				assertTrue(iu.getRequiredCapabilities().length == 0);
-				assertTrue(FragmentQuery.isFragment(iu));
 				return; //pass
 			}
 		}
