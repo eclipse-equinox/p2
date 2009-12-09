@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.equinox.p2.di.agentProvider">
-   <implementation class="org.eclipse.equinox.internal.p2.core.DefaultAgentProvider"/>
-   <service>
-      <provide interface="org.eclipse.equinox.p2.core.IProvisioningAgentProvider"/>
-   </service>
-</scr:component>

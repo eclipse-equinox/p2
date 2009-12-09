@@ -1,0 +1,67 @@
+condition
+	: orExpression ( '?' orExpression ':' orExpression )?
+	;
+
+orExpression : andExpression ( '||' andExpression )* ;
+
+andExpression : binaryExpression ( '&&' binaryExpression )* ;
+
+binaryExpression : notExpression ( op notExpression )?;
+
+op : '=' | '!=' | '>' | '>=' | '<' | '<=' | '~=' ;
+
+notExpression
+	: '!' notExpression
+	| collectionExpression
+	;
+
+collectionExpression
+	: memberExpression ( '.' collectionFunction )*
+	;
+
+memberExpression : constructor ( ( '.' ID ) | ( '[' memberExpression ']' ) )* ;
+
+constructor
+	: ( filter | version | range | class ) '(' unaryExpression ')'
+	| set '(' ( collectionExpression ( ',' collectionExpression )* )? ')'
+	| unaryExpression
+	;
+
+collectionFunction
+	: ( select | reject | exists | all | traverse ) '(' lambdaDefinition ')'
+	| limit '(' memberExpression ')'
+	| unique '(' memberExpression? ')'
+	| latest '(' lambdaDefinition? ')'
+	;
+
+lambdaDefinition
+	: initializer ( ',' initializer )* ( ',' '{' lambda '}' )?
+	| '{' lambda '}'
+	| lambda
+	;
+
+initializer
+	: '_'
+	| condition
+	;
+
+lambda
+	: ( ID ( ',' ID )* )? '|' condition
+	;
+
+unaryExpression
+	: '(' condition ')'
+	| '[' condition ( ',' condition )* ']' // #array construct
+	| '/' regexpPattern '/'
+	| STRING
+	| INT
+	| parameter
+	| 'null'
+	| 'true'
+	| 'false'
+	| ID
+	;
+
+parameter
+	: '$' INT | ID
+	;
