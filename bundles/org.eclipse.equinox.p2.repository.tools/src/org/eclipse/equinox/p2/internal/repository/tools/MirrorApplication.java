@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.internal.repository.mirroring.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -43,11 +44,32 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	private boolean verbose = false;
 	private boolean validate = false;
 	private String metadataOrArtifacts = null;
+	private String[] rootIUs = null;
 
 	private File mirrorLogFile; // file to log mirror output to (optional)
 	private File comparatorLogFile; // file to comparator output to (optional)
 	private IArtifactMirrorLog mirrorLog;
 	private IArtifactMirrorLog comparatorLog;
+
+	/**
+	 * Convert a list of tokens into an array. The list separator has to be
+	 * specified.
+	 */
+	public static String[] getArrayArgsFromString(String list, String separator) {
+		if (list == null || list.trim().equals("")) //$NON-NLS-1$
+			return new String[0];
+		List result = new ArrayList();
+		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
+			String token = tokens.nextToken().trim();
+			if (!token.equals("")) { //$NON-NLS-1$
+				if ((token.indexOf('[') >= 0 || token.indexOf('(') >= 0) && tokens.hasMoreTokens())
+					result.add(token + separator + tokens.nextToken());
+				else
+					result.add(token);
+			}
+		}
+		return (String[]) result.toArray(new String[result.size()]);
+	}
 
 	public Object start(IApplicationContext context) throws Exception {
 		Map args = context.getArguments();
@@ -63,7 +85,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 	/*
 	 * The old "org.eclipse.equinox.p2.artifact.repository.mirrorApplication" application only does artifacts
-	 * @see org.eclipse.core.runtime.IExecutableExtension#setInitializationData(org.eclipse.core.runtime.IConfigurationElement, java.lang.String, java.lang.Object)
+	 * Similary, "org.eclipse.equinox.p2.metadata.repository.mirrorApplication" only does metadata
 	 */
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) {
 		if (data instanceof Map && ((Map) data).containsKey(MIRROR_MODE)) {
@@ -120,6 +142,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 					destination.setAppend(false);
 			} else if (args[i - 1].equalsIgnoreCase("-log")) { //$NON-NLS-1$
 				mirrorLogLocation = new File(arg);
+			} else if (args[i - 1].equalsIgnoreCase("-roots")) { //$NON-NLS-1$
+				rootIUs = getArrayArgsFromString(arg, ","); //$NON-NLS-1$
 			} else {
 				try {
 					if (args[i - 1].equalsIgnoreCase("-source")) { //$NON-NLS-1$
@@ -233,17 +257,22 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	 * If no IUs have been specified we want to mirror them all
 	 */
 	private void initializeIUs() throws ProvisionException {
-		if (sourceIUs == null || sourceIUs.isEmpty()) {
+		IMetadataRepository metadataRepo = getCompositeMetadataRepository();
+
+		if (rootIUs != null) {
 			sourceIUs = new ArrayList();
-			IMetadataRepository metadataRepo = getCompositeMetadataRepository();
-			Collector collector = metadataRepo.query(InstallableUnitQuery.ANY, null);
-
-			for (Iterator iter = collector.iterator(); iter.hasNext();) {
-				IInstallableUnit iu = (IInstallableUnit) iter.next();
-				sourceIUs.add(iu);
+			for (int i = 0; i < rootIUs.length; i++) {
+				String[] segments = getArrayArgsFromString(rootIUs[i], "/"); //$NON-NLS-1$
+				VersionRange range = segments.length > 1 ? new VersionRange(segments[i]) : null;
+				Collector collector = metadataRepo.query(new InstallableUnitQuery(segments[i], range), null);
+				sourceIUs.addAll(collector.toCollection());
 			}
-
-			if (collector.size() == 0 && destinationMetadataRepository != null)
+		} else if (sourceIUs == null || sourceIUs.isEmpty()) {
+			sourceIUs = new ArrayList();
+			Collector collector = metadataRepo.query(InstallableUnitQuery.ANY, null);
+			sourceIUs.addAll(collector.toCollection());
+			/* old metadata mirroring app did not throw an exception here */
+			if (sourceIUs.size() == 0 && destinationMetadataRepository != null && metadataOrArtifacts == null)
 				throw new ProvisionException(Messages.MirrorApplication_no_IUs);
 		}
 	}

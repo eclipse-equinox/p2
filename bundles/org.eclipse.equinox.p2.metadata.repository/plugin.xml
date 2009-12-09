@@ -6,18 +6,7 @@
 		<filter suffix="content.xml"/>
 		<factory class="org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory"/>
    </extension>
-   <extension
-         id="mirrorApplication"
-         point="org.eclipse.core.runtime.applications">
-      <application
-            cardinality="1"
-            thread="main"
-            visible="true">
-         <run
-               class="org.eclipse.equinox.internal.p2.metadata.mirror.MirrorApplication">
-         </run>
-      </application>
-   </extension>
+
    <extension id="compositeRepository"  point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">
         <filter suffix="compositeContent.xml"/>
         <factory class="org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory"/>
@@ -34,12 +23,6 @@
 			library="ant_tasks/metadataRepository-ant.jar"
 			name="p2.composite.metadata.repository.create"
 			class="org.eclipse.equinox.internal.p2.metadata.repository.ant.CreateCompositeMetadataRepositoryTask">
-		</antTask>
-		
-   		<antTask
-			library="ant_tasks/metadataRepository-ant.jar"
-			name="p2.metadata.mirror"
-			class="org.eclipse.equinox.internal.p2.metadata.repository.ant.MirrorApplicationTask">
 		</antTask>
 		
 		<antTask

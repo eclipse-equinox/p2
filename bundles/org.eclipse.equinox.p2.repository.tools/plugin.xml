@@ -53,6 +53,12 @@
 		name="p2.artifact.mirror"
 		class="org.eclipse.equinox.p2.internal.repository.tools.tasks.MirrorArtifactsTask">
 	</antTask>
+	
+	<antTask
+		library="lib/repository-tools-ant.jar"
+		name="p2.metadata.mirror"
+		class="org.eclipse.equinox.p2.internal.repository.tools.tasks.MirrorMetadataTask">
+	</antTask>
 		
      <antTask
             class="org.eclipse.equinox.p2.internal.repository.tools.tasks.CompositeRepositoryTask"
@@ -102,5 +108,13 @@
 			</run>
 		</application>
 	</extension>
+	
+	<extension id="org.eclipse.equinox.p2.metadata.repository.mirrorApplication" point="org.eclipse.core.runtime.applications">
+		<application cardinality="1" thread="main" visible="true">
+			<run class="org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication">
+				<parameter name="metadataOrArtifacts" value="metadata" />
+			</run>
+      </application>
+   </extension>
 
 </plugin>

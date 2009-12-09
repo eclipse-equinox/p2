@@ -14,18 +14,16 @@ import java.io.File;
 import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
-import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.metadata.mirror.MirrorApplication;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.osgi.framework.Bundle;
 
 /**
  * Test API of the basic mirror application functionality's implementation.
@@ -74,43 +72,11 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 */
 	private void runMirrorApplication(String message, final String[] args) throws Exception {
 		MirrorApplication application = new MirrorApplication();
-		application.start(new IApplicationContext() {
-
-			public void applicationRunning() {
-			}
-
-			public Map getArguments() {
-				Map arguments = new HashMap();
-
-				arguments.put(IApplicationContext.APPLICATION_ARGS, args);
-
-				return arguments;
-			}
-
-			public String getBrandingApplication() {
-				return null;
-			}
-
-			public Bundle getBrandingBundle() {
-				return null;
-			}
-
-			public String getBrandingDescription() {
-				return null;
-			}
-
-			public String getBrandingId() {
-				return null;
-			}
-
-			public String getBrandingName() {
-				return null;
-			}
-
-			public String getBrandingProperty(String key) {
-				return null;
-			}
-		});
+		Map map = new HashMap();
+		map.put("metadataOrArtifacts", "metadata");
+		application.setInitializationData(null, null, map);
+		application.initializeFromArguments(args);
+		application.run(null);
 	}
 
 	/**
@@ -704,7 +670,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			runMirrorApplication("21.1", args);
 			//We expect the IllegalStateException to be thrown
 			fail("21.3 IllegalStateException not thrown");
-		} catch (IllegalStateException e) {
+		} catch (IllegalArgumentException e) {
 			return; //expected type of exception has been thrown
 		} catch (Exception e) {
 			fail("21.2", e);
@@ -723,7 +689,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			runMirrorApplication("22.1", args);
 			//We expect the IllegalStateException to be thrown
 			fail("22.3 IllegalStateException not thrown");
-		} catch (IllegalStateException e) {
+		} catch (ProvisionException e) {
 			return; //expected type of exception has been thrown
 		} catch (Exception e) {
 			fail("22.2", e);
@@ -741,7 +707,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			runMirrorApplication("23.0", args);
 			//We expect the IllegalStateException to be thrown
 			fail("23.2 IllegalStateException not thrown");
-		} catch (IllegalStateException e) {
+		} catch (IllegalArgumentException e) {
 			return; //expected type of exception has been thrown
 		} catch (Exception e) {
 			fail("23.1", e);
