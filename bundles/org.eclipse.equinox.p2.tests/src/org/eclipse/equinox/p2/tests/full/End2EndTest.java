@@ -132,7 +132,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 	}
 
 	private void rollbackPlatformSource35(IProfile profile2, File installFolder) {
-		IProfileRegistry profileRegistry = getProfileRegistry();
+		IProfileRegistry profileRegistry = (IProfileRegistry) end2endAgent.getService(IProfileRegistry.SERVICE_NAME);
 		long[] timestamps = profileRegistry.listProfileTimestamps(profile2.getProfileId());
 		assertEquals(3, timestamps.length);
 
