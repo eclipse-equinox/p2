@@ -151,21 +151,6 @@ public class ProvisioningHelper {
 	 * @param monitor A progress monitor, or <code>null</code>
 	 * @return The IUs that match the query
 	 */
-
-	public static Collector getInstallableUnits(IProfile profile, IQuery query, IProgressMonitor monitor) {
-		return profile.query(query, monitor);
-	}
-
-	/**
-	 * Returns the installable units that match the given query
-	 * in the given metadata repository.
-	 * 
-	 * @param location The location of the metadata repo to search.  <code>null</code> indicates
-	 *        search all known repos.
-	 * @param query The query to perform
-	 * @param monitor A progress monitor, or <code>null</code>
-	 * @return The IUs that match the query
-	 */
 	public static Collector getInstallableUnits(URI location, IQuery query, IProgressMonitor monitor) {
 		IQueryable queryable = null;
 		if (location == null) {
@@ -295,7 +280,7 @@ public class ProvisioningHelper {
 	public static IStatus uninstall(String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
-		Collector units = getInstallableUnits(profile, new InstallableUnitQuery(unitId, Version.create(version)), progress);
+		Collector units = profile.query(new InstallableUnitQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuffer error = new StringBuffer();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');

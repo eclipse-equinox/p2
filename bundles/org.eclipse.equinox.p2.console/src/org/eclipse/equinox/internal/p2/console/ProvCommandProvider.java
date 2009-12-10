@@ -460,7 +460,7 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println("Profile " + profileId + " not found");
 			return;
 		}
-		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(profile, new GroupQuery(), new NullProgressMonitor()));
+		IInstallableUnit[] units = sort(profile.query(new GroupQuery(), new NullProgressMonitor()));
 		// Now print out results
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
