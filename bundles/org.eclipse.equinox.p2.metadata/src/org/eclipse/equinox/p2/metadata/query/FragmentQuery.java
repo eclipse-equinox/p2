@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.query;
 
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -33,12 +34,14 @@ public final class FragmentQuery extends MatchQuery {
 	/**
 	 * Test if the {@link IInstallableUnit} is a fragment. 
 	 * @param iu the element being tested.
-	 * @return <tt>true</tt> if the parameter is a group.
+	 * @return <tt>true</tt> if the parameter is a fragment.
 	 */
 	public static boolean isFragment(IInstallableUnit iu) {
-		String value = iu.getProperty(PROP_TYPE_FRAGMENT);
-		if (value != null && (value.equals(Boolean.TRUE.toString())))
+		if (iu instanceof IInstallableUnitFragment)
 			return true;
+		//		String value = iu.getProperty(PROP_TYPE_FRAGMENT);
+		//		if (value != null && (value.equals(Boolean.TRUE.toString())))
+		//			return true;
 		return false;
 	}
 }
