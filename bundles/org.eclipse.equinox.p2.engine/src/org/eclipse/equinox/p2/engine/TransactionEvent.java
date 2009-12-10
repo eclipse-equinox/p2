@@ -13,6 +13,9 @@ package org.eclipse.equinox.p2.engine;
 import java.util.EventObject;
 import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 
+/**
+ * @since 2.0
+ */
 public abstract class TransactionEvent extends EventObject {
 	private static final long serialVersionUID = 6278706971855493984L;
 	protected IProfile profile;

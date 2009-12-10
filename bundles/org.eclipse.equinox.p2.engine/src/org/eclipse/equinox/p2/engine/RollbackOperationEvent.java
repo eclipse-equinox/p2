@@ -13,6 +13,9 @@ package org.eclipse.equinox.p2.engine;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 
+/**
+ * @since 2.0
+ */
 public class RollbackOperationEvent extends TransactionEvent {
 
 	private static final long serialVersionUID = -2076492953949691215L;
