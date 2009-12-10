@@ -15,6 +15,7 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
+import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
@@ -269,7 +270,9 @@ public abstract class AbstractApplication {
 	public IArtifactRepository getCompositeArtifactRepository() {
 		if (compositeArtifactRepository == null) {
 			try {
-				compositeArtifactRepository = new CompositeArtifactRepository(new URI("memory:/composite"), "parent artifact repo", null);//$NON-NLS-1$ //$NON-NLS-2$
+				CompositeArtifactRepositoryFactory factory = new CompositeArtifactRepositoryFactory();
+				factory.setAgent(agent);
+				compositeArtifactRepository = (CompositeArtifactRepository) factory.create(new URI("memory:/composite"), "parent artifact repo", CompositeArtifactRepository.REPOSITORY_TYPE, null);//$NON-NLS-1$ //$NON-NLS-2$
 			} catch (URISyntaxException e) {
 				//Can't happen
 			}

@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactory {
@@ -33,7 +34,13 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 	public static final String CONTENT_FILENAME = "compositeContent"; //$NON-NLS-1$
 
 	public IMetadataRepository create(URI location, String name, String type, Map properties) {
-		return new CompositeMetadataRepository(location, name, properties);
+		return new CompositeMetadataRepository(getManager(), location, name, properties);
+	}
+
+	private IMetadataRepositoryManager getManager() {
+		if (getAgent() != null)
+			return (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		return null;
 	}
 
 	/**
@@ -127,7 +134,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 					CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, CompositeMetadataRepository.PI_REPOSITORY_TYPE, sub.newChild(100));
 					if (resultState.getLocation() == null)
 						resultState.setLocation(location);
-					CompositeMetadataRepository result = new CompositeMetadataRepository(resultState);
+					CompositeMetadataRepository result = new CompositeMetadataRepository(getManager(), resultState);
 					if (Tracing.DEBUG_METADATA_PARSING) {
 						time += System.currentTimeMillis();
 						Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 

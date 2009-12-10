@@ -19,12 +19,12 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.ICompositeRepository;
@@ -46,24 +46,27 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	private List childrenURIs = new ArrayList();
 	// keep a list of the repositories that we have successfully loaded
 	private List loadedRepos = new ArrayList();
+	private IMetadataRepositoryManager manager;
 
 	/**
 	 * Create a Composite repository in memory.
 	 * @return the repository or null if unable to create one
 	 */
-	public static CompositeMetadataRepository createMemoryComposite() {
-		IMetadataRepositoryManager manager = getManager();
-		if (manager == null)
+	public static CompositeMetadataRepository createMemoryComposite(IProvisioningAgent agent) {
+		if (agent == null)
+			return null;
+		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		if (repoManager == null)
 			return null;
 		try {
 			//create a unique opaque URI 
 			long time = System.currentTimeMillis();
 			URI repositoryURI = new URI("memory:" + String.valueOf(time)); //$NON-NLS-1$
-			while (manager.contains(repositoryURI))
+			while (repoManager.contains(repositoryURI))
 				repositoryURI = new URI("memory:" + String.valueOf(++time)); //$NON-NLS-1$
 
-			CompositeMetadataRepository result = (CompositeMetadataRepository) manager.createRepository(repositoryURI, repositoryURI.toString(), IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
-			manager.removeRepository(repositoryURI);
+			CompositeMetadataRepository result = (CompositeMetadataRepository) repoManager.createRepository(repositoryURI, repositoryURI.toString(), IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
+			repoManager.removeRepository(repositoryURI);
 			return result;
 		} catch (ProvisionException e) {
 			// just return null
@@ -74,8 +77,8 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return null;
 	}
 
-	static private IMetadataRepositoryManager getManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+	private IMetadataRepositoryManager getManager() {
+		return manager;
 	}
 
 	private boolean isLocal() {
@@ -86,8 +89,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return isLocal();
 	}
 
-	CompositeMetadataRepository(URI location, String name, Map properties) {
+	CompositeMetadataRepository(IMetadataRepositoryManager manager, URI location, String name, Map properties) {
 		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
+		this.manager = manager;
 		//when creating a repository, we must ensure it exists on disk so a subsequent load will succeed
 		save();
 	}
@@ -95,8 +99,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	/*
 	 * This is only called by the parser when loading a repository.
 	 */
-	CompositeMetadataRepository(CompositeRepositoryState state) {
+	CompositeMetadataRepository(IMetadataRepositoryManager manager, CompositeRepositoryState state) {
 		super(state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
+		this.manager = manager;
 		for (int i = 0; i < state.getChildren().length; i++)
 			addChild(state.getChildren()[i], false);
 	}

@@ -105,8 +105,8 @@ public abstract class AbstractPublishTask extends Task {
 		info.setMetadataRepository(Publisher.createMetadataRepository(getProvisioningAgent(), metadataLocation, metadataRepoName, append, compress));
 
 		if (contextRepositories.size() > 0) {
-			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite();
-			CompositeArtifactRepository contextArtifact = CompositeArtifactRepository.createMemoryComposite();
+			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite(getProvisioningAgent());
+			CompositeArtifactRepository contextArtifact = CompositeArtifactRepository.createMemoryComposite(getProvisioningAgent());
 
 			for (Iterator iterator = contextRepositories.iterator(); iterator.hasNext();) {
 				RepoEntry entry = (RepoEntry) iterator.next();

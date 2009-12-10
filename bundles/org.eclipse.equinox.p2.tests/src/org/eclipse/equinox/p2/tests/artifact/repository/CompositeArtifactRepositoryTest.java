@@ -848,7 +848,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			URI childOne = new URI("memory:/in/memory/one");
 			URI childTwo = new URI("memory:/in/memory/two");
 			URI childThree = new URI("memory:/in/memory/three");
-			CompositeArtifactRepository repository = new CompositeArtifactRepository(location, "in memory test", null);
+			CompositeArtifactRepository repository = createRepository(location, "in memory test");
 			repository.addChild(childOne);
 			repository.addChild(childTwo);
 			repository.addChild(childThree);
@@ -876,7 +876,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		// create the composite repository and add the children
 		URI location = new File(temp, "comp").toURI();
-		CompositeArtifactRepository repository = new CompositeArtifactRepository(location, "test", null);
+		CompositeArtifactRepository repository = createRepository(location, "test");
 		try {
 			repository.addChild(new URI("../one"));
 			repository.addChild(new URI("../two"));
@@ -906,7 +906,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			URI location = new URI("memory:/in/memory");
 			URI one = new URI("one");
 			URI two = new URI("two");
-			CompositeArtifactRepository repository = new CompositeArtifactRepository(location, "in memory test", null);
+			CompositeArtifactRepository repository = createRepository(location, "in memory test");
 			repository.addChild(one);
 			repository.addChild(two);
 			List children = repository.getChildren();
@@ -933,7 +933,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			destination = new File(getTempFolder(), getUniqueString());
 			out = new FileOutputStream(destination);
 
-			CompositeArtifactRepository repository = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
+			CompositeArtifactRepository repository = createRepository(new URI("memory:/in/memory"), "in memory test");
 
 			IArtifactRepository childOne = getArtifactRepositoryManager().loadRepository(childLocation, null);
 			TestArtifactRepository childTwo = new TestArtifactRepository(new URI("memory:/in/memory/two"));
@@ -1003,7 +1003,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		try {
 			destination = super.createArtifactRepository(getTempFolder().toURI(), null);
 			child = new BadMirrorSite(new URI("memory:/in/memory/child"));
-			source = new CompositeArtifactRepository(new URI("memory:/in/memory/source"), "in memory test", null);
+			source = createRepository(new URI("memory:/in/memory/source"), "in memory test");
 			source.addChild(child.getLocation());
 
 			// Create mirror request
@@ -1027,6 +1027,12 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 				delete(new File(destination.getLocation()));
 			}
 		}
+	}
+
+	protected CompositeArtifactRepository createRepository(URI location, String name) {
+		CompositeArtifactRepositoryFactory factory = new CompositeArtifactRepositoryFactory();
+		factory.setAgent(getAgent());
+		return (CompositeArtifactRepository) factory.create(location, name, CompositeArtifactRepository.REPOSITORY_TYPE, null);
 	}
 
 	/*
@@ -1069,7 +1075,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			destination = new File(getTempFolder(), getUniqueString());
 			out = new FileOutputStream(destination);
 
-			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
+			source = createRepository(new URI("memory:/in/memory"), "in memory test");
 			IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "missingSize.asdf", Version.create("1.5.1.v200803061910")));
 
 			// Create 'bad' child which returns an error in transfer
@@ -1129,7 +1135,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactRepository childTwo = null;
 		try {
 			IArtifactDescriptor desc = new ArtifactDescriptor(new ArtifactKey("osgi", "a", Version.create("1.0.0")));
-			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
+			source = createRepository(new URI("memory:/in/memory"), "in memory test");
 			childOne = createChild();
 			source.addChild(childOne.getLocation());
 
@@ -1165,7 +1171,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactRepository childTwo = null;
 		try {
 			IArtifactKey desc = new ArtifactKey("osgi", "a", Version.create("1.0.0"));
-			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
+			source = createRepository(new URI("memory:/in/memory"), "in memory test");
 			childOne = createChild();
 			source.addChild(childOne.getLocation());
 
@@ -1201,7 +1207,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactRepository childTwo = null;
 
 		try {
-			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
+			source = createRepository(new URI("memory:/in/memory"), "in memory test");
 			IArtifactKey key = new ArtifactKey("classifier", "name", Version.create("1.0.0"));
 
 			childOne = createChild();
@@ -1238,7 +1244,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		IArtifactRepository childTwo = null;
 
 		try {
-			source = new CompositeArtifactRepository(new URI("memory:/in/memory"), "in memory test", null);
+			source = createRepository(new URI("memory:/in/memory"), "in memory test");
 			IArtifactKey key = new ArtifactKey("classifier", "name", Version.create("1.0.0"));
 			IArtifactDescriptor desc = new ArtifactDescriptor(key);
 

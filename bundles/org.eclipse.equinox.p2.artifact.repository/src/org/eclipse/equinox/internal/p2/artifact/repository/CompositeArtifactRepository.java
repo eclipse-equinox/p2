@@ -18,7 +18,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactComparatorFactory;
@@ -26,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.ICompositeRepository;
@@ -47,13 +47,16 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	private List childrenURIs = new ArrayList();
 	// keep a list of the repositories that we have successfully loaded
 	private List loadedRepos = new ArrayList();
+	private IArtifactRepositoryManager manager;
 
 	/**
 	 * Create a Composite repository in memory.
 	 * @return the repository or null if unable to create one
 	 */
-	public static CompositeArtifactRepository createMemoryComposite() {
-		IArtifactRepositoryManager manager = getManager();
+	public static CompositeArtifactRepository createMemoryComposite(IProvisioningAgent agent) {
+		if (agent == null)
+			return null;
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			return null;
 		try {
@@ -75,21 +78,23 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return null;
 	}
 
-	static private IArtifactRepositoryManager getManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+	private IArtifactRepositoryManager getManager() {
+		return manager;
 	}
 
 	/*
 	 * This is only called by the parser when loading a repository.
 	 */
-	public CompositeArtifactRepository(CompositeRepositoryState state) {
+	CompositeArtifactRepository(IArtifactRepositoryManager manager, CompositeRepositoryState state) {
 		super(state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
+		this.manager = manager;
 		for (int i = 0; i < state.getChildren().length; i++)
 			addChild(state.getChildren()[i], false);
 	}
 
-	public CompositeArtifactRepository(URI location, String repositoryName, Map properties) {
+	CompositeArtifactRepository(IArtifactRepositoryManager manager, URI location, String repositoryName, Map properties) {
 		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties);
+		this.manager = manager;
 		save();
 	}
 

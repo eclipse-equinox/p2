@@ -96,7 +96,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		publisherInfo.setMetadataRepository(Publisher.createMetadataRepository(agent, metadataLocation, metadataRepoName, append, compress));
 
 		if (contextMetadataRepositories != null && contextMetadataRepositories.length > 0) {
-			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite();
+			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite(agent);
 			if (contextMetadata != null) {
 				for (int i = 0; i < contextMetadataRepositories.length; i++)
 					contextMetadata.addChild(contextMetadataRepositories[i]);
@@ -105,7 +105,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			}
 		}
 		if (contextArtifactRepositories != null && contextArtifactRepositories.length > 0) {
-			CompositeArtifactRepository contextArtifact = CompositeArtifactRepository.createMemoryComposite();
+			CompositeArtifactRepository contextArtifact = CompositeArtifactRepository.createMemoryComposite(agent);
 			if (contextArtifact != null) {
 				for (int i = 0; i < contextArtifactRepositories.length; i++)
 					contextArtifact.addChild(contextArtifactRepositories[i]);
@@ -171,7 +171,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		if (list == null || list.length == 0)
 			return null;
 
-		CompositeArtifactRepository result = CompositeArtifactRepository.createMemoryComposite();
+		CompositeArtifactRepository result = CompositeArtifactRepository.createMemoryComposite(agent);
 		if (result != null) {
 			for (int i = 0; i < list.length; i++) {
 				try {
@@ -190,7 +190,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		if (list == null || list.length == 0)
 			return null;
 
-		CompositeMetadataRepository result = CompositeMetadataRepository.createMemoryComposite();
+		CompositeMetadataRepository result = CompositeMetadataRepository.createMemoryComposite(agent);
 		if (result != null) {
 			for (int i = 0; i < list.length; i++) {
 				try {
