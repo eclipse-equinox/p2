@@ -66,7 +66,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		updateCaches(newRoot, op);
 
 		int messageType = IMessageProvider.NONE;
-		boolean pageComplete = true;
+		boolean pageComplete = op != null;
 		if (currentStatus != null && !currentStatus.isOK()) {
 			messageType = IMessageProvider.INFORMATION;
 			int severity = currentStatus.getSeverity();

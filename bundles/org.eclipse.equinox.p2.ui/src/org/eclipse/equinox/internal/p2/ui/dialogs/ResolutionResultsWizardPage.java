@@ -59,6 +59,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 			this.input = new IUElementListRoot();
 		else
 			this.input = input;
+		updateStatus(input, resolvedOperation);
 	}
 
 	/*
