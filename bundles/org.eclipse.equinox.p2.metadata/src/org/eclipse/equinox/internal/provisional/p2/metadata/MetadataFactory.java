@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.ICopyright;
-
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
@@ -352,7 +350,7 @@ public class MetadataFactory {
 	 * @throws IllegalArgumentException when the <code>body</code> is <code>null</code>
 	 */
 	public static ILicense createLicense(URI location, String body) {
-		return new License(location, body);
+		return new License(location, body, null);
 	}
 
 	/**

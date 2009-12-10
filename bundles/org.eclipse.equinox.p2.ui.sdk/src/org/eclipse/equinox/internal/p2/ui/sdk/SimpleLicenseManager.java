@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.IStatus;
@@ -34,17 +33,17 @@ public class SimpleLicenseManager extends LicenseManager {
 	java.util.Set accepted = new HashSet();
 
 	public boolean accept(ILicense license) {
-		accepted.add(license.getDigest());
+		accepted.add(license.getUUID());
 		return true;
 	}
 
 	public boolean reject(ILicense license) {
-		accepted.remove(license.getDigest());
+		accepted.remove(license.getUUID());
 		return true;
 	}
 
 	public boolean isAccepted(ILicense license) {
-		return accepted.contains(license.getDigest());
+		return accepted.contains(license.getUUID());
 	}
 
 	public boolean hasAcceptedLicenses() {
@@ -83,8 +82,8 @@ public class SimpleLicenseManager extends LicenseManager {
 			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"); //$NON-NLS-1$
 			writer.println("<licenses>"); //$NON-NLS-1$
 			for (Iterator i = accepted.iterator(); i.hasNext();) {
-				BigInteger digest = (BigInteger) i.next();
-				writer.print("    " + "<license digest=\"" + digest.toString(16) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+				String digest = (String) i.next();
+				writer.print("    " + "<license digest=\"" + digest + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 			}
 		} finally {
 			writer.println("</licenses>"); //$NON-NLS-1$
@@ -110,8 +109,7 @@ public class SimpleLicenseManager extends LicenseManager {
 					NamedNodeMap atts = child.getAttributes();
 					Node digestAtt = atts.getNamedItem("digest"); //$NON-NLS-1$
 					if (digestAtt != null) {
-						BigInteger digest = new BigInteger(digestAtt.getNodeValue(), 16);
-						licenses.add(digest);
+						licenses.add(digestAtt.getNodeValue());
 					}
 				}
 			}

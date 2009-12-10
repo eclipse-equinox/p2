@@ -10,7 +10,6 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import java.math.BigInteger;
 import java.net.URI;
 
 /**
@@ -40,11 +39,9 @@ public interface ILicense {
 	 * Returns the message digest of the license body.  The digest is calculated on a normalized
 	 * version of the license where all whitespace has been reduced to one space.
 	 * 
-	 * Any SPI must maintain the same semantics as:
-	 * <code>{@link org.eclipse.equinox.internal.provisional.p2.metadata.ILicense#getDigest()}</code>
 	 * @return the message digest as a <code>BigInteger</code>, never <code>null</code>
 	 */
-	public BigInteger getDigest();
+	public String getUUID();
 
 	/**
 	 * Returns whether this license is equal to the given object.

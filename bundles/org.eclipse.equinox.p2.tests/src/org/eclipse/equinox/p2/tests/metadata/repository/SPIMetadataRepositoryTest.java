@@ -9,8 +9,6 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.p2.metadata.ICopyright;
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -546,6 +544,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		private String body;
 		private URI location;
+		private String uuid;
 
 		public SPILicense(String body, URI location) {
 			this.body = body;
@@ -556,8 +555,10 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.body;
 		}
 
-		public BigInteger getDigest() {
-			return this.calculateLicenseDigest();
+		public String getUUID() {
+			if (uuid == null)
+				uuid = this.calculateLicenseDigest().toString(16);
+			return uuid;
 		}
 
 		public URI getLocation() {
@@ -571,7 +572,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 				return false;
 			if (obj instanceof ILicense) {
 				ILicense other = (ILicense) obj;
-				if (other.getDigest().equals(getDigest()))
+				if (other.getUUID().equals(getUUID()))
 					return true;
 			}
 			return false;

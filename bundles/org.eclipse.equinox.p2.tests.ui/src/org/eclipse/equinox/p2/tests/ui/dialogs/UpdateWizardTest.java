@@ -51,7 +51,7 @@ public class UpdateWizardTest extends WizardTest {
 		iu.setVersion(Version.createOSGi(4, 0, 0));
 		iu.setSingleton(true);
 		iu.setUpdateDescriptor(update);
-		iu.setLicenses(new ILicense[] {new License(null, "Update Wizard Test License to Accept")});
+		iu.setLicenses(new ILicense[] {new License(null, "Update Wizard Test License to Accept", null)});
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});
 		mainUpgradeWithLicense = MetadataFactory.createInstallableUnit(iu);
 		createTestMetdataRepository(new IInstallableUnit[] {main, mainUpgrade1, mainUpgrade2, mainUpgradeWithLicense});

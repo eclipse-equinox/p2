@@ -45,7 +45,7 @@ public class InstallWizardTest extends WizardTest {
 		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, "true");
 		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setSingleton(true);
-		iu.setLicenses(new ILicense[] {new License(null, "There is a license to accept!")});
+		iu.setLicenses(new ILicense[] {new License(null, "There is a license to accept!", null)});
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});
 		toInstall = MetadataFactory.createInstallableUnit(iu);
 		createTestMetdataRepository(new IInstallableUnit[] {toInstall});
