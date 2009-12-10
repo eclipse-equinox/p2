@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 import java.io.File;
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.osgi.framework.*;
@@ -40,11 +41,11 @@ public class Activator implements BundleActivator {
 	}
 
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.SERVICE_NAME);
+		return (IArtifactRepositoryManager) ((IProvisioningAgent) ServiceHelper.getService(context, IProvisioningAgent.SERVICE_NAME)).getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
 	public static IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.SERVICE_NAME);
+		return (IMetadataRepositoryManager) ((IProvisioningAgent) ServiceHelper.getService(context, IProvisioningAgent.SERVICE_NAME)).getService(IMetadataRepositoryManager.SERVICE_NAME);
 	}
 
 	public static URI getDefaultRepositoryLocation(Object object, String repositoryName) {

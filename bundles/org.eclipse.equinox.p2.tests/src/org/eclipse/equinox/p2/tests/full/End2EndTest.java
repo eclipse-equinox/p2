@@ -26,6 +26,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -48,25 +50,19 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	private static URI repositoryLocation = URI.create("http://download.eclipse.org/eclipse/updates/3.5");
 
-	protected void setUp() throws Exception {
-		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.SERVICE_NAME);
-		if (sr == null)
-			throw new RuntimeException("Director service not available");
-		director = createDirector();
-		//		planner = createPlanner();
-		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
-		metadataRepoManager = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
-		if (metadataRepoManager == null)
-			throw new RuntimeException("Metadata repository manager could not be loaded");
+	private IProvisioningAgent end2endAgent = null;
 
-		ServiceReference sr3 = TestActivator.context.getServiceReference(IArtifactRepositoryManager.SERVICE_NAME);
-		artifactRepoManager = (IArtifactRepositoryManager) TestActivator.context.getService(sr3);
-		if (artifactRepoManager == null)
-			throw new RuntimeException("Artifact repo manager could not be loaded");
+	protected void setUp() throws Exception {
+		ServiceReference sr = TestActivator.context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		IProvisioningAgentProvider agentFactory = (IProvisioningAgentProvider) TestActivator.context.getService(sr);
+		end2endAgent = agentFactory.createAgent(getTempFolder().toURI());
+		metadataRepoManager = (IMetadataRepositoryManager) end2endAgent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		artifactRepoManager = (IArtifactRepositoryManager) end2endAgent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		director = (IDirector) end2endAgent.getService(IDirector.SERVICE_NAME);
 	}
 
 	protected IProfile createProfile(String profileId, String installFolder) {
-		IProfileRegistry profileRegistry = getProfileRegistry();
+		IProfileRegistry profileRegistry = (IProfileRegistry) end2endAgent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null) {
 			throw new RuntimeException("Profile registry service not available");
 		}
@@ -78,7 +74,11 @@ public class End2EndTest extends AbstractProvisioningTest {
 			properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
 		properties.put("org.eclipse.update.install.features", "true");
 		properties.put(IProfile.PROP_CACHE, installFolder);
-		return createProfile(profileId, properties);
+		try {
+			return profileRegistry.addProfile(profileId, properties);
+		} catch (ProvisionException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
 	}
 
 	public void testInstallSDK35() {
