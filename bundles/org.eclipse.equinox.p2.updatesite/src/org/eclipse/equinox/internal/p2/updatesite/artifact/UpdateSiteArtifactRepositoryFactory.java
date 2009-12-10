@@ -40,7 +40,6 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 
 	private static final String PROP_ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 	private static final String PROP_FORCE_THREADING = "eclipse.p2.force.threading"; //$NON-NLS-1$
-	private static final String PROP_FORMAT_PACKED = "packed"; //$NON-NLS-1$
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
@@ -119,7 +118,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 				featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString() + PACK_EXT);
 				ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 				featureArtifactDescriptor.setProcessingSteps(steps);
-				featureArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, PROP_FORMAT_PACKED);
+				featureArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 				allSiteArtifacts.add(featureArtifactDescriptor);
 			}
 
@@ -141,7 +140,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 						artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString() + PACK_EXT);
 						ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 						artifactDescriptor.setProcessingSteps(steps);
-						artifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, PROP_FORMAT_PACKED);
+						artifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 						allSiteArtifacts.add(artifactDescriptor);
 					}
 				}

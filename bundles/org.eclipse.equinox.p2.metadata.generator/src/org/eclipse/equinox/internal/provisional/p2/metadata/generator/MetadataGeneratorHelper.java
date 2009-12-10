@@ -182,7 +182,6 @@ public class MetadataGeneratorHelper {
 	 * @deprecated moved to AbstractPublishingAction
 	 */
 	public static IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk, String installSize) {
-		final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
 		//TODO this size calculation is bogus
 		ArtifactDescriptor result = new ArtifactDescriptor(key);
 		if (pathOnDisk != null) {
@@ -192,7 +191,7 @@ public class MetadataGeneratorHelper {
 		}
 		ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 		result.setProcessingSteps(steps);
-		result.setProperty(IArtifactDescriptor.FORMAT, PACKED_FORMAT);
+		result.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 		return result;
 	}
 

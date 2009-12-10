@@ -251,7 +251,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 
 			// Create a descriptor for a packed repo
 			ArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("org.eclipse.update.feature", "test", Version.parseVersion("1.0.0")));
-			descriptor.setProperty(IArtifactDescriptor.FORMAT, "packed");
+			descriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 			descriptor.setProcessingSteps(new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)});
 
 			// Create repository
@@ -358,7 +358,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		ArtifactDescriptor d1 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("1.0.0")));
 		ArtifactDescriptor d2 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
 		ArtifactDescriptor d3 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
-		d3.setProperty(IArtifactDescriptor.FORMAT, "packed");
+		d3.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 
 		repo.addDescriptor(d1);
 		repo.addDescriptor(d2);
@@ -371,7 +371,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(2, result.size());
 		assertFalse(result.toCollection().contains(d1));
 
-		result = repo.query(new ArtifactDescriptorQuery(null, null, "packed"), null);
+		result = repo.query(new ArtifactDescriptorQuery(null, null, IArtifactDescriptor.FORMAT_PACKED), null);
 		assertEquals(1, result.size());
 		assertTrue(result.toCollection().contains(d3));
 	}
@@ -386,7 +386,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		key = new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0"));
 		collection.add(new ArtifactDescriptor(key));
 		ArtifactDescriptor d = new ArtifactDescriptor(key);
-		d.setProperty(IArtifactDescriptor.FORMAT, "packed");
+		d.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 		collection.add(d);
 		map.put(key, collection);
 
@@ -430,7 +430,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		key = new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0"));
 		collection.add(new ArtifactDescriptor(key));
 		ArtifactDescriptor d = new ArtifactDescriptor(key);
-		d.setProperty(IArtifactDescriptor.FORMAT, "packed");
+		d.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 		collection.add(d);
 		map.put(key, collection);
 

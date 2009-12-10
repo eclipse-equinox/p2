@@ -900,7 +900,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			IArtifactDescriptor[] srcDescriptors = packedRepo.getArtifactDescriptors(key);
 
 			for (int j = 0; j < srcDescriptors.length; j++) {
-				if (!(srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT) == null) && srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT).equals("packed")) {
+				if (!(srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT) == null) && srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT).equals(IArtifactDescriptor.FORMAT_PACKED)) {
 					//if we have a packed artifact
 					IArtifactDescriptor newDescriptor = new ArtifactDescriptor(key);
 					Map properties = new OrderedProperties();

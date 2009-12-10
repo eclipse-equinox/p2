@@ -753,7 +753,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 
 		// Should have a packed & canonical version
 		assertEquals(2, descriptors.length);
-		IArtifactDescriptor desc = "packed".equals(descriptors[0].getProperty("format")) ? descriptors[0] : descriptors[1];
+		IArtifactDescriptor desc = IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[0].getProperty(IArtifactDescriptor.FORMAT)) ? descriptors[0] : descriptors[1];
 		OutputStream out = null;
 		try {
 			out = new FileOutputStream(output);
@@ -798,7 +798,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			IArtifactDescriptor[] descriptors = sourceRepo.getArtifactDescriptors(key);
 			IArtifactDescriptor descriptor = null;
 			for (int i = 0; i < descriptors.length && descriptor == null; i++)
-				if ("packed".equals(descriptors[i].getProperty("format")))
+				if (IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[i].getProperty(IArtifactDescriptor.FORMAT)))
 					descriptor = descriptors[i];
 
 			if (descriptor == null)

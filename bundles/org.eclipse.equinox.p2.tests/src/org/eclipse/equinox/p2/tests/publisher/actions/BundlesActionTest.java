@@ -152,7 +152,7 @@ public class BundlesActionTest extends ActionTest {
 
 		int packedIdx;
 		int canonicalIdx;
-		if ("packed".equals(descriptors[0].getProperty(IArtifactDescriptor.FORMAT))) {
+		if (IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[0].getProperty(IArtifactDescriptor.FORMAT))) {
 			packedIdx = 0;
 			canonicalIdx = 1;
 		} else {

@@ -130,7 +130,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 				else
 					assertFalse(desc + " is a folder", isFolder);
 				// Artifacts should not be packed
-				assertTrue("Artifact is still packed", !"packed".equals(desc.getProperty("format")));
+				assertTrue("Artifact is still packed", !IArtifactDescriptor.FORMAT_PACKED.equals(desc.getProperty(IArtifactDescriptor.FORMAT)));
 			}
 		}
 		return true;

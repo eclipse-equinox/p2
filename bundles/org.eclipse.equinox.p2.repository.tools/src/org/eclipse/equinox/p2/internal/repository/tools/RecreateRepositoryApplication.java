@@ -141,7 +141,6 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 	}
 
 	private ArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File packFile, String installSize) {
-		final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
 
 		if (packFile != null && packFile.exists()) {
 			ArtifactDescriptor result = new ArtifactDescriptor(key);
@@ -149,7 +148,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(packFile.length()));
 			ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 			result.setProcessingSteps(steps);
-			result.setProperty(IArtifactDescriptor.FORMAT, PACKED_FORMAT);
+			result.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 			return result;
 		}
 		return null;

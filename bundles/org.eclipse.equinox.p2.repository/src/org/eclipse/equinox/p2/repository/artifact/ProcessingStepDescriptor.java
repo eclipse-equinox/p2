@@ -11,7 +11,13 @@
 package org.eclipse.equinox.p2.repository.artifact;
 
 /**
- * The description of a processor step.
+ * Describes a processing step. Processing steps are pieces of code that participate
+ * in the the transfer of an artifact between artifact repositories. A step may alter
+ * the shape of the artifact from its storage format in the repository (such as performing
+ * compression), or it may perform additional checks on the transferred bytes such as 
+ * checksums or signature verification.
+ * 
+ * @see IArtifactDescriptor#getProcessingSteps()
  * @since 2.0
  */
 public class ProcessingStepDescriptor {
@@ -34,6 +40,11 @@ public class ProcessingStepDescriptor {
 		this.required = required;
 	}
 
+	/**
+	 * Returns the fully qualified id of the processing step extension.
+	 * 
+	 * @return The fully qualified processing step extension id
+	 */
 	public String getProcessorId() {
 		return processorId;
 	}
@@ -42,6 +53,16 @@ public class ProcessingStepDescriptor {
 		return data;
 	}
 
+	/**
+	 * Returns whether the successful execution of this processing step is
+	 * required for the transfer to be successful. If the processing step extension
+	 * is not installed, or fails to execute, then the artifact transfer will fail if the
+	 * step is required. Failure of optional steps will result in warnings but not prevent
+	 * the transfer from succeeding.
+	 * 
+	 * @return <code>true</code> if the transfer will fail if this step does not succeed,
+	 * and <code>false</code> otherwise
+	 */
 	public boolean isRequired() {
 		return required;
 	}
@@ -84,6 +105,9 @@ public class ProcessingStepDescriptor {
 		return true;
 	}
 
+	/**
+	 * Returns a string representation of this descriptor for debugging purposes only.
+	 */
 	public String toString() {
 		return "Processor: " + processorId + (required ? "(req)" : "(notReq)") + " ,data: " + data; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 	}

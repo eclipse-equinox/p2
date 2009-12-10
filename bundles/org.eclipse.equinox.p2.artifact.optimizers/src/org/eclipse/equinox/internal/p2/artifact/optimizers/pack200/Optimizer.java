@@ -25,7 +25,6 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 public class Optimizer {
-	private static final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
 	private IArtifactRepository repository;
 
 	public Optimizer(IArtifactRepository repository) {
@@ -64,7 +63,7 @@ public class Optimizer {
 		ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
 		ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 		newDescriptor.setProcessingSteps(steps);
-		newDescriptor.setProperty(IArtifactDescriptor.FORMAT, PACKED_FORMAT);
+		newDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 		OutputStream repositoryStream = null;
 		try {
 			repositoryStream = repository.getOutputStream(newDescriptor);
@@ -101,7 +100,7 @@ public class Optimizer {
 	}
 
 	private boolean isOptimized(IArtifactDescriptor descriptor) {
-		return PACKED_FORMAT.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT));
+		return IArtifactDescriptor.FORMAT_PACKED.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT));
 	}
 
 }

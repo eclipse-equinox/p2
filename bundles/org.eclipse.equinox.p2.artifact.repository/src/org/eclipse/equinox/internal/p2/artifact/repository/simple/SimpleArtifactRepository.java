@@ -209,7 +209,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private transient BlobStore blobStore;
 	transient private Mapper mapper = new Mapper();
 
-	static final private String PACKED_FORMAT = "packed"; //$NON-NLS-1$
 	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 
 	private static final int DEFAULT_MAX_THREADS = 4;
@@ -643,7 +642,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * this arrangement "flat but packed".
 	 */
 	private boolean flatButPackedEnabled(IArtifactDescriptor descriptor) {
-		return Boolean.TRUE.toString().equals(getProperties().get(PUBLISH_PACK_FILES_AS_SIBLINGS)) && PACKED_FORMAT.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT));
+		return Boolean.TRUE.toString().equals(getProperties().get(PUBLISH_PACK_FILES_AS_SIBLINGS)) && IArtifactDescriptor.FORMAT_PACKED.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT));
 	}
 
 	/**
