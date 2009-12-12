@@ -22,12 +22,10 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.ql.ExpressionQuery;
-import org.eclipse.equinox.p2.ql.PredicateQuery;
+import org.eclipse.equinox.p2.ql.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.ql.TestQueryReimplementation.CapabilityQuery;
 
 public class PerformanceTest extends AbstractProvisioningTest {
 	public void testCapabilityQueryPerformance() throws Exception {
@@ -35,7 +33,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		IRequiredCapability capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
-		PredicateQuery predicateQuery = new PredicateQuery("item ~= $0", capability);
+		QLMatchQuery predicateQuery = new QLMatchQuery("item ~= $0", capability);
 		Collector result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
@@ -63,13 +61,11 @@ public class PerformanceTest extends AbstractProvisioningTest {
 	public void testCapabilityQueryPerformance2() throws Exception {
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
+		IQueryable qaRepo = new QueryableArray(gatherAvailableInstallableUnits(repo));
 
-		IRequiredCapability[] capabilities = new IRequiredCapability[] {//
-		MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false), //
-				MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.localization", "df_LT", new VersionRange("[1.0.0,2.0.0)"), null, false, false)//
-		};
-		CapabilityQuery capabilityQuery = new CapabilityQuery(capabilities);
-		PredicateQuery predicateQuery = new PredicateQuery("$0.all(rq | item ~= rq)", capabilities);
+		IRequiredCapability capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
+		QLContextQuery exprQuery = new QLContextQuery("capabilityIndex(everything)");
+		exprQuery = new QLContextQuery("$0.satisfiesAny([$1])", exprQuery.query(QL.newQueryContext(qaRepo)), capability);
 		Collector result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
@@ -77,15 +73,15 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		for (int i = 0; i < 5; ++i) {
 			long start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
-				result = repo.query(capabilityQuery, new NullProgressMonitor());
-				assertEquals(result.size(), 446);
+				result = qaRepo.query(capability, new NullProgressMonitor());
+				assertEquals(result.size(), 487);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
-				result = repo.query(predicateQuery, new NullProgressMonitor());
-				assertEquals(result.size(), 446);
+				result = qaRepo.query(exprQuery, new NullProgressMonitor());
+				assertEquals(result.size(), 487);
 			}
 			exprQueryMS += (System.currentTimeMillis() - start);
 		}
@@ -99,7 +95,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		IUPropertyQuery propertyQuery = new IUPropertyQuery("df_LT.providerName", "Eclipse.org");
-		PredicateQuery predicateQuery = new PredicateQuery("properties[$0] == $1", "df_LT.providerName", "Eclipse.org");
+		QLMatchQuery predicateQuery = new QLMatchQuery("properties[$0] == $1", "df_LT.providerName", "Eclipse.org");
 		Collector result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
@@ -136,14 +132,14 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		assertTrue(itor.hasNext());
 		IInstallableUnit[] roots = new IInstallableUnit[] {(IInstallableUnit) itor.next()};
 
-		IQuery query = new ExpressionQuery("" + //
-				"$0.traverse(capabilityIndex(everything), _, {index, parent | " + //
-				"index.satisfiesAny(parent.requiredCapabilities.select(rc | rc.filter == null || $1 ~= filter(rc.filter)))})", roots, env);
+		IQuery query = new QLContextQuery("" + //
+				"$0.traverse(set(), capabilityIndex(everything), _, {rqCache, index, parent | " + //
+				"index.satisfiesAny(parent.requiredCapabilities.unique(rqCache).select(rc | rc.filter == null || $1 ~= filter(rc.filter)))})", roots, env);
 
 		long sliceTime = 0;
 		long traverseTime = 0;
 		IQueryable slice = null;
-		for (int idx = 0; idx < 20; ++idx) {
+		for (int idx = 0; idx < 100; ++idx) {
 			long startTime = System.currentTimeMillis();
 			c = repo.query(query, new NullProgressMonitor());
 			traverseTime += (System.currentTimeMillis() - startTime);
@@ -152,17 +148,19 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			startTime = System.currentTimeMillis();
 			Slicer slicer = new Slicer(new QueryableArray(gatherAvailableInstallableUnits(repo)), env, false);
 			slice = slicer.slice(roots, new NullProgressMonitor());
-			c = slice.query(new MatchQuery() {
-				public boolean isMatch(Object value) {
-					return true;
-				}
-			}, new NullProgressMonitor());
 			sliceTime += (System.currentTimeMillis() - startTime);
-			assertEquals(c.size(), 411);
 		}
-		System.out.print("20 * Slicing took: ");
+		// Check the size of the last slice to verify that it's the same as the traverse size
+		c = slice.query(new MatchQuery() {
+			public boolean isMatch(Object value) {
+				return true;
+			}
+		}, new NullProgressMonitor());
+		assertEquals(c.size(), 411);
+
+		System.out.print("100 * Slicing took: ");
 		System.out.println(sliceTime);
-		System.out.print("20 * Indexed Traverse expression took: ");
+		System.out.print("100 * Indexed Traverse expression took: ");
 		System.out.println(traverseTime);
 		System.out.println();
 	}

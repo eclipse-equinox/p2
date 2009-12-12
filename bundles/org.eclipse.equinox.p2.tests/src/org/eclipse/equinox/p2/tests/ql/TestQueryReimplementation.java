@@ -10,25 +10,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ql;
 
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.ql.ExpressionParser;
-import org.eclipse.equinox.internal.p2.ql.ItemExpression;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
-import org.eclipse.equinox.p2.ql.PredicateQuery;
+import org.eclipse.equinox.p2.ql.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class TestQueryReimplementation extends AbstractProvisioningTest {
 
-	public static class UpdateQuery extends PredicateQuery {
-		private static final ItemExpression expr1;
-		private static final ItemExpression expr2;
+	public static class UpdateQuery extends QLMatchQuery {
+		private static final IMatchExpression expr1;
+		private static final IMatchExpression expr2;
 
 		static {
-			ExpressionParser parser = new ExpressionParser();
+			IExpressionParser parser = QL.newParser();
 
 			// This expression is used in case the updateFrom is an IInstallableUnitPatch
 			//
@@ -47,26 +44,26 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		}
 	}
 
-	public static class IUPropertyQuery extends PredicateQuery {
-		private static final ItemExpression expr = new ExpressionParser().parsePredicate("properties[$0] == $1");
+	public static class IUPropertyQuery extends QLMatchQuery {
+		private static final IMatchExpression expr = QL.newParser().parsePredicate("properties[$0] == $1");
 
 		public IUPropertyQuery(String propertyName, String propertyValue) {
 			super(IInstallableUnit.class, expr, new Object[] {propertyName, propertyValue});
 		}
 	}
 
-	public static class InstallableUnitQuery extends PredicateQuery {
+	public static class InstallableUnitQuery extends QLMatchQuery {
 		/**
 		 * A convenience query that will match any {@link IInstallableUnit}
 		 * it encounters.
 		 */
-		public static final PredicateQuery ANY = new PredicateQuery("");
+		public static final QLMatchQuery ANY = new QLMatchQuery("");
 
-		private static final ItemExpression idVersionQuery;
-		private static final ItemExpression idRangeQuery;
+		private static final IMatchExpression idVersionQuery;
+		private static final IMatchExpression idRangeQuery;
 
 		static {
-			ExpressionParser parser = new ExpressionParser();
+			IExpressionParser parser = QL.newParser();
 			idVersionQuery = parser.parsePredicate("($0 == null || $0 == id) && ($1 == null || $1 == version)");
 			idRangeQuery = parser.parsePredicate("($0 == null || $0 == id) && ($1 == null || version ~= $1)");
 		}
@@ -111,39 +108,6 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		 */
 		public InstallableUnitQuery(IVersionedId versionedId) {
 			this(versionedId.getId(), versionedId.getVersion());
-		}
-	}
-
-	/**
-	 * A query that searches for {@link IInstallableUnit} instances that provide
-	 * capabilities that match one or more required capabilities.
-	 */
-	public static class CapabilityQuery extends PredicateQuery {
-		private static final ItemExpression oneCapabilityQuery;
-		private static final ItemExpression anyCapabilityQuery;
-
-		static {
-			ExpressionParser parser = new ExpressionParser();
-			oneCapabilityQuery = parser.parsePredicate("item ~= $1");
-			anyCapabilityQuery = parser.parsePredicate("$1.exists(x | item ~= x)");
-		}
-
-		/**
-		 * Creates a new query on the given required capability.
-		 * @param required The required capability
-		 */
-		public CapabilityQuery(IRequiredCapability required) {
-			super(oneCapabilityQuery, new Object[] {required});
-		}
-
-		/**
-		 * Creates a new query on the given required capabilities. The installable
-		 * unit must provide capabilities that match all of the given required capabilities
-		 * for this query to be satisfied.
-		 * @param required The required capabilities
-		 */
-		public CapabilityQuery(IRequiredCapability[] required) {
-			super(anyCapabilityQuery, new Object[] {required});
 		}
 	}
 

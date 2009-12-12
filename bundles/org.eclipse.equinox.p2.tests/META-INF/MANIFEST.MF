@@ -24,7 +24,6 @@ Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.p2.metadata.repository.io,
  org.eclipse.equinox.internal.p2.persistence,
  org.eclipse.equinox.internal.p2.publisher.eclipse,
- org.eclipse.equinox.internal.p2.ql,
  org.eclipse.equinox.internal.p2.touchpoint.eclipse,
  org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions,
  org.eclipse.equinox.internal.p2.touchpoint.natives,
@@ -80,7 +79,8 @@ Require-Bundle: org.eclipse.equinox.p2.metadata.generator,
  org.eclipse.equinox.p2.repository;bundle-version="1.0.0",
  org.eclipse.equinox.p2.tests.verifier;bundle-version="1.0.0",
  org.eclipse.equinox.security;bundle-version="1.0.0",
- org.eclipse.equinox.p2.engine;bundle-version="2.0.0"
+ org.eclipse.equinox.p2.engine;bundle-version="2.0.0",
+ org.eclipse.equinox.p2.ql
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
