@@ -21,12 +21,9 @@ public abstract class MatchIteratorFilter implements Iterator {
 
 	private final Iterator innerIterator;
 
-	private final Class instanceClass;
-
 	private Object nextObject = NO_ELEMENT;
 
-	public MatchIteratorFilter(Class instanceClass, Iterator iterator) {
-		this.instanceClass = instanceClass;
+	public MatchIteratorFilter(Iterator iterator) {
 		this.innerIterator = iterator;
 	}
 
@@ -47,6 +44,10 @@ public abstract class MatchIteratorFilter implements Iterator {
 		throw new UnsupportedOperationException();
 	}
 
+	protected Iterator getInnerIterator() {
+		return innerIterator;
+	}
+
 	protected abstract boolean isMatch(Object val);
 
 	private boolean positionNext() {
@@ -55,7 +56,7 @@ public abstract class MatchIteratorFilter implements Iterator {
 
 		while (innerIterator.hasNext()) {
 			Object nxt = innerIterator.next();
-			if (instanceClass.isInstance(nxt) && isMatch(nxt)) {
+			if (isMatch(nxt)) {
 				nextObject = nxt;
 				return true;
 			}

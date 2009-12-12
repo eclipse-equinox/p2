@@ -12,65 +12,85 @@ package org.eclipse.equinox.internal.p2.ql;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.ql.CapabilityIndexFunction.IUCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ql.ICapabilityIndex;
 
 /**
  * An in-memory implementation of a CapabilityIndex based on a Map.
  */
-public class CapabilityIndex {
+public class CapabilityIndex implements ICapabilityIndex {
 
 	private final Map capabilityMap;
 
-	public CapabilityIndex(Map capabilityMap) {
-		this.capabilityMap = capabilityMap;
-	}
+	private static class IUCapability {
+		final IInstallableUnit iu;
+		final IProvidedCapability capability;
 
-	public Collection satisfiesAny(Object value) {
-		if (value instanceof IRequiredCapability) {
-			List collector = new ArrayList();
-			collectMatchingIUs((IRequiredCapability) value, collector);
-			return collector;
-		} else if (value instanceof Iterator) {
-			Iterator itor = (Iterator) value;
-			if (!itor.hasNext())
-				return Collections.EMPTY_LIST;
-			List collector = new ArrayList();
-			do {
-				Object nxt = itor.next();
-				if (!(nxt instanceof IRequiredCapability))
-					throw new IllegalArgumentException();
-				collectMatchingIUs((IRequiredCapability) nxt, collector);
-			} while (itor.hasNext());
-			return collector;
+		IUCapability(IInstallableUnit iu, IProvidedCapability capability) {
+			this.iu = iu;
+			this.capability = capability;
 		}
-		throw new IllegalArgumentException();
 	}
 
-	public Collection satisfiesAll(Object value) {
-		if (value instanceof IRequiredCapability) {
-			List collector = new ArrayList();
-			collectMatchingIUs((IRequiredCapability) value, collector);
-			return collector;
-		} else if (value instanceof Iterator) {
-			Iterator itor = (Iterator) value;
-			if (!itor.hasNext())
-				return Collections.EMPTY_LIST;
+	public CapabilityIndex(Iterator itor) {
+		HashMap index = new HashMap();
+		while (itor.hasNext()) {
+			IInstallableUnit iu = (IInstallableUnit) itor.next();
+			IProvidedCapability[] pcs = iu.getProvidedCapabilities();
+			int idx = pcs.length;
+			while (--idx >= 0) {
+				IProvidedCapability pc = pcs[idx];
+				IUCapability iuCap = new IUCapability(iu, pc);
+				String name = pc.getName();
+				Object prev = index.put(name, iuCap);
+				if (prev != null) {
+					ArrayList lst;
+					if (prev instanceof ArrayList)
+						lst = (ArrayList) prev;
+					else {
+						lst = new ArrayList(4);
+						lst.add(prev);
+					}
+					lst.add(iuCap);
+					index.put(name, lst);
+				}
+			}
+		}
+		this.capabilityMap = index;
+	}
 
-			Set collector = new HashSet();
-			Object nxt = itor.next();
+	public Iterator satisfiesAny(Iterator requirements) {
+		if (!requirements.hasNext())
+			return Collections.EMPTY_LIST.iterator();
+
+		List collector = new ArrayList();
+		do {
+			Object nxt = requirements.next();
 			if (!(nxt instanceof IRequiredCapability))
 				throw new IllegalArgumentException();
 			collectMatchingIUs((IRequiredCapability) nxt, collector);
+		} while (requirements.hasNext());
+		return collector.iterator();
+	}
 
-			while (itor.hasNext() && !collector.isEmpty()) {
-				nxt = itor.next();
-				if (!(nxt instanceof IRequiredCapability))
-					throw new IllegalArgumentException();
-				collector = retainMatchingIUs((IRequiredCapability) nxt, collector);
-			}
-			return collector;
+	public Iterator satisfiesAll(Iterator requirements) {
+		if (!requirements.hasNext())
+			return Collections.EMPTY_LIST.iterator();
+
+		Set collector = new HashSet();
+		Object nxt = requirements.next();
+		if (!(nxt instanceof IRequiredCapability))
+			throw new IllegalArgumentException();
+		collectMatchingIUs((IRequiredCapability) nxt, collector);
+
+		while (requirements.hasNext() && !collector.isEmpty()) {
+			nxt = requirements.next();
+			if (!(nxt instanceof IRequiredCapability))
+				throw new IllegalArgumentException();
+			collector = retainMatchingIUs((IRequiredCapability) nxt, collector);
 		}
-		throw new IllegalArgumentException();
+		return collector.iterator();
 	}
 
 	private void collectMatchingIUs(IRequiredCapability rc, Collection collector) {
