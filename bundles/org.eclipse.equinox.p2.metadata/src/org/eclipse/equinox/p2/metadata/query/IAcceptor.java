@@ -10,7 +10,9 @@
 package org.eclipse.equinox.p2.metadata.query;
 
 /**
- * @author irbull
+ * An IAcceptor processes objects that satisfy a query.
+ * 
+ * @since 2.0
  *
  */
 public interface IAcceptor {

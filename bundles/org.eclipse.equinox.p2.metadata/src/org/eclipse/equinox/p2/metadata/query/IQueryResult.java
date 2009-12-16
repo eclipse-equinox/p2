@@ -15,6 +15,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 
 /**
  * An IQueryResult represents the results of a query.  
+ * @since 2.0
  *
  */
 public interface IQueryResult extends IQueryable {
