@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.ql.IQueryContext;
 import org.eclipse.equinox.p2.ql.ITranslationSupport;
 
@@ -21,7 +22,7 @@ public class QueryContext implements IQueryContext {
 	public QueryContext(Iterator iterator) {
 		final IRepeatableIterator repeatable = RepeatableIterator.create(iterator);
 		this.queryable = new IQueryable() {
-			public Collector query(IQuery query, IProgressMonitor monitor) {
+			public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 				return query.perform(repeatable.getCopy(), new Collector());
 			}
 		};
