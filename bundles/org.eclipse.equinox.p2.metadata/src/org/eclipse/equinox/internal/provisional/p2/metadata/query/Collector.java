@@ -16,7 +16,8 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.Messages;
-import org.eclipse.equinox.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * A collector is a generic visitor that collects objects passed to it,
@@ -27,7 +28,7 @@ import org.eclipse.equinox.p2.metadata.query.*;
  * This default collector just accepts all objects passed to it.  Clients may subclass
  * to perform different processing on the objects passed to it.
  */
-public class Collector implements IQueryResult, IAcceptor {
+public class Collector implements IQueryResult {
 	private Set collected = null;
 
 	/**
