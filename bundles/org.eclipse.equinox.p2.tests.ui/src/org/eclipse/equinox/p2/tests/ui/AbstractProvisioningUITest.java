@@ -63,6 +63,8 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		ui = ProvisioningUI.getDefaultUI();
 		ui = new ProvisioningUI(ui.getSession(), TESTPROFILE, ui.getPolicy());
 		ui.getOperationRunner().suppressRestart(true);
+		// to squelch repo error reporting
+		ui.getPolicy().setRepositoriesVisible(false);
 		profile = createProfile(TESTPROFILE);
 		profileElement = new ProfileElement(null, TESTPROFILE);
 		install((top1 = createIU(TOPLEVELIU, Version.create("1.0.0"))), true, false);
