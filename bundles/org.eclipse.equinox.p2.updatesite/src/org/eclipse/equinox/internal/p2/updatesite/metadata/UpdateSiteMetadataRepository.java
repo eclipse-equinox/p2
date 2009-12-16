@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -99,7 +100,7 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 		return delegate.getAdapter(adapter);
 	}
 
-	public Collector query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		return delegate.query(query, monitor);
 	}
 }

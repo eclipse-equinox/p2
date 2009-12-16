@@ -17,10 +17,10 @@ import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug252682 extends AbstractProvisioningTest {
@@ -45,7 +45,7 @@ public class Bug252682 extends AbstractProvisioningTest {
 	public void testInstallFeaturePatch() {
 		IInstallableUnit p2Feature = (IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.user.ui.feature.group"), new NullProgressMonitor()).iterator().next();
 		System.out.println(p2Feature);
-		Collector c = profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.core.patch"), new NullProgressMonitor());
+		IQueryResult c = profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.core.patch"), new NullProgressMonitor());
 		assertEquals(1, c.size());
 		ProvisioningContext ctx = new ProvisioningContext();
 		ctx.setExtraIUs(newIUs);

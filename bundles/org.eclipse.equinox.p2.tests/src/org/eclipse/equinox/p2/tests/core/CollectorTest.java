@@ -15,6 +15,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -67,11 +68,11 @@ public class CollectorTest extends AbstractProvisioningTest {
 				return false;
 			}
 		};
-		Collector collector = numeric.perform(list.iterator(), new Collector());
-		assertEquals("1.0", 7, collector.toCollection().size());
+		IQueryResult queryResult = numeric.perform(list.iterator(), new Collector());
+		assertEquals("1.0", 7, queryResult.toCollection().size());
 
-		collector = collector.query(fourOrFiveOrABC, null);
-		Collection collection = collector.toCollection();
+		queryResult = queryResult.query(fourOrFiveOrABC, null);
+		Collection collection = queryResult.toCollection();
 		assertEquals("2.0", 2, collection.size());
 		assertTrue("2.1", collection.contains("4"));
 		assertTrue("2.2", collection.contains("5"));
@@ -130,11 +131,11 @@ public class CollectorTest extends AbstractProvisioningTest {
 				return false;
 			}
 		};
-		Collector collector = eightOrNine.perform(list.iterator(), new Collector());
-		assertEquals("1.0", 0, collector.toCollection().size());
+		IQueryResult queryResult = eightOrNine.perform(list.iterator(), new Collector());
+		assertEquals("1.0", 0, queryResult.toCollection().size());
 
-		collector = collector.query(fourOrFiveOrABC, null);
-		Collection collection = collector.toCollection();
+		queryResult = queryResult.query(fourOrFiveOrABC, null);
+		Collection collection = queryResult.toCollection();
 		assertEquals("2.0", 0, collection.size());
 	}
 

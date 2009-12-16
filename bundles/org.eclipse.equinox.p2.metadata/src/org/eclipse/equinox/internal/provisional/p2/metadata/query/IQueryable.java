@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
@@ -32,5 +34,5 @@ public interface IQueryable {
 	 *    reporting is not desired
 	 * @return The collector argument
 	 */
-	public Collector query(IQuery query, IProgressMonitor monitor);
+	public IQueryResult query(IQuery query, IProgressMonitor monitor);
 }

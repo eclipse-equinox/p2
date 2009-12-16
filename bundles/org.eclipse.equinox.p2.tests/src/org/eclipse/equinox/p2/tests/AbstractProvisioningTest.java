@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.metadata.ICopyright;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -29,13 +27,13 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -800,11 +798,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected IInstallableUnit getIU(IMetadataRepository repository, String name) {
-		Collector collector = repository.query(new InstallableUnitQuery(name), null);
+		IQueryResult queryResult = repository.query(new InstallableUnitQuery(name), null);
 
 		IInstallableUnit unit = null;
-		if (collector.size() > 0)
-			unit = (IInstallableUnit) collector.iterator().next();
+		if (queryResult.size() > 0)
+			unit = (IInstallableUnit) queryResult.iterator().next();
 
 		return unit;
 	}
@@ -1171,7 +1169,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
 	 */
 	protected static void assertContains(String message, IArtifactRepository sourceRepo, IArtifactRepository destinationRepo) {
-		Collector sourceKeys = sourceRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult sourceKeys = sourceRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		for (Iterator iterator = sourceKeys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			IArtifactDescriptor[] destinationDescriptors = destinationRepo.getArtifactDescriptors(key);
@@ -1199,12 +1197,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
 	 */
 	protected static void assertContains(String message, IMetadataRepository sourceRepo, IMetadataRepository destinationRepo) {
-		Collector sourceCollector = sourceRepo.query(InstallableUnitQuery.ANY, null);
+		IQueryResult sourceCollector = sourceRepo.query(InstallableUnitQuery.ANY, null);
 		Iterator it = sourceCollector.iterator();
 
 		while (it.hasNext()) {
 			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
-			Collector destinationCollector = destinationRepo.query(new InstallableUnitQuery(sourceIU), null);
+			IQueryResult destinationCollector = destinationRepo.query(new InstallableUnitQuery(sourceIU), null);
 			assertEquals(message, 1, destinationCollector.size());
 			assertEquals(message, sourceIU, (IInstallableUnit) destinationCollector.iterator().next());
 		}
@@ -1380,7 +1378,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		int count = 0;
 		try {
 			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(location, null);
-			Collector descriptors = repo.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+			IQueryResult descriptors = repo.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
 			return descriptors.size();
 		} catch (ProvisionException e) {
 			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");

@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 
@@ -56,7 +57,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 				return false;
 			}
 		}}, false);
-		Collector rootIUs = sharedProfile.query(rootIUQuery, null);
+		IQueryResult rootIUs = sharedProfile.query(rootIUQuery, null);
 		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			userProfile.addInstallableUnit(iu);
@@ -68,7 +69,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 	private static void removeUserProfileBaseIUs(final Profile userProfile) {
 		IQuery rootIUQuery = new IUProfilePropertyQuery(PROP_BASE, Boolean.TRUE.toString());
-		Collector rootIUs = userProfile.query(rootIUQuery, null);
+		IQueryResult rootIUs = userProfile.query(rootIUQuery, null);
 		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			userProfile.removeInstallableUnit(iu);
@@ -76,7 +77,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	}
 
 	private static void markRootsOptional(final Profile userProfile) {
-		Collector rootIUs = userProfile.query(new UserVisibleRootQuery(), null);
+		IQueryResult rootIUs = userProfile.query(new UserVisibleRootQuery(), null);
 		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			userProfile.setInstallableUnitProperty(iu, PROP_INCLUSION_RULES, OPTIONAL);

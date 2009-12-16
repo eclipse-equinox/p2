@@ -27,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.Abstr
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
@@ -143,9 +144,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		return true;
 	}
 
-	public synchronized Collector query(IQuery query, IProgressMonitor monitor) {
-		Collector collector = new Collector();
-		return query.perform(units.iterator(), collector);
+	public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		return query.perform(units.iterator(), new Collector());
 	}
 
 	public synchronized void removeAll() {

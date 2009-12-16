@@ -21,8 +21,8 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
@@ -75,8 +75,8 @@ public class Optimizer {
 
 	public void run() {
 		System.out.println("Starting delta (jardelta) optimizations (width=" + width + ", depth=" + depth + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		Collector collector = repository.query(ArtifactKeyQuery.ALL_KEYS, null);
-		IArtifactKey[][] keys = getSortedRelatedArtifactKeys((IArtifactKey[]) collector.toArray(IArtifactKey.class));
+		IQueryResult queryResult = repository.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IArtifactKey[][] keys = getSortedRelatedArtifactKeys((IArtifactKey[]) queryResult.toArray(IArtifactKey.class));
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i].length < 2)
 				// Nothing to diff here!

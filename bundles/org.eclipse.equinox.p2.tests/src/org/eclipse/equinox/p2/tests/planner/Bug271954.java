@@ -17,10 +17,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug271954 extends AbstractProvisioningTest {
@@ -74,7 +74,7 @@ public class Bug271954 extends AbstractProvisioningTest {
 	}
 
 	public void testUninstallMyBundle() {
-		Collector c = profile.available(new InstallableUnitQuery("A"), new NullProgressMonitor());
+		IQueryResult c = profile.available(new InstallableUnitQuery("A"), new NullProgressMonitor());
 		assertEquals(1, c.size());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.removeInstallableUnits((IInstallableUnit[]) c.toArray(IInstallableUnit.class));

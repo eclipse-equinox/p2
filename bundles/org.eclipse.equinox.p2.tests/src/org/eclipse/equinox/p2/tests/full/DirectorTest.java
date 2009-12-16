@@ -19,11 +19,11 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -53,7 +53,7 @@ public class DirectorTest extends AbstractProvisioningTest {
 		}
 
 		String autoInstall = System.getProperty("eclipse.p2.autoInstall");
-		Collector allJobs = mgr.query(new InstallableUnitQuery(autoInstall, VersionRange.emptyRange), null);
+		IQueryResult allJobs = mgr.query(new InstallableUnitQuery(autoInstall, VersionRange.emptyRange), null);
 
 		String installFolder = System.getProperty(IProfile.PROP_INSTALL_FOLDER);
 		IProfileRegistry profileRegistry = getProfileRegistry();

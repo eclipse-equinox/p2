@@ -24,9 +24,9 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.RootIUAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
@@ -178,8 +178,8 @@ public class ProductActionTest extends ActionTest {
 		results.addIU(iu, IPublisherResult.NON_ROOT);
 
 		action2.perform(info, results, new NullProgressMonitor());
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + configSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 1, collector.size());
+		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + configSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("1.0", 1, queryResult.size());
 	}
 
 	public void testMultiPlatformCUs_DifferentPlatforms() throws Exception {
@@ -201,11 +201,11 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 0, collector.size());
+		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("1.0", 0, queryResult.size());
 
-		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("2.0", 0, collector.size());
+		queryResult = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("2.0", 0, queryResult.size());
 	}
 
 	public void testMultiPlatformCUs_SamePlatforms() throws Exception {
@@ -227,11 +227,11 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 1, collector.size());
+		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("1.0", 1, queryResult.size());
 
-		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("2.0", 0, collector.size());
+		queryResult = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("2.0", 0, queryResult.size());
 	}
 
 	public void testMultiPlatformCUs_SamePlatforms_NoVersion() throws Exception {
@@ -252,11 +252,11 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 1, collector.size());
+		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("1.0", 1, queryResult.size());
 
-		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("2.0", 0, collector.size());
+		queryResult = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("2.0", 0, queryResult.size());
 	}
 
 	public void testMultiPlatformCUs_SamePlatforms_BoundedVersions() throws Exception {
@@ -278,11 +278,11 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 1, collector.size());
+		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("1.0", 1, queryResult.size());
 
-		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("2.0", 0, collector.size());
+		queryResult = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("2.0", 0, queryResult.size());
 	}
 
 	public void testCUsHost() throws Exception {
@@ -303,9 +303,9 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 1, collector.size());
-		IInstallableUnitFragment fragment = (IInstallableUnitFragment) collector.iterator().next();
+		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("1.0", 1, queryResult.size());
+		IInstallableUnitFragment fragment = (IInstallableUnitFragment) queryResult.iterator().next();
 		assertEquals("1.1", "org.eclipse.core.runtime", ((IRequiredCapability) fragment.getHost()[0].getMatches()).getName());
 		assertEquals("1.2", Version.create("4.0.0"), ((IRequiredCapability) fragment.getHost()[0].getMatches()).getRange().getMinimum());
 		assertEquals("1.3", Version.create("1.0.0"), fragment.getVersion());
@@ -324,11 +324,11 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		Collector collector = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("1.0", 0, collector.size());
+		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("1.0", 0, queryResult.size());
 
-		collector = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
-		assertEquals("2.0", 0, collector.size());
+		queryResult = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("2.0", 0, queryResult.size());
 	}
 
 	public void testMultiConfigspecProductPublishing() throws IOException, Exception {

@@ -19,10 +19,10 @@ import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.QueryableFilterAdvice;
@@ -80,7 +80,7 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 		info.addAdvice(new QueryableFilterAdvice(info.getContextMetadataRepository()));
 
 		testAction.perform(info, publisherResult, null);
-		Collector results = publisherResult.query(new IUQuery("org.eclipse.platform.ide", Version.create("3.5.0.I20081118")), null);
+		IQueryResult results = publisherResult.query(new IUQuery("org.eclipse.platform.ide", Version.create("3.5.0.I20081118")), null);
 		assertEquals("1.0", 1, results.size());
 		IInstallableUnit unit = (IInstallableUnit) results.iterator().next();
 		IRequirement[] requiredCapabilities = unit.getRequiredCapabilities();

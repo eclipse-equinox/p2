@@ -19,6 +19,7 @@ import org.eclipse.equinox.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.osgi.util.NLS;
 
 public class Profile implements IQueryable, IProfile {
@@ -161,7 +162,7 @@ public class Profile implements IQueryable, IProfile {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public Collector query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		Collector collector = new Collector();
 		propagateProfileContext(query);
 		if (query instanceof IUProfilePropertyQuery) {
@@ -187,7 +188,7 @@ public class Profile implements IQueryable, IProfile {
 		}
 	}
 
-	public Collector available(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult available(IQuery query, IProgressMonitor monitor) {
 		if (surrogateProfileHandler != null)
 			return surrogateProfileHandler.queryProfile(this, query, monitor);
 		return query(query, new NullProgressMonitor());

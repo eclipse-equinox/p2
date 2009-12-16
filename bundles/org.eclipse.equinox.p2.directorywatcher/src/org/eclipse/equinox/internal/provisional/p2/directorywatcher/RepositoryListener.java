@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
@@ -227,7 +228,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 					return removedFiles.contains(iuFile);
 				}
 			};
-			Collector toRemove = metadataRepository.query(removeQuery, null);
+			IQueryResult toRemove = metadataRepository.query(removeQuery, null);
 			metadataRepository.removeInstallableUnits((IInstallableUnit[]) toRemove.toArray(IInstallableUnit.class), null);
 		}
 		// Then add all the new IUs as well as the new copies of the ones that have changed
@@ -246,7 +247,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (artifactRepository == null)
 			return;
 		if (!removedFiles.isEmpty()) {
-			Collector descriptors = artifactRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+			IQueryResult descriptors = artifactRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
 			for (Iterator iterator = descriptors.iterator(); iterator.hasNext();) {
 				SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) iterator.next();
 				String filename = descriptor.getRepositoryProperty(FILE_NAME);
@@ -270,7 +271,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private void synchronizeCurrentFiles() {
 		currentFiles.clear();
 		if (metadataRepository != null) {
-			Collector ius = metadataRepository.query(InstallableUnitQuery.ANY, null);
+			IQueryResult ius = metadataRepository.query(InstallableUnitQuery.ANY, null);
 			for (Iterator it = ius.iterator(); it.hasNext();) {
 				IInstallableUnit iu = (IInstallableUnit) it.next();
 				String filename = iu.getProperty(FILE_NAME);

@@ -16,10 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -105,14 +105,14 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Takes 2 collectors, compares them, and returns the number of unique keys
+	 * Takes 2 QueryResults, compares them, and returns the number of unique keys
 	 * Needed to verify that only the appropriate number of files have been transfered by the mirror application
 	 */
-	private int getNumUnique(Collector c1, Collector c2) {
+	private int getNumUnique(IQueryResult c1, IQueryResult c2) {
 		Object[] repo1 = c1.toCollection().toArray();
 		Object[] repo2 = c2.toCollection().toArray();
 
-		//initialize to the size of both collectors
+		//initialize to the size of both query results
 		int numKeys = repo1.length + repo2.length;
 
 		for (int i = 0; i < repo1.length; i++) {

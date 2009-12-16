@@ -33,6 +33,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -188,8 +189,8 @@ public class Generator {
 
 		ProductQuery productQuery = new ProductQuery(productFile, info.getFlavor(), result.configurationIUs, info.getVersionAdvice());
 		PipedQuery query = new PipedQuery(new IQuery[] {productQuery, new LatestIUVersionQuery()});
-		Collector collector = info.getMetadataRepository().query(query, null);
-		for (Iterator iterator = collector.iterator(); iterator.hasNext();) {
+		IQueryResult queryResult = info.getMetadataRepository().query(query, null);
+		for (Iterator iterator = queryResult.iterator(); iterator.hasNext();) {
 			productContents.rootIUs.add(iterator.next());
 		}
 

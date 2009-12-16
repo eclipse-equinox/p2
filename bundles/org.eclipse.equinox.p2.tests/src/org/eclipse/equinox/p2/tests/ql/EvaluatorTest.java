@@ -19,9 +19,11 @@ import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.director.app.Activator;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
@@ -69,20 +71,20 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testLatest() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		Collector result = repo.query(new QLContextQuery("latest(x | x.id == $0)", "test.bundle"), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLContextQuery("latest(x | x.id == $0)", "test.bundle"), new NullProgressMonitor());
 		assertTrue(result.size() == 1);
 	}
 
 	public void testRange() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		Collector result = repo.query(new QLMatchQuery("version ~= $0", new VersionRange("2.0.0")), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery("version ~= $0", new VersionRange("2.0.0")), new NullProgressMonitor());
 		assertEquals(result.size(), 2);
 	}
 
 	public void testProperty() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
 
-		Collector result = repo.query(new QLMatchQuery("properties.exists(p | boolean(p.value))"), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery("properties.exists(p | boolean(p.value))"), new NullProgressMonitor());
 		assertEquals(result.size(), 3);
 
 		result = repo.query(new QLMatchQuery("boolean(properties['org.eclipse.equinox.p2.type.group'])"), new NullProgressMonitor());
@@ -125,14 +127,14 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 		// Create the query
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		Collector result = repo.query(new QLContextQuery(IInstallableUnit.class, e3, new Object[] {args}), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLContextQuery(IInstallableUnit.class, e3, new Object[] {args}), new NullProgressMonitor());
 		assertEquals(result.size(), 1);
 	}
 
 	public void testMember() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
 		IProvidedCapability pc = MetadataFactory.createProvidedCapability("org.eclipse.equinox.p2.eclipse.type", "source", null);
-		Collector result = repo.query(new QLMatchQuery(IInstallableUnitFragment.class, "host.exists(h | $0 ~= h)", new Object[] {pc}), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnitFragment.class, "host.exists(h | $0 ~= h)", new Object[] {pc}), new NullProgressMonitor());
 		assertEquals(result.size(), 1);
 	}
 
@@ -144,20 +146,20 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		applicability[1][1] = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.flavor", "tooling", null, null, false, false);
 
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		Collector result = repo.query(new QLMatchQuery("$0.exists(rcs | rcs.all(rc | item ~= rc))", applicability), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery("$0.exists(rcs | rcs.all(rc | item ~= rc))", applicability), new NullProgressMonitor());
 		assertEquals(result.size(), 3);
 	}
 
 	public void testPattern() throws Exception {
 		IProvidedCapability pc = MetadataFactory.createProvidedCapability("org.eclipse.equinox.p2.eclipse.type", "source", null);
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		Collector result = repo.query(new QLMatchQuery("id ~= /tooling.*.default/", pc), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery("id ~= /tooling.*.default/", pc), new NullProgressMonitor());
 		assertEquals(result.size(), 3);
 	}
 
 	public void testLimit() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		Collector result = repo.query(new QLContextQuery("select(x | x.id ~= /tooling.*/).limit(1)"), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLContextQuery("select(x | x.id ~= /tooling.*/).limit(1)"), new NullProgressMonitor());
 		assertEquals(result.size(), 1);
 
 		result = repo.query(new QLContextQuery("select(x | x.id ~= /tooling.*/).limit($0)", new Integer(2)), new NullProgressMonitor());
@@ -166,7 +168,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testNot() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		Collector result = repo.query(new QLMatchQuery("!(id ~= /tooling.*/)"), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery("!(id ~= /tooling.*/)"), new NullProgressMonitor());
 		assertEquals(result.size(), 4);
 	}
 
@@ -177,7 +179,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		assertNotNull(artifactManager);
 
 		IArtifactRepository repo = artifactManager.loadRepository(artifactRepo, new NullProgressMonitor());
-		Collector result = repo.query(new QLMatchQuery(IArtifactKey.class, "classifier ~= /*/", null), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery(IArtifactKey.class, "classifier ~= /*/", null), new NullProgressMonitor());
 		assertTrue(result.size() > 1);
 		Iterator itor = result.iterator();
 		while (itor.hasNext())
@@ -192,7 +194,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testClassConstructor() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		Collector result = repo.query(new QLContextQuery(//
+		IQueryResult result = repo.query(new QLContextQuery(//
 				"select(x | x ~= class('org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment'))"), new NullProgressMonitor());
 		assertEquals(result.size(), 4);
 		repo = getMDR("/testData/galileoM7");
@@ -200,7 +202,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testTraverseWithoutIndex() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		Collector result = repo.query(new QLContextQuery( //
+		IQueryResult result = repo.query(new QLContextQuery( //
 				"select(x | x.id == $0 && x.version == $1).traverse(parent | select(" + //
 						"child | parent.requiredCapabilities.exists(rc | child ~= rc)))", //
 				"org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new NullProgressMonitor());
@@ -209,7 +211,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testTraverseWithIndex() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		Collector result = repo.query(//
+		IQueryResult result = repo.query(//
 				new QLContextQuery("" + //
 						"select(x | x.id == $0 && x.version == $1).traverse(capabilityIndex(everything), _, { index, parent |" + //
 						"index.satisfiesAny(parent.requiredCapabilities)})", //
@@ -232,7 +234,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		QLContextQuery query = new QLContextQuery(IInstallableUnit.class, expr, new Object[] {"org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2"), env});
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		Collector result = repo.query(query, new NullProgressMonitor());
+		IQueryResult result = repo.query(query, new NullProgressMonitor());
 		assertEquals(result.size(), 411);
 	}
 
@@ -262,7 +264,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 						env,//
 						index});
 
-		Collector result = repo.query(query, new NullProgressMonitor());
+		IQueryResult result = repo.query(query, new NullProgressMonitor());
 		assertEquals(result.size(), 184);
 	}
 
@@ -281,7 +283,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				return "true".equals(((IInstallableUnit) candidate).getProperty("org.eclipse.equinox.p2.type.group"));
 			}
 		};
-		Collector result = repo.query(new QLMatchQuery(IInstallableUnit.class, expr, new Object[] {q1, q2}), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnit.class, expr, new Object[] {q1, q2}), new NullProgressMonitor());
 		assertEquals(result.size(), 497);
 	}
 
@@ -300,7 +302,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				return "true".equals(((IInstallableUnit) candidate).getProperty("org.eclipse.equinox.p2.type.group"));
 			}
 		};
-		Collector result = repo.query(new QLContextQuery(IInstallableUnit.class, expr, new Object[] {q1, q2}), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLContextQuery(IInstallableUnit.class, expr, new Object[] {q1, q2}), new NullProgressMonitor());
 		assertEquals(result.size(), 497);
 	}
 
@@ -325,7 +327,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		ius = results.getIUs(null, null);
 		assertEquals("2.0", 3, ius.size());
 		QueryableArray queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
-		Collector result = queryableArray.query(new InstallableUnitQuery("foo"), null);
+		IQueryResult result = queryableArray.query(new InstallableUnitQuery("foo"), null);
 		assertEquals("2.1", 1, result.size());
 
 		QLMatchQuery lq = new QLMatchQuery("translations['org.eclipse.equinox.p2.name'] ~= /German*/");

@@ -31,6 +31,7 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.framework.log.FrameworkLog;
@@ -54,7 +55,7 @@ public class DirectorApplication implements IApplication {
 			Assert.isNotNull(location);
 		}
 
-		public Collector query(IQuery query, IProgressMonitor monitor) {
+		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 			return getInstallableUnits(location, query, monitor);
 		}
 	}
@@ -227,7 +228,7 @@ public class DirectorApplication implements IApplication {
 		}
 	}
 
-	private Collector collectRootIUs(IQuery query) {
+	private IQueryResult collectRootIUs(IQuery query) {
 		IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 		int top = metadataRepositoryLocations.size();
@@ -247,7 +248,7 @@ public class DirectorApplication implements IApplication {
 			IVersionedId rootName = (IVersionedId) rootNames.get(i);
 			Version v = rootName.getVersion();
 			IQuery query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
-			Collector roots;
+			IQueryResult roots;
 			if (forInstall)
 				roots = collectRootIUs(new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()}));
 			else
@@ -461,7 +462,7 @@ public class DirectorApplication implements IApplication {
 
 		ArrayList allRoots = new ArrayList();
 		if (rootsToList.size() == 0) {
-			Collector roots = collectRootIUs(InstallableUnitQuery.ANY);
+			IQueryResult roots = collectRootIUs(InstallableUnitQuery.ANY);
 			allRoots.addAll(roots.toCollection());
 		} else {
 			Iterator r = rootsToList.iterator();
@@ -469,7 +470,7 @@ public class DirectorApplication implements IApplication {
 				IVersionedId rootName = (IVersionedId) r.next();
 				Version v = rootName.getVersion();
 				IQuery query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
-				Collector roots = collectRootIUs(query);
+				IQueryResult roots = collectRootIUs(query);
 				allRoots.addAll(roots.toCollection());
 			}
 		}
@@ -772,7 +773,7 @@ public class DirectorApplication implements IApplication {
 			strm.print(' ');
 	}
 
-	Collector getInstallableUnits(URI location, IQuery query, IProgressMonitor monitor) {
+	IQueryResult getInstallableUnits(URI location, IQuery query, IProgressMonitor monitor) {
 		IQueryable queryable = null;
 		if (location == null) {
 			queryable = metadataManager;

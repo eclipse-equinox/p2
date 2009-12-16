@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -151,7 +152,7 @@ public class ProvisioningHelper {
 	 * @param monitor A progress monitor, or <code>null</code>
 	 * @return The IUs that match the query
 	 */
-	public static Collector getInstallableUnits(URI location, IQuery query, IProgressMonitor monitor) {
+	public static IQueryResult getInstallableUnits(URI location, IQuery query, IProgressMonitor monitor) {
 		IQueryable queryable = null;
 		if (location == null) {
 			queryable = (IQueryable) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
@@ -180,7 +181,7 @@ public class ProvisioningHelper {
 	public static IStatus install(String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
-		Collector units = getInstallableUnits((URI) null, new InstallableUnitQuery(unitId, Version.create(version)), progress);
+		IQueryResult units = getInstallableUnits((URI) null, new InstallableUnitQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuffer error = new StringBuffer();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');
@@ -280,7 +281,7 @@ public class ProvisioningHelper {
 	public static IStatus uninstall(String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
-		Collector units = profile.query(new InstallableUnitQuery(unitId, Version.create(version)), progress);
+		IQueryResult units = profile.query(new InstallableUnitQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuffer error = new StringBuffer();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');

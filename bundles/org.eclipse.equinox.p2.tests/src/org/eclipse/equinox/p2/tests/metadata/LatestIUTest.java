@@ -12,9 +12,9 @@ package org.eclipse.equinox.p2.tests.metadata;
 import java.net.URI;
 import java.util.Collection;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -35,7 +35,7 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		metadataRepositoryManager.addRepository(location);
 
-		Collector query = metadataRepositoryManager.query(new LatestIUVersionQuery(), null);
+		IQueryResult query = metadataRepositoryManager.query(new LatestIUVersionQuery(), null);
 		Collection collection = query.toCollection();
 		assertEquals("1.0", 1, collection.size());
 		assertEquals("1.1", Version.createOSGi(2, 1, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
@@ -52,7 +52,7 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		metadataRepositoryManager.addRepository(location);
 
-		Collector query = metadataRepositoryManager.query(new LatestIUVersionQuery(), null);
+		IQueryResult query = metadataRepositoryManager.query(new LatestIUVersionQuery(), null);
 		Collection collection = query.toCollection();
 		assertEquals("1.0", 1, collection.size());
 		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
@@ -72,8 +72,8 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		metadataRepositoryManager.addRepository(location1);
 		metadataRepositoryManager.addRepository(location2);
 
-		Collector collector = metadataRepositoryManager.query(new LatestIUVersionQuery(), null);
-		Collection collection = collector.toCollection();
+		IQueryResult queryResult = metadataRepositoryManager.query(new LatestIUVersionQuery(), null);
+		Collection collection = queryResult.toCollection();
 		assertEquals("1.0", 1, collection.size());
 		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
 	}

@@ -24,11 +24,11 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -135,7 +135,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		// Set status sequence, actual Statuses added later
 		source.setSequence(seq);
 		// Grab an ArtifactKey to mirror, doesn't matter which
-		Collector keys = source.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult keys = source.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertTrue("Unable to obtain artifact keys", keys != null && keys.size() > 0);
 
 		IArtifactKey key = (IArtifactKey) keys.iterator().next();
@@ -303,7 +303,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			return delegate.getRawArtifact(descriptor, destination, monitor);
 		}
 
-		public Collector query(IQuery query, IProgressMonitor monitor) {
+		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 			return delegate.query(query, monitor);
 		}
 	}

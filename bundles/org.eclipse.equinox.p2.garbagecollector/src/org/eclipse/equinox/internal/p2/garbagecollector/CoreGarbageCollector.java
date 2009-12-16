@@ -12,8 +12,8 @@ package org.eclipse.equinox.internal.p2.garbagecollector;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
@@ -39,7 +39,7 @@ public class CoreGarbageCollector {
 				return !set.contains(candidate);
 			}
 		};
-		Collector inactive = aRepository.query(query, null);
+		IQueryResult inactive = aRepository.query(query, null);
 		for (Iterator iterator = inactive.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			aRepository.removeDescriptor(key);

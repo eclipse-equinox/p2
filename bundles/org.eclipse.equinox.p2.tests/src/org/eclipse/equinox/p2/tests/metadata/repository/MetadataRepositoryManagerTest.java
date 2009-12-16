@@ -26,12 +26,12 @@ import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRep
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -409,7 +409,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		URI location = site.toURI();
 		try {
 			IMetadataRepository repository = manager.loadRepository(location, getMonitor());
-			Collector result = repository.query(new InstallableUnitQuery("test.bundle"), getMonitor());
+			IQueryResult result = repository.query(new InstallableUnitQuery("test.bundle"), getMonitor());
 			assertEquals("1.0", 1, result.size());
 		} catch (ProvisionException e) {
 			fail("=.99", e);

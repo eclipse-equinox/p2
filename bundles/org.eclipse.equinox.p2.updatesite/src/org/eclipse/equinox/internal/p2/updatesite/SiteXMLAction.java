@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -152,14 +153,14 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			}
 		}
 
-		Collector collector = results.query(query, null);
-		if (collector.size() == 0)
-			collector.addAll(publisherInfo.getMetadataRepository().query(query, null));
-		if (collector.size() == 0 && publisherInfo.getContextMetadataRepository() != null)
-			collector.addAll(publisherInfo.getContextMetadataRepository().query(query, null));
+		IQueryResult queryResult = results.query(query, null);
+		if (queryResult.size() == 0)
+			queryResult.addAll(publisherInfo.getMetadataRepository().query(query, null));
+		if (queryResult.size() == 0 && publisherInfo.getContextMetadataRepository() != null)
+			queryResult.addAll(publisherInfo.getContextMetadataRepository().query(query, null));
 
-		if (collector.size() == 1)
-			return (IInstallableUnit) collector.iterator().next();
+		if (queryResult.size() == 1)
+			return (IInstallableUnit) queryResult.iterator().next();
 		return null;
 	}
 

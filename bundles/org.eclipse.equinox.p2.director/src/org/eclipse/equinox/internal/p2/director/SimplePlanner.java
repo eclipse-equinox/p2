@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -250,7 +251,7 @@ public class SimplePlanner implements IPlanner {
 					throw new OperationCanceledException();
 
 				IMetadataRepository repository = repoManager.loadRepository(repositories[i], sub.newChild(100));
-				Collector matches = repository.query(new InstallableUnitQuery(null, VersionRange.emptyRange), sub.newChild(100));
+				IQueryResult matches = repository.query(new InstallableUnitQuery(null, VersionRange.emptyRange), sub.newChild(100));
 				for (Iterator it = matches.iterator(); it.hasNext();) {
 					IInstallableUnit iu = (IInstallableUnit) it.next();
 					String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
@@ -387,8 +388,8 @@ public class SimplePlanner implements IPlanner {
 				allMetaRequirements.add(reqs[i]);
 			}
 		}
-		Collector c2 = plan.getRemovals().query(InstallableUnitQuery.ANY, null);
-		for (Iterator iterator = c2.iterator(); iterator.hasNext();) {
+		IQueryResult queryResult = plan.getRemovals().query(InstallableUnitQuery.ANY, null);
+		for (Iterator iterator = queryResult.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			IRequirement[] reqs = iu.getMetaRequiredCapabilities();
 			for (int i = 0; i < reqs.length; i++) {
@@ -552,7 +553,7 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private IInstallableUnit getPreviousIUForMetaRequirements(IProfile profile, String iuId, IProgressMonitor monitor) {
-		Collector c = profile.query(new InstallableUnitQuery(iuId), monitor);
+		IQueryResult c = profile.query(new InstallableUnitQuery(iuId), monitor);
 		if (c.size() == 0)
 			return null;
 		return (IInstallableUnit) c.toArray(IInstallableUnit.class)[0];
@@ -687,7 +688,7 @@ public class SimplePlanner implements IPlanner {
 				if (sub.isCanceled())
 					throw new OperationCanceledException();
 				IMetadataRepository repository = repoManager.loadRepository(repositories[i], sub.newChild(100));
-				Collector matches = repository.query(new UpdateQuery(toUpdate), sub.newChild(100));
+				IQueryResult matches = repository.query(new UpdateQuery(toUpdate), sub.newChild(100));
 				for (Iterator it = matches.iterator(); it.hasNext();) {
 					IInstallableUnit iu = (IInstallableUnit) it.next();
 					String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
@@ -712,7 +713,7 @@ public class SimplePlanner implements IPlanner {
 			profile = p;
 		}
 
-		public Collector available(IQuery query, IProgressMonitor monitor) {
+		public IQueryResult available(IQuery query, IProgressMonitor monitor) {
 			return profile.available(query, monitor);
 		}
 
@@ -742,7 +743,7 @@ public class SimplePlanner implements IPlanner {
 			return profile.getTimestamp();
 		}
 
-		public Collector query(IQuery query, IProgressMonitor monitor) {
+		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 			return profile.query(query, monitor);
 		}
 	}

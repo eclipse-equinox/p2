@@ -23,11 +23,13 @@ import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactComparatorFactory;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactComparator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.CompoundQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.ICompositeRepository;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -453,7 +455,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 * Check the two given repositories against each other using the given comparator.
 	 */
 	private boolean isSane(IArtifactRepository one, IArtifactRepository two, IArtifactComparator comparator) {
-		Collector toCheckKeys = one.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult toCheckKeys = one.query(ArtifactKeyQuery.ALL_KEYS, null);
 		for (Iterator iterator = toCheckKeys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			if (!two.contains(key))
@@ -514,7 +516,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		}
 	}
 
-	public Collector query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		// Query all the all the repositories this composite repo contains
 		List repos = new ArrayList();
 		for (Iterator repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {

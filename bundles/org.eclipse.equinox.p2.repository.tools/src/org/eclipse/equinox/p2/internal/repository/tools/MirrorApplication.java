@@ -26,6 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.internal.repository.mirroring.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
@@ -195,7 +196,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 	private IStatus mirrorArtifacts(IQueryable slice, IProgressMonitor monitor) throws ProvisionException {
 		// Obtain ArtifactKeys from IUs
-		Collector ius = slice.query(InstallableUnitQuery.ANY, monitor);
+		IQueryResult ius = slice.query(InstallableUnitQuery.ANY, monitor);
 		ArrayList keys = new ArrayList(ius.size());
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
@@ -234,7 +235,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	}
 
 	private void mirrorMetadata(IQueryable slice, IProgressMonitor monitor) {
-		Collector allIUs = slice.query(InstallableUnitQuery.ANY, monitor);
+		IQueryResult allIUs = slice.query(InstallableUnitQuery.ANY, monitor);
 		destinationMetadataRepository.addInstallableUnits((IInstallableUnit[]) allIUs.toArray(IInstallableUnit.class));
 	}
 
@@ -264,13 +265,13 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 			for (int i = 0; i < rootIUs.length; i++) {
 				String[] segments = getArrayArgsFromString(rootIUs[i], "/"); //$NON-NLS-1$
 				VersionRange range = segments.length > 1 ? new VersionRange(segments[i]) : null;
-				Collector collector = metadataRepo.query(new InstallableUnitQuery(segments[i], range), null);
-				sourceIUs.addAll(collector.toCollection());
+				IQueryResult queryResult = metadataRepo.query(new InstallableUnitQuery(segments[i], range), null);
+				sourceIUs.addAll(queryResult.toCollection());
 			}
 		} else if (sourceIUs == null || sourceIUs.isEmpty()) {
 			sourceIUs = new ArrayList();
-			Collector collector = metadataRepo.query(InstallableUnitQuery.ANY, null);
-			sourceIUs.addAll(collector.toCollection());
+			IQueryResult queryResult = metadataRepo.query(InstallableUnitQuery.ANY, null);
+			sourceIUs.addAll(queryResult.toCollection());
 			/* old metadata mirroring app did not throw an exception here */
 			if (sourceIUs.size() == 0 && destinationMetadataRepository != null && metadataOrArtifacts == null)
 				throw new ProvisionException(Messages.MirrorApplication_no_IUs);
@@ -314,9 +315,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		IQueryable slice = slicer.slice((IInstallableUnit[]) sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]), monitor);
 
 		if (slice != null && slicingOptions.latestVersionOnly()) {
-			Collector collector = new Collector();
-			collector = slice.query(new LatestIUVersionQuery(), monitor);
-			slice = collector;
+			IQueryResult queryResult = slice.query(new LatestIUVersionQuery(), monitor);
+			slice = queryResult;
 		}
 		if (slicer.getStatus().getSeverity() != IStatus.OK && mirrorLog != null) {
 			mirrorLog.log(slicer.getStatus());

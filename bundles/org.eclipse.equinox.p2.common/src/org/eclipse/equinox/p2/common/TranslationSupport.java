@@ -11,9 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.common;
 
-
-import org.eclipse.equinox.p2.metadata.ICopyright;
-
 import java.lang.ref.SoftReference;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
@@ -28,10 +25,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.*;
 
 /**
  * TranslationSupport provides string translations for properties of an 
@@ -51,7 +46,7 @@ public class TranslationSupport {
 	private Locale locale;
 
 	// Cache the IU fragments that provide localizations for a given locale.
-	//    map: locale => soft reference to a collector
+	//    map: locale => soft reference to a queryResult
 	private Map LocaleCollectorCache = new HashMap(2);
 
 	/**
@@ -162,7 +157,7 @@ public class TranslationSupport {
 		final List locales = buildLocaleVariants();
 		final IInstallableUnit theUnit = iu;
 
-		Collector localizationFragments = getLocalizationFragments(locales);
+		IQueryResult localizationFragments = getLocalizationFragments(locales);
 
 		MatchQuery hostLocalizationQuery = new MatchQuery() {
 			public boolean isMatch(Object object) {
@@ -222,15 +217,15 @@ public class TranslationSupport {
 	/**
 	 * Collects the installable unit fragments that contain locale data for the given locales.
 	 */
-	private synchronized Collector getLocalizationFragments(List localeVariants) {
+	private synchronized IQueryResult getLocalizationFragments(List localeVariants) {
 		if (fragmentSource == null) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Profile registry unavailable. Default language will be used.", new RuntimeException())); //$NON-NLS-1$
 			return new Collector();
 		}
 
-		SoftReference collectorRef = (SoftReference) LocaleCollectorCache.get(locale);
-		if (collectorRef != null) {
-			Collector cached = (Collector) collectorRef.get();
+		SoftReference queryResultReference = (SoftReference) LocaleCollectorCache.get(locale);
+		if (queryResultReference != null) {
+			Collector cached = (Collector) queryResultReference.get();
 			if (cached != null)
 				return cached;
 		}
@@ -243,7 +238,7 @@ public class TranslationSupport {
 		}
 
 		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), CompoundQuery.createCompoundQuery(localeQuery, false)});
-		Collector collected = fragmentSource.query(iuQuery, null);
+		IQueryResult collected = fragmentSource.query(iuQuery, null);
 		LocaleCollectorCache.put(locale, new SoftReference(collected));
 		return collected;
 	}

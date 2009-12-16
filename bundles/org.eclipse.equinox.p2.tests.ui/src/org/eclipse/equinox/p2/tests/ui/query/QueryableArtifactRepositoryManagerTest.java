@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.ui.query;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.QueryableArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.ui.RepositoryLocationQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
@@ -43,7 +43,7 @@ public class QueryableArtifactRepositoryManagerTest extends AbstractQueryTest {
 	public void testQuery() {
 		QueryableArtifactRepositoryManager manager = getQueryableManager();
 
-		Collector result = manager.query(new RepositoryLocationQuery(), getMonitor());
+		IQueryResult result = manager.query(new RepositoryLocationQuery(), getMonitor());
 		assertTrue(result.size() == repoCount);
 	}
 

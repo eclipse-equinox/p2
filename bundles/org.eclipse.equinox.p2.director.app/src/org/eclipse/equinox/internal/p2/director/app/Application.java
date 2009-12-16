@@ -32,6 +32,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.framework.log.FrameworkLog;
@@ -91,7 +92,7 @@ public class Application implements IApplication {
 		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Ambigous_Command, new Object[] {COMMAND_NAMES[cmd1], COMMAND_NAMES[cmd2]})));
 	}
 
-	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collector roots, boolean install) {
+	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, IQueryResult roots, boolean install) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		markRoots(request, roots);
 		if (install) {
@@ -249,7 +250,7 @@ public class Application implements IApplication {
 			throw new RuntimeException(Messages.Missing_Engine);
 	}
 
-	private void markRoots(ProfileChangeRequest request, Collector roots) {
+	private void markRoots(ProfileChangeRequest request, IQueryResult roots) {
 		for (Iterator iterator = roots.iterator(); iterator.hasNext();) {
 			request.setInstallableUnitProfileProperty((IInstallableUnit) iterator.next(), IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 		}
@@ -402,7 +403,7 @@ public class Application implements IApplication {
 
 		IStatus operationStatus = Status.OK_STATUS;
 		InstallableUnitQuery query;
-		Collector roots;
+		IQueryResult roots;
 		try {
 			initializeRepositories(command == COMMAND_INSTALL);
 			switch (command) {
@@ -490,12 +491,12 @@ public class Application implements IApplication {
 			this.location = location;
 		}
 
-		public Collector query(IQuery query, IProgressMonitor monitor) {
+		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 			return ProvisioningHelper.getInstallableUnits(location, query, monitor);
 		}
 	}
 
-	private Collector collectRootIUs(URI[] locations, IQuery query) {
+	private IQueryResult collectRootIUs(URI[] locations, IQuery query) {
 		IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 		if (locations == null || locations.length == 0)

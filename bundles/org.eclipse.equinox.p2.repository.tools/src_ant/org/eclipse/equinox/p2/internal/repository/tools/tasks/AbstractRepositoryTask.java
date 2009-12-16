@@ -18,9 +18,9 @@ import org.apache.tools.ant.*;
 import org.apache.tools.ant.types.FileSet;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.internal.repository.tools.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
@@ -167,11 +167,11 @@ public abstract class AbstractRepositoryTask extends Task {
 			IUDescription iu = (IUDescription) iter.next();
 			IQuery iuQuery = iu.createQuery();
 
-			Collector collector = repository.query(iuQuery, null);
+			IQueryResult queryResult = repository.query(iuQuery, null);
 
-			if (iu.isRequired() && collector.isEmpty())
+			if (iu.isRequired() && queryResult.isEmpty())
 				throw new BuildException(NLS.bind(Messages.AbstractRepositoryTask_unableToFind, iu.toString()));
-			result.addAll(collector.toCollection());
+			result.addAll(queryResult.toCollection());
 		}
 		return result;
 	}

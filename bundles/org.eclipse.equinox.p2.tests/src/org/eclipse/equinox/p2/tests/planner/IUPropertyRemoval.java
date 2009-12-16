@@ -13,10 +13,10 @@ import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class IUPropertyRemoval extends AbstractProvisioningTest {
@@ -50,7 +50,7 @@ public class IUPropertyRemoval extends AbstractProvisioningTest {
 		IProvisioningPlan pp1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, pp1.getStatus().getSeverity());
 		engine.perform(pp1, null);
-		Collector res = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), null);
+		IQueryResult res = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), null);
 		assertEquals(2, res.size());
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
@@ -58,7 +58,7 @@ public class IUPropertyRemoval extends AbstractProvisioningTest {
 		IProvisioningPlan pp2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(1, pp2.getOperands().length);
 		engine.perform(pp2, null);
-		Collector res2 = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), null);
+		IQueryResult res2 = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), null);
 		assertEquals(1, res2.size());
 	}
 }

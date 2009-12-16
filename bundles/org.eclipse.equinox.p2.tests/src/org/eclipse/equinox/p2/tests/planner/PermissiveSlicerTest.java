@@ -16,8 +16,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -33,7 +35,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 
 	public void testSliceRCPOut() {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, new Properties(), true, false, true, false, false);
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
@@ -46,7 +48,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 	//Test with and without optional pieces
 	public void testSliceRCPWithOptionalPieces() {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, new Properties(), false, false, true, false, false);
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
@@ -57,7 +59,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 
 	public void testSliceRCPWithIgnoringGreed() {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, new Properties(), false, true, true, false, false);
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
@@ -72,7 +74,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		p.setProperty("osgi.ws", "win32");
 		p.setProperty("osgi.arch", "x86");
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, false, false, false);
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
@@ -88,7 +90,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		p.setProperty("osgi.ws", "win32");
 		p.setProperty("osgi.arch", "x86");
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, false, false, true, false);
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
@@ -100,7 +102,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 
 	public void testExtractPlatformIndependentPieces() {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, new Properties(), true, false, false, false, false);
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
@@ -128,7 +130,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		p.setProperty("osgi.ws", "win32");
 		p.setProperty("osgi.arch", "x86");
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, false, false, true, false);
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.swt.cocoa.macosx"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.swt.cocoa.macosx"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		assertNull(slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()));
 		assertNotOK(slicer.getStatus());
@@ -149,18 +151,18 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		p.setProperty("osgi.ws", "win32");
 		p.setProperty("osgi.arch", "x86");
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, false, false, false, true);
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
-		Collector resultCollector = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()).query(InstallableUnitQuery.ANY, new NullProgressMonitor());
+		IQueryResult resultCollector = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()).query(InstallableUnitQuery.ANY, new NullProgressMonitor());
 		assertEquals(3, resultCollector.size());
 	}
 
 	public void testExtractOnlyPlatformSpecific() {
 		Properties p = new Properties();
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, false, true, false, true);
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
-		Collector resultCollector = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()).query(InstallableUnitQuery.ANY, new NullProgressMonitor());
+		IQueryResult resultCollector = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()).query(InstallableUnitQuery.ANY, new NullProgressMonitor());
 		assertEquals(35, resultCollector.size());
 	}
 

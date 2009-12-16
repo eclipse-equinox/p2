@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -35,7 +37,7 @@ public class QueryableUpdates implements IQueryable {
 		this.iusToUpdate = iusToUpdate;
 	}
 
-	public Collector query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		Collector result = new Collector();
 		if (monitor == null)
 			monitor = new NullProgressMonitor();

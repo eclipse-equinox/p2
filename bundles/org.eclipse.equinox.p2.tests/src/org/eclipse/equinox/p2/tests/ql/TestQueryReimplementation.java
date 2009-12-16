@@ -11,9 +11,9 @@
 package org.eclipse.equinox.p2.tests.ql;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.ql.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -127,14 +127,14 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 
 	public void testUpdateWithDifferentId() {
 		IMetadataRepository repo = createTestMetdataRepository(new IInstallableUnit[] {a1, updateOfA});
-		Collector c = repo.query(new UpdateQuery(a1), null);
+		IQueryResult c = repo.query(new UpdateQuery(a1), null);
 		assertEquals(1, c.size());
 		assertEquals(updateOfA, c.iterator().next());
 	}
 
 	public void testWithSuperiorVersion() {
 		IMetadataRepository repo2 = createTestMetdataRepository(new IInstallableUnit[] {a11, a1});
-		Collector c2 = repo2.query(new UpdateQuery(a1), null);
+		IQueryResult c2 = repo2.query(new UpdateQuery(a1), null);
 		assertEquals(1, c2.size());
 		assertEquals(a11, c2.iterator().next());
 	}

@@ -16,7 +16,7 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.Messages;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.*;
 
 /**
  * A collector is a generic visitor that collects objects passed to it,
@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.metadata.query.IQuery;
  * This default collector just accepts all objects passed to it.  Clients may subclass
  * to perform different processing on the objects passed to it.
  */
-public class Collector implements IQueryable {
+public class Collector implements IQueryResult, IAcceptor {
 	private Set collected = null;
 
 	/**
@@ -56,11 +56,11 @@ public class Collector implements IQueryable {
 
 	/**
 	 * Adds the elements from one collector to this collector
-	 * @param collector The collector from which the elements should be retrieved
+	 * @param queryResult The collector from which the elements should be retrieved
 	 */
-	public void addAll(Collector collector) {
+	public void addAll(IQueryResult queryResult) {
 		boolean keepGoing = true;
-		for (Iterator iter = collector.iterator(); iter.hasNext() && keepGoing;) {
+		for (Iterator iter = queryResult.iterator(); iter.hasNext() && keepGoing;) {
 			keepGoing = accept(iter.next());
 		}
 	}
@@ -132,7 +132,7 @@ public class Collector implements IQueryable {
 	/**
 	 * Performs a query on this results of this collector.  
 	 */
-	public Collector query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		Collector collector = new Collector();
 		Iterator iter = toCollection().iterator();
 		if (monitor == null)

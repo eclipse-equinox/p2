@@ -20,8 +20,10 @@ import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -106,7 +108,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(broken);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
-		Collector result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), new CancelingProgressMonitor());
+		IQueryResult result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), new CancelingProgressMonitor());
 		assertEquals("1.0", 0, result.size());
 	}
 
@@ -175,7 +177,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(broken);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
-		Collector result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), getMonitor());
+		IQueryResult result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), getMonitor());
 		assertEquals("1.0", 1, result.size());
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "test.bundle", iu.getId());

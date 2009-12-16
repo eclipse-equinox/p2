@@ -16,10 +16,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractAntProvisioningTest;
@@ -117,7 +117,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Failed to load repository", e);
 		}
-		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);

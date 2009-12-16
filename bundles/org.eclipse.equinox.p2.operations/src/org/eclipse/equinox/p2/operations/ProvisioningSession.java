@@ -22,7 +22,6 @@ import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -30,6 +29,7 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
@@ -307,8 +307,8 @@ public class ProvisioningSession {
 			query = InstallableUnitQuery.ANY;
 		else
 			query = new UserVisibleRootQuery();
-		Collector collector = profile.query(query, null);
-		return (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
+		IQueryResult queryResult = profile.query(query, null);
+		return (IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class);
 	}
 
 }

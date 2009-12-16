@@ -14,10 +14,10 @@ import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class IUProperties extends AbstractProvisioningTest {
@@ -59,8 +59,8 @@ public class IUProperties extends AbstractProvisioningTest {
 		IStatus s = engine.perform(pp1, null);
 		if (!s.isOK())
 			LogHelper.log(s);
-		Collector collector = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), null);
-		assertEquals(1, collector.size());
+		IQueryResult queryResult = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), null);
+		assertEquals(1, queryResult.size());
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
 		req2.removeInstallableUnitProfileProperty(b1, "FOO");

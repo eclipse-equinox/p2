@@ -27,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.Abstr
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.ICompositeRepository;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -124,19 +125,19 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return result;
 	}
 
-	public Collector query(IQuery query, IProgressMonitor monitor) {
-		Collector collector = new Collector();
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		IQueryResult queryResult = new Collector();
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		try {
 			// Query all the all the repositories this composite repo contains
 			CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]));
-			collector = queryable.query(query, monitor);
+			queryResult = queryable.query(query, monitor);
 		} finally {
 			if (monitor != null)
 				monitor.done();
 		}
-		return collector;
+		return queryResult;
 	}
 
 	private void addChild(URI childURI, boolean save) {

@@ -24,10 +24,10 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -364,7 +364,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		repo.addDescriptor(d2);
 		repo.addDescriptor(d3);
 
-		Collector result = repo.query(new ArtifactDescriptorQuery("a", null, null), null);
+		IQueryResult result = repo.query(new ArtifactDescriptorQuery("a", null, null), null);
 		assertEquals(3, result.size());
 
 		result = repo.query(new ArtifactDescriptorQuery(null, new VersionRange("[2.0.0, 3.0.0)"), null), null);

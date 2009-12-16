@@ -6,10 +6,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -64,9 +64,9 @@ public class Bug278668 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallFeaturePatch() {
-		Collector c = repo.query(new InstallableUnitQuery("com.borland.tg.modeling.8.2.0.hotfixexp.patch.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("com.borland.tg.modeling.8.2.0.hotfixexp.patch.feature.group"), new NullProgressMonitor());
 		assertEquals(1, c.size());
-		Collector c2 = repo.query(new InstallableUnitQuery("com.borland.tg.modeling.8.2.0.nl.patch.feature.group"), new NullProgressMonitor());
+		IQueryResult c2 = repo.query(new InstallableUnitQuery("com.borland.tg.modeling.8.2.0.nl.patch.feature.group"), new NullProgressMonitor());
 		assertEquals(1, c2.size());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);

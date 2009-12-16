@@ -12,11 +12,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AddIUProperty extends AbstractProvisioningTest {
@@ -64,7 +64,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan, null);
 		assertProfileContainsAll("A1 is missing", profile, new IInstallableUnit[] {a1});
-		Collector allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
+		IQueryResult allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
 		assertEquals(allProfileIUs.size(), 1);
 
 		//Add a2 with a1. This is an error
@@ -87,7 +87,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
 		assertEquals(allProfileIUs.size(), 1);
 
-		Collector iuProfileProperties = profile.query(new IUProfilePropertyQuery(SimplePlanner.INCLUSION_RULES, null), null);
+		IQueryResult iuProfileProperties = profile.query(new IUProfilePropertyQuery(SimplePlanner.INCLUSION_RULES, null), null);
 		assertEquals(iuProfileProperties.size(), 1);
 
 		//Remove a1 optionality - should be a no-op

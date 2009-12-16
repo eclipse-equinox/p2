@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -53,7 +54,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	/**
 	 * Iterates over the repositories configured in this queryable.
 	 * For most queries, the query is run on each repository, passing any objects that satisfy the
-	 * query to the provided collector.  If the query is a {@link RepositoryLocationQuery}, the query
+	 * query.  If the query is a {@link RepositoryLocationQuery}, the query
 	 * is run on the repository locations instead.
 	 * <p>
 	 * This method is long-running; progress and cancellation are provided
@@ -63,9 +64,9 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 * @param query The query to perform..
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
-	 * @return The collector argument
+	 * @return The QueryResult argument
 	 */
-	public Collector query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		IRepositoryManager manager = getRepositoryManager();
 		if (monitor == null)
 			monitor = new NullProgressMonitor();

@@ -27,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -116,8 +117,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		//Try to remove an InstallableUnit.
 		try {
-			Collector collector = compRepo.query(InstallableUnitQuery.ANY, null);
-			compRepo.removeInstallableUnits((IInstallableUnit[]) collector.toArray(IInstallableUnit.class), null);
+			IQueryResult queryResult = compRepo.query(InstallableUnitQuery.ANY, null);
+			compRepo.removeInstallableUnits((IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class), null);
 			fail("Should not be able to remove InstallableUnit");
 		} catch (UnsupportedOperationException e) {
 			//expected. fall through
@@ -457,8 +458,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
-		Collector collector = compositeRepo.query(new LatestIUVersionQuery(), monitor);
-		Collection collection = collector.toCollection();
+		IQueryResult queryResult = compositeRepo.query(new LatestIUVersionQuery(), monitor);
+		Collection collection = queryResult.toCollection();
 		assertEquals("1.0", 1, collection.size());
 		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
 		assertTrue("1.2", monitor.isDone());
@@ -489,8 +490,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 				return false;
 			}
 		}, new LatestIUVersionQuery()});
-		Collector collector = compositeRepo.query(cQuery, monitor);
-		Collection collection = collector.toCollection();
+		IQueryResult queryResult = compositeRepo.query(cQuery, monitor);
+		Collection collection = queryResult.toCollection();
 		assertEquals("1.0", 1, collection.size());
 		assertEquals("1.1", Version.createOSGi(2, 2, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
 		assertTrue("1.2", monitor.isDone());
@@ -561,7 +562,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	 * Takes 2 collectors, compares them, and returns the number of unique keys
 	 * Needed to verify that only the appropriate number of files have been transfered by the mirror application
 	 */
-	private int getNumUnique(Collector c1, Collector c2) {
+	private int getNumUnique(IQueryResult c1, IQueryResult c2) {
 		Object[] repo1 = c1.toCollection().toArray();
 		Object[] repo2 = c2.toCollection().toArray();
 
@@ -634,8 +635,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		// query the number of IUs
 		List children = repository.getChildren();
 		assertEquals("2.0", 2, children.size());
-		Collector collector = repository.query(InstallableUnitQuery.ANY, getMonitor());
-		assertEquals("2.1", 2, collector.size());
+		IQueryResult queryResult = repository.query(InstallableUnitQuery.ANY, getMonitor());
+		assertEquals("2.1", 2, queryResult.size());
 
 		// ensure the child URIs are stored as relative
 		CompositeRepositoryState state = repository.toState();

@@ -31,10 +31,10 @@ import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.p2.updatesite.artifact.UpdateSiteArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -585,7 +585,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("Can't load repository missingUpdateURLFeature");
 		}
 		InstallableUnitQuery query = new InstallableUnitQuery("test.featurewithmissingupdateurl.feature.group", Version.create("1.0.0"));
-		Collector result = metadataRepo.query(query, null);
+		IQueryResult result = metadataRepo.query(query, null);
 		assertEquals("1.0", 1, result.size());
 	}
 
@@ -603,7 +603,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("Can't load repository UpdateSite243422");
 		}
 		InstallableUnitQuery query = new InstallableUnitQuery("org.eclipse.jdt.astview.feature.feature.group", Version.create("1.0.1"));
-		Collector result = metadataRepo.query(query, null);
+		IQueryResult result = metadataRepo.query(query, null);
 		assertEquals("1.0", 1, result.size());
 		IInstallableUnit featureIU = (IInstallableUnit) result.iterator().next();
 		IRequirement[] required = featureIU.getRequiredCapabilities();
@@ -624,7 +624,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Can't load repository UpdateSite240121");
 		}
-		Collector keys = artifactRepo.query(new ArtifactKeyQuery(null, "Plugin240121", null), null);
+		IQueryResult keys = artifactRepo.query(new ArtifactKeyQuery(null, "Plugin240121", null), null);
 		assertEquals(1, keys.size());
 		IArtifactKey key = (IArtifactKey) keys.iterator().next();
 		IStatus status = artifactRepo.getArtifact(artifactRepo.getArtifactDescriptors(key)[0], new ByteArrayOutputStream(500), new NullProgressMonitor());
@@ -648,7 +648,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("1.99", e);
 			return;
 		}
-		Collector result = repository.query(new InstallableUnitQuery("test.feature.feature.jar"), getMonitor());
+		IQueryResult result = repository.query(new InstallableUnitQuery("test.feature.feature.jar"), getMonitor());
 		assertTrue("1.0", !result.isEmpty());
 		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
 		ITouchpointData[] data = unit.getTouchpointData();

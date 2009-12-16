@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -300,7 +301,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
@@ -330,7 +331,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
@@ -358,7 +359,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
@@ -387,7 +388,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
@@ -418,7 +419,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		AntTaskElement mirror = createMirrorTask(TYPE_METADATA);
@@ -450,7 +451,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		// Create task
@@ -482,7 +483,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		// Create task
@@ -518,7 +519,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		// Create task
@@ -547,7 +548,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("test.feature.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		c = repo.query(new InstallableUnitQuery("RCP_Browser_Example.feature.group"), new NullProgressMonitor());
@@ -580,7 +581,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Loading repository failed", e);
 		}
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.ui.examples.readmetool"), new NullProgressMonitor());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.ui.examples.readmetool"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 
 		// Create task
@@ -749,7 +750,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	/*
 	 * Get the number of ArtifactKeys in a repository
 	 */
-	protected int getArtifactKeyCount(Collector ius) {
+	protected int getArtifactKeyCount(IQueryResult ius) {
 		int count = 0;
 		for (Iterator iter = ius.iterator(); iter.hasNext();)
 			count += ((InstallableUnit) iter.next()).getArtifacts().length;
@@ -772,9 +773,9 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	 * Add all IUs to the parent element
 	 */
 	protected void addAllIUs(AntTaskElement parent, IMetadataRepository repo) {
-		Collector collector = repo.query(InstallableUnitQuery.ANY, null);
+		IQueryResult queryResult = repo.query(InstallableUnitQuery.ANY, null);
 
-		for (Iterator iter = collector.iterator(); iter.hasNext();) {
+		for (Iterator iter = queryResult.iterator(); iter.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
 			parent.addElement(createIUElement(iu));
 		}

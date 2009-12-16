@@ -22,10 +22,10 @@ import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -528,8 +528,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(location, new SurrogateProfileHandler(), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
-		Collector collector = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);
-		return !collector.isEmpty();
+		IQueryResult queryResult = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);
+		return !queryResult.isEmpty();
 	}
 
 	public IInstallableUnit getRemoteIU(String id, String version) {
@@ -537,9 +537,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(location, new SurrogateProfileHandler(), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
-		Collector collector = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);
-		assertEquals("1.1 Should not have more than one IU wth the same ID and version.", 1, collector.size());
-		return (IInstallableUnit) collector.iterator().next();
+		IQueryResult queryResult = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);
+		assertEquals("1.1 Should not have more than one IU wth the same ID and version.", 1, queryResult.size());
+		return (IInstallableUnit) queryResult.iterator().next();
 	}
 
 	public int runInitialize(String message) {

@@ -20,11 +20,11 @@ import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.metadata.query.PatchQuery;
+import org.eclipse.equinox.p2.metadata.query.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 import org.sat4j.pb.IPBSolver;
@@ -159,10 +159,10 @@ public class Projector {
 				solver = SolverFactory.newEclipseP2();
 			}
 			solver.setTimeoutOnConflicts(1000);
-			Collector collector = picker.query(InstallableUnitQuery.ANY, null);
+			IQueryResult queryResult = picker.query(InstallableUnitQuery.ANY, null);
 			dependencyHelper = new DependencyHelper(solver);
 
-			Iterator iusToEncode = collector.iterator();
+			Iterator iusToEncode = queryResult.iterator();
 			if (DEBUG) {
 				List iusToOrder = new ArrayList();
 				while (iusToEncode.hasNext()) {
@@ -252,7 +252,7 @@ public class Projector {
 		for (int j = 0; j < reqs.length; j++) {
 			if (reqs[j].getMin() > 0)
 				continue;
-			Collector matches = picker.query(reqs[j].getMatches(), null);
+			IQueryResult matches = picker.query(reqs[j].getMatches(), null);
 			for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 				IInstallableUnit match = (IInstallableUnit) iterator.next();
 				if (match instanceof IInstallableUnitPatch) {
@@ -408,7 +408,7 @@ public class Projector {
 			return;
 		}
 
-		Collector applicablePatches = getApplicablePatches(iu);
+		IQueryResult applicablePatches = getApplicablePatches(iu);
 		expandLifeCycle(iu, isRootIU);
 		//No patches apply, normal code path
 		if (applicablePatches.size() == 0) {
@@ -434,7 +434,7 @@ public class Projector {
 		Object left;
 	}
 
-	private void expandRequirementsWithPatches(IInstallableUnit iu, Collector applicablePatches, boolean isRootIu) throws ContradictionException {
+	private void expandRequirementsWithPatches(IInstallableUnit iu, IQueryResult applicablePatches, boolean isRootIu) throws ContradictionException {
 		//Unmodified dependencies
 		Map unchangedRequirements = new HashMap(getRequiredCapabilities(iu).length);
 		Map nonPatchedRequirements = new HashMap(getRequiredCapabilities(iu).length);
@@ -639,7 +639,7 @@ public class Projector {
 	 */
 	private List getApplicableMatches(IRequirement req) {
 		List target = new ArrayList();
-		Collector matches = picker.query(req.getMatches(), null);
+		IQueryResult matches = picker.query(req.getMatches(), null);
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (isApplicable(match)) {
@@ -729,7 +729,7 @@ public class Projector {
 	}
 
 	//Return IUPatches that are applicable for the given iu
-	private Collector getApplicablePatches(IInstallableUnit iu) {
+	private IQueryResult getApplicablePatches(IInstallableUnit iu) {
 		if (patches == null)
 			patches = new QueryableArray((IInstallableUnit[]) picker.query(new PatchQuery(), null).toArray(IInstallableUnit.class));
 

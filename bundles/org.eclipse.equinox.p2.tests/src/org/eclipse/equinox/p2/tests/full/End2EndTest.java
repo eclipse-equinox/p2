@@ -24,12 +24,12 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -111,7 +111,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 	}
 
 	private void attemptToUninstallRCP35(IProfile profile2, File installFolder) {
-		Collector collect = profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult collect = profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		assertEquals(1, collect.size());
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) collect.iterator().next()});
@@ -122,7 +122,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	protected void uninstallPlatform(IProfile profile2, File installFolder) {
 		System.out.println("Uninstall the platform");
-		Collector collect = profile2.query(new InstallableUnitQuery("org.eclipse.platform.ide"), new NullProgressMonitor());
+		IQueryResult collect = profile2.query(new InstallableUnitQuery("org.eclipse.platform.ide"), new NullProgressMonitor());
 		assertEquals(1, collect.size());
 		//		Collector collect2 = profile2.query(new InstallableUnitQuery("org.eclipse.platform.source.feature.group"), new Collector(), new NullProgressMonitor());
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);

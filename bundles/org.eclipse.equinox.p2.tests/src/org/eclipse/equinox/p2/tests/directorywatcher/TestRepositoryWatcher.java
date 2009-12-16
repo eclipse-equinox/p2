@@ -15,10 +15,10 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -70,7 +70,7 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	 * Return the list of artifact keys known to this listener's repository.
 	 */
 	public IArtifactKey[] getArtifactKeys() {
-		Collector keys = listener.getArtifactRepository().query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult keys = listener.getArtifactRepository().query(ArtifactKeyQuery.ALL_KEYS, null);
 		return (IArtifactKey[]) keys.toArray(IArtifactKey.class);
 	}
 

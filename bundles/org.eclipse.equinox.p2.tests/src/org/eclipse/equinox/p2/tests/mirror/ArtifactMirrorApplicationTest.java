@@ -21,10 +21,10 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -287,7 +287,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Not Biconditional.
 	 */
 	private void assertFileSizes(String message, SimpleArtifactRepository expected, SimpleArtifactRepository actual) {
-		Collector expectedKeys = expected.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult expectedKeys = expected.query(ArtifactKeyQuery.ALL_KEYS, null);
 		for (Iterator iterator = expectedKeys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			IArtifactDescriptor[] expectedDescriptors = expected.getArtifactDescriptors(key);
@@ -894,7 +894,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			fail("");
 		}
 
-		Collector keys = packedRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult keys = packedRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			IArtifactDescriptor[] srcDescriptors = packedRepo.getArtifactDescriptors(key);
@@ -1275,7 +1275,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 				return source.contains(descriptor);
 			}
 
-			public synchronized Collector query(IQuery query, IProgressMonitor monitor) {
+			public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
 				return source.query(query, monitor);
 			}
 		}
@@ -1349,7 +1349,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Mirroring full duplicate, so any key will do.
-			Collector descriptors = sourceRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+			IQueryResult descriptors = sourceRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
 			IArtifactDescriptor descriptor = (IArtifactDescriptor) descriptors.iterator().next();
 			//Mirroring full duplicate, so any descriptor will do.
 			String message = NLS.bind(org.eclipse.equinox.internal.p2.artifact.repository.Messages.mirror_alreadyExists, descriptor, destRepoLocation.toURI());
@@ -1421,7 +1421,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Mirroring full duplicate, so any key will do.
-			Collector descriptors = sourceRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+			IQueryResult descriptors = sourceRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
 			IArtifactDescriptor descriptor = (IArtifactDescriptor) descriptors.iterator().next();
 			//Mirroring full duplicate, so any descriptor will do.
 			String message = NLS.bind(org.eclipse.equinox.internal.p2.artifact.repository.Messages.mirror_alreadyExists, descriptor, destRepoLocation.toURI());

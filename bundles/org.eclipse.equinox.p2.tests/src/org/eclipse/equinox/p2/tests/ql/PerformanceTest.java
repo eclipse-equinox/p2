@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.ql.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -34,7 +35,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 
 		IRequiredCapability capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
 		QLMatchQuery predicateQuery = new QLMatchQuery("item ~= $0", capability);
-		Collector result;
+		IQueryResult result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
 
@@ -66,7 +67,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IRequiredCapability capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
 		QLContextQuery exprQuery = new QLContextQuery("capabilityIndex(everything)");
 		exprQuery = new QLContextQuery("$0.satisfiesAny([$1])", exprQuery.query(QL.newQueryContext(qaRepo)), capability);
-		Collector result;
+		IQueryResult result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
 
@@ -96,7 +97,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 
 		IUPropertyQuery propertyQuery = new IUPropertyQuery("df_LT.providerName", "Eclipse.org");
 		QLMatchQuery predicateQuery = new QLMatchQuery("properties[$0] == $1", "df_LT.providerName", "Eclipse.org");
-		Collector result;
+		IQueryResult result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
 
@@ -127,8 +128,8 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		env.put("osgi.arch", "x86");
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new NullProgressMonitor());
-		Iterator itor = c.iterator();
+		IQueryResult r = repo.query(new InstallableUnitQuery("org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new NullProgressMonitor());
+		Iterator itor = r.iterator();
 		assertTrue(itor.hasNext());
 		IInstallableUnit[] roots = new IInstallableUnit[] {(IInstallableUnit) itor.next()};
 
@@ -141,9 +142,9 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IQueryable slice = null;
 		for (int idx = 0; idx < 100; ++idx) {
 			long startTime = System.currentTimeMillis();
-			c = repo.query(query, new NullProgressMonitor());
+			r = repo.query(query, new NullProgressMonitor());
 			traverseTime += (System.currentTimeMillis() - startTime);
-			assertEquals(c.size(), 411);
+			assertEquals(r.size(), 411);
 
 			startTime = System.currentTimeMillis();
 			Slicer slicer = new Slicer(new QueryableArray(gatherAvailableInstallableUnits(repo)), env, false);
@@ -151,12 +152,12 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			sliceTime += (System.currentTimeMillis() - startTime);
 		}
 		// Check the size of the last slice to verify that it's the same as the traverse size
-		c = slice.query(new MatchQuery() {
+		r = slice.query(new MatchQuery() {
 			public boolean isMatch(Object value) {
 				return true;
 			}
 		}, new NullProgressMonitor());
-		assertEquals(c.size(), 411);
+		assertEquals(r.size(), 411);
 
 		System.out.print("100 * Slicing took: ");
 		System.out.println(sliceTime);
@@ -176,7 +177,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 
 	private IInstallableUnit[] gatherAvailableInstallableUnits(IQueryable queryable) {
 		ArrayList list = new ArrayList();
-		Collector matches = queryable.query(InstallableUnitQuery.ANY, null);
+		IQueryResult matches = queryable.query(InstallableUnitQuery.ANY, null);
 		for (Iterator it = matches.iterator(); it.hasNext();)
 			list.add(it.next());
 		return (IInstallableUnit[]) list.toArray(new IInstallableUnit[list.size()]);

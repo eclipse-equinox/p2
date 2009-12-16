@@ -11,17 +11,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.metadata.ICopyright;
-
 import java.lang.ref.SoftReference;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.*;
 
 public class IUPropertyUtils {
 
@@ -39,7 +35,7 @@ public class IUPropertyUtils {
 	final String NAMESPACE_IU_LOCALIZATION = "org.eclipse.equinox.p2.localization"; //$NON-NLS-1$
 
 	// Cache the IU fragments that provide localizations for a given locale.
-	//    map: locale => soft reference to a collector
+	//    map: locale => soft reference to a QueryResult
 	private Map LocaleCollectorCache = new HashMap(2);
 
 	// Get the license in the default locale.
@@ -110,7 +106,7 @@ public class IUPropertyUtils {
 		final List locales = buildLocaleVariants(locale);
 		final IInstallableUnit theUnit = iu;
 
-		Collector localizationFragments = getLocalizationFragments(locale, locales);
+		IQueryResult localizationFragments = getLocalizationFragments(locale, locales);
 
 		MatchQuery hostLocalizationQuery = new MatchQuery() {
 			public boolean isMatch(Object object) {
@@ -171,10 +167,10 @@ public class IUPropertyUtils {
 	/**
 	 * Collects the installable unit fragments that contain locale data for the given locales.
 	 */
-	private synchronized Collector getLocalizationFragments(Locale locale, List localeVariants) {
-		SoftReference collectorRef = (SoftReference) LocaleCollectorCache.get(locale);
-		if (collectorRef != null) {
-			Collector cached = (Collector) collectorRef.get();
+	private synchronized IQueryResult getLocalizationFragments(Locale locale, List localeVariants) {
+		SoftReference queryResultRef = (SoftReference) LocaleCollectorCache.get(locale);
+		if (queryResultRef != null) {
+			Collector cached = (Collector) queryResultRef.get();
 			if (cached != null)
 				return cached;
 		}
@@ -207,7 +203,7 @@ public class IUPropertyUtils {
 		};
 
 		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), localeFragmentQuery});
-		Collector collected = queryable.query(iuQuery, null);
+		IQueryResult collected = queryable.query(iuQuery, null);
 		LocaleCollectorCache.put(locale, new SoftReference(collected));
 		return collected;
 	}

@@ -9,6 +9,8 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,7 +27,7 @@ public class QueryDescriptorTest extends TestCase {
 	class SimpleQueryable implements IQueryable {
 		List elements = Arrays.asList(new String[] {"a", "b", "c", "d", "e"});
 
-		public Collector query(IQuery query, IProgressMonitor monitor) {
+		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 			Collector collector = new Collector();
 			return query.perform(elements.iterator(), collector);
 		}

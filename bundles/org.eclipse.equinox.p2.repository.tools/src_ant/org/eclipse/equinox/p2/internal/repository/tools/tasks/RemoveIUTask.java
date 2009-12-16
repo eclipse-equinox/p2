@@ -15,12 +15,12 @@ import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.internal.repository.tools.AbstractApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -65,12 +65,12 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 				IUDescription iu = (IUDescription) iter.next();
 				IQuery iuQuery = iu.createQuery();
 
-				Collector collector = repository.query(iuQuery, null);
+				IQueryResult queryResult = repository.query(iuQuery, null);
 
-				if (collector.isEmpty())
+				if (queryResult.isEmpty())
 					getProject().log(NLS.bind(Messages.AbstractRepositoryTask_unableToFind, iu.toString()));
 				else {
-					for (Iterator iterator = collector.iterator(); iterator.hasNext();) {
+					for (Iterator iterator = queryResult.iterator(); iterator.hasNext();) {
 						IInstallableUnit unit = (IInstallableUnit) iterator.next();
 						IArtifactKey[] keys = unit.getArtifacts();
 						Filter filter = null;

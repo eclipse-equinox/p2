@@ -19,13 +19,13 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.osgi.framework.ServiceReference;
@@ -118,7 +118,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		VersionRange range = searchedVersion != null ? new VersionRange(searchedVersion, true, searchedVersion, true) : null;
 		ArtifactKeyQuery query = new ArtifactKeyQuery(classifier, searchedId, range);
 		//TODO short-circuit the query when we find one?
-		Collector keys = repo.query(query, null);
+		IQueryResult keys = repo.query(query, null);
 		if (!keys.isEmpty())
 			return (IArtifactKey) keys.iterator().next();
 		return null;

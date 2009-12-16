@@ -18,8 +18,8 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -90,7 +90,7 @@ public class FoldersRepositoryTest extends TestCase {
 
 			repo.addDescriptor(descriptor);
 		}
-		Collector keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IQueryResult keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
 		assertEquals(2, keys.size());
 		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();

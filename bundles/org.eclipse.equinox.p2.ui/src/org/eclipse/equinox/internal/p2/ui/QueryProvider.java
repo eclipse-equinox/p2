@@ -138,8 +138,8 @@ public class QueryProvider {
 				if (profile == null)
 					return null;
 				if (toUpdate == null) {
-					Collector collector = profile.query(policy.getVisibleInstalledIUQuery(), null);
-					toUpdate = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
+					IQueryResult queryResult = profile.query(policy.getVisibleInstalledIUQuery(), null);
+					toUpdate = (IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class);
 				}
 				QueryableUpdates updateQueryable = new QueryableUpdates(ui, toUpdate);
 				return new ElementQueryDescriptor(updateQueryable, context.getShowLatestVersionsOnly() ? new LatestIUVersionQuery() : allQuery, new Collector());

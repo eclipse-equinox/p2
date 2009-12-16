@@ -19,13 +19,13 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -190,7 +190,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	/*
 	 * Return a collector over all the IUs contained in the given repository.
 	 */
-	private Collector getAllIUs(IMetadataRepository repository, IProgressMonitor monitor) {
+	private IQueryResult getAllIUs(IMetadataRepository repository, IProgressMonitor monitor) {
 		SubMonitor progress = SubMonitor.convert(monitor, 2);
 		try {
 			return repository.query(InstallableUnitQuery.ANY, progress.newChild(1));

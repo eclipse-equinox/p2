@@ -23,10 +23,10 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -635,17 +635,17 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		repo.addInstallableUnits(new IInstallableUnit[] {new SPIInstallableUnit("foo", Version.createOSGi(1, 1, 1))});
 
-		Collector collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
+		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		Collection collection = collector.toCollection();
+		Collection collection = queryResult.toCollection();
 		assertEquals(1, collection.size());
 
 		assertTrue("Repo contains SPI IU)", collection.iterator().next() instanceof SPIInstallableUnit);
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
-		collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
+		queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		collection = collector.toCollection();
+		collection = queryResult.toCollection();
 		assertEquals(1, collection.size());
 
 		assertTrue("Refreshed repo contains default IU", collection.iterator().next() instanceof InstallableUnit);
@@ -670,9 +670,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		spiInstallableUnit.addProvidedCapability(providedCapability);
 		repo.addInstallableUnits(new IInstallableUnit[] {spiInstallableUnit});
 
-		Collector collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
+		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		Collection collection = collector.toCollection();
+		Collection collection = queryResult.toCollection();
 		assertEquals(1, collection.size());
 
 		IInstallableUnit spiUnit = (IInstallableUnit) collection.iterator().next();
@@ -681,9 +681,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue(spiUnit.getProvidedCapabilities()[0] instanceof ProvidedCapability);
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
-		collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
+		queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		collection = collector.toCollection();
+		collection = queryResult.toCollection();
 		assertEquals(1, collection.size());
 
 		IInstallableUnit defaultUnit = (IInstallableUnit) collection.iterator().next();
@@ -715,9 +715,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		repo.addInstallableUnits(new IInstallableUnit[] {MetadataFactory.createInstallableUnit(iuDescription)});
 
-		Collector collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
+		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		Collection collection = collector.toCollection();
+		Collection collection = queryResult.toCollection();
 		assertEquals(1, collection.size());
 
 		IInstallableUnit unit = (IInstallableUnit) collection.iterator().next();
@@ -725,9 +725,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue(unit.getRequiredCapabilities()[0] instanceof SPIRequiredCapability);
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
-		collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
+		queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		collection = collector.toCollection();
+		collection = queryResult.toCollection();
 		assertEquals(1, collection.size());
 
 		unit = (IInstallableUnit) collection.iterator().next();
@@ -783,9 +783,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		repo.addInstallableUnits(new IInstallableUnit[] {MetadataFactory.createInstallableUnit(iuDescription), MetadataFactory.createInstallableUnitPatch(iuPatchDescription)});
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
-		Collector collector = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
+		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		Collection collection = collector.toCollection();
+		Collection collection = queryResult.toCollection();
 		assertEquals(2, collection.size());
 		Iterator iterator = collection.iterator();
 

@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher;
 
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+
 import java.io.*;
 import java.net.URI;
 import java.util.*;
@@ -291,7 +293,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 		return new ArtifactDescriptor(key);
 	}
 
-	public Collector query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		Collector collector = new Collector();
 		if (monitor != null && monitor.isCanceled())
 			return collector;

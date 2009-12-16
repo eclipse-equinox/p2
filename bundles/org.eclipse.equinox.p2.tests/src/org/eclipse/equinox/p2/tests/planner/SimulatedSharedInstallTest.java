@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
@@ -66,7 +67,9 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 
 		IProfile availableWrapper = new IProfile() {
 			public Collector available(IQuery query, IProgressMonitor monitor) {
-				Collector collector = profile.query(query, monitor);
+				IQueryResult queryResult = profile.query(query, monitor);
+				Collector collector = new Collector();
+				collector.addAll(queryResult);
 
 				Collection ius = new ArrayList();
 				ius.add(b1);
@@ -98,7 +101,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 				return profile.getTimestamp();
 			}
 
-			public Collector query(IQuery query, IProgressMonitor monitor) {
+			public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 				return profile.query(query, monitor);
 			}
 		};

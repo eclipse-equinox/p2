@@ -17,12 +17,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -59,7 +59,7 @@ public class RepoValidator extends AbstractProvisioningTest {
 		q = new InstallableUnitQuery("org.eclipse.rcp.feature.group");
 
 		//		q = InstallableUnitQuery.ANY;
-		Collector iusToTest = validatedRepo.query(q, null);
+		IQueryResult iusToTest = validatedRepo.query(q, null);
 
 		ProvisioningContext pc = new ProvisioningContext(new URI[] {repoLoc});
 		for (Iterator iterator = iusToTest.iterator(); iterator.hasNext();) {

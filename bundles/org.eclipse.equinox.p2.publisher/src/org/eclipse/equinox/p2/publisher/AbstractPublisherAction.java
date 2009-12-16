@@ -27,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -553,18 +554,18 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	protected IInstallableUnit[] queryForIUs(IPublisherResult publisherResult, String iuId, VersionRange versionRange) {
 		IQuery query = null;
-		Collector collector = new Collector();
+		IQueryResult queryResult = new Collector();
 		query = new InstallableUnitQuery(iuId, versionRange);
 		NullProgressMonitor progress = new NullProgressMonitor();
 		if (publisherResult != null)
-			collector = publisherResult.query(query, progress);
-		if (collector.isEmpty() && info.getMetadataRepository() != null)
-			collector = info.getMetadataRepository().query(query, progress);
-		if (collector.isEmpty() && info.getContextMetadataRepository() != null)
-			collector = info.getContextMetadataRepository().query(query, progress);
+			queryResult = publisherResult.query(query, progress);
+		if (queryResult.isEmpty() && info.getMetadataRepository() != null)
+			queryResult = info.getMetadataRepository().query(query, progress);
+		if (queryResult.isEmpty() && info.getContextMetadataRepository() != null)
+			queryResult = info.getContextMetadataRepository().query(query, progress);
 
-		if (!collector.isEmpty())
-			return (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
+		if (!queryResult.isEmpty())
+			return (IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class);
 		return new IInstallableUnit[0];
 	}
 

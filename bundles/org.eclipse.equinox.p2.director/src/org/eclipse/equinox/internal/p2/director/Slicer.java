@@ -17,11 +17,11 @@ import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitPatch;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IRequirementChange;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -167,7 +167,7 @@ public class Slicer {
 	private void expandRequirement(IInstallableUnit iu, IRequirement req) {
 		if (req.getMax() == 0)
 			return;
-		Collector matches = possibilites.query(req.getMatches(), null);
+		IQueryResult matches = possibilites.query(req.getMatches(), null);
 		int validMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();

@@ -11,8 +11,10 @@ package org.eclipse.equinox.p2.publisher.actions;
 
 import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * An IFilterAdvice that looks up the desired IU in the publisher's input metadata
@@ -28,13 +30,13 @@ public class QueryableFilterAdvice implements IFilterAdvice {
 
 	public String getFilter(String id, Version version, boolean exact) {
 		InstallableUnitQuery query = new InstallableUnitQuery(id, version);
-		Collector result = queryable.query(query, null);
+		IQueryResult result = queryable.query(query, null);
 		if (!result.isEmpty())
 			return ((LDAPQuery) ((IInstallableUnit) result.iterator().next()).getFilter()).getFilter();
 		if (exact)
 			return null;
 		query = new InstallableUnitQuery(id);
-		result = queryable.query(query, null);
+		result.addAll(queryable.query(query, null));
 		if (!result.isEmpty())
 			return ((LDAPQuery) ((IInstallableUnit) result.iterator().next()).getFilter()).getFilter();
 		return null;

@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.security.storage.EncodingUtils;
@@ -1074,8 +1075,8 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 *    reporting is not desired
 	 * @return A collector containing the results of the query
 	 */
-	public Collector query(IQuery query, IProgressMonitor monitor) {
-		Collector collector = new Collector();
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		IQueryResult queryResult = new Collector();
 		URI[] locations = getKnownRepositories(REPOSITORIES_ALL);
 		List queryables = new ArrayList(locations.length); // use a list since we don't know exactly how many will load
 		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
@@ -1091,10 +1092,10 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		try {
 			IQueryable[] queryablesArray = (IQueryable[]) queryables.toArray(new IQueryable[queryables.size()]);
 			CompoundQueryable compoundQueryable = new CompoundQueryable(queryablesArray);
-			collector = compoundQueryable.query(query, sub.newChild(locations.length * 1));
+			queryResult = compoundQueryable.query(query, sub.newChild(locations.length * 1));
 		} finally {
 			sub.done();
 		}
-		return collector;
+		return queryResult;
 	}
 }

@@ -34,6 +34,7 @@ import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.Abstr
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -979,17 +980,17 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return location.toString();
 	}
 
-	public synchronized Collector query(IQuery query, IProgressMonitor monitor) {
-		Collector collector = new Collector();
+	public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		Collector queryResult = new Collector();
 		if (monitor != null && monitor.isCanceled())
-			return collector;
+			return queryResult;
 
 		boolean excludeKeys = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_KEYS));
 		boolean excludeDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_DESCRIPTORS));
 		if (excludeKeys && excludeDescriptors)
-			return collector;
+			return queryResult;
 
 		Iterator iterator = !excludeDescriptors ? new MappedCollectionIterator(artifactMap, !excludeKeys) : artifactMap.keySet().iterator();
-		return query.perform(iterator, collector);
+		return query.perform(iterator, queryResult);
 	}
 }

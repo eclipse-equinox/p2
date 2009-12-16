@@ -22,11 +22,11 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
@@ -286,9 +286,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		current.clearInstallableUnits();
 
 		current.addProperties(profile.getLocalProperties());
-		Collector collector = profile.query(InstallableUnitQuery.ANY, null);
-		for (Iterator collectorIt = collector.iterator(); collectorIt.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) collectorIt.next();
+		IQueryResult queryResult = profile.query(InstallableUnitQuery.ANY, null);
+		for (Iterator queryResultIt = queryResult.iterator(); queryResultIt.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) queryResultIt.next();
 			current.addInstallableUnit(iu);
 			Map iuProperties = profile.getInstallableUnitProperties(iu);
 			if (iuProperties != null)

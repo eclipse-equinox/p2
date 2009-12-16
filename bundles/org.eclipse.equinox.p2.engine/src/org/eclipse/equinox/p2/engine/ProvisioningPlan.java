@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
@@ -51,7 +53,7 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		this.profile = profile;
 		if (futureState == null) {
 			futureState = new IQueryable() {
-				public Collector query(IQuery query, IProgressMonitor monitor) {
+				public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 					return new Collector();
 				}
 			};
@@ -126,7 +128,7 @@ public class ProvisioningPlan implements IProvisioningPlan {
 			this.addition = add;
 		}
 
-		public Collector query(IQuery query, IProgressMonitor monitor) {
+		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 			Collector collector = new Collector();
 			if (operands == null || status.getSeverity() == IStatus.ERROR)
 				return collector;

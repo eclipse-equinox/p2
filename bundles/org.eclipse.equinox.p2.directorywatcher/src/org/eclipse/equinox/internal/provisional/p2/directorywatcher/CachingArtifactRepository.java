@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+
 import java.io.File;
 import java.io.OutputStream;
 import java.net.URI;
@@ -235,7 +237,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return innerRepo.createArtifactDescriptor(key);
 	}
 
-	public synchronized Collector query(IQuery query, IProgressMonitor monitor) {
+	public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		Collector collector = new Collector();
 		if (monitor != null && monitor.isCanceled())
 			return collector;
@@ -246,7 +248,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 			return collector;
 
 		IQueryable cached = new IQueryable() {
-			public Collector query(IQuery query, IProgressMonitor monitor) {
+			public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 				Collector collector = new Collector();
 				Iterator i = !excludeDescriptors ? new MappedCollectionIterator(artifactMap, !excludeKeys) : artifactMap.keySet().iterator();
 				return query.perform(i, collector);

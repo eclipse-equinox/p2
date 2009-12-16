@@ -13,6 +13,7 @@ import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * A queryable that holds a number of other IQueryables and provides
@@ -26,9 +27,9 @@ public class CompoundQueryable implements IQueryable {
 		this.queryables = queryables;
 	}
 
-	public Collector query(IQuery query, IProgressMonitor monitor) {
-		Collector results = new Collector();
-		Collector subResults = null;
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		IQueryResult results = new Collector();
+		IQueryResult subResults = null;
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}

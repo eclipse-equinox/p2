@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -21,7 +23,6 @@ import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryCreationException;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -195,7 +196,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		throw new UnsupportedOperationException("Method is not implemented by this repository");
 	}
 
-	public Collector query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 public class PublisherResult implements IPublisherResult {
 
@@ -130,16 +131,15 @@ public class PublisherResult implements IPublisherResult {
 			this.map = map;
 		}
 
-		public Collector query(IQuery query, IProgressMonitor monitor) {
-			Collector collector = new Collector();
-			return query.perform(flatten(this.map.values()).iterator(), collector);
+		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+			return query.perform(flatten(this.map.values()).iterator(), new Collector());
 		}
 	}
 
 	/**
 	 * Queries both the root and non root IUs
 	 */
-	public Collector query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		IQueryable nonRootQueryable = new QueryableMap(nonRootIUs);
 		IQueryable rootQueryable = new QueryableMap(rootIUs);
 		return new CompoundQueryable(new IQueryable[] {nonRootQueryable, rootQueryable}).query(query, monitor);

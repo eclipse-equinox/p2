@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+
 import java.io.File;
 import java.io.OutputStream;
 import java.util.*;
@@ -104,7 +106,7 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 		return bundleRepositories;
 	}
 
-	public Collector query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		// Query all the all the repositories
 		CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) bundleRepositories.toArray(new IQueryable[bundleRepositories.size()]));
 		return queryable.query(query, monitor);
