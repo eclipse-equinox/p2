@@ -19,9 +19,10 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.common.LicenseManager;
 import org.eclipse.equinox.p2.common.TranslationSupport;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.jface.dialogs.Dialog;
@@ -379,15 +380,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	private void findUnacceptedLicenses(IInstallableUnit[] selectedIUs, IProvisioningPlan plan) {
 		IInstallableUnit[] iusToCheck = selectedIUs;
 		if (plan != null) {
-			List allIUs = new ArrayList();
-			Operand[] operands = plan.getOperands();
-			for (int i = 0; i < operands.length; i++)
-				if (operands[i] instanceof InstallableUnitOperand) {
-					IInstallableUnit addedIU = ((InstallableUnitOperand) operands[i]).second();
-					if (addedIU != null)
-						allIUs.add(addedIU);
-				}
-			iusToCheck = (IInstallableUnit[]) allIUs.toArray(new IInstallableUnit[allIUs.size()]);
+			iusToCheck = (IInstallableUnit[]) plan.getAdditions().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class);
 		}
 
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=218532

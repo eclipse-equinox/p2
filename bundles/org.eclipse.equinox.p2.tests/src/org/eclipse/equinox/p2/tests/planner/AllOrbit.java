@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
@@ -50,13 +50,6 @@ public class AllOrbit extends AbstractProvisioningTest {
 				req1.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
 		}
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
-		Operand[] ops = plan1.getOperands();
-		int count = 0;
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				count++;
-			}
-		}
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 	}
 
@@ -76,14 +69,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 		req1.addInstallableUnits((IInstallableUnit[]) toInstall.toArray(new IInstallableUnit[toInstall.size()]));
 
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
-		Operand[] ops = plan1.getOperands();
-		int count = 0;
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				count++;
-			}
-		}
-		assertEquals(178, count);
+		assertEquals(178, countPlanElements(plan1));
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 	}
 
@@ -104,14 +90,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 		req1.addInstallableUnits((IInstallableUnit[]) toInstall.toArray(new IInstallableUnit[toInstall.size()]));
 
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
-		Operand[] ops = plan1.getOperands();
-		int count = 0;
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				count++;
-			}
-		}
-		assertEquals(178, count);
+		assertEquals(178, countPlanElements(plan1));
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 	}
 }

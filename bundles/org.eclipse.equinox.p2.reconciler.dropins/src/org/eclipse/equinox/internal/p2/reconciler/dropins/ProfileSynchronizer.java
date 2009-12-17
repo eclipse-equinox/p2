@@ -100,8 +100,7 @@ public class ProfileSynchronizer {
 			if (status.getSeverity() == IStatus.ERROR || status.getSeverity() == IStatus.CANCEL)
 				return status;
 
-			Operand[] operands = plan.getOperands();
-			if (operands.length == 0 || containsOnlyInstallableUnitPropertyOperandAdditions(operands)) {
+			if (plan.getAdditions().query(InstallableUnitQuery.ANY, null).size() + plan.getRemovals().query(InstallableUnitQuery.ANY, null).size() == 0) {
 				writeTimestamps();
 				return status;
 			}
@@ -117,21 +116,6 @@ public class ProfileSynchronizer {
 		} finally {
 			sub.done();
 		}
-	}
-
-	// This is a special case that occurs where all IUs being installed are not compatible with the profile so
-	// the operands will have no affect if executed on the profile.
-	private boolean containsOnlyInstallableUnitPropertyOperandAdditions(Operand[] operands) {
-		for (int i = 0; i < operands.length; i++) {
-			if (!(operands[i] instanceof InstallableUnitPropertyOperand))
-				return false;
-
-			InstallableUnitPropertyOperand iuPropertyOperand = (InstallableUnitPropertyOperand) operands[i];
-			//check if this is a removal or update
-			if (iuPropertyOperand.first() != null)
-				return false;
-		}
-		return true;
 	}
 
 	private void writeTimestamps() {

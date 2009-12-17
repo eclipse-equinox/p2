@@ -112,6 +112,6 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 		//expect to have both (a1+inclusion rule) and b1 added
-		assertEquals(3, plan.getOperands().length);
+		assertEquals(2, countPlanElements(plan));
 	}
 }

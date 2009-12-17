@@ -18,11 +18,10 @@ import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.internal.p2.operations.*;
-import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
@@ -163,7 +162,7 @@ public class ProvisioningSession {
 		// If there is nothing to size, return 0
 		if (plan == null)
 			return SIZE_NOTAPPLICABLE;
-		if (plan.getOperands().length == 0)
+		if (countPlanElements(plan) == 0)
 			return 0;
 		long installPlanSize = 0;
 		SubMonitor mon = SubMonitor.convert(monitor, 300);
@@ -180,6 +179,10 @@ public class ProvisioningSession {
 		if (status.isOK())
 			return installPlanSize + set.getSizing().getDiskSize();
 		return SIZE_UNAVAILABLE;
+	}
+
+	private int countPlanElements(IProvisioningPlan plan) {
+		return new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getRemovals()}).query(InstallableUnitQuery.ANY, null).size();
 	}
 
 	/**

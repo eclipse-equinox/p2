@@ -27,7 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
@@ -901,40 +901,18 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected static void assertInstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {
-		Operand[] ops = plan.getOperands();
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
-				if (iu.equals(iuOp.second()))
-					return;
-			}
-		}
-		fail("Can't find " + iu + " in the plan");
+		if (plan.getAdditions().query(new InstallableUnitQuery(iu), null).size() == 0)
+			fail("Can't find " + iu + " in the plan");
 	}
 
 	protected static void assertUninstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {
-		Operand[] ops = plan.getOperands();
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
-				if (iu.equals(iuOp.first()))
-					return;
-			}
-		}
-		fail("Can't find " + iu + " in the plan");
+		if (plan.getRemovals().query(new InstallableUnitQuery(iu), null).size() == 0)
+			fail("Can't find " + iu + " in the plan");
 	}
 
 	protected static void assertNoOperand(IProvisioningPlan plan, IInstallableUnit iu) {
-		Operand[] ops = plan.getOperands();
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
-				if (iuOp.second() != null && iuOp.second().equals(iu))
-					fail(iu + " should not be present in this plan.");
-				if (iuOp.first() != null && iuOp.first().equals(iu))
-					fail(iu + " should not be present in this plan.");
-			}
-		}
+		if (plan.getRemovals().query(new InstallableUnitQuery(iu), null).size() + plan.getAdditions().query(new InstallableUnitQuery(iu), null).size() != 0)
+			fail(iu + " should not be present in this plan.");
 	}
 
 	protected void setUp() throws Exception {
@@ -1384,5 +1362,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");
 		}
 		return count;
+	}
+
+	public int countPlanElements(IProvisioningPlan plan) {
+		return new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getRemovals()}).query(InstallableUnitQuery.ANY, null).size();
 	}
 }

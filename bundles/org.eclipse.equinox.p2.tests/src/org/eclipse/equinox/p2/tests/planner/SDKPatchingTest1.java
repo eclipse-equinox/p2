@@ -57,6 +57,6 @@ public class SDKPatchingTest1 extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("Installation plan", plan.getStatus());
-		assertEquals(4, plan.getOperands().length);
+		assertEquals(3, countPlanElements(plan));
 	}
 }

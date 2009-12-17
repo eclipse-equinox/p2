@@ -13,13 +13,14 @@ package org.eclipse.equinox.internal.p2.ui;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Vector;
+import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
@@ -170,13 +171,11 @@ public class UpdateManagerCompatibility {
 	}
 
 	public static boolean requiresInstallHandlerSupport(IProvisioningPlan plan) {
-		Operand[] operands = plan.getOperands();
-		for (int i = 0; i < operands.length; i++) {
-			if (operands[i] instanceof InstallableUnitOperand) {
-				IInstallableUnit iu = ((InstallableUnitOperand) operands[i]).second();
-				if (iu != null && iu.getProperty(ECLIPSE_INSTALL_HANDLER_PROP) != null)
-					return true;
-			}
+		IQueryResult result = plan.getAdditions().query(InstallableUnitQuery.ANY, null);
+		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			if (iu != null && iu.getProperty(ECLIPSE_INSTALL_HANDLER_PROP) != null)
+				return true;
 		}
 		return false;
 
