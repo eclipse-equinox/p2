@@ -19,6 +19,7 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
+		suite.addTestSuite(AbsolutePlanTest.class);
 		suite.addTestSuite(ActualChangeRequestTest.class);
 		suite.addTestSuite(ActualChangeRequestTest2.class);
 		suite.addTestSuite(AdditionalConstraints.class);

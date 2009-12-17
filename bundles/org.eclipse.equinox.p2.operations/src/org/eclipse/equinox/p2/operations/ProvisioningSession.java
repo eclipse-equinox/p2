@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -201,8 +202,8 @@ public class ProvisioningSession {
 		else
 			set = phaseSet;
 
-		// 300 ticks for download, 100 to install handlers, 100 to install the rest
-		SubMonitor mon = SubMonitor.convert(monitor, 500);
+		// 300 ticks for download, 100 to install handlers, 100 to compute the plan, 100 to install the rest
+		SubMonitor mon = SubMonitor.convert(monitor, 600);
 		int ticksUsed = 0;
 
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=272355
@@ -215,12 +216,12 @@ public class ProvisioningSession {
 				// If the phase set calls for download and install, then we want to download everything atomically before 
 				// applying the install plan.  This way, we can be sure to install the install handler only if we know 
 				// we will be able to get everything else.
-				List allOperands = new ArrayList();
-				allOperands.addAll(Arrays.asList(plan.getOperands()));
-				allOperands.addAll(Arrays.asList(plan.getInstallerPlan().getOperands()));
-				Operand[] downloadOperands = (Operand[]) allOperands.toArray(new Operand[allOperands.size()]);
+				ProfileChangeRequest downloadRequest = new ProfileChangeRequest(profile);
+				downloadRequest.setAbsoluteMode(true);
+				downloadRequest.addInstallableUnits((IInstallableUnit[]) new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getInstallerPlan().getAdditions()}).query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class));
+
 				PhaseSet download = new DownloadPhaseSet();
-				IProvisioningPlan downloadPlan = getEngine().createCustomPlan(profile, downloadOperands, context);
+				IProvisioningPlan downloadPlan = getPlanner().getProvisioningPlan(downloadRequest, context, mon.newChild(100));
 				IStatus downloadStatus = getEngine().perform(downloadPlan, download, mon.newChild(300));
 				if (!downloadStatus.isOK()) {
 					mon.done();

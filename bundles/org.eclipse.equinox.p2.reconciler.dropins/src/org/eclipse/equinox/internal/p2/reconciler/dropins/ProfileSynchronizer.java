@@ -81,8 +81,7 @@ public class ProfileSynchronizer {
 		String updatedCacheExtensions = synchronizeCacheExtensions();
 		if (request == null) {
 			if (updatedCacheExtensions != null) {
-				Operand operand = new PropertyOperand(CACHE_EXTENSIONS, null, updatedCacheExtensions);
-				IStatus engineResult = executeOperands(new Operand[] {operand}, context, null);
+				IStatus engineResult = setProperty(CACHE_EXTENSIONS, updatedCacheExtensions, context, null);
 				if (engineResult.getSeverity() != IStatus.ERROR && engineResult.getSeverity() != IStatus.CANCEL)
 					writeTimestamps();
 				return engineResult;
@@ -424,16 +423,21 @@ public class ProfileSynchronizer {
 		}
 	}
 
-	private IStatus executeOperands(Operand[] operands, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
+	private IStatus setProperty(String key, String value, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(IEngine.SERVICE_NAME);
 		IEngine engine = (IEngine) context.getService(reference);
+		ServiceReference plannerReference = context.getServiceReference(IPlanner.SERVICE_NAME);
+		IPlanner planner = (IPlanner) context.getService(reference);
 		try {
+			ProfileChangeRequest addPropertyRequest = new ProfileChangeRequest(profile);
+			addPropertyRequest.setProfileProperty(key, value);
+			IProvisioningPlan plan = planner.getProvisioningPlan(addPropertyRequest, provisioningContext, monitor);
 			IPhaseSet phaseSet = engine.createPhaseSetExcluding(new String[] {IPhaseSet.PHASE_COLLECT, IPhaseSet.PHASE_CHECK_TRUST});
-			IProvisioningPlan plan = engine.createCustomPlan(profile, operands, provisioningContext);
 			return engine.perform(plan, phaseSet, monitor);
 		} finally {
 			context.ungetService(reference);
+			context.ungetService(plannerReference);
 		}
 	}
 

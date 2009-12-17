@@ -19,6 +19,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
@@ -117,21 +119,21 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		// figure out which IUs we need to process
 		collectIUs(progress.newChild(1));
 
-		// create the operands from the list of IUs
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[processedIUs.size()];
-		int i = 0;
-		for (Iterator iter = processedIUs.iterator(); iter.hasNext();)
-			operands[i++] = new InstallableUnitOperand(null, (IInstallableUnit) iter.next());
-
 		// call the engine with only the "collect" phase so all we do is download
 		IProfile profile = createProfile();
 		try {
+			ProfileChangeRequest request = new ProfileChangeRequest(profile);
+			request.setAbsoluteMode(true);
+			request.addInstallableUnits((IInstallableUnit[]) processedIUs.toArray(new IInstallableUnit[processedIUs.size()]));
 			ProvisioningContext context = new ProvisioningContext();
 			IEngine engine = (IEngine) ServiceHelper.getService(Activator.getBundleContext(), IEngine.SERVICE_NAME);
 			if (engine == null)
 				throw new ProvisionException(Messages.exception_noEngineService);
+			IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getBundleContext(), IPlanner.SERVICE_NAME);
+			if (planner == null)
+				throw new ProvisionException(Messages.exception_noPlannerService);
 
-			IProvisioningPlan plan = engine.createCustomPlan(profile, operands, context);
+			IProvisioningPlan plan = planner.getProvisioningPlan(request, context, monitor);
 			IStatus result = engine.perform(plan, getPhaseSet(), progress.newChild(1));
 			PhaseSet nativeSet = getNativePhase();
 			if (nativeSet != null)

@@ -343,6 +343,8 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	public IProvisioningPlan getProvisioningPlan(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor) {
+		if (profileChangeRequest.getAbsolute())
+			return generateAbsoluteProvisioningPlan(profileChangeRequest, context, monitor);
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
@@ -365,6 +367,28 @@ public class SimplePlanner implements IPlanner {
 		} finally {
 			sub.done();
 		}
+	}
+
+	private IProvisioningPlan generateAbsoluteProvisioningPlan(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor) {
+		Collection toState = new HashSet(profileChangeRequest.getProfile().query(InstallableUnitQuery.ANY, null).toCollection());
+
+		toState.removeAll(Arrays.asList(profileChangeRequest.getRemovedInstallableUnits()));
+		toState.addAll(Arrays.asList(profileChangeRequest.getAddedInstallableUnits()));
+
+		InstallableUnitOperand[] iuOperands = generateOperations(profileChangeRequest.getProfile().query(InstallableUnitQuery.ANY, null).toCollection(), toState);
+		PropertyOperand[] propertyOperands = generatePropertyOperations(profileChangeRequest);
+
+		Operand[] operands = new Operand[iuOperands.length + propertyOperands.length];
+		System.arraycopy(iuOperands, 0, operands, 0, iuOperands.length);
+		System.arraycopy(propertyOperands, 0, operands, iuOperands.length, propertyOperands.length);
+
+		if (DEBUG) {
+			for (int i = 0; i < operands.length; i++) {
+				Tracing.debug(operands[i].toString());
+			}
+		}
+		return new ProvisioningPlan(Status.OK_STATUS, operands, computeActualChangeRequest(toState, profileChangeRequest), null, null, profileChangeRequest.getProfile(), new QueryableArray((IInstallableUnit[]) toState.toArray(new IInstallableUnit[toState.size()])), context);
+
 	}
 
 	//Verify that all the meta requirements necessary to perform the uninstallation (if necessary) and all t

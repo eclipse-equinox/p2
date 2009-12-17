@@ -26,6 +26,7 @@ public class ProfileChangeRequest implements Cloneable {
 	private HashMap propertiesToAdd = null; // map of key->value for properties to be added
 	private HashMap iuPropertiesToAdd = null; // map iu->map of key->value pairs for properties to be added for an iu
 	private HashMap iuPropertiesToRemove = null; // map of iu->list of property keys to be removed for an iu
+	private boolean isAbsolute = false; //Indicate whether or not the request is an absolute one
 
 	public static ProfileChangeRequest createByProfileId(String profileId) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.SERVICE_NAME);
@@ -169,6 +170,14 @@ public class ProfileChangeRequest implements Cloneable {
 			iuPropertiesToRemove.put(iu, keys);
 		}
 		keys.add(SimplePlanner.INCLUSION_RULES);
+	}
+
+	public void setAbsoluteMode(boolean absolute) {
+		isAbsolute = absolute;
+	}
+
+	public boolean getAbsolute() {
+		return isAbsolute;
 	}
 
 	public Object clone() {
