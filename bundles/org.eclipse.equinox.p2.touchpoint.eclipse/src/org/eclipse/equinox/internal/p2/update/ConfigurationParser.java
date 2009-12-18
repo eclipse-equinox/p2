@@ -34,7 +34,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 	 * Parse the given file handle which points to a platform.xml file and a configuration object.
 	 * Returns null if the file doesn't exist.
 	 */
-	public static Configuration parse(File file, URL osgiInstallArea) throws ProvisionException {
+	static Configuration parse(File file, URL osgiInstallArea) throws ProvisionException {
 		return new ConfigurationParser(osgiInstallArea).internalParse(file);
 	}
 

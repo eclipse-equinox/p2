@@ -30,7 +30,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	/*
 	 * Save the given configuration to the specified location.
 	 */
-	public static void save(Configuration configuration, File location, URL osgiInstallArea) throws ProvisionException {
+	static void save(Configuration configuration, File location, URL osgiInstallArea) throws ProvisionException {
 		XMLWriter writer = null;
 		try {
 			OutputStream output = new BufferedOutputStream(new FileOutputStream(location));

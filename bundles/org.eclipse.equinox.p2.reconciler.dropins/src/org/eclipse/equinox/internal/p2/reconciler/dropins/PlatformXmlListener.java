@@ -127,7 +127,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		if (changed) {
 			lastModified = root.lastModified();
 			try {
-				Configuration configuration = ConfigurationParser.parse(root, Activator.getOSGiInstallArea());
+				Configuration configuration = Configuration.load(root, Activator.getOSGiInstallArea());
 				synchronizeConfiguration(configuration);
 			} catch (ProvisionException e) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, Messages.errorProcessingConfg, e));
