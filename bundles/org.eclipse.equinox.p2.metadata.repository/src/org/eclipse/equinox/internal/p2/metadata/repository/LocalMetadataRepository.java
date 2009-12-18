@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
@@ -44,7 +45,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	static final private String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	static final private String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
-	protected HashSet units = new LinkedHashSet();
+	protected IUMap units = new IUMap();
 	protected HashSet repositories = new HashSet();
 
 	private static File getActualLocation(URI location, String extension) {
@@ -89,7 +90,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	public synchronized void addInstallableUnits(IInstallableUnit[] installableUnits) {
 		if (installableUnits == null || installableUnits.length == 0)
 			return;
-		units.addAll(Arrays.asList(installableUnits));
+		units.addAll(installableUnits);
 		save();
 	}
 
@@ -107,7 +108,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 			this.description = state.Description;
 			this.location = state.Location;
 			this.properties = state.Properties;
-			this.units.addAll(Arrays.asList(state.Units));
+			this.units.addAll(state.Units);
 			this.repositories.addAll(Arrays.asList(state.Repositories));
 		}
 		publishRepositoryReferences();
@@ -145,6 +146,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		if (query instanceof InstallableUnitQuery)
+			return units.query((InstallableUnitQuery) query);
 		return query.perform(units.iterator(), new Collector());
 	}
 

@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.publisher;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
@@ -140,8 +141,24 @@ public class PublisherResult implements IPublisherResult {
 	 * Queries both the root and non root IUs
 	 */
 	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		//optimize for installable unit query
+		if (query instanceof InstallableUnitQuery)
+			return queryIU((InstallableUnitQuery) query, monitor);
 		IQueryable nonRootQueryable = new QueryableMap(nonRootIUs);
 		IQueryable rootQueryable = new QueryableMap(rootIUs);
 		return new CompoundQueryable(new IQueryable[] {nonRootQueryable, rootQueryable}).query(query, monitor);
+	}
+
+	private IQueryResult queryIU(InstallableUnitQuery query, IProgressMonitor monitor) {
+		Collector result = new Collector();
+		Collection matches = getIUs(query.getId(), null);
+		VersionRange queryRange = query.getRange();
+		for (Iterator it = matches.iterator(); it.hasNext();) {
+			IInstallableUnit match = (IInstallableUnit) it.next();
+			if (queryRange == null || queryRange.isIncluded(match.getVersion()))
+				if (!result.accept(match))
+					break;
+		}
+		return result;
 	}
 }

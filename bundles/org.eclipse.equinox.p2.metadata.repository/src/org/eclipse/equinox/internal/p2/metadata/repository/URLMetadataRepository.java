@@ -12,10 +12,11 @@
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.net.URI;
-import java.util.*;
+import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
@@ -31,7 +32,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 	private static final Integer REPOSITORY_VERSION = new Integer(1);
 
 	transient protected URI content;
-	protected HashSet units = new LinkedHashSet();
+	protected IUMap units = new IUMap();
 
 	public static URI getActualLocation(URI base) {
 		return getActualLocation(base, XML_EXTENSION);
@@ -65,7 +66,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		this.description = state.Description;
 		this.location = state.Location;
 		this.properties = state.Properties;
-		this.units.addAll(Arrays.asList(state.Units));
+		this.units.addAll(state.Units);
 	}
 
 	// Use this method to setup any transient fields etc after the object has been restored from a stream
@@ -79,6 +80,8 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		if (query instanceof InstallableUnitQuery)
+			return units.query((InstallableUnitQuery) query);
 		return query.perform(units.iterator(), new Collector());
 	}
 }
