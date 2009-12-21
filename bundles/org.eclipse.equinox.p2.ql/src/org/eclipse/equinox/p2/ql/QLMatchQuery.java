@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ql;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IMatchQuery;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * An IQuery implementation that is based on the p2 query language.
@@ -105,7 +106,7 @@ public class QLMatchQuery extends QLQuery implements IMatchQuery {
 		//
 	}
 
-	public Collector perform(Iterator iterator, Collector collector) {
+	public IQueryResult perform(Iterator iterator) {
 		if (expression.needsTranslations()) {
 			IQueryContext queryContext = QL.newQueryContext(iterator);
 			context = expression.createContext(parameters, queryContext.getTranslationSupport(getLocale()));
@@ -114,13 +115,13 @@ public class QLMatchQuery extends QLQuery implements IMatchQuery {
 
 		prePerform();
 		try {
+			ArrayList result = new ArrayList();
 			while (iterator.hasNext()) {
 				Object candidate = iterator.next();
 				if (isMatch(candidate))
-					if (!collector.accept(candidate))
-						break;
+					result.add(candidate);
 			}
-			return collector;
+			return new QueryResult(result);
 		} finally {
 			postPerform();
 		}

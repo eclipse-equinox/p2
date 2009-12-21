@@ -34,7 +34,7 @@ abstract class Expression implements IExpression, IParserConstants {
 				if (provider instanceof Set)
 					return (Set) provider;
 				if (provider instanceof Collector)
-					return (Set) ((Collector) provider).toCollection();
+					return ((Collector) provider).unmodifiableSet();
 			}
 
 			if (provider instanceof Collection)
@@ -44,7 +44,7 @@ abstract class Expression implements IExpression, IParserConstants {
 				if (val instanceof Set)
 					return (Set) val;
 				if (val instanceof Collector)
-					return (Set) ((Collector) val).toCollection();
+					return ((Collector) val).unmodifiableSet();
 			}
 		}
 

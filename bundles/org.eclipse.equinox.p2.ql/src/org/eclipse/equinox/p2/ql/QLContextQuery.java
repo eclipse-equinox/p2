@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.ql;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * An IQuery 'context query' implementation that is based on the p2 query language.
@@ -87,14 +87,8 @@ public class QLContextQuery extends QLQuery {
 		this(IVersionedId.class, expression, new Object[] {param1, param2, param3});
 	}
 
-	public Collector perform(Iterator iterator, Collector collector) {
-		iterator = evaluate(iterator);
-		while (iterator.hasNext()) {
-			Object nxt = iterator.next();
-			if (!collector.accept(nxt))
-				break;
-		}
-		return collector;
+	public IQueryResult perform(Iterator iterator) {
+		return new QueryResult(evaluate(iterator));
 	}
 
 	public Iterator evaluate(Iterator iterator) {

@@ -23,7 +23,7 @@ public class QueryContext implements IQueryContext {
 		final IRepeatableIterator repeatable = RepeatableIterator.create(iterator);
 		this.queryable = new IQueryable() {
 			public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-				return query.perform(repeatable.getCopy(), new Collector());
+				return query.perform(repeatable.getCopy());
 			}
 		};
 	}
@@ -45,7 +45,7 @@ public class QueryContext implements IQueryContext {
 	public Iterator iterator() {
 		final Iterator[] iteratorCatcher = new Iterator[1];
 		queryable.query(new ContextQuery() {
-			public Collector perform(Iterator iterator, Collector result) {
+			public IQueryResult perform(Iterator iterator) {
 				iteratorCatcher[0] = iterator;
 				return null;
 			}
