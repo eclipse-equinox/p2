@@ -541,32 +541,33 @@ public class BundlesAction extends AbstractPublisherAction {
 			String message = NLS.bind(Messages.exception_errorLoadingManifest, bundleLocation);
 			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, message, e));
 		}
-
 		Dictionary manifest = null;
-		if (manifestStream != null) {
-			try {
-				Map manifestMap = ManifestElement.parseBundleManifest(manifestStream, null);
-				// TODO temporary hack.  We are reading a Map but everyone wants a Dictionary so convert.
-				// real answer is to have people expect a Map but that is a wider change.
-				manifest = new Hashtable(manifestMap);
-			} catch (IOException e) {
-				String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
-				return null;
-			} catch (BundleException e) {
-				String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
-				return null;
-			} finally {
+		try {
+			if (manifestStream != null) {
 				try {
-					if (jarFile != null)
-						jarFile.close();
-				} catch (IOException e2) {
-					//Ignore
+					Map manifestMap = ManifestElement.parseBundleManifest(manifestStream, null);
+					// TODO temporary hack.  We are reading a Map but everyone wants a Dictionary so convert.
+					// real answer is to have people expect a Map but that is a wider change.
+					manifest = new Hashtable(manifestMap);
+				} catch (IOException e) {
+					String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
+					return null;
+				} catch (BundleException e) {
+					String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
+					return null;
 				}
+			} else {
+				manifest = convertPluginManifest(bundleLocation, true);
 			}
-		} else {
-			manifest = convertPluginManifest(bundleLocation, true);
+		} finally {
+			try {
+				if (jarFile != null)
+					jarFile.close();
+			} catch (IOException e2) {
+				//Ignore
+			}
 		}
 
 		if (manifest == null)
