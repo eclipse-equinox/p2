@@ -373,7 +373,8 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		result = repo.query(new ArtifactDescriptorQuery(null, null, IArtifactDescriptor.FORMAT_PACKED), null);
 		assertEquals(1, queryResultSize(result));
-		assertContains(result, d3);
+		IArtifactDescriptor resultDescriptor = (IArtifactDescriptor) result.iterator().next();
+		assertEquals(d3.getArtifactKey(), resultDescriptor.getArtifactKey());
 	}
 
 	public void testArtifactIterator() throws Exception {
