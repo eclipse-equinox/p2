@@ -637,18 +637,16 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		Collection collection = queryResult.toCollection();
-		assertEquals(1, collection.size());
+		assertEquals(1, queryResultSize(queryResult));
 
-		assertTrue("Repo contains SPI IU)", collection.iterator().next() instanceof SPIInstallableUnit);
+		assertTrue("Repo contains SPI IU)", queryResult.iterator().next() instanceof SPIInstallableUnit);
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
 		queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		collection = queryResult.toCollection();
-		assertEquals(1, collection.size());
+		assertEquals(1, queryResultSize(queryResult));
 
-		assertTrue("Refreshed repo contains default IU", collection.iterator().next() instanceof InstallableUnit);
+		assertTrue("Refreshed repo contains default IU", queryResult.iterator().next() instanceof InstallableUnit);
 	}
 
 	/**
@@ -672,10 +670,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		Collection collection = queryResult.toCollection();
-		assertEquals(1, collection.size());
+		assertEquals(1, queryResultSize(queryResult));
 
-		IInstallableUnit spiUnit = (IInstallableUnit) collection.iterator().next();
+		IInstallableUnit spiUnit = (IInstallableUnit) queryResult.iterator().next();
 		assertTrue("Repo contains SPI IU)", spiUnit instanceof SPIInstallableUnit);
 		assertEquals(spiUnit.getProvidedCapabilities().length, 1);
 		assertTrue(spiUnit.getProvidedCapabilities()[0] instanceof ProvidedCapability);
@@ -683,10 +680,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
 		queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		collection = queryResult.toCollection();
-		assertEquals(1, collection.size());
+		assertEquals(1, queryResultSize(queryResult));
 
-		IInstallableUnit defaultUnit = (IInstallableUnit) collection.iterator().next();
+		IInstallableUnit defaultUnit = (IInstallableUnit) queryResult.iterator().next();
 		assertTrue("Repo contains SPI IU)", defaultUnit instanceof InstallableUnit);
 		assertEquals(spiUnit.getProvidedCapabilities().length, 1);
 		assertTrue(spiUnit.getProvidedCapabilities()[0] instanceof ProvidedCapability);
@@ -717,20 +713,18 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		Collection collection = queryResult.toCollection();
-		assertEquals(1, collection.size());
+		assertEquals(1, queryResultSize(queryResult));
 
-		IInstallableUnit unit = (IInstallableUnit) collection.iterator().next();
+		IInstallableUnit unit = (IInstallableUnit) queryResult.iterator().next();
 		assertEquals(unit.getRequiredCapabilities().length, 1);
 		assertTrue(unit.getRequiredCapabilities()[0] instanceof SPIRequiredCapability);
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
 		queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		collection = queryResult.toCollection();
-		assertEquals(1, collection.size());
+		assertEquals(1, queryResultSize(queryResult));
 
-		unit = (IInstallableUnit) collection.iterator().next();
+		unit = (IInstallableUnit) queryResult.iterator().next();
 		assertEquals(unit.getRequiredCapabilities().length, 1);
 		assertTrue(unit.getRequiredCapabilities()[0] instanceof RequiredCapability);
 		assertTrue(((IRequiredCapability) unit.getRequiredCapabilities()[0]).getName().equals("bar"));
@@ -785,9 +779,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
 		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
-		Collection collection = queryResult.toCollection();
-		assertEquals(2, collection.size());
-		Iterator iterator = collection.iterator();
+		assertEquals(2, queryResultSize(queryResult));
+		Iterator iterator = queryResult.iterator();
 
 		IInstallableUnit unit = null;
 		IInstallableUnitPatch patchUnit = null;

@@ -267,7 +267,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertContains("Assert child1's content is in composite repo", repo1, compRepo);
 		assertContains("Assert child2's content is in composite repo", repo2, compRepo);
 		//checks that the destination has the correct number of keys (no extras)
-		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, null), repo2.query(InstallableUnitQuery.ANY, null)), compRepo.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, null), repo2.query(InstallableUnitQuery.ANY, null)), queryResultSize(compRepo.query(InstallableUnitQuery.ANY, null)));
 	}
 
 	public void testRemoveNonexistantChild() {
@@ -459,9 +459,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
 		IQueryResult queryResult = compositeRepo.query(new LatestIUVersionQuery(), monitor);
-		Collection collection = queryResult.toCollection();
-		assertEquals("1.0", 1, collection.size());
-		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		assertEquals("1.0", 1, queryResultSize(queryResult));
+		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) queryResult.iterator().next()).getVersion());
 		assertTrue("1.2", monitor.isDone());
 		assertTrue("1.3", monitor.isWorkDone());
 	}
@@ -491,9 +490,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			}
 		}, new LatestIUVersionQuery()});
 		IQueryResult queryResult = compositeRepo.query(cQuery, monitor);
-		Collection collection = queryResult.toCollection();
-		assertEquals("1.0", 1, collection.size());
-		assertEquals("1.1", Version.createOSGi(2, 2, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		assertEquals("1.0", 1, queryResultSize(queryResult));
+		assertEquals("1.1", Version.createOSGi(2, 2, 0), ((IInstallableUnit) queryResult.iterator().next()).getVersion());
 		assertTrue("1.2", monitor.isDone());
 		assertTrue("1.3", monitor.isWorkDone());
 	}
@@ -537,7 +535,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertContains("Assert child1's content is in composite repo", repo1, compRepo);
 		assertContains("Assert child2's content is in composite repo", repo2, compRepo);
 		//checks that the destination has the correct number of keys (no extras)
-		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, null), repo2.query(InstallableUnitQuery.ANY, null)), compRepo.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, null), repo2.query(InstallableUnitQuery.ANY, null)), queryResultSize(compRepo.query(InstallableUnitQuery.ANY, null)));
 	}
 
 	private CompositeMetadataRepository createRepo(boolean compressed) {
@@ -563,8 +561,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	 * Needed to verify that only the appropriate number of files have been transfered by the mirror application
 	 */
 	private int getNumUnique(IQueryResult c1, IQueryResult c2) {
-		Object[] repo1 = c1.toCollection().toArray();
-		Object[] repo2 = c2.toCollection().toArray();
+		Object[] repo1 = c1.toArray(IInstallableUnit.class);
+		Object[] repo2 = c2.toArray(IInstallableUnit.class);
 
 		//initialize to the size of both collectors
 		int numKeys = repo1.length + repo2.length;
@@ -636,7 +634,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		List children = repository.getChildren();
 		assertEquals("2.0", 2, children.size());
 		IQueryResult queryResult = repository.query(InstallableUnitQuery.ANY, getMonitor());
-		assertEquals("2.1", 2, queryResult.size());
+		assertEquals("2.1", 2, queryResultSize(queryResult));
 
 		// ensure the child URIs are stored as relative
 		CompositeRepositoryState state = repository.toState();

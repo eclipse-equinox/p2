@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
  * Tests for the {@link org.eclipse.equinox.internal.provisional.p2.query.Query} class.
@@ -69,13 +72,11 @@ public class QueryTest extends TestCase {
 	public void testPerformSimple() {
 		List items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
-		Collector collector = new Collector();
-		query.perform(items.iterator(), collector);
-		Collection result = collector.toCollection();
-		assertEquals("1.0", 3, result.size());
-		assertTrue("1.1", result.contains("red"));
-		assertTrue("1.2", result.contains("green"));
-		assertTrue("1.3", result.contains("blue"));
+		IQueryResult collector = query.perform(items.iterator());
+		assertEquals("1.0", 3, AbstractProvisioningTest.queryResultSize(collector));
+		AbstractProvisioningTest.assertContains("1.1", collector, "red");
+		AbstractProvisioningTest.assertContains("1.2", collector, "green");
+		AbstractProvisioningTest.assertContains("1.3", collector, "blue");
 	}
 
 	/**
@@ -84,20 +85,17 @@ public class QueryTest extends TestCase {
 	public void testPerformSomeMatches() {
 		List items = Arrays.asList(new Object(), "green", new Object());
 		IQuery query = new AnyStringQuery();
-		Collector collector = new Collector();
-		query.perform(items.iterator(), collector);
-		Collection result = collector.toCollection();
-		assertEquals("1.0", 1, result.size());
-		assertTrue("1.1", result.contains("green"));
+		IQueryResult collector = query.perform(items.iterator());
+		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(collector));
+		AbstractProvisioningTest.assertContains("1.1", collector, "green");
 	}
 
 	public void testPerformHooks() {
 		List items = Arrays.asList("red", "green", "blue");
 		PerformHookQuery query = new PerformHookQuery();
-		Collector collector = new Collector();
 		assertFalse("1.0", query.isComplete());
 		assertFalse("1.1", query.isPrepared());
-		query.perform(items.iterator(), collector);
+		query.perform(items.iterator());
 		assertTrue("1.2", query.isComplete());
 		assertTrue("1.3", query.isPrepared());
 		assertTrue("1.4", query.areHooksExecutedProperly());
@@ -137,11 +135,10 @@ public class QueryTest extends TestCase {
 	public void testPerformHooksOnQueryFail() {
 		List items = Arrays.asList("red", new Object());
 		PerformHookQuery query = new PerformHookQuery();
-		Collector collector = new Collector();
 		assertFalse("1.0", query.isComplete());
 		assertFalse("1.1", query.isPrepared());
 		try {
-			query.perform(items.iterator(), collector);
+			query.perform(items.iterator());
 		} catch (RuntimeException e) {
 			// expected
 		}
@@ -152,7 +149,6 @@ public class QueryTest extends TestCase {
 
 	public void testPreAndPostCompoundANDQuery() {
 		List items = Arrays.asList("red", "green", "blue");
-		Collector collector = new Collector();
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
 		CompoundQuery cQuery = CompoundQuery.createCompoundQuery(new IQuery[] {query1, query2}, true);
@@ -160,7 +156,7 @@ public class QueryTest extends TestCase {
 		assertFalse("1.1", query1.isPrepared());
 		assertFalse("1.2", query2.isComplete());
 		assertFalse("1.3", query2.isPrepared());
-		cQuery.perform(items.iterator(), collector);
+		cQuery.perform(items.iterator());
 		assertTrue("1.4", query1.isComplete());
 		assertTrue("1.5", query1.isPrepared());
 		assertTrue("1.6", query2.isComplete());
@@ -171,7 +167,6 @@ public class QueryTest extends TestCase {
 
 	public void testPreAndPostCompoundOrQuery() {
 		List items = Arrays.asList("red", "green", "blue");
-		Collector collector = new Collector();
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
 		CompoundQuery cQuery = CompoundQuery.createCompoundQuery(new IQuery[] {query1, query2}, false);
@@ -179,7 +174,7 @@ public class QueryTest extends TestCase {
 		assertFalse("1.1", query1.isPrepared());
 		assertFalse("1.2", query2.isComplete());
 		assertFalse("1.3", query2.isPrepared());
-		cQuery.perform(items.iterator(), collector);
+		cQuery.perform(items.iterator());
 		assertTrue("1.4", query1.isComplete());
 		assertTrue("1.5", query1.isPrepared());
 		assertTrue("1.6", query2.isComplete());
@@ -190,7 +185,6 @@ public class QueryTest extends TestCase {
 
 	public void testPreAndPostCompositeQuery() {
 		List items = Arrays.asList("red", "green", "blue");
-		Collector collector = new Collector();
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
 		PipedQuery cQuery = new PipedQuery(new IQuery[] {query1, query2});
@@ -198,7 +192,7 @@ public class QueryTest extends TestCase {
 		assertFalse("1.1", query1.isPrepared());
 		assertFalse("1.2", query2.isComplete());
 		assertFalse("1.3", query2.isPrepared());
-		cQuery.perform(items.iterator(), collector);
+		cQuery.perform(items.iterator());
 		assertTrue("1.4", query1.isComplete());
 		assertTrue("1.5", query1.isPrepared());
 		assertTrue("1.6", query2.isComplete());
@@ -209,7 +203,6 @@ public class QueryTest extends TestCase {
 
 	public void testPreAndPostCompoundQueryFail() {
 		List items = Arrays.asList("red", new Object());
-		Collector collector = new Collector();
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
 		CompoundQuery cQuery = CompoundQuery.createCompoundQuery(new IQuery[] {query1, query2}, true);
@@ -218,7 +211,7 @@ public class QueryTest extends TestCase {
 		assertFalse("1.2", query2.isComplete());
 		assertFalse("1.3", query2.isPrepared());
 		try {
-			cQuery.perform(items.iterator(), collector);
+			cQuery.perform(items.iterator());
 			fail("This query is expected to fail");
 		} catch (RuntimeException e) {
 			// expected
@@ -233,7 +226,6 @@ public class QueryTest extends TestCase {
 
 	public void testPreAndPostCompositeQueryFail() {
 		List items = Arrays.asList("red", new Object());
-		Collector collector = new Collector();
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
 		PipedQuery cQuery = new PipedQuery(new IQuery[] {query1, query2});
@@ -242,7 +234,7 @@ public class QueryTest extends TestCase {
 		assertFalse("1.2", query2.isComplete());
 		assertFalse("1.3", query2.isPrepared());
 		try {
-			cQuery.perform(items.iterator(), collector);
+			cQuery.perform(items.iterator());
 			fail("This query is expected to fail");
 		} catch (RuntimeException e) {
 			// expected
@@ -259,42 +251,38 @@ public class QueryTest extends TestCase {
 		List items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQuery limitQuery = new LimitQuery(query, 1);
-		Collector collector = limitQuery.perform(items.iterator(), new Collector());
-		Collection result = collector.toCollection();
-		assertEquals("1.0", 1, result.size());
-		assertTrue("1.1", result.contains("red"));
+		IQueryResult collector = limitQuery.perform(items.iterator());
+		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(collector));
+		AbstractProvisioningTest.assertContains("1.1", collector, "red");
 	}
 
 	public void testLimitQuery2() {
 		List items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQuery limitQuery = new LimitQuery(query, 2);
-		Collector collector = limitQuery.perform(items.iterator(), new Collector());
-		Collection result = collector.toCollection();
-		assertEquals("1.0", 2, result.size());
-		assertTrue("1.1", result.contains("red"));
-		assertTrue("1.2", result.contains("green"));
+		IQueryResult collector = limitQuery.perform(items.iterator());
+		assertEquals("1.0", 2, AbstractProvisioningTest.queryResultSize(collector));
+		AbstractProvisioningTest.assertContains("1.1", collector, "red");
+		AbstractProvisioningTest.assertContains("1.2", collector, "green");
 	}
 
 	public void testLimitQuery3() {
 		List items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQuery limitQuery = new LimitQuery(query, 3);
-		Collector collector = limitQuery.perform(items.iterator(), new Collector());
-		Collection result = collector.toCollection();
-		assertEquals("1.0", 3, result.size());
-		assertTrue("1.1", result.contains("red"));
-		assertTrue("1.2", result.contains("green"));
-		assertTrue("1.3", result.contains("blue"));
+		IQueryResult collector = limitQuery.perform(items.iterator());
+		assertEquals("1.0", 3, AbstractProvisioningTest.queryResultSize(collector));
+		AbstractProvisioningTest.assertContains("1.1", collector, "red");
+		AbstractProvisioningTest.assertContains("1.2", collector, "green");
+		AbstractProvisioningTest.assertContains("1.3", collector, "blue");
 	}
 
 	public void testLimitQuery0() {
 		List items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
 		IQuery limitQuery = new LimitQuery(query, 0);
-		Collector collector = limitQuery.perform(items.iterator(), new Collector());
-		Collection result = collector.toCollection();
-		assertEquals("1.0", 0, result.size());
+		IQueryResult collector = limitQuery.perform(items.iterator());
+		assertEquals("1.0", 0, AbstractProvisioningTest.queryResultSize(collector));
 	}
 
 	//	public void testPipedLimitQuery() {

@@ -91,14 +91,14 @@ public class FoldersRepositoryTest extends TestCase {
 			repo.addDescriptor(descriptor);
 		}
 		IQueryResult keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
-		assertEquals(2, keys.size());
+		assertEquals(2, AbstractProvisioningTest.queryResultSize(keys));
 		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
 			IArtifactKey key = (IArtifactKey) iterator.next();
 			repo.removeDescriptor(key);
 		}
 
 		keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
-		assertEquals(0, keys.size());
+		assertTrue(keys.isEmpty());
 		assertEquals(0, pluginsFolder.listFiles(filter).length);
 
 		manager.removeRepository(repo.getLocation());

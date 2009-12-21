@@ -57,7 +57,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 		//Install everything except com.ibm.icu
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		IQueryResult allIUs = repo.query(InstallableUnitQuery.ANY, null);
-		ArrayList toInstall = new ArrayList(allIUs.size());
+		ArrayList toInstall = new ArrayList();
 		int removed = 0;
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit toAdd = (IInstallableUnit) iterator.next();
@@ -77,7 +77,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 		//Install everything optionaly (except com.ibm.icu that we don't install at all)
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		IQueryResult allIUs = repo.query(InstallableUnitQuery.ANY, null);
-		ArrayList toInstall = new ArrayList(allIUs.size());
+		ArrayList toInstall = new ArrayList();
 		int removed = 0;
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit toAdd = (IInstallableUnit) iterator.next();

@@ -248,19 +248,21 @@ public class DirectorApplication implements IApplication {
 			IVersionedId rootName = (IVersionedId) rootNames.get(i);
 			Version v = rootName.getVersion();
 			IQuery query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
-			IQueryResult roots;
+			IQueryResult roots = null;
 			if (forInstall)
 				roots = collectRootIUs(new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()}));
-			else
-				roots = new Collector();
-			if (roots.size() <= 0)
-				roots.addAll(profile.query(query, new NullProgressMonitor()));
-			if (roots.size() <= 0)
+
+			if (roots == null || roots.isEmpty())
+				roots = profile.query(query, new NullProgressMonitor());
+
+			Iterator itor = roots.iterator();
+			if (!itor.hasNext())
 				throw new CoreException(new Status(IStatus.ERROR, org.eclipse.equinox.internal.p2.director.app.Activator.ID, NLS.bind(Messages.Missing_IU, rootName)));
-			allRoots.addAll(roots.toCollection());
+			do {
+				allRoots.add(itor.next());
+			} while (itor.hasNext());
 		}
 		return (IInstallableUnit[]) allRoots.toArray(new IInstallableUnit[allRoots.size()]);
-
 	}
 
 	synchronized Bundle getBundle(String symbolicName) {
@@ -462,16 +464,18 @@ public class DirectorApplication implements IApplication {
 
 		ArrayList allRoots = new ArrayList();
 		if (rootsToList.size() == 0) {
-			IQueryResult roots = collectRootIUs(InstallableUnitQuery.ANY);
-			allRoots.addAll(roots.toCollection());
+			Iterator roots = collectRootIUs(InstallableUnitQuery.ANY).iterator();
+			while (roots.hasNext())
+				allRoots.add(roots.next());
 		} else {
 			Iterator r = rootsToList.iterator();
 			while (r.hasNext()) {
 				IVersionedId rootName = (IVersionedId) r.next();
 				Version v = rootName.getVersion();
 				IQuery query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
-				IQueryResult roots = collectRootIUs(query);
-				allRoots.addAll(roots.toCollection());
+				Iterator roots = collectRootIUs(query).iterator();
+				while (roots.hasNext())
+					allRoots.add(roots.next());
 			}
 		}
 
@@ -702,7 +706,7 @@ public class DirectorApplication implements IApplication {
 			context.ungetService(packageAdminRef);
 	}
 
-	public Object run(String[] args) throws CoreException {
+	public Object run(String[] args) {
 		long time = System.currentTimeMillis();
 
 		try {
@@ -786,7 +790,7 @@ public class DirectorApplication implements IApplication {
 		}
 		if (queryable != null)
 			return queryable.query(query, monitor);
-		return new Collector();
+		return Collector.EMPTY_COLLECTOR;
 	}
 
 	private void deeplyPrint(CoreException ce, PrintStream strm, int level) {

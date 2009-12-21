@@ -183,7 +183,14 @@ public class ProvisioningSession {
 	}
 
 	private int countPlanElements(IProvisioningPlan plan) {
-		return new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getRemovals()}).query(InstallableUnitQuery.ANY, null).size();
+		IQueryResult result = new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getRemovals()}).query(InstallableUnitQuery.ANY, null);
+		int cnt = 0;
+		Iterator itor = result.iterator();
+		while (itor.hasNext()) {
+			itor.next();
+			++cnt;
+		}
+		return cnt;
 	}
 
 	/**
@@ -218,7 +225,7 @@ public class ProvisioningSession {
 				// we will be able to get everything else.
 				ProfileChangeRequest downloadRequest = new ProfileChangeRequest(profile);
 				downloadRequest.setAbsoluteMode(true);
-				downloadRequest.addInstallableUnits((IInstallableUnit[]) new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getInstallerPlan().getAdditions()}).query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class));
+				downloadRequest.addInstallableUnits(new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getInstallerPlan().getAdditions()}).query(InstallableUnitQuery.ANY, null));
 
 				PhaseSet download = new DownloadPhaseSet();
 				IProvisioningPlan downloadPlan = getPlanner().getProvisioningPlan(downloadRequest, context, mon.newChild(100));

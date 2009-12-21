@@ -363,7 +363,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		//get the keys
 		IQueryResult keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
-		assertTrue("Error retreaiving artifact keys", keys.size() > 0);
+		assertTrue("Error retreaiving artifact keys", !keys.isEmpty());
 
 		//test for existing key
 		assertTrue("Asserting key is in composite repo", compRepo.contains((IArtifactKey) keys.iterator().next()));
@@ -391,7 +391,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		//get the descriptors
 		IQueryResult keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
-		assertTrue("Error retreaiving artifact keys", keys.size() > 0);
+		assertTrue("Error retreaiving artifact keys", !keys.isEmpty());
 		IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors((IArtifactKey) keys.iterator().next());
 		assertTrue("Error retreaiving artifact descriptors", descriptors.length > 0);
 
@@ -422,7 +422,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		IQueryResult keys = compRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
-		assertTrue("Error retreaiving artifact keys", keys.size() > 0);
+		assertTrue("Error retreaiving artifact keys", !keys.isEmpty());
 		IArtifactKey key = (IArtifactKey) keys.iterator().next();
 		IArtifactDescriptor[] descriptors = compRepo.getArtifactDescriptors(key);
 		assertTrue("Error retreaiving artifact descriptors", descriptors.length > 0);
@@ -507,7 +507,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		//create a request for a descriptor from repo1
 		IQueryResult keys1 = repo1.query(ArtifactKeyQuery.ALL_KEYS, null);
 		IArtifactKey key1 = (IArtifactKey) keys1.iterator().next();
-		assertTrue("Error retreaiving artifact keys", keys1.size() > 0);
+		assertTrue("Error retreaiving artifact keys", !keys1.isEmpty());
 		IArtifactDescriptor[] descriptors1 = repo1.getArtifactDescriptors(key1);
 		assertTrue("Error retreaiving artifact descriptors", descriptors1.length > 0);
 		assertTrue("Expected key not in composite repository", compRepo.contains(descriptors1[0]));
@@ -522,7 +522,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		//create a request for a descriptor from repo2
 		IQueryResult keys2 = repo2.query(ArtifactKeyQuery.ALL_KEYS, null);
 		IArtifactKey key2 = (IArtifactKey) keys2.iterator().next();
-		assertTrue("Error retreaiving artifact keys", keys2.size() > 0);
+		assertTrue("Error retreaiving artifact keys", !keys2.isEmpty());
 		IArtifactDescriptor[] descriptors2 = repo2.getArtifactDescriptors(key2);
 		assertTrue("Error retreaiving artifact descriptors", descriptors2.length > 0);
 		assertTrue("Expected key not in composite repository", compRepo.contains(descriptors2[0]));

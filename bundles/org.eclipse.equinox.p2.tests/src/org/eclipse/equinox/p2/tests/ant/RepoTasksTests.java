@@ -65,7 +65,7 @@ public class RepoTasksTests extends AbstractAntProvisioningTest {
 
 		IArtifactRepository artifacts = getArtifactRepositoryManager().loadRepository(destinationRepo, null);
 		IQueryResult keys = artifacts.query(new ArtifactKeyQuery(null, "anotherplugin", null), null);
-		assertEquals(keys.size(), 0);
+		assertTrue(keys.isEmpty());
 		assertFalse(new File(getTestFolder(getName()), "plugins/anotherplugin_1.0.0.jar").exists());
 	}
 }

@@ -125,7 +125,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createIU("foo");
 		repo.addInstallableUnits(new IInstallableUnit[] {iu});
 		IQueryResult result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
-		assertTrue("1.0", result.size() == 1);
+		assertEquals("1.0", 1, queryResultSize(result));
 		repo.removeAll();
 		result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
 		assertTrue("1.1", result.isEmpty());
@@ -138,10 +138,10 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IInstallableUnit iu2 = createIU("bar");
 		repo.addInstallableUnits(new IInstallableUnit[] {iu, iu2});
 		IQueryResult result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
-		assertTrue("1.0", result.size() == 2);
+		assertEquals("1.0", 2, queryResultSize(result));
 		repo.removeInstallableUnits(new IInstallableUnit[] {iu}, getMonitor());
 		result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
-		assertTrue("1.1", result.size() == 1);
+		assertEquals("1.1", 1, queryResultSize(result));
 		repo.removeInstallableUnits(new IInstallableUnit[] {iu2}, getMonitor());
 		result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
 		assertTrue("1.2", result.isEmpty());

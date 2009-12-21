@@ -60,7 +60,7 @@ public class IUProperties extends AbstractProvisioningTest {
 		if (!s.isOK())
 			LogHelper.log(s);
 		IQueryResult queryResult = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), null);
-		assertEquals(1, queryResult.size());
+		assertEquals(1, queryResultSize(queryResult));
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
 		req2.removeInstallableUnitProfileProperty(b1, "FOO");

@@ -14,6 +14,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * A map that stores {@link IInstallableUnit} instances in a way that is efficient to query
@@ -75,19 +76,18 @@ public class IUMap {
 		return new MapIterator();
 	}
 
-	public Collector query(InstallableUnitQuery query) {
+	public IQueryResult query(InstallableUnitQuery query) {
 		//iterate over the entire map, or just the IU's with the given id
-		Collector result = new Collector();
 		Iterator candidates;
 		if (query.getId() == null)
 			candidates = iterator();
 		else {
 			Collection bucket = ((Collection) units.get(query.getId()));
 			if (bucket == null)
-				return result;
+				return Collector.EMPTY_COLLECTOR;
 			candidates = bucket.iterator();
 		}
-		return query.perform(candidates, result);
+		return query.perform(candidates);
 
 	}
 

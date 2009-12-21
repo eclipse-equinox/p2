@@ -538,7 +538,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
 		IQueryResult queryResult = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);
-		assertEquals("1.1 Should not have more than one IU wth the same ID and version.", 1, queryResult.size());
+		assertEquals("1.1 Should not have more than one IU wth the same ID and version.", 1, queryResultSize(queryResult));
 		return (IInstallableUnit) queryResult.iterator().next();
 	}
 

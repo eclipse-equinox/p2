@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.director.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 public class ProfileChangeRequest implements Cloneable {
 
@@ -61,18 +62,36 @@ public class ProfileChangeRequest implements Cloneable {
 		return result;
 	}
 
-	public void addInstallableUnits(IInstallableUnit[] toInstall) {
+	public void addInstallableUnit(IInstallableUnit toInstall) {
 		if (iusToAdd == null)
-			iusToAdd = new ArrayList(toInstall.length);
+			iusToAdd = new ArrayList();
+		iusToAdd.add(toInstall);
+	}
+
+	public void addInstallableUnits(IQueryResult toInstall) {
+		for (Iterator itor = toInstall.iterator(); itor.hasNext();)
+			addInstallableUnit((IInstallableUnit) itor.next());
+	}
+
+	public void addInstallableUnits(IInstallableUnit[] toInstall) {
 		for (int i = 0; i < toInstall.length; i++)
-			iusToAdd.add(toInstall[i]);
+			addInstallableUnit(toInstall[i]);
+	}
+
+	public void removeInstallableUnit(IInstallableUnit toUninstall) {
+		if (iusToRemove == null)
+			iusToRemove = new ArrayList();
+		iusToRemove.add(toUninstall);
 	}
 
 	public void removeInstallableUnits(IInstallableUnit[] toUninstall) {
-		if (iusToRemove == null)
-			iusToRemove = new ArrayList(toUninstall.length);
 		for (int i = 0; i < toUninstall.length; i++)
-			iusToRemove.add(toUninstall[i]);
+			removeInstallableUnit(toUninstall[i]);
+	}
+
+	public void removeInstallableUnits(IQueryResult toUninstall) {
+		for (Iterator itor = toUninstall.iterator(); itor.hasNext();)
+			removeInstallableUnit((IInstallableUnit) itor.next());
 	}
 
 	public void setProfileProperty(String key, Object value) {

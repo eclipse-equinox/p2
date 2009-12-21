@@ -76,12 +76,12 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		sizingJob.setUser(false);
 		sizingJob.setSystem(true);
 		sizingJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_AUTHENTICATION_JOB_MARKER, Boolean.toString(true));
-		sizingJob.schedule();
 		sizingJob.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
 				sizingJob = null;
 			}
 		});
+		sizingJob.schedule();
 	}
 
 	protected void createSizingInfo(Composite parent) {

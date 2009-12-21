@@ -35,8 +35,9 @@ public class QueryableFilterAdvice implements IFilterAdvice {
 			return ((LDAPQuery) ((IInstallableUnit) result.iterator().next()).getFilter()).getFilter();
 		if (exact)
 			return null;
+
 		query = new InstallableUnitQuery(id);
-		result.addAll(queryable.query(query, null));
+		result = queryable.query(query, null);
 		if (!result.isEmpty())
 			return ((LDAPQuery) ((IInstallableUnit) result.iterator().next()).getFilter()).getFilter();
 		return null;

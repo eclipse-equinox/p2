@@ -29,7 +29,7 @@ public class QueryDescriptorTest extends TestCase {
 
 		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
 			Collector collector = new Collector();
-			return query.perform(elements.iterator(), collector);
+			return query.perform(elements.iterator());
 		}
 	}
 

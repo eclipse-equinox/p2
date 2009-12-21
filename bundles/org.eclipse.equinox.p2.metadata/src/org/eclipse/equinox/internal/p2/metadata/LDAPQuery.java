@@ -1,8 +1,8 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 public class LDAPQuery implements IQuery {
 	private String filter;
@@ -15,7 +15,7 @@ public class LDAPQuery implements IQuery {
 		return filter;
 	}
 
-	public Collector perform(Iterator iterator, Collector result) {
+	public IQueryResult perform(Iterator iterator) {
 		throw new IllegalStateException();
 	}
 

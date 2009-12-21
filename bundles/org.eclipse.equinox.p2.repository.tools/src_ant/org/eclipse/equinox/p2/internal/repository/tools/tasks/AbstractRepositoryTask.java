@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.p2.internal.repository.tools.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
@@ -167,11 +166,12 @@ public abstract class AbstractRepositoryTask extends Task {
 			IUDescription iu = (IUDescription) iter.next();
 			IQuery iuQuery = iu.createQuery();
 
-			IQueryResult queryResult = repository.query(iuQuery, null);
+			Iterator queryResult = repository.query(iuQuery, null).iterator();
 
-			if (iu.isRequired() && queryResult.isEmpty())
+			if (iu.isRequired() && !queryResult.hasNext())
 				throw new BuildException(NLS.bind(Messages.AbstractRepositoryTask_unableToFind, iu.toString()));
-			result.addAll(queryResult.toCollection());
+			while (queryResult.hasNext())
+				result.add(queryResult.next());
 		}
 		return result;
 	}

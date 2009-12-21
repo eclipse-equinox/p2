@@ -16,6 +16,7 @@ import java.util.Iterator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.QueryHelpers;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
@@ -43,7 +44,8 @@ public class RepositoryLocationQuery implements IQuery {
 		return QueryHelpers.getProperty(this, property);
 	}
 
-	public Collector perform(Iterator iterator, Collector result) {
+	public IQueryResult perform(Iterator iterator) {
+		Collector result = new Collector();
 		while (iterator.hasNext()) {
 			Object candidate = iterator.next();
 			URI location = getLocation(candidate);

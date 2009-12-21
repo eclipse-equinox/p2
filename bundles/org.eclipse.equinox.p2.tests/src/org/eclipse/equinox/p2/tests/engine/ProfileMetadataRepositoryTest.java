@@ -87,7 +87,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		IQueryResult repoCollector = repo.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("1.0", repoCollector.isEmpty());
-		assertTrue("1.1", repoCollector.toCollection().containsAll(profileCollector.toCollection()));
+		assertContains("1.1", repoCollector, profileCollector);
 	}
 
 	public void testLoadTimestampedProfile() {
@@ -118,7 +118,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		IQueryResult repoCollector = repo.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("1.0", repoCollector.isEmpty());
-		assertTrue("1.1", repoCollector.toCollection().containsAll(profileCollector.toCollection()));
+		assertContains("1.1", repoCollector, profileCollector);
 	}
 
 	public void DISABLED_testDefaultAgentRepoAndBundlePoolFromProfileRepo() throws InterruptedException {
@@ -161,7 +161,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		IQueryResult repoCollector = repo.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("3.0", repoCollector.isEmpty());
-		assertTrue("3.1", repoCollector.toCollection().containsAll(profileCollector.toCollection()));
+		assertContains("3.1", repoCollector, profileCollector);
 
 		int maxTries = 20;
 		int current = 0;

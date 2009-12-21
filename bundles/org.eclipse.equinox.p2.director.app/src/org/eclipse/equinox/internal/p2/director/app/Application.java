@@ -96,9 +96,9 @@ public class Application implements IApplication {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		markRoots(request, roots);
 		if (install) {
-			request.addInstallableUnits((IInstallableUnit[]) roots.toArray(IInstallableUnit.class));
+			request.addInstallableUnits(roots);
 		} else {
-			request.removeInstallableUnits((IInstallableUnit[]) roots.toArray(IInstallableUnit.class));
+			request.removeInstallableUnits(roots);
 		}
 		return request;
 	}
@@ -178,7 +178,7 @@ public class Application implements IApplication {
 					IProvisioningAgentProvider provider = (IProvisioningAgentProvider) ServiceHelper.getService(Activator.getContext(), IProvisioningAgentProvider.SERVICE_NAME);
 					agent = provider.createAgent(null);
 				}
-				artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);;
+				artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 			}
 			if (artifactManager == null) {
 				if (throwException)
@@ -413,9 +413,9 @@ public class Application implements IApplication {
 					IProfile profile = initializeProfile();
 					query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
 					roots = collectRootIUs(metadataRepositoryLocations, new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()}));
-					if (roots.size() <= 0)
-						roots.addAll(profile.query(query, new NullProgressMonitor()));
-					if (roots.size() <= 0) {
+					if (roots.isEmpty())
+						roots = profile.query(query, new NullProgressMonitor());
+					if (roots.isEmpty()) {
 						System.out.println(NLS.bind(Messages.Missing_IU, root));
 						logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, root)));
 						return EXIT_ERROR;

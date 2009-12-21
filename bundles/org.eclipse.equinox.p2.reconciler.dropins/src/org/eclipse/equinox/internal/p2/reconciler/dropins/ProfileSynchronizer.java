@@ -99,7 +99,7 @@ public class ProfileSynchronizer {
 			if (status.getSeverity() == IStatus.ERROR || status.getSeverity() == IStatus.CANCEL)
 				return status;
 
-			if (plan.getAdditions().query(InstallableUnitQuery.ANY, null).size() + plan.getRemovals().query(InstallableUnitQuery.ANY, null).size() == 0) {
+			if (plan.getAdditions().query(InstallableUnitQuery.ANY, null).isEmpty() && plan.getRemovals().query(InstallableUnitQuery.ANY, null).isEmpty()) {
 				writeTimestamps();
 				return status;
 			}
@@ -295,10 +295,10 @@ public class ProfileSynchronizer {
 		List toRemove = new ArrayList();
 
 		boolean foundIUsToAdd = false;
-		Collection profileIUs = new HashSet(profile.query(InstallableUnitQuery.ANY, null).toCollection());
+		Set profileIUs = profile.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
 
 		// we use IProfile.available(...) here so that we also gather any shared IUs
-		Collection availableProfileIUs = new HashSet(profile.available(InstallableUnitQuery.ANY, null).toCollection());
+		Set availableProfileIUs = profile.available(InstallableUnitQuery.ANY, null).unmodifiableSet();
 
 		// get all IUs from all our repos (toAdd)
 		Collector allIUs = getAllIUsFromRepos();
@@ -324,7 +324,7 @@ public class ProfileSynchronizer {
 
 		// get all IUs from profile with marked property (existing)
 		IQueryResult dropinIUs = profile.query(new IUProfilePropertyQuery(PROP_FROM_DROPINS, Boolean.toString(true)), null);
-		Collection all = new HashSet(allIUs.toCollection());
+		Set all = allIUs.unmodifiableSet();
 		for (Iterator iter = dropinIUs.iterator(); iter.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
 			// the STRICT policy is set when we install things via the UI, we use it to differentiate between IUs installed
@@ -402,6 +402,7 @@ public class ProfileSynchronizer {
 	}
 
 	private Collector getAllIUsFromRepos() {
+		// TODO: Should consider using a sequenced iterator here instead of collecting
 		Collector allRepos = new Collector();
 		for (Iterator it = repositoryMap.entrySet().iterator(); it.hasNext();) {
 			Entry entry = (Entry) it.next();

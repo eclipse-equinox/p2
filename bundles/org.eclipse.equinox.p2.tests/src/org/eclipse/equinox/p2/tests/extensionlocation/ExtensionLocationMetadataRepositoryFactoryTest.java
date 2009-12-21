@@ -163,7 +163,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		URI location = directory.toURI();
 		try {
 			IMetadataRepository repo = factory.load(location, 0, getMonitor());
-			if (repo.query(InstallableUnitQuery.ANY, null).toCollection().size() != 3)
+			if (queryResultSize(repo.query(InstallableUnitQuery.ANY, null)) != 3)
 				fail("2.99");
 		} catch (ProvisionException ex) {
 			fail("2.0");
@@ -179,7 +179,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		URI location = directory.toURI();
 		try {
 			IMetadataRepository repo = factory.load(location, 0, getMonitor());
-			if (repo.query(InstallableUnitQuery.ANY, null).toCollection().size() != 2)
+			if (queryResultSize(repo.query(InstallableUnitQuery.ANY, null)) != 2)
 				fail("3.0");
 		} catch (ProvisionException ex) {
 			fail("2.0");
@@ -195,7 +195,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		URI location = directory.toURI();
 		try {
 			IMetadataRepository repo = factory.load(location, 0, getMonitor());
-			if (repo.query(InstallableUnitQuery.ANY, null).toCollection().size() != 1)
+			if (queryResultSize(repo.query(InstallableUnitQuery.ANY, null)) != 1)
 				fail("3.0");
 		} catch (ProvisionException ex) {
 			fail("2.0");
@@ -209,7 +209,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
 		try {
 			IMetadataRepository repo = factory.load(directory.toURI(), 0, getMonitor());
-			if (repo.query(InstallableUnitQuery.ANY, null).toCollection().size() != 3)
+			if (queryResultSize(repo.query(InstallableUnitQuery.ANY, null)) != 3)
 				fail("3.0");
 		} catch (ProvisionException e) {
 			fail("2.0");

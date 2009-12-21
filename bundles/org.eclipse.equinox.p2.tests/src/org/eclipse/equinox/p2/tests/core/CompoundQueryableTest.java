@@ -9,13 +9,15 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.tests.harness.TestProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
  * Tests the compound queryable
@@ -59,10 +61,10 @@ public class CompoundQueryableTest extends TestCase {
 		Integer[] elements = new Integer[] {1, 2, 3, 4, 5};
 
 		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-			Collector collector = new Collector();
+			IQueryResult collector;
 			try {
 				monitor.beginTask("", 10);
-				collector = query.perform(createIterator(elements), collector);
+				collector = query.perform(createIterator(elements));
 				monitor.worked(10);
 			} finally {
 				monitor.done();
@@ -75,10 +77,10 @@ public class CompoundQueryableTest extends TestCase {
 		Integer[] elements = new Integer[] {4, 6, 8, 10, 12};
 
 		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-			Collector collector = new Collector();
+			IQueryResult collector;
 			try {
 				monitor.beginTask("", 10);
-				collector = query.perform(createIterator(elements), collector);
+				collector = query.perform(createIterator(elements));
 				monitor.worked(10);
 			} finally {
 				monitor.done();
@@ -91,10 +93,10 @@ public class CompoundQueryableTest extends TestCase {
 		Integer[] elements = new Integer[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 
 		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-			Collector collector = new Collector();
+			IQueryResult collector;
 			try {
 				monitor.beginTask("", 10);
-				collector = query.perform(createIterator(elements), collector);
+				collector = query.perform(createIterator(elements));
 				monitor.worked(10);
 			} finally {
 				monitor.done();
@@ -128,7 +130,8 @@ public class CompoundQueryableTest extends TestCase {
 
 	IQuery contextQuery = new ContextQuery() {
 
-		public Collector perform(Iterator iterator, Collector result) {
+		public Collector perform(Iterator iterator) {
+			Collector result = new Collector();
 			while (iterator.hasNext()) {
 				Object o = iterator.next();
 				if (o instanceof Integer && ((Integer) o).intValue() % 2 == 0) {
@@ -141,7 +144,8 @@ public class CompoundQueryableTest extends TestCase {
 	};
 
 	IQuery greatestNumberQuery = new ContextQuery() {
-		public Collector perform(Iterator iterator, Collector result) {
+		public Collector perform(Iterator iterator) {
+			Collector result = new Collector();
 			int greatest = Integer.MIN_VALUE;
 			while (iterator.hasNext()) {
 				int item = ((Integer) iterator.next()).intValue();
@@ -159,67 +163,61 @@ public class CompoundQueryableTest extends TestCase {
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(matchQuery, monitor);
-		assertEquals("1.0", 6, queryResult.size());
-		Collection collection = queryResult.toCollection();
-		assertTrue("1.1", collection.contains(2));
-		assertTrue("1.2", collection.contains(4));
-		assertTrue("1.3", collection.contains(6));
-		assertTrue("1.4", collection.contains(8));
-		assertTrue("1.5", collection.contains(10));
-		assertTrue("1.6", collection.contains(12));
+		assertEquals("1.0", 6, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.1", queryResult, 2);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 4);
+		AbstractProvisioningTest.assertContains("1.3", queryResult, 6);
+		AbstractProvisioningTest.assertContains("1.4", queryResult, 8);
+		AbstractProvisioningTest.assertContains("1.5", queryResult, 10);
+		AbstractProvisioningTest.assertContains("1.6", queryResult, 12);
 	}
 
 	public void testSingleQueryable() {
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(matchQuery, monitor);
-		assertEquals("1.0", 2, queryResult.size());
-		Collection collection = queryResult.toCollection();
-		assertTrue("1.1", collection.contains(2));
-		assertTrue("1.2", collection.contains(4));
+		assertEquals("1.0", 2, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.1", queryResult, 2);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 4);
 	}
 
 	public void testSingleContextQuery() {
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(greatestNumberQuery, monitor);
-		assertEquals("1.0", 1, queryResult.size());
-		Collection collection = queryResult.toCollection();
-		assertTrue("1.1", collection.contains(5));
+		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.1", queryResult, 5);
 	}
 
 	public void testMultipleContextQueries() {
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(greatestNumberQuery, monitor);
-		assertEquals("1.0", 1, queryResult.size());
-		Collection collection = queryResult.toCollection();
-		assertTrue("1.1", collection.contains(12));
+		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.1", queryResult, 12);
 	}
 
 	public void testCompoundMatchAndQuery() {
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(CompoundQuery.createCompoundQuery(new IQuery[] {matchQuery, matchMod4query}, true), monitor);
-		assertEquals("1.0", 3, queryResult.size());
-		Collection collection = queryResult.toCollection();
-		assertTrue("1.2", collection.contains(4));
-		assertTrue("1.4", collection.contains(8));
-		assertTrue("1.6", collection.contains(12));
+		assertEquals("1.0", 3, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 4);
+		AbstractProvisioningTest.assertContains("1.4", queryResult, 8);
+		AbstractProvisioningTest.assertContains("1.6", queryResult, 12);
 	}
 
 	public void testCompoundMatchOrQuery() {
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(CompoundQuery.createCompoundQuery(new IQuery[] {matchQuery, matchMod4query}, false), monitor);
-		assertEquals("1.0", 6, queryResult.size());
-		Collection collection = queryResult.toCollection();
-		assertTrue("1.2", collection.contains(2));
-		assertTrue("1.2", collection.contains(4));
-		assertTrue("1.2", collection.contains(6));
-		assertTrue("1.4", collection.contains(8));
-		assertTrue("1.2", collection.contains(10));
-		assertTrue("1.6", collection.contains(12));
+		assertEquals("1.0", 6, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 2);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 4);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 6);
+		AbstractProvisioningTest.assertContains("1.4", queryResult, 8);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 10);
+		AbstractProvisioningTest.assertContains("1.6", queryResult, 12);
 	}
 
 	public void testMatchQueryProgressMonitor() {
@@ -266,15 +264,14 @@ public class CompoundQueryableTest extends TestCase {
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {cQueryable1, queryable1});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(CompoundQuery.createCompoundQuery(new IQuery[] {contextQuery, greatestNumberQuery}, false), monitor);
-		assertEquals("1.0", 7, queryResult.size());
-		Collection collection = queryResult.toCollection();
-		assertTrue("1.2", collection.contains(2));
-		assertTrue("1.2", collection.contains(4));
-		assertTrue("1.2", collection.contains(6));
-		assertTrue("1.4", collection.contains(8));
-		assertTrue("1.2", collection.contains(10));
-		assertTrue("1.6", collection.contains(12));
-		assertTrue("1.6", collection.contains(13));
+		assertEquals("1.0", 7, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 2);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 4);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 6);
+		AbstractProvisioningTest.assertContains("1.4", queryResult, 8);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 10);
+		AbstractProvisioningTest.assertContains("1.6", queryResult, 12);
+		AbstractProvisioningTest.assertContains("1.6", queryResult, 13);
 		assertTrue("1.0", monitor.isDone());
 		assertTrue("1.1", monitor.isWorkDone());
 	}
@@ -284,9 +281,8 @@ public class CompoundQueryableTest extends TestCase {
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {cQueryable1, queryable1});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(new PipedQuery(new IQuery[] {contextQuery, greatestNumberQuery}), monitor);
-		assertEquals("1.0", 1, queryResult.size());
-		Collection collection = queryResult.toCollection();
-		assertTrue("1.2", collection.contains(12));
+		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 12);
 		assertTrue("1.0", monitor.isDone());
 		assertTrue("1.1", monitor.isWorkDone());
 	}

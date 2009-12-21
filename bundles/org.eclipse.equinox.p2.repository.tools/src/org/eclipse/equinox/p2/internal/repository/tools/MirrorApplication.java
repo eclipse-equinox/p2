@@ -197,7 +197,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	private IStatus mirrorArtifacts(IQueryable slice, IProgressMonitor monitor) throws ProvisionException {
 		// Obtain ArtifactKeys from IUs
 		IQueryResult ius = slice.query(InstallableUnitQuery.ANY, monitor);
-		ArrayList keys = new ArrayList(ius.size());
+		ArrayList keys = new ArrayList();
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			IArtifactKey[] iuKeys = iu.getArtifacts();
@@ -265,13 +265,15 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 			for (int i = 0; i < rootIUs.length; i++) {
 				String[] segments = getArrayArgsFromString(rootIUs[i], "/"); //$NON-NLS-1$
 				VersionRange range = segments.length > 1 ? new VersionRange(segments[i]) : null;
-				IQueryResult queryResult = metadataRepo.query(new InstallableUnitQuery(segments[i], range), null);
-				sourceIUs.addAll(queryResult.toCollection());
+				Iterator queryResult = metadataRepo.query(new InstallableUnitQuery(segments[i], range), null).iterator();
+				while (queryResult.hasNext())
+					sourceIUs.add(queryResult.next());
 			}
 		} else if (sourceIUs == null || sourceIUs.isEmpty()) {
 			sourceIUs = new ArrayList();
-			IQueryResult queryResult = metadataRepo.query(InstallableUnitQuery.ANY, null);
-			sourceIUs.addAll(queryResult.toCollection());
+			Iterator queryResult = metadataRepo.query(InstallableUnitQuery.ANY, null).iterator();
+			while (queryResult.hasNext())
+				sourceIUs.add(queryResult.next());
 			/* old metadata mirroring app did not throw an exception here */
 			if (sourceIUs.size() == 0 && destinationMetadataRepository != null && metadataOrArtifacts == null)
 				throw new ProvisionException(Messages.MirrorApplication_no_IUs);

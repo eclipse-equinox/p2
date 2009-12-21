@@ -315,7 +315,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		p.setProperty("org.eclipse.update.install.features", String.valueOf(true));
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, true, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())), getIUCount(destinationRepo));
 
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
@@ -344,7 +344,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, new Properties(), true, false, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
 		} catch (ProvisionException e) {
@@ -373,7 +373,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		p.setProperty("org.eclipse.update.install.features", String.valueOf(true));
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, false, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
 		} catch (ProvisionException e) {
@@ -401,7 +401,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		Properties p = getSliceProperties();
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
 		} catch (ProvisionException e) {
@@ -433,7 +433,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		p.setProperty("org.eclipse.update.install.features", String.valueOf(true));
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
 		} catch (ProvisionException e) {
@@ -465,7 +465,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		Properties p = getSliceProperties();
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())), getIUCount(destinationRepo));
 		try {
 			assertIUContentEquals("IUs differ", result, getMetadataRepositoryManager().loadRepository(destinationRepo, null));
 		} catch (ProvisionException e) {
@@ -498,7 +498,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		PermissiveSlicer slicer = new PermissiveSlicer(repo, p, true, true, true, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 
-		assertEquals("Different number of IUs", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size(), getIUCount(destinationRepo));
+		assertEquals("Different number of IUs", queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())), getIUCount(destinationRepo));
 		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
 		try {
 			assertArtifactKeyContentEquals("Different ArtifactKeys", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()), destinationRepo);
@@ -762,7 +762,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	 */
 	protected int getIUCount(URI location) {
 		try {
-			return getMetadataRepositoryManager().loadRepository(location, null).query(InstallableUnitQuery.ANY, null).size();
+			return queryResultSize(getMetadataRepositoryManager().loadRepository(location, null).query(InstallableUnitQuery.ANY, null));
 		} catch (ProvisionException e) {
 			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");
 			return -1;

@@ -365,15 +365,15 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		repo.addDescriptor(d3);
 
 		IQueryResult result = repo.query(new ArtifactDescriptorQuery("a", null, null), null);
-		assertEquals(3, result.size());
+		assertEquals(3, queryResultSize(result));
 
 		result = repo.query(new ArtifactDescriptorQuery(null, new VersionRange("[2.0.0, 3.0.0)"), null), null);
-		assertEquals(2, result.size());
-		assertFalse(result.toCollection().contains(d1));
+		assertEquals(2, queryResultSize(result));
+		assertNotContains(result, d1);
 
 		result = repo.query(new ArtifactDescriptorQuery(null, null, IArtifactDescriptor.FORMAT_PACKED), null);
-		assertEquals(1, result.size());
-		assertTrue(result.toCollection().contains(d3));
+		assertEquals(1, queryResultSize(result));
+		assertContains(result, d3);
 	}
 
 	public void testArtifactIterator() throws Exception {

@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
@@ -39,7 +38,7 @@ public class MockQueryable implements IQueryable {
 	}
 
 	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		return query.perform(items.iterator(), new Collector());
+		return query.perform(items.iterator());
 	}
 
 }

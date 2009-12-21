@@ -11,8 +11,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
+import java.lang.reflect.Array;
 import java.util.*;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * A query that combines a group of sub-queries.<P>
@@ -130,8 +133,9 @@ public abstract class CompoundQuery implements IQuery, ICompositeQuery {
 		 * Performs this query on the given iterator, passing all objects in the iterator 
 		 * that match the criteria of this query to the given result.
 		 */
-		public final Collector perform(Iterator iterator, Collector result) {
+		public final IQueryResult perform(Iterator iterator) {
 			prePerform();
+			Collector result = new Collector();
 			try {
 				while (iterator.hasNext()) {
 					Object candidate = iterator.next();
@@ -171,48 +175,72 @@ public abstract class CompoundQuery implements IQuery, ICompositeQuery {
 		/*
 		 * A collector that takes the set to puts the elements in.
 		 */
-		class SetCollector extends Collector {
-			Set s = null;
+		static class SetCollector implements IQueryResult {
+			private final Set s;
 
 			public SetCollector(Set s) {
 				this.s = s;
 			}
 
-			public boolean accept(Object object) {
-				s.add(object);
-				return true;
+			public boolean isEmpty() {
+				return s.isEmpty();
+			}
+
+			public Iterator iterator() {
+				return s.iterator();
+			}
+
+			public Object[] toArray(Class clazz) {
+				return s.toArray((Object[]) Array.newInstance(clazz, s.size()));
+			}
+
+			public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+				return query.perform(iterator());
+			}
+
+			public Set toSet() {
+				return new HashSet(s);
+			}
+
+			public Set unmodifiableSet() {
+				return Collections.unmodifiableSet(s);
 			}
 		}
 
-		public Collector perform(Iterator iterator, Collector result) {
+		public IQueryResult perform(Iterator iterator) {
 			if (queries.length < 1)
-				return result;
+				return Collector.EMPTY_COLLECTOR;
 
-			Collection data = new LinkedList();
+			if (queries.length == 1)
+				return queries[0].perform(iterator);
 
-			while (iterator.hasNext()) {
+			Collection data = new ArrayList();
+			while (iterator.hasNext())
 				data.add(iterator.next());
-			}
 
-			Set[] resultSets = new Set[queries.length];
-			for (int i = 0; i < queries.length; i++) {
-				resultSets[i] = new HashSet();
-				queries[i].perform(data.iterator(), new SetCollector(resultSets[i]));
+			Set result;
+			if (isAnd()) {
+				result = queries[0].perform(data.iterator()).unmodifiableSet();
+				for (int i = 1; i < queries.length && result.size() > 0; i++) {
+					HashSet retained = new HashSet();
+					Iterator itor = queries[i].perform(data.iterator()).iterator();
+					while (itor.hasNext()) {
+						Object nxt = itor.next();
+						if (result.contains(nxt))
+							retained.add(nxt);
+					}
+					result = retained;
+				}
+			} else {
+				result = queries[0].perform(data.iterator()).toSet();
+				for (int i = 1; i < queries.length; i++) {
+					Iterator itor = queries[i].perform(data.iterator()).iterator();
+					while (itor.hasNext()) {
+						result.add(itor.next());
+					}
+				}
 			}
-
-			Set set = resultSets[0];
-			for (int i = 1; i < resultSets.length; i++) {
-				if (isAnd())
-					set.retainAll(resultSets[i]);
-				else
-					set.addAll(resultSets[i]);
-			}
-
-			Iterator resultIterator = set.iterator();
-			boolean gatherResults = true;
-			while (resultIterator.hasNext() && gatherResults)
-				gatherResults = result.accept(resultIterator.next());
-			return result;
+			return new SetCollector(result);
 		}
 	}
 }

@@ -31,6 +31,12 @@ import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 public class Collector implements IQueryResult {
 	private Set collected = null;
 
+	public static final Collector EMPTY_COLLECTOR = new Collector() {
+		public boolean accept(Object val) {
+			return false;
+		}
+	};
+
 	/**
 	 * Creates a new collector.
 	 */
@@ -67,7 +73,7 @@ public class Collector implements IQueryResult {
 	}
 
 	/**
-	 * Returns the collection that is being used to collect results. Unlike {@linkplain #toCollection()},
+	 * Returns the collection that is being used to collect results. Unlike {@linkplain #toSet()},
 	 * this returns the actual modifiable collection that is being used to store results. The
 	 * return value is only intended to be used within subclasses and should not be exposed
 	 * outside of a collection class.
@@ -122,29 +128,37 @@ public class Collector implements IQueryResult {
 	}
 
 	/**
-	 * Returns the collected objects as an immutable collection.
+	 * Returns a copy of the collected objects.
 	 * 
 	 * @return An unmodifiable collection of the collected objects
 	 */
-	public Collection toCollection() {
-		return collected == null ? Collections.EMPTY_SET : Collections.unmodifiableSet(collected);
+	public Set toSet() {
+		return collected == null ? new HashSet() : new HashSet(collected);
 	}
 
 	/**
 	 * Performs a query on this results of this collector.  
 	 */
 	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		Collector collector = new Collector();
-		Iterator iter = toCollection().iterator();
+		IQueryResult result;
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		try {
 			monitor.beginTask(Messages.performing_subquery, 1);
-			collector = query.perform(iter, collector);
+			result = query.perform(iterator());
 			monitor.worked(1);
 		} finally {
 			monitor.done();
 		}
-		return collector;
+		return result;
+	}
+
+	/**
+	 * Returns the collected objects as an immutable collection.
+	 * 
+	 * @return An unmodifiable collection of the collected objects
+	 */
+	public Set unmodifiableSet() {
+		return collected == null ? Collections.EMPTY_SET : Collections.unmodifiableSet(collected);
 	}
 }

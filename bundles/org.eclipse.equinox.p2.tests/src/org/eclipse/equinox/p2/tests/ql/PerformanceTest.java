@@ -43,14 +43,14 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			long start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
 				result = repo.query(capability, new NullProgressMonitor());
-				assertEquals(result.size(), 487);
+				assertEquals(queryResultSize(result), 487);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
 				result = repo.query(predicateQuery, new NullProgressMonitor());
-				assertEquals(result.size(), 487);
+				assertEquals(queryResultSize(result), 487);
 			}
 			exprQueryMS += (System.currentTimeMillis() - start);
 		}
@@ -75,14 +75,14 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			long start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
 				result = qaRepo.query(capability, new NullProgressMonitor());
-				assertEquals(result.size(), 487);
+				assertEquals(queryResultSize(result), 487);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
 				result = qaRepo.query(exprQuery, new NullProgressMonitor());
-				assertEquals(result.size(), 487);
+				assertEquals(queryResultSize(result), 487);
 			}
 			exprQueryMS += (System.currentTimeMillis() - start);
 		}
@@ -105,14 +105,14 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			long start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
 				result = repo.query(propertyQuery, new NullProgressMonitor());
-				assertEquals(result.size(), 965);
+				assertEquals(queryResultSize(result), 965);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
 				result = repo.query(predicateQuery, new NullProgressMonitor());
-				assertEquals(result.size(), 965);
+				assertEquals(queryResultSize(result), 965);
 			}
 			exprQueryMS += (System.currentTimeMillis() - start);
 		}
@@ -144,7 +144,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			long startTime = System.currentTimeMillis();
 			r = repo.query(query, new NullProgressMonitor());
 			traverseTime += (System.currentTimeMillis() - startTime);
-			assertEquals(r.size(), 411);
+			assertEquals(queryResultSize(r), 411);
 
 			startTime = System.currentTimeMillis();
 			Slicer slicer = new Slicer(new QueryableArray(gatherAvailableInstallableUnits(repo)), env, false);
@@ -157,7 +157,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 				return true;
 			}
 		}, new NullProgressMonitor());
-		assertEquals(r.size(), 411);
+		assertEquals(queryResultSize(r), 411);
 
 		System.out.print("100 * Slicing took: ");
 		System.out.println(sliceTime);

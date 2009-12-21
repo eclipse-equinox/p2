@@ -154,12 +154,12 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		}
 
 		IQueryResult queryResult = results.query(query, null);
-		if (queryResult.size() == 0)
-			queryResult.addAll(publisherInfo.getMetadataRepository().query(query, null));
-		if (queryResult.size() == 0 && publisherInfo.getContextMetadataRepository() != null)
-			queryResult.addAll(publisherInfo.getContextMetadataRepository().query(query, null));
+		if (queryResult.isEmpty())
+			queryResult = publisherInfo.getMetadataRepository().query(query, null);
+		if (queryResult.isEmpty() && publisherInfo.getContextMetadataRepository() != null)
+			queryResult = publisherInfo.getContextMetadataRepository().query(query, null);
 
-		if (queryResult.size() == 1)
+		if (!queryResult.isEmpty())
 			return (IInstallableUnit) queryResult.iterator().next();
 		return null;
 	}

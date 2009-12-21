@@ -56,7 +56,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan, null);
 		assertProfileContainsAll("B is missing", profile1, new IInstallableUnit[] {a, b});
-		assertEquals(2, profile1.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals(2, queryResultSize(profile1.query(InstallableUnitQuery.ANY, null)));
 
 		//Install B2
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
@@ -74,7 +74,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		assertEquals(RequestStatus.REMOVED, ((RequestStatus) m.get(a)).getInitialRequestType());
 		engine.perform(plan2, null);
 		assertProfileContainsAll("A is missing", profile1, new IInstallableUnit[] {b2});
-		assertEquals(1, profile1.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals(1, queryResultSize(profile1.query(InstallableUnitQuery.ANY, null)));
 
 		//Try to Install A
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);

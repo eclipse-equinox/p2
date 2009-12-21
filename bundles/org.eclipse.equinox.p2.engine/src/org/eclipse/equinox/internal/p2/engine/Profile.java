@@ -13,7 +13,8 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.ICompositeQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
@@ -163,12 +164,11 @@ public class Profile implements IQueryable, IProfile {
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		Collector collector = new Collector();
 		propagateProfileContext(query);
 		if (query instanceof IUProfilePropertyQuery) {
-			return query.perform(iuProperties.keySet().iterator(), collector);
+			return query.perform(iuProperties.keySet().iterator());
 		}
-		return query.perform(ius.iterator(), collector);
+		return query.perform(ius.iterator());
 	}
 
 	private void propagateProfileContext(IQuery query) {

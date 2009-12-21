@@ -28,7 +28,6 @@ public class CompoundQueryable implements IQueryable {
 	}
 
 	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		IQueryResult results = new Collector();
 		IQueryResult subResults = null;
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
@@ -38,11 +37,14 @@ public class CompoundQueryable implements IQueryable {
 
 		try {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, totalWork * 10);
+			Collector results;
 			if (!isMatchQuery) {
 				// If it is not a match query, then collect the results
 				// as a list, we will query this list for the final results
 				results = new ListCollector();
-			}
+			} else
+				results = new Collector();
+
 			for (int i = 0; i < queryables.length; i++) {
 				if (subMonitor.isCanceled())
 					break;
@@ -50,16 +52,14 @@ public class CompoundQueryable implements IQueryable {
 				results.addAll(subResults);
 			}
 
-			if (!isMatchQuery) {
-				// If it is not a MatchQuery then we must query the results.
-				results = results.query(query, subMonitor.newChild(10));
-			} else
-				results = results;
+			if (isMatchQuery)
+				return results;
+
+			// If it is not a MatchQuery then we must query the results.
+			return results.query(query, subMonitor.newChild(10));
 		} finally {
 			monitor.done();
 		}
-
-		return results;
 	}
 
 	/**
@@ -111,8 +111,8 @@ public class CompoundQueryable implements IQueryable {
 		 * 
 		 * @return An unmodifiable collection of the collected objects
 		 */
-		public Collection toCollection() {
-			return collected == null ? Collections.EMPTY_LIST : Collections.unmodifiableList(collected);
+		public Set toSet() {
+			return collected == null ? Collections.EMPTY_SET : new HashSet(collected);
 		}
 
 		public Iterator iterator() {

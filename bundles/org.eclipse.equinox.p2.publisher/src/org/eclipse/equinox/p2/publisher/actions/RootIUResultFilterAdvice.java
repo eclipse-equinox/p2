@@ -9,8 +9,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
+import java.util.Arrays;
 import java.util.Collection;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
@@ -26,6 +27,6 @@ public class RootIUResultFilterAdvice extends AbstractAdvice implements IRootIUA
 		Collection value = result.getIUs(null, IPublisherResult.ROOT);
 		if (query == null)
 			return value;
-		return query.perform(value.iterator(), new Collector()).toCollection();
+		return Arrays.asList(query.perform(value.iterator()).toArray(IInstallableUnit.class));
 	}
 }

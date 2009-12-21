@@ -133,7 +133,7 @@ public class PublisherResult implements IPublisherResult {
 		}
 
 		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-			return query.perform(flatten(this.map.values()).iterator(), new Collector());
+			return query.perform(flatten(this.map.values()).iterator());
 		}
 	}
 

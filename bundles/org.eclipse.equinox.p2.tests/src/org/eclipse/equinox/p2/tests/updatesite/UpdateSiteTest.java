@@ -586,7 +586,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 		InstallableUnitQuery query = new InstallableUnitQuery("test.featurewithmissingupdateurl.feature.group", Version.create("1.0.0"));
 		IQueryResult result = metadataRepo.query(query, null);
-		assertEquals("1.0", 1, result.size());
+		assertEquals("1.0", 1, queryResultSize(result));
 	}
 
 	/**
@@ -604,7 +604,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 		InstallableUnitQuery query = new InstallableUnitQuery("org.eclipse.jdt.astview.feature.feature.group", Version.create("1.0.1"));
 		IQueryResult result = metadataRepo.query(query, null);
-		assertEquals("1.0", 1, result.size());
+		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit featureIU = (IInstallableUnit) result.iterator().next();
 		IRequirement[] required = featureIU.getRequiredCapabilities();
 		for (int i = 0; i < required.length; i++) {
@@ -625,7 +625,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("Can't load repository UpdateSite240121");
 		}
 		IQueryResult keys = artifactRepo.query(new ArtifactKeyQuery(null, "Plugin240121", null), null);
-		assertEquals(1, keys.size());
+		assertEquals(1, queryResultSize(keys));
 		IArtifactKey key = (IArtifactKey) keys.iterator().next();
 		IStatus status = artifactRepo.getArtifact(artifactRepo.getArtifactDescriptors(key)[0], new ByteArrayOutputStream(500), new NullProgressMonitor());
 		if (!status.isOK())

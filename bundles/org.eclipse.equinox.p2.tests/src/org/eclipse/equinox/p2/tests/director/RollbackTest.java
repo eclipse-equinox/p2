@@ -11,8 +11,6 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
@@ -25,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -114,9 +113,9 @@ public class RollbackTest extends AbstractProvisioningTest {
 		IStatus status = director.provision(request1, null, new NullProgressMonitor());
 		assertEquals("1.0", IStatus.OK, status.getCode());
 
-		List profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, null).toCollection());
-		assertTrue("2.0", profileIUs.contains(a1));
-		assertTrue("3.0", profileIUs.contains(b1));
+		IQueryResult profileIUs = profile.query(InstallableUnitQuery.ANY, null);
+		assertContains("2.0", profileIUs, a1);
+		assertContains("3.0", profileIUs, b1);
 
 		assertEquals(2, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 
@@ -126,10 +125,10 @@ public class RollbackTest extends AbstractProvisioningTest {
 		status = director.provision(request2, null, new NullProgressMonitor());
 		assertEquals("5.0", IStatus.OK, status.getCode());
 
-		profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, null).toCollection());
-		assertFalse("6.0", profileIUs.contains(a1));
-		assertTrue("7.0", profileIUs.contains(b1));
-		assertTrue("8.0", profileIUs.contains(c1));
+		profileIUs = profile.query(InstallableUnitQuery.ANY, null);
+		assertNotContains("6.0", profileIUs, a1);
+		assertContains("7.0", profileIUs, b1);
+		assertContains("8.0", profileIUs, c1);
 
 		assertEquals(3, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		IProfile revertProfile = profileRegistry.getProfile(profile.getProfileId(), profileRegistry.listProfileTimestamps(profile.getProfileId())[1]);
@@ -137,10 +136,10 @@ public class RollbackTest extends AbstractProvisioningTest {
 		status = director.revert(profile, revertProfile, new ProvisioningContext(), new NullProgressMonitor());
 		assertEquals("10.0", IStatus.OK, status.getCode());
 
-		profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, null).toCollection());
-		assertTrue("11.0", profileIUs.contains(a1));
-		assertTrue("12.0", profileIUs.contains(b1));
-		assertFalse("13.0", profileIUs.contains(c1));
+		profileIUs = profile.query(InstallableUnitQuery.ANY, null);
+		assertContains("11.0", profileIUs, a1);
+		assertContains("12.0", profileIUs, b1);
+		assertNotContains("13.0", profileIUs, c1);
 	}
 
 	public void testRollbackIUProfileProperties() {

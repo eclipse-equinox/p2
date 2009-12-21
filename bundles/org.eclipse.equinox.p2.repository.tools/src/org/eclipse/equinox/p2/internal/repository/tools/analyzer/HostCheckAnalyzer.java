@@ -37,7 +37,7 @@ public class HostCheckAnalyzer extends IUAnalyzer {
 					theHost = (IRequiredCapability) hosts[i];
 				if (theHost.getNamespace().equals("osgi.bundle")) {
 					IQueryResult results = repository.query(new InstallableUnitQuery(theHost.getName(), theHost.getRange()), new NullProgressMonitor());
-					if (results.size() == 0) {
+					if (results.isEmpty()) {
 						error(iu, "IU Fragment: " + iu.getId() + " cannot find host" + theHost.getName() + " : " + theHost.getRange());
 						return;
 					}

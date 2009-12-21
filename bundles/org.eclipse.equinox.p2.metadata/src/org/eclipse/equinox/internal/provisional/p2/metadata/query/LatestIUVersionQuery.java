@@ -9,9 +9,9 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-
 import java.util.*;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * This query returns the latest version for each unique VersionedID.  
@@ -22,7 +22,7 @@ public class LatestIUVersionQuery extends ContextQuery {
 	/**
 	 * Performs the LatestIUVersionQuery
 	 */
-	public Collector perform(Iterator iterator, Collector result) {
+	public IQueryResult perform(Iterator iterator) {
 		HashMap greatestIUVersion = new HashMap();
 		while (iterator.hasNext()) {
 			Object next = iterator.next();
@@ -43,6 +43,7 @@ public class LatestIUVersionQuery extends ContextQuery {
 		Iterator valuesIterator = values.iterator();
 		boolean continueGather = true;
 
+		Collector result = new Collector();
 		while (valuesIterator.hasNext() && continueGather) {
 			IVersionedId nextIU = (IVersionedId) valuesIterator.next();
 			continueGather = result.accept(nextIU);

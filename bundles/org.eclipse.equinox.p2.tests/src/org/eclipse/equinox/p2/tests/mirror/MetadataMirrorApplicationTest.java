@@ -109,8 +109,8 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 	 * Needed to verify that only the appropriate number of files have been transfered by the mirror application
 	 */
 	private int getNumUnique(IQueryResult c1, IQueryResult c2) {
-		Object[] repo1 = c1.toCollection().toArray();
-		Object[] repo2 = c2.toCollection().toArray();
+		Object[] repo1 = c1.toArray(IInstallableUnit.class);
+		Object[] repo2 = c2.toArray(IInstallableUnit.class);
 
 		//initialize to the size of both query results
 		int numKeys = repo1.length + repo2.length;
@@ -362,7 +362,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			assertContains("5.1", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			assertContains("5.2", getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("5.3", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null), getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, null)), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null).size());
+			assertEquals("5.3", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null), getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, null)), queryResultSize(getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null)));
 		} catch (ProvisionException e) {
 			fail("5.4", e);
 		}
@@ -467,7 +467,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			assertContains("11.1", getMetadataRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			assertContains("11.2", getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("11.3", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, null), getMetadataRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null).query(InstallableUnitQuery.ANY, null)), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null).size());
+			assertEquals("11.3", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, null), getMetadataRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null).query(InstallableUnitQuery.ANY, null)), queryResultSize(getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null)));
 		} catch (ProvisionException e) {
 			fail("11.4", e);
 		}
@@ -652,7 +652,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			assertContains("20.2", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			assertContains("20.3", getMetadataRepositoryManager().loadRepository(sourceRepo4Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("20.4", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null), getMetadataRepositoryManager().loadRepository(sourceRepo4Location.toURI(), null).query(InstallableUnitQuery.ANY, null)), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null).size());
+			assertEquals("20.4", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null), getMetadataRepositoryManager().loadRepository(sourceRepo4Location.toURI(), null).query(InstallableUnitQuery.ANY, null)), queryResultSize(getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null)));
 		} catch (ProvisionException e) {
 			fail("20.5", e);
 		}
@@ -938,7 +938,7 @@ public class MetadataMirrorApplicationTest extends AbstractProvisioningTest {
 			assertContains("3", getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			assertContains("4", getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("5", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null), getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, null)), getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null).size());
+			assertEquals("5", getNumUnique(getMetadataRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null), getMetadataRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).query(InstallableUnitQuery.ANY, null)), queryResultSize(getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null).query(InstallableUnitQuery.ANY, null)));
 		} catch (ProvisionException e) {
 			fail("Could not load destination", e);
 		}

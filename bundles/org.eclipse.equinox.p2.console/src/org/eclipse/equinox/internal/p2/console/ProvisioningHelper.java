@@ -19,7 +19,6 @@ import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -161,7 +160,7 @@ public class ProvisioningHelper {
 		}
 		if (queryable != null)
 			return queryable.query(query, monitor);
-		return new Collector();
+		return Collector.EMPTY_COLLECTOR;
 	}
 
 	public static URI[] getMetadataRepositories() {
@@ -201,10 +200,9 @@ public class ProvisioningHelper {
 		IEngine engine = (IEngine) ServiceHelper.getService(Activator.getContext(), IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new ProvisionException("No director service found.");
-		IInstallableUnit[] toInstall = (IInstallableUnit[]) units.toArray(IInstallableUnit.class);
 		ProvisioningContext context = new ProvisioningContext();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(toInstall);
+		request.addInstallableUnits(units);
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}
@@ -301,10 +299,9 @@ public class ProvisioningHelper {
 		IEngine engine = (IEngine) ServiceHelper.getService(Activator.getContext(), IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new ProvisionException("No engine service found.");
-		IInstallableUnit[] toUninstall = (IInstallableUnit[]) units.toArray(IInstallableUnit.class);
 		ProvisioningContext context = new ProvisioningContext();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeInstallableUnits(toUninstall);
+		request.removeInstallableUnits(units);
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}

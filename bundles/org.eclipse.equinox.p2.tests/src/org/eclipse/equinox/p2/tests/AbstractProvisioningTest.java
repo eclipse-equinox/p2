@@ -632,6 +632,30 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 	}
 
+	public static int queryResultSize(IQueryResult queryResult) {
+		if (queryResult instanceof Collector)
+			return ((Collector) queryResult).size();
+
+		int cnt = 0;
+		Iterator itor = queryResult.iterator();
+		while (itor.hasNext()) {
+			itor.next();
+			++cnt;
+		}
+		return cnt;
+	}
+
+	public static int queryResultUniqueSize(IQueryResult queryResult) {
+		int cnt = 0;
+		Iterator itor = queryResult.iterator();
+		HashSet uniqueTracker = new HashSet();
+		while (itor.hasNext()) {
+			if (uniqueTracker.add(itor.next()))
+				++cnt;
+		}
+		return cnt;
+	}
+
 	public static void restartBundle(final Bundle bundle) throws BundleException {
 		bundle.stop(Bundle.STOP_TRANSIENT);
 		startBundle(bundle);
@@ -801,7 +825,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		IQueryResult queryResult = repository.query(new InstallableUnitQuery(name), null);
 
 		IInstallableUnit unit = null;
-		if (queryResult.size() > 0)
+		if (!queryResult.isEmpty())
 			unit = (IInstallableUnit) queryResult.iterator().next();
 
 		return unit;
@@ -901,17 +925,17 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected static void assertInstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {
-		if (plan.getAdditions().query(new InstallableUnitQuery(iu), null).size() == 0)
+		if (plan.getAdditions().query(new InstallableUnitQuery(iu), null).isEmpty())
 			fail("Can't find " + iu + " in the plan");
 	}
 
 	protected static void assertUninstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {
-		if (plan.getRemovals().query(new InstallableUnitQuery(iu), null).size() == 0)
+		if (plan.getRemovals().query(new InstallableUnitQuery(iu), null).isEmpty())
 			fail("Can't find " + iu + " in the plan");
 	}
 
 	protected static void assertNoOperand(IProvisioningPlan plan, IInstallableUnit iu) {
-		if (plan.getRemovals().query(new InstallableUnitQuery(iu), null).size() + plan.getAdditions().query(new InstallableUnitQuery(iu), null).size() != 0)
+		if (!(plan.getRemovals().query(new InstallableUnitQuery(iu), null).isEmpty() && plan.getAdditions().query(new InstallableUnitQuery(iu), null).isEmpty()))
 			fail(iu + " should not be present in this plan.");
 	}
 
@@ -1181,7 +1205,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		while (it.hasNext()) {
 			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
 			IQueryResult destinationCollector = destinationRepo.query(new InstallableUnitQuery(sourceIU), null);
-			assertEquals(message, 1, destinationCollector.size());
+			assertEquals(message, 1, queryResultSize(destinationCollector));
 			assertEquals(message, sourceIU, (IInstallableUnit) destinationCollector.iterator().next());
 		}
 	}
@@ -1193,6 +1217,61 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected static void assertContentEquals(String message, IMetadataRepository repo1, IMetadataRepository repo2) {
 		assertContains(message, repo1, repo2);
 		assertContains(message, repo2, repo1);
+	}
+
+	public static void assertContains(String message, IQueryable source, IQueryable destination) {
+		IQueryResult sourceCollector = source.query(InstallableUnitQuery.ANY, null);
+		Iterator it = sourceCollector.iterator();
+
+		while (it.hasNext()) {
+			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
+			IQueryResult destinationCollector = destination.query(new InstallableUnitQuery(sourceIU), null);
+			assertEquals(message, 1, queryResultSize(destinationCollector));
+			assertTrue(message, sourceIU.equals(destinationCollector.iterator().next()));
+		}
+	}
+
+	public static void assertContains(String message, IQueryResult result, IQueryResult mustHave) {
+		assertContains(message, result.iterator(), mustHave.iterator());
+	}
+
+	public static void assertContains(String message, Iterator result, Iterator mustHave) {
+		HashSet repoSet = new HashSet();
+		while (mustHave.hasNext())
+			repoSet.add(mustHave.next());
+		assertContains(message, result, repoSet);
+	}
+
+	public static void assertContains(String message, Iterator result, Collection mustHave) {
+		while (result.hasNext())
+			assertTrue(message, mustHave.contains(result.next()));
+	}
+
+	public static void assertContains(IQueryResult result, Object value) {
+		assertContains(null, result, value);
+	}
+
+	public static void assertNotContains(IQueryResult result, Object value) {
+		assertNotContains(null, result, value);
+	}
+
+	public static void assertContains(String message, IQueryResult result, Object value) {
+		Iterator itor = result.iterator();
+		while (itor.hasNext())
+			if (itor.next().equals(value))
+				return;
+		fail(message);
+	}
+
+	public static void assertNotContains(String message, IQueryResult result, Object value) {
+		Iterator itor = result.iterator();
+		while (itor.hasNext())
+			if (itor.next().equals(value))
+				fail(message);
+	}
+
+	public static void assertContains(String message, Collection fromIUs, Iterator fromRepo) {
+		assertContains(message, fromIUs.iterator(), fromRepo);
 	}
 
 	/*
@@ -1349,7 +1428,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected int getArtifactKeyCount(IArtifactRepository repo) {
-		return repo.query(ArtifactKeyQuery.ALL_KEYS, null).size();
+		return queryResultSize(repo.query(ArtifactKeyQuery.ALL_KEYS, null));
 	}
 
 	protected int getArtifactDescriptorCount(URI location) {
@@ -1357,7 +1436,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		try {
 			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(location, null);
 			IQueryResult descriptors = repo.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
-			return descriptors.size();
+			return queryResultSize(descriptors);
 		} catch (ProvisionException e) {
 			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");
 		}
@@ -1365,6 +1444,6 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public int countPlanElements(IProvisioningPlan plan) {
-		return new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getRemovals()}).query(InstallableUnitQuery.ANY, null).size();
+		return queryResultSize(new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getRemovals()}).query(InstallableUnitQuery.ANY, null));
 	}
 }

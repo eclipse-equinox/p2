@@ -46,9 +46,9 @@ public class Bug272251 extends AbstractProvisioningTest {
 
 	public void testInstallFeaturePatch() {
 		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.wst.jsdt.feature.patch.feature.group", Version.create("3.0.4.v200904020304-1-8d7w311_15131415")), new NullProgressMonitor());
-		assertEquals(1, c.size());
+		assertEquals(1, queryResultSize(c));
 		IQueryResult expectedIU = repo.query(new InstallableUnitQuery("org.eclipse.wst.jsdt.web.ui", Version.create("1.0.105.v200904020304")), new NullProgressMonitor());
-		assertEquals(1, expectedIU.size());
+		assertEquals(1, queryResultSize(expectedIU));
 		IInstallableUnit patch = (IInstallableUnit) c.iterator().next();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {patch});

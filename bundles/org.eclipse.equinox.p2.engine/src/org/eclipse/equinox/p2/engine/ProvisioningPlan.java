@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * @since 2.0
@@ -54,7 +53,7 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		if (futureState == null) {
 			futureState = new IQueryable() {
 				public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-					return new Collector();
+					return Collector.EMPTY_COLLECTOR;
 				}
 			};
 		}
@@ -129,9 +128,8 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		}
 
 		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-			Collector collector = new Collector();
 			if (operands == null || status.getSeverity() == IStatus.ERROR)
-				return collector;
+				return Collector.EMPTY_COLLECTOR;
 			Collection list = new ArrayList();
 			for (int i = 0; i < operands.length; i++) {
 				if (!(operands[i] instanceof InstallableUnitOperand))
@@ -141,7 +139,7 @@ public class ProvisioningPlan implements IProvisioningPlan {
 				if (iu != null)
 					list.add(iu);
 			}
-			return query.perform(list.iterator(), collector);
+			return query.perform(list.iterator());
 		}
 	}
 

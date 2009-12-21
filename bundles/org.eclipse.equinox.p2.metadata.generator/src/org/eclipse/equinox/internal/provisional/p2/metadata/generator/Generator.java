@@ -641,7 +641,6 @@ public class Generator {
 				if (!generateRootIU && data == null)
 					continue;
 				IQuery query = new InstallableUnitQuery(bundle.getSymbolicName());
-				Collector collector = new Collector();
 				IMetadataRepository metadataRepository = info.getMetadataRepository();
 				if (metadataRepository == null)
 					continue;

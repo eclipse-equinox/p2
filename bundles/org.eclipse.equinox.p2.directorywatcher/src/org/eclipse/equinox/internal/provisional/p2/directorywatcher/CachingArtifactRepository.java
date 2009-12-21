@@ -9,8 +9,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
-
 import java.io.File;
 import java.io.OutputStream;
 import java.net.URI;
@@ -20,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
@@ -238,20 +237,18 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 	}
 
 	public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		Collector collector = new Collector();
 		if (monitor != null && monitor.isCanceled())
-			return collector;
+			return Collector.EMPTY_COLLECTOR;
 
 		final boolean excludeKeys = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_KEYS));
 		final boolean excludeDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_DESCRIPTORS));
 		if (excludeKeys && excludeDescriptors)
-			return collector;
+			return Collector.EMPTY_COLLECTOR;
 
 		IQueryable cached = new IQueryable() {
 			public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-				Collector collector = new Collector();
 				Iterator i = !excludeDescriptors ? new MappedCollectionIterator(artifactMap, !excludeKeys) : artifactMap.keySet().iterator();
-				return query.perform(i, collector);
+				return query.perform(i);
 			}
 		};
 

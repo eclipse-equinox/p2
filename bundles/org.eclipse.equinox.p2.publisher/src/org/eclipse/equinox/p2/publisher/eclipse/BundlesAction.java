@@ -29,6 +29,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -696,13 +697,13 @@ public class BundlesAction extends AbstractPublisherAction {
 					// TODO: Need a test case for multiple hosts
 					String hostId = bd.getHost().getName();
 					VersionRange hostVersionRange = VersionRange.fromOSGiVersionRange(bd.getHost().getVersionRange());
-					IInstallableUnit[] hosts = queryForIUs(result, hostId, hostVersionRange);
+					IQueryResult hosts = queryForIUs(result, hostId, hostVersionRange);
 
-					for (int j = 0; j < hosts.length; j++) {
+					for (Iterator itor = hosts.iterator(); itor.hasNext();) {
 						String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
 						fragment = queryForIU(result, fragmentId, Version.fromOSGiVersion(bd.getVersion()));
 						if (fragment == null) {
-							String[] externalizedStrings = getExternalizedStrings(hosts[j]);
+							String[] externalizedStrings = getExternalizedStrings((IInstallableUnit) itor.next());
 							fragment = createHostLocalizationFragment(bundleIU, bd, hostId, externalizedStrings);
 						}
 					}

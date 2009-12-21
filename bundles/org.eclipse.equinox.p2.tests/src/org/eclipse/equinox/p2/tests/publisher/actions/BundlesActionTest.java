@@ -118,7 +118,7 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals("2.0", 1, ius.size());
 		QueryableArray queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
 		IQueryResult result = queryableArray.query(new InstallableUnitQuery("foo"), null);
-		assertEquals("3.1", 1, result.size());
+		assertEquals("3.1", 1, queryResultSize(result));
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		IUPropertyUtils iuPropertyUtils = new IUPropertyUtils(queryableArray);
 		assertEquals("3.2", "English Foo", iuPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
@@ -129,7 +129,7 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals("2.0", 3, ius.size());
 		queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
 		result = queryableArray.query(new InstallableUnitQuery("foo"), null);
-		assertEquals("2.1", 1, result.size());
+		assertEquals("2.1", 1, queryResultSize(result));
 		iu = (IInstallableUnit) result.iterator().next();
 		iuPropertyUtils = new IUPropertyUtils(queryableArray);
 		assertEquals("2.2", "German Foo", iuPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));

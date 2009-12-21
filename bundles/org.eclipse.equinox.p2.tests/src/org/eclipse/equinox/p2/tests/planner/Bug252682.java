@@ -46,7 +46,7 @@ public class Bug252682 extends AbstractProvisioningTest {
 		IInstallableUnit p2Feature = (IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.user.ui.feature.group"), new NullProgressMonitor()).iterator().next();
 		System.out.println(p2Feature);
 		IQueryResult c = profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.core.patch"), new NullProgressMonitor());
-		assertEquals(1, c.size());
+		assertEquals(1, queryResultSize(c));
 		ProvisioningContext ctx = new ProvisioningContext();
 		ctx.setExtraIUs(newIUs);
 		IInstallableUnit patch = (IInstallableUnit) c.iterator().next();

@@ -11,6 +11,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 import java.util.Iterator;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * A PipedQuery is an aggregate query in which each sub-query
@@ -54,18 +55,15 @@ public class PipedQuery implements IQuery, ICompositeQuery {
 		return queries;
 	}
 
-	public Collector perform(Iterator iterator, Collector result) {
-		Collector collector;
-		Iterator iter = iterator;
-		for (int i = 0; i < queries.length; i++) {
-			// Take the results of the previous query and using them
-			// to drive the next one (i.e. composing queries)
-			collector = queries[i].perform(iter, new Collector());
-			iter = collector.iterator();
+	public IQueryResult perform(Iterator iterator) {
+		IQueryResult last = Collector.EMPTY_COLLECTOR;
+		if (queries.length > 0) {
+			last = queries[0].perform(iterator);
+			for (int i = 1; i < queries.length; i++)
+				// Take the results of the previous query and using them
+				// to drive the next one (i.e. composing queries)
+				last = queries[i].perform(last.iterator());
 		}
-		boolean gatherResults = true;
-		while (iter.hasNext() && gatherResults)
-			gatherResults = result.accept(iter.next());
-		return result;
+		return last;
 	}
 }

@@ -72,7 +72,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {x});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
-		assertEquals(1, plan.getCompleteState().query(new InstallableUnitQuery("X"), null).size());
+		assertEquals(1, queryResultSize(plan.getCompleteState().query(new InstallableUnitQuery("X"), null)));
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 	}

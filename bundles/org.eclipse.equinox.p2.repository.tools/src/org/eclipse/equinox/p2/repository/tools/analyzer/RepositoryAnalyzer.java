@@ -37,7 +37,7 @@ public class RepositoryAnalyzer {
 		for (int i = 0; i < repositories.length; i++) {
 			IQueryResult queryResult = repositories[i].query(InstallableUnitQuery.ANY, sub);
 
-			SubMonitor repositoryMonitor = SubMonitor.convert(sub, queryResult.size());
+			SubMonitor repositoryMonitor = SubMonitor.convert(sub, IProgressMonitor.UNKNOWN);
 			for (int j = 0; j < config.length; j++) {
 				try {
 					IIUAnalyzer verifier = (IIUAnalyzer) config[j].createExecutableExtension("class"); //$NON-NLS-1$

@@ -39,9 +39,9 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
-		result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size();
-		assertEquals(66, result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size());
-		assertEquals(1, result.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor()).size());
+		queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()));
+		assertEquals(66, queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
+		assertEquals(1, queryResultSize(result.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor())));
 		//		assertOK("1.0", slicer.getStatus());
 	}
 
@@ -52,8 +52,8 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
-		result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size();
-		assertEquals(64, result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size());
+		queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()));
+		assertEquals(64, queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
 		//		assertOK("1.0", slicer.getStatus());
 	}
 
@@ -63,8 +63,8 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
-		result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size();
-		assertEquals(64, result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size());
+		queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()));
+		assertEquals(64, queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
 		//		assertOK("1.0", slicer.getStatus());
 	}
 
@@ -78,9 +78,9 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
-		result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size();
-		assertEquals(0, result.query(new InstallableUnitQuery("org.eclipse.swt.motif.linux.x86"), new NullProgressMonitor()).size());
-		assertEquals(34, result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size());
+		queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()));
+		assertEquals(0, queryResultSize(result.query(new InstallableUnitQuery("org.eclipse.swt.motif.linux.x86"), new NullProgressMonitor())));
+		assertEquals(34, queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
 		//		assertOK("1.0", slicer.getStatus());
 	}
 
@@ -94,9 +94,9 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
-		result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size();
-		assertEquals(0, result.query(new InstallableUnitQuery("org.eclipse.ecf"), new NullProgressMonitor()).size());
-		assertEquals(29, result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size());
+		queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()));
+		assertEquals(0, queryResultSize(result.query(new InstallableUnitQuery("org.eclipse.ecf"), new NullProgressMonitor())));
+		assertEquals(29, queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
 		//		assertOK("1.0", slicer.getStatus());
 	}
 
@@ -106,9 +106,9 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor());
 		assertNotNull(result);
-		result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size();
-		assertEquals(32, result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size());
-		assertEquals(1, result.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor()).size());
+		queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()));
+		assertEquals(32, queryResultSize(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
+		assertEquals(1, queryResultSize(result.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor())));
 		//		assertOK("1.0", slicer.getStatus());
 	}
 
@@ -121,7 +121,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 
 		PermissiveSlicer slicer = new PermissiveSlicer(createTestMetdataRepository(new IInstallableUnit[] {a, act1}), new Properties(), true, false, false, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {a}, new NullProgressMonitor());
-		assertEquals(1, result.query(new InstallableUnitQuery("Action1"), null).size());
+		assertEquals(1, queryResultSize(result.query(new InstallableUnitQuery("Action1"), null)));
 	}
 
 	public void testValidateIU() {
@@ -154,7 +154,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryResult resultCollector = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()).query(InstallableUnitQuery.ANY, new NullProgressMonitor());
-		assertEquals(3, resultCollector.size());
+		assertEquals(3, queryResultSize(resultCollector));
 	}
 
 	public void testExtractOnlyPlatformSpecific() {
@@ -163,7 +163,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		IInstallableUnit iu = (IInstallableUnit) c.iterator().next();
 		IQueryResult resultCollector = slicer.slice(new IInstallableUnit[] {iu}, new NullProgressMonitor()).query(InstallableUnitQuery.ANY, new NullProgressMonitor());
-		assertEquals(35, resultCollector.size());
+		assertEquals(35, queryResultSize(resultCollector));
 	}
 
 }

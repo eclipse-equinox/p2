@@ -172,7 +172,9 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		if (!hasMetadataSources())
 			throw new ProvisionException(Messages.exception_needIUsOrNonEmptyRepo);
 
-		processedIUs.addAll(getAllIUs(getCompositeMetadataRepository(), monitor).toCollection());
+		Iterator itor = getAllIUs(getCompositeMetadataRepository(), monitor).iterator();
+		while (itor.hasNext())
+			processedIUs.add(itor.next());
 
 		if (processedIUs.isEmpty())
 			throw new ProvisionException(Messages.exception_needIUsOrNonEmptyRepo);

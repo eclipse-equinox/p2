@@ -9,8 +9,8 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.metadata.query;
 
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 
 /**
@@ -19,13 +19,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
  *
  */
 public interface IQueryResult extends IQueryable {
-
-	/**
-	 * Adds the elements from one QueryResult to this one
-	 * @param queryResult A QueryResult from which the elements should be retrieved
-	 */
-	public void addAll(IQueryResult queryResult);
-
 	/**
 	 * Returns whether this QueryResult  is empty.
 	 * @return <code>true</code> if this QueryResult has accepted any results,
@@ -41,11 +34,6 @@ public interface IQueryResult extends IQueryable {
 	public Iterator iterator();
 
 	/**
-	 * Returns the number of collected objects.
-	 */
-	public int size();
-
-	/**
 	 * Returns the collected objects as an array
 	 * 
 	 * @param clazz The type of array to return
@@ -56,10 +44,15 @@ public interface IQueryResult extends IQueryable {
 	public Object[] toArray(Class clazz);
 
 	/**
-	 * Returns the collected objects as an immutable collection.
-	 * 
-	 * @return An unmodifiable collection of the collected objects
+	 * Creates a new Set copy with the contents of this query result. The
+	 * copy can be altered without any side effects on its origin.
+	 * @return A detached copy of the result.
 	 */
-	public Collection toCollection();
+	public Set toSet();
 
+	/**
+	 * Returns a Set backed by this query result. The set is immutable.
+	 * @return A Set backed by this query result.
+	 */
+	public Set unmodifiableSet();
 }

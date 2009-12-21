@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 public class AttachmentHelper {
 	private static final IInstallableUnitFragment[] NO_FRAGMENTS = new IInstallableUnitFragment[0];
 
-	public static Collection attachFragments(Collection toAttach, Map fragmentsToIUs) {
+	public static Collection attachFragments(Iterator toAttach, Map fragmentsToIUs) {
 		Map fragmentBindings = new HashMap();
 		//Build a map inverse of the one provided in input (host --> List of fragments)
 		Map iusToFragment = new HashMap(fragmentsToIUs.size());
@@ -85,9 +85,9 @@ public class AttachmentHelper {
 				fragmentBindings.put(hostIU, theFragment);
 		}
 		//build the collection of resolved IUs
-		Collection result = new HashSet(toAttach.size());
-		for (Iterator iterator = toAttach.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+		Collection result = new HashSet();
+		while (toAttach.hasNext()) {
+			IInstallableUnit iu = (IInstallableUnit) toAttach.next();
 			if (iu == null)
 				continue;
 			//just return fragments as they are

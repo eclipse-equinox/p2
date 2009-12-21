@@ -52,7 +52,7 @@ public class Bug255984 extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan, null);
 		assertProfileContainsAll("B is missing", profile1, new IInstallableUnit[] {b});
-		assertEquals(1, profile1.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals(1, queryResultSize(profile1.query(InstallableUnitQuery.ANY, null)));
 
 		//Install A
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
@@ -63,7 +63,7 @@ public class Bug255984 extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		engine.perform(plan2, null);
 		assertProfileContainsAll("A is missing", profile1, new IInstallableUnit[] {a, b});
-		assertEquals(2, profile1.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals(2, queryResultSize(profile1.query(InstallableUnitQuery.ANY, null)));
 
 		//Uninstall B
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
@@ -73,7 +73,7 @@ public class Bug255984 extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
 		engine.perform(plan3, null);
 		assertProfileContainsAll("A is missing", profile1, new IInstallableUnit[] {a, b});
-		assertEquals(1, profile1.query(new IUProfilePropertyQuery("foo", "bar"), new NullProgressMonitor()).size());
-		assertEquals(2, profile1.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals(1, queryResultSize(profile1.query(new IUProfilePropertyQuery("foo", "bar"), new NullProgressMonitor())));
+		assertEquals(2, queryResultSize(profile1.query(InstallableUnitQuery.ANY, null)));
 	}
 }

@@ -65,9 +65,9 @@ public class Bug278668 extends AbstractProvisioningTest {
 
 	public void testInstallFeaturePatch() {
 		IQueryResult c = repo.query(new InstallableUnitQuery("com.borland.tg.modeling.8.2.0.hotfixexp.patch.feature.group"), new NullProgressMonitor());
-		assertEquals(1, c.size());
+		assertEquals(1, queryResultSize(c));
 		IQueryResult c2 = repo.query(new InstallableUnitQuery("com.borland.tg.modeling.8.2.0.nl.patch.feature.group"), new NullProgressMonitor());
-		assertEquals(1, c2.size());
+		assertEquals(1, queryResultSize(c2));
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) c.iterator().next()});

@@ -137,21 +137,21 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	public void testIUPeristence() throws ProvisionException {
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
-		assertEquals(0, profile.query(InstallableUnitQuery.ANY, null).size());
+		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
 		profile.addInstallableUnit(createIU("test"));
-		assertEquals(1, profile.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals(1, queryResultSize(profile.query(InstallableUnitQuery.ANY, null)));
 		saveProfile(registry, profile);
 		restart();
 
 		profile = (Profile) registry.getProfile(PROFILE_NAME);
-		assertEquals(1, profile.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals(1, queryResultSize(profile.query(InstallableUnitQuery.ANY, null)));
 		profile.removeInstallableUnit(createIU("test"));
-		assertEquals(0, profile.query(InstallableUnitQuery.ANY, null).size());
+		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
 		saveProfile(registry, profile);
 		restart();
 
 		profile = (Profile) registry.getProfile(PROFILE_NAME);
-		assertEquals(0, profile.query(InstallableUnitQuery.ANY, null).size());
+		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
 		registry.removeProfile(PROFILE_NAME);
 		restart();
 		assertNull(registry.getProfile(PROFILE_NAME));

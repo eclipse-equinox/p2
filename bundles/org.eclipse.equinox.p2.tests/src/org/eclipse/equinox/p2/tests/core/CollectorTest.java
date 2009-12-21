@@ -68,14 +68,13 @@ public class CollectorTest extends AbstractProvisioningTest {
 				return false;
 			}
 		};
-		IQueryResult queryResult = numeric.perform(list.iterator(), new Collector());
-		assertEquals("1.0", 7, queryResult.toCollection().size());
+		IQueryResult queryResult = numeric.perform(list.iterator());
+		assertEquals("1.0", 7, queryResultSize(queryResult));
 
 		queryResult = queryResult.query(fourOrFiveOrABC, null);
-		Collection collection = queryResult.toCollection();
-		assertEquals("2.0", 2, collection.size());
-		assertTrue("2.1", collection.contains("4"));
-		assertTrue("2.2", collection.contains("5"));
+		assertEquals("2.0", 2, queryResultSize(queryResult));
+		assertContains("2.1", queryResult, "4");
+		assertContains("2.2", queryResult, "5");
 	}
 
 	public void testSameCollector() {
@@ -99,11 +98,12 @@ public class CollectorTest extends AbstractProvisioningTest {
 				return false;
 			}
 		};
-		Collector collector = numeric.perform(list.iterator(), new Collector());
-		assertEquals("1.0", 7, collector.toCollection().size());
+		Collector collector = new Collector();
+		collector.addAll(numeric.perform(list.iterator()));
+		assertEquals("1.0", 7, collector.unmodifiableSet().size());
 
 		collector.addAll(collector.query(fourOrFiveOrABC, null));
-		Collection collection = collector.toCollection();
+		Collection collection = collector.unmodifiableSet();
 		assertEquals("2.0", 7, collection.size());
 	}
 
@@ -131,17 +131,16 @@ public class CollectorTest extends AbstractProvisioningTest {
 				return false;
 			}
 		};
-		IQueryResult queryResult = eightOrNine.perform(list.iterator(), new Collector());
-		assertEquals("1.0", 0, queryResult.toCollection().size());
+		IQueryResult queryResult = eightOrNine.perform(list.iterator());
+		assertTrue("1.0", queryResult.isEmpty());
 
 		queryResult = queryResult.query(fourOrFiveOrABC, null);
-		Collection collection = queryResult.toCollection();
-		assertEquals("2.0", 0, collection.size());
+		assertTrue("2.0", queryResult.isEmpty());
 	}
 
 	public void testToCollection() {
 		Collector collector = new Collector();
-		Collection result = collector.toCollection();
+		Collection result = collector.unmodifiableSet();
 		assertEquals("1.0", 0, result.size());
 		//collection should be immutable
 		try {
@@ -153,7 +152,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 
 		String value = "value";
 		collector.accept(value);
-		result = collector.toCollection();
+		result = collector.unmodifiableSet();
 		assertEquals("2.0", 1, result.size());
 		assertEquals("2.1", value, result.iterator().next());
 		//collection should be immutable

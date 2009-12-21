@@ -16,12 +16,12 @@ import java.util.*;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
@@ -70,8 +70,8 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		return null;
 	}
 
-	public Collector query(IQuery query, IProgressMonitor monitor) {
-		return query.perform(units.iterator(), new Collector());
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		return query.perform(units.iterator());
 	}
 
 	public void removeAll() {

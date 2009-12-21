@@ -19,7 +19,7 @@ public class PropertyLookupQuery2 extends ContextQuery {
 		return "bar";
 	}
 
-	public Collector perform(Iterator iterator, Collector result) {
+	public Collector perform(Iterator iterator) {
 		return null;
 	}
 }

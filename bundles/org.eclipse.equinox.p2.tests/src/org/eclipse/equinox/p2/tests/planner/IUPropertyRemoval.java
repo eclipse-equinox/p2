@@ -51,7 +51,7 @@ public class IUPropertyRemoval extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, pp1.getStatus().getSeverity());
 		engine.perform(pp1, null);
 		IQueryResult res = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), null);
-		assertEquals(2, res.size());
+		assertEquals(2, queryResultSize(res));
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
 		req2.removeInstallableUnitProfileProperty(b1, "FOO");
@@ -59,6 +59,6 @@ public class IUPropertyRemoval extends AbstractProvisioningTest {
 		assertEquals(1, pp2.getOperands().length);
 		engine.perform(pp2, null);
 		IQueryResult res2 = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), null);
-		assertEquals(1, res2.size());
+		assertEquals(1, queryResultSize(res2));
 	}
 }

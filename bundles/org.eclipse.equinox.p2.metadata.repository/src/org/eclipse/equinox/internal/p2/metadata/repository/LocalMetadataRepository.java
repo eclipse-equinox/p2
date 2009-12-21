@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
@@ -148,7 +147,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		if (query instanceof InstallableUnitQuery)
 			return units.query((InstallableUnitQuery) query);
-		return query.perform(units.iterator(), new Collector());
+		return query.perform(units.iterator());
 	}
 
 	public synchronized void removeAll() {

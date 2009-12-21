@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
@@ -84,7 +85,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
 		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
 		profile.addInstallableUnit(createIU("test"));
-		assertEquals(1, profile.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals(1, queryResultSize(profile.query(InstallableUnitQuery.ANY, null)));
 		profile.removeInstallableUnit(createIU("test"));
 		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
 		registry.removeProfile(PROFILE_NAME);
@@ -97,9 +98,9 @@ public class ProfileTest extends AbstractProvisioningTest {
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
 		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
 		profile.addInstallableUnit(createIU("test"));
-		assertEquals(1, profile.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals(1, queryResultSize(profile.query(InstallableUnitQuery.ANY, null)));
 		profile.addInstallableUnit(createIU("test"));
-		assertEquals(1, profile.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals(1, queryResultSize(profile.query(InstallableUnitQuery.ANY, null)));
 		registry.removeProfile(PROFILE_NAME);
 		assertNull(registry.getProfile(PROFILE_NAME));
 	}
@@ -118,7 +119,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 		assertEquals("test", profile.getInstallableUnitProperty(createIU("test"), "test"));
 		profile.removeInstallableUnitProperty(createIU("test"), "test");
 		assertNull(profile.getInstallableUnitProperty(createIU("test"), "test"));
-		assertEquals(1, profile.query(InstallableUnitQuery.ANY, null).size());
+		assertEquals(1, queryResultSize(profile.query(InstallableUnitQuery.ANY, null)));
 		registry.removeProfile(PROFILE_NAME);
 		assertNull(registry.getProfile(PROFILE_NAME));
 	}
@@ -129,7 +130,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
 		assertTrue(profile.available(InstallableUnitQuery.ANY, null).isEmpty());
 		profile.addInstallableUnit(createIU("test"));
-		assertEquals(1, profile.available(InstallableUnitQuery.ANY, null).size());
+		assertEquals(1, queryResultSize(profile.available(InstallableUnitQuery.ANY, null)));
 		profile.setSurrogateProfileHandler(new ISurrogateProfileHandler() {
 			public IProfile createProfile(String id) {
 				return null;
@@ -139,7 +140,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 				return false;
 			}
 
-			public Collector queryProfile(IProfile profile, IQuery query, IProgressMonitor monitor) {
+			public IQueryResult queryProfile(IProfile profile, IQuery query, IProgressMonitor monitor) {
 				return new Collector();
 			}
 

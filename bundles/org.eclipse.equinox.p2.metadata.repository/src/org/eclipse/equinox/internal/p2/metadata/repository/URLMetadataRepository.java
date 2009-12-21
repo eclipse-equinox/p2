@@ -15,7 +15,6 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
@@ -82,6 +81,6 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 	public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
 		if (query instanceof InstallableUnitQuery)
 			return units.query((InstallableUnitQuery) query);
-		return query.perform(units.iterator(), new Collector());
+		return query.perform(units.iterator());
 	}
 }

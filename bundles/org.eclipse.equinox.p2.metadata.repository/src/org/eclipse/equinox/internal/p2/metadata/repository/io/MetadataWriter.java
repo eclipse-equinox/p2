@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import org.eclipse.equinox.p2.metadata.ICopyright;
-
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -44,6 +42,8 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		if (size == 0)
 			return;
 		start(INSTALLABLE_UNITS_ELEMENT);
+
+		// The size is a bummer. Is it really needed? It forces the use of a collect
 		attribute(COLLECTION_SIZE_ATTRIBUTE, size);
 		while (units.hasNext())
 			writeInstallableUnit((IInstallableUnit) units.next());

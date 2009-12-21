@@ -10,7 +10,6 @@
 package org.eclipse.equinox.p2.tests.metadata;
 
 import java.net.URI;
-import java.util.Collection;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -36,9 +35,8 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		metadataRepositoryManager.addRepository(location);
 
 		IQueryResult query = metadataRepositoryManager.query(new LatestIUVersionQuery(), null);
-		Collection collection = query.toCollection();
-		assertEquals("1.0", 1, collection.size());
-		assertEquals("1.1", Version.createOSGi(2, 1, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		assertEquals("1.0", 1, queryResultSize(query));
+		assertEquals("1.1", Version.createOSGi(2, 1, 0), ((IInstallableUnit) query.iterator().next()).getVersion());
 	}
 
 	public void testLatestIUSingleRepo2() throws Exception {
@@ -53,9 +51,8 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		metadataRepositoryManager.addRepository(location);
 
 		IQueryResult query = metadataRepositoryManager.query(new LatestIUVersionQuery(), null);
-		Collection collection = query.toCollection();
-		assertEquals("1.0", 1, collection.size());
-		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		assertEquals("1.0", 1, queryResultSize(query));
+		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) query.iterator().next()).getVersion());
 	}
 
 	public void testLatestIUMultiRepo() throws Exception {
@@ -73,8 +70,7 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		metadataRepositoryManager.addRepository(location2);
 
 		IQueryResult queryResult = metadataRepositoryManager.query(new LatestIUVersionQuery(), null);
-		Collection collection = queryResult.toCollection();
-		assertEquals("1.0", 1, collection.size());
-		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		assertEquals("1.0", 1, queryResultSize(queryResult));
+		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) queryResult.iterator().next()).getVersion());
 	}
 }

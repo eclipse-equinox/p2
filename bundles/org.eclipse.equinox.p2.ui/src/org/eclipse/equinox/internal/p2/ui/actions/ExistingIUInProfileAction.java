@@ -91,9 +91,7 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 		int lock = getLock(profile, iu);
 		if ((lock & getLockConstant()) == getLockConstant())
 			return false;
-		if (profile.query(new PipedQuery(new IQuery[] {new InstallableUnitQuery(iu), getPolicy().getVisibleInstalledIUQuery()}), null).size() == 0)
-			return false;
-		return true;
+		return !profile.query(new PipedQuery(new IQuery[] {new InstallableUnitQuery(iu), getPolicy().getVisibleInstalledIUQuery()}), null).isEmpty();
 	}
 
 	protected abstract int getLockConstant();

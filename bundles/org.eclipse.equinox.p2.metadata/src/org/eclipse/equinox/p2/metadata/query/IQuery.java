@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.metadata.query;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 
 /**
@@ -29,12 +28,10 @@ public interface IQuery {
 	 * Evaluates the query for a specific input.  
 	 * 
 	 * @param iterator The elements for which to evaluate the query on
-	 * @param result A collector to collect the results.  For each element accepted 
-	 * by the query,{@link Collector#accept(Object)} must be called.
 	 * @return The results of the query.  The collector returned must be
 	 * the collector passed in.
 	 */
-	public abstract Collector perform(Iterator iterator, Collector result);
+	public abstract IQueryResult perform(Iterator iterator);
 
 	/**
 	 * Gets the ID for this Query. 

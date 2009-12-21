@@ -410,7 +410,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		try {
 			IMetadataRepository repository = manager.loadRepository(location, getMonitor());
 			IQueryResult result = repository.query(new InstallableUnitQuery("test.bundle"), getMonitor());
-			assertEquals("1.0", 1, result.size());
+			assertEquals("1.0", 1, queryResultSize(result));
 		} catch (ProvisionException e) {
 			fail("=.99", e);
 		}

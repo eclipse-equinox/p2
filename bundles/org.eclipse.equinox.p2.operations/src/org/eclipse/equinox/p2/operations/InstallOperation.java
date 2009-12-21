@@ -78,7 +78,7 @@ public class InstallOperation extends ProfileChangeOperation {
 			// TODO ideally we should only do this check if the iu is a singleton, but in practice many iu's that should
 			// be singletons are not, so we don't check this (yet)
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=230878
-			if (alreadyInstalled.size() > 0) { //  && installedIU.isSingleton()
+			if (!alreadyInstalled.isEmpty()) { //  && installedIU.isSingleton()
 				IInstallableUnit installedIU = (IInstallableUnit) alreadyInstalled.iterator().next();
 				int compareTo = toInstall[i].getVersion().compareTo(installedIU.getVersion());
 				// If the iu is a newer version of something already installed, consider this an
@@ -93,8 +93,8 @@ public class InstallOperation extends ProfileChangeOperation {
 						// iu should not be updated
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_UPDATE, toInstall[i]));
 					} else {
-						request.addInstallableUnits(new IInstallableUnit[] {toInstall[i]});
-						request.removeInstallableUnits(new IInstallableUnit[] {installedIU});
+						request.addInstallableUnit(toInstall[i]);
+						request.removeInstallableUnit(installedIU);
 						// Add a status informing the user that the update has been inferred
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, toInstall[i]));
 						// Mark it as a root if it hasn't been already

@@ -177,7 +177,7 @@ public class TranslationSupport {
 		};
 
 		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), hostLocalizationQuery});
-		Collector collected = iuQuery.perform(localizationFragments.iterator(), new Collector());
+		IQueryResult collected = iuQuery.perform(localizationFragments.iterator());
 		if (!collected.isEmpty()) {
 			String translation = null;
 			for (Iterator iter = collected.iterator(); iter.hasNext() && translation == null;) {
@@ -220,7 +220,7 @@ public class TranslationSupport {
 	private synchronized IQueryResult getLocalizationFragments(List localeVariants) {
 		if (fragmentSource == null) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Profile registry unavailable. Default language will be used.", new RuntimeException())); //$NON-NLS-1$
-			return new Collector();
+			return Collector.EMPTY_COLLECTOR;
 		}
 
 		SoftReference queryResultReference = (SoftReference) LocaleCollectorCache.get(locale);

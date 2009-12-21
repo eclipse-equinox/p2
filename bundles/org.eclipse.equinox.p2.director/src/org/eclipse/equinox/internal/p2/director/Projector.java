@@ -139,7 +139,7 @@ public class Projector {
 	}
 
 	protected boolean isInstalled(IInstallableUnit iu) {
-		return lastState.query(new InstallableUnitQuery(iu), null).size() == 0 ? false : true;
+		return !lastState.query(new InstallableUnitQuery(iu), null).isEmpty();
 	}
 
 	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IQueryable installedIUs, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
@@ -411,7 +411,7 @@ public class Projector {
 		IQueryResult applicablePatches = getApplicablePatches(iu);
 		expandLifeCycle(iu, isRootIU);
 		//No patches apply, normal code path
-		if (applicablePatches.size() == 0) {
+		if (applicablePatches.isEmpty()) {
 			expandRequirements(getRequiredCapabilities(iu), iu, isRootIU);
 		} else {
 			//Patches are applicable to the IU
@@ -570,12 +570,12 @@ public class Projector {
 		for (Iterator iterator = unchangedRequirements.entrySet().iterator(); iterator.hasNext();) {
 			Entry entry = (Entry) iterator.next();
 			List patchesApplied = (List) entry.getValue();
-			List allPatches = new ArrayList(applicablePatches.toCollection());
-			allPatches.removeAll(patchesApplied);
+			Iterator allPatches = applicablePatches.iterator();
 			List requiredPatches = new ArrayList();
-			for (Iterator iterator2 = allPatches.iterator(); iterator2.hasNext();) {
-				IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator2.next();
-				requiredPatches.add(patch);
+			while (allPatches.hasNext()) {
+				IInstallableUnitPatch patch = (IInstallableUnitPatch) allPatches.next();
+				if (!patchesApplied.contains(patch))
+					requiredPatches.add(patch);
 			}
 			IRequirement req = (IRequirement) entry.getKey();
 			List matches = getApplicableMatches(req);

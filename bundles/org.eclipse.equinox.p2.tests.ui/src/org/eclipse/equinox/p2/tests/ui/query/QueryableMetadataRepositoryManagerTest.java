@@ -109,7 +109,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
 		IQueryResult result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), new CancelingProgressMonitor());
-		assertEquals("1.0", 0, result.size());
+		assertTrue("1.0", result.isEmpty());
 	}
 
 	public void testExistingRepository() {
@@ -178,23 +178,22 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
 		IQueryResult result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), getMonitor());
-		assertEquals("1.0", 1, result.size());
+		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "test.bundle", iu.getId());
 
 		//RepoLocationQuery collects repository URLs
 		result = manager.query(new RepositoryLocationQuery(), getMonitor());
-		assertEquals("2.0", 3, result.size());
-		Collection resultCollection = result.toCollection();
-		assertTrue("2.1", resultCollection.contains(existing));
-		assertTrue("2.1", resultCollection.contains(nonExisting));
-		assertTrue("2.1", resultCollection.contains(broken));
+		assertEquals("2.0", 3, queryResultSize(result));
+		assertContains("2.1", result, existing);
+		assertContains("2.1", result, nonExisting);
+		assertContains("2.1", result, broken);
 
 		// null IUPropertyQuery collects all IUs
 		result = manager.query(new InstallableUnitQuery((String) null), getMonitor());
-		int iuCount = result.size();
+		int iuCount = queryResultSize(result);
 		result = manager.query(new IUPropertyQuery(null, null), getMonitor());
-		assertEquals("2.2", iuCount, result.size());
+		assertEquals("2.2", iuCount, queryResultSize(result));
 	}
 
 	public void testNonLatestInMultipleRepositories() {

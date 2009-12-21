@@ -65,7 +65,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		engine.perform(plan, null);
 		assertProfileContainsAll("A1 is missing", profile, new IInstallableUnit[] {a1});
 		IQueryResult allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
-		assertEquals(allProfileIUs.size(), 1);
+		assertEquals(queryResultSize(allProfileIUs), 1);
 
 		//Add a2 with a1. This is an error
 		ProfileChangeRequest req4 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
@@ -85,10 +85,10 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		profile = getProfile(profile.getProfileId());
 		assertProfileContainsAll("A2 is missing", profile, new IInstallableUnit[] {a2});
 		allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
-		assertEquals(allProfileIUs.size(), 1);
+		assertEquals(queryResultSize(allProfileIUs), 1);
 
 		IQueryResult iuProfileProperties = profile.query(new IUProfilePropertyQuery(SimplePlanner.INCLUSION_RULES, null), null);
-		assertEquals(iuProfileProperties.size(), 1);
+		assertEquals(queryResultSize(iuProfileProperties), 1);
 
 		//Remove a1 optionality - should be a no-op
 		ProfileChangeRequest req3 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
@@ -98,6 +98,6 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		engine.perform(plan3, null);
 		allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
 		assertProfileContainsAll("A2 is missing", profile, new IInstallableUnit[] {a2});
-		assertEquals(allProfileIUs.size(), 1);
+		assertEquals(queryResultSize(allProfileIUs), 1);
 	}
 }

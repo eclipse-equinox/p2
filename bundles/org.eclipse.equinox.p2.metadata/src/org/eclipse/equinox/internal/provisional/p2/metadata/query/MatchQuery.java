@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 import java.util.Iterator;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * This class represents the superclass of most of p2's queries.  Every element
@@ -34,7 +35,7 @@ public abstract class MatchQuery implements IMatchQuery {
 	 * of this query, and <code>false</code> otherwise
 	 * 
 	 * @noreference This method is not intended to be referenced by clients.
-	 * Clients should call {@link #perform(Iterator, Collector)}
+	 * Clients should call {@link #perform(Iterator)}
 	 */
 	public abstract boolean isMatch(Object candidate);
 
@@ -57,7 +58,8 @@ public abstract class MatchQuery implements IMatchQuery {
 	 * Performs this query on the given iterator, passing all objects in the iterator 
 	 * that match the criteria of this query to the given result.
 	 */
-	public final Collector perform(Iterator iterator, Collector result) {
+	public final IQueryResult perform(Iterator iterator) {
+		Collector result = new Collector();
 		prePerform();
 		try {
 			while (iterator.hasNext()) {

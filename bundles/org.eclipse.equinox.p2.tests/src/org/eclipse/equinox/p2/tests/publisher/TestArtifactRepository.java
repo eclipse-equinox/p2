@@ -9,8 +9,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher;
 
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
-
 import java.io.*;
 import java.net.URI;
 import java.util.*;
@@ -25,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -306,10 +305,10 @@ public class TestArtifactRepository implements IArtifactRepository {
 				IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
 				result.add(descriptor.getArtifactKey());
 			}
-			collector = query.perform(result.iterator(), collector);
+			collector.addAll(query.perform(result.iterator()));
 		}
 		if (!excludeDescriptors)
-			collector = query.perform(repo.keySet().iterator(), collector);
+			collector.addAll(query.perform(repo.keySet().iterator()));
 		return collector;
 	}
 }

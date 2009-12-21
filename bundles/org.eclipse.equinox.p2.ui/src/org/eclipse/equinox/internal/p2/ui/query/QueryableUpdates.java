@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
-
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -22,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
@@ -38,7 +37,6 @@ public class QueryableUpdates implements IQueryable {
 	}
 
 	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		Collector result = new Collector();
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		int totalWork = 2000;
@@ -48,17 +46,17 @@ public class QueryableUpdates implements IQueryable {
 			ArrayList allUpdates = new ArrayList();
 			for (int i = 0; i < iusToUpdate.length; i++) {
 				if (monitor.isCanceled())
-					return result;
+					return Collector.EMPTY_COLLECTOR;
 				IInstallableUnit[] updates = planner.updatesFor(iusToUpdate[i], new ProvisioningContext(), new SubProgressMonitor(monitor, totalWork / 2 / iusToUpdate.length));
 				for (int j = 0; j < updates.length; j++)
 					allUpdates.add(updates[j]);
 			}
-			query.perform(allUpdates.iterator(), result);
+			return query.perform(allUpdates.iterator());
 		} catch (OperationCanceledException e) {
 			// Nothing more to do, return result
+			return Collector.EMPTY_COLLECTOR;
 		} finally {
 			monitor.done();
 		}
-		return result;
 	}
 }

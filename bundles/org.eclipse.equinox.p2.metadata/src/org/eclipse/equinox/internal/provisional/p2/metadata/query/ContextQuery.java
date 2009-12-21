@@ -11,6 +11,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
 import java.util.Iterator;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * ContextQuery is the abstract superclass for Queries that require the entire
@@ -22,7 +23,7 @@ import org.eclipse.equinox.p2.metadata.query.IQuery;
  * need for a non-transitive query, please see:
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=261403
  * <p>
- * Users of this query must call {@link #perform(Iterator, Collector)} to compute 
+ * Users of this query must call {@link #perform(Iterator)} to compute 
  * the results. <P>
  * This class may be subclassed by clients. Subclasses should specify the type
  * of object they support querying on. Subclasses are also encouraged to clearly
@@ -37,12 +38,10 @@ public abstract class ContextQuery implements IQuery {
 	 * Evaluates the query for a specific input.  
 	 * 
 	 * @param iterator The elements for which to evaluate the query on
-	 * @param result A collector to collect the results.  For each element accepted 
-	 * by the query,{@link Collector#accept(Object)} must be called.
 	 * @return The results of the query.  The collector returned must be
 	 * the collector passed in.
 	 */
-	public abstract Collector perform(Iterator iterator, Collector result);
+	public abstract IQueryResult perform(Iterator iterator);
 
 	/**
 	 * Gets the ID for this Query. 

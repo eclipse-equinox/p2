@@ -31,10 +31,17 @@ public class FormerState {
 	}
 
 	private static void synchronizeAllIUProperties(ProfileChangeRequest request, IProfile current, IProfile target) {
-		Collection currentIUs = current.query(InstallableUnitQuery.ANY, null).toCollection();
-		Collection targetIUs = target.query(InstallableUnitQuery.ANY, null).toCollection();
-		List iusToAdd = new ArrayList(targetIUs);
-		iusToAdd.remove(currentIUs);
+		Set currentIUset = current.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
+		Iterator targetIUs = target.query(InstallableUnitQuery.ANY, null).iterator();
+		List iusToAdd = new ArrayList();
+		List iusToUpdate = new ArrayList();
+		while (targetIUs.hasNext()) {
+			Object nxt = targetIUs.next();
+			if (currentIUset.contains(nxt))
+				iusToUpdate.add(nxt);
+			else
+				iusToAdd.add(nxt);
+		}
 
 		//additions
 		for (Iterator iterator = iusToAdd.iterator(); iterator.hasNext();) {
@@ -48,8 +55,6 @@ public class FormerState {
 		}
 
 		// updates
-		List iusToUpdate = new ArrayList(targetIUs);
-		iusToUpdate.remove(iusToAdd);
 		for (Iterator iterator = iusToUpdate.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			Map propertiesToSet = new HashMap(target.getInstallableUnitProperties(iu));

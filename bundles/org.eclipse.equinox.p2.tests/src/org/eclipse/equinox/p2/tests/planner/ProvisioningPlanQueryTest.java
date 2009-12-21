@@ -26,21 +26,21 @@ public class ProvisioningPlanQueryTest extends AbstractProvisioningTest {
 	public void testAddition() {
 		Operand[] ops = new Operand[] {new InstallableUnitOperand(null, createIU("A"))};
 		IQueryResult c = new ProvisioningPlan(null, ops, null).getAdditions().query(InstallableUnitQuery.ANY, new NullProgressMonitor());
-		assertEquals(1, c.size());
-		assertEquals(0, new ProvisioningPlan(null, ops, null).getRemovals().query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size());
+		assertEquals(1, queryResultSize(c));
+		assertTrue(new ProvisioningPlan(null, ops, null).getRemovals().query(InstallableUnitQuery.ANY, new NullProgressMonitor()).isEmpty());
 	}
 
 	public void testRemoval() {
 		Operand[] ops = new Operand[] {new InstallableUnitOperand(createIU("A"), null)};
 		IQueryResult c = new ProvisioningPlan(null, ops, null).getRemovals().query(InstallableUnitQuery.ANY, new NullProgressMonitor());
-		assertEquals(1, c.size());
-		assertEquals(0, new ProvisioningPlan(null, ops, null).getAdditions().query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size());
+		assertEquals(1, queryResultSize(c));
+		assertTrue(new ProvisioningPlan(null, ops, null).getAdditions().query(InstallableUnitQuery.ANY, new NullProgressMonitor()).isEmpty());
 	}
 
 	public void testUpdate() {
 		Operand[] ops = new Operand[] {new InstallableUnitOperand(createIU("A"), createIU("B"))};
 		IQueryResult c = new ProvisioningPlan(null, ops, null).getRemovals().query(InstallableUnitQuery.ANY, new NullProgressMonitor());
-		assertEquals(1, c.size());
-		assertEquals(1, new ProvisioningPlan(null, ops, null).getAdditions().query(InstallableUnitQuery.ANY, new NullProgressMonitor()).size());
+		assertEquals(1, queryResultSize(c));
+		assertEquals(1, queryResultSize(new ProvisioningPlan(null, ops, null).getAdditions().query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
 	}
 }

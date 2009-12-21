@@ -14,8 +14,7 @@ package org.eclipse.equinox.p2.tests.ui.query;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Locale;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
@@ -82,6 +81,7 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		iuDescription.setId("some IU");
 		iuDescription.setVersion(Version.createOSGi(1, 0, 0));
 		iuDescription.setLicenses(new ILicense[] {MetadataFactory.createLicense(new URI("http://example.com"), "%license")});
+		iuDescription.addProvidedCapabilities(Collections.singleton(MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "some IU", Version.createOSGi(1, 0, 0))));
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDescription);
 
 		// Create a bunch of fragments which spec our IU as their host

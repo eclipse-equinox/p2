@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.tests.ant;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Collection;
 import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -61,8 +60,8 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		IInstallableUnit iu = null;
 		try {
 			IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(source, new NullProgressMonitor());
-			Collection ius = repo.query(new InstallableUnitQuery("helloworldfeature.feature.jar"), new NullProgressMonitor()).toCollection();
-			assertEquals("Expected number of IUs", 1, ius.size());
+			IQueryResult ius = repo.query(new InstallableUnitQuery("helloworldfeature.feature.jar"), new NullProgressMonitor());
+			assertEquals("Expected number of IUs", 1, queryResultSize(ius));
 			iu = (IInstallableUnit) ius.iterator().next();
 		} catch (ProvisionException e) {
 			fail("Failed to obtain iu", e);

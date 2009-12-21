@@ -277,7 +277,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1, act1b, act2});
 		assertOK("install A", engine.perform(planUpdateA, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("installation"), new IInstallableUnit[] {act2, act1b, a111, b, c});
-		assertEquals(0, getProfile("installation").query(new InstallableUnitQuery("Action1", DEFAULT_VERSION), null).size());
+		assertTrue(getProfile("installation").query(new InstallableUnitQuery("Action1", DEFAULT_VERSION), null).isEmpty());
 		assertEquals(getProfile("agent").getProfileId(), plan.getInstallerPlan().getProfile().getProfileId());
 
 		//uninstall A
@@ -303,7 +303,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		requestForD.addInstallableUnits(new IInstallableUnit[] {d});
 		IProvisioningPlan planForD = planner.getProvisioningPlan(requestForD, ctx, new NullProgressMonitor());
 		assertNotNull(planForD.getInstallerPlan());
-		assertEquals(1, planForD.getInstallerPlan().getRemovals().query(new InstallableUnitQuery(act1b.getId()), null).size());
+		assertEquals(1, queryResultSize(planForD.getInstallerPlan().getRemovals().query(new InstallableUnitQuery(act1b.getId()), null)));
 		assertOK("install actions", engine.perform(planForD.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1v2});
 		assertOK("install D", engine.perform(planForD, null));

@@ -11,12 +11,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * Tests for {@link LatestIUVersionQuery}. This has all the tests of the superclass,
@@ -42,8 +43,8 @@ public class LatestIUVersionElementWrapperTest extends AvailableIUWrapperTest {
 		Object object = new Object();
 		List list = new ArrayList();
 		list.add(object);
-		Collector collector = latestIuVersionElementQuery.perform(list.iterator(), new Collector());
-		assertEquals("1.0", 0, collector.size());
+		IQueryResult collector = latestIuVersionElementQuery.perform(list.iterator());
+		assertTrue("1.0", collector.isEmpty());
 	}
 
 	/**
@@ -56,8 +57,8 @@ public class LatestIUVersionElementWrapperTest extends AvailableIUWrapperTest {
 		List listOfIUs = new ArrayList();
 		listOfIUs.add(unit1);
 		listOfIUs.add(unit2);
-		Collector collector = latestIuVersionElementQuery.perform(listOfIUs.iterator(), new Collector());
-		assertEquals("1.0", 1, collector.size());
+		IQueryResult collector = latestIuVersionElementQuery.perform(listOfIUs.iterator());
+		assertEquals("1.0", 1, queryResultSize(collector));
 		IInstallableUnit collectedIU = getIU(collector.iterator().next());
 		assertEquals("1.1", unit2, collectedIU);
 	}
@@ -77,14 +78,13 @@ public class LatestIUVersionElementWrapperTest extends AvailableIUWrapperTest {
 		listOfIUs.add(unit3);
 		listOfIUs.add(unit4);
 		listOfIUs.add(unit5);
-		Collector collector = latestIuVersionElementQuery.perform(listOfIUs.iterator(), new Collector());
+		IQueryResult collector = latestIuVersionElementQuery.perform(listOfIUs.iterator());
 
 		// Should be 3  units
-		assertEquals("1.0", 3, collector.size());
-		Collection reslts = collector.toCollection();
-		assertTrue("1.2", reslts.contains(unit2));
-		assertTrue("1.3", reslts.contains(unit3));
-		assertTrue("1.4", reslts.contains(unit5));
+		assertEquals("1.0", 3, queryResultSize(collector));
+		assertContains("1.2", collector, unit2);
+		assertContains("1.3", collector, unit3);
+		assertContains("1.4", collector, unit5);
 
 	}
 }

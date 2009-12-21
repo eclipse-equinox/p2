@@ -177,12 +177,14 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler#queryProfile(org.eclipse.equinox.internal.provisional.p2.engine.IProfile, org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public Collector queryProfile(IProfile profile, IQuery query, IProgressMonitor monitor) {
+	public IQueryResult queryProfile(IProfile profile, IQuery query, IProgressMonitor monitor) {
 		IProfile sharedProfile = getSharedProfile(profile.getProfileId());
-		Collector result = new Collector();
-		if (sharedProfile != null)
-			result.addAll(sharedProfile.query(query, monitor));
+		if (sharedProfile == null)
+			return profile.query(query, monitor);
 
+		// TODO: Should consider using a sequenced iterator here instead of collecting
+		Collector result = new Collector();
+		result.addAll(sharedProfile.query(query, monitor));
 		result.addAll(profile.query(query, monitor));
 		return result;
 	}

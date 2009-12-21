@@ -39,10 +39,9 @@ public class QueryableArray implements IQueryable {
 	}
 
 	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		Collector collector = new Collector();
 		if (query instanceof IRequiredCapability)
-			return queryCapability((IRequiredCapability) query, collector, monitor);
-		return query.perform(dataSet.iterator(), collector);
+			return queryCapability((IRequiredCapability) query, new Collector(), monitor);
+		return query.perform(dataSet.iterator());
 	}
 
 	private Collector queryCapability(IRequiredCapability query, Collector collector, IProgressMonitor monitor) {

@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
@@ -253,7 +252,7 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 		try {
 			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(artifactRepositoryLocation, null);
 			List fromIUs = getArtifactKeys(ius);
-			Collection fromRepo = repo.query(ArtifactKeyQuery.ALL_KEYS, null).toCollection();
+			Iterator fromRepo = repo.query(ArtifactKeyQuery.ALL_KEYS, null).iterator();
 			assertContains(message, fromIUs, fromRepo);
 			assertContains(message, fromRepo, fromIUs);
 		} catch (ProvisionException e) {
@@ -262,25 +261,8 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 
 	}
 
-	protected static void assertContains(String message, IQueryable source, IQueryable destination) {
-		IQueryResult sourceCollector = source.query(InstallableUnitQuery.ANY, null);
-		Iterator it = sourceCollector.iterator();
-
-		while (it.hasNext()) {
-			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
-			IQueryResult destinationCollector = destination.query(new InstallableUnitQuery(sourceIU), null);
-			assertEquals(message, 1, destinationCollector.size());
-			assertTrue(message, sourceIU.equals(destinationCollector.iterator().next()));
-		}
-	}
-
-	protected static void assertContains(String message, Collection fromIUs, Collection fromRepo) {
-		for (Iterator iter = fromIUs.iterator(); iter.hasNext();)
-			assertTrue(message, fromRepo.contains(iter.next()));
-	}
-
 	protected static List getArtifactKeys(IQueryResult ius) {
-		List keys = new ArrayList(ius.size());
+		List keys = new ArrayList();
 
 		for (Iterator iter = ius.iterator(); iter.hasNext();)
 			keys.addAll(Arrays.asList(((InstallableUnit) iter.next()).getArtifacts()));

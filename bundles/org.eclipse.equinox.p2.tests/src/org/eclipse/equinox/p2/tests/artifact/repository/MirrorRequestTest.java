@@ -136,7 +136,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		source.setSequence(seq);
 		// Grab an ArtifactKey to mirror, doesn't matter which
 		IQueryResult keys = source.query(ArtifactKeyQuery.ALL_KEYS, null);
-		assertTrue("Unable to obtain artifact keys", keys != null && keys.size() > 0);
+		assertTrue("Unable to obtain artifact keys", keys != null && !keys.isEmpty());
 
 		IArtifactKey key = (IArtifactKey) keys.iterator().next();
 		MirrorRequest req = new MirrorRequest(key, targetRepository, null, null);

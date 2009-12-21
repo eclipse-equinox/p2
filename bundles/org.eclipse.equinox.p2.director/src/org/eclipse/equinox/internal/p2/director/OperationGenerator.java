@@ -14,7 +14,6 @@ import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -158,7 +157,7 @@ public class OperationGenerator {
 
 			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of
 			InstallableUnitQuery updateQuery = new InstallableUnitQuery(iuTo.getUpdateDescriptor().getId(), iuTo.getUpdateDescriptor().getRange());
-			Iterator updates = updateQuery.perform(fromIdIndexList.iterator(), new Collector()).iterator();
+			Iterator updates = updateQuery.perform(fromIdIndexList.iterator()).iterator();
 
 			if (!updates.hasNext()) { //Nothing to update from.
 				continue;

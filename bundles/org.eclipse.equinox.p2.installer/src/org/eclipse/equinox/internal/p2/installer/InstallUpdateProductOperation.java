@@ -22,13 +22,13 @@ import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
@@ -75,8 +75,8 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	/**
 	 * This profile is being updated; return the units to uninstall from the profile.
 	 */
-	private IInstallableUnit[] computeUnitsToUninstall(IProfile p) {
-		return (IInstallableUnit[]) p.query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class);
+	private IQueryResult computeUnitsToUninstall(IProfile p) {
+		return p.query(InstallableUnitQuery.ANY, null);
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			s = director.provision(request, null, monitor.newChild(90));
 		} else {
 			monitor.setTaskName(NLS.bind(Messages.Op_Updating, installDescription.getProductName()));
-			IInstallableUnit[] toUninstall = computeUnitsToUninstall(p);
+			IQueryResult toUninstall = computeUnitsToUninstall(p);
 			request.removeInstallableUnits(toUninstall);
 			request.addInstallableUnits(toInstall);
 			s = director.provision(request, null, monitor.newChild(90));
@@ -154,7 +154,6 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		if (version != null && !version.equals(Version.emptyVersion))
 			range = new VersionRange(version, true, version, true);
 		IQuery query = new InstallableUnitQuery(id, range);
-		Collector collector = new Collector();
 		Iterator matches = metadataRepoMan.query(query, null).iterator();
 		// pick the newest match
 		IInstallableUnit newest = null;

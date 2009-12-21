@@ -31,7 +31,6 @@ import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.Abstr
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository.RepositoryState;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
@@ -133,11 +132,12 @@ public class MetadataRepositoryIO {
 			attributeOptional(DESCRIPTION_ATTRIBUTE, repository.getDescription()); // TODO: could be cdata?
 
 			writeProperties(repository.getProperties());
-			IQueryResult units = repository.query(InstallableUnitQuery.ANY, null);
 			if (repository instanceof LocalMetadataRepository) {
 				Set references = ((LocalMetadataRepository) repository).repositories;
 				writeRepositoryReferences(references.iterator(), references.size());
 			}
+			// The size attribute is a problematic since it forces the use of a collection.
+			Set units = repository.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
 			writeInstallableUnits(units.iterator(), units.size());
 
 			end(REPOSITORY_ELEMENT);

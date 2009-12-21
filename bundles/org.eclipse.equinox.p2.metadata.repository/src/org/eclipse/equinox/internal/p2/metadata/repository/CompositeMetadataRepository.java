@@ -22,7 +22,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.CompoundQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -126,18 +127,16 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	}
 
 	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		IQueryResult queryResult = new Collector();
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		try {
 			// Query all the all the repositories this composite repo contains
 			CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]));
-			queryResult = queryable.query(query, monitor);
+			return queryable.query(query, monitor);
 		} finally {
 			if (monitor != null)
 				monitor.done();
 		}
-		return queryResult;
 	}
 
 	private void addChild(URI childURI, boolean save) {

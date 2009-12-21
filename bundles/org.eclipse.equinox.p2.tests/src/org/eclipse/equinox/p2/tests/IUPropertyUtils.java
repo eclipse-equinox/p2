@@ -126,7 +126,7 @@ public class IUPropertyUtils {
 		};
 
 		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), hostLocalizationQuery});
-		Collector collected = iuQuery.perform(localizationFragments.iterator(), new Collector());
+		IQueryResult collected = iuQuery.perform(localizationFragments.iterator());
 
 		if (!collected.isEmpty()) {
 			String translation = null;

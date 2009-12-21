@@ -53,14 +53,15 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		final ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		assertEquals(IStatus.OK, engine.perform(plan, new NullProgressMonitor()).getSeverity());
-		assertTrue(profile.query(InstallableUnitQuery.ANY, null).toCollection().contains(a1));
+		assertContains(profile.query(InstallableUnitQuery.ANY, null), a1);
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.removeInstallableUnits(new IInstallableUnit[] {a1});
+
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		assertEquals(IStatus.OK, PlanExecutionHelper.executePlan(plan2, engine, context, new NullProgressMonitor()).getSeverity());
-		assertFalse(profile.query(InstallableUnitQuery.ANY, null).toCollection().contains(a1));
+		assertNotContains(profile.query(InstallableUnitQuery.ANY, null), a1);
 	}
 
 	public void testAvailableVsQueryInProfile() {
@@ -71,17 +72,18 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		final ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		assertEquals(IStatus.OK, engine.perform(plan, new NullProgressMonitor()).getSeverity());
-		assertTrue(profile.query(InstallableUnitQuery.ANY, null).toCollection().contains(c1));
+		assertContains(profile.query(InstallableUnitQuery.ANY, null), c1);
 
 		IProfile availableWrapper = new IProfile() {
-			public Collector available(IQuery query, IProgressMonitor monitor) {
+			public IQueryResult available(IQuery query, IProgressMonitor monitor) {
 				IQueryResult queryResult = profile.query(query, monitor);
 				Collector collector = new Collector();
 				collector.addAll(queryResult);
 
 				Collection ius = new ArrayList();
 				ius.add(b1);
-				return query.perform(ius.iterator(), collector);
+				collector.addAll(query.perform(ius.iterator()));
+				return collector;
 			}
 
 			// everything else is delegated

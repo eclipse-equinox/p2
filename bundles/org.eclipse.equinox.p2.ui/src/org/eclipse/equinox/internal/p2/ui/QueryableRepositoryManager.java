@@ -70,8 +70,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 		IRepositoryManager manager = getRepositoryManager();
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
-		Collector result = query(getRepoLocations(manager), query, monitor);
-		return result;
+		return query(getRepoLocations(manager), query, monitor);
 	}
 
 	protected URI[] getRepoLocations(IRepositoryManager manager) {
@@ -138,33 +137,31 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 */
 	protected abstract IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException;
 
-	protected Collector query(URI uris[], IQuery query, IProgressMonitor monitor) {
-		Collector collector = new Collector();
+	protected IQueryResult query(URI uris[], IQuery query, IProgressMonitor monitor) {
 		if (query instanceof RepositoryLocationQuery) {
-			query.perform(Arrays.asList(uris).iterator(), collector);
-			monitor.done();
-		} else {
-			SubMonitor sub = SubMonitor.convert(monitor, (uris.length + 1) * 100);
-			ArrayList loadedRepos = new ArrayList(uris.length);
-			for (int i = 0; i < uris.length; i++) {
-				IRepository repo = null;
-				try {
-					repo = loadRepository(getRepositoryManager(), uris[i], sub.newChild(100));
-				} catch (ProvisionException e) {
-					tracker.reportLoadFailure(uris[i], e);
-				} catch (OperationCanceledException e) {
-					// user has canceled
-					repo = null;
-				}
-				if (repo != null)
-					loadedRepos.add(repo);
-			}
-			if (loadedRepos.size() > 0) {
-				IQueryable[] queryables = (IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]);
-				collector.addAll(new CompoundQueryable(queryables).query(query, sub.newChild(100)));
-			}
+			return query.perform(Arrays.asList(uris).iterator());
 		}
-		return collector;
+
+		SubMonitor sub = SubMonitor.convert(monitor, (uris.length + 1) * 100);
+		ArrayList loadedRepos = new ArrayList(uris.length);
+		for (int i = 0; i < uris.length; i++) {
+			IRepository repo = null;
+			try {
+				repo = loadRepository(getRepositoryManager(), uris[i], sub.newChild(100));
+			} catch (ProvisionException e) {
+				tracker.reportLoadFailure(uris[i], e);
+			} catch (OperationCanceledException e) {
+				// user has canceled
+				repo = null;
+			}
+			if (repo != null)
+				loadedRepos.add(repo);
+		}
+		if (loadedRepos.size() > 0) {
+			IQueryable[] queryables = (IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]);
+			return new CompoundQueryable(queryables).query(query, sub.newChild(100));
+		}
+		return Collector.EMPTY_COLLECTOR;
 	}
 
 	public void setRespositoryFlags(int flags) {

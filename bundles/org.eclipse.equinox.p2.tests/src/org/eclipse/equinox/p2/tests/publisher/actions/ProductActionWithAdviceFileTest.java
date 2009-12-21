@@ -81,7 +81,7 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 
 		testAction.perform(info, publisherResult, null);
 		IQueryResult results = publisherResult.query(new IUQuery("org.eclipse.platform.ide", Version.create("3.5.0.I20081118")), null);
-		assertEquals("1.0", 1, results.size());
+		assertEquals("1.0", 1, queryResultSize(results));
 		IInstallableUnit unit = (IInstallableUnit) results.iterator().next();
 		IRequirement[] requiredCapabilities = unit.getRequiredCapabilities();
 

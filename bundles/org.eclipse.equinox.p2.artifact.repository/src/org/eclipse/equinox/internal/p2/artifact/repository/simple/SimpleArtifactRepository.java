@@ -981,16 +981,15 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		Collector queryResult = new Collector();
 		if (monitor != null && monitor.isCanceled())
-			return queryResult;
+			return Collector.EMPTY_COLLECTOR;
 
 		boolean excludeKeys = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_KEYS));
 		boolean excludeDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_DESCRIPTORS));
 		if (excludeKeys && excludeDescriptors)
-			return queryResult;
+			return Collector.EMPTY_COLLECTOR;
 
 		Iterator iterator = !excludeDescriptors ? new MappedCollectionIterator(artifactMap, !excludeKeys) : artifactMap.keySet().iterator();
-		return query.perform(iterator, queryResult);
+		return query.perform(iterator);
 	}
 }

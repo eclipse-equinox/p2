@@ -242,13 +242,13 @@ public class UpdateOperation extends ProfileChangeOperation {
 				if (!defaultUpdates.contains(update))
 					defaultUpdates.add(update);
 			}
-			request.addInstallableUnits(new IInstallableUnit[] {theUpdate});
+			request.addInstallableUnit(theUpdate);
 			//			if (rootMarkerKey != null)
 			request.setInstallableUnitProfileProperty(theUpdate, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			if (PatchQuery.isPatch(theUpdate)) {
 				request.setInstallableUnitInclusionRules(theUpdate, PlannerHelper.createOptionalInclusionRule(theUpdate));
 			} else {
-				request.removeInstallableUnits(new IInstallableUnit[] {update.toUpdate});
+				request.removeInstallableUnit(update.toUpdate);
 			}
 
 		}
