@@ -17,16 +17,14 @@ import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.Profile;
-import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.common.TranslationSupport;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.ICopyright;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
@@ -39,8 +37,21 @@ import org.eclipse.equinox.p2.tests.TestActivator;
  * Tests for {@link IUPropertyUtils}.
  */
 public class TranslationSupportTests extends AbstractQueryTest {
+	Profile profile;
+	IQueryable oldTranslationSource;
+
+	protected void setUp() throws Exception {
+		super.setUp();
+		profile = (Profile) createProfile("testLocalizedLicense");
+		oldTranslationSource = TranslationSupport.getInstance().setTranslationSource(profile);
+	}
+
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		TranslationSupport.getInstance().setTranslationSource(oldTranslationSource);
+	}
+
 	public void testFeatureProperties() {
-		TranslationSupport translations = new TranslationSupport();
 		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		File site = getTestData("0.1", "/testData/metadataRepo/externalized");
 		URI location = site.toURI();
@@ -55,23 +66,20 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		assertTrue("1.0", !result.isEmpty());
 		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
 
-		ICopyright copyright = translations.getCopyright(unit);
+		ICopyright copyright = unit.getCopyright(null);
 		assertEquals("1.1", "Test Copyright", copyright.getBody());
-		ILicense license = translations.getLicenses(unit)[0];
+		ILicense license = unit.getLicenses(null)[0];
 		assertEquals("1.2", "Test License", license.getBody());
 		//		assertEquals("1.3", "license.html", license.getURL().toExternalForm());
-		String name = translations.getIUProperty(unit, IInstallableUnit.PROP_NAME);
+		String name = unit.getProperty(IInstallableUnit.PROP_NAME, null);
 		assertEquals("1.4", "Test Feature Name", name);
-		String description = translations.getIUProperty(unit, IInstallableUnit.PROP_DESCRIPTION);
+		String description = unit.getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
 		assertEquals("1.5", "Test Description", description);
-		String provider = translations.getIUProperty(unit, IInstallableUnit.PROP_PROVIDER);
+		String provider = unit.getProperty(IInstallableUnit.PROP_PROVIDER, null);
 		assertEquals("1.6", "Test Provider Name", provider);
 	}
 
 	public void testLocalizedLicense() throws URISyntaxException {
-		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.SERVICE_NAME);
-		Profile profile = (Profile) profileRegistry.getProfile(IProfileRegistry.SELF);
-		profileRegistry.lockProfile(profile);
 		String germanLicense = "German License";
 		String canadianFRLicense = "Canadian French License";
 
@@ -126,26 +134,19 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		profile.addInstallableUnit(iuFragment);
 		profile.addInstallableUnit(iu);
 
-		profileRegistry.updateProfile(profile);
-		profileRegistry.unlockProfile(profile);
-		TranslationSupport german = new TranslationSupport();
-		german.setLocale(Locale.GERMAN);
-		ILicense license = german.getLicenses(iu)[0];
+		ILicense license = iu.getLicenses(Locale.GERMAN.toString())[0];
 		assertEquals("1.0", germanLicense, license.getBody());
-		TranslationSupport french = new TranslationSupport();
-		french.setLocale(Locale.CANADA_FRENCH);
-		license = french.getLicenses(iu)[0];
+		license = iu.getLicenses(Locale.CANADA_FRENCH.toString())[0];
 		assertEquals("1.1", canadianFRLicense, license.getBody());
 	}
 
 	public void testBasicIU() {
 		IInstallableUnit unit = createIU("f1");
-		TranslationSupport translations = new TranslationSupport();
 
-		assertNull("1.1", translations.getCopyright(unit));
-		assertEquals("1.2", 0, translations.getLicenses(unit).length);;
-		assertNull("1.3", translations.getIUProperty(unit, IInstallableUnit.PROP_NAME));
-		assertNull("1.4", translations.getIUProperty(unit, IInstallableUnit.PROP_DESCRIPTION));
-		assertNull("1.5", translations.getIUProperty(unit, IInstallableUnit.PROP_PROVIDER));
+		assertNull("1.1", unit.getCopyright(null));
+		assertEquals("1.2", 0, unit.getLicenses(null).length);;
+		assertNull("1.3", unit.getProperty(IInstallableUnit.PROP_NAME, null));
+		assertNull("1.4", unit.getProperty(IInstallableUnit.PROP_DESCRIPTION, null));
+		assertNull("1.5", unit.getProperty(IInstallableUnit.PROP_PROVIDER, null));
 	}
 }
