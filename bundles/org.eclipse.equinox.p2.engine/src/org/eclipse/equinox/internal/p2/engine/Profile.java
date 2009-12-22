@@ -381,4 +381,11 @@ public class Profile implements IQueryable, IProfile {
 	public void setSurrogateProfileHandler(ISurrogateProfileHandler surrogateProfileHandler) {
 		this.surrogateProfileHandler = surrogateProfileHandler;
 	}
+
+	/**
+	 * Prints a string representation for debugging purposes only.
+	 */
+	public String toString() {
+		return "Profile(" + getProfileId() + ')'; //$NON-NLS-1$
+	}
 }
