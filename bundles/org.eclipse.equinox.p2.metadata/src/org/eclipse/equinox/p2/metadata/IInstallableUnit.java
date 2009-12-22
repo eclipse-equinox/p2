@@ -115,14 +115,38 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	public IInstallableUnitFragment[] getFragments();
 
 	/**
-	 * Get an <i>unmodifiable copy</i> of the properties
+	 * Returns an <i>unmodifiable copy</i> of the properties
 	 * associated with the installable unit.
 	 * 
-	 * @return an <i>unmodifiable copy</i> of the IU properties.
+	 * @return an <i>unmodifiable copy</i> of the properties of this installable unit.
 	 */
 	public Map getProperties();
 
+	/**
+	 * Returns the untranslated property of this installable unit associated with the given key. 
+	 * Returns <code>null</code> if no such property is defined.
+	 * <p>
+	 * If the property value has been externalized, this method will return a string containing
+	 * the translation key rather than a human-readable string. For this reason, clients
+	 * wishing to obtain the value for a property that is typically translated should use
+	 * {@link #getProperty(String, String)} instead.
+	 * </p>
+	 * 
+	 * @param key The property key to retrieve a property value for
+	 * @return the property that applies to this installable unit or <code>null</code>
+	 */
 	public String getProperty(String key);
+
+	/**
+	 * Returns the property of this installable unit associated with the given key. 
+	 * Returns <code>null</code> if no such property is defined or no applicable
+	 * translation is available.
+	 * 
+	 * @param key The property key to retrieve a property value for
+	 * @param locale The locale to translate the property for, or null to use the current locale.
+	 * @return the property that applies to this installable unit or <code>null</code>
+	 */
+	public String getProperty(String key, String locale);
 
 	public IProvidedCapability[] getProvidedCapabilities();
 
@@ -175,16 +199,50 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	public IUpdateDescriptor getUpdateDescriptor();
 
 	/**
-	 * Returns the license that applies to this installable unit.
-	 * @return the license that applies to this installable unit or <code>null</code>
+	 * Returns the untranslated licenses that apply to this installable unit. 
+	 * <p>
+	 * If the license text has been externalized, this method will return strings containing
+	 * the translation keys rather than human-readable strings. For this reason, clients
+	 * wishing to obtain a license for display to an end user should use {@link #getLicenses(String)}
+	 * instead.
+	 * </p>
+	 * @return the licenses that apply to this installable unit
 	 */
 	public ILicense[] getLicenses();
 
 	/**
-	 * Returns the copyright that applies to this installable unit.
+	 * Returns the licenses that apply to this installable unit. Any translation of the
+	 * licenses for the given locale will be applied. Returns an empty array if this
+	 * unit has no licenses, or if the available licenses are externalized and do not
+	 * have translations available for the given locale.
+	 * 
+	 * @param locale The locale to translate the license for, or null to use the current locale.
+	 * @return the translated licenses that apply to this installable unit
+	 */
+	public ILicense[] getLicenses(String locale);
+
+	/**
+	 * Returns the untranslated copyright that applies to this installable unit.
+	 * <p>
+	 * If the copyright text has been externalized, this method will return strings containing
+	 * the translation keys rather than human-readable strings. For this reason, clients
+	 * wishing to obtain a copyright for display to an end user should use {@link #getCopyright(String)}
+	 * instead.
+	 * </p>
 	 * @return the copyright that applies to this installable unit or <code>null</code>
 	 */
 	public ICopyright getCopyright();
+
+	/**
+	 * Returns the copyright that applies to this installable unit. Any translation of the
+	 * copyright for the given locale will be applied. Returns <code>null</code> if this
+	 * unit has no copyright, or if the copyright is externalized and no translations are
+	 * available for the given locale.
+	 * 
+	 * @param locale The locale to translate the copyright for, or null to use the current locale.
+	 * @return the copyright that applies to this installable unit or <code>null</code>
+	 */
+	public ICopyright getCopyright(String locale);
 
 	/**
 	 * Returns whether this InstallableUnit is equal to the given object.

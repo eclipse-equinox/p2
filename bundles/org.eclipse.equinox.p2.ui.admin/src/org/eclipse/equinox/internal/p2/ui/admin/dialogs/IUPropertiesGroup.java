@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.p2.common.TranslationSupport;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
@@ -67,7 +66,7 @@ public class IUPropertiesGroup extends IUGroup {
 		String[] userPropNames = new String[] {ProvAdminUIMessages.IUPropertiesGroup_NamePropertyLabel, ProvAdminUIMessages.IUPropertiesGroup_DescriptionPropertyLabel, ProvAdminUIMessages.IUPropertiesGroup_ProviderPropertyLabel};
 		for (int i = 0; i < propNames.length; i++) {
 			TableItem item = new TableItem(propertiesTable, SWT.NULL);
-			String value = new TranslationSupport().getIUProperty(getIU(), propNames[i]);
+			String value = getIU().getProperty(propNames[i], null);
 			if (value != null)
 				item.setText(new String[] {userPropNames[i], value});
 		}

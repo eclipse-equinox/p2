@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.ICopyright;
-
 import java.util.ArrayList;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
@@ -140,6 +138,10 @@ public class InstallableUnit implements IInstallableUnit {
 		return properties().getProperty(key);
 	}
 
+	public String getProperty(String key, String locale) {
+		return TranslationSupport.getInstance().getIUProperty(this, key, locale);
+	}
+
 	public IProvidedCapability[] getProvidedCapabilities() {
 		return providedCapabilities;
 	}
@@ -260,11 +262,15 @@ public class InstallableUnit implements IInstallableUnit {
 	}
 
 	public void setLicenses(ILicense[] license) {
-		this.licenses = license;
+		this.licenses = license == null ? NO_LICENSE : license;
 	}
 
 	public ILicense[] getLicenses() {
 		return licenses;
+	}
+
+	public ILicense[] getLicenses(String locale) {
+		return TranslationSupport.getInstance().getLicenses(this, locale);
 	}
 
 	public void setCopyright(ICopyright copyright) {
@@ -273,6 +279,10 @@ public class InstallableUnit implements IInstallableUnit {
 
 	public ICopyright getCopyright() {
 		return copyright;
+	}
+
+	public ICopyright getCopyright(String locale) {
+		return TranslationSupport.getInstance().getCopyright(this, locale);
 	}
 
 	public boolean satisfies(IRequirement candidate) {

@@ -187,7 +187,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	void updateDetailsArea() {
 		IInstallableUnit[] selected = installedIUGroup.getSelectedIUs();
 		if (selected.length == 1) {
-			String description = ui.getTranslationSupport().getIUProperty(selected[0], IInstallableUnit.PROP_DESCRIPTION);
+			String description = selected[0].getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
 			if (description != null) {
 				detailsArea.setText(description);
 				return;

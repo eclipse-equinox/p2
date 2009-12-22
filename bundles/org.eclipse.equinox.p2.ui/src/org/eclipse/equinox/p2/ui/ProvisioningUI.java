@@ -20,7 +20,6 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.common.LicenseManager;
-import org.eclipse.equinox.p2.common.TranslationSupport;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -123,15 +122,6 @@ public class ProvisioningUI {
 	 */
 	public String getProfileId() {
 		return profileId;
-	}
-
-	/**
-	 * Return the translation support used to get localized metadata values.
-	 * 
-	 * @return the translation support, must not be <code>null</code>
-	 */
-	public TranslationSupport getTranslationSupport() {
-		return ProvUIActivator.getDefault().getTranslationSupport();
 	}
 
 	/**

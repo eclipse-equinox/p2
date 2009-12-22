@@ -330,6 +330,18 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return null;
 		}
 
+		public String getProperty(String key, String locale) {
+			return getProperty(key);
+		}
+
+		public ILicense[] getLicenses(String locale) {
+			return license;
+		}
+
+		public ICopyright getCopyright(String locale) {
+			return copyright;
+		}
+
 	}
 
 	class SPITouchpointData implements ITouchpointData {

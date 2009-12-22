@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.common.LicenseManager;
-import org.eclipse.equinox.p2.common.TranslationSupport;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
@@ -143,13 +142,12 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	private IInstallableUnit[] originalIUs;
 	HashMap licensesToIUs; // License -> IU Name
 	private LicenseManager manager;
-	private TranslationSupport translations;
 	IUColumnConfig nameColumn;
 	IUColumnConfig versionColumn;
 
 	static String getIUName(IInstallableUnit iu) {
 		StringBuffer buf = new StringBuffer();
-		String name = ProvisioningUI.getDefaultUI().getTranslationSupport().getIUProperty(iu, IInstallableUnit.PROP_NAME);
+		String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
 		if (name != null)
 			buf.append(name);
 		else
@@ -163,15 +161,13 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	 * Create a license acceptance page for showing licenses to the user.
 	 * 
 	 * @param manager the license manager that should be used to check for already accepted licenses.  May be <code>null</code>.
-	 * @param translationSupport the translation support to use for retrieving localized licenses and other properties
 	 * @param ius the IInstallableUnits for which licenses should be checked
 	 * @param operation the provisioning operation describing what changes are to take place on the profile
 	 */
-	public AcceptLicensesWizardPage(LicenseManager manager, TranslationSupport translationSupport, IInstallableUnit[] ius, ProfileChangeOperation operation) {
+	public AcceptLicensesWizardPage(LicenseManager manager, IInstallableUnit[] ius, ProfileChangeOperation operation) {
 		super("AcceptLicenses"); //$NON-NLS-1$
 		setTitle(ProvUIMessages.AcceptLicensesWizardPage_Title);
 		this.manager = manager;
-		this.translations = translationSupport;
 		update(ius, operation);
 	}
 
@@ -290,7 +286,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		if (singleIU != null) {
 			String licenseBody = ""; //$NON-NLS-1$
 			// We've already established before calling this method that it's a single IU with a single license
-			ILicense[] licenses = translations.getLicenses(singleIU);
+			ILicense[] licenses = singleIU.getLicenses(null);
 			if (licenses.length > 0 && licenses[0].getBody() != null) {
 				licenseBody = licenses[0].getBody();
 			}
@@ -391,11 +387,11 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		HashMap namesSeen = new HashMap(); // map of License->HashSet of names with that license
 		for (int i = 0; i < iusToCheck.length; i++) {
 			IInstallableUnit iu = iusToCheck[i];
-			ILicense[] licenses = translations.getLicenses(iu);
+			ILicense[] licenses = iu.getLicenses(null);
 			for (int k = 0; k < licenses.length; k++) {
 				ILicense license = licenses[k];
 				if (manager != null && !manager.isAccepted(license)) {
-					String name = translations.getIUProperty(iu, IInstallableUnit.PROP_NAME);
+					String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
 					if (name == null)
 						name = iu.getId();
 					// Have we already found this license?  

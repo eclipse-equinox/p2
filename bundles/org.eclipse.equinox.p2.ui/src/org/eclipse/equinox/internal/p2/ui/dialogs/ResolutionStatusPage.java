@@ -91,7 +91,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 
 	protected String getIUDescription(IInstallableUnit iu) {
 		// Get the iu description in the default locale
-		String description = getProvisioningUI().getTranslationSupport().getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION);
+		String description = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
 		if (description == null)
 			description = ""; //$NON-NLS-1$
 		return description;

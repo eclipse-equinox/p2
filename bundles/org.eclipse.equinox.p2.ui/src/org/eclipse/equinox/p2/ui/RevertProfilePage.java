@@ -481,7 +481,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 		public String getName() {
 			if (iu != null) {
-				return ui.getTranslationSupport().getIUProperty(iu, IInstallableUnit.PROP_NAME);
+				return iu.getProperty(IInstallableUnit.PROP_NAME, null);
 			}
 			return pe.getLabel(null);
 		}

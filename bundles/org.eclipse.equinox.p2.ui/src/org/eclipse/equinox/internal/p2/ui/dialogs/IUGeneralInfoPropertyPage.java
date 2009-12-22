@@ -13,9 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.common.TranslationSupport;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -30,8 +28,6 @@ import org.eclipse.swt.widgets.*;
  * @since 3.4
  */
 public class IUGeneralInfoPropertyPage extends IUPropertyPage {
-
-	TranslationSupport translations = ProvisioningUI.getDefaultUI().getTranslationSupport();
 
 	protected Control createIUPage(Composite parent, IInstallableUnit iu) {
 		Composite composite = new Composite(parent, SWT.NONE);
@@ -56,17 +52,17 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 		composite.setLayout(layout);
 		composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		// Get general info in the default locale
-		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_NameLabel, translations.getIUProperty(iu, IInstallableUnit.PROP_NAME));
+		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_NameLabel, iu.getProperty(IInstallableUnit.PROP_NAME, null));
 		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_IdentifierLabel, iu.getId());
 		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_VersionLabel, iu.getVersion().toString());
-		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ProviderLabel, translations.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER));
-		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ContactLabel, translations.getIUProperty(iu, IInstallableUnit.PROP_CONTACT));
+		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ProviderLabel, iu.getProperty(IInstallableUnit.PROP_PROVIDER, null));
+		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ContactLabel, iu.getProperty(IInstallableUnit.PROP_CONTACT, null));
 
 	}
 
 	private void createDescriptionSection(Composite parent, IInstallableUnit iu) {
 		// Get the iu description in the default locale
-		String description = translations.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION);
+		String description = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
 		if (description != null && description.length() > 0) {
 			Group group = new Group(parent, SWT.NONE);
 			group.setText(ProvUIMessages.IUGeneralInfoPropertyPage_DescriptionLabel);

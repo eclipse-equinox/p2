@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.operations;
 
 import java.util.HashMap;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.common.TranslationSupport;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
@@ -57,7 +56,7 @@ public class ResolutionResult {
 		if (iu == null)
 			return Messages.PlanAnalyzer_Items;
 		// Get the iu name in the default locale
-		String name = new TranslationSupport().getIUProperty(iu, IInstallableUnit.PROP_NAME);
+		String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
 		if (name != null)
 			return name;
 		return iu.getId();

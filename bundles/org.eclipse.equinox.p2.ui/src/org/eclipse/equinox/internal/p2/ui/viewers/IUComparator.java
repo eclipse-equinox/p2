@@ -11,9 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
-import org.eclipse.equinox.p2.common.TranslationSupport;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
@@ -52,18 +50,17 @@ public class IUComparator extends ViewerComparator {
 
 		String key1, key2;
 		if (key == IU_NAME) {
-			TranslationSupport translations = ProvisioningUI.getDefaultUI().getTranslationSupport();
 			// Compare the iu names in the default locale.
 			// If a name is not defined, we use blank if we know the id is shown in another
 			// column.  If the id is not shown elsewhere, then we are displaying it, so use
 			// the id instead.
-			key1 = translations.getIUProperty(iu1, IInstallableUnit.PROP_NAME);
+			key1 = iu1.getProperty(IInstallableUnit.PROP_NAME, null);
 			if (key1 == null)
 				if (showingId)
 					key1 = ""; //$NON-NLS-1$
 				else
 					key1 = iu1.getId();
-			key2 = translations.getIUProperty(iu2, IInstallableUnit.PROP_NAME);
+			key2 = iu2.getProperty(IInstallableUnit.PROP_NAME, null);
 			if (key2 == null)
 				if (showingId)
 					key2 = ""; //$NON-NLS-1$

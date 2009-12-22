@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.p2.common.TranslationSupport;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
@@ -42,7 +41,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 
 	private ProvisioningSession session;
 	private ProvisioningUI ui;
-	private TranslationSupport translationSupport;
 
 	public static BundleContext getContext() {
 		return context;
@@ -164,11 +162,5 @@ public class ProvUIActivator extends AbstractUIPlugin {
 
 	public ProvisioningSession getSession() {
 		return session;
-	}
-
-	public TranslationSupport getTranslationSupport() {
-		if (translationSupport == null)
-			translationSupport = new TranslationSupport();
-		return translationSupport;
 	}
 }

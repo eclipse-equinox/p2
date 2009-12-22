@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Font;
@@ -94,7 +93,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 				return iu.getId();
 			case IUColumnConfig.COLUMN_NAME :
 				// Get the iu name in the current locale
-				String name = ProvisioningUI.getDefaultUI().getTranslationSupport().getIUProperty(iu, IInstallableUnit.PROP_NAME);
+				String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
 				if (name != null)
 					return name;
 				// If the iu name is not available, we return blank if we know know we are
@@ -214,7 +213,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null || toolTipProperty == null)
 			return null;
-		return ProvisioningUI.getDefaultUI().getTranslationSupport().getIUProperty(iu, toolTipProperty);
+		return iu.getProperty(toolTipProperty, null);
 	}
 
 	/* (non-Javadoc)

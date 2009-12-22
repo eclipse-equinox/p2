@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.ICopyright;
-
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -59,6 +57,10 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 
 	public String getProperty(String key) {
 		return original.getProperty(key);
+	}
+
+	public String getProperty(String key, String locale) {
+		return original.getProperty(key, locale);
 	}
 
 	public Map getProperties() {
@@ -165,8 +167,16 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getLicenses();
 	}
 
+	public ILicense[] getLicenses(String locale) {
+		return original.getLicenses(locale);
+	}
+
 	public ICopyright getCopyright() {
 		return original.getCopyright();
+	}
+
+	public ICopyright getCopyright(String locale) {
+		return original.getCopyright(locale);
 	}
 
 	public boolean satisfies(IRequirement candidate) {

@@ -444,11 +444,11 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		IInstallableUnit[] selected = getSelectedIUs();
 		if (selected.length == 1) {
 			StringBuffer result = new StringBuffer();
-			String description = getProvisioningUI().getTranslationSupport().getIUProperty(selected[0], IInstallableUnit.PROP_DESCRIPTION);
+			String description = selected[0].getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
 			if (description != null) {
 				result.append(description);
 			} else {
-				String name = getProvisioningUI().getTranslationSupport().getIUProperty(selected[0], IInstallableUnit.PROP_NAME);
+				String name = selected[0].getProperty(IInstallableUnit.PROP_NAME, null);
 				if (name != null)
 					result.append(name);
 				else
