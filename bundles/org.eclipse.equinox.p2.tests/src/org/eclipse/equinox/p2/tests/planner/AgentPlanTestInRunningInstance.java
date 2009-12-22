@@ -8,10 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import java.lang.reflect.Field;
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -22,8 +20,6 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 	private IProfile initialProfile = null;
-	private Object previousSelfValue = null;
-
 	public void setUp() throws Exception {
 		super.setUp();
 
@@ -31,35 +27,12 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		if (initialProfile != null)
 			return;
 
-		if (System.getProperty("eclipse.p2.profile") == null) {
-			SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
-			try {
-				Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
-				selfField.setAccessible(true);
-				previousSelfValue = selfField.get(profileRegistry);
-				if (previousSelfValue == null)
-					selfField.set(profileRegistry, "agent");
-			} catch (Throwable t) {
-				fail();
-			}
-		}
-		createProfile("agent");
+		setUpSelfProfile();
 	}
 
 	public void tearDown() throws Exception {
 		if (initialProfile == null) {
-			if (System.getProperty("eclipse.p2.profile") == null) {
-				SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
-				try {
-					Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
-					selfField.setAccessible(true);
-					Object self = selfField.get(profileRegistry);
-					if (self.equals("agent"))
-						selfField.set(profileRegistry, previousSelfValue);
-				} catch (Throwable t) {
-					// ignore as we still want to continue tidying up
-				}
-			}
+			tearDownSelfProfile();
 		} else {
 			//After the test we clean up the profile
 			IProfile profileAfterTestRun = getProfile(IProfileRegistry.SELF);

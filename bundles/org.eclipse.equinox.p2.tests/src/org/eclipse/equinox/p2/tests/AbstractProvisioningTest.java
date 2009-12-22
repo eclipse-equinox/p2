@@ -79,6 +79,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected List profilesToRemove = new ArrayList();
 
 	private File testFolder = null;
+	protected Object previousSelfValue = null;
 
 	public static void assertEmptyProfile(IProfile profile) {
 		assertNotNull("The profile should not be null", profile);
@@ -1445,5 +1446,48 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	public int countPlanElements(IProvisioningPlan plan) {
 		return queryResultSize(new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getRemovals()}).query(InstallableUnitQuery.ANY, null));
+	}
+
+	/**
+	 * This method is used by tests that require access to the "self" profile. It spoofs
+	 * up a fake self profile is none is already available. Tests should invoke this method
+	 * from their {@link #setUp()} method, and invoke {@link #tearDownSelfProfile()}
+	 * from their {@link #tearDown()} method.
+	 */
+	protected void setUpSelfProfile() {
+		if (System.getProperty("eclipse.p2.profile") == null) {
+			SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
+			try {
+				Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
+				selfField.setAccessible(true);
+				previousSelfValue = selfField.get(profileRegistry);
+				if (previousSelfValue == null)
+					selfField.set(profileRegistry, "agent");
+			} catch (Throwable t) {
+				fail();
+			}
+		}
+		createProfile("agent");
+	}
+
+	/**
+	 * This method is used by tests that require access to the "self" profile. It cleans up
+	 * a fake self profile is none is already available. Tests should invoke this method
+	 * from their {@link #tearDown()} method, and invoke {@link #setUpSelfProfile()}
+	 * from their {@link #setUp()} method.
+	 */
+	protected void tearDownSelfProfile() {
+		if (System.getProperty("eclipse.p2.profile") == null) {
+			SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
+			try {
+				Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
+				selfField.setAccessible(true);
+				Object self = selfField.get(profileRegistry);
+				if (self.equals("agent"))
+					selfField.set(profileRegistry, previousSelfValue);
+			} catch (Throwable t) {
+				// ignore as we still want to continue tidying up
+			}
+		}
 	}
 }

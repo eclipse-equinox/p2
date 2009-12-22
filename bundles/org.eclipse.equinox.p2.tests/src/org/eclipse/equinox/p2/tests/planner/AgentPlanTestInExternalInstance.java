@@ -23,8 +23,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AgentPlanTestInExternalInstance extends AbstractProvisioningTest {
-	Object previousSelfValue;
-
 	public void setUp() throws Exception {
 		super.setUp();
 
