@@ -41,8 +41,8 @@ public abstract class QL {
 	 * @param queryable The queryable to use for the creation of the context
 	 * @return A new context
 	 */
-	public static IQueryContext newQueryContext(IQueryable queryable) {
-		return new QueryContext(queryable);
+	public static <T> IQueryContext<T> newQueryContext(IQueryable<T> queryable) {
+		return new QueryContext<T>(queryable);
 	}
 
 	/**
@@ -50,7 +50,7 @@ public abstract class QL {
 	 * @param iterator The iterator to use for the creation of the context
 	 * @return A new context
 	 */
-	public static IQueryContext newQueryContext(Iterator iterator) {
-		return new QueryContext(iterator);
+	public static <T> IQueryContext<T> newQueryContext(Iterator<T> iterator) {
+		return new QueryContext<T>(iterator);
 	}
 }

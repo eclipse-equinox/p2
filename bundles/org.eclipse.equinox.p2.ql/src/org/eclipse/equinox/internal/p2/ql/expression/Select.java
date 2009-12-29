@@ -27,12 +27,12 @@ final class Select extends CollectionFilter {
 		return TYPE_SELECT;
 	}
 
-	Object evaluate(IEvaluationContext context, Iterator itor) {
+	Object evaluate(IEvaluationContext context, Iterator<?> itor) {
 		return evaluateAsIterator(context, itor);
 	}
 
-	Iterator evaluateAsIterator(final IEvaluationContext context, Iterator itor) {
-		return new MatchIteratorFilter(itor) {
+	Iterator<?> evaluateAsIterator(final IEvaluationContext context, Iterator<?> itor) {
+		return new MatchIteratorFilter<Object>(itor) {
 			protected boolean isMatch(Object val) {
 				lambda.getItemVariable().setValue(context, val);
 				return lambda.evaluate(context) == Boolean.TRUE;

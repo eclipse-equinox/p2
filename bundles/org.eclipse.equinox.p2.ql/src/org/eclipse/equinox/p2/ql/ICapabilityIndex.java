@@ -11,27 +11,27 @@
 package org.eclipse.equinox.p2.ql;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
  * An ICapabilityIndex implementation stores instances of {@link IInstallableUnit} so
- * that they are easily retrievable using instances of {@link IRequiredCapability}.
+ * that they are easily retrievable using instances of {@link IRequirement}.
  */
 public interface ICapabilityIndex {
 	/**
 	 * Returns an iterator that will yield all {@link IInstallableUnit} instances that
 	 * satisfies at least one of the <code>requirements</code>.
-	 * @param requirements An iterator over {@link IRequiredCapability} instances.
+	 * @param requirements An iterator over {@link IRequirement} instances.
 	 * @return An iterator over {@link IInstallableUnit} instances. Possibly empty but never <code>null</code>
 	 */
-	Iterator satisfiesAny(Iterator requirements);
+	Iterator<IInstallableUnit> satisfiesAny(Iterator<IRequirement> requirements);
 
 	/**
 	 * Returns an iterator that will yield all {@link IInstallableUnit} instances that
 	 * satisfies all of the <code>requirements</code>.
-	 * @param requirements An iterator over {@link IRequiredCapability} instances.
+	 * @param requirements An iterator over {@link IRequirement} instances.
 	 * @return An iterator over {@link IInstallableUnit} instances. Possibly empty but never <code>null</code>
 	 */
-	Iterator satisfiesAll(Iterator requirements);
+	Iterator<IInstallableUnit> satisfiesAll(Iterator<IRequirement> requirements);
 }

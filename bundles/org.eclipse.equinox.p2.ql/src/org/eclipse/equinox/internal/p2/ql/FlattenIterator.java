@@ -18,14 +18,14 @@ import java.util.NoSuchElementException;
  * elements that can be represented as iterators. The elements of those iterators
  * will be returned in sequence, thus removing one iterator dimension.
  */
-public class FlattenIterator implements Iterator {
+public class FlattenIterator<T> implements Iterator<T> {
 	private static final Object NO_ELEMENT = new Object();
-	private final Iterator iteratorIterator;
-	private Iterator currentIterator;
+	private final Iterator<? extends Object> iteratorIterator;
+	private Iterator<T> currentIterator;
 
-	private Object nextObject = NO_ELEMENT;
+	private T nextObject = noElement();
 
-	public FlattenIterator(Iterator iterator) {
+	public FlattenIterator(Iterator<? extends Object> iterator) {
 		this.iteratorIterator = iterator;
 	}
 
@@ -33,12 +33,12 @@ public class FlattenIterator implements Iterator {
 		return positionNext();
 	}
 
-	public Object next() {
+	public T next() {
 		if (!positionNext())
 			throw new NoSuchElementException();
 
-		Object nxt = nextObject;
-		nextObject = NO_ELEMENT;
+		T nxt = nextObject;
+		nextObject = noElement();
 		return nxt;
 	}
 
@@ -46,6 +46,7 @@ public class FlattenIterator implements Iterator {
 		throw new UnsupportedOperationException();
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean positionNext() {
 		if (nextObject != NO_ELEMENT)
 			return true;
@@ -55,9 +56,14 @@ public class FlattenIterator implements Iterator {
 				return false;
 
 			Object nextItor = iteratorIterator.next();
-			currentIterator = (nextItor instanceof Iterator) ? (Iterator) nextItor : RepeatableIterator.create(nextItor);
+			currentIterator = (nextItor instanceof Iterator<?>) ? (Iterator<T>) nextItor : RepeatableIterator.<T> create(nextItor);
 		}
 		nextObject = currentIterator.next();
 		return true;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> T noElement() {
+		return (T) NO_ELEMENT;
 	}
 }

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql.expression;
 
+import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.ql.CapabilityIndex;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ql.IEvaluationContext;
@@ -26,7 +27,7 @@ final class CapabilityIndexFunction extends Function {
 	}
 
 	public Object evaluate(IEvaluationContext context) {
-		return new CapabilityIndex(operands[0].evaluateAsIterator(context));
+		return new CapabilityIndex((Iterator<IInstallableUnit>) operands[0].evaluateAsIterator(context));
 	}
 
 	String getOperator() {

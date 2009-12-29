@@ -16,7 +16,13 @@ import java.util.Iterator;
  * This is an expression that will need access to the global variable
  * <code>everything</code>.
  */
-public interface IContextExpression extends IExpression {
+public interface IContextExpression<T> extends IExpression {
+	/**
+	 * Returns the element class
+	 * @return The element class
+	 */
+	Class<T> getElementClass();
+
 	/**
 	 * <p>Creates a new context to be passed to a subsequent evaluation. The context
 	 * will have the variable 'everything' set to an expression that represents
@@ -28,7 +34,7 @@ public interface IContextExpression extends IExpression {
 	 * @param params The parameters to use for the evaluation.
 	 * @return A new evaluation context.
 	 */
-	IEvaluationContext createContext(Class elementClass, Iterator everything, Object[] params);
+	IEvaluationContext createContext(Iterator<T> everything, Object[] params);
 
 	/**
 	 * <p>Creates a new context to be passed to a subsequent evaluation. The context
@@ -42,5 +48,5 @@ public interface IContextExpression extends IExpression {
 	 * @param translations A translation support object to be assigned to the variable 'translations'
 	 * @return A new evaluation context.
 	 */
-	IEvaluationContext createContext(Class elementClass, Iterator everything, Object[] params, ITranslationSupport translations);
+	IEvaluationContext createContext(Iterator<T> everything, Object[] params, ITranslationSupport translations);
 }

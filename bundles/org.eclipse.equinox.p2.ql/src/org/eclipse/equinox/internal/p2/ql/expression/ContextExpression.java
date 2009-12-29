@@ -19,27 +19,34 @@ import org.eclipse.equinox.p2.ql.*;
  * variable 'everything' and initialized it with the iterator that represents all
  * available items.
  */
-final class ContextExpression extends Unary implements IContextExpression {
+final class ContextExpression<T> extends Unary implements IContextExpression<T> {
 
-	ContextExpression(Expression expression) {
+	private final Class<T> elementClass;
+
+	ContextExpression(Class<T> elementClass, Expression expression) {
 		super(expression);
+		this.elementClass = elementClass;
 	}
 
 	public void toString(StringBuffer bld) {
 		operand.toString(bld);
 	}
 
-	public IEvaluationContext createContext(Class elementClass, Iterator iterator, Object[] params) {
+	public IEvaluationContext createContext(Iterator<T> iterator, Object[] params) {
 		IEvaluationContext context = new SingleVariableContext(new ParameterContext(params), Variable.EVERYTHING);
-		context.setValue(Variable.EVERYTHING, new Everything(elementClass, iterator, operand.needsRepeatedIterations()));
+		context.setValue(Variable.EVERYTHING, new Everything<T>(elementClass, iterator, operand.needsRepeatedIterations()));
 		return context;
 	}
 
-	public IEvaluationContext createContext(Class elementClass, Iterator iterator, Object[] params, ITranslationSupport ts) {
+	public IEvaluationContext createContext(Iterator<T> iterator, Object[] params, ITranslationSupport ts) {
 		IEvaluationContext context = new MultiVariableContext(new ParameterContext(params), new IExpression[] {Variable.EVERYTHING, Variable.TRANSLATIONS});
-		context.setValue(Variable.EVERYTHING, new Everything(elementClass, iterator, operand.needsRepeatedIterations()));
+		context.setValue(Variable.EVERYTHING, new Everything<T>(elementClass, iterator, operand.needsRepeatedIterations()));
 		context.setValue(Variable.TRANSLATIONS, ts);
 		return context;
+	}
+
+	public Class<T> getElementClass() {
+		return elementClass;
 	}
 
 	public int getExpressionType() {
@@ -55,7 +62,7 @@ final class ContextExpression extends Unary implements IContextExpression {
 	}
 
 	Expression pipeFrom(Expression expr) {
-		return new ContextExpression(operand.pipeFrom(expr));
+		return new ContextExpression<T>(elementClass, operand.pipeFrom(expr));
 	}
 
 	boolean isBoolean() {

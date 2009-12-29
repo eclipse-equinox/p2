@@ -47,9 +47,10 @@ final class Or extends NAry {
 		}
 
 		// Not a boolean. Assume that we can use an iterator on all values
-		Set resultSet = asSet(firstValue, true);
+		@SuppressWarnings("unchecked")
+		Set<Object> resultSet = (Set<Object>) asSet(firstValue, true);
 		for (int idx = 1; idx < operands.length; ++idx) {
-			Iterator itor = operands[idx].evaluateAsIterator(context);
+			Iterator<?> itor = operands[idx].evaluateAsIterator(context);
 			while (itor.hasNext())
 				resultSet.add(itor.next());
 		}

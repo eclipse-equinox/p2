@@ -11,9 +11,9 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.ql.IEvaluationContext;
 import org.eclipse.equinox.p2.ql.SimplePattern;
 import org.osgi.framework.Filter;
@@ -46,12 +46,12 @@ final class Matches extends Binary {
 		Object lval = lhs.evaluate(context);
 		Object rval = rhs.evaluate(context);
 
-		if (rval instanceof IRequiredCapability) {
-			IRequiredCapability cap = (IRequiredCapability) rval;
+		if (rval instanceof IRequirement) {
+			IRequirement requirement = (IRequirement) rval;
 			if (lval instanceof IInstallableUnit)
-				return Boolean.valueOf(((IInstallableUnit) lval).satisfies(cap));
+				return Boolean.valueOf(((IInstallableUnit) lval).satisfies(requirement));
 			if (lval instanceof IProvidedCapability)
-				return Boolean.valueOf(cap.satisfiedBy((IProvidedCapability) lval));
+				return Boolean.valueOf(((IProvidedCapability) lval).satisfies(requirement));
 
 		} else if (rval instanceof VersionRange) {
 			if (lval instanceof Version)
@@ -67,19 +67,19 @@ final class Matches extends Binary {
 
 		} else if (rval instanceof Filter) {
 			if (lval instanceof IInstallableUnit)
-				return Boolean.valueOf(((Filter) rval).match(new Hashtable(((IInstallableUnit) lval).getProperties())));
-			if (lval instanceof Dictionary)
-				return Boolean.valueOf(((Filter) rval).match((Dictionary) lval));
-			if (lval instanceof Map)
-				return Boolean.valueOf(((Filter) rval).match(new Hashtable((Map) lval)));
+				return Boolean.valueOf(((Filter) rval).match(new Hashtable<String, String>(((IInstallableUnit) lval).getProperties())));
+			if (lval instanceof Dictionary<?, ?>)
+				return Boolean.valueOf(((Filter) rval).match((Dictionary<?, ?>) lval));
+			if (lval instanceof Map<?, ?>)
+				return Boolean.valueOf(((Filter) rval).match(new Hashtable<Object, Object>((Map<?, ?>) lval)));
 
 		} else if (rval instanceof Locale) {
 			if (lval instanceof String)
 				return Boolean.valueOf(matchLocaleVariants((Locale) rval, (String) lval));
 
-		} else if (rval instanceof Class) {
-			Class rclass = (Class) rval;
-			return Boolean.valueOf(lval instanceof Class ? rclass.isAssignableFrom((Class) lval) : rclass.isInstance(lval));
+		} else if (rval instanceof Class<?>) {
+			Class<?> rclass = (Class<?>) rval;
+			return Boolean.valueOf(lval instanceof Class<?> ? rclass.isAssignableFrom((Class<?>) lval) : rclass.isInstance(lval));
 		}
 
 		if (lval == null || rval == null)

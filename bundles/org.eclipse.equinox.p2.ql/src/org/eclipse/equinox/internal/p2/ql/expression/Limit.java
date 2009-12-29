@@ -22,11 +22,11 @@ final class Limit extends Binary {
 	/**
 	 * An iterator that stops iterating after a given number of iterations.
 	 */
-	static final class CountingIterator implements Iterator {
-		private final Iterator innerIterator;
+	static final class CountingIterator<T> implements Iterator<T> {
+		private final Iterator<? extends T> innerIterator;
 		private int counter;
 
-		public CountingIterator(Iterator iterator, int count) {
+		public CountingIterator(Iterator<? extends T> iterator, int count) {
 			this.innerIterator = iterator;
 			this.counter = count;
 		}
@@ -35,7 +35,7 @@ final class Limit extends Binary {
 			return counter > 0 && innerIterator.hasNext();
 		}
 
-		public Object next() {
+		public T next() {
 			if (counter > 0) {
 				--counter;
 				return innerIterator.next();
@@ -65,7 +65,7 @@ final class Limit extends Binary {
 			limit = ((Integer) rval).intValue();
 		if (limit <= 0)
 			throw new IllegalArgumentException("limit expression did not evalutate to a positive integer"); //$NON-NLS-1$
-		return new CountingIterator(lhs.evaluateAsIterator(context), limit);
+		return new CountingIterator<Object>(lhs.evaluateAsIterator(context), limit);
 	}
 
 	public int getExpressionType() {

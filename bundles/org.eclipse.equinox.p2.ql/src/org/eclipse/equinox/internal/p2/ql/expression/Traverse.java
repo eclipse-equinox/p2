@@ -32,12 +32,12 @@ final class Traverse extends CollectionFilter {
 		return TYPE_TRAVERSE;
 	}
 
-	Object evaluate(IEvaluationContext context, Iterator itor) {
+	Object evaluate(IEvaluationContext context, Iterator<?> itor) {
 		return evaluateAsIterator(context, itor);
 	}
 
-	Iterator evaluateAsIterator(IEvaluationContext context, Iterator iterator) {
-		HashSet collector = new HashSet();
+	Iterator<?> evaluateAsIterator(IEvaluationContext context, Iterator<?> iterator) {
+		HashSet<Object> collector = new HashSet<Object>();
 		while (iterator.hasNext())
 			traverse(collector, iterator.next(), context);
 		return collector.iterator();
@@ -47,12 +47,12 @@ final class Traverse extends CollectionFilter {
 		return IParserConstants.KEYWORD_TRAVERSE;
 	}
 
-	void traverse(Set collector, Object parent, IEvaluationContext context) {
+	void traverse(Set<Object> collector, Object parent, IEvaluationContext context) {
 		if (collector.add(parent)) {
 			Variable variable = lambda.getItemVariable();
 			context = new SingleVariableContext(context, variable);
 			variable.setValue(context, parent);
-			Iterator subIterator = lambda.evaluateAsIterator(context);
+			Iterator<?> subIterator = lambda.evaluateAsIterator(context);
 			while (subIterator.hasNext())
 				traverse(collector, subIterator.next(), context);
 		}

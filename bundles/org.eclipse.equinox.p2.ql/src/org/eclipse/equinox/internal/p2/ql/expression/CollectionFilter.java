@@ -40,13 +40,13 @@ abstract class CollectionFilter extends Unary {
 	}
 
 	public final Object evaluate(IEvaluationContext context) {
-		Iterator lval = operand.evaluateAsIterator(context);
+		Iterator<?> lval = operand.evaluateAsIterator(context);
 		context = lambda.prolog(context);
 		return evaluate(context, lval);
 	}
 
-	public final Iterator evaluateAsIterator(IEvaluationContext context) {
-		Iterator lval = operand.evaluateAsIterator(context);
+	public final Iterator<?> evaluateAsIterator(IEvaluationContext context) {
+		Iterator<?> lval = operand.evaluateAsIterator(context);
 		context = lambda.prolog(context);
 		return evaluateAsIterator(context, lval);
 	}
@@ -61,9 +61,9 @@ abstract class CollectionFilter extends Unary {
 		return super.countReferenceToEverything() + lambda.countReferenceToEverything();
 	}
 
-	abstract Object evaluate(final IEvaluationContext context, Iterator iterator);
+	abstract Object evaluate(final IEvaluationContext context, Iterator<?> iterator);
 
-	Iterator evaluateAsIterator(IEvaluationContext context, Iterator iterator) {
+	Iterator<?> evaluateAsIterator(IEvaluationContext context, Iterator<?> iterator) {
 		throw new UnsupportedOperationException();
 	}
 

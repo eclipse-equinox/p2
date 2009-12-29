@@ -26,7 +26,7 @@ final class All extends CollectionFilter {
 		return TYPE_ALL;
 	}
 
-	Object evaluate(IEvaluationContext context, Iterator itor) {
+	Object evaluate(IEvaluationContext context, Iterator<?> itor) {
 		Variable variable = lambda.getItemVariable();
 		while (itor.hasNext()) {
 			variable.setValue(context, itor.next());

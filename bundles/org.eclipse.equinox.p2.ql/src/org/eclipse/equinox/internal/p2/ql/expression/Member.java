@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.lang.reflect.*;
 import java.util.Iterator;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.ql.*;
 
 /**
@@ -60,8 +61,9 @@ abstract class Member extends Unary {
 			super(operand, KEYWORD_SATISFIES_ANY, NAry.assertLength(argExpressions, 1, 1, KEYWORD_SATISFIES_ANY));
 		}
 
-		public Iterator evaluateAsIterator(IEvaluationContext context) {
-			return getSelf(context).satisfiesAny(argExpressions[0].evaluateAsIterator(context));
+		@SuppressWarnings("unchecked")
+		public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
+			return getSelf(context).satisfiesAny((Iterator<IRequirement>) argExpressions[0].evaluateAsIterator(context));
 		}
 	}
 
@@ -71,8 +73,9 @@ abstract class Member extends Unary {
 			super(operand, KEYWORD_SATISFIES_ALL, NAry.assertLength(argExpressions, 1, 1, KEYWORD_SATISFIES_ALL));
 		}
 
-		public Iterator evaluateAsIterator(IEvaluationContext context) {
-			return getSelf(context).satisfiesAll(argExpressions[0].evaluateAsIterator(context));
+		@SuppressWarnings("unchecked")
+		public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
+			return getSelf(context).satisfiesAll((Iterator<IRequirement>) argExpressions[0].evaluateAsIterator(context));
 		}
 	}
 
@@ -118,7 +121,7 @@ abstract class Member extends Unary {
 	}
 
 	static final class DynamicMember extends Member {
-		private static final Class[] NO_ARG_TYPES = new Class[0];
+		private static final Class<?>[] NO_ARG_TYPES = new Class[0];
 		private static final String GET_PREFIX = "get"; //$NON-NLS-1$
 		private static final String IS_PREFIX = "is"; //$NON-NLS-1$
 
@@ -129,7 +132,7 @@ abstract class Member extends Unary {
 			this.methodName = name;
 		}
 
-		private Class lastClass;
+		private Class<?> lastClass;
 		private Method method;
 		private String methodName;
 
@@ -145,7 +148,7 @@ abstract class Member extends Unary {
 			if (self == null)
 				throw new IllegalArgumentException("Cannot access member " + name + " in null"); //$NON-NLS-1$//$NON-NLS-2$
 
-			Class c = self.getClass();
+			Class<?> c = self.getClass();
 			if (lastClass == null || !lastClass.isAssignableFrom(c)) {
 				Method m;
 				for (;;) {

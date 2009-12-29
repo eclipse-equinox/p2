@@ -25,17 +25,17 @@ final class Latest extends UnaryCollectionFilter {
 		super(collection);
 	}
 
-	public Iterator evaluateAsIterator(IEvaluationContext context) {
-		HashMap greatestIUVersion;
+	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
+		HashMap<String, IVersionedId> greatestIUVersion;
 		if (operand instanceof Select) {
 			// Inline element evaluation here so that we don't build a map that is
 			// larger then it has to be
 			Select select = (Select) operand;
-			Iterator iterator = select.operand.evaluateAsIterator(context);
+			Iterator<?> iterator = select.operand.evaluateAsIterator(context);
 			if (!iterator.hasNext())
 				return Collections.EMPTY_SET.iterator();
 
-			greatestIUVersion = new HashMap();
+			greatestIUVersion = new HashMap<String, IVersionedId>();
 			LambdaExpression lambda = select.lambda;
 			context = lambda.prolog(context);
 			Variable variable = lambda.getItemVariable();
@@ -50,20 +50,20 @@ final class Latest extends UnaryCollectionFilter {
 
 				IVersionedId versionedID = (IVersionedId) next;
 				String id = versionedID.getId();
-				IVersionedId prev = (IVersionedId) greatestIUVersion.put(id, versionedID);
+				IVersionedId prev = greatestIUVersion.put(id, versionedID);
 				if (prev == null)
 					continue;
 				if (prev.getVersion().compareTo(versionedID.getVersion()) > 0)
 					greatestIUVersion.put(id, prev);
 			}
 		} else {
-			Iterator iterator = operand.evaluateAsIterator(context);
+			Iterator<?> iterator = operand.evaluateAsIterator(context);
 			if (iterator == null)
 				return null;
 			if (!iterator.hasNext())
 				return Collections.EMPTY_SET.iterator();
 
-			greatestIUVersion = new HashMap();
+			greatestIUVersion = new HashMap<String, IVersionedId>();
 			while (iterator.hasNext()) {
 				Object next = iterator.next();
 				if (!(next instanceof IVersionedId))
@@ -72,7 +72,7 @@ final class Latest extends UnaryCollectionFilter {
 				IVersionedId versionedID = (IVersionedId) next;
 				String id = versionedID.getId();
 
-				IVersionedId prev = (IVersionedId) greatestIUVersion.put(id, versionedID);
+				IVersionedId prev = greatestIUVersion.put(id, versionedID);
 				if (prev == null)
 					continue;
 

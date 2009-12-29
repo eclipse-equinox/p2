@@ -11,61 +11,62 @@
 package org.eclipse.equinox.internal.p2.ql;
 
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
-public class RepeatableIterator implements IRepeatableIterator {
-	private final List values;
+public class RepeatableIterator<T> implements IRepeatableIterator<T> {
+	private final List<T> values;
 	private int position = -1;
 
-	public static IRepeatableIterator create(Object unknown) {
+	@SuppressWarnings("unchecked")
+	public static <T> IRepeatableIterator<T> create(Object unknown) {
 		if (unknown.getClass().isArray())
-			return create((Object[]) unknown);
-		if (unknown instanceof Iterator)
-			return create((Iterator) unknown);
-		if (unknown instanceof List)
-			return create((List) unknown);
-		if (unknown instanceof Collection)
-			return create((Collection) unknown);
-		if (unknown instanceof Map)
-			return create(((Map) unknown).entrySet());
-		if (unknown instanceof Collector)
-			return create((Collector) unknown);
+			return create((T[]) unknown);
+		if (unknown instanceof Iterator<?>)
+			return create((Iterator<T>) unknown);
+		if (unknown instanceof List<?>)
+			return create((List<T>) unknown);
+		if (unknown instanceof Collection<?>)
+			return create((Collection<T>) unknown);
+		if (unknown instanceof Map<?, ?>)
+			return create((Set<T>) ((Map<?, ?>) unknown).entrySet());
+		if (unknown instanceof IQueryResult<?>)
+			return create((IQueryResult<T>) unknown);
 		throw new IllegalArgumentException("Cannot convert a " + unknown.getClass().getName() + " into an iterator"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	public static IRepeatableIterator create(Iterator iterator) {
-		return iterator instanceof IRepeatableIterator ? ((IRepeatableIterator) iterator).getCopy() : new ElementRetainingIterator(iterator);
+	public static <T> IRepeatableIterator<T> create(Iterator<T> iterator) {
+		return iterator instanceof IRepeatableIterator<?> ? ((IRepeatableIterator<T>) iterator).getCopy() : new ElementRetainingIterator<T>(iterator);
 	}
 
-	public static IRepeatableIterator create(List values) {
-		return new RepeatableIterator(values);
+	public static <T> IRepeatableIterator<T> create(List<T> values) {
+		return new RepeatableIterator<T>(values);
 	}
 
-	public static IRepeatableIterator create(Collection values) {
-		return new CollectionIterator(values);
+	public static <T> IRepeatableIterator<T> create(Collection<T> values) {
+		return new CollectionIterator<T>(values);
 	}
 
-	public static IRepeatableIterator create(Collector values) {
-		return new CollectorIterator(values);
+	public static <T> IRepeatableIterator<T> create(IQueryResult<T> values) {
+		return new QueryResultIterator<T>(values);
 	}
 
-	public static IRepeatableIterator create(Object[] values) {
-		return new ArrayIterator(values);
+	public static <T> IRepeatableIterator<T> create(T[] values) {
+		return new ArrayIterator<T>(values);
 	}
 
-	RepeatableIterator(List values) {
+	RepeatableIterator(List<T> values) {
 		this.values = values;
 	}
 
-	public IRepeatableIterator getCopy() {
-		return new RepeatableIterator(values);
+	public IRepeatableIterator<T> getCopy() {
+		return new RepeatableIterator<T>(values);
 	}
 
 	public boolean hasNext() {
 		return position + 1 < values.size();
 	}
 
-	public Object next() {
+	public T next() {
 		if (++position == values.size()) {
 			--position;
 			throw new NoSuchElementException();
@@ -85,15 +86,15 @@ public class RepeatableIterator implements IRepeatableIterator {
 		this.position = position;
 	}
 
-	List getValues() {
+	List<T> getValues() {
 		return values;
 	}
 
-	static class ArrayIterator implements IRepeatableIterator {
-		private final Object[] array;
+	static class ArrayIterator<T> implements IRepeatableIterator<T> {
+		private final T[] array;
 		private int position = -1;
 
-		public ArrayIterator(Object[] array) {
+		public ArrayIterator(T[] array) {
 			this.array = array;
 		}
 
@@ -105,7 +106,7 @@ public class RepeatableIterator implements IRepeatableIterator {
 			return position + 1 < array.length;
 		}
 
-		public Object next() {
+		public T next() {
 			if (++position >= array.length)
 				throw new NoSuchElementException();
 			return array[position];
@@ -115,23 +116,23 @@ public class RepeatableIterator implements IRepeatableIterator {
 			throw new UnsupportedOperationException();
 		}
 
-		public IRepeatableIterator getCopy() {
-			return new ArrayIterator(array);
+		public IRepeatableIterator<T> getCopy() {
+			return new ArrayIterator<T>(array);
 		}
 	}
 
-	static class CollectionIterator implements IRepeatableIterator {
-		private final Collection collection;
+	static class CollectionIterator<T> implements IRepeatableIterator<T> {
+		private final Collection<T> collection;
 
-		private final Iterator iterator;
+		private final Iterator<T> iterator;
 
-		CollectionIterator(Collection collection) {
+		CollectionIterator(Collection<T> collection) {
 			this.collection = collection;
 			this.iterator = collection.iterator();
 		}
 
-		public IRepeatableIterator getCopy() {
-			return new CollectionIterator(collection);
+		public IRepeatableIterator<T> getCopy() {
+			return new CollectionIterator<T>(collection);
 		}
 
 		public Object getIteratorProvider() {
@@ -142,7 +143,7 @@ public class RepeatableIterator implements IRepeatableIterator {
 			return iterator.hasNext();
 		}
 
-		public Object next() {
+		public T next() {
 			return iterator.next();
 		}
 
@@ -151,29 +152,29 @@ public class RepeatableIterator implements IRepeatableIterator {
 		}
 	}
 
-	static class CollectorIterator implements IRepeatableIterator {
-		private final Collector collector;
+	static class QueryResultIterator<T> implements IRepeatableIterator<T> {
+		private final IQueryResult<T> queryResult;
 
-		private final Iterator iterator;
+		private final Iterator<T> iterator;
 
-		CollectorIterator(Collector collector) {
-			this.collector = collector;
-			this.iterator = collector.iterator();
+		QueryResultIterator(IQueryResult<T> queryResult) {
+			this.queryResult = queryResult;
+			this.iterator = queryResult.iterator();
 		}
 
-		public IRepeatableIterator getCopy() {
-			return new CollectorIterator(collector);
+		public IRepeatableIterator<T> getCopy() {
+			return new QueryResultIterator<T>(queryResult);
 		}
 
 		public Object getIteratorProvider() {
-			return collector;
+			return queryResult;
 		}
 
 		public boolean hasNext() {
 			return iterator.hasNext();
 		}
 
-		public Object next() {
+		public T next() {
 			return iterator.next();
 		}
 
@@ -182,12 +183,12 @@ public class RepeatableIterator implements IRepeatableIterator {
 		}
 	}
 
-	static class ElementRetainingIterator extends RepeatableIterator {
+	static class ElementRetainingIterator<T> extends RepeatableIterator<T> {
 
-		private Iterator innerIterator;
+		private Iterator<T> innerIterator;
 
-		ElementRetainingIterator(Iterator iterator) {
-			super(new ArrayList());
+		ElementRetainingIterator(Iterator<T> iterator) {
+			super(new ArrayList<T>());
 			innerIterator = iterator;
 		}
 
@@ -201,16 +202,16 @@ public class RepeatableIterator implements IRepeatableIterator {
 			return super.hasNext();
 		}
 
-		public synchronized Object next() {
+		public synchronized T next() {
 			if (innerIterator != null) {
-				Object val = innerIterator.next();
+				T val = innerIterator.next();
 				getValues().add(val);
 				return val;
 			}
 			return super.next();
 		}
 
-		public synchronized IRepeatableIterator getCopy() {
+		public synchronized IRepeatableIterator<T> getCopy() {
 			// If the current iterator still exists, we must exhaust it first
 			//
 			exhaustInnerIterator();
@@ -224,7 +225,7 @@ public class RepeatableIterator implements IRepeatableIterator {
 
 		private void exhaustInnerIterator() {
 			if (innerIterator != null) {
-				List values = getValues();
+				List<T> values = getValues();
 				int savePos = values.size() - 1;
 				while (innerIterator.hasNext())
 					values.add(innerIterator.next());

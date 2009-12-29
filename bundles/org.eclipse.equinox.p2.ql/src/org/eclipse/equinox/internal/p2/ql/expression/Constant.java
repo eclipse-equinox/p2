@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.*;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.ql.IEvaluationContext;
 import org.eclipse.equinox.p2.ql.SimplePattern;
 
@@ -84,7 +85,7 @@ final class Constant extends Expression {
 	}
 
 	boolean isCollection() {
-		return value instanceof Collection || value instanceof Map || value instanceof Iterator || value != null && value.getClass().isArray();
+		return value instanceof Collection<?> || value instanceof Map<?, ?> || value instanceof Iterator<?> || value instanceof IQueryResult<?> || value != null && value.getClass().isArray();
 	}
 
 	String getOperator() {

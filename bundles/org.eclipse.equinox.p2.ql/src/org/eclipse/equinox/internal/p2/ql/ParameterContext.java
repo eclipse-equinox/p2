@@ -31,7 +31,7 @@ public final class ParameterContext implements IEvaluationContext {
 	}
 
 	public Object getParameter(String key) {
-		return parameters.length == 1 && parameters[0] instanceof Map ? ((Map) parameters[0]).get(key) : null;
+		return parameters.length == 1 && parameters[0] instanceof Map<?, ?> ? ((Map<?, ?>) parameters[0]).get(key) : null;
 	}
 
 	public Object getValue(IExpression variable) {

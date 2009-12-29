@@ -3,49 +3,58 @@ package org.eclipse.equinox.internal.p2.ql;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.ContextQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.ql.IQueryContext;
 import org.eclipse.equinox.p2.ql.ITranslationSupport;
+import org.eclipse.osgi.service.localization.LocaleProvider;
 
-public class QueryContext implements IQueryContext {
+public class QueryContext<T> implements IQueryContext<T> {
 
-	private final IQueryable queryable;
+	private final IQueryable<T> queryable;
 
-	private Map translationSupports;
+	private Map<Locale, TranslationSupport> translationSupports;
 
-	public QueryContext(IQueryable queryable) {
+	public QueryContext(IQueryable<T> queryable) {
 		this.queryable = queryable;
 	}
 
-	public QueryContext(Iterator iterator) {
-		final IRepeatableIterator repeatable = RepeatableIterator.create(iterator);
-		this.queryable = new IQueryable() {
-			public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public QueryContext(Iterator<T> iterator) {
+		final IRepeatableIterator<T> repeatable = RepeatableIterator.create(iterator);
+		this.queryable = new IQueryable<T>() {
+			public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
 				return query.perform(repeatable.getCopy());
 			}
 		};
 	}
 
-	public synchronized ITranslationSupport getTranslationSupport(Locale locale) {
+	public synchronized ITranslationSupport getTranslationSupport(final Locale locale) {
 		if (translationSupports == null)
-			translationSupports = new HashMap();
+			translationSupports = new HashMap<Locale, TranslationSupport>();
 
-		TranslationSupport ts = (TranslationSupport) translationSupports.get(locale);
+		TranslationSupport ts = translationSupports.get(locale);
 		if (ts == null) {
 			ts = new TranslationSupport();
-			ts.setTranslationSource(queryable);
-			ts.setLocale(locale);
+			ts.setTranslationSource((IQueryable<IInstallableUnit>) queryable);
+			ts.setLocaleProvider(new LocaleProvider() {
+				public Locale getLocale() {
+					// TODO Auto-generated method stub
+					return locale;
+				}
+			});
 			translationSupports.put(locale, ts);
 		}
 		return ts;
 	}
 
-	public Iterator iterator() {
-		final Iterator[] iteratorCatcher = new Iterator[1];
-		queryable.query(new ContextQuery() {
-			public IQueryResult perform(Iterator iterator) {
+	public Iterator<T> iterator() {
+		@SuppressWarnings("unchecked")
+		final Iterator<T>[] iteratorCatcher = new Iterator[1];
+		queryable.query(new ContextQuery<T>() {
+			public IQueryResult<T> perform(Iterator<T> iterator) {
 				iteratorCatcher[0] = iterator;
 				return null;
 			}

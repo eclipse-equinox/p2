@@ -16,14 +16,14 @@ import java.util.NoSuchElementException;
 /**
  * An iterator filter using a boolean {@link #isMatch(Object)} method.
  */
-public abstract class MatchIteratorFilter implements Iterator {
+public abstract class MatchIteratorFilter<T> implements Iterator<T> {
 	private static final Object NO_ELEMENT = new Object();
 
-	private final Iterator innerIterator;
+	private final Iterator<? extends T> innerIterator;
 
-	private Object nextObject = NO_ELEMENT;
+	private T nextObject = noElement();
 
-	public MatchIteratorFilter(Iterator iterator) {
+	public MatchIteratorFilter(Iterator<? extends T> iterator) {
 		this.innerIterator = iterator;
 	}
 
@@ -31,12 +31,12 @@ public abstract class MatchIteratorFilter implements Iterator {
 		return positionNext();
 	}
 
-	public Object next() {
+	public T next() {
 		if (!positionNext())
 			throw new NoSuchElementException();
 
-		Object nxt = nextObject;
-		nextObject = NO_ELEMENT;
+		T nxt = nextObject;
+		nextObject = noElement();
 		return nxt;
 	}
 
@@ -44,23 +44,28 @@ public abstract class MatchIteratorFilter implements Iterator {
 		throw new UnsupportedOperationException();
 	}
 
-	protected Iterator getInnerIterator() {
+	protected Iterator<? extends T> getInnerIterator() {
 		return innerIterator;
 	}
 
-	protected abstract boolean isMatch(Object val);
+	protected abstract boolean isMatch(T val);
 
 	private boolean positionNext() {
 		if (nextObject != NO_ELEMENT)
 			return true;
 
 		while (innerIterator.hasNext()) {
-			Object nxt = innerIterator.next();
+			T nxt = innerIterator.next();
 			if (isMatch(nxt)) {
 				nextObject = nxt;
 				return true;
 			}
 		}
 		return false;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> T noElement() {
+		return (T) NO_ELEMENT;
 	}
 }

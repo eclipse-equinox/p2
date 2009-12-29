@@ -45,10 +45,10 @@ final class And extends NAry {
 		}
 
 		// Not a boolean. Assume that we can use an iterator on all values
-		Set resultSet = asSet(firstValue, false); // Safe since it will not be modified
+		Set<?> resultSet = asSet(firstValue, false); // Safe since it will not be modified
 		for (int idx = 1; idx < operands.length && !resultSet.isEmpty(); ++idx) {
-			Iterator itor = operands[idx].evaluateAsIterator(context);
-			Set retained = new HashSet();
+			Iterator<?> itor = operands[idx].evaluateAsIterator(context);
+			Set<Object> retained = new HashSet<Object>();
 			while (itor.hasNext()) {
 				Object value = itor.next();
 				if (resultSet.contains(value))

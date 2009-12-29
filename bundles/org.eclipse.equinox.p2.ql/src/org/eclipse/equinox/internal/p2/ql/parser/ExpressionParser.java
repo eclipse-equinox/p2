@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql.parser;
 
-import org.eclipse.equinox.p2.ql.IExpression;
-
 import java.util.*;
 import org.eclipse.equinox.p2.ql.*;
 
-public class ExpressionParser extends Stack implements IParserConstants, IExpressionParser {
+public class ExpressionParser extends Stack<IExpression> implements IParserConstants, IExpressionParser {
 	private static final long serialVersionUID = 882034383978853143L;
 
 	private static final int TOKEN_OR = 1;
@@ -66,9 +64,9 @@ public class ExpressionParser extends Stack implements IParserConstants, IExpres
 	private static final int TOKEN_END = 0;
 	private static final int TOKEN_ERROR = -1;
 
-	private static final Map keywords;
+	private static final Map<String, Integer> keywords;
 	static {
-		keywords = new HashMap();
+		keywords = new HashMap<String, Integer>();
 		keywords.put(KEYWORD_ALL, new Integer(TOKEN_ALL));
 		keywords.put(KEYWORD_COLLECT, new Integer(TOKEN_COLLECT));
 		keywords.put(KEYWORD_EXISTS, new Integer(TOKEN_EXISTS));
@@ -116,7 +114,7 @@ public class ExpressionParser extends Stack implements IParserConstants, IExpres
 		}
 	}
 
-	public synchronized IContextExpression parseQuery(String exprString) {
+	public synchronized <T> IContextExpression<T> parseQuery(Class<T> elementClass, String exprString) {
 		expression = exprString;
 		tokenPos = 0;
 		currentToken = 0;
@@ -128,7 +126,7 @@ public class ExpressionParser extends Stack implements IParserConstants, IExpres
 			nextToken();
 			IExpression expr = parseCondition();
 			assertToken(TOKEN_END);
-			return factory.contextExpression(expr);
+			return factory.contextExpression(elementClass, expr);
 		} finally {
 			popVariable(); // pop context
 		}
@@ -151,13 +149,13 @@ public class ExpressionParser extends Stack implements IParserConstants, IExpres
 		if (currentToken != TOKEN_OR)
 			return expr;
 
-		ArrayList exprs = new ArrayList();
+		ArrayList<IExpression> exprs = new ArrayList<IExpression>();
 		exprs.add(expr);
 		do {
 			nextToken();
 			exprs.add(parseAnd());
 		} while (currentToken == TOKEN_OR);
-		return factory.or((IExpression[]) exprs.toArray(new IExpression[exprs.size()]));
+		return factory.or(exprs.toArray(new IExpression[exprs.size()]));
 	}
 
 	private IExpression parseAnd() {
@@ -165,13 +163,13 @@ public class ExpressionParser extends Stack implements IParserConstants, IExpres
 		if (currentToken != TOKEN_AND)
 			return expr;
 
-		ArrayList exprs = new ArrayList();
+		ArrayList<IExpression> exprs = new ArrayList<IExpression>();
 		exprs.add(expr);
 		do {
 			nextToken();
 			exprs.add(parseBinary());
 		} while (currentToken == TOKEN_AND);
-		return factory.and((IExpression[]) exprs.toArray(new IExpression[exprs.size()]));
+		return factory.and(exprs.toArray(new IExpression[exprs.size()]));
 	}
 
 	private IExpression parseBinary() {
@@ -456,10 +454,10 @@ public class ExpressionParser extends Stack implements IParserConstants, IExpres
 		int savePos = tokenPos;
 		int saveToken = currentToken;
 		Object saveTokenValue = tokenValue;
-		List ids = null;
+		List<Object> ids = null;
 		while (currentToken == TOKEN_IDENTIFIER) {
 			if (ids == null)
-				ids = new ArrayList();
+				ids = new ArrayList<Object>();
 			ids.add(tokenValue);
 			nextToken();
 			if (currentToken == TOKEN_COMMA) {
@@ -587,7 +585,7 @@ public class ExpressionParser extends Stack implements IParserConstants, IExpres
 		if (currentToken != TOKEN_COMMA)
 			return new IExpression[] {expr};
 
-		ArrayList operands = new ArrayList();
+		ArrayList<IExpression> operands = new ArrayList<IExpression>();
 		operands.add(expr);
 		do {
 			nextToken();
@@ -596,7 +594,7 @@ public class ExpressionParser extends Stack implements IParserConstants, IExpres
 				break;
 			operands.add(parseCondition());
 		} while (currentToken == TOKEN_COMMA);
-		return (IExpression[]) operands.toArray(new IExpression[operands.size()]);
+		return operands.toArray(new IExpression[operands.size()]);
 	}
 
 	private void assertToken(int token) {
@@ -607,7 +605,7 @@ public class ExpressionParser extends Stack implements IParserConstants, IExpres
 	private IExpression getVariableOrRootMember(String id) {
 		int idx = size();
 		while (--idx >= 0) {
-			IExpression v = (IExpression) get(idx);
+			IExpression v = get(idx);
 			if (id.equals(v.toString()))
 				return v;
 		}
@@ -815,7 +813,7 @@ public class ExpressionParser extends Stack implements IParserConstants, IExpres
 					while (tokenPos < top && Character.isJavaIdentifierPart(expression.charAt(tokenPos)))
 						++tokenPos;
 					String word = expression.substring(start, tokenPos);
-					Integer token = (Integer) keywords.get(word);
+					Integer token = keywords.get(word);
 					if (token == null)
 						currentToken = TOKEN_IDENTIFIER;
 					else

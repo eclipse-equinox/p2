@@ -23,28 +23,29 @@ final class WrappedIQuery extends Function {
 		assertNotCollection(operands[0], "parameter"); //$NON-NLS-1$
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object evaluate(IEvaluationContext context) {
 		Object query = operands[0].evaluate(context);
 
-		if (query instanceof IMatchQuery) {
+		if (query instanceof IMatchQuery<?>) {
 			Object value = null;
 			if (operands.length > 1)
 				value = operands[1].evaluate(context);
 			else
 				value = Variable.ITEM.evaluate(context);
-			return Boolean.valueOf(((IMatchQuery) query).isMatch(value));
+			return Boolean.valueOf(((IMatchQuery<Object>) query).isMatch(value));
 		}
 
-		if (!(query instanceof IQuery))
+		if (!(query instanceof IQuery<?>))
 			throw new IllegalArgumentException("iquery first argument must be an IQuery instance"); //$NON-NLS-1$
 
-		Iterator iterator = null;
+		Iterator<?> iterator = null;
 		if (operands.length > 1)
 			iterator = operands[1].evaluateAsIterator(context);
 		else
 			iterator = Variable.EVERYTHING.evaluateAsIterator(context);
 
-		return ((IQuery) query).perform(iterator);
+		return ((IQuery<Object>) query).perform((Iterator<Object>) iterator);
 	}
 
 	String getOperator() {

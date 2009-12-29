@@ -91,7 +91,7 @@ public interface IExpressionFactory {
 	 * @param expr The query
 	 * @return A top level query expression
 	 */
-	IContextExpression contextExpression(IExpression expr);
+	<T> IContextExpression<T> contextExpression(Class<T> elementClass, IExpression expr);
 
 	/**
 	 * Create an expression that tests if <code>lhs</code> is equal to <code>rhs</code>.
@@ -142,7 +142,7 @@ public interface IExpressionFactory {
 	 * method.
 	 * @return A key/function map.
 	 */
-	Map getFunctionMap();
+	Map<String, ? extends Object> getFunctionMap();
 
 	/**
 	 * Create an expression that tests if <code>lhs</code> is greater than <code>rhs</code>.

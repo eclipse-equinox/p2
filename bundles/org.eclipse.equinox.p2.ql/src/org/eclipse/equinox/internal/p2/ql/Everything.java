@@ -10,48 +10,50 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 
 /**
  * The immutable context used when evaluating an expression.
  */
-public final class Everything extends MatchIteratorFilter implements IRepeatableIterator {
+public final class Everything<T> extends MatchIteratorFilter<T> implements IRepeatableIterator<T> {
 	private boolean atStart = true;
 
-	private final Class elementClass;
+	private final Class<T> elementClass;
 
-	public Everything(Class elementClass, Collection collection) {
-		super(RepeatableIterator.create(collection == null ? Collections.EMPTY_LIST : collection));
+	public Everything(Class<T> elementClass, Collection<T> collection) {
+		super(RepeatableIterator.<T> create(collection == null ? CollectionUtils.<T> emptyList() : collection));
 		this.elementClass = elementClass;
 	}
 
-	public Everything(Class elementClass, Iterator iterator, boolean needsRepeat) {
+	public Everything(Class<T> elementClass, Iterator<? extends T> iterator, boolean needsRepeat) {
 		super(needsRepeat ? RepeatableIterator.create(iterator) : iterator);
 		this.elementClass = elementClass;
 	}
 
-	public IRepeatableIterator getCopy() {
-		Iterator iterator = getInnerIterator();
-		if (iterator instanceof IRepeatableIterator)
-			return new Everything(elementClass, ((IRepeatableIterator) iterator).getCopy(), false);
+	public IRepeatableIterator<T> getCopy() {
+		Iterator<? extends T> iterator = getInnerIterator();
+		if (iterator instanceof IRepeatableIterator<?>)
+			return new Everything<T>(elementClass, ((IRepeatableIterator<? extends T>) iterator).getCopy(), false);
 		if (atStart)
 			return this;
 		throw new UnsupportedOperationException();
 	}
 
-	public Object next() {
+	public T next() {
 		atStart = false;
 		return super.next();
 	}
 
 	public Object getIteratorProvider() {
-		Iterator iterator = getInnerIterator();
-		if (iterator instanceof IRepeatableIterator)
-			return ((IRepeatableIterator) iterator).getIteratorProvider();
+		Iterator<? extends T> iterator = getInnerIterator();
+		if (iterator instanceof IRepeatableIterator<?>)
+			return ((IRepeatableIterator<?>) iterator).getIteratorProvider();
 		return this;
 	}
 
-	protected boolean isMatch(Object val) {
+	protected boolean isMatch(T val) {
 		return elementClass.isInstance(val);
 	}
 }

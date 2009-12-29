@@ -47,12 +47,12 @@ class Variable extends Expression {
 		return context.getValue(this);
 	}
 
-	public Iterator evaluateAsIterator(IEvaluationContext context) {
+	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object value = context.getValue(this);
-		if (value instanceof IRepeatableIterator)
-			return ((IRepeatableIterator) value).getCopy();
+		if (value instanceof IRepeatableIterator<?>)
+			return ((IRepeatableIterator<?>) value).getCopy();
 
-		Iterator itor = RepeatableIterator.create(value);
+		Iterator<?> itor = RepeatableIterator.create(value);
 		setValue(context, itor);
 		return itor;
 	}

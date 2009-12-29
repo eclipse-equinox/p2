@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.ql.IEvaluationContext;
  * An array of expressions
  */
 final class Array extends NAry {
-	final class ArrayIterator implements Iterator {
+	final class ArrayIterator implements Iterator<Object> {
 		private final IEvaluationContext context;
 
 		private int pos = -1;
@@ -64,7 +64,7 @@ final class Array extends NAry {
 		return evaluateAsIterator(context);
 	}
 
-	public Iterator evaluateAsIterator(IEvaluationContext context) {
+	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		return new ArrayIterator(context);
 	}
 

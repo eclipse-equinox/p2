@@ -17,14 +17,14 @@ import org.eclipse.equinox.p2.ql.IExpression;
 /**
  */
 final class Collect extends CollectionFilter {
-	final class CollectIterator implements Iterator {
+	final class CollectIterator implements Iterator<Object> {
 		private final IEvaluationContext context;
 
 		private final IExpression variable;
 
-		private final Iterator innerIterator;
+		private final Iterator<?> innerIterator;
 
-		public CollectIterator(IEvaluationContext context, Iterator iterator) {
+		public CollectIterator(IEvaluationContext context, Iterator<?> iterator) {
 			this.context = context;
 			this.variable = lambda.getItemVariable();
 			this.innerIterator = iterator;
@@ -48,11 +48,11 @@ final class Collect extends CollectionFilter {
 		super(collection, lambda);
 	}
 
-	Object evaluate(IEvaluationContext context, Iterator itor) {
+	Object evaluate(IEvaluationContext context, Iterator<?> itor) {
 		return evaluateAsIterator(context, itor);
 	}
 
-	Iterator evaluateAsIterator(IEvaluationContext context, Iterator itor) {
+	Iterator<?> evaluateAsIterator(IEvaluationContext context, Iterator<?> itor) {
 		return new CollectIterator(context, itor);
 	}
 

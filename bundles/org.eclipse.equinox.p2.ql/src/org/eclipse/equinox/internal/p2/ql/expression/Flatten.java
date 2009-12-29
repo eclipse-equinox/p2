@@ -23,8 +23,8 @@ final class Flatten extends UnaryCollectionFilter {
 		super(collection);
 	}
 
-	public Iterator evaluateAsIterator(IEvaluationContext context) {
-		return new FlattenIterator(operand.evaluateAsIterator(context));
+	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
+		return new FlattenIterator<Object>(operand.evaluateAsIterator(context));
 	}
 
 	public int getExpressionType() {

@@ -31,5 +31,5 @@ public interface IExpressionParser {
 	 * @return The resulting expression tree.
 	 * @throws QLParseException
 	 */
-	IContextExpression parseQuery(String exprString);
+	<T> IContextExpression<T> parseQuery(Class<T> elementClass, String exprString);
 }

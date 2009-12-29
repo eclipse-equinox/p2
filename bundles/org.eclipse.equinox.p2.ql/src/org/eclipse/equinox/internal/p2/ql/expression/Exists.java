@@ -26,7 +26,7 @@ final class Exists extends CollectionFilter {
 		return TYPE_EXISTS;
 	}
 
-	Object evaluate(IEvaluationContext context, Iterator itor) {
+	Object evaluate(IEvaluationContext context, Iterator<?> itor) {
 		Variable variable = lambda.getItemVariable();
 		while (itor.hasNext()) {
 			variable.setValue(context, itor.next());

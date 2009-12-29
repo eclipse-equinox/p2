@@ -9,11 +9,11 @@ import org.eclipse.equinox.p2.ql.*;
 public class ExpressionFactory implements IExpressionFactory, IParserConstants {
 	public static final IExpressionFactory INSTANCE = new ExpressionFactory();
 
-	private static final Map functionMap;
+	private static final Map<String, Constructor<?>> functionMap;
 
 	static {
-		Class[] args = new Class[] {Expression[].class};
-		Map f = new HashMap();
+		Class<?>[] args = new Class[] {Expression[].class};
+		Map<String, Constructor<?>> f = new HashMap<String, Constructor<?>>();
 		try {
 			f.put(KEYWORD_BOOLEAN, BooleanFunction.class.getConstructor(args));
 			f.put(KEYWORD_FILTER, FilterFunction.class.getConstructor(args));
@@ -71,8 +71,8 @@ public class ExpressionFactory implements IExpressionFactory, IParserConstants {
 		return Constant.create(value);
 	}
 
-	public IContextExpression contextExpression(IExpression expr) {
-		return new ContextExpression((Expression) expr);
+	public <T> IContextExpression<T> contextExpression(Class<T> elementClass, IExpression expr) {
+		return new ContextExpression<T>(elementClass, (Expression) expr);
 	}
 
 	public IExpression dynamicMember(IExpression target, String name) {
@@ -97,7 +97,7 @@ public class ExpressionFactory implements IExpressionFactory, IParserConstants {
 
 	public IExpression function(Object function, IExpression[] args) {
 		try {
-			return (IExpression) ((Constructor) function).newInstance(new Object[] {convertArray(args)});
+			return (IExpression) ((Constructor<?>) function).newInstance(new Object[] {convertArray(args)});
 		} catch (IllegalArgumentException e) {
 			throw e;
 		} catch (InvocationTargetException e) {
@@ -112,7 +112,7 @@ public class ExpressionFactory implements IExpressionFactory, IParserConstants {
 		}
 	}
 
-	public Map getFunctionMap() {
+	public Map<String, ? extends Object> getFunctionMap() {
 		return functionMap;
 	}
 

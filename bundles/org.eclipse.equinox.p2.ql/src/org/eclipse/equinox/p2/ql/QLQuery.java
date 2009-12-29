@@ -12,35 +12,22 @@ package org.eclipse.equinox.p2.ql;
 
 import java.util.Locale;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.QueryHelpers;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
  * An IQuery 'context query' implementation that is based on the p2 query language.
  */
-public abstract class QLQuery implements IQuery {
+public abstract class QLQuery<T> implements IQuery<T> {
 	static final IExpressionParser parser = QL.newParser();
 	static final Object[] noParameters = new Object[0];
 
-	final Class elementClass;
+	final Class<T> elementClass;
 	final Object[] parameters;
 	private Locale locale;
 
-	protected QLQuery(Class elementClass, Object[] parameters) {
+	protected QLQuery(Class<T> elementClass, Object[] parameters) {
 		this.elementClass = elementClass;
 		this.parameters = parameters;
-	}
-
-	public Object getProperty(String key) {
-		if (IArtifactRepository.QUERY_EXCLUDE_KEYS.equals(key))
-			return Boolean.valueOf(!elementClass.isAssignableFrom(IArtifactKey.class));
-
-		if (IArtifactRepository.QUERY_EXCLUDE_DESCRIPTORS.equals(key))
-			return Boolean.valueOf(!elementClass.isAssignableFrom(IArtifactDescriptor.class));
-
-		return QueryHelpers.getProperty(this, key);
 	}
 
 	public Locale getLocale() {
@@ -56,5 +43,9 @@ public abstract class QLQuery implements IQuery {
 	 */
 	public String getId() {
 		return QueryHelpers.getId(this);
+	}
+
+	public Object getProperty(String property) {
+		return QueryHelpers.getProperty(this, property);
 	}
 }

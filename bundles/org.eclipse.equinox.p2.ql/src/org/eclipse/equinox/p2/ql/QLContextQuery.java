@@ -11,14 +11,13 @@
 package org.eclipse.equinox.p2.ql;
 
 import java.util.Iterator;
-import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * An IQuery 'context query' implementation that is based on the p2 query language.
  */
-public class QLContextQuery extends QLQuery {
-	private final IContextExpression expression;
+public class QLContextQuery<T> extends QLQuery<T> {
+	private final IContextExpression<T> expression;
 
 	/**
 	 * Creates a new query instance with indexed parameters.
@@ -26,8 +25,8 @@ public class QLContextQuery extends QLQuery {
 	 * @param expression The expression that represents the query.
 	 * @param parameters Parameters to use for the query.
 	 */
-	public QLContextQuery(Class elementClass, IContextExpression expression, Object[] parameters) {
-		super(elementClass, parameters);
+	public QLContextQuery(IContextExpression<T> expression, Object... parameters) {
+		super(expression.getElementClass(), parameters);
 		this.expression = expression;
 	}
 
@@ -37,68 +36,24 @@ public class QLContextQuery extends QLQuery {
 	 * @param expression The expression that represents the query.
 	 * @param parameters Parameters to use for the query.
 	 */
-	public QLContextQuery(Class elementClass, String expression, Object[] parameters) {
-		this(elementClass, parser.parseQuery(expression), parameters);
+	public QLContextQuery(Class<T> elementClass, String expression, Object... parameters) {
+		this(parser.parseQuery(elementClass, expression), parameters);
 	}
 
-	/**
-	 * Convenience method that creates a new query instance without parameters.
-	 * The element class defaults to {@link IVersionedId}.
-	 * @param elementClass The class used for filtering elements in 'everything' 
-	 * @param expression The expression string that represents the query.
-	 */
-	public QLContextQuery(String expression) {
-		this(IVersionedId.class, expression, noParameters);
+	public IQueryResult<T> perform(Iterator<T> iterator) {
+		return new QueryResult<T>(evaluate(iterator));
 	}
 
-	/**
-	 * Convenience method that creates a new query instance with one parameter.
-	 * The element class defaults to {@link IVersionedId}.
-	 * @param elementClass The class used for filtering elements in 'everything' 
-	 * @param expression The expression string that represents the query.
-	 * @param param The first parameter.
-	 */
-	public QLContextQuery(String expression, Object param) {
-		this(IVersionedId.class, expression, new Object[] {param});
-	}
-
-	/**
-	 * Convenience method that creates a new query instance with two parameters.
-	 * The element class defaults to {@link IVersionedId}.
-	 * @param elementClass The class used for filtering elements in 'everything' 
-	 * @param expression The expression string that represents the query.
-	 * @param param1 The first parameter.
-	 * @param param2 The second parameter.
-	 */
-	public QLContextQuery(String expression, Object param1, Object param2) {
-		this(IVersionedId.class, expression, new Object[] {param1, param2});
-	}
-
-	/**
-	 * Convenience method that creates a new query instance with three parameters.
-	 * The element class defaults to {@link IVersionedId}.
-	 * @param elementClass The class used for filtering elements in 'everything' 
-	 * @param expression The expression string that represents the query.
-	 * @param param1 The first parameter.
-	 * @param param2 The second parameter.
-	 * @param param2 The third parameter.
-	 */
-	public QLContextQuery(String expression, Object param1, Object param2, Object param3) {
-		this(IVersionedId.class, expression, new Object[] {param1, param2, param3});
-	}
-
-	public IQueryResult perform(Iterator iterator) {
-		return new QueryResult(evaluate(iterator));
-	}
-
-	public Iterator evaluate(Iterator iterator) {
+	public Iterator<T> evaluate(Iterator<T> iterator) {
 		IEvaluationContext ctx;
 		if (expression.needsTranslations()) {
-			IQueryContext queryContext = QL.newQueryContext(iterator);
-			ctx = expression.createContext(elementClass, iterator, parameters, queryContext.getTranslationSupport(getLocale()));
+			IQueryContext<T> queryContext = QL.newQueryContext(iterator);
+			ctx = expression.createContext(iterator, parameters, queryContext.getTranslationSupport(getLocale()));
 		} else
-			ctx = expression.createContext(elementClass, iterator, parameters);
-		return expression.evaluateAsIterator(ctx);
+			ctx = expression.createContext(iterator, parameters);
+		@SuppressWarnings("unchecked")
+		Iterator<T> result = (Iterator<T>) expression.evaluateAsIterator(ctx);
+		return result;
 	}
 
 	/**
@@ -106,14 +61,14 @@ public class QLContextQuery extends QLQuery {
 	 * @param queryContext The context for the query.
 	 * @return The result of the query.
 	 */
-	public Object query(IQueryContext queryContext) {
+	public Object query(IQueryContext<T> queryContext) {
 		// Check if we need translation support
 		//
 		IEvaluationContext ctx;
 		if (expression.needsTranslations())
-			ctx = expression.createContext(elementClass, queryContext.iterator(), parameters, queryContext.getTranslationSupport(getLocale()));
+			ctx = expression.createContext(queryContext.iterator(), parameters, queryContext.getTranslationSupport(getLocale()));
 		else
-			ctx = expression.createContext(elementClass, queryContext.iterator(), parameters);
+			ctx = expression.createContext(queryContext.iterator(), parameters);
 		return expression.evaluate(ctx);
 	}
 }

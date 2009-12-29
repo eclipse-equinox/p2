@@ -9,15 +9,15 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
-class QueryResult implements IQueryResult {
+class QueryResult<T> implements IQueryResult<T> {
 
-	private final IRepeatableIterator iterator;
+	private final IRepeatableIterator<T> iterator;
 
-	QueryResult(Iterator iterator) {
+	QueryResult(Iterator<T> iterator) {
 		this.iterator = RepeatableIterator.create(iterator);
 	}
 
-	QueryResult(Collection collection) {
+	QueryResult(Collection<T> collection) {
 		this.iterator = RepeatableIterator.create(collection);
 	}
 
@@ -25,53 +25,56 @@ class QueryResult implements IQueryResult {
 		return !iterator.hasNext();
 	}
 
-	public Iterator iterator() {
+	public Iterator<T> iterator() {
 		return iterator.getCopy();
 	}
 
-	public Object[] toArray(Class clazz) {
+	@SuppressWarnings("unchecked")
+	public T[] toArray(Class<? extends T> clazz) {
 		Object provider = iterator.getIteratorProvider();
 		if (provider.getClass().isArray())
-			return (Object[]) provider;
+			return (T[]) provider;
 
-		if (provider instanceof Collector)
-			return ((Collector) provider).toArray(clazz);
+		if (provider instanceof Collector<?>)
+			return ((Collector<T>) provider).toArray(clazz);
 
-		Collection c = (Collection) provider;
-		return c.toArray((Object[]) Array.newInstance(clazz, c.size()));
+		Collection<T> c = (Collection<T>) provider;
+		return c.toArray((T[]) Array.newInstance(clazz, c.size()));
 	}
 
-	public Set toSet() {
+	@SuppressWarnings("unchecked")
+	public Set<T> toSet() {
 		Object provider = iterator.getIteratorProvider();
 		if (provider.getClass().isArray()) {
-			Object[] elems = (Object[]) provider;
+			T[] elems = (T[]) provider;
 			int idx = elems.length;
-			HashSet copy = new HashSet(idx);
+			HashSet<T> copy = new HashSet<T>(idx);
 			while (--idx >= 0)
 				copy.add(elems[idx]);
 			return copy;
 		}
-		if (provider instanceof Collector)
-			return ((Collector) provider).toSet();
-		if (provider instanceof Map)
-			return new HashSet(((Map) provider).entrySet());
-		return new HashSet((Collection) provider);
+		if (provider instanceof Collector<?>)
+			return ((Collector<T>) provider).toSet();
+		if (provider instanceof Map<?, ?>)
+			return new HashSet<T>((Set<T>) ((Map<?, ?>) provider).entrySet());
+		return new HashSet<T>((Collection<T>) provider);
 	}
 
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
 		return query.perform(iterator());
 	}
 
-	public Set unmodifiableSet() {
+	@SuppressWarnings("unchecked")
+	public Set<T> unmodifiableSet() {
 		Object provider = iterator.getIteratorProvider();
-		if (provider instanceof Collector)
-			return ((Collector) provider).unmodifiableSet();
+		if (provider instanceof Collector<?>)
+			return ((Collector<T>) provider).unmodifiableSet();
 
-		if (provider instanceof Set)
-			return Collections.unmodifiableSet((Set) provider);
+		if (provider instanceof Set<?>)
+			return Collections.unmodifiableSet((Set<T>) provider);
 
-		if (provider instanceof Map)
-			return Collections.unmodifiableSet(((Map) provider).entrySet());
+		if (provider instanceof Map<?, ?>)
+			return Collections.unmodifiableSet((Set<T>) ((Map<?, ?>) provider).entrySet());
 
 		return toSet();
 	}

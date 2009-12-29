@@ -19,15 +19,15 @@ import org.eclipse.equinox.p2.ql.IEvaluationContext;
  * once throughout the whole query.
  */
 final class Unique extends Binary {
-	static class UniqueIterator extends MatchIteratorFilter {
-		private final Set uniqueSet;
+	static class UniqueIterator<T> extends MatchIteratorFilter<T> {
+		private final Set<T> uniqueSet;
 
-		public UniqueIterator(Iterator iterator, Set uniqueSet) {
+		public UniqueIterator(Iterator<? extends T> iterator, Set<T> uniqueSet) {
 			super(iterator);
 			this.uniqueSet = uniqueSet;
 		}
 
-		protected boolean isMatch(Object val) {
+		protected boolean isMatch(T val) {
 			synchronized (uniqueSet) {
 				return uniqueSet.add(val);
 			}
@@ -40,18 +40,19 @@ final class Unique extends Binary {
 		assertNotBoolean(explicitCache, "cache"); //$NON-NLS-1$
 	}
 
+	@SuppressWarnings("unchecked")
 	public Object evaluate(IEvaluationContext context) {
 		Object explicitCache = rhs.evaluate(context);
-		Set uniqueSet;
+		Set<Object> uniqueSet;
 		if (explicitCache == null)
 			// No cache, we just ensure that the iteration is unique
-			uniqueSet = new HashSet();
+			uniqueSet = new HashSet<Object>();
 		else {
-			if (!(explicitCache instanceof Set))
+			if (!(explicitCache instanceof Set<?>))
 				throw new IllegalArgumentException("Unique cache must be a java.util.Set"); //$NON-NLS-1$
-			uniqueSet = (Set) explicitCache;
+			uniqueSet = (Set<Object>) explicitCache;
 		}
-		return new UniqueIterator(lhs.evaluateAsIterator(context), uniqueSet);
+		return new UniqueIterator<Object>(lhs.evaluateAsIterator(context), uniqueSet);
 	}
 
 	public int getExpressionType() {

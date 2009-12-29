@@ -13,13 +13,12 @@ package org.eclipse.equinox.p2.ql;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IMatchQuery;
-import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * An IQuery implementation that is based on the p2 query language.
  */
-public class QLMatchQuery extends QLQuery implements IMatchQuery {
+public class QLMatchQuery<T> extends QLQuery<T> implements IMatchQuery<T> {
 	private final IMatchExpression expression;
 	private IEvaluationContext context;
 
@@ -29,7 +28,7 @@ public class QLMatchQuery extends QLQuery implements IMatchQuery {
 	 * @param expression The expression that represents the query.
 	 * @param parameters Parameters to use for the query.
 	 */
-	public QLMatchQuery(Class instanceClass, IMatchExpression expression, Object[] parameters) {
+	public QLMatchQuery(Class<T> instanceClass, IMatchExpression expression, Object... parameters) {
 		super(instanceClass, parameters);
 		this.expression = expression;
 	}
@@ -40,50 +39,8 @@ public class QLMatchQuery extends QLQuery implements IMatchQuery {
 	 * @param expression The expression that represents the query.
 	 * @param parameters Parameters to use for the query.
 	 */
-	public QLMatchQuery(Class instanceClass, String expression, Object[] parameters) {
+	public QLMatchQuery(Class<T> instanceClass, String expression, Object ...parameters) {
 		this(instanceClass, parser.parsePredicate(expression), parameters);
-	}
-
-	/**
-	 * Convenience method that creates a new query instance without parameters.
-	 * The element class defaults to {@link IVersionedId}.
-	 * @param expression The expression string that represents the query.
-	 */
-	public QLMatchQuery(String expression) {
-		this(IVersionedId.class, expression, (Object[]) null);
-	}
-
-	/**
-	 * Convenience method that creates a new query instance with one parameter.
-	 * The element class defaults to {@link IVersionedId}.
-	 * @param expression The expression string that represents the query.
-	 * @param param The first parameter.
-	 */
-	public QLMatchQuery(String expression, Object param1) {
-		this(IVersionedId.class, expression, new Object[] {param1});
-	}
-
-	/**
-	 * Convenience method that creates a new query instance with two parameters.
-	 * The element class defaults to {@link IVersionedId}.
-	 * @param expression The expression string that represents the query.
-	 * @param param1 The first parameter.
-	 * @param param2 The second parameter.
-	 */
-	public QLMatchQuery(String expression, Object param1, Object param2) {
-		this(IVersionedId.class, expression, new Object[] {param1, param2});
-	}
-
-	/**
-	 * Convenience method that creates a new query instance with three parameters.
-	 * The element class defaults to {@link IVersionedId}.
-	 * @param expression The expression string that represents the query.
-	 * @param param1 The first parameter.
-	 * @param param2 The second parameter.
-	 * @param param2 The third parameter.
-	 */
-	public QLMatchQuery(String expression, Object param1, Object param2, Object param3) {
-		this(IVersionedId.class, parser.parsePredicate(expression), new Object[] {param1, param2, param3});
 	}
 
 	/**
@@ -94,7 +51,7 @@ public class QLMatchQuery extends QLQuery implements IMatchQuery {
 	 * @return <code>true</code> if <code>candidate</code> is an instance of the element class and the
 	 * expression match test returns true.
 	 */
-	public boolean isMatch(Object candidate) {
+	public boolean isMatch(T candidate) {
 		return elementClass.isInstance(candidate) && expression.isMatch(context, candidate);
 	}
 
@@ -106,22 +63,22 @@ public class QLMatchQuery extends QLQuery implements IMatchQuery {
 		//
 	}
 
-	public IQueryResult perform(Iterator iterator) {
+	public IQueryResult<T> perform(Iterator<T> iterator) {
 		if (expression.needsTranslations()) {
-			IQueryContext queryContext = QL.newQueryContext(iterator);
+			IQueryContext<T> queryContext = QL.newQueryContext(iterator);
 			context = expression.createContext(parameters, queryContext.getTranslationSupport(getLocale()));
 		} else
 			context = expression.createContext(parameters);
 
 		prePerform();
 		try {
-			ArrayList result = new ArrayList();
+			ArrayList<T> result = new ArrayList<T>();
 			while (iterator.hasNext()) {
-				Object candidate = iterator.next();
+				T candidate = iterator.next();
 				if (isMatch(candidate))
 					result.add(candidate);
 			}
-			return new QueryResult(result);
+			return new QueryResult<T>(result);
 		} finally {
 			postPerform();
 		}

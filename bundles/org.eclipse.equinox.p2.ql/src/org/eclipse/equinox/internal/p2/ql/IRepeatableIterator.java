@@ -12,14 +12,14 @@ package org.eclipse.equinox.internal.p2.ql;
 
 import java.util.Iterator;
 
-public interface IRepeatableIterator extends Iterator {
+public interface IRepeatableIterator<T> extends Iterator<T> {
 	/**
 	 * Returns a copy that will iterate over the same elements
 	 * as this iterator. The contents or position of this iterator
 	 * is left unchanged. 
 	 * @return A re-initialized copy of this iterator.
 	 */
-	IRepeatableIterator getCopy();
+	IRepeatableIterator<T> getCopy();
 
 	Object getIteratorProvider();
 }

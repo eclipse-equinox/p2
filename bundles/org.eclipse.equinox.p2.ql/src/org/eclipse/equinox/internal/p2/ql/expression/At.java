@@ -48,18 +48,18 @@ final class At extends Binary {
 		if (lval == null)
 			throw new IllegalArgumentException("Unable to use [] on null"); //$NON-NLS-1$
 
-		if (lval instanceof Map)
-			return ((Map) lval).get(rval);
+		if (lval instanceof Map<?, ?>)
+			return ((Map<?, ?>) lval).get(rval);
 
 		if (rval instanceof Number) {
-			if (lval instanceof List)
-				return ((List) lval).get(((Number) rval).intValue());
+			if (lval instanceof List<?>)
+				return ((List<?>) lval).get(((Number) rval).intValue());
 			if (lval != null && lval.getClass().isArray())
 				return ((Object[]) lval)[((Number) rval).intValue()];
 		}
 
-		if (lval instanceof Dictionary)
-			return ((Dictionary) lval).get(rval);
+		if (lval instanceof Dictionary<?, ?>)
+			return ((Dictionary<?, ?>) lval).get(rval);
 
 		throw new IllegalArgumentException("Unable to use [] on a " + lval.getClass().getName()); //$NON-NLS-1$
 	}

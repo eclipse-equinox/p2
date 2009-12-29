@@ -20,7 +20,7 @@ final class SetFunction extends Function {
 	}
 
 	public Object evaluate(IEvaluationContext context) {
-		HashSet result = new HashSet();
+		HashSet<Object> result = new HashSet<Object>();
 		for (int idx = 0; idx < operands.length; ++idx)
 			result.add(operands[idx].evaluate(context));
 		return result;

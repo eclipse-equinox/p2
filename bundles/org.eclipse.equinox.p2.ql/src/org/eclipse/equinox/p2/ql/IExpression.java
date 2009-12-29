@@ -72,7 +72,7 @@ public interface IExpression {
 	 * @param context The evaluation context
 	 * @return The result of the evaluation.
 	 */
-	Iterator evaluateAsIterator(IEvaluationContext context);
+	Iterator<?> evaluateAsIterator(IEvaluationContext context);
 
 	/**
 	 * Returns the expression type (see TYPE_xxx constants).

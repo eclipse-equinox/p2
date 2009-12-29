@@ -14,7 +14,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.ql.IRepeatableIterator;
 import org.eclipse.equinox.internal.p2.ql.RepeatableIterator;
 import org.eclipse.equinox.internal.p2.ql.parser.IParserConstants;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.ql.*;
 
 /**
@@ -24,36 +24,36 @@ abstract class Expression implements IExpression, IParserConstants {
 
 	static final Expression[] emptyArray = new Expression[0];
 
-	static Set asSet(Object val, boolean forcePrivateCopy) {
+	static Set<?> asSet(Object val, boolean forcePrivateCopy) {
 		if (val == null)
 			throw new IllegalArgumentException("Cannot convert null into an set"); //$NON-NLS-1$
 
-		if (val instanceof IRepeatableIterator) {
-			Object provider = ((IRepeatableIterator) val).getIteratorProvider();
+		if (val instanceof IRepeatableIterator<?>) {
+			Object provider = ((IRepeatableIterator<?>) val).getIteratorProvider();
 			if (!forcePrivateCopy) {
-				if (provider instanceof Set)
-					return (Set) provider;
-				if (provider instanceof Collector)
-					return ((Collector) provider).unmodifiableSet();
+				if (provider instanceof Set<?>)
+					return (Set<?>) provider;
+				if (provider instanceof IQueryResult<?>)
+					return ((IQueryResult<?>) provider).unmodifiableSet();
 			}
 
-			if (provider instanceof Collection)
+			if (provider instanceof Collection<?>)
 				val = provider;
 		} else {
 			if (!forcePrivateCopy) {
-				if (val instanceof Set)
-					return (Set) val;
-				if (val instanceof Collector)
-					return ((Collector) val).unmodifiableSet();
+				if (val instanceof Set<?>)
+					return (Set<?>) val;
+				if (val instanceof IQueryResult<?>)
+					return ((IQueryResult<?>) val).unmodifiableSet();
 			}
 		}
 
-		HashSet result;
-		if (val instanceof Collection)
-			result = new HashSet((Collection) val);
+		HashSet<Object> result;
+		if (val instanceof Collection<?>)
+			result = new HashSet<Object>((Collection<?>) val);
 		else {
-			result = new HashSet();
-			Iterator iterator = RepeatableIterator.create(val);
+			result = new HashSet<Object>();
+			Iterator<?> iterator = RepeatableIterator.create(val);
 			while (iterator.hasNext())
 				result.add(iterator.next());
 		}
@@ -77,11 +77,11 @@ abstract class Expression implements IExpression, IParserConstants {
 	 */
 	public abstract Object evaluate(IEvaluationContext context);
 
-	public Iterator evaluateAsIterator(IEvaluationContext context) {
+	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object value = evaluate(context);
-		if (!(value instanceof Iterator))
+		if (!(value instanceof Iterator<?>))
 			value = RepeatableIterator.create(value);
-		return (Iterator) value;
+		return (Iterator<?>) value;
 	}
 
 	/**
