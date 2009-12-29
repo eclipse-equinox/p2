@@ -137,6 +137,19 @@ public class TranslationSupport {
 		return getLocalizedIUProperty(iu, actualKey, locale);
 	}
 
+	/**
+	 * Return the localized value for the specified IInstallableUnit
+	 * property using the default locale.
+	 * 
+	 * @param iu the IInstallableUnit in question
+	 * @param propertyKey the name of the property to be retrieved
+	 * @return the localized property value, or <code>null</code> if no
+	 * such property is defined.
+	 */
+	public String getIUProperty(IInstallableUnit iu, String propertyKey) {
+		return getIUProperty(iu, propertyKey, null);
+	}
+
 	private ILicense getLicense(IInstallableUnit iu, ILicense license, String locale) {
 		String body = (license != null ? license.getBody() : null);
 		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
