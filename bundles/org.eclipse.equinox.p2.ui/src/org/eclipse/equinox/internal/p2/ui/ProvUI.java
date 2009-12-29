@@ -108,13 +108,16 @@ public class ProvUI {
 		return queryContext;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> T getAdapter(Object object, Class<T> adapterType) {
 		if (object == null)
 			return null;
 		if (adapterType.isInstance(object))
-			return adapterType.cast(object);
+			// Ideally, we would use Class.cast here but it was introduced in Java 1.5
+			return (T) object;
 		if (object instanceof IAdaptable)
-			return adapterType.cast(((IAdaptable) object).getAdapter(adapterType));
+			// Ideally, we would use Class.cast here but it was introduced in Java 1.5
+			return (T) ((IAdaptable) object).getAdapter(adapterType);
 		return null;
 	}
 

@@ -33,12 +33,14 @@ public class PublisherInfo implements IPublisherInfo {
 		return adviceList;
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T extends IPublisherAdvice> Collection<T> getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class<T> type) {
 		ArrayList<T> result = new ArrayList<T>();
 		for (Iterator<IPublisherAdvice> i = adviceList.iterator(); i.hasNext();) {
 			IPublisherAdvice advice = i.next();
 			if (type.isInstance(advice) && advice.isApplicable(configSpec, includeDefault, id, version))
-				result.add(type.cast(advice));
+				// Ideally, we would use Class.cast here but it was introduced in Java 1.5
+				result.add((T) advice);
 		}
 		return result;
 	}
