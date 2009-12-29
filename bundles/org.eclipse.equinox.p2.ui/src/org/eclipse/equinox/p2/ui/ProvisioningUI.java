@@ -15,6 +15,7 @@ import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -433,5 +434,10 @@ public class ProvisioningUI {
 			signalRepositoryOperationComplete(null, update);
 		}
 		return repo;
+	}
+
+	public TranslationSupport getTranslationSupport() {
+		// TODO Temporary fix to enable build.
+		return TranslationSupport.getInstance();
 	}
 }
