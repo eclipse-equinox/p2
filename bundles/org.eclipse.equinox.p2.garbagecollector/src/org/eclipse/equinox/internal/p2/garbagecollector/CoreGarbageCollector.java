@@ -40,7 +40,7 @@ public class CoreGarbageCollector {
 			}
 		};
 		IQueryResult<IArtifactKey> inactive = aRepository.query(query, null);
-		for (Iterator<IArtifactKey> iterator = inactive.iteratorX(); iterator.hasNext();) {
+		for (Iterator<IArtifactKey> iterator = inactive.iterator(); iterator.hasNext();) {
 			IArtifactKey key = iterator.next();
 			aRepository.removeDescriptor(key);
 			if (debugMode) {

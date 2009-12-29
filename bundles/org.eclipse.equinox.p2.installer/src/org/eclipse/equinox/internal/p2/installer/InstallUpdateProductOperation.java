@@ -154,7 +154,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		if (version != null && !version.equals(Version.emptyVersion))
 			range = new VersionRange(version, true, version, true);
 		IQuery<IInstallableUnit> query = new InstallableUnitQuery(id, range);
-		Iterator<IInstallableUnit> matches = metadataRepoMan.query(query, null).iteratorX();
+		Iterator<IInstallableUnit> matches = metadataRepoMan.query(query, null).iterator();
 		// pick the newest match
 		IInstallableUnit newest = null;
 		while (matches.hasNext()) {
