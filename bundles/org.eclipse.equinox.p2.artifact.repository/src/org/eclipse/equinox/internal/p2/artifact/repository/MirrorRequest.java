@@ -13,7 +13,8 @@
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.io.*;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
@@ -31,24 +32,24 @@ import org.eclipse.osgi.util.NLS;
 public class MirrorRequest extends ArtifactRequest {
 	protected final IArtifactRepository target;
 
-	private final Properties targetDescriptorProperties;
-	private final Properties targetRepositoryProperties;
+	private final Map<String, String> targetDescriptorProperties;
+	private final Map<String, String> targetRepositoryProperties;
 	protected IArtifactDescriptor descriptor;
 
-	public MirrorRequest(IArtifactKey key, IArtifactRepository targetRepository, Properties targetDescriptorProperties, Properties targetRepositoryProperties) {
+	public MirrorRequest(IArtifactKey key, IArtifactRepository targetRepository, Map<String, String> targetDescriptorProperties, Map<String, String> targetRepositoryProperties) {
 		super(key);
 		target = targetRepository;
 		if (targetDescriptorProperties == null || targetDescriptorProperties.isEmpty()) {
 			this.targetDescriptorProperties = null;
 		} else {
-			this.targetDescriptorProperties = new Properties();
+			this.targetDescriptorProperties = new HashMap<String, String>();
 			this.targetDescriptorProperties.putAll(targetDescriptorProperties);
 		}
 
 		if (targetRepositoryProperties == null || targetRepositoryProperties.isEmpty()) {
 			this.targetRepositoryProperties = null;
 		} else {
-			this.targetRepositoryProperties = new Properties();
+			this.targetRepositoryProperties = new HashMap<String, String>();
 			this.targetRepositoryProperties.putAll(targetRepositoryProperties);
 		}
 	}

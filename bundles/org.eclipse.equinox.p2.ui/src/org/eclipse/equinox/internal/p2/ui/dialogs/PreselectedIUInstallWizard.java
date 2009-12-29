@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
+
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
@@ -49,8 +51,8 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
 		root = new IUElementListRoot();
-		ArrayList list = new ArrayList(selectedElements.length);
-		ArrayList selected = new ArrayList(selectedElements.length);
+		ArrayList<AvailableIUElement> list = new ArrayList<AvailableIUElement>(selectedElements.length);
+		ArrayList<AvailableIUElement> selected = new ArrayList<AvailableIUElement>(selectedElements.length);
 		for (int i = 0; i < selectedElements.length; i++) {
 			IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
 			if (iu != null) {

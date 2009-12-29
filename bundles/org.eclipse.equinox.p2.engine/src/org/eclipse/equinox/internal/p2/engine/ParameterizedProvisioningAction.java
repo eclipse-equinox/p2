@@ -19,10 +19,10 @@ import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 public class ParameterizedProvisioningAction extends ProvisioningAction {
 
 	private ProvisioningAction action;
-	private Map actionParameters;
+	private Map<String, String> actionParameters;
 	private String actionText;
 
-	public ParameterizedProvisioningAction(ProvisioningAction action, Map actionParameters, String actionText) {
+	public ParameterizedProvisioningAction(ProvisioningAction action, Map<String, String> actionParameters, String actionText) {
 		if (action == null || actionParameters == null)
 			throw new IllegalArgumentException(Messages.ParameterizedProvisioningAction_action_or_parameters_null);
 		this.action = action;
@@ -30,28 +30,28 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 		this.actionText = actionText;
 	}
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		parameters = processActionParameters(parameters);
 		return action.execute(parameters);
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		parameters = processActionParameters(parameters);
 		return action.undo(parameters);
 	}
 
-	private Map processActionParameters(Map parameters) {
-		Map result = new HashMap(parameters);
-		for (Iterator it = actionParameters.entrySet().iterator(); it.hasNext();) {
-			Entry entry = (Entry) it.next();
-			String name = (String) entry.getKey();
-			String value = processVariables((String) entry.getValue(), parameters);
+	private Map<String, Object> processActionParameters(Map<String, Object> parameters) {
+		Map<String, Object> result = new HashMap<String, Object>(parameters);
+		for (Iterator<Entry<String, String>> it = actionParameters.entrySet().iterator(); it.hasNext();) {
+			Entry<String, String> entry = it.next();
+			String name = entry.getKey();
+			String value = processVariables(entry.getValue(), parameters);
 			result.put(name, value);
 		}
 		return Collections.unmodifiableMap(result);
 	}
 
-	private String processVariables(String parameterValue, Map parameters) {
+	private String processVariables(String parameterValue, Map<String, Object> parameters) {
 
 		int variableBeginIndex = parameterValue.indexOf("${"); //$NON-NLS-1$
 		if (variableBeginIndex == -1)
@@ -85,7 +85,7 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 		return action;
 	}
 
-	public Map getParameters() {
+	public Map<String, String> getParameters() {
 		return actionParameters;
 	}
 

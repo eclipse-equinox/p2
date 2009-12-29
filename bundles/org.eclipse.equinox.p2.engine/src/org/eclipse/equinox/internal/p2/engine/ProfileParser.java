@@ -96,7 +96,7 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 			return 0;
 		}
 
-		public Map getProperties() {
+		public Map<String, String> getProperties() {
 			if (propertiesHandler == null)
 				return null;
 			return propertiesHandler.getProperties();
@@ -108,16 +108,16 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 			return unitsHandler.getUnits();
 		}
 
-		public Map getIUProperties(IInstallableUnit iu) {
+		public Map<String, String> getIUProperties(IInstallableUnit iu) {
 			if (iusPropertiesHandler == null)
 				return null;
 
-			Map iusPropertiesMap = iusPropertiesHandler.getIUsPropertiesMap();
+			Map<String, Map<String, String>> iusPropertiesMap = iusPropertiesHandler.getIUsPropertiesMap();
 			if (iusPropertiesMap == null)
 				return null;
 
 			String iuIdentity = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
-			return (Map) iusPropertiesMap.get(iuIdentity);
+			return iusPropertiesMap.get(iuIdentity);
 		}
 	}
 
@@ -126,10 +126,10 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 		private final String[] required = new String[] {ID_ATTRIBUTE, VERSION_ATTRIBUTE};
 
 		private String iuIdentity;
-		private Map iusPropertiesMap;
+		private Map<String, Map<String, String>> iusPropertiesMap;
 		private PropertiesHandler propertiesHandler;
 
-		public IUPropertiesHandler(AbstractHandler parentHandler, Attributes attributes, Map iusPropertiesMap) {
+		public IUPropertiesHandler(AbstractHandler parentHandler, Attributes attributes, Map<String, Map<String, String>> iusPropertiesMap) {
 			super(parentHandler, IU_PROPERTIES_ELEMENT);
 			this.iusPropertiesMap = iusPropertiesMap;
 
@@ -156,15 +156,16 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 
 	protected class IUsPropertiesHandler extends AbstractHandler {
 
-		private Map iusPropertiesMap;
+		private Map<String, Map<String, String>> iusPropertiesMap;
 
 		public IUsPropertiesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, IUS_PROPERTIES_ELEMENT);
-			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			iusPropertiesMap = (size != null ? new LinkedHashMap(new Integer(size).intValue()) : new LinkedHashMap(4));
+			String sizeStr = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+			int size = (sizeStr != null ? new Integer(sizeStr).intValue() : 4);
+			iusPropertiesMap = new LinkedHashMap<String, Map<String, String>>(size);
 		}
 
-		public Map getIUsPropertiesMap() {
+		public Map<String, Map<String, String>> getIUsPropertiesMap() {
 			return iusPropertiesMap;
 		}
 

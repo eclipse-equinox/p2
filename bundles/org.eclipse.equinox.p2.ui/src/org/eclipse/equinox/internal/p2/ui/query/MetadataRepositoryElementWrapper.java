@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  */
 public class MetadataRepositoryElementWrapper extends QueriedElementWrapper {
 
-	public MetadataRepositoryElementWrapper(IQueryable queryable, Object parent) {
+	public MetadataRepositoryElementWrapper(IQueryable<URI> queryable, Object parent) {
 		super(queryable, parent);
 	}
 

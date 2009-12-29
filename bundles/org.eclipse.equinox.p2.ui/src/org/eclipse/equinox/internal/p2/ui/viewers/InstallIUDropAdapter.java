@@ -65,7 +65,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 * IU, return its parent profile id.
 	 */
 	private String getProfileTarget(Object mouseTarget) {
-		IProfile profile = (IProfile) ProvUI.getAdapter(mouseTarget, IProfile.class);
+		IProfile profile = ProvUI.getAdapter(mouseTarget, IProfile.class);
 		if (profile != null) {
 			return profile.getProfileId();
 		}
@@ -197,20 +197,20 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 */
 	private IInstallableUnit[] getSelectedIUs() {
 		ISelection selection = LocalSelectionTransfer.getTransfer().getSelection();
-		List ius = new ArrayList();
+		List<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
 
 		if (!(selection instanceof IStructuredSelection) || selection.isEmpty()) {
 			return null;
 		}
 		IStructuredSelection structuredSelection = (IStructuredSelection) selection;
 
-		Iterator iter = structuredSelection.iterator();
+		Iterator<?> iter = structuredSelection.iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
+			IInstallableUnit iu = ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
 			if (iu != null) {
 				ius.add(iu);
 			}
 		}
-		return (IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]);
+		return ius.toArray(new IInstallableUnit[ius.size()]);
 	}
 }

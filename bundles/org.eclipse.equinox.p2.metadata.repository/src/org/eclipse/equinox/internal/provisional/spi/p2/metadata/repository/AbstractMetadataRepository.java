@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
  * Clients may subclass this class.
  * <p>
  */
-public abstract class AbstractMetadataRepository extends AbstractRepository implements IMetadataRepository {
+public abstract class AbstractMetadataRepository extends AbstractRepository<IInstallableUnit> implements IMetadataRepository {
 
 	//TODO Consider removing from abstract class, this is currently an implementation detail of the simple metadata repo parser
 	public static class RepositoryState {
@@ -34,7 +34,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 		public String Provider;
 		public String Description;
 		public URI Location;
-		public Map Properties;
+		public Map<String, String> Properties;
 		public IInstallableUnit[] Units;
 		public RepositoryReference[] Repositories;
 	}
@@ -46,7 +46,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 	//TODO Consider removing from abstract class, this is currently an implementation detail of the simple metadata repo parser
 	public abstract void initialize(RepositoryState state);
 
-	protected AbstractMetadataRepository(String name, String type, String version, URI location, String description, String provider, Map properties) {
+	protected AbstractMetadataRepository(String name, String type, String version, URI location, String description, String provider, Map<String, String> properties) {
 		super(name, type, version, location, description, provider, properties);
 	}
 

@@ -1040,10 +1040,8 @@ public class Disassembler {
 	private void disassembleTypeMembers(ClassFileReader classFileReader, char[] className, StringBuffer buffer, String lineSeparator, int tabNumber, int mode, boolean isEnum) {
 		FieldInfo[] fields = classFileReader.getFieldInfos();
 		// sort fields
-		Arrays.sort(fields, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				FieldInfo fieldInfo1 = (FieldInfo) o1;
-				FieldInfo fieldInfo2 = (FieldInfo) o2;
+		Arrays.sort(fields, new Comparator<FieldInfo>() {
+			public int compare(FieldInfo fieldInfo1, FieldInfo fieldInfo2) {
 				int compare = new String(fieldInfo1.getName()).compareTo(new String(fieldInfo2.getName()));
 				if (compare == 0) {
 					return new String(fieldInfo1.getDescriptor()).compareTo(new String(fieldInfo2.getDescriptor()));
@@ -1057,10 +1055,8 @@ public class Disassembler {
 		}
 		MethodInfo[] methods = classFileReader.getMethodInfos();
 		// sort methods
-		Arrays.sort(methods, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				MethodInfo methodInfo1 = (MethodInfo) o1;
-				MethodInfo methodInfo2 = (MethodInfo) o2;
+		Arrays.sort(methods, new Comparator<MethodInfo>() {
+			public int compare(MethodInfo methodInfo1, MethodInfo methodInfo2) {
 				int compare = new String(methodInfo1.getName()).compareTo(new String(methodInfo2.getName()));
 				if (compare == 0) {
 					return new String(methodInfo1.getDescriptor()).compareTo(new String(methodInfo2.getDescriptor()));

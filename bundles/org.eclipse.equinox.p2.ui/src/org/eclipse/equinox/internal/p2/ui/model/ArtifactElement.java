@@ -46,6 +46,7 @@ public class ArtifactElement extends ProvElement {
 		return repo.getArtifactDescriptors(key);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IArtifactRepository.class)
 			return getArtifactRepository();

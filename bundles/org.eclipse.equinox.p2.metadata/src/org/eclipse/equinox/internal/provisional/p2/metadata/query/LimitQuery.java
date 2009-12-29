@@ -9,7 +9,7 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
@@ -17,26 +17,26 @@ import org.eclipse.equinox.p2.metadata.query.IQueryResult;
  * A limit query can be used to limit the number of query results returned.  Once
  * the limit is reached, the query is terminated.
  */
-public class LimitQuery extends ContextQuery implements ICompositeQuery {
+public class LimitQuery<T> extends ContextQuery<T> implements ICompositeQuery<T> {
 
-	private final IQuery query;
+	private final IQuery<T> query;
 	private final int limit;
 
-	public LimitQuery(IQuery query, int limit) {
+	public LimitQuery(IQuery<T> query, int limit) {
 		this.query = query;
 		this.limit = limit;
 	}
 
-	public IQueryResult perform(Iterator iterator) {
+	public IQueryResult<T> perform(Iterator<T> iterator) {
 		if (limit == 0)
-			return Collector.EMPTY_COLLECTOR;
+			return Collector.emptyCollector();
 
 		int count = 0;
-		Collector result = new Collector();
-		if (query instanceof IMatchQuery) {
-			IMatchQuery matchQuery = (IMatchQuery) query;
+		Collector<T> result = new Collector<T>();
+		if (query instanceof IMatchQuery<?>) {
+			IMatchQuery<T> matchQuery = (IMatchQuery<T>) query;
 			while (iterator.hasNext()) {
-				Object candidate = iterator.next();
+				T candidate = iterator.next();
 				if (matchQuery.isMatch(candidate)) {
 					result.accept(candidate);
 					if (++count >= limit)
@@ -51,8 +51,8 @@ public class LimitQuery extends ContextQuery implements ICompositeQuery {
 		return result;
 	}
 
-	public IQuery[] getQueries() {
-		return new IQuery[] {query};
+	public List<IQuery<T>> getQueries() {
+		return Collections.singletonList(query);
 	}
 
 }

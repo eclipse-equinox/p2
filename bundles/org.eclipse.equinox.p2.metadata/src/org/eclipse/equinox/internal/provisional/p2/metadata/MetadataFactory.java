@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
@@ -60,28 +61,24 @@ public class MetadataFactory {
 			super();
 		}
 
-		public void addProvidedCapabilities(Collection additional) {
+		public void addProvidedCapabilities(Collection<IProvidedCapability> additional) {
 			if (additional == null || additional.size() == 0)
 				return;
-			IProvidedCapability[] current = unit().getProvidedCapabilities();
-			IProvidedCapability[] result = new IProvidedCapability[additional.size() + current.length];
-			System.arraycopy(current, 0, result, 0, current.length);
-			int j = current.length;
-			for (Iterator i = additional.iterator(); i.hasNext();)
-				result[j++] = (IProvidedCapability) i.next();
-			unit().setCapabilities(result);
+			List<IProvidedCapability> current = unit().getProvidedCapabilities();
+			ArrayList<IProvidedCapability> all = new ArrayList<IProvidedCapability>(additional.size() + current.size());
+			all.addAll(current);
+			all.addAll(additional);
+			unit().setCapabilities(all.toArray(new IProvidedCapability[all.size()]));
 		}
 
-		public void addRequiredCapabilities(Collection additional) {
+		public void addRequiredCapabilities(Collection<IRequirement> additional) {
 			if (additional == null || additional.size() == 0)
 				return;
-			IRequirement[] current = unit().getRequiredCapabilities();
-			IRequirement[] result = new IRequirement[additional.size() + current.length];
-			System.arraycopy(current, 0, result, 0, current.length);
-			int j = current.length;
-			for (Iterator i = additional.iterator(); i.hasNext();)
-				result[j++] = (IRequirement) i.next();
-			unit().setRequiredCapabilities(result);
+			List<IRequirement> current = unit().getRequiredCapabilities();
+			ArrayList<IRequirement> all = new ArrayList<IRequirement>(additional.size() + current.size());
+			all.addAll(current);
+			all.addAll(additional);
+			unit().setRequiredCapabilities(all.toArray(new IRequirement[all.size()]));
 		}
 
 		public void addTouchpointData(ITouchpointData data) {
@@ -93,15 +90,15 @@ public class MetadataFactory {
 			return unit().getId();
 		}
 
-		public IProvidedCapability[] getProvidedCapabilities() {
+		public List<IProvidedCapability> getProvidedCapabilities() {
 			return unit().getProvidedCapabilities();
 		}
 
-		public IRequirement[] getRequiredCapabilities() {
+		public List<IRequirement> getRequiredCapabilities() {
 			return unit().getRequiredCapabilities();
 		}
 
-		public IRequirement[] getMetaRequiredCapabilities() {
+		public List<IRequirement> getMetaRequiredCapabilities() {
 			return unit().getMetaRequiredCapabilities();
 		}
 
@@ -111,7 +108,7 @@ public class MetadataFactory {
 		 * 
 		 * @return The current touchpoint data on this description
 		 */
-		public ITouchpointData[] getTouchpointData() {
+		public List<ITouchpointData> getTouchpointData() {
 			return unit().getTouchpointData();
 
 		}
@@ -237,7 +234,7 @@ public class MetadataFactory {
 	/**
 	 * Singleton touchpoint data for a touchpoint with no instructions.
 	 */
-	private static final ITouchpointData EMPTY_TOUCHPOINT_DATA = new TouchpointData(Collections.EMPTY_MAP);
+	private static final ITouchpointData EMPTY_TOUCHPOINT_DATA = new TouchpointData(CollectionUtils.<String, ITouchpointInstruction> emptyMap());
 
 	private static ITouchpointType[] typeCache = new ITouchpointType[5];
 
@@ -310,7 +307,7 @@ public class MetadataFactory {
 		return new RequiredCapability(namespace, name, range, filter, optional, multiple);
 	}
 
-	public static IRequirement createRequiredCapability(String namespace, String name, VersionRange range, IQuery filter, int minCard, int maxCard, boolean greedy) {
+	public static IRequirement createRequiredCapability(String namespace, String name, VersionRange range, IQuery<Boolean> filter, int minCard, int maxCard, boolean greedy) {
 		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy);
 	}
 
@@ -377,20 +374,22 @@ public class MetadataFactory {
 	 * @param instructions The instructions for the touchpoint data.
 	 * @return The created touchpoint data
 	 */
-	public static ITouchpointData createTouchpointData(Map instructions) {
+	public static ITouchpointData createTouchpointData(Map<String, ? extends Object> instructions) {
 		Assert.isNotNull(instructions);
 		//copy the map to protect against subsequent change by caller
 		if (instructions.isEmpty())
 			return EMPTY_TOUCHPOINT_DATA;
 
-		Map result = new LinkedHashMap(instructions.size());
-		for (Iterator iterator = instructions.entrySet().iterator(); iterator.hasNext();) {
-			Entry entry = (Entry) iterator.next();
-			Object value = entry.getValue();
-			if (value == null || value instanceof String)
-				value = createTouchpointInstruction((String) value, null);
+		Map<String, ITouchpointInstruction> result = new LinkedHashMap<String, ITouchpointInstruction>(instructions.size());
 
-			result.put(entry.getKey(), value);
+		for (Entry<String, ? extends Object> entry : instructions.entrySet()) {
+			Object value = entry.getValue();
+			ITouchpointInstruction instruction;
+			if (value == null || value instanceof String)
+				instruction = createTouchpointInstruction((String) value, null);
+			else
+				instruction = (ITouchpointInstruction) value;
+			result.put(entry.getKey(), instruction);
 		}
 		return new TouchpointData(result);
 	}
@@ -401,16 +400,15 @@ public class MetadataFactory {
 	 * @param incomingInstructions - Map of ITouchpointInstructions to merge into the initial touchpoint data
 	 * @return the merged ITouchpointData
 	 */
-	public static ITouchpointData mergeTouchpointData(ITouchpointData initial, Map incomingInstructions) {
+	public static ITouchpointData mergeTouchpointData(ITouchpointData initial, Map<String, ITouchpointInstruction> incomingInstructions) {
 		if (incomingInstructions == null || incomingInstructions.size() == 0)
 			return initial;
 
-		Map resultInstructions = new HashMap(initial.getInstructions());
-		for (Iterator iterator = incomingInstructions.keySet().iterator(); iterator.hasNext();) {
-			String key = (String) iterator.next();
-			Object incoming = incomingInstructions.get(key);
-			ITouchpointInstruction instruction = (incoming instanceof String) ? createTouchpointInstruction((String) incoming, null) : (ITouchpointInstruction) incoming;
-			ITouchpointInstruction existingInstruction = (ITouchpointInstruction) resultInstructions.get(key);
+		Map<String, ITouchpointInstruction> resultInstructions = new HashMap<String, ITouchpointInstruction>(initial.getInstructions());
+		for (Iterator<String> iterator = incomingInstructions.keySet().iterator(); iterator.hasNext();) {
+			String key = iterator.next();
+			ITouchpointInstruction instruction = incomingInstructions.get(key);
+			ITouchpointInstruction existingInstruction = resultInstructions.get(key);
 
 			if (existingInstruction != null) {
 				String body = existingInstruction.getBody();

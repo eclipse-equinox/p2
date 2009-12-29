@@ -30,7 +30,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 public class CertificateChecker {
-	private ArrayList artifacts;
+	private ArrayList<File> artifacts;
 	private final IProvisioningAgent agent;
 
 	public CertificateChecker() {
@@ -39,7 +39,7 @@ public class CertificateChecker {
 
 	public CertificateChecker(IProvisioningAgent agent) {
 		this.agent = agent;
-		artifacts = new ArrayList();
+		artifacts = new ArrayList<File>();
 	}
 
 	public IStatus start() {
@@ -60,14 +60,14 @@ public class CertificateChecker {
 		IServiceUI serviceUI = (IServiceUI) agent.getService(IServiceUI.SERVICE_NAME);
 		SignedContent content = null;
 		SignerInfo[] signerInfo = null;
-		ArrayList untrusted = new ArrayList();
-		ArrayList unsigned = new ArrayList();
-		ArrayList untrustedChain = new ArrayList();
+		ArrayList<Certificate> untrusted = new ArrayList<Certificate>();
+		ArrayList<File> unsigned = new ArrayList<File>();
+		ArrayList<Certificate[]> untrustedChain = new ArrayList<Certificate[]>();
 		IStatus status = Status.OK_STATUS;
 		if (artifacts.size() == 0 || serviceUI == null)
 			return status;
-		for (Iterator it = artifacts.iterator(); it.hasNext();) {
-			File artifact = (File) it.next();
+		for (Iterator<File> it = artifacts.iterator(); it.hasNext();) {
+			File artifact = it.next();
 			try {
 				content = verifierFactory.getSignedContent(artifact);
 				if (!content.isSigned()) {
@@ -116,7 +116,7 @@ public class CertificateChecker {
 		} else {
 			unTrustedCertificateChains = new Certificate[untrustedChain.size()][];
 			for (int i = 0; i < untrustedChain.size(); i++) {
-				unTrustedCertificateChains[i] = (Certificate[]) untrustedChain.get(i);
+				unTrustedCertificateChains[i] = untrustedChain.get(i);
 			}
 		}
 

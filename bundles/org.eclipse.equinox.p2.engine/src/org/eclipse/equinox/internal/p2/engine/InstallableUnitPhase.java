@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointInstruction;
 import org.eclipse.equinox.p2.engine.*;
@@ -33,12 +34,12 @@ public abstract class InstallableUnitPhase extends Phase {
 		this(phaseId, weight, false);
 	}
 
-	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		parameters.put(PARM_INSTALL_FOLDER, profile.getProperty(IProfile.PROP_INSTALL_FOLDER));
 		return super.initializePhase(monitor, profile, parameters);
 	}
 
-	protected IStatus initializeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(IProfile profile, Operand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		mergeStatus(status, initializeOperand(profile, iuOperand, parameters, monitor));
@@ -53,11 +54,11 @@ public abstract class InstallableUnitPhase extends Phase {
 		return status;
 	}
 
-	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		return Status.OK_STATUS;
 	}
 
-	protected IStatus completeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus completeOperand(IProfile profile, Operand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
 
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
@@ -66,11 +67,11 @@ public abstract class InstallableUnitPhase extends Phase {
 		return status;
 	}
 
-	protected IStatus completeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus completeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		return Status.OK_STATUS;
 	}
 
-	final protected ProvisioningAction[] getActions(Operand operand) {
+	final protected List<ProvisioningAction> getActions(Operand operand) {
 		if (!(operand instanceof InstallableUnitOperand))
 			return null;
 
@@ -78,7 +79,7 @@ public abstract class InstallableUnitPhase extends Phase {
 		return getActions(iuOperand);
 	}
 
-	protected abstract ProvisioningAction[] getActions(InstallableUnitOperand operand);
+	protected abstract List<ProvisioningAction> getActions(InstallableUnitOperand operand);
 
 	final public boolean isApplicable(Operand operand) {
 		if (!(operand instanceof InstallableUnitOperand))
@@ -92,32 +93,32 @@ public abstract class InstallableUnitPhase extends Phase {
 		return true;
 	}
 
-	protected final ProvisioningAction[] getActions(IInstallableUnit unit, String key) {
-		ITouchpointInstruction[] instructions = getInstructions(unit, key);
-		if (instructions == null || instructions.length == 0)
+	protected final List<ProvisioningAction> getActions(IInstallableUnit unit, String key) {
+		List<ITouchpointInstruction> instructions = getInstructions(unit, key);
+		int instrSize = instructions.size();
+		if (instrSize == 0)
 			return null;
 
-		List actions = new ArrayList();
+		List<ProvisioningAction> actions = new ArrayList<ProvisioningAction>();
 		InstructionParser instructionParser = new InstructionParser(getActionManager());
-		for (int i = 0; i < instructions.length; i++) {
-			actions.addAll(Arrays.asList(instructionParser.parseActions(instructions[i], unit.getTouchpointType())));
+		for (int i = 0; i < instrSize; i++) {
+			actions.addAll(instructionParser.parseActions(instructions.get(i), unit.getTouchpointType()));
 		}
-		return (ProvisioningAction[]) actions.toArray(new ProvisioningAction[actions.size()]);
+		return actions;
 	}
 
-	private final static ITouchpointInstruction[] getInstructions(IInstallableUnit unit, String key) {
-		ITouchpointData[] data = unit.getTouchpointData();
-		if (data == null)
-			return null;
+	private final static List<ITouchpointInstruction> getInstructions(IInstallableUnit unit, String key) {
+		List<ITouchpointData> data = unit.getTouchpointData();
+		int dataSize = data.size();
+		if (dataSize == 0)
+			return CollectionUtils.emptyList();
 
-		ArrayList matches = new ArrayList(data.length);
-		for (int i = 0; i < data.length; i++) {
-			ITouchpointInstruction instructions = data[i].getInstruction(key);
+		ArrayList<ITouchpointInstruction> matches = new ArrayList<ITouchpointInstruction>(dataSize);
+		for (int i = 0; i < dataSize; i++) {
+			ITouchpointInstruction instructions = data.get(i).getInstruction(key);
 			if (instructions != null)
 				matches.add(instructions);
 		}
-
-		ITouchpointInstruction[] result = (ITouchpointInstruction[]) matches.toArray(new ITouchpointInstruction[matches.size()]);
-		return result;
+		return matches;
 	}
 }

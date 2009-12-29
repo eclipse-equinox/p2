@@ -57,8 +57,8 @@ public class AdviceFileParserTest extends TestCase {
 
 		AdviceFileParser parser = new AdviceFileParser("id", Version.emptyVersion, map);
 		parser.parse();
-		assertEquals("testValue1", parser.getProperties().getProperty("testName1"));
-		assertEquals("testValue2", parser.getProperties().getProperty("testName2"));
+		assertEquals("testValue1", parser.getProperties().get("testName1"));
+		assertEquals("testValue2", parser.getProperties().get("testName2"));
 	}
 
 	public void testProvidesAdvice() {
@@ -272,15 +272,15 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(Version.create("1.2.3"), iu0.getVersion());
 		assertFalse(iu0.isSingleton());
 		assertFalse(FragmentQuery.isFragment(iu0));
-		assertEquals(0, iu0.getArtifacts().length);
+		assertEquals(0, iu0.getArtifacts().size());
 		assertEquals(null, iu0.getCopyright());
 		assertEquals(null, iu0.getFilter());
-		assertEquals(0, iu0.getLicenses().length);
+		assertEquals(0, iu0.getLicenses().size());
 		assertEquals(0, iu0.getProperties().size());
-		assertEquals(0, iu0.getRequiredCapabilities().length);
-		assertEquals(0, iu0.getProvidedCapabilities().length);
-		assertEquals(0, iu0.getMetaRequiredCapabilities().length);
-		assertEquals(0, iu0.getTouchpointData().length);
+		assertEquals(0, iu0.getRequiredCapabilities().size());
+		assertEquals(0, iu0.getProvidedCapabilities().size());
+		assertEquals(0, iu0.getMetaRequiredCapabilities().size());
+		assertEquals(0, iu0.getTouchpointData().size());
 		assertEquals(ITouchpointType.NONE, iu0.getTouchpointType());
 		assertEquals(null, iu0.getUpdateDescriptor());
 
@@ -288,62 +288,62 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testid1", iu1.getId());
 		assertEquals(Version.create("1.2.4"), iu1.getVersion());
 		assertTrue(iu1.isSingleton());
-		assertEquals(2, iu1.getArtifacts().length);
-		assertEquals("testArtifact1", iu1.getArtifacts()[0].getId());
-		assertEquals(Version.create("1.2.6"), iu1.getArtifacts()[0].getVersion());
-		assertEquals("testClassifier1", iu1.getArtifacts()[0].getClassifier());
-		assertEquals("testArtifact2", iu1.getArtifacts()[1].getId());
-		assertEquals(Version.create("1.2.7"), iu1.getArtifacts()[1].getVersion());
-		assertEquals("testClassifier2", iu1.getArtifacts()[1].getClassifier());
+		assertEquals(2, iu1.getArtifacts().size());
+		assertEquals("testArtifact1", iu1.getArtifacts().get(0).getId());
+		assertEquals(Version.create("1.2.6"), iu1.getArtifacts().get(0).getVersion());
+		assertEquals("testClassifier1", iu1.getArtifacts().get(0).getClassifier());
+		assertEquals("testArtifact2", iu1.getArtifacts().get(1).getId());
+		assertEquals(Version.create("1.2.7"), iu1.getArtifacts().get(1).getVersion());
+		assertEquals("testClassifier2", iu1.getArtifacts().get(1).getClassifier());
 		assertEquals("testCopyright", iu1.getCopyright().getBody());
 		assertEquals("http://localhost/test", iu1.getCopyright().getLocation().toString());
 		assertEquals("test=testFilter", ((LDAPQuery) iu1.getFilter()).getFilter());
-		assertEquals("testLicense", iu1.getLicenses()[0].getBody());
-		assertEquals("http://localhost/license", iu1.getLicenses()[0].getLocation().toString());
+		assertEquals("testLicense", iu1.getLicenses().get(0).getBody());
+		assertEquals("http://localhost/license", iu1.getLicenses().get(0).getLocation().toString());
 		assertEquals("testValue1", iu1.getProperty("testName1"));
 		assertEquals("testValue2", iu1.getProperty("testName2"));
 
-		IRequirement[] reqs = iu1.getRequiredCapabilities();
-		assertEquals(2, reqs.length);
-		assertEquals("testNamespace1", ((IRequiredCapability) reqs[0].getMatches()).getNamespace());
-		assertEquals("testName1", ((IRequiredCapability) reqs[0].getMatches()).getName());
-		assertEquals(new VersionRange("[1.2.3, 2)"), ((IRequiredCapability) reqs[0].getMatches()).getRange());
-		assertEquals(true, ((IRequiredCapability) reqs[0].getMatches()).isGreedy());
-		assertEquals(0, reqs[0].getMin());
-		assertEquals("testNamespace2", ((IRequiredCapability) reqs[1].getMatches()).getNamespace());
-		assertEquals("testName2", ((IRequiredCapability) reqs[1].getMatches()).getName());
-		assertEquals(new VersionRange(Version.emptyVersion.toString()), ((IRequiredCapability) reqs[1].getMatches()).getRange());
-		assertEquals(false, reqs[1].isGreedy());
-		assertEquals(1, reqs[1].getMin());
+		List<IRequirement> reqs = iu1.getRequiredCapabilities();
+		assertEquals(2, reqs.size());
+		assertEquals("testNamespace1", ((IRequiredCapability) reqs.get(0).getMatches()).getNamespace());
+		assertEquals("testName1", ((IRequiredCapability) reqs.get(0).getMatches()).getName());
+		assertEquals(new VersionRange("[1.2.3, 2)"), ((IRequiredCapability) reqs.get(0).getMatches()).getRange());
+		assertEquals(true, ((IRequiredCapability) reqs.get(0).getMatches()).isGreedy());
+		assertEquals(0, reqs.get(0).getMin());
+		assertEquals("testNamespace2", ((IRequiredCapability) reqs.get(1).getMatches()).getNamespace());
+		assertEquals("testName2", ((IRequiredCapability) reqs.get(1).getMatches()).getName());
+		assertEquals(new VersionRange(Version.emptyVersion.toString()), ((IRequiredCapability) reqs.get(1).getMatches()).getRange());
+		assertEquals(false, reqs.get(1).isGreedy());
+		assertEquals(1, reqs.get(1).getMin());
 
-		IProvidedCapability[] provided = iu1.getProvidedCapabilities();
-		assertEquals(2, provided.length);
-		assertEquals("testNamespace1", provided[0].getNamespace());
-		assertEquals("testName1", provided[0].getName());
-		assertEquals(Version.create("1.2.3"), provided[0].getVersion());
-		assertEquals("testNamespace2", provided[1].getNamespace());
-		assertEquals("testName2", provided[1].getName());
-		assertEquals(Version.emptyVersion, provided[1].getVersion());
+		List<IProvidedCapability> provided = iu1.getProvidedCapabilities();
+		assertEquals(2, provided.size());
+		assertEquals("testNamespace1", provided.get(0).getNamespace());
+		assertEquals("testName1", provided.get(0).getName());
+		assertEquals(Version.create("1.2.3"), provided.get(0).getVersion());
+		assertEquals("testNamespace2", provided.get(1).getNamespace());
+		assertEquals("testName2", provided.get(1).getName());
+		assertEquals(Version.emptyVersion, provided.get(1).getVersion());
 
-		IRequirement[] metarequirements = iu1.getMetaRequiredCapabilities();
-		assertEquals(2, metarequirements.length);
-		assertEquals("testNamespace1", ((IRequiredCapability) metarequirements[0].getMatches()).getNamespace());
-		assertEquals("testName1", ((IRequiredCapability) metarequirements[0].getMatches()).getName());
-		assertEquals(new VersionRange("[1.2.3, 2)"), ((IRequiredCapability) metarequirements[0].getMatches()).getRange());
-		assertEquals(true, metarequirements[0].isGreedy());
-		assertEquals(0, metarequirements[0].getMin());
-		assertEquals("testNamespace2", ((IRequiredCapability) metarequirements[1].getMatches()).getNamespace());
-		assertEquals("testName2", ((IRequiredCapability) metarequirements[1].getMatches()).getName());
-		assertEquals(new VersionRange(Version.emptyVersion.toString()), ((IRequiredCapability) metarequirements[1].getMatches()).getRange());
-		assertEquals(false, metarequirements[1].isGreedy());
-		assertEquals(1, metarequirements[1].getMin());
+		List<IRequirement> metarequirements = iu1.getMetaRequiredCapabilities();
+		assertEquals(2, metarequirements.size());
+		assertEquals("testNamespace1", ((IRequiredCapability) metarequirements.get(0).getMatches()).getNamespace());
+		assertEquals("testName1", ((IRequiredCapability) metarequirements.get(0).getMatches()).getName());
+		assertEquals(new VersionRange("[1.2.3, 2)"), ((IRequiredCapability) metarequirements.get(0).getMatches()).getRange());
+		assertEquals(true, metarequirements.get(0).isGreedy());
+		assertEquals(0, metarequirements.get(0).getMin());
+		assertEquals("testNamespace2", ((IRequiredCapability) metarequirements.get(1).getMatches()).getNamespace());
+		assertEquals("testName2", ((IRequiredCapability) metarequirements.get(1).getMatches()).getName());
+		assertEquals(new VersionRange(Version.emptyVersion.toString()), ((IRequiredCapability) metarequirements.get(1).getMatches()).getRange());
+		assertEquals(false, metarequirements.get(1).isGreedy());
+		assertEquals(1, metarequirements.get(1).getMin());
 
-		assertEquals(1, iu1.getTouchpointData().length);
-		ITouchpointInstruction configure = iu1.getTouchpointData()[0].getInstruction("configure");
+		assertEquals(1, iu1.getTouchpointData().size());
+		ITouchpointInstruction configure = iu1.getTouchpointData().get(0).getInstruction("configure");
 		assertEquals(null, configure.getImportAttribute());
 		assertEquals("addProgramArg(programArg:-startup); addProgramArg(programArg:@artifact);", configure.getBody());
 
-		ITouchpointInstruction unconfigure = iu1.getTouchpointData()[0].getInstruction("unconfigure");
+		ITouchpointInstruction unconfigure = iu1.getTouchpointData().get(0).getInstruction("unconfigure");
 		assertEquals("some.removeProgramArg", unconfigure.getImportAttribute());
 		assertEquals("removeProgramArg(programArg:-startup); removeProgramArg(programArg:@artifact);)", unconfigure.getBody());
 

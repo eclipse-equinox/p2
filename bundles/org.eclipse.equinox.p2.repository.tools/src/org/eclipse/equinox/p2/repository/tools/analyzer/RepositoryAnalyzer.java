@@ -35,7 +35,7 @@ public class RepositoryAnalyzer {
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(IIUAnalyzer.ID);
 
 		for (int i = 0; i < repositories.length; i++) {
-			IQueryResult queryResult = repositories[i].query(InstallableUnitQuery.ANY, sub);
+			IQueryResult<IInstallableUnit> queryResult = repositories[i].query(InstallableUnitQuery.ANY, sub);
 
 			SubMonitor repositoryMonitor = SubMonitor.convert(sub, IProgressMonitor.UNKNOWN);
 			for (int j = 0; j < config.length; j++) {
@@ -46,9 +46,9 @@ public class RepositoryAnalyzer {
 						((IUAnalyzer) verifier).setName(analyizerName);
 					}
 					verifier.preAnalysis(repositories[i]);
-					Iterator iter = queryResult.iterator();
+					Iterator<IInstallableUnit> iter = queryResult.iterator();
 					while (iter.hasNext()) {
-						IInstallableUnit iu = (IInstallableUnit) iter.next();
+						IInstallableUnit iu = iter.next();
 						verifier.analyzeIU(iu);
 					}
 					IStatus postAnalysisResult = verifier.postAnalysis();

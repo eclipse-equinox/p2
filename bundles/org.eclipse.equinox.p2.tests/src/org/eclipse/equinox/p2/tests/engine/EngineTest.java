@@ -69,7 +69,7 @@ public class EngineTest extends AbstractProvisioningTest {
 			return super.initializePhase(monitor, profile, parameters);
 		}
 
-		protected ProvisioningAction[] getActions(Operand operand) {
+		protected List<ProvisioningAction> getActions(Operand operand) {
 			return null;
 		}
 
@@ -88,7 +88,7 @@ public class EngineTest extends AbstractProvisioningTest {
 			throw new NullPointerException();
 		}
 
-		protected ProvisioningAction[] getActions(Operand operand) {
+		protected List<ProvisioningAction> getActions(Operand operand) {
 			return null;
 		}
 	}
@@ -102,7 +102,7 @@ public class EngineTest extends AbstractProvisioningTest {
 			this(false);
 		}
 
-		protected ProvisioningAction[] getActions(Operand operand) {
+		protected List<ProvisioningAction> getActions(Operand operand) {
 			ProvisioningAction action = new ProvisioningAction() {
 
 				public IStatus undo(Map parameters) {
@@ -113,7 +113,7 @@ public class EngineTest extends AbstractProvisioningTest {
 					throw new NullPointerException();
 				}
 			};
-			return new ProvisioningAction[] {action};
+			return Collections.singletonList(action);
 		}
 	}
 

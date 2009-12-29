@@ -64,7 +64,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 	public void testAddRemoveProperty() throws ProvisionException {
 		IProfileRegistry registry = getProfileRegistry();
 		assertNull(registry.getProfile(PROFILE_NAME));
-		Properties properties = new Properties();
+		Map<String, String> properties = new HashMap<String, String>();
 		properties.put("test", "test");
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
 		assertTrue(profile.getProperties().containsKey("test"));
@@ -113,7 +113,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 		profile.addInstallableUnit(createIU("test"));
 		assertNull(profile.getInstallableUnitProperty(createIU("test"), "test"));
 		assertNull(profile.removeInstallableUnitProperty(createIU("test"), "test"));
-		Properties iuProperties = new Properties();
+		Map<String, String> iuProperties = new HashMap<String, String>();
 		iuProperties.put("test", "test");
 		profile.addInstallableUnitProperties(createIU("test"), iuProperties);
 		assertEquals("test", profile.getInstallableUnitProperty(createIU("test"), "test"));

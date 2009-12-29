@@ -22,16 +22,16 @@ import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
  */
 public class SiteModel {
 
-	private List /*of ArchiveReferenceModel*/archiveReferences;
+	private List<URLEntry> archiveReferences;
 	/**
 	 * Map of String (category id) -> SiteCategory
 	 */
-	private Map categories;
+	private Map<String, SiteCategory> categories;
 	private URLEntry description;
 	/**
 	 * Map of String (feature id) -> SiteFeature
 	 */
-	private List features;
+	private List<SiteFeature> features;
 	private URI locationURI;
 	private String locationURIString;
 	private String mirrorsURIString;
@@ -39,8 +39,8 @@ public class SiteModel {
 	private String type;
 	private URLEntry[] associateSites;
 	private String digestURIString;
-	private List messageKeys;
-	private Map localizations;
+	private List<String> messageKeys;
+	private Map<Locale, Map<String, String>> localizations;
 
 	/**
 	 * Creates an uninitialized site model object.
@@ -60,7 +60,7 @@ public class SiteModel {
 	 */
 	public void addArchive(URLEntry archiveReference) {
 		if (this.archiveReferences == null)
-			this.archiveReferences = new ArrayList();
+			this.archiveReferences = new ArrayList<URLEntry>();
 		if (!this.archiveReferences.contains(archiveReference))
 			this.archiveReferences.add(archiveReference);
 	}
@@ -72,7 +72,7 @@ public class SiteModel {
 	 */
 	public void addCategory(SiteCategory category) {
 		if (categories == null)
-			categories = new HashMap();
+			categories = new HashMap<String, SiteCategory>();
 		if (!categories.containsKey(category.getName())) {
 			categories.put(category.getName(), category);
 			if (localizations != null && !localizations.isEmpty())
@@ -87,7 +87,7 @@ public class SiteModel {
 	 */
 	public void addFeature(SiteFeature featureReference) {
 		if (this.features == null)
-			this.features = new ArrayList();
+			this.features = new ArrayList<SiteFeature>();
 		this.features.add(featureReference);
 	}
 
@@ -103,7 +103,7 @@ public class SiteModel {
 		if (archiveReferences == null || archiveReferences.size() == 0)
 			return new URLEntry[0];
 
-		return (URLEntry[]) archiveReferences.toArray(new URLEntry[0]);
+		return archiveReferences.toArray(new URLEntry[0]);
 	}
 
 	public URLEntry[] getAssociatedSites() {
@@ -119,7 +119,7 @@ public class SiteModel {
 	public SiteCategory[] getCategories() {
 		if (categories == null || categories.size() == 0)
 			return new SiteCategory[0];
-		return (SiteCategory[]) categories.values().toArray(new SiteCategory[0]);
+		return categories.values().toArray(new SiteCategory[0]);
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class SiteModel {
 	 * @return the category with the given name, or <code>null</code>
 	 */
 	public SiteCategory getCategory(String name) {
-		return (SiteCategory) (categories == null ? null : categories.get(name));
+		return (categories == null ? null : categories.get(name));
 	}
 
 	/**
@@ -147,7 +147,7 @@ public class SiteModel {
 	public SiteFeature[] getFeatures() {
 		if (features == null || features.size() == 0)
 			return new SiteFeature[0];
-		return (SiteFeature[]) features.toArray(new SiteFeature[0]);
+		return features.toArray(new SiteFeature[0]);
 	}
 
 	/**
@@ -157,7 +157,7 @@ public class SiteModel {
 	 * @return a map from locale to property set
 	 * @since 3.4
 	 */
-	public Map getLocalizations() {
+	public Map<Locale, Map<String, String>> getLocalizations() {
 		return this.localizations;
 	}
 
@@ -192,7 +192,7 @@ public class SiteModel {
 	 * @return the list of keys for translatable strings; may be null
 	 * @since 3.4
 	 */
-	public List getMessageKeys() {
+	public List<String> getMessageKeys() {
 		return messageKeys;
 	}
 
@@ -236,13 +236,12 @@ public class SiteModel {
 	 * @param localizations as a map from locale to property set
 	 * @since 3.4
 	 */
-	public void setLocalizations(Map localizations) {
+	public void setLocalizations(Map<Locale, Map<String, String>> localizations) {
 		this.localizations = localizations;
 		if (localizations != null && !localizations.isEmpty() && //
 				categories != null && !categories.isEmpty()) {
-			for (Iterator catIter = categories.entrySet().iterator(); catIter.hasNext();) {
-				Map.Entry entry = (Map.Entry) catIter.next();
-				SiteCategory category = (SiteCategory) entry.getValue();
+			for (Iterator<SiteCategory> catIter = categories.values().iterator(); catIter.hasNext();) {
+				SiteCategory category = catIter.next();
 				category.setLocalizations(localizations);
 			}
 		}
@@ -264,7 +263,7 @@ public class SiteModel {
 	 * @param keys for translatable strings
 	 * @since 3.4
 	 */
-	public void setMessageKeys(List keys) {
+	public void setMessageKeys(List<String> keys) {
 		this.messageKeys = keys;
 	}
 

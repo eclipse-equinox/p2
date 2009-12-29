@@ -22,24 +22,24 @@ import org.eclipse.equinox.p2.metadata.query.IQueryResult;
  */
 public class QueryableFilterAdvice implements IFilterAdvice {
 
-	private IQueryable queryable;
+	private IQueryable<IInstallableUnit> queryable;
 
-	public QueryableFilterAdvice(IQueryable queryable) {
+	public QueryableFilterAdvice(IQueryable<IInstallableUnit> queryable) {
 		this.queryable = queryable;
 	}
 
 	public String getFilter(String id, Version version, boolean exact) {
 		InstallableUnitQuery query = new InstallableUnitQuery(id, version);
-		IQueryResult result = queryable.query(query, null);
+		IQueryResult<IInstallableUnit> result = queryable.query(query, null);
 		if (!result.isEmpty())
-			return ((LDAPQuery) ((IInstallableUnit) result.iterator().next()).getFilter()).getFilter();
+			return ((LDAPQuery) result.iterator().next().getFilter()).getFilter();
 		if (exact)
 			return null;
 
 		query = new InstallableUnitQuery(id);
 		result = queryable.query(query, null);
 		if (!result.isEmpty())
-			return ((LDAPQuery) ((IInstallableUnit) result.iterator().next()).getFilter()).getFilter();
+			return ((LDAPQuery) result.iterator().next().getFilter()).getFilter();
 		return null;
 	}
 

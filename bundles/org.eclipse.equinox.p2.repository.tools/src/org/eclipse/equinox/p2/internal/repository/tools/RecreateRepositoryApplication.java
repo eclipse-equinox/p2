@@ -31,8 +31,8 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 	private RepositoryDescriptor descriptor;
 	private String repoName = null;
 	boolean removeArtifactRepo = true;
-	private Map repoProperties = null;
-	private Map repoMap = null;
+	private Map<String, String> repoProperties = null;
+	private Map<IArtifactKey, IArtifactDescriptor[]> repoMap = null;
 
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 		try {
@@ -67,10 +67,10 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		repoName = repository.getName();
 		repoProperties = repository.getProperties();
 
-		repoMap = new HashMap();
-		IQueryResult keys = repository.query(ArtifactKeyQuery.ALL_KEYS, null);
-		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = (IArtifactKey) iterator.next();
+		repoMap = new HashMap<IArtifactKey, IArtifactDescriptor[]>();
+		IQueryResult<IArtifactKey> keys = repository.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
 			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
 			repoMap.put(key, descriptors);
 		}
@@ -82,7 +82,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		manager.removeRepository(repository.getLocation());
 
-		boolean compressed = Boolean.valueOf((String) repoProperties.get(IRepository.PROP_COMPRESSED)).booleanValue();
+		boolean compressed = Boolean.valueOf(repoProperties.get(IRepository.PROP_COMPRESSED)).booleanValue();
 		try {
 			URI realLocation = SimpleArtifactRepository.getActualLocation(repository.getLocation(), compressed);
 			File realFile = URIUtil.toFile(realLocation);
@@ -97,20 +97,20 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 
 		//add pack200 mappings, the existing repoProperties is not modifiable 
-		Map newProperties = new HashMap(repoProperties);
+		Map<String, String> newProperties = new HashMap<String, String>(repoProperties);
 		newProperties.put(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
 		IArtifactRepository repository = manager.createRepository(descriptor.getRepoLocation(), repoName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, newProperties);
 		if (!(repository instanceof IFileArtifactRepository))
 			throw new ProvisionException(NLS.bind(Messages.exception_notLocalFileRepo, repository.getLocation()));
 
 		IFileArtifactRepository simple = (IFileArtifactRepository) repository;
-		for (Iterator iterator = repoMap.keySet().iterator(); iterator.hasNext();) {
-			IArtifactKey key = (IArtifactKey) iterator.next();
-			IArtifactDescriptor[] descriptors = (IArtifactDescriptor[]) repoMap.get(key);
+		for (Iterator<IArtifactKey> iterator = repoMap.keySet().iterator(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
+			IArtifactDescriptor[] descriptors = repoMap.get(key);
 
 			String unpackedSize = null;
 			File packFile = null;
-			Set files = new HashSet();
+			Set<File> files = new HashSet<File>();
 			for (int i = 0; i < descriptors.length; i++) {
 				File artifactFile = simple.getArtifactFile(descriptors[i]);
 				files.add(artifactFile);

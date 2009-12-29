@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.PipedQuery;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.ISelectionProvider;
 
@@ -59,7 +58,7 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 					if (!isSelectable(element.getIU(), profile))
 						return false;
 				} else {
-					IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(selectionArray[i], IInstallableUnit.class);
+					IInstallableUnit iu = ProvUI.getAdapter(selectionArray[i], IInstallableUnit.class);
 					if (iu == null || !isSelectable(iu))
 						return false;
 				}
@@ -74,7 +73,7 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 			return false;
 		Object parent = element.getParent(element);
 		if (parent != null) {
-			IProfile profile = (IProfile) ProvUI.getAdapter(parent, IProfile.class);
+			IProfile profile = ProvUI.getAdapter(parent, IProfile.class);
 			if (profile != null)
 				return isSelectable(element.getIU(), profile);
 		}
@@ -91,7 +90,7 @@ public abstract class ExistingIUInProfileAction extends ProfileModificationActio
 		int lock = getLock(profile, iu);
 		if ((lock & getLockConstant()) == getLockConstant())
 			return false;
-		return !profile.query(new PipedQuery(new IQuery[] {new InstallableUnitQuery(iu), getPolicy().getVisibleInstalledIUQuery()}), null).isEmpty();
+		return !profile.query(new PipedQuery<IInstallableUnit>(new InstallableUnitQuery(iu), getPolicy().getVisibleInstalledIUQuery()), null).isEmpty();
 	}
 
 	protected abstract int getLockConstant();

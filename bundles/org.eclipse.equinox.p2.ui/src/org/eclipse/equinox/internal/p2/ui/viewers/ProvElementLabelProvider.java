@@ -49,19 +49,19 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			IInstallableUnit iu = (IInstallableUnit) obj;
 			return iu.getId();
 		}
-		if (obj instanceof IRepository) {
-			String name = ((IRepository) obj).getName();
+		if (obj instanceof IRepository<?>) {
+			String name = ((IRepository<?>) obj).getName();
 			if (name != null && name.length() > 0) {
 				return name;
 			}
-			return URIUtil.toUnencodedString(((IRepository) obj).getLocation());
+			return URIUtil.toUnencodedString(((IRepository<?>) obj).getLocation());
 		}
-		if (obj instanceof IRepositoryElement) {
-			String name = ((IRepositoryElement) obj).getName();
+		if (obj instanceof IRepositoryElement<?>) {
+			String name = ((IRepositoryElement<?>) obj).getName();
 			if (name != null && name.length() > 0) {
 				return name;
 			}
-			return URIUtil.toUnencodedString(((IRepositoryElement) obj).getLocation());
+			return URIUtil.toUnencodedString(((IRepositoryElement<?>) obj).getLocation());
 		}
 		if (obj instanceof IArtifactKey) {
 			IArtifactKey key = (IArtifactKey) obj;
@@ -122,15 +122,15 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 					if (((IIUElement) element).shouldShowVersion())
 						return ((IIUElement) element).getIU().getVersion().toString();
 				}
-				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 				if (iu != null) {
 					return iu.getVersion().toString();
 				}
-				if (element instanceof IRepository) {
-					return URIUtil.toUnencodedString(((IRepository) element).getLocation());
+				if (element instanceof IRepository<?>) {
+					return URIUtil.toUnencodedString(((IRepository<?>) element).getLocation());
 				}
-				if (element instanceof IRepositoryElement) {
-					return URIUtil.toUnencodedString(((IRepositoryElement) element).getLocation());
+				if (element instanceof IRepositoryElement<?>) {
+					return URIUtil.toUnencodedString(((IRepositoryElement<?>) element).getLocation());
 				}
 				if (element instanceof IArtifactKey) {
 					IArtifactKey key = (IArtifactKey) element;

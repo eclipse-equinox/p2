@@ -12,10 +12,10 @@ package org.eclipse.equinox.p2.publisher;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
@@ -48,13 +48,13 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	public static String[] getArrayFromString(String list, String separator) {
 		if (list == null || list.trim().equals("")) //$NON-NLS-1$
 			return new String[0];
-		List result = new ArrayList();
+		List<String> result = new ArrayList<String>();
 		for (QuotedTokenizer tokens = new QuotedTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
 			if (!token.equals("")) //$NON-NLS-1$
 				result.add(token);
 		}
-		return (String[]) result.toArray(new String[result.size()]);
+		return result.toArray(new String[result.size()]);
 	}
 
 	/**
@@ -129,7 +129,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		}
 
 		String[] config = parseConfigSpec(configSpec);
-		Dictionary environment = new Hashtable(3);
+		Dictionary<String, String> environment = new Hashtable<String, String>(3);
 		environment.put("osgi.ws", config[0]); //$NON-NLS-1$
 		environment.put("osgi.os", config[1]); //$NON-NLS-1$
 		environment.put("osgi.arch", config[2]); //$NON-NLS-1$
@@ -159,20 +159,19 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @param children descriptions of the IUs on which requirements are to be made
 	 * @return a collection of RequiredCapabilities representing the given IUs
 	 */
-	protected Collection createIURequirements(Collection children) {
-		ArrayList result = new ArrayList(children.size());
-		for (Iterator i = children.iterator(); i.hasNext();) {
-			Object next = i.next();
+	protected Collection<IRequirement> createIURequirements(Collection<? extends IVersionedId> children) {
+		ArrayList<IRequirement> result = new ArrayList<IRequirement>(children.size());
+		for (Iterator<? extends IVersionedId> i = children.iterator(); i.hasNext();) {
+			IVersionedId next = i.next();
 			if (next instanceof IInstallableUnit) {
 				IInstallableUnit iu = (IInstallableUnit) next;
 				VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
 				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter() == null ? null : ((LDAPQuery) iu.getFilter()).getFilter(), false, false));
-			} else if (next instanceof IVersionedId) {
-				IVersionedId name = (IVersionedId) next;
-				Version version = name.getVersion();
+			} else {
+				Version version = next.getVersion();
 				VersionRange range = (version == null || Version.emptyVersion.equals(version)) ? VersionRange.emptyRange : new VersionRange(version, true, version, true);
-				String filter = getFilterAdvice(name);
-				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, name.getId(), range, filter, false, false));
+				String filter = getFilterAdvice(next);
+				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, next.getId(), range, filter, false, false));
 			}
 		}
 		return result;
@@ -181,9 +180,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	private String getFilterAdvice(IVersionedId name) {
 		if (info == null)
 			return null;
-		Collection filterAdvice = info.getAdvice(CONFIG_ANY, true, name.getId(), name.getVersion(), IFilterAdvice.class);
-		for (Iterator i = filterAdvice.iterator(); i.hasNext();) {
-			IFilterAdvice advice = (IFilterAdvice) i.next();
+		Collection<IFilterAdvice> filterAdvice = info.getAdvice(CONFIG_ANY, true, name.getId(), name.getVersion(), IFilterAdvice.class);
+		for (Iterator<IFilterAdvice> i = filterAdvice.iterator(); i.hasNext();) {
+			IFilterAdvice advice = i.next();
 			String result = advice.getFilter(name.getId(), name.getVersion(), false);
 			if (result != null)
 				return result;
@@ -212,7 +211,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		return result;
 	}
 
-	protected InstallableUnitDescription createParentIU(Collection children, String id, Version version) {
+	protected InstallableUnitDescription createParentIU(Collection<? extends IVersionedId> children, String id, Version version) {
 		InstallableUnitDescription root = createIUShell(id, version);
 		root.addRequiredCapabilities(createIURequirements(children));
 		addSelfCapability(root);
@@ -234,18 +233,18 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	protected static InstallableUnitDescription[] processAdditionalInstallableUnitsAdvice(IInstallableUnit iu, IPublisherInfo publisherInfo) {
-		Collection advice = publisherInfo.getAdvice(null, false, iu.getId(), iu.getVersion(), IAdditionalInstallableUnitAdvice.class);
+		Collection<IAdditionalInstallableUnitAdvice> advice = publisherInfo.getAdvice(null, false, iu.getId(), iu.getVersion(), IAdditionalInstallableUnitAdvice.class);
 		if (advice.isEmpty())
 			return null;
 
-		List ius = new ArrayList();
-		for (Iterator iterator = advice.iterator(); iterator.hasNext();) {
-			IAdditionalInstallableUnitAdvice entry = (IAdditionalInstallableUnitAdvice) iterator.next();
+		List<InstallableUnitDescription> ius = new ArrayList<InstallableUnitDescription>();
+		for (Iterator<IAdditionalInstallableUnitAdvice> iterator = advice.iterator(); iterator.hasNext();) {
+			IAdditionalInstallableUnitAdvice entry = iterator.next();
 			InstallableUnitDescription[] others = entry.getAdditionalInstallableUnitDescriptions(iu);
 			if (others != null)
 				ius.addAll(Arrays.asList(others));
 		}
-		return (InstallableUnitDescription[]) ius.toArray(new InstallableUnitDescription[ius.size()]);
+		return ius.toArray(new InstallableUnitDescription[ius.size()]);
 	}
 
 	/**
@@ -258,15 +257,15 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		if (!(descriptor instanceof SimpleArtifactDescriptor))
 			return;
 
-		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IPropertyAdvice.class);
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			IPropertyAdvice entry = (IPropertyAdvice) i.next();
-			Properties props = entry.getArtifactProperties(iu, descriptor);
+		Collection<IPropertyAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IPropertyAdvice.class);
+		for (Iterator<IPropertyAdvice> i = advice.iterator(); i.hasNext();) {
+			IPropertyAdvice entry = i.next();
+			Map<String, String> props = entry.getArtifactProperties(iu, descriptor);
 			if (props == null)
 				continue;
-			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
-				String key = (String) j.next();
-				((SimpleArtifactDescriptor) descriptor).setRepositoryProperty(key, props.getProperty(key));
+			for (Iterator<Entry<String, String>> j = props.entrySet().iterator(); j.hasNext();) {
+				Entry<String, String> pe = j.next();
+				((SimpleArtifactDescriptor) descriptor).setRepositoryProperty(pe.getKey(), pe.getValue());
 			}
 		}
 	}
@@ -277,15 +276,15 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @param info the publisher info supplying the advice
 	 */
 	protected static void processInstallableUnitPropertiesAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IPropertyAdvice.class);
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			IPropertyAdvice entry = (IPropertyAdvice) i.next();
-			Properties props = entry.getInstallableUnitProperties(iu);
+		Collection<IPropertyAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IPropertyAdvice.class);
+		for (Iterator<IPropertyAdvice> i = advice.iterator(); i.hasNext();) {
+			IPropertyAdvice entry = i.next();
+			Map<String, String> props = entry.getInstallableUnitProperties(iu);
 			if (props == null)
 				continue;
-			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
-				String key = (String) j.next();
-				iu.setProperty(key, props.getProperty(key));
+			for (Iterator<Entry<String, String>> j = props.entrySet().iterator(); j.hasNext();) {
+				Entry<String, String> pe = j.next();
+				iu.setProperty(pe.getKey(), pe.getValue());
 			}
 		}
 	}
@@ -296,24 +295,25 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @param info the publisher info supplying the advice
 	 */
 	protected static void processCapabilityAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ICapabilityAdvice.class);
+		Collection<ICapabilityAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ICapabilityAdvice.class);
 		if (advice.isEmpty())
 			return;
 
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
+		for (Iterator<ICapabilityAdvice> i = advice.iterator(); i.hasNext();) {
+			ICapabilityAdvice entry = i.next();
 
 			//process required capabilities
 			IRequirement[] requiredAdvice = entry.getRequiredCapabilities(iu);
 			if (requiredAdvice != null) {
-				IRequirement[] current = iu.getRequiredCapabilities();
-				Set resultRequiredCapabilities = new HashSet(Arrays.asList(current));
+				List<IRequirement> current = iu.getRequiredCapabilities();
+				Set<IRequirement> resultRequiredCapabilities = new HashSet<IRequirement>(current);
 
 				// remove current required capabilities that match (same name and namespace) advice.
-				for (int j = 0; j < current.length; j++) {
+				for (int j = 0; j < current.size(); j++) {
+					IRequirement curr = current.get(j);
 					IRequiredCapability currentRequiredCapability = null;
-					if (current[j] instanceof IRequiredCapability)
-						currentRequiredCapability = (IRequiredCapability) current[j];
+					if (curr instanceof IRequiredCapability)
+						currentRequiredCapability = (IRequiredCapability) curr;
 					else
 						continue;
 					for (int k = 0; k < requiredAdvice.length; k++) {
@@ -330,20 +330,21 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				}
 				// add all advice
 				resultRequiredCapabilities.addAll(Arrays.asList(requiredAdvice));
-				iu.setRequiredCapabilities((IRequirement[]) resultRequiredCapabilities.toArray(new IRequirement[resultRequiredCapabilities.size()]));
+				iu.setRequiredCapabilities(resultRequiredCapabilities.toArray(new IRequirement[resultRequiredCapabilities.size()]));
 			}
 
 			//process meta required capabilities
 			IRequirement[] metaRequiredAdvice = entry.getMetaRequiredCapabilities(iu);
 			if (metaRequiredAdvice != null) {
-				IRequirement[] current = iu.getMetaRequiredCapabilities();
-				Set resultMetaRequiredCapabilities = new HashSet(Arrays.asList(current));
+				List<IRequirement> current = iu.getMetaRequiredCapabilities();
+				Set<IRequirement> resultMetaRequiredCapabilities = new HashSet<IRequirement>(current);
 
 				// remove current meta-required capabilities that match (same name and namespace) advice.
-				for (int j = 0; j < current.length; j++) {
+				for (int j = 0; j < current.size(); j++) {
+					IRequirement curr = current.get(j);
 					IRequiredCapability currentMetaRequiredCapability = null;
-					if (current[j] instanceof IRequiredCapability)
-						currentMetaRequiredCapability = (IRequiredCapability) current[j];
+					if (curr instanceof IRequiredCapability)
+						currentMetaRequiredCapability = (IRequiredCapability) curr;
 					else
 						continue;
 					for (int k = 0; k < metaRequiredAdvice.length; k++) {
@@ -361,16 +362,16 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 				// add all advice
 				resultMetaRequiredCapabilities.addAll(Arrays.asList(metaRequiredAdvice));
-				iu.setMetaRequiredCapabilities((IRequirement[]) resultMetaRequiredCapabilities.toArray(new IRequirement[resultMetaRequiredCapabilities.size()]));
+				iu.setMetaRequiredCapabilities(resultMetaRequiredCapabilities.toArray(new IRequirement[resultMetaRequiredCapabilities.size()]));
 			}
 
 			//process provided capabilities
 			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
 			if (providedAdvice != null) {
-				IProvidedCapability[] current = iu.getProvidedCapabilities();
-				Set resultProvidedCapabilities = new HashSet(Arrays.asList(current));
-				for (int j = 0; j < current.length; j++) {
-					IProvidedCapability currentProvidedCapability = current[j];
+				List<IProvidedCapability> current = iu.getProvidedCapabilities();
+				Set<IProvidedCapability> resultProvidedCapabilities = new HashSet<IProvidedCapability>(current);
+				for (int j = 0; j < current.size(); j++) {
+					IProvidedCapability currentProvidedCapability = current.get(j);
 					for (int k = 0; k < providedAdvice.length; k++) {
 						IProvidedCapability providedCapability = providedAdvice[k];
 						if (providedCapability.getNamespace().equals(currentProvidedCapability.getNamespace()) && providedCapability.getName().equals(currentProvidedCapability.getName())) {
@@ -380,7 +381,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 					}
 				}
 				resultProvidedCapabilities.addAll(Arrays.asList(providedAdvice));
-				iu.setCapabilities((IProvidedCapability[]) resultProvidedCapabilities.toArray(new IProvidedCapability[resultProvidedCapabilities.size()]));
+				iu.setCapabilities(resultProvidedCapabilities.toArray(new IProvidedCapability[resultProvidedCapabilities.size()]));
 			}
 		}
 	}
@@ -391,22 +392,22 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @param currentInstructions The set of touchpoint instructions assembled for this IU so far
 	 * @param info The publisher info
 	 */
-	protected static void processTouchpointAdvice(InstallableUnitDescription iu, Map currentInstructions, IPublisherInfo info) {
+	protected static void processTouchpointAdvice(InstallableUnitDescription iu, Map<String, ? extends Object> currentInstructions, IPublisherInfo info) {
 		processTouchpointAdvice(iu, currentInstructions, info, null);
 	}
 
-	protected static void processTouchpointAdvice(InstallableUnitDescription iu, Map currentInstructions, IPublisherInfo info, String configSpec) {
-		Collection advice = info.getAdvice(configSpec, false, iu.getId(), iu.getVersion(), ITouchpointAdvice.class);
+	protected static void processTouchpointAdvice(InstallableUnitDescription iu, Map<String, ? extends Object> currentInstructions, IPublisherInfo info, String configSpec) {
+		Collection<ITouchpointAdvice> advice = info.getAdvice(configSpec, false, iu.getId(), iu.getVersion(), ITouchpointAdvice.class);
 		if (currentInstructions == null) {
 			if (advice == null || advice.isEmpty())
 				return;
-			currentInstructions = Collections.EMPTY_MAP;
+			currentInstructions = CollectionUtils.emptyMap();
 		}
 
 		ITouchpointData result = MetadataFactory.createTouchpointData(currentInstructions);
 		if (advice != null) {
-			for (Iterator i = advice.iterator(); i.hasNext();) {
-				ITouchpointAdvice entry = (ITouchpointAdvice) i.next();
+			for (Iterator<ITouchpointAdvice> i = advice.iterator(); i.hasNext();) {
+				ITouchpointAdvice entry = i.next();
 				result = entry.getTouchpointData(result);
 			}
 		}
@@ -524,12 +525,12 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @return the first matching IU or <code>null</code> if none.
 	 */
 	protected IInstallableUnit queryForIU(IPublisherResult publisherResult, String iuId, Version version) {
-		IQuery query = null;
-		IQueryResult collector = Collector.EMPTY_COLLECTOR;
+		IQuery<IInstallableUnit> query = null;
+		IQueryResult<IInstallableUnit> collector = Collector.emptyCollector();
 		if (version != null && !Version.emptyVersion.equals(version)) {
-			query = new LimitQuery(new InstallableUnitQuery(iuId, version), 1);
+			query = new LimitQuery<IInstallableUnit>(new InstallableUnitQuery(iuId, version), 1);
 		} else {
-			query = new PipedQuery(new IQuery[] {new InstallableUnitQuery(iuId), new LatestIUVersionQuery()});
+			query = new PipedQuery<IInstallableUnit>(new InstallableUnitQuery(iuId), new LatestIUVersionQuery<IInstallableUnit>());
 		}
 
 		NullProgressMonitor progress = new NullProgressMonitor();
@@ -541,7 +542,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			collector = info.getContextMetadataRepository().query(query, progress);
 
 		if (!collector.isEmpty())
-			return (IInstallableUnit) collector.iterator().next();
+			return collector.iterator().next();
 		return null;
 	}
 
@@ -552,9 +553,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @param versionRange the version range to consider
 	 * @return The the IUs with the matching ids in the given range
 	 */
-	protected IQueryResult queryForIUs(IPublisherResult publisherResult, String iuId, VersionRange versionRange) {
-		IQuery query = null;
-		IQueryResult queryResult = Collector.EMPTY_COLLECTOR;
+	protected IQueryResult<IInstallableUnit> queryForIUs(IPublisherResult publisherResult, String iuId, VersionRange versionRange) {
+		IQuery<IInstallableUnit> query = null;
+		IQueryResult<IInstallableUnit> queryResult = Collector.emptyCollector();
 		query = new InstallableUnitQuery(iuId, versionRange);
 		NullProgressMonitor progress = new NullProgressMonitor();
 		if (publisherResult != null)

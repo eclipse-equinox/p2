@@ -21,15 +21,15 @@ import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 public class BundlePoolFilteredListener extends DirectoryChangeListener {
 
 	private DirectoryChangeListener delegate;
-	private Set bundlePoolFiles = new HashSet();
+	private Set<File> bundlePoolFiles = new HashSet<File>();
 
 	public BundlePoolFilteredListener(DirectoryChangeListener listener) {
 		delegate = listener;
 		IFileArtifactRepository bundlePool = Activator.getBundlePoolRepository();
 		if (bundlePool != null) {
-			IQueryResult keys = bundlePool.query(ArtifactKeyQuery.ALL_KEYS, null);
-			for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-				IArtifactKey key = (IArtifactKey) iterator.next();
+			IQueryResult<IArtifactKey> keys = bundlePool.query(ArtifactKeyQuery.ALL_KEYS, null);
+			for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
+				IArtifactKey key = iterator.next();
 				File artifactFile = bundlePool.getArtifactFile(key);
 				if (artifactFile != null)
 					bundlePoolFiles.add(artifactFile);

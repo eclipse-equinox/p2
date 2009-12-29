@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -151,16 +152,16 @@ public class ProvisioningHelper {
 	 * @param monitor A progress monitor, or <code>null</code>
 	 * @return The IUs that match the query
 	 */
-	public static IQueryResult getInstallableUnits(URI location, IQuery query, IProgressMonitor monitor) {
-		IQueryable queryable = null;
+	public static IQueryResult<IInstallableUnit> getInstallableUnits(URI location, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+		IQueryable<IInstallableUnit> queryable = null;
 		if (location == null) {
-			queryable = (IQueryable) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+			queryable = (IQueryable<IInstallableUnit>) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		} else {
 			queryable = getMetadataRepository(location);
 		}
 		if (queryable != null)
 			return queryable.query(query, monitor);
-		return Collector.EMPTY_COLLECTOR;
+		return Collector.emptyCollector();
 	}
 
 	public static URI[] getMetadataRepositories() {
@@ -180,7 +181,7 @@ public class ProvisioningHelper {
 	public static IStatus install(String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
-		IQueryResult units = getInstallableUnits((URI) null, new InstallableUnitQuery(unitId, Version.create(version)), progress);
+		IQueryResult<IInstallableUnit> units = getInstallableUnits((URI) null, new InstallableUnitQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuffer error = new StringBuffer();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');

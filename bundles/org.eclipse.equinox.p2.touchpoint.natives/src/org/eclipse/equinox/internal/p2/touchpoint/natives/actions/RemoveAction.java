@@ -22,7 +22,7 @@ import org.eclipse.osgi.util.NLS;
 public class RemoveAction extends ProvisioningAction {
 	public static final String ID = "remove"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
 		if (path == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));
@@ -41,7 +41,7 @@ public class RemoveAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		// Does not have to do anything as the backup will restore what was deleted
 		return Status.OK_STATUS;
 	}

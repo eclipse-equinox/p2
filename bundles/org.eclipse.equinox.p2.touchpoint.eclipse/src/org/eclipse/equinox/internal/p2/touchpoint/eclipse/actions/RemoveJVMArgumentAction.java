@@ -23,7 +23,7 @@ import org.eclipse.osgi.util.NLS;
 public class RemoveJVMArgumentAction extends ProvisioningAction {
 	public static final String ID = "removeJvmArg"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM_ARG);
 		if (jvmArg == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_JVM_ARG, ID));
@@ -31,7 +31,7 @@ public class RemoveJVMArgumentAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM_ARG);
 		if (jvmArg == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_JVM_ARG, ID));
@@ -39,7 +39,7 @@ public class RemoveJVMArgumentAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public static IStatus removeArg(String arg, Map parameters) {
+	public static IStatus removeArg(String arg, Map<String, Object> parameters) {
 		LauncherData launcherData = ((Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR)).getLauncherData();
 		File storageArea = (File) parameters.get(ActionConstants.PARM_PROFILE_DATA_DIRECTORY);
 

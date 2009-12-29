@@ -85,7 +85,7 @@ public abstract class AbstractPublishTask extends Task {
 	protected URI artifactLocation;
 	protected String artifactRepoName;
 	protected PublisherInfo provider = null;
-	protected List contextRepositories = new ArrayList();
+	protected List<RepoEntry> contextRepositories = new ArrayList<RepoEntry>();
 
 	protected IProvisioningAgent getProvisioningAgent() {
 		return (IProvisioningAgent) ServiceHelper.getService(Activator.context, IProvisioningAgent.SERVICE_NAME);
@@ -108,8 +108,8 @@ public abstract class AbstractPublishTask extends Task {
 			CompositeMetadataRepository contextMetadata = CompositeMetadataRepository.createMemoryComposite(getProvisioningAgent());
 			CompositeArtifactRepository contextArtifact = CompositeArtifactRepository.createMemoryComposite(getProvisioningAgent());
 
-			for (Iterator iterator = contextRepositories.iterator(); iterator.hasNext();) {
-				RepoEntry entry = (RepoEntry) iterator.next();
+			for (Iterator<RepoEntry> iterator = contextRepositories.iterator(); iterator.hasNext();) {
+				RepoEntry entry = iterator.next();
 				if (contextMetadata != null && entry.isMetadataRepository())
 					contextMetadata.addChild(entry.getRepositoryLocation());
 				if (contextArtifact != null && entry.isArtifactRepository())

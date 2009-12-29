@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -27,7 +27,7 @@ public class Install extends InstallableUnitPhase {
 
 	final static class BeforeInstallEventAction extends ProvisioningAction {
 
-		public IStatus execute(Map parameters) {
+		public IStatus execute(Map<String, Object> parameters) {
 			IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
@@ -36,7 +36,7 @@ public class Install extends InstallableUnitPhase {
 			return null;
 		}
 
-		public IStatus undo(Map parameters) {
+		public IStatus undo(Map<String, Object> parameters) {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
@@ -50,7 +50,7 @@ public class Install extends InstallableUnitPhase {
 
 	final static class AfterInstallEventAction extends ProvisioningAction {
 
-		public IStatus execute(Map parameters) {
+		public IStatus execute(Map<String, Object> parameters) {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
@@ -61,7 +61,7 @@ public class Install extends InstallableUnitPhase {
 			return null;
 		}
 
-		public IStatus undo(Map parameters) {
+		public IStatus undo(Map<String, Object> parameters) {
 			IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
@@ -81,7 +81,7 @@ public class Install extends InstallableUnitPhase {
 		return (op.second() != null && !op.second().equals(op.first()));
 	}
 
-	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
+	protected List<ProvisioningAction> getActions(InstallableUnitOperand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Installing_IU, unit.getId()));
 
 		ProvisioningAction beforeAction = new BeforeInstallEventAction();
@@ -94,17 +94,18 @@ public class Install extends InstallableUnitPhase {
 			afterAction.setTouchpoint(touchpoint);
 		}
 
-		if (FragmentQuery.isFragment(unit))
-			return new ProvisioningAction[] {beforeAction, afterAction};
+		ArrayList<ProvisioningAction> actions = new ArrayList<ProvisioningAction>();
+		actions.add(beforeAction);
 
-		ProvisioningAction[] parsedActions = getActions(unit, phaseId);
-		if (parsedActions == null)
-			return new ProvisioningAction[] {beforeAction, afterAction};
+		if (FragmentQuery.isFragment(unit)) {
+			actions.add(afterAction);
+			return actions;
+		}
 
-		ProvisioningAction[] actions = new ProvisioningAction[parsedActions.length + 2];
-		actions[0] = beforeAction;
-		System.arraycopy(parsedActions, 0, actions, 1, parsedActions.length);
-		actions[actions.length - 1] = afterAction;
+		List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
+		if (parsedActions != null)
+			actions.addAll(parsedActions);
+		actions.add(afterAction);
 		return actions;
 	}
 
@@ -112,14 +113,14 @@ public class Install extends InstallableUnitPhase {
 		return Messages.Phase_Install_Error;
 	}
 
-	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.second();
 		monitor.subTask(NLS.bind(Messages.Phase_Install_Task, iu.getId()));
 		parameters.put(PARM_IU, iu);
 
-		IArtifactKey[] artifacts = iu.getArtifacts();
-		if (artifacts != null && artifacts.length > 0)
-			parameters.put(PARM_ARTIFACT, artifacts[0]);
+		List<IArtifactKey> artifacts = iu.getArtifacts();
+		if (artifacts != null && artifacts.size() > 0)
+			parameters.put(PARM_ARTIFACT, artifacts.get(0));
 
 		return Status.OK_STATUS;
 	}

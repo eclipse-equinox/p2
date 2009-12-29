@@ -44,22 +44,17 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 	private SimpleProfileRegistry profileRegistry;
 
-	private SoftReference cachedProfile;
+	private SoftReference<IProfile> cachedProfile;
 
 	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile) {
-		IQuery rootIUQuery = CompoundQuery.createCompoundQuery(new IQuery[] {new UserVisibleRootQuery(), new MatchQuery() {
-			public boolean isMatch(Object candidate) {
-				if (candidate instanceof IInstallableUnit) {
-					IInstallableUnit iu = (IInstallableUnit) candidate;
-					if (iu.getTouchpointType().getId().equals(NATIVE_TOUCHPOINT_TYPE))
-						return true;
-				}
-				return false;
+		IQuery<IInstallableUnit> rootIUQuery = CompoundQuery.createCompoundQuery(new UserVisibleRootQuery(), new MatchQuery<IInstallableUnit>() {
+			public boolean isMatch(IInstallableUnit iu) {
+				return iu.getTouchpointType().getId().equals(NATIVE_TOUCHPOINT_TYPE);
 			}
-		}}, false);
-		IQueryResult rootIUs = sharedProfile.query(rootIUQuery, null);
-		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+		}, false);
+		IQueryResult<IInstallableUnit> rootIUs = sharedProfile.query(rootIUQuery, null);
+		for (Iterator<IInstallableUnit> iterator = rootIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
 			userProfile.addInstallableUnit(iu);
 			userProfile.addInstallableUnitProperties(iu, sharedProfile.getInstallableUnitProperties(iu));
 			userProfile.setInstallableUnitProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, IU_LOCKED);
@@ -68,18 +63,18 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	}
 
 	private static void removeUserProfileBaseIUs(final Profile userProfile) {
-		IQuery rootIUQuery = new IUProfilePropertyQuery(PROP_BASE, Boolean.TRUE.toString());
-		IQueryResult rootIUs = userProfile.query(rootIUQuery, null);
-		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+		IQuery<IInstallableUnit> rootIUQuery = new IUProfilePropertyQuery(PROP_BASE, Boolean.TRUE.toString());
+		IQueryResult<IInstallableUnit> rootIUs = userProfile.query(rootIUQuery, null);
+		for (Iterator<IInstallableUnit> iterator = rootIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
 			userProfile.removeInstallableUnit(iu);
 		}
 	}
 
 	private static void markRootsOptional(final Profile userProfile) {
-		IQueryResult rootIUs = userProfile.query(new UserVisibleRootQuery(), null);
-		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+		IQueryResult<IInstallableUnit> rootIUs = userProfile.query(new UserVisibleRootQuery(), null);
+		for (Iterator<IInstallableUnit> iterator = rootIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
 			userProfile.setInstallableUnitProperty(iu, PROP_INCLUSION_RULES, OPTIONAL);
 		}
 	}
@@ -140,14 +135,14 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 		//see if we have a cached profile
 		if (cachedProfile != null) {
-			IProfile profile = (IProfile) cachedProfile.get();
+			IProfile profile = cachedProfile.get();
 			if (profile != null && profile.getProfileId().equals(id) && profile.getTimestamp() == currentTimestamp)
 				return profile;
 		}
 
 		final IProfile profile = registry.getProfile(id, currentTimestamp);
 		if (profile != null)
-			cachedProfile = new SoftReference(profile);
+			cachedProfile = new SoftReference<IProfile>(profile);
 		return profile;
 	}
 
@@ -177,13 +172,13 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler#queryProfile(org.eclipse.equinox.internal.provisional.p2.engine.IProfile, org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IQueryResult queryProfile(IProfile profile, IQuery query, IProgressMonitor monitor) {
+	public IQueryResult<IInstallableUnit> queryProfile(IProfile profile, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		IProfile sharedProfile = getSharedProfile(profile.getProfileId());
 		if (sharedProfile == null)
 			return profile.query(query, monitor);
 
 		// TODO: Should consider using a sequenced iterator here instead of collecting
-		Collector result = new Collector();
+		Collector<IInstallableUnit> result = new Collector<IInstallableUnit>();
 		result.addAll(sharedProfile.query(query, monitor));
 		result.addAll(profile.query(query, monitor));
 		return result;

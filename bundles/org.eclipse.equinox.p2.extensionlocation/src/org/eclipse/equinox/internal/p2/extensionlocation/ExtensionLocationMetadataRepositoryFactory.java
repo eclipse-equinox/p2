@@ -25,7 +25,7 @@ public class ExtensionLocationMetadataRepositoryFactory extends MetadataReposito
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
-	public IMetadataRepository create(URI location, String name, String type, Map properties) throws ProvisionException {
+	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
 		// TODO proper progress monitoring
 		IStatus status = validate(location, null);
 		if (!status.isOK())

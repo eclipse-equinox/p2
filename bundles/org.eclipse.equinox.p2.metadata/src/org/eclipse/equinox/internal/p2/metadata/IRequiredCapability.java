@@ -31,7 +31,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  */
-public interface IRequiredCapability extends IMatchQuery, IRequirement {
+public interface IRequiredCapability extends IMatchQuery<IInstallableUnit>, IRequirement {
 
 	//	public String getFilter();
 

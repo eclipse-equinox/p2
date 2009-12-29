@@ -454,7 +454,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			parseAttributes(attributes, noAttributes, noAttributes);
 		}
 
-		public TextHandler(AbstractHandler parent, String elementName, Attributes attributes, List texts) {
+		public TextHandler(AbstractHandler parent, String elementName, Attributes attributes, List<String> texts) {
 			super(parent, elementName);
 			parseAttributes(attributes, noAttributes, noAttributes);
 		}

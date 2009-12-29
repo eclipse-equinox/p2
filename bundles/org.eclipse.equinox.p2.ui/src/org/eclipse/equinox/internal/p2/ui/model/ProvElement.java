@@ -34,6 +34,7 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		this.parent = parent;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IWorkbenchAdapter.class)
 			return this;

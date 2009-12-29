@@ -29,11 +29,9 @@ public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants
 		attribute(ID_ATTRIBUTE, profile.getProfileId());
 		attribute(TIMESTAMP_ATTRIBUTE, Long.toString(profile.getTimestamp()));
 		writeProperties(profile.getProperties());
-		ArrayList ius = new ArrayList(profile.query(InstallableUnitQuery.ANY, null).unmodifiableSet());
-		Collections.sort(ius, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				IInstallableUnit iu1 = (IInstallableUnit) o1;
-				IInstallableUnit iu2 = (IInstallableUnit) o2;
+		ArrayList<IInstallableUnit> ius = new ArrayList<IInstallableUnit>(profile.query(InstallableUnitQuery.ANY, null).unmodifiableSet());
+		Collections.sort(ius, new Comparator<IInstallableUnit>() {
+			public int compare(IInstallableUnit iu1, IInstallableUnit iu2) {
 				int IdCompare = iu1.getId().compareTo(iu2.getId());
 				if (IdCompare != 0)
 					return IdCompare;
@@ -47,14 +45,14 @@ public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants
 		flush();
 	}
 
-	private void writeInstallableUnitsProperties(Iterator it, int size, IProfile profile) {
+	private void writeInstallableUnitsProperties(Iterator<IInstallableUnit> it, int size, IProfile profile) {
 		if (size == 0)
 			return;
 		start(IUS_PROPERTIES_ELEMENT);
 		attribute(COLLECTION_SIZE_ATTRIBUTE, size);
 		while (it.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) it.next();
-			Map properties = profile.getInstallableUnitProperties(iu);
+			IInstallableUnit iu = it.next();
+			Map<String, String> properties = profile.getInstallableUnitProperties(iu);
 			if (properties.isEmpty())
 				continue;
 

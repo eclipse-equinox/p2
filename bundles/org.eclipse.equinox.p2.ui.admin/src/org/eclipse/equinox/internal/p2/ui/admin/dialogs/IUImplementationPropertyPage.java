@@ -31,7 +31,7 @@ public class IUImplementationPropertyPage extends PropertyPage {
 	private IUImplementationGroup iuGroup;
 
 	protected Control createContents(Composite parent) {
-		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(getElement(), IInstallableUnit.class);
+		IInstallableUnit iu = ProvUI.getAdapter(getElement(), IInstallableUnit.class);
 		if (iu == null) {
 			Label label = new Label(parent, SWT.DEFAULT);
 			label.setText(ProvAdminUIMessages.No_Property_Item_Selected);

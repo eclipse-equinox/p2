@@ -70,7 +70,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		task.addElement(createIUElement(iu));
 
 		runAntTask();
-		assertEquals("Number of artifact keys differs", iu.getArtifacts().length, getArtifactKeyCount(destination));
+		assertEquals("Number of artifact keys differs", iu.getArtifacts().size(), getArtifactKeyCount(destination));
 		assertTrue("Unexpected format", expectedFormat(destination));
 	}
 

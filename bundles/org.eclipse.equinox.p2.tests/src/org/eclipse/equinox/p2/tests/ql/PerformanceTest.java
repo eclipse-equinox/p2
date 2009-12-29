@@ -34,7 +34,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		IRequiredCapability capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
-		QLMatchQuery predicateQuery = new QLMatchQuery("item ~= $0", capability);
+		QLMatchQuery predicateQuery = new QLMatchQuery(IInstallableUnit.class, "item ~= $0", capability);
 		IQueryResult result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
@@ -65,8 +65,8 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IQueryable qaRepo = new QueryableArray(gatherAvailableInstallableUnits(repo));
 
 		IRequiredCapability capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
-		QLContextQuery exprQuery = new QLContextQuery("capabilityIndex(everything)");
-		exprQuery = new QLContextQuery("$0.satisfiesAny([$1])", exprQuery.query(QL.newQueryContext(qaRepo)), capability);
+		QLContextQuery exprQuery = new QLContextQuery(IInstallableUnit.class, "capabilityIndex(everything)");
+		exprQuery = new QLContextQuery(IInstallableUnit.class, "$0.satisfiesAny([$1])", exprQuery.query(QL.newQueryContext(qaRepo)), capability);
 		IQueryResult result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
@@ -96,7 +96,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		IUPropertyQuery propertyQuery = new IUPropertyQuery("df_LT.providerName", "Eclipse.org");
-		QLMatchQuery predicateQuery = new QLMatchQuery("properties[$0] == $1", "df_LT.providerName", "Eclipse.org");
+		QLMatchQuery predicateQuery = new QLMatchQuery(IInstallableUnit.class, "properties[$0] == $1", "df_LT.providerName", "Eclipse.org");
 		IQueryResult result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
@@ -133,7 +133,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		assertTrue(itor.hasNext());
 		IInstallableUnit[] roots = new IInstallableUnit[] {(IInstallableUnit) itor.next()};
 
-		IQuery query = new QLContextQuery("" + //
+		IQuery query = new QLContextQuery(IInstallableUnit.class, "" + //
 				"$0.traverse(set(), capabilityIndex(everything), _, {rqCache, index, parent | " + //
 				"index.satisfiesAny(parent.requiredCapabilities.unique(rqCache).select(rc | rc.filter == null || $1 ~= filter(rc.filter)))})", roots, env);
 

@@ -24,7 +24,7 @@ public class CompositeRepositoryState {
 	private String provider;
 	private String description;
 	private URI location;
-	private Map properties;
+	private Map<String, String> properties;
 	private URI[] children;
 
 	public void setName(String value) {
@@ -75,11 +75,11 @@ public class CompositeRepositoryState {
 		return location;
 	}
 
-	public void setProperties(Map value) {
+	public void setProperties(Map<String, String> value) {
 		properties = value;
 	}
 
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		return properties;
 	}
 

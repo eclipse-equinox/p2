@@ -31,8 +31,8 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 
 	DeferredQueryTreeContentManager manager;
 	Object currentInput;
-	HashMap alreadyQueried = new HashMap();
-	HashSet queryCompleted = new HashSet();
+	HashMap<Object, Object> alreadyQueried = new HashMap<Object, Object>();
+	HashSet<Object> queryCompleted = new HashSet<Object>();
 	AbstractTreeViewer viewer = null;
 	ListenerList listeners = new ListenerList();
 	boolean synchronous = false;
@@ -72,8 +72,8 @@ public class DeferredQueryContentProvider extends ProvElementContentProvider {
 			});
 		} else
 			viewer = null;
-		alreadyQueried = new HashMap();
-		queryCompleted = new HashSet();
+		alreadyQueried = new HashMap<Object, Object>();
+		queryCompleted = new HashSet<Object>();
 		currentInput = newInput;
 		Object[] inputListeners = listeners.getListeners();
 		for (int i = 0; i < inputListeners.length; i++) {

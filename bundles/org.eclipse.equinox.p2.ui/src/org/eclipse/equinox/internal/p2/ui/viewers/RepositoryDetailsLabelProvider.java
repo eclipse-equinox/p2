@@ -58,25 +58,25 @@ public class RepositoryDetailsLabelProvider extends LabelProvider implements ITa
 
 		switch (columnIndex) {
 			case COL_NAME :
-				if (element instanceof IRepositoryElement) {
-					String name = ((IRepositoryElement) element).getName();
+				if (element instanceof IRepositoryElement<?>) {
+					String name = ((IRepositoryElement<?>) element).getName();
 					if (name != null) {
 						return name;
 					}
 				}
-				if (element instanceof IRepository) {
-					String name = ((IRepository) element).getName();
+				if (element instanceof IRepository<?>) {
+					String name = ((IRepository<?>) element).getName();
 					if (name != null) {
 						return name;
 					}
 				}
 				return ""; //$NON-NLS-1$
 			case COL_LOCATION :
-				if (element instanceof IRepository) {
-					return TextProcessor.process(URIUtil.toUnencodedString(((IRepository) element).getLocation()));
+				if (element instanceof IRepository<?>) {
+					return TextProcessor.process(URIUtil.toUnencodedString(((IRepository<?>) element).getLocation()));
 				}
-				if (element instanceof IRepositoryElement) {
-					return TextProcessor.process(URIUtil.toUnencodedString(((IRepositoryElement) element).getLocation()));
+				if (element instanceof IRepositoryElement<?>) {
+					return TextProcessor.process(URIUtil.toUnencodedString(((IRepositoryElement<?>) element).getLocation()));
 				}
 				break;
 			case COL_ENABLEMENT :

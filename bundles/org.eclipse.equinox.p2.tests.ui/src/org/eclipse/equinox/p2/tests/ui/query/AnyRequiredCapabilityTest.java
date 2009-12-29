@@ -30,8 +30,6 @@ public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 		List items = new ArrayList();
 		items.add(match);
 		items.add(noMatch);
-		items.add(new Object());
-		items.add(requires);
 		IQueryResult result = requires.getMatches().perform(items.iterator());
 		assertEquals("1.0", 1, queryResultSize(result));
 		assertEquals("1.1", match, result.iterator().next());

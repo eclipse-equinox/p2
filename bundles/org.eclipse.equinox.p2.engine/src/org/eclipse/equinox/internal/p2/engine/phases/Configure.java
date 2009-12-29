@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
+import java.util.List;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
@@ -31,7 +32,7 @@ public class Configure extends InstallableUnitPhase {
 		return (op.second() != null);
 	}
 
-	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
+	protected List<ProvisioningAction> getActions(InstallableUnitOperand currentOperand) {
 		IInstallableUnit unit = currentOperand.second();
 		if (FragmentQuery.isFragment(unit))
 			return null;
@@ -42,14 +43,14 @@ public class Configure extends InstallableUnitPhase {
 		return Messages.Phase_Configure_Error;
 	}
 
-	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.second();
 		monitor.subTask(NLS.bind(Messages.Phase_Configure_Task, iu.getId()));
 		parameters.put(PARM_IU, iu);
 
-		IArtifactKey[] artifacts = iu.getArtifacts();
-		if (artifacts != null && artifacts.length > 0)
-			parameters.put(PARM_ARTIFACT, artifacts[0]);
+		List<IArtifactKey> artifacts = iu.getArtifacts();
+		if (artifacts != null && artifacts.size() > 0)
+			parameters.put(PARM_ARTIFACT, artifacts.get(0));
 
 		return Status.OK_STATUS;
 	}

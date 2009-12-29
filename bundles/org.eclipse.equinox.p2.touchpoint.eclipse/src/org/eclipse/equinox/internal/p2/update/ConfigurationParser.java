@@ -79,7 +79,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 		String locations = getAttribute(node, ATTRIBUTE_ROOT);
 		if (locations != null) {
 			StringTokenizer tokenizer = new StringTokenizer(locations, ","); //$NON-NLS-1$
-			ArrayList rootList = new ArrayList();
+			ArrayList<URL> rootList = new ArrayList<URL>();
 			while (tokenizer.hasMoreTokens()) {
 				try {
 					URL rootEntry = new URL(tokenizer.nextToken().trim());
@@ -88,7 +88,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 					// skip bad entries ...
 				}
 			}
-			URL[] roots = (URL[]) rootList.toArray(new URL[rootList.size()]);
+			URL[] roots = rootList.toArray(new URL[rootList.size()]);
 			result.setRoots(roots);
 		}
 

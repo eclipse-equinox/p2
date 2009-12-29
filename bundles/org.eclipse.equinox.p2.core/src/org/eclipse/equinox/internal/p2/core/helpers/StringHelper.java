@@ -26,7 +26,7 @@ public class StringHelper {
 				if (spec.length() > 0)
 					resultArr = new String[] {spec};
 			} else {
-				List result = new ArrayList();
+				List<String> result = new ArrayList<String>();
 				while (splitIdx >= 0) {
 					String part = spec.substring(0, splitIdx).trim();
 					if (part.length() > 0)
@@ -37,7 +37,7 @@ public class StringHelper {
 				spec = spec.trim();
 				if (spec.length() > 0)
 					result.add(spec);
-				resultArr = (String[]) result.toArray(new String[result.size()]);
+				resultArr = result.toArray(new String[result.size()]);
 			}
 		}
 		return resultArr;

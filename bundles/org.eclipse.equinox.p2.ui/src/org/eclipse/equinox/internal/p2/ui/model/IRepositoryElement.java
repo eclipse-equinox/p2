@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
  * 
  * @since 3.4
  */
-public interface IRepositoryElement {
+public interface IRepositoryElement<T> {
 
 	public URI getLocation();
 
@@ -31,5 +31,5 @@ public interface IRepositoryElement {
 
 	public void setEnabled(boolean enabled);
 
-	public IRepository getRepository(IProgressMonitor monitor);
+	public IRepository<T> getRepository(IProgressMonitor monitor);
 }

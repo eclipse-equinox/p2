@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
@@ -271,9 +270,9 @@ public class RootIUActionTest extends ActionTest {
 		IInstallableUnit iu = (IInstallableUnit) ius.get(0);
 		assertTrue(iu != null);
 		assertTrue(iu.getVersion().equals(versionArg));
-		IRequirement[] required = iu.getRequiredCapabilities();
+		List<IRequirement> required = iu.getRequiredCapabilities();
 		if ((testSpec & EMPTY) > 0)
-			assertEquals(required.length, 0);
+			assertEquals(required.size(), 0);
 		String confirmedIUs = ""; //$NON-NLS-1$
 		int numConfirmed = 0;
 
@@ -287,7 +286,7 @@ public class RootIUActionTest extends ActionTest {
 			confirmedIUs += iu_B;
 			numConfirmed++;
 		}
-		if (numConfirmed != required.length) {
+		if (numConfirmed != required.size()) {
 			debug("Not all required ius present / accounted for."); //$NON-NLS-1$
 			fail();
 		}
@@ -297,9 +296,9 @@ public class RootIUActionTest extends ActionTest {
 			debug("Confirmed \t\t  Empty"); //$NON-NLS-1$
 	}
 
-	private boolean contains(IRequirement[] required, String iu) {
-		for (int i = 0; i < required.length; i++)
-			if (((IRequiredCapability) required[i]).getName().equalsIgnoreCase(iu))
+	private boolean contains(List<IRequirement> required, String iu) {
+		for (int i = 0; i < required.size(); i++)
+			if (((IRequiredCapability) required.get(i)).getName().equalsIgnoreCase(iu))
 				return true;
 		return false;
 	}

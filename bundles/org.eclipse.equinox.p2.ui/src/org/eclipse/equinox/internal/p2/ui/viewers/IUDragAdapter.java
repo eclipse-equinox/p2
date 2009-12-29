@@ -97,7 +97,7 @@ public class IUDragAdapter extends DragSourceAdapter {
 	}
 
 	private IInstallableUnit[] getSelectedIUs() {
-		List ius = new ArrayList();
+		List<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
 
 		ISelection selection = selectionProvider.getSelection();
 		if (!(selection instanceof IStructuredSelection) || selection.isEmpty()) {
@@ -105,20 +105,20 @@ public class IUDragAdapter extends DragSourceAdapter {
 		}
 		IStructuredSelection structuredSelection = (IStructuredSelection) selection;
 
-		Iterator iter = structuredSelection.iterator();
+		Iterator<?> iter = structuredSelection.iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
+			IInstallableUnit iu = ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
 			if (iu != null) {
 				ius.add(iu);
 			}
 		}
-		return (IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]);
+		return ius.toArray(new IInstallableUnit[ius.size()]);
 	}
 
 	private boolean areOnlyIUsSelected(IStructuredSelection selection) {
-		Iterator iter = selection.iterator();
+		Iterator<?> iter = selection.iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
+			IInstallableUnit iu = ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
 			if (iu == null) {
 				return false;
 			}

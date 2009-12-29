@@ -43,7 +43,7 @@ public abstract class ArtifactRepositoryFactory {
 	 * <li>A repository already exists at that location.</li>
 	 * </ul>
 	 */
-	public abstract IArtifactRepository create(URI location, String name, String type, Map properties) throws ProvisionException;
+	public abstract IArtifactRepository create(URI location, String name, String type, Map<String, String> properties) throws ProvisionException;
 
 	/**
 	 * Returns the provisioning agent associated with this factory, or <code>null</code>

@@ -183,8 +183,8 @@ public class Publisher {
 		// if there were no errors, publish all the ius.
 		IMetadataRepository metadataRepository = info.getMetadataRepository();
 		if (metadataRepository != null) {
-			Collection ius = results.getIUs(null, null);
-			metadataRepository.addInstallableUnits((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
+			Collection<IInstallableUnit> ius = results.getIUs(null, null);
+			metadataRepository.addInstallableUnits(ius.toArray(new IInstallableUnit[ius.size()]));
 		}
 		return Status.OK_STATUS;
 	}

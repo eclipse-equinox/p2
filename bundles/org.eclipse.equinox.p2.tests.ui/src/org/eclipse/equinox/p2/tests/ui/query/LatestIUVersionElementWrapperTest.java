@@ -35,19 +35,6 @@ public class LatestIUVersionElementWrapperTest extends AvailableIUWrapperTest {
 	}
 
 	/**
-	 * Tests collecting items that LatestIUVersionElementQuery should
-	 * discard. 
-	 */
-	public void testCollectObject() {
-		LatestIUVersionQuery latestIuVersionElementQuery = new LatestIUVersionQuery();
-		Object object = new Object();
-		List list = new ArrayList();
-		list.add(object);
-		IQueryResult collector = latestIuVersionElementQuery.perform(list.iterator());
-		assertTrue("1.0", collector.isEmpty());
-	}
-
-	/**
 	 * Tests that only the latest version is collected.
 	 */
 	public void testCollectLatestIU() {

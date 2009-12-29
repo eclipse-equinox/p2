@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
+import java.net.URI;
+import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
@@ -42,8 +44,8 @@ public class QueryProvider {
 	public static final int INSTALLED_IUS = 6;
 	public static final int AVAILABLE_ARTIFACTS = 7;
 
-	private IQuery allQuery = new MatchQuery() {
-		public boolean isMatch(Object candidate) {
+	private IQuery<IInstallableUnit> allQuery = new MatchQuery<IInstallableUnit>() {
+		public boolean isMatch(IInstallableUnit candidate) {
 			return true;
 		}
 	};
@@ -56,7 +58,7 @@ public class QueryProvider {
 		// Initialize queryable, queryContext, and queryType from the element.
 		// In some cases we override this.
 		Policy policy = ui.getPolicy();
-		IQueryable queryable = element.getQueryable();
+		IQueryable<?> queryable = element.getQueryable();
 		int queryType = element.getQueryType();
 		IUViewQueryContext context = element.getQueryContext();
 		if (context == null) {
@@ -65,8 +67,8 @@ public class QueryProvider {
 		RepositoryTracker tracker = ui.getRepositoryTracker();
 		switch (queryType) {
 			case ARTIFACT_REPOS :
-				queryable = new QueryableArtifactRepositoryManager(ui, false);
-				return new ElementQueryDescriptor(queryable, new RepositoryLocationQuery(), new Collector(), new ArtifactRepositoryElementWrapper(null, element));
+				queryable = new QueryableArtifactRepositoryManager(ui, false).locationsQueriable();
+				return new ElementQueryDescriptor(queryable, new RepositoryLocationQuery(), new Collector<URI>(), new ArtifactRepositoryElementWrapper(null, element));
 
 			case AVAILABLE_IUS :
 				// Things get more complicated if the user wants to filter out installed items. 
@@ -82,21 +84,21 @@ public class QueryProvider {
 					targetProfile = ui.getSession().getProfileRegistry().getProfile(profileId);
 				}
 
-				IQuery topLevelQuery = policy.getVisibleAvailableIUQuery();
-				IQuery categoryQuery = new CategoryQuery();
+				IQuery<IInstallableUnit> topLevelQuery = policy.getVisibleAvailableIUQuery();
+				IQuery<IInstallableUnit> categoryQuery = new CategoryQuery();
 
 				// Showing child IU's of a group of repositories, or of a single repository
 				if (element instanceof MetadataRepositories || element instanceof MetadataRepositoryElement) {
 					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT || !context.getUseCategories()) {
 						AvailableIUWrapper wrapper = new AvailableIUWrapper(queryable, element, false, context.getShowAvailableChildren());
 						if (showLatest)
-							topLevelQuery = new PipedQuery(new IQuery[] {topLevelQuery, new LatestIUVersionQuery()});
+							topLevelQuery = new PipedQuery<IInstallableUnit>(topLevelQuery, new LatestIUVersionQuery<IInstallableUnit>());
 						if (targetProfile != null)
 							wrapper.markInstalledIUs(targetProfile, hideInstalled);
-						return new ElementQueryDescriptor(queryable, topLevelQuery, new Collector(), wrapper);
+						return new ElementQueryDescriptor(queryable, topLevelQuery, new Collector<Object>(), wrapper);
 					}
 					// Installed content not a concern for collecting categories
-					return new ElementQueryDescriptor(queryable, categoryQuery, new Collector(), new CategoryElementWrapper(queryable, element));
+					return new ElementQueryDescriptor(queryable, categoryQuery, new Collector<Object>(), new CategoryElementWrapper(queryable, element));
 				}
 
 				// If it's a category or some other IUElement to drill down in, we get the requirements and show all requirements
@@ -105,7 +107,7 @@ public class QueryProvider {
 					// children of a category should drill down according to the context.  If we aren't in a category, we are already drilling down and
 					// continue to do so.
 					boolean drillDown = element instanceof CategoryElement ? context.getShowAvailableChildren() : true;
-					IQuery memberOfCategoryQuery = new CategoryMemberQuery(((IIUElement) element).getIU());
+					IQuery<IInstallableUnit> memberOfCategoryQuery = new CategoryMemberQuery(((IIUElement) element).getIU());
 					availableIUWrapper = new AvailableIUWrapper(queryable, element, true, drillDown);
 					if (targetProfile != null)
 						availableIUWrapper.markInstalledIUs(targetProfile, hideInstalled);
@@ -113,14 +115,15 @@ public class QueryProvider {
 					// be visible in the category.
 					if (element instanceof CategoryElement) {
 						if (showLatest)
-							memberOfCategoryQuery = new PipedQuery(new IQuery[] {memberOfCategoryQuery, new LatestIUVersionQuery()});
-						return new ElementQueryDescriptor(queryable, memberOfCategoryQuery, new Collector(), availableIUWrapper);
+							memberOfCategoryQuery = new PipedQuery<IInstallableUnit>(memberOfCategoryQuery, new LatestIUVersionQuery<IInstallableUnit>());
+						return new ElementQueryDescriptor(queryable, memberOfCategoryQuery, new Collector<Object>(), availableIUWrapper);
 					}
-					IQuery query = CompoundQuery.createCompoundQuery(new IQuery[] {topLevelQuery, memberOfCategoryQuery}, true);
+					@SuppressWarnings("unchecked")
+					IQuery<IInstallableUnit> query = CompoundQuery.createCompoundQuery(new IQuery[] {topLevelQuery, memberOfCategoryQuery}, true);
 					if (showLatest)
-						query = new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()});
+						query = new PipedQuery<IInstallableUnit>(query, new LatestIUVersionQuery<IInstallableUnit>());
 					// If it's not a category, these are generic requirements and should be filtered by the visibility property (topLevelQuery)
-					return new ElementQueryDescriptor(queryable, query, new Collector(), availableIUWrapper);
+					return new ElementQueryDescriptor(queryable, query, new Collector<Object>(), availableIUWrapper);
 				}
 				return null;
 
@@ -133,55 +136,58 @@ public class QueryProvider {
 					profile = ui.getSession().getProfileRegistry().getProfile(((Updates) element).getProfileId());
 					toUpdate = ((Updates) element).getIUs();
 				} else {
-					profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
+					profile = ProvUI.getAdapter(element, IProfile.class);
 				}
 				if (profile == null)
 					return null;
 				if (toUpdate == null) {
-					IQueryResult queryResult = profile.query(policy.getVisibleInstalledIUQuery(), null);
-					toUpdate = (IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class);
+					IQueryResult<IInstallableUnit> queryResult = profile.query(policy.getVisibleInstalledIUQuery(), null);
+					toUpdate = queryResult.toArray(IInstallableUnit.class);
 				}
 				QueryableUpdates updateQueryable = new QueryableUpdates(ui, toUpdate);
-				return new ElementQueryDescriptor(updateQueryable, context.getShowLatestVersionsOnly() ? new LatestIUVersionQuery() : allQuery, new Collector());
+				return new ElementQueryDescriptor(updateQueryable, context.getShowLatestVersionsOnly() ? new LatestIUVersionQuery<IInstallableUnit>() : allQuery, new Collector<Object>());
 
 			case INSTALLED_IUS :
 				// Querying of IU's.  We are drilling down into the requirements.
 				if (element instanceof IIUElement && context.getShowInstallChildren()) {
-					IRequirement[] reqs = ((IIUElement) element).getRequirements();
-					IQuery[] meetsAnyRequirementQuery = new IQuery[reqs.length];
+					List<IRequirement> reqs = ((IIUElement) element).getRequirements();
+					@SuppressWarnings("unchecked")
+					IQuery<IInstallableUnit>[] meetsAnyRequirementQuery = new IQuery[reqs.size()];
 					for (int i = 0; i < meetsAnyRequirementQuery.length; i++) {
-						meetsAnyRequirementQuery[i] = reqs[i].getMatches();
+						meetsAnyRequirementQuery[i] = reqs.get(i).getMatches();
 					}
-					IQuery visibleAsAvailableQuery = policy.getVisibleAvailableIUQuery();
-					return new ElementQueryDescriptor(queryable, CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, CompoundQuery.createCompoundQuery(meetsAnyRequirementQuery, false)}, true), new Collector(), new InstalledIUElementWrapper(queryable, element));
+					IQuery<IInstallableUnit> visibleAsAvailableQuery = policy.getVisibleAvailableIUQuery();
+					@SuppressWarnings("unchecked")
+					CompoundQuery<IInstallableUnit> createCompoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, CompoundQuery.createCompoundQuery(meetsAnyRequirementQuery, false)}, true);
+					return new ElementQueryDescriptor(queryable, createCompoundQuery, new Collector<IInstallableUnit>(), new InstalledIUElementWrapper(queryable, element));
 				}
-				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
+				profile = ProvUI.getAdapter(element, IProfile.class);
 				if (profile == null)
 					return null;
-				return new ElementQueryDescriptor(profile, policy.getVisibleInstalledIUQuery(), new Collector(), new InstalledIUElementWrapper(profile, element));
+				return new ElementQueryDescriptor(profile, policy.getVisibleInstalledIUQuery(), new Collector<IInstallableUnit>(), new InstalledIUElementWrapper(profile, element));
 
 			case METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {
 					if (queryable == null) {
-						queryable = new QueryableMetadataRepositoryManager(ui, ((MetadataRepositories) element).getIncludeDisabledRepositories());
+						queryable = new QueryableMetadataRepositoryManager(ui, ((MetadataRepositories) element).getIncludeDisabledRepositories()).locationsQueriable();
 						element.setQueryable(queryable);
 					}
-					return new ElementQueryDescriptor(element.getQueryable(), new RepositoryLocationQuery(), new Collector(), new MetadataRepositoryElementWrapper(null, element));
+					return new ElementQueryDescriptor(element.getQueryable(), new RepositoryLocationQuery(), new Collector<URI>(), new MetadataRepositoryElementWrapper(null, element));
 				}
 				return null;
 
 			case PROFILES :
 				queryable = new QueryableProfileRegistry(ui);
-				return new ElementQueryDescriptor(queryable, new MatchQuery() {
+				return new ElementQueryDescriptor(queryable, new MatchQuery<Object>() {
 					public boolean isMatch(Object candidate) {
 						return ProvUI.getAdapter(candidate, IProfile.class) != null;
 					}
-				}, new Collector(), new ProfileElementWrapper(null, element));
+				}, new Collector<Object>(), new ProfileElementWrapper(null, element));
 
 			case AVAILABLE_ARTIFACTS :
 				if (!(queryable instanceof IArtifactRepository))
 					return null;
-				return new ElementQueryDescriptor(queryable, ArtifactKeyQuery.ALL_KEYS, new Collector(), new ArtifactKeyWrapper((IArtifactRepository) queryable, element));
+				return new ElementQueryDescriptor(queryable, ArtifactKeyQuery.ALL_KEYS, new Collector<Object>(), new ArtifactKeyWrapper((IArtifactRepository) queryable, element));
 
 			default :
 				return null;

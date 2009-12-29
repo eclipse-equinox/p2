@@ -63,10 +63,10 @@ public class IUPropertyUtils {
 	}
 
 	public ILicense[] getLicenses(IInstallableUnit iu, Locale locale) {
-		ILicense[] licenses = iu.getLicenses();
-		ILicense[] translatedLicenses = new ILicense[licenses.length];
-		for (int i = 0; i < licenses.length; i++) {
-			translatedLicenses[i] = getLicense(iu, licenses[i], locale);
+		List<ILicense> licenses = iu.getLicenses();
+		ILicense[] translatedLicenses = new ILicense[licenses.size()];
+		for (int i = 0; i < licenses.size(); i++) {
+			translatedLicenses[i] = getLicense(iu, licenses.get(i), locale);
 		}
 		return translatedLicenses;
 	}
@@ -125,7 +125,7 @@ public class IUPropertyUtils {
 			}
 		};
 
-		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), hostLocalizationQuery});
+		IQuery iuQuery = new PipedQuery(new FragmentQuery(), hostLocalizationQuery);
 		IQueryResult collected = iuQuery.perform(localizationFragments.iterator());
 
 		if (!collected.isEmpty()) {
@@ -182,9 +182,9 @@ public class IUPropertyUtils {
 				boolean haveLocale = false;
 				if (object instanceof IInstallableUnitFragment) {
 					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
-					IProvidedCapability[] provides = fragment.getProvidedCapabilities();
-					for (int j = 0; j < provides.length && !haveLocale; j++) {
-						IProvidedCapability nextProvide = provides[j];
+					List<IProvidedCapability> provides = fragment.getProvidedCapabilities();
+					for (int j = 0; j < provides.size() && !haveLocale; j++) {
+						IProvidedCapability nextProvide = provides.get(j);
 						if (NAMESPACE_IU_LOCALIZATION.equals(nextProvide.getNamespace())) {
 							String providedLocale = nextProvide.getName();
 							if (providedLocale != null) {
@@ -202,7 +202,7 @@ public class IUPropertyUtils {
 			}
 		};
 
-		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), localeFragmentQuery});
+		IQuery iuQuery = new PipedQuery(new FragmentQuery(), localeFragmentQuery);
 		IQueryResult collected = queryable.query(iuQuery, null);
 		LocaleCollectorCache.put(locale, new SoftReference(collected));
 		return collected;

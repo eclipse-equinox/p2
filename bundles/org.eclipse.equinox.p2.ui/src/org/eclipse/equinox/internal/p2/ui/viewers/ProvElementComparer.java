@@ -56,21 +56,21 @@ public class ProvElementComparer implements IElementComparer {
 	}
 
 	private IInstallableUnit getIU(Object obj) {
-		return (IInstallableUnit) ProvUI.getAdapter(obj, IInstallableUnit.class);
+		return ProvUI.getAdapter(obj, IInstallableUnit.class);
 	}
 
 	private String getProfileId(Object obj) {
 		if (obj instanceof ProfileElement)
 			return ((ProfileElement) obj).getLabel(obj);
-		IProfile profile = (IProfile) ProvUI.getAdapter(obj, IProfile.class);
+		IProfile profile = ProvUI.getAdapter(obj, IProfile.class);
 		if (profile == null)
 			return null;
 		return profile.getProfileId();
 	}
 
 	private URI getRepositoryLocation(Object obj) {
-		if (obj instanceof IRepositoryElement)
-			return ((IRepositoryElement) obj).getLocation();
+		if (obj instanceof IRepositoryElement<?>)
+			return ((IRepositoryElement<?>) obj).getLocation();
 		return null;
 	}
 

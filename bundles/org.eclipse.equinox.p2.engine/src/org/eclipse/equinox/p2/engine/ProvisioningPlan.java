@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -24,12 +25,12 @@ import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 public class ProvisioningPlan implements IProvisioningPlan {
 	IStatus status;
 	Operand[] operands;
-	Map actualChangeRequest;
-	Map sideEffectChanges;
+	Map<IInstallableUnit, IStatus> actualChangeRequest;
+	Map<IInstallableUnit, IStatus> sideEffectChanges;
 	IProvisioningPlan installerPlan;
 	IStatus globalRequestStatus;
 	IProfile profile;
-	IQueryable completeState;
+	IQueryable<IInstallableUnit> completeState;
 	private final ProvisioningContext context;
 
 	public ProvisioningPlan(IProfile profile, Operand[] operands, ProvisioningContext context) {
@@ -40,7 +41,7 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		this(status, new Operand[0], null, null, installerPlan, profile, null, null);
 	}
 
-	public ProvisioningPlan(IStatus status, Operand[] operands, Map[] actualChangeRequest, IStatus globalStatus, IProvisioningPlan installerPlan, IProfile profile, IQueryable futureState, ProvisioningContext context) {
+	public ProvisioningPlan(IStatus status, Operand[] operands, Map<IInstallableUnit, IStatus>[] actualChangeRequest, IStatus globalStatus, IProvisioningPlan installerPlan, IProfile profile, IQueryable<IInstallableUnit> futureState, ProvisioningContext context) {
 		this.status = status;
 		this.operands = operands;
 		if (actualChangeRequest != null) {
@@ -51,9 +52,9 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		this.installerPlan = installerPlan;
 		this.profile = profile;
 		if (futureState == null) {
-			futureState = new IQueryable() {
-				public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-					return Collector.EMPTY_COLLECTOR;
+			futureState = new IQueryable<IInstallableUnit>() {
+				public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+					return Collector.emptyCollector();
 				}
 			};
 		}
@@ -87,14 +88,14 @@ public class ProvisioningPlan implements IProvisioningPlan {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getRemovals()
 	 */
-	public IQueryable getRemovals() {
+	public IQueryable<IInstallableUnit> getRemovals() {
 		return new QueryablePlan(false);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getAdditions()
 	 */
-	public IQueryable getAdditions() {
+	public IQueryable<IInstallableUnit> getAdditions() {
 		return new QueryablePlan(true);
 	}
 
@@ -104,7 +105,7 @@ public class ProvisioningPlan implements IProvisioningPlan {
 	public IStatus getRequestStatus(IInstallableUnit iu) {
 		if (actualChangeRequest == null)
 			return null;
-		return (IStatus) actualChangeRequest.get(iu);
+		return actualChangeRequest.get(iu);
 	}
 
 	public IStatus getRequestStatus() {
@@ -114,23 +115,23 @@ public class ProvisioningPlan implements IProvisioningPlan {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getSideEffectChanges()
 	 */
-	public Map getSideEffectChanges() {
+	public Map<IInstallableUnit, IStatus> getSideEffectChanges() {
 		if (sideEffectChanges == null)
-			return Collections.EMPTY_MAP;
+			return CollectionUtils.emptyMap();
 		return sideEffectChanges;
 	}
 
-	private class QueryablePlan implements IQueryable {
+	private class QueryablePlan implements IQueryable<IInstallableUnit> {
 		private boolean addition;
 
 		public QueryablePlan(boolean add) {
 			this.addition = add;
 		}
 
-		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 			if (operands == null || status.getSeverity() == IStatus.ERROR)
-				return Collector.EMPTY_COLLECTOR;
-			Collection list = new ArrayList();
+				return Collector.emptyCollector();
+			Collection<IInstallableUnit> list = new ArrayList<IInstallableUnit>();
 			for (int i = 0; i < operands.length; i++) {
 				if (!(operands[i] instanceof InstallableUnitOperand))
 					continue;
@@ -158,7 +159,7 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		installerPlan = p;
 	}
 
-	public IQueryable getCompleteState() {
+	public IQueryable<IInstallableUnit> getCompleteState() {
 		return completeState;
 	}
 }

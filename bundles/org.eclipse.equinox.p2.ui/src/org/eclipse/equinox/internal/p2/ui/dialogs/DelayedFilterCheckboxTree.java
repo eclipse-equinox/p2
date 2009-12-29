@@ -48,8 +48,8 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	WorkbenchJob filterJob;
 	boolean ignoreFiltering = true;
 	Object viewerInput;
-	ArrayList checkState = new ArrayList();
-	Set expanded = new HashSet();
+	ArrayList<Object> checkState = new ArrayList<Object>();
+	Set<Object> expanded = new HashSet<Object>();
 	ContainerCheckedTreeViewer checkboxViewer;
 
 	public DelayedFilterCheckboxTree(Composite parent, int treeStyle, PatternFilter filter) {
@@ -66,8 +66,8 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				// We use an additive check state cache so we need to remove
 				// previously checked items if the user unchecked them.
 				if (!event.getChecked() && checkState != null) {
-					Iterator iter = checkState.iterator();
-					ArrayList toRemove = new ArrayList(1);
+					Iterator<Object> iter = checkState.iterator();
+					ArrayList<Object> toRemove = new ArrayList<Object>(1);
 					while (iter.hasNext()) {
 						Object element = iter.next();
 						if (checkboxViewer.getComparer().equals(element, event.getElement())) {
@@ -256,7 +256,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		ContainerCheckedTreeViewer v = (ContainerCheckedTreeViewer) getViewer();
 		Object[] checked = v.getCheckedElements();
 		if (checkState == null)
-			checkState = new ArrayList(checked.length);
+			checkState = new ArrayList<Object>(checked.length);
 		for (int i = 0; i < checked.length; i++)
 			if (!v.getGrayed(checked[i]) && contentProvider.getChildren(checked[i]).length == 0)
 				if (!checkState.contains(checked[i]))
@@ -273,7 +273,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		checkboxViewer.setGrayedElements(new Object[0]);
 		// Now we are only going to set the check state of the leaf nodes
 		// and rely on our container checked code to update the parents properly.
-		Iterator iter = checkState.iterator();
+		Iterator<Object> iter = checkState.iterator();
 		Object element = null;
 		if (iter.hasNext())
 			checkboxViewer.expandAll();

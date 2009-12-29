@@ -29,7 +29,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
-	public IMetadataRepository create(URI location, String name, String type, Map properties) {
+	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) {
 		if (location.getScheme().equals("file")) //$NON-NLS-1$
 			return new LocalMetadataRepository(location, name, properties);
 		return new URLMetadataRepository(location, name, properties);

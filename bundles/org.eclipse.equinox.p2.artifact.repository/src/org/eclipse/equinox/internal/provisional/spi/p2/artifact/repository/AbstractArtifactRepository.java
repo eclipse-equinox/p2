@@ -20,9 +20,9 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
-public abstract class AbstractArtifactRepository extends AbstractRepository implements IArtifactRepository {
+public abstract class AbstractArtifactRepository extends AbstractRepository<IArtifactKey> implements IArtifactRepository {
 
-	protected AbstractArtifactRepository(String name, String type, String version, URI location, String description, String provider, Map properties) {
+	protected AbstractArtifactRepository(String name, String type, String version, URI location, String description, String provider, Map<String, String> properties) {
 		super(name, type, version, location, description, provider, properties);
 	}
 

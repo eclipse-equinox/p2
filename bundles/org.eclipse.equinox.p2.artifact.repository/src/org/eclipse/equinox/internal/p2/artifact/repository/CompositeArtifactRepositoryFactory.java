@@ -124,7 +124,7 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 		}
 	}
 
-	public IArtifactRepository create(URI location, String name, String type, Map properties) {
+	public IArtifactRepository create(URI location, String name, String type, Map<String, String> properties) {
 		return new CompositeArtifactRepository(getManager(), location, name, properties);
 	}
 

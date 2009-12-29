@@ -52,13 +52,13 @@ public class FeaturesAndBundlesPublisherApplication extends AbstractPublisherApp
 	}
 
 	protected IPublisherAction[] createActions() {
-		ArrayList result = new ArrayList();
+		ArrayList<IPublisherAction> result = new ArrayList<IPublisherAction>();
 		if (features == null)
 			features = new File[] {new File(source, "features")}; //$NON-NLS-1$
 		result.add(new FeaturesAction(features));
 		if (bundles == null)
 			bundles = new File[] {new File(source, "plugins")}; //$NON-NLS-1$
 		result.add(new BundlesAction(bundles));
-		return (IPublisherAction[]) result.toArray(new IPublisherAction[result.size()]);
+		return result.toArray(new IPublisherAction[result.size()]);
 	}
 }

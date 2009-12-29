@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionFormat;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -29,7 +30,7 @@ public class OSGiVersion extends BasicVersion {
 
 	private final int micro;
 
-	private final Comparable qualifier;
+	private final Comparable<?> qualifier;
 
 	static {
 		allowedOSGiChars = new boolean[128];
@@ -43,7 +44,7 @@ public class OSGiVersion extends BasicVersion {
 		allowedOSGiChars['-'] = true;
 	}
 
-	public static boolean isValidOSGiQualifier(Comparable e) {
+	public static boolean isValidOSGiQualifier(Comparable<?> e) {
 		if (e == VersionVector.MAXS_VALUE)
 			return true;
 
@@ -61,7 +62,7 @@ public class OSGiVersion extends BasicVersion {
 		return true;
 	}
 
-	static BasicVersion fromVector(Comparable[] vector, Comparable pad) {
+	static BasicVersion fromVector(Comparable<?>[] vector, Comparable<? extends Object> pad) {
 		if (vector.length != 4) {
 			if (vector.length == 0) {
 				if (pad == null)
@@ -74,11 +75,11 @@ public class OSGiVersion extends BasicVersion {
 		int major = ((Integer) vector[0]).intValue();
 		int minor = ((Integer) vector[1]).intValue();
 		int micro = ((Integer) vector[2]).intValue();
-		Comparable qualifier = vector[3];
+		Comparable<?> qualifier = vector[3];
 		return (major == 0 && minor == 0 && micro == 0 && qualifier == VersionVector.MINS_VALUE) ? (BasicVersion) emptyVersion : new OSGiVersion(major, minor, micro, qualifier);
 	}
 
-	public OSGiVersion(int major, int minor, int micro, Comparable qualifier) {
+	public OSGiVersion(int major, int minor, int micro, Comparable<? extends Object> qualifier) {
 		this.major = major;
 		this.minor = minor;
 		this.micro = micro;
@@ -87,7 +88,7 @@ public class OSGiVersion extends BasicVersion {
 		this.qualifier = qualifier;
 	}
 
-	public int compareTo(Object v) {
+	public int compareTo(Version v) {
 		int result;
 		if (!(v instanceof OSGiVersion)) {
 			BasicVersion ov = (BasicVersion) v;
@@ -100,7 +101,7 @@ public class OSGiVersion extends BasicVersion {
 				if (result == 0) {
 					result = micro - ov.micro;
 					if (result == 0)
-						result = qualifier.compareTo(ov.qualifier);
+						result = VersionVector.compareSegments(qualifier, ov.qualifier);
 				}
 			}
 		}
@@ -183,15 +184,15 @@ public class OSGiVersion extends BasicVersion {
 		}
 	}
 
-	public Comparable[] getVector() {
+	public Comparable<?>[] getVector() {
 		return new Comparable[] {VersionParser.valueOf(major), VersionParser.valueOf(minor), VersionParser.valueOf(micro), qualifier};
 	}
 
-	public Comparable getPad() {
+	public Comparable<?> getPad() {
 		return null;
 	}
 
-	public Comparable getSegment(int index) {
+	public Comparable<?> getSegment(int index) {
 		switch (index) {
 			case 0 :
 				return VersionParser.valueOf(major);

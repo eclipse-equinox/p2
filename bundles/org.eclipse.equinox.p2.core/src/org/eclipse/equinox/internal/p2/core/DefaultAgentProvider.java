@@ -31,7 +31,7 @@ public class DefaultAgentProvider implements IProvisioningAgentProvider {
 		result.setBundleContext(context);
 		result.setLocation(location);
 		IAgentLocation agentLocation = (IAgentLocation) result.getService(IAgentLocation.SERVICE_NAME);
-		Dictionary properties = new Hashtable(5);
+		Dictionary<String, Object> properties = new Hashtable<String, Object>(5);
 		if (agentLocation != null)
 			properties.put("locationURI", String.valueOf(agentLocation.getRootLocation())); //$NON-NLS-1$
 		//make the currently running system have a higher service ranking

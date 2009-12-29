@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.util.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
 
 /**
@@ -18,15 +19,15 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
  */
 public abstract class ElementWrapper {
 
-	private Collection collection = null;
+	private Collection<Object> collection = null;
 
 	/**
 	 * Transforms a collector returned by a query to a collection
 	 * of UI elements
 	 */
-	public Collection getElements(Collector collector) {
-		collection = new ArrayList(collector.size());
-		Iterator iter = collector.iterator();
+	public Collection<?> getElements(Collector<?> collector) {
+		collection = new ArrayList<Object>(collector.size());
+		Iterator<?> iter = collector.iterator();
 		while (iter.hasNext()) {
 			Object o = iter.next();
 			if (shouldWrap(o))
@@ -38,8 +39,8 @@ public abstract class ElementWrapper {
 	/**
 	 * Gets the collection where the elements are being stored.
 	 */
-	protected Collection getCollection() {
-		return collection == null ? Collections.EMPTY_LIST : collection;
+	protected Collection<?> getCollection() {
+		return collection == null ? CollectionUtils.emptyList() : collection;
 	}
 
 	/**

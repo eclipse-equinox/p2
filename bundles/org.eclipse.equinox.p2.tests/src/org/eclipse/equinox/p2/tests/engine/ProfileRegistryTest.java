@@ -13,7 +13,8 @@ package org.eclipse.equinox.p2.tests.engine;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -112,7 +113,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	public void testPropertyPeristence() throws ProvisionException {
 		assertNull(registry.getProfile(PROFILE_NAME));
-		Properties properties = new Properties();
+		Map<String, String> properties = new HashMap<String, String>();
 		properties.put("test", "test");
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
 		assertTrue(profile.getProperties().containsKey("test"));
@@ -158,7 +159,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	}
 
 	public void testIUPropertyPeristence() throws ProvisionException {
-		Properties properties = new Properties();
+		Map<String, String> properties = new HashMap<String, String>();
 		properties.put("test", "test");
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
@@ -191,7 +192,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	public void testTimestampedProfiles() throws ProvisionException {
 		assertNull(registry.getProfile(PROFILE_NAME));
-		Properties properties = new Properties();
+		Map<String, String> properties = new HashMap<String, String>();
 		properties.put("test", "test");
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
 		long oldtimestamp = profile.getTimestamp();
@@ -218,7 +219,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	public void testIsCurrent() throws Exception {
 		assertNull(registry.getProfile(PROFILE_NAME));
-		Properties properties = new Properties();
+		Map<String, String> properties = new HashMap<String, String>();
 		properties.put("test", "test");
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
 
@@ -661,7 +662,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	public void testRemoveProfileTimestamps() throws ProvisionException {
 		assertNull(registry.getProfile(PROFILE_NAME));
-		Properties properties = new Properties();
+		Map<String, String> properties = new HashMap<String, String>();
 		properties.put("test", "test");
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
 		assertTrue(profile.getProperties().containsKey("test"));

@@ -23,14 +23,14 @@ public class RemoveProgramArgumentAction extends ProvisioningAction {
 	public static final String ID = "removeProgramArg"; //$NON-NLS-1$
 	public static final String EMPTY_ARGUMENT = ""; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String programArg = (String) parameters.get(ActionConstants.PARM_PROGRAM_ARG);
 		if (programArg == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_PROGRAM_ARG, ID));
 
 		if (programArg.startsWith("-")) {//$NON-NLS-1$
-			List programArgs = Arrays.asList(manipulator.getLauncherData().getProgramArgs());
+			List<String> programArgs = Arrays.asList(manipulator.getLauncherData().getProgramArgs());
 
 			int index = programArgs.indexOf(programArg);
 			if (index == -1)
@@ -38,7 +38,7 @@ public class RemoveProgramArgumentAction extends ProvisioningAction {
 
 			index++; // move index to potential programArgValue
 			if (programArgs.size() > index) {
-				String programArgValue = (String) programArgs.get(index);
+				String programArgValue = programArgs.get(index);
 				if (!programArgValue.startsWith("-")) //$NON-NLS-1$
 					getMemento().put(ActionConstants.PARM_PROGRAM_ARG_VALUE, programArgValue);
 			}
@@ -48,7 +48,7 @@ public class RemoveProgramArgumentAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String programArg = (String) parameters.get(ActionConstants.PARM_PROGRAM_ARG);
 		if (programArg == null)

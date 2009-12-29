@@ -577,7 +577,7 @@ public final class Signature {
 			if (methodOrTypeSignature[0] != C_GENERIC_START)
 				return CharOperation.NO_CHAR_CHAR;
 
-			ArrayList paramList = new ArrayList(1);
+			ArrayList<char[]> paramList = new ArrayList<char[]>(1);
 			int paramStart = 1, i = 1; // start after leading '<'
 			while (i < length) {
 				if (methodOrTypeSignature[i] == C_GENERIC_END) {

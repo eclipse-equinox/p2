@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
@@ -125,7 +126,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 			computeSizing(op.getProvisioningPlan(), op.getProvisioningContext());
 	}
 
-	protected IQueryable getQueryable(IProvisioningPlan plan) {
+	protected IQueryable<IInstallableUnit> getQueryable(IProvisioningPlan plan) {
 		return plan.getAdditions();
 	}
 }

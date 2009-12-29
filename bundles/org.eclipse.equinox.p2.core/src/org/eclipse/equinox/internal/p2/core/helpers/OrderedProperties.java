@@ -26,11 +26,11 @@ import java.util.*;
  * The class does not support default properties as they can be expressed by 
  * creating java.util.Properties hierarchies.
  */
-public class OrderedProperties extends Dictionary implements Map {
+public class OrderedProperties extends Dictionary<String, String> implements Map<String, String> {
 
-	LinkedHashMap propertyMap = null;
+	LinkedHashMap<String, String> propertyMap = null;
 
-	public static OrderedProperties unmodifiableProperties(Map properties) {
+	public static OrderedProperties unmodifiableProperties(Map<String, String> properties) {
 		return new UnmodifiableProperties(properties);
 	}
 
@@ -40,12 +40,12 @@ public class OrderedProperties extends Dictionary implements Map {
 
 	public OrderedProperties(int size) {
 		super();
-		propertyMap = new LinkedHashMap(size);
+		propertyMap = new LinkedHashMap<String, String>(size);
 	}
 
 	public OrderedProperties(OrderedProperties properties) {
 		super();
-		propertyMap = new LinkedHashMap(properties.size());
+		propertyMap = new LinkedHashMap<String, String>(properties.size());
 		putAll(properties);
 	}
 
@@ -67,11 +67,11 @@ public class OrderedProperties extends Dictionary implements Map {
 	}
 
 	public String getProperty(String key) {
-		return (String) (propertyMap == null ? null : propertyMap.get(key));
+		return (propertyMap == null ? null : propertyMap.get(key));
 	}
 
 	public void putAll(OrderedProperties properties) {
-		putAll((Map) properties);
+		putAll(properties);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class OrderedProperties extends Dictionary implements Map {
 	 */
 	private void init() {
 		if (propertyMap == null) {
-			propertyMap = new LinkedHashMap();
+			propertyMap = new LinkedHashMap<String, String>();
 		}
 	}
 
@@ -95,9 +95,9 @@ public class OrderedProperties extends Dictionary implements Map {
 		propertyMap = null;
 	}
 
-	public Object put(Object arg0, Object arg1) {
+	public String put(String key, String value) {
 		init();
-		return propertyMap.put(arg0, arg1);
+		return propertyMap.put(key, value);
 	}
 
 	public boolean containsKey(Object key) {
@@ -108,29 +108,29 @@ public class OrderedProperties extends Dictionary implements Map {
 		return propertyMap != null ? propertyMap.containsValue(value) : false;
 	}
 
-	public Set entrySet() {
-		return propertyMap != null ? propertyMap.entrySet() : Collections.EMPTY_SET;
+	public Set<Map.Entry<String, String>> entrySet() {
+		return propertyMap != null ? propertyMap.entrySet() : CollectionUtils.<Map.Entry<String, String>> emptySet();
 	}
 
-	public Object get(Object key) {
+	public String get(Object key) {
 		return propertyMap != null ? propertyMap.get(key) : null;
 	}
 
-	public Set keySet() {
-		return propertyMap != null ? propertyMap.keySet() : Collections.EMPTY_SET;
+	public Set<String> keySet() {
+		return propertyMap != null ? propertyMap.keySet() : CollectionUtils.<String> emptySet();
 	}
 
-	public void putAll(Map arg0) {
+	public void putAll(Map<? extends String, ? extends String> arg0) {
 		init();
 		propertyMap.putAll(arg0);
 	}
 
-	public Object remove(Object key) {
+	public String remove(Object key) {
 		return propertyMap != null ? propertyMap.remove(key) : null;
 	}
 
-	public Collection values() {
-		return propertyMap != null ? propertyMap.values() : Collections.EMPTY_LIST;
+	public Collection<String> values() {
+		return propertyMap != null ? propertyMap.values() : CollectionUtils.<String> emptyList();
 	}
 
 	public boolean equals(Object o) {
@@ -147,8 +147,8 @@ public class OrderedProperties extends Dictionary implements Map {
 			return rhs.propertyMap.equals(this.propertyMap);
 		}
 		if (this.propertyMap == null) {
-			if (o instanceof Map)
-				return ((Map) o).isEmpty();
+			if (o instanceof Map<?, ?>)
+				return ((Map<?, ?>) o).isEmpty();
 			return false;
 		}
 		return this.propertyMap.equals(o);
@@ -164,54 +164,37 @@ public class OrderedProperties extends Dictionary implements Map {
 		return sb.toString();
 	}
 
-	private class ElementsEnum implements Enumeration {
+	private class StringsEnum implements Enumeration<String> {
 
-		Iterator iterator = null;
+		private final Iterator<String> iterator;
 
-		public ElementsEnum(OrderedProperties properties) {
-			iterator = properties.propertyMap.values().iterator();
+		public StringsEnum(Collection<String> elems) {
+			this.iterator = elems.iterator();
 		}
 
 		public boolean hasMoreElements() {
 			return iterator.hasNext();
 		}
 
-		public Object nextElement() {
+		public String nextElement() {
 			return iterator.next();
 		}
 	}
 
-	public Enumeration elements() {
-		return new ElementsEnum(this);
+	public Enumeration<String> elements() {
+		return new StringsEnum(propertyMap.values());
 	}
 
-	private class KeysEnum implements Enumeration {
-
-		Iterator iterator = null;
-
-		public KeysEnum(OrderedProperties properties) {
-			iterator = properties.propertyMap.keySet().iterator();
-		}
-
-		public boolean hasMoreElements() {
-			return iterator.hasNext();
-		}
-
-		public Object nextElement() {
-			return iterator.next();
-		}
-	}
-
-	public Enumeration keys() {
-		return new KeysEnum(this);
+	public Enumeration<String> keys() {
+		return new StringsEnum(propertyMap.keySet());
 	}
 
 	private static class UnmodifiableProperties extends OrderedProperties {
 
-		UnmodifiableProperties(Map properties) {
+		UnmodifiableProperties(Map<String, String> properties) {
 			super();
-			for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
-				Map.Entry entry = (Map.Entry) iter.next();
+			for (Iterator<Map.Entry<String, String>> iter = properties.entrySet().iterator(); iter.hasNext();) {
+				Map.Entry<String, String> entry = iter.next();
 				super.put(entry.getKey(), entry.getValue());
 			}
 		}
@@ -220,15 +203,15 @@ public class OrderedProperties extends Dictionary implements Map {
 			throw new UnsupportedOperationException();
 		}
 
-		public synchronized Object put(Object key, Object value) {
+		public synchronized String put(String key, String value) {
 			throw new UnsupportedOperationException();
 		}
 
-		public synchronized Object remove(Object key) {
+		public synchronized String remove(Object key) {
 			throw new UnsupportedOperationException();
 		}
 
-		public synchronized void putAll(Map t) {
+		public synchronized void putAll(Map<? extends String, ? extends String> t) {
 			throw new UnsupportedOperationException();
 		}
 

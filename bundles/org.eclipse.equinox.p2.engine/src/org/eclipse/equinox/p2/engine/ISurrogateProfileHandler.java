@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.engine;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
@@ -23,7 +24,7 @@ public interface ISurrogateProfileHandler {
 
 	public abstract boolean isSurrogate(IProfile profile);
 
-	public abstract IQueryResult queryProfile(IProfile profile, IQuery query, IProgressMonitor monitor);
+	public abstract IQueryResult<IInstallableUnit> queryProfile(IProfile profile, IQuery<IInstallableUnit> query, IProgressMonitor monitor);
 
 	public abstract boolean updateProfile(IProfile selfProfile);
 

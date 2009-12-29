@@ -21,21 +21,18 @@ import org.eclipse.equinox.p2.repository.artifact.*;
 
 public class DownloadManager {
 	private ProvisioningContext provContext = null;
-	ArrayList requestsToProcess = new ArrayList();
+	ArrayList<IArtifactRequest> requestsToProcess = new ArrayList<IArtifactRequest>();
 
 	private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
 
 	/**
-	 * This Comparator sorts the repositories such that ´local´ repositories are first
+	 * This Comparator sorts the repositories such that ï¿½localï¿½ repositories are first
 	 */
-	private static final Comparator LOCAL_FIRST_COMPARATOR = new Comparator() {
+	private static final Comparator<URI> LOCAL_FIRST_COMPARATOR = new Comparator<URI>() {
 
-		public int compare(Object arg0, Object arg1) {
-			Assert.isTrue(arg0 instanceof URI);
-			Assert.isTrue(arg1 instanceof URI);
-
-			String protocol0 = ((URI) arg0).getScheme();
-			String protocol1 = ((URI) arg1).getScheme();
+		public int compare(URI arg0, URI arg1) {
+			String protocol0 = arg0.getScheme();
+			String protocol1 = arg1.getScheme();
 
 			if (FILE_PROTOCOL.equals(protocol0) && !FILE_PROTOCOL.equals(protocol1))
 				return -1;
@@ -68,8 +65,8 @@ public class DownloadManager {
 	}
 
 	private void filterUnfetched() {
-		for (Iterator iterator = requestsToProcess.iterator(); iterator.hasNext();) {
-			IArtifactRequest request = (IArtifactRequest) iterator.next();
+		for (Iterator<IArtifactRequest> iterator = requestsToProcess.iterator(); iterator.hasNext();) {
+			IArtifactRequest request = iterator.next();
 			if (request.getResult() != null && request.getResult().isOK()) {
 				iterator.remove();
 			}
@@ -117,13 +114,13 @@ public class DownloadManager {
 	}
 
 	private IArtifactRequest[] getRequestsForRepository(IArtifactRepository repository) {
-		ArrayList applicable = new ArrayList();
-		for (Iterator it = requestsToProcess.iterator(); it.hasNext();) {
-			IArtifactRequest request = (IArtifactRequest) it.next();
+		ArrayList<IArtifactRequest> applicable = new ArrayList<IArtifactRequest>();
+		for (Iterator<IArtifactRequest> it = requestsToProcess.iterator(); it.hasNext();) {
+			IArtifactRequest request = it.next();
 			if (repository.contains(request.getArtifactKey()))
 				applicable.add(request);
 		}
-		return (IArtifactRequest[]) applicable.toArray(new IArtifactRequest[applicable.size()]);
+		return applicable.toArray(new IArtifactRequest[applicable.size()]);
 	}
 
 	//	private void notifyFetched() {
@@ -139,8 +136,8 @@ public class DownloadManager {
 			return Status.OK_STATUS;
 
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-		for (Iterator iterator = requestsToProcess.iterator(); iterator.hasNext();) {
-			IStatus failed = ((IArtifactRequest) iterator.next()).getResult();
+		for (Iterator<IArtifactRequest> iterator = requestsToProcess.iterator(); iterator.hasNext();) {
+			IStatus failed = iterator.next().getResult();
 			if (failed != null && !failed.isOK())
 				result.add(failed);
 		}

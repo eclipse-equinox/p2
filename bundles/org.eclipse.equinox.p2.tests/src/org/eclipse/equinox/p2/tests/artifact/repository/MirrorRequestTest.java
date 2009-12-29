@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -67,7 +68,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 	public void testInvalidZipFileInTheSource() {
 		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "HelloWorldFeature", Version.createOSGi(1, 0, 0));
-		Properties targetProperties = new Properties();
+		Map<String, String> targetProperties = new HashMap<String, String>();
 		targetProperties.put("artifact.folder", "true");
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, targetProperties);
 		request.setSourceRepository(sourceRepository);
@@ -80,7 +81,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 	public void testMissingArtifact() {
 		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "Missing", Version.createOSGi(1, 0, 0));
-		Properties targetProperties = new Properties();
+		Map<String, String> targetProperties = new HashMap<String, String>();
 		targetProperties.put("artifact.folder", "true");
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, targetProperties);
 		request.setSourceRepository(sourceRepository);
@@ -303,7 +304,11 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			return delegate.getRawArtifact(descriptor, destination, monitor);
 		}
 
-		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		public IQueryable<IArtifactDescriptor> descriptorQueryable() {
+			return delegate.descriptorQueryable();
+		}
+
+		public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 			return delegate.query(query, monitor);
 		}
 	}

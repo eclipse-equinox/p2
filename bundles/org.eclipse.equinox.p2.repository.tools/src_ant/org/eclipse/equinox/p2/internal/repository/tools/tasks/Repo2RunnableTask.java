@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.internal.repository.tools.Repo2Runnable;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -48,7 +49,7 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 		try {
 			prepareSourceRepos();
 			application.initializeRepos(null);
-			List ius = prepareIUs();
+			List<IInstallableUnit> ius = prepareIUs();
 			if ((ius == null || ius.size() == 0) && !(application.hasArtifactSources() || application.hasMetadataSources()))
 				throw new BuildException(Messages.exception_needIUsOrNonEmptyRepo);
 			application.setSourceIUs(ius);

@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.engine.MissingAction;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
@@ -38,22 +39,21 @@ public class InstructionParser {
 		this.actionManager = actionManager;
 	}
 
-	public ProvisioningAction[] parseActions(ITouchpointInstruction instruction, ITouchpointType touchpointType) {
-		List actions = new ArrayList();
-		Map importMap = parseImportAttribute(instruction.getImportAttribute());
+	public List<ProvisioningAction> parseActions(ITouchpointInstruction instruction, ITouchpointType touchpointType) {
+		List<ProvisioningAction> actions = new ArrayList<ProvisioningAction>();
+		Map<String, ActionEntry> importMap = parseImportAttribute(instruction.getImportAttribute());
 		StringTokenizer tokenizer = new StringTokenizer(instruction.getBody(), ";"); //$NON-NLS-1$
 		while (tokenizer.hasMoreTokens()) {
 			actions.add(parseAction(tokenizer.nextToken(), importMap, touchpointType));
 		}
-
-		return (ProvisioningAction[]) actions.toArray(new ProvisioningAction[actions.size()]);
+		return actions;
 	}
 
-	private Map parseImportAttribute(String importAttribute) {
+	private Map<String, ActionEntry> parseImportAttribute(String importAttribute) {
 		if (importAttribute == null)
-			return Collections.EMPTY_MAP;
+			return CollectionUtils.emptyMap();
 
-		Map result = new HashMap();
+		Map<String, ActionEntry> result = new HashMap<String, ActionEntry>();
 		StringTokenizer tokenizer = new StringTokenizer(importAttribute, ","); //$NON-NLS-1$
 		while (tokenizer.hasMoreTokens()) {
 			StringTokenizer actionTokenizer = new StringTokenizer(tokenizer.nextToken(), ";"); //$NON-NLS-1$
@@ -72,7 +72,7 @@ public class InstructionParser {
 		return result;
 	}
 
-	private ProvisioningAction parseAction(String statement, Map qualifier, ITouchpointType touchpointType) {
+	private ProvisioningAction parseAction(String statement, Map<String, ActionEntry> qualifier, ITouchpointType touchpointType) {
 		int openBracket = statement.indexOf('(');
 		int closeBracket = statement.lastIndexOf(')');
 		if (openBracket == -1 || closeBracket == -1 || openBracket > closeBracket)
@@ -84,10 +84,10 @@ public class InstructionParser {
 
 		String nameValuePairs = statement.substring(openBracket + 1, closeBracket);
 		if (nameValuePairs.length() == 0)
-			return new ParameterizedProvisioningAction(action, Collections.EMPTY_MAP, statement);
+			return new ParameterizedProvisioningAction(action, CollectionUtils.<String, String> emptyMap(), statement);
 
 		StringTokenizer tokenizer = new StringTokenizer(nameValuePairs, ","); //$NON-NLS-1$
-		Map parameters = new HashMap();
+		Map<String, String> parameters = new HashMap<String, String>();
 		while (tokenizer.hasMoreTokens()) {
 			String nameValuePair = tokenizer.nextToken();
 			int colonIndex = nameValuePair.indexOf(":"); //$NON-NLS-1$
@@ -100,9 +100,9 @@ public class InstructionParser {
 		return new ParameterizedProvisioningAction(action, parameters, statement);
 	}
 
-	private ProvisioningAction lookupAction(String actionId, Map importMap, ITouchpointType touchpointType) {
+	private ProvisioningAction lookupAction(String actionId, Map<String, ActionEntry> importMap, ITouchpointType touchpointType) {
 		VersionRange versionRange = null;
-		ActionEntry actionEntry = (ActionEntry) importMap.get(actionId);
+		ActionEntry actionEntry = importMap.get(actionId);
 		if (actionEntry != null) {
 			actionId = actionEntry.actionId;
 			versionRange = actionEntry.versionRange;

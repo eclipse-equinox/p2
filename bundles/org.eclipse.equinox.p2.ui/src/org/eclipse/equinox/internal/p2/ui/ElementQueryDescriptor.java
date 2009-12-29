@@ -26,16 +26,16 @@ import org.eclipse.equinox.p2.metadata.query.IQuery;
  */
 public class ElementQueryDescriptor {
 
-	private IQuery query;
-	private Collector collector;
-	private IQueryable queryable;
+	private IQuery<Object> query;
+	private Collector<Object> collector;
+	private IQueryable<Object> queryable;
 	private ElementWrapper wrapper;
 
 	/**
 	 * Creates an ElementQueryDescriptor to represent a Query, its collector the queryable
 	 * on which it will run.
 	 */
-	public ElementQueryDescriptor(IQueryable queryable, IQuery query, Collector collector) {
+	public ElementQueryDescriptor(IQueryable<?> queryable, IQuery<?> query, Collector<?> collector) {
 		this(queryable, query, collector, null);
 	}
 
@@ -43,10 +43,11 @@ public class ElementQueryDescriptor {
 	 * Creates an ElementQueryDescriptor to represent a Query, its collector the queryable
 	 * on which it will run, and the transformer used to transform the results.
 	 */
-	public ElementQueryDescriptor(IQueryable queryable, IQuery query, Collector collector, ElementWrapper wrapper) {
-		this.query = query;
-		this.collector = collector;
-		this.queryable = queryable;
+	@SuppressWarnings("unchecked")
+	public ElementQueryDescriptor(IQueryable<?> queryable, IQuery<?> query, Collector<?> collector, ElementWrapper wrapper) {
+		this.query = (IQuery<Object>) query;
+		this.collector = (Collector<Object>) collector;
+		this.queryable = (IQueryable<Object>) queryable;
 		this.wrapper = wrapper;
 	}
 
@@ -54,13 +55,13 @@ public class ElementQueryDescriptor {
 	 * Performs the query returning a collection of results.
 	 * @param monitor
 	 */
-	public Collection performQuery(IProgressMonitor monitor) {
-		Collector results = this.collector;
+	public Collection<?> performQuery(IProgressMonitor monitor) {
+		Collector<Object> results = this.collector;
 		// If the query is completely described, perform it
 		if (query != null && collector != null && queryable != null)
 			results.addAll(this.queryable.query(this.query, monitor));
 		else if (results == null)
-			results = new Collector();
+			results = new Collector<Object>();
 		// Let the wrapper analyze the results, even if we didn't perform the query.
 		// This allows the wrapper to modify the results with explanations.
 		if (wrapper != null)

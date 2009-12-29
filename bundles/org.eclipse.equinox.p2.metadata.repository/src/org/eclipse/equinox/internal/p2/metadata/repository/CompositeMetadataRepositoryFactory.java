@@ -33,7 +33,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 	public static final String CONTENT_FILENAME = "compositeContent"; //$NON-NLS-1$
 
-	public IMetadataRepository create(URI location, String name, String type, Map properties) {
+	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) {
 		return new CompositeMetadataRepository(getManager(), location, name, properties);
 	}
 

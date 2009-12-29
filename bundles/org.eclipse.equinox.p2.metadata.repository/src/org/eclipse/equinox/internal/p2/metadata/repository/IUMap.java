@@ -23,11 +23,11 @@ public class IUMap {
 	/**
 	 * Iterator over all the {@link IInstallableUnit} instances in the map.
 	 */
-	public class MapIterator implements Iterator {
+	public class MapIterator implements Iterator<IInstallableUnit> {
 		//iterator over the keys in UIMap
-		private Iterator unitIterator;
+		private Iterator<String> unitIterator;
 		//iterator over the Set inside a single value of the IUMap
-		private Iterator currentBucket;
+		private Iterator<IInstallableUnit> currentBucket;
 
 		MapIterator() {
 			super();
@@ -38,9 +38,9 @@ public class IUMap {
 			return unitIterator.hasNext() || (currentBucket != null && currentBucket.hasNext());
 		}
 
-		public Object next() {
+		public IInstallableUnit next() {
 			if (currentBucket == null || !currentBucket.hasNext())
-				currentBucket = ((Set) units.get(unitIterator.next())).iterator();
+				currentBucket = units.get(unitIterator.next()).iterator();
 			return currentBucket.next();
 		}
 
@@ -52,12 +52,12 @@ public class IUMap {
 	/**
 	 * Map<String,Set<IInstallableUnit>> mapping IU id to iu's with that id.
 	 */
-	final Map units = new HashMap();
+	final Map<String, Set<IInstallableUnit>> units = new HashMap<String, Set<IInstallableUnit>>();
 
 	public void add(IInstallableUnit unit) {
-		Set matching = (Set) units.get(unit.getId());
+		Set<IInstallableUnit> matching = units.get(unit.getId());
 		if (matching == null) {
-			matching = new HashSet(2);
+			matching = new HashSet<IInstallableUnit>(2);
 			units.put(unit.getId(), matching);
 		}
 		matching.add(unit);
@@ -72,19 +72,19 @@ public class IUMap {
 		units.clear();
 	}
 
-	public Iterator iterator() {
+	public Iterator<IInstallableUnit> iterator() {
 		return new MapIterator();
 	}
 
-	public IQueryResult query(InstallableUnitQuery query) {
+	public IQueryResult<IInstallableUnit> query(InstallableUnitQuery query) {
 		//iterate over the entire map, or just the IU's with the given id
-		Iterator candidates;
+		Iterator<IInstallableUnit> candidates;
 		if (query.getId() == null)
 			candidates = iterator();
 		else {
-			Collection bucket = ((Collection) units.get(query.getId()));
+			Collection<IInstallableUnit> bucket = units.get(query.getId());
 			if (bucket == null)
-				return Collector.EMPTY_COLLECTOR;
+				return Collector.emptyCollector();
 			candidates = bucket.iterator();
 		}
 		return query.perform(candidates);
@@ -92,7 +92,7 @@ public class IUMap {
 	}
 
 	public void remove(IInstallableUnit unit) {
-		Set matching = (Set) units.get(unit.getId());
+		Set<IInstallableUnit> matching = units.get(unit.getId());
 		if (matching == null)
 			return;
 		matching.remove(unit);
@@ -100,8 +100,8 @@ public class IUMap {
 			units.remove(unit.getId());
 	}
 
-	public void removeAll(Collection toRemove) {
-		for (Iterator it = toRemove.iterator(); it.hasNext();)
-			remove((IInstallableUnit) it.next());
+	public void removeAll(Collection<IInstallableUnit> toRemove) {
+		for (Iterator<IInstallableUnit> it = toRemove.iterator(); it.hasNext();)
+			remove(it.next());
 	}
 }

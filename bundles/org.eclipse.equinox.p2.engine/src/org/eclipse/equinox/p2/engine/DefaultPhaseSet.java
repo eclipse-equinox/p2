@@ -46,7 +46,7 @@ public class DefaultPhaseSet extends PhaseSet {
 	 * @return the {@link PhaseSet}
 	 */
 	public static final PhaseSet createDefaultPhaseSet(int exclude) {
-		ArrayList phases = new ArrayList();
+		ArrayList<Phase> phases = new ArrayList<Phase>();
 		if ((PHASE_COLLECT & exclude) != PHASE_COLLECT)
 			phases.add(new Collect(100));
 		if ((PHASE_UNCONFIGURE & exclude) != PHASE_UNCONFIGURE)
@@ -61,6 +61,6 @@ public class DefaultPhaseSet extends PhaseSet {
 			phases.add(new Install(50));
 		if ((PHASE_CONFIGURE & exclude) != PHASE_CONFIGURE)
 			phases.add(new Configure(10));
-		return new DefaultPhaseSet((Phase[]) phases.toArray(new Phase[phases.size()]));
+		return new DefaultPhaseSet(phases.toArray(new Phase[phases.size()]));
 	}
 }

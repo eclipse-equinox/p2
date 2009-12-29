@@ -73,7 +73,7 @@ public class ElementUtils {
 					}
 					// Are there any elements that need to be deleted?  Go over the original state
 					// and remove any elements that weren't in the elements we were given
-					Set nowKnown = new HashSet();
+					Set<String> nowKnown = new HashSet<String>();
 					for (int i = 0; i < elements.length; i++)
 						nowKnown.add(URIUtil.toUnencodedString(elements[i].getLocation()));
 					for (int i = 0; i < currentlyEnabled.length; i++) {
@@ -107,17 +107,17 @@ public class ElementUtils {
 			return (IInstallableUnit) element;
 		if (element instanceof IIUElement)
 			return ((IIUElement) element).getIU();
-		return (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+		return ProvUI.getAdapter(element, IInstallableUnit.class);
 	}
 
 	public static IInstallableUnit[] elementsToIUs(Object[] elements) {
-		ArrayList theIUs = new ArrayList(elements.length);
+		ArrayList<IInstallableUnit> theIUs = new ArrayList<IInstallableUnit>(elements.length);
 		for (int i = 0; i < elements.length; i++) {
-			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(elements[i], IInstallableUnit.class);
+			IInstallableUnit iu = ProvUI.getAdapter(elements[i], IInstallableUnit.class);
 			if (iu != null)
 				theIUs.add(iu);
 		}
-		return (IInstallableUnit[]) theIUs.toArray(new IInstallableUnit[theIUs.size()]);
+		return theIUs.toArray(new IInstallableUnit[theIUs.size()]);
 	}
 
 	static boolean containsURI(URI[] locations, URI url) {

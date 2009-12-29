@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.touchpoint.eclipse.query;
 
+import java.util.List;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -18,13 +19,10 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  * A query matching every {@link IInstallableUnit} that describes an OSGi bundle. 
  * @since 2.0
  */
-public class OSGiBundleQuery extends MatchQuery {
+public class OSGiBundleQuery extends MatchQuery<IInstallableUnit> {
 
-	public boolean isMatch(Object candidate) {
-		if (candidate instanceof IInstallableUnit) {
-			return isOSGiBundle((IInstallableUnit) candidate);
-		}
-		return false;
+	public boolean isMatch(IInstallableUnit candidate) {
+		return isOSGiBundle(candidate);
 	}
 
 	/**
@@ -33,9 +31,10 @@ public class OSGiBundleQuery extends MatchQuery {
 	 * @return <tt>true</tt> if the parameter describes an OSGi bundle.
 	 */
 	public static boolean isOSGiBundle(IInstallableUnit iu) {
-		IProvidedCapability[] provided = iu.getProvidedCapabilities();
-		for (int i = 0; i < provided.length; i++) {
-			if (provided[i].getNamespace().equals("osgi.bundle")) { //$NON-NLS-1$
+		List<IProvidedCapability> provided = iu.getProvidedCapabilities();
+		int sz = provided.size();
+		for (int i = 0; i < sz; i++) {
+			if (provided.get(i).getNamespace().equals("osgi.bundle")) { //$NON-NLS-1$
 				return true;
 			}
 		}

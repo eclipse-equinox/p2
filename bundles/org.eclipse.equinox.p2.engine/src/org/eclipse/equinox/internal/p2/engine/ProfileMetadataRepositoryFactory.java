@@ -24,7 +24,7 @@ public class ProfileMetadataRepositoryFactory extends MetadataRepositoryFactory 
 	 * @throws ProvisionException
 	 * documenting to avoid warning 
 	 */
-	public IMetadataRepository create(URI location, String name, String type, Map properties) throws ProvisionException {
+	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
 		return null;
 	}
 

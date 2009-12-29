@@ -14,6 +14,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.UninstallOperation;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
@@ -33,7 +34,7 @@ public class UninstallWizardPage extends ResolutionResultsWizardPage {
 		return ProvUIMessages.UninstallIUOperationTask;
 	}
 
-	protected IQueryable getQueryable(IProvisioningPlan plan) {
+	protected IQueryable<IInstallableUnit> getQueryable(IProvisioningPlan plan) {
 		return plan.getRemovals();
 	}
 }

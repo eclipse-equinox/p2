@@ -279,7 +279,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	// overridden to weed out non-IU elements, such as repositories or empty explanations
 	public Object[] getSelectedIUElements() {
 		Object[] elements = ((IStructuredSelection) viewer.getSelection()).toArray();
-		ArrayList list = new ArrayList(elements.length);
+		ArrayList<Object> list = new ArrayList<Object>(elements.length);
 		for (int i = 0; i < elements.length; i++)
 			if (ElementUtils.getIU(elements[i]) != null)
 				list.add(elements[i]);
@@ -298,15 +298,15 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		Object[] selections = filteredTree.getCheckboxTreeViewer().getCheckedElements();
 		if (selections.length == 0)
 			return new IInstallableUnit[0];
-		ArrayList leaves = new ArrayList(selections.length);
+		ArrayList<IInstallableUnit> leaves = new ArrayList<IInstallableUnit>(selections.length);
 		for (int i = 0; i < selections.length; i++) {
 			if (!getCheckboxTreeViewer().getGrayed(selections[i])) {
-				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(selections[i], IInstallableUnit.class);
+				IInstallableUnit iu = ProvUI.getAdapter(selections[i], IInstallableUnit.class);
 				if (iu != null && !ProvUI.isCategory(iu) && !leaves.contains(iu))
 					leaves.add(iu);
 			}
 		}
-		return (IInstallableUnit[]) leaves.toArray(new IInstallableUnit[leaves.size()]);
+		return leaves.toArray(new IInstallableUnit[leaves.size()]);
 	}
 
 	public Tree getTree() {

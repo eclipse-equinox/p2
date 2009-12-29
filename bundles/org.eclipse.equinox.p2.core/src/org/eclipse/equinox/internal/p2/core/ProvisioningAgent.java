@@ -22,7 +22,7 @@ import org.osgi.framework.*;
  */
 public class ProvisioningAgent implements IProvisioningAgent {
 
-	private final Map agentServices = Collections.synchronizedMap(new HashMap());
+	private final Map<String, Object> agentServices = Collections.synchronizedMap(new HashMap<String, Object>());
 	private BundleContext context;
 	private boolean stopped = false;
 	private ServiceRegistration reg;

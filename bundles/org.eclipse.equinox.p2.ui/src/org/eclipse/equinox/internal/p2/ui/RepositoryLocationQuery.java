@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
  * 
  * @since 3.5
  */
-public class RepositoryLocationQuery implements IQuery {
+public class RepositoryLocationQuery implements IQuery<URI> {
 
 	/**
 	 * Gets the ID for this Query. 
@@ -44,8 +44,8 @@ public class RepositoryLocationQuery implements IQuery {
 		return QueryHelpers.getProperty(this, property);
 	}
 
-	public IQueryResult perform(Iterator iterator) {
-		Collector result = new Collector();
+	public IQueryResult<URI> perform(Iterator<URI> iterator) {
+		Collector<URI> result = new Collector<URI>();
 		while (iterator.hasNext()) {
 			Object candidate = iterator.next();
 			URI location = getLocation(candidate);

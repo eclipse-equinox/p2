@@ -136,7 +136,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, osgiTarget);
 		bundlePool.addDescriptor(descriptor);
 
-		Properties extraProperties = new Properties();
+		Map<String, String> extraProperties = new HashMap<String, String>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 
 		Dictionary mockManifest = new Properties();
@@ -174,7 +174,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, osgiTarget);
 		bundlePool.addDescriptor(descriptor);
 
-		Properties extraProperties = new Properties();
+		Map<String, String> extraProperties = new HashMap<String, String>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 
 		Dictionary mockManifest = new Properties();

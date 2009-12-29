@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  * determined by the actions involved in the operation and it is up to the consumer of the
  * result to interpret the collections.
  */
-public interface IPublisherResult extends IQueryable {
+public interface IPublisherResult extends IQueryable<IInstallableUnit> {
 	/**
 	 * Merge mode setting that causes all root results to be merged into 
 	 * the root of the merged results and all non-roots to become non-roots.
@@ -69,7 +69,7 @@ public interface IPublisherResult extends IQueryable {
 	 * @param ius the IUs to add
 	 * @param type the type of the IUs in this result
 	 */
-	public void addIUs(Collection ius, String type);
+	public void addIUs(Collection<IInstallableUnit> ius, String type);
 
 	/**
 	 * Returns the IUs of the given type with the given id in this result.
@@ -79,7 +79,7 @@ public interface IPublisherResult extends IQueryable {
 	 * @see #ROOT
 	 * @see #NON_ROOT
 	 */
-	public Collection getIUs(String id, String type);
+	public Collection<IInstallableUnit> getIUs(String id, String type);
 
 	/**
 	 * Returns the first available IU of the given type with the given id in this result.

@@ -25,9 +25,9 @@ public abstract class ProvisioningAction {
 		return memento;
 	}
 
-	public abstract IStatus execute(Map parameters);
+	public abstract IStatus execute(Map<String, Object> parameters);
 
-	public abstract IStatus undo(Map parameters);
+	public abstract IStatus undo(Map<String, Object> parameters);
 
 	// TODO: these probably should not be visible
 	public void setTouchpoint(Touchpoint touchpoint) {

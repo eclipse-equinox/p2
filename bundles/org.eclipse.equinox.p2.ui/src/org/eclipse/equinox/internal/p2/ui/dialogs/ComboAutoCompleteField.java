@@ -54,7 +54,7 @@ public class ComboAutoCompleteField {
 				if (contents.length() == 0 || items.length == 0)
 					return new IContentProposal[0];
 				StringMatcher matcher = new StringMatcher("*" + contents + "*", true, false); //$NON-NLS-1$ //$NON-NLS-2$
-				ArrayList matches = new ArrayList();
+				ArrayList<String> matches = new ArrayList<String>();
 				for (int i = 0; i < items.length; i++)
 					if (matcher.match(items[i]))
 						matches.add(items[i]);
@@ -63,7 +63,7 @@ public class ComboAutoCompleteField {
 				// what is in the combo.  This prevents the popup from
 				// opening when the user is merely scrolling through the combo values or
 				// has accepted a combo value.
-				if (matches.size() == 1 && ((String) matches.get(0)).equals(combo.getText()))
+				if (matches.size() == 1 && matches.get(0).equals(combo.getText()))
 					return new IContentProposal[0];
 
 				if (matches.isEmpty())
@@ -72,7 +72,7 @@ public class ComboAutoCompleteField {
 				// Make the proposals
 				IContentProposal[] proposals = new IContentProposal[matches.size()];
 				for (int i = 0; i < matches.size(); i++) {
-					final String proposal = (String) matches.get(i);
+					final String proposal = matches.get(i);
 					proposals[i] = new IContentProposal() {
 
 						public String getContent() {
@@ -367,7 +367,7 @@ public class ComboAutoCompleteField {
 				}
 			}
 
-			Vector temp = new Vector();
+			Vector<String> temp = new Vector<String>();
 
 			int pos = 0;
 			StringBuffer buf = new StringBuffer();

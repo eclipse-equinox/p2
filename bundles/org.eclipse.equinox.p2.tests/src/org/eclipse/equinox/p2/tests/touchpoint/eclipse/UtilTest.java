@@ -59,6 +59,6 @@ public class UtilTest extends AbstractProvisioningTest {
 
 	public void testMissingManifest() {
 		ITouchpointData emptyData = MetadataFactory.createTouchpointData(Collections.EMPTY_MAP);
-		assertNull(Util.getManifest(new ITouchpointData[] {emptyData}));
+		assertNull(Util.getManifest(Collections.singletonList(emptyData)));
 	}
 }

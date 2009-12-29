@@ -103,7 +103,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.query.IQueryable#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		ensureInitialized();
 		return metadataRepository.query(query, monitor);
 	}
@@ -174,7 +174,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository#getProperties()
 	 */
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		ensureInitialized();
 		return metadataRepository.getProperties();
 	}

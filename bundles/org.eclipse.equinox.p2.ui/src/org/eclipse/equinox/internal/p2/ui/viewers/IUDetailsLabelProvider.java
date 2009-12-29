@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
+import org.eclipse.core.runtime.jobs.Job;
+
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,7 +46,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 
 	private IUColumnConfig[] columnConfig;
 	Shell shell;
-	HashMap jobs = new HashMap();
+	HashMap<IIUElement, Job> jobs = new HashMap<IIUElement, Job>();
 
 	public IUDetailsLabelProvider() {
 		this(null, null, null);
@@ -78,7 +80,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			columnContent = columnConfig[columnIndex].getColumnType();
 		}
 
-		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+		IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null) {
 			if (columnIndex == 0) {
 				if (element instanceof ProvElement)
@@ -210,7 +212,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	public String getToolTipText(Object element) {
-		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+		IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null || toolTipProperty == null)
 			return null;
 		return iu.getProperty(toolTipProperty, null);
@@ -228,9 +230,9 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 
 	public void dispose() {
 		super.dispose();
-		Iterator iter = jobs.values().iterator();
+		Iterator<Job> iter = jobs.values().iterator();
 		while (iter.hasNext()) {
-			Job job = (Job) iter.next();
+			Job job = iter.next();
 			job.cancel();
 		}
 	}

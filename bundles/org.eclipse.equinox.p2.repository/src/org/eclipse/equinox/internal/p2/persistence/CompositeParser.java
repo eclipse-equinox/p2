@@ -34,20 +34,20 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 	private CompositeRepositoryState theState;
 
 	protected class ChildrenHandler extends AbstractHandler {
-		private ArrayList children;
+		private ArrayList<URI> children;
 
 		public ChildrenHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, CHILDREN_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			children = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+			children = (size != null ? new ArrayList<URI>(new Integer(size).intValue()) : new ArrayList<URI>(4));
 		}
 
 		public URI[] getChildren() {
 			int size = children.size();
 			URI[] result = new URI[size];
 			int i = 0;
-			for (Iterator it = children.iterator(); it.hasNext(); i++) {
-				result[i] = (URI) it.next();
+			for (Iterator<URI> it = children.iterator(); it.hasNext(); i++) {
+				result[i] = it.next();
 			}
 			return result;
 		}
@@ -67,9 +67,9 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 
 		URI currentRepo = null;
 
-		private List repos;
+		private List<URI> repos;
 
-		public ChildHandler(AbstractHandler parentHandler, Attributes attributes, List repos) {
+		public ChildHandler(AbstractHandler parentHandler, Attributes attributes, List<URI> repos) {
 			super(parentHandler, CHILD_ELEMENT);
 			String[] values = parseAttributes(attributes, required, optional);
 			this.repos = repos;

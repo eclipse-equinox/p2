@@ -29,25 +29,26 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 public class CategoryElementWrapper extends QueriedElementWrapper {
 
 	// Used to track nested categories
-	private Set referredIUs = new HashSet();
+	private Set<String> referredIUs = new HashSet<String>();
 
-	public CategoryElementWrapper(IQueryable queryable, Object parent) {
+	public CategoryElementWrapper(IQueryable<?> queryable, Object parent) {
 		super(queryable, parent);
 	}
 
 	protected boolean shouldWrap(Object match) {
 		if (match instanceof IInstallableUnit) {
 			IInstallableUnit iu = (IInstallableUnit) match;
-			IRequirement[] requirements = iu.getRequiredCapabilities();
-			for (int i = 0; i < requirements.length; i++) {
-				if (requirements[i] instanceof IRequiredCapability) {
-					if (((IRequiredCapability) requirements[i]).getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
-						referredIUs.add(((IRequiredCapability) requirements[i]).getName());
+			List<IRequirement> requirements = iu.getRequiredCapabilities();
+			for (int i = 0; i < requirements.size(); i++) {
+				IRequirement requirement = requirements.get(i);
+				if (requirement instanceof IRequiredCapability) {
+					if (((IRequiredCapability) requirement).getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
+						referredIUs.add(((IRequiredCapability) requirement).getName());
 					}
 				}
 			}
 
-			Iterator iter = super.getCollection().iterator();
+			Iterator<?> iter = super.getCollection().iterator();
 			// Don't add the same category IU twice.  
 			while (iter.hasNext()) {
 				CategoryElement element = (CategoryElement) iter.next();
@@ -62,10 +63,10 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 		return false;
 	}
 
-	public Collection getElements(Collector collector) {
+	public Collection<?> getElements(Collector<?> collector) {
 		if (collector.isEmpty())
 			return super.getElements(collector);
-		Collection results = super.getElements(collector);
+		Collection<?> results = super.getElements(collector);
 		cleanList();
 		return results;
 	}
@@ -80,7 +81,7 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 	}
 
 	private void removeNestedCategories() {
-		CategoryElement[] categoryIUs = (CategoryElement[]) getCollection().toArray(new CategoryElement[getCollection().size()]);
+		CategoryElement[] categoryIUs = getCollection().toArray(new CategoryElement[getCollection().size()]);
 		// If any other element refers to a category element, remove it from the list
 		for (int i = 0; i < categoryIUs.length; i++) {
 			if (referredIUs.contains(categoryIUs[i].getIU().getId())) {

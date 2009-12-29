@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
+import java.util.List;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 
@@ -39,7 +40,7 @@ public interface IInstallableUnitPatch extends IInstallableUnit {
 	 * Returns the requirement changes imposed by the patch.
 	 * @return The patch requirement changes.
 	 */
-	IRequirementChange[] getRequirementsChange();
+	List<IRequirementChange> getRequirementsChange();
 
 	/**
 	 * Returns the required capability that defines the lifecycle of this patch. The

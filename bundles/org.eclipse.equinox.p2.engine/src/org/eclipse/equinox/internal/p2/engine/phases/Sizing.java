@@ -46,9 +46,9 @@ public class Sizing extends InstallableUnitPhase {
 		return dlSize;
 	}
 
-	protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
+	protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 		IInstallableUnit unit = operand.second();
-		ProvisioningAction[] parsedActions = getActions(unit, COLLECT_PHASE_ID);
+		List<ProvisioningAction> parsedActions = getActions(unit, COLLECT_PHASE_ID);
 		if (parsedActions != null)
 			return parsedActions;
 
@@ -61,23 +61,24 @@ public class Sizing extends InstallableUnitPhase {
 		if (action == null) {
 			return null;
 		}
-		return new ProvisioningAction[] {action};
+		return Collections.singletonList(action);
 	}
 
 	protected String getProblemMessage() {
 		return Messages.Phase_Sizing_Error;
 	}
 
-	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
-		List artifactRequests = (List) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);
+	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
+		@SuppressWarnings("unchecked")
+		List<IArtifactRequest[]> artifactRequests = (List<IArtifactRequest[]>) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 		int statusCode = 0;
 
-		Set artifactsToObtain = new HashSet(artifactRequests.size());
+		Set<IArtifactRequest> artifactsToObtain = new HashSet<IArtifactRequest>(artifactRequests.size());
 
-		for (Iterator it = artifactRequests.iterator(); it.hasNext();) {
-			IArtifactRequest[] requests = (IArtifactRequest[]) it.next();
+		for (Iterator<IArtifactRequest[]> it = artifactRequests.iterator(); it.hasNext();) {
+			IArtifactRequest[] requests = it.next();
 			if (requests == null)
 				continue;
 			for (int i = 0; i < requests.length; i++) {
@@ -95,8 +96,8 @@ public class Sizing extends InstallableUnitPhase {
 		else
 			repositories = context.getArtifactRepositories();
 
-		for (Iterator iterator = artifactsToObtain.iterator(); iterator.hasNext() && !monitor.isCanceled();) {
-			IArtifactRequest artifactRequest = (IArtifactRequest) iterator.next();
+		for (Iterator<IArtifactRequest> iterator = artifactsToObtain.iterator(); iterator.hasNext() && !monitor.isCanceled();) {
+			IArtifactRequest artifactRequest = iterator.next();
 			boolean found = false;
 			for (int i = 0; i < repositories.length; i++) {
 				IArtifactRepository repo;
@@ -130,8 +131,8 @@ public class Sizing extends InstallableUnitPhase {
 		return null;
 	}
 
-	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
-		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList());
+	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
+		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList<IArtifactRequest[]>());
 		return null;
 	}
 }

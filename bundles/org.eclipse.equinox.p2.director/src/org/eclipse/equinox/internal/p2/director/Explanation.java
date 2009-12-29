@@ -17,7 +17,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.osgi.util.NLS;
 
-public abstract class Explanation implements Comparable {
+public abstract class Explanation implements Comparable<Explanation> {
 
 	public static class PatchedHardRequirement extends Explanation {
 		public final IInstallableUnit iu;
@@ -197,8 +197,7 @@ public abstract class Explanation implements Comparable {
 		super();
 	}
 
-	public int compareTo(Object arg0) {
-		Explanation exp = (Explanation) arg0;
+	public int compareTo(Explanation exp) {
 		if (this.orderValue() == exp.orderValue()) {
 			return this.toString().compareTo(exp.toString());
 		}

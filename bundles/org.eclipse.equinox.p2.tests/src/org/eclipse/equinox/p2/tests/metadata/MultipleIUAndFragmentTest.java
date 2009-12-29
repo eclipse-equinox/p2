@@ -44,12 +44,12 @@ public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 		for (; iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(iu1.getId())) {
-				assertEquals(1, iu.getFragments().length);
-				assertEquals(iu.getFragments()[0].getId(), iu3.getId());
+				assertEquals(1, iu.getFragments().size());
+				assertEquals(iu.getFragments().get(0).getId(), iu3.getId());
 			}
 			if (iu.getId().equals(iu2.getId())) {
-				assertEquals(1, iu.getFragments().length);
-				assertEquals(iu.getFragments()[0].getId(), iu3.getId());
+				assertEquals(1, iu.getFragments().size());
+				assertEquals(iu.getFragments().get(0).getId(), iu3.getId());
 			}
 			if (iu.getId().equals(iu3.getId())) {
 				//fragments don't have fragments

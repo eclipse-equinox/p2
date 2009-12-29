@@ -26,7 +26,8 @@ Import-Package: org.eclipse.equinox.app,
  org.osgi.service.packageadmin
 Bundle-Activator: org.eclipse.equinox.internal.p2.director.app.Activator
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
- J2SE-1.4
+Bundle-RequiredExecutionEnvironment: J2SE-1.5,
+ J2SE-1.4,
+ CDC-1.1/Foundation-1.1
 Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)"
 Export-Package: org.eclipse.equinox.internal.p2.director.app;x-internal:=true

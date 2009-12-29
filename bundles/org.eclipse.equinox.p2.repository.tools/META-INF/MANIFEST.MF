@@ -5,8 +5,9 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.repository.tools;singleton:=true
 Bundle-Version: 1.0.100.qualifier
 Bundle-Activator: org.eclipse.equinox.p2.internal.repository.tools.Activator
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
- J2SE-1.4
+Bundle-RequiredExecutionEnvironment: J2SE-1.5,
+ J2SE-1.4,
+ CDC-1.1/Foundation-1.1
 Import-Package: org.eclipse.core.runtime;version="3.4.0",
  org.eclipse.equinox.app;version="1.0.0",
  org.eclipse.equinox.internal.p2.artifact.repository,

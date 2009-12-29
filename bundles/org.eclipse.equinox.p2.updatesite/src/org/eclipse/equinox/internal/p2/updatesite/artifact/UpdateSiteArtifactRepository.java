@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.artifact;
 
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
-
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 
 public class UpdateSiteArtifactRepository implements IArtifactRepository {
@@ -96,7 +96,7 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 		return delegate.getName();
 	}
 
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		return delegate.getProperties();
 	}
 
@@ -132,6 +132,7 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		return delegate.getAdapter(adapter);
 	}
@@ -140,7 +141,11 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 		return delegate.createArtifactDescriptor(key);
 	}
 
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
+		return delegate.descriptorQueryable();
+	}
+
+	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		return delegate.query(query, monitor);
 	}
 }

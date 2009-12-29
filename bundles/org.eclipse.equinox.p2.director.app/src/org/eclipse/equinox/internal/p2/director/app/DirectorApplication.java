@@ -16,6 +16,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -47,7 +48,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * p2 data location. See bug 268138 for related discussion.
  */
 public class DirectorApplication implements IApplication {
-	class LocationQueryable implements IQueryable {
+	class LocationQueryable implements IQueryable<IInstallableUnit> {
 		private URI location;
 
 		public LocationQueryable(URI location) {
@@ -55,7 +56,7 @@ public class DirectorApplication implements IApplication {
 			Assert.isNotNull(location);
 		}
 
-		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 			return getInstallableUnits(location, query, monitor);
 		}
 	}
@@ -122,7 +123,7 @@ public class DirectorApplication implements IApplication {
 
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 
-	private static void getURIs(List uris, String spec) throws CoreException {
+	private static void getURIs(List<URI> uris, String spec) throws CoreException {
 		if (spec == null)
 			return;
 		String[] urlSpecs = StringHelper.getArrayFromString(spec, ',');
@@ -155,7 +156,7 @@ public class DirectorApplication implements IApplication {
 		return null;
 	}
 
-	private static void parseIUsArgument(List vnames, String arg) {
+	private static void parseIUsArgument(List<IVersionedId> vnames, String arg) {
 		String[] roots = StringHelper.getArrayFromString(arg, ',');
 		for (int i = 0; i < roots.length; ++i)
 			vnames.add(VersionedId.parse(roots[i]));
@@ -175,11 +176,11 @@ public class DirectorApplication implements IApplication {
 	private URI[] artifactReposForRemoval;
 	private URI[] metadataReposForRemoval;
 
-	private final List artifactRepositoryLocations = new ArrayList();
-	private final List metadataRepositoryLocations = new ArrayList();
-	private final List rootsToInstall = new ArrayList();
-	private final List rootsToUninstall = new ArrayList();
-	private final List rootsToList = new ArrayList();
+	private final List<URI> artifactRepositoryLocations = new ArrayList<URI>();
+	private final List<URI> metadataRepositoryLocations = new ArrayList<URI>();
+	private final List<IVersionedId> rootsToInstall = new ArrayList<IVersionedId>();
+	private final List<IVersionedId> rootsToUninstall = new ArrayList<IVersionedId>();
+	private final List<IVersionedId> rootsToList = new ArrayList<IVersionedId>();
 
 	private File bundlePool = null;
 	private File destination;
@@ -228,41 +229,42 @@ public class DirectorApplication implements IApplication {
 		}
 	}
 
-	private IQueryResult collectRootIUs(IQuery query) {
+	private IQueryResult<IInstallableUnit> collectRootIUs(IQuery<IInstallableUnit> query) {
 		IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 		int top = metadataRepositoryLocations.size();
 		if (top == 0)
 			return getInstallableUnits(null, query, nullMonitor);
 
-		IQueryable[] locationQueryables = new IQueryable[top];
+		@SuppressWarnings("unchecked")
+		IQueryable<IInstallableUnit>[] locationQueryables = new IQueryable[top];
 		for (int i = 0; i < top; i++)
-			locationQueryables[i] = new LocationQueryable((URI) metadataRepositoryLocations.get(i));
-		return new CompoundQueryable(locationQueryables).query(query, nullMonitor);
+			locationQueryables[i] = new LocationQueryable(metadataRepositoryLocations.get(i));
+		return new CompoundQueryable<IInstallableUnit>(locationQueryables).query(query, nullMonitor);
 	}
 
-	private IInstallableUnit[] collectRoots(IProfile profile, List rootNames, boolean forInstall) throws CoreException {
-		ArrayList allRoots = new ArrayList();
+	private IInstallableUnit[] collectRoots(IProfile profile, List<IVersionedId> rootNames, boolean forInstall) throws CoreException {
+		ArrayList<IInstallableUnit> allRoots = new ArrayList<IInstallableUnit>();
 		int top = rootNames.size();
 		for (int i = 0; i < top; ++i) {
-			IVersionedId rootName = (IVersionedId) rootNames.get(i);
+			IVersionedId rootName = rootNames.get(i);
 			Version v = rootName.getVersion();
-			IQuery query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
-			IQueryResult roots = null;
+			IQuery<IInstallableUnit> query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
+			IQueryResult<IInstallableUnit> roots = null;
 			if (forInstall)
-				roots = collectRootIUs(new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()}));
+				roots = collectRootIUs(new PipedQuery<IInstallableUnit>(query, new LatestIUVersionQuery<IInstallableUnit>()));
 
 			if (roots == null || roots.isEmpty())
 				roots = profile.query(query, new NullProgressMonitor());
 
-			Iterator itor = roots.iterator();
+			Iterator<IInstallableUnit> itor = roots.iterator();
 			if (!itor.hasNext())
 				throw new CoreException(new Status(IStatus.ERROR, org.eclipse.equinox.internal.p2.director.app.Activator.ID, NLS.bind(Messages.Missing_IU, rootName)));
 			do {
 				allRoots.add(itor.next());
 			} while (itor.hasNext());
 		}
-		return (IInstallableUnit[]) allRoots.toArray(new IInstallableUnit[allRoots.size()]);
+		return allRoots.toArray(new IInstallableUnit[allRoots.size()]);
 	}
 
 	synchronized Bundle getBundle(String symbolicName) {
@@ -282,7 +284,7 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private String getEnvironmentProperty() {
-		HashMap values = new HashMap();
+		HashMap<String, String> values = new HashMap<String, String>();
 		if (os != null)
 			values.put("osgi.os", os); //$NON-NLS-1$
 		if (nl != null)
@@ -307,18 +309,18 @@ public class DirectorApplication implements IApplication {
 			if (flavor == null)
 				flavor = System.getProperty("eclipse.p2.configurationFlavor", FLAVOR_DEFAULT); //$NON-NLS-1$
 
-			Properties props = new Properties();
-			props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination.toString());
+			Map<String, String> props = new HashMap<String, String>();
+			props.put(IProfile.PROP_INSTALL_FOLDER, destination.toString());
 			if (bundlePool == null)
-				props.setProperty(IProfile.PROP_CACHE, sharedLocation == null ? destination.getAbsolutePath() : sharedLocation.getAbsolutePath());
+				props.put(IProfile.PROP_CACHE, sharedLocation == null ? destination.getAbsolutePath() : sharedLocation.getAbsolutePath());
 			else
-				props.setProperty(IProfile.PROP_CACHE, bundlePool.getAbsolutePath());
+				props.put(IProfile.PROP_CACHE, bundlePool.getAbsolutePath());
 			if (roamingProfile)
-				props.setProperty(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
+				props.put(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
 
 			String env = getEnvironmentProperty();
 			if (env != null)
-				props.setProperty(IProfile.PROP_ENVIRONMENTS, env);
+				props.put(IProfile.PROP_ENVIRONMENTS, env);
 			if (profileProperties != null)
 				putProperties(profileProperties, props);
 			profile = profileRegistry.addProfile(profileId, props);
@@ -341,7 +343,7 @@ public class DirectorApplication implements IApplication {
 		boolean anyValid = false; // do we have any valid repos or did they all fail to load?
 		artifactReposForRemoval = new URI[artifactRepositoryLocations.size()];
 		for (int i = 0; i < artifactRepositoryLocations.size(); i++) {
-			URI location = (URI) artifactRepositoryLocations.get(i);
+			URI location = artifactRepositoryLocations.get(i);
 			try {
 				if (!artifactManager.contains(location)) {
 					artifactManager.loadRepository(location, null);
@@ -369,7 +371,7 @@ public class DirectorApplication implements IApplication {
 		int top = metadataRepositoryLocations.size();
 		metadataReposForRemoval = new URI[top];
 		for (int i = 0; i < top; i++) {
-			URI location = (URI) metadataRepositoryLocations.get(i);
+			URI location = metadataRepositoryLocations.get(i);
 			try {
 				if (!metadataManager.contains(location)) {
 					metadataManager.loadRepository(location, null);
@@ -462,27 +464,27 @@ public class DirectorApplication implements IApplication {
 		if (metadataRepositoryLocations.isEmpty())
 			missingArgument("metadataRepository"); //$NON-NLS-1$
 
-		ArrayList allRoots = new ArrayList();
+		ArrayList<IInstallableUnit> allRoots = new ArrayList<IInstallableUnit>();
 		if (rootsToList.size() == 0) {
-			Iterator roots = collectRootIUs(InstallableUnitQuery.ANY).iterator();
+			Iterator<IInstallableUnit> roots = collectRootIUs(InstallableUnitQuery.ANY).iterator();
 			while (roots.hasNext())
 				allRoots.add(roots.next());
 		} else {
-			Iterator r = rootsToList.iterator();
+			Iterator<IVersionedId> r = rootsToList.iterator();
 			while (r.hasNext()) {
-				IVersionedId rootName = (IVersionedId) r.next();
+				IVersionedId rootName = r.next();
 				Version v = rootName.getVersion();
-				IQuery query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
-				Iterator roots = collectRootIUs(query).iterator();
+				IQuery<IInstallableUnit> query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
+				Iterator<IInstallableUnit> roots = collectRootIUs(query).iterator();
 				while (roots.hasNext())
 					allRoots.add(roots.next());
 			}
 		}
 
 		Collections.sort(allRoots);
-		Iterator i = allRoots.iterator();
+		Iterator<IInstallableUnit> i = allRoots.iterator();
 		while (i.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) i.next();
+			IInstallableUnit iu = i.next();
 			System.out.println(iu.getId() + '=' + iu.getVersion());
 		}
 	}
@@ -496,8 +498,8 @@ public class DirectorApplication implements IApplication {
 		boolean wasRoaming = Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue();
 		try {
 			updateRoamingProperties(profile);
-			ProvisioningContext context = new ProvisioningContext((URI[]) metadataRepositoryLocations.toArray(new URI[metadataRepositoryLocations.size()]));
-			context.setArtifactRepositories((URI[]) artifactRepositoryLocations.toArray(new URI[artifactRepositoryLocations.size()]));
+			ProvisioningContext context = new ProvisioningContext(metadataRepositoryLocations.toArray(new URI[metadataRepositoryLocations.size()]));
+			context.setArtifactRepositories(artifactRepositoryLocations.toArray(new URI[artifactRepositoryLocations.size()]));
 			ProfileChangeRequest request = buildProvisioningRequest(profile, installs, uninstalls);
 			printRequest(request);
 			planAndExecute(profile, context, request);
@@ -679,7 +681,7 @@ public class DirectorApplication implements IApplication {
 	 * @param pairs	a comma separated list of tag=value pairs
 	 * @param properties the collection into which the pairs are put
 	 */
-	private void putProperties(String pairs, Properties properties) {
+	private void putProperties(String pairs, Map<String, String> properties) {
 		String[] propPairs = StringHelper.getArrayFromString(pairs, ',');
 		for (int i = 0; i < propPairs.length; ++i) {
 			String propPair = propPairs[i];
@@ -755,8 +757,8 @@ public class DirectorApplication implements IApplication {
 			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.Missing_profile));
 		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
 
-		ProvisioningContext context = new ProvisioningContext((URI[]) metadataRepositoryLocations.toArray(new URI[metadataRepositoryLocations.size()]));
-		context.setArtifactRepositories((URI[]) artifactRepositoryLocations.toArray(new URI[artifactRepositoryLocations.size()]));
+		ProvisioningContext context = new ProvisioningContext(metadataRepositoryLocations.toArray(new URI[metadataRepositoryLocations.size()]));
+		context.setArtifactRepositories(artifactRepositoryLocations.toArray(new URI[artifactRepositoryLocations.size()]));
 		executePlan(context, plan);
 	}
 
@@ -777,8 +779,8 @@ public class DirectorApplication implements IApplication {
 			strm.print(' ');
 	}
 
-	IQueryResult getInstallableUnits(URI location, IQuery query, IProgressMonitor monitor) {
-		IQueryable queryable = null;
+	IQueryResult<IInstallableUnit> getInstallableUnits(URI location, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+		IQueryable<IInstallableUnit> queryable = null;
 		if (location == null) {
 			queryable = metadataManager;
 		} else {
@@ -790,7 +792,7 @@ public class DirectorApplication implements IApplication {
 		}
 		if (queryable != null)
 			return queryable.query(query, monitor);
-		return Collector.EMPTY_COLLECTOR;
+		return Collector.emptyCollector();
 	}
 
 	private void deeplyPrint(CoreException ce, PrintStream strm, int level) {
@@ -859,16 +861,16 @@ public class DirectorApplication implements IApplication {
 		return run((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 	}
 
-	private String toString(Map context) {
+	private String toString(Map<String, String> context) {
 		StringBuffer result = new StringBuffer();
-		Iterator entries = context.entrySet().iterator();
+		Iterator<Entry<String, String>> entries = context.entrySet().iterator();
 		while (entries.hasNext()) {
-			Map.Entry entry = (Map.Entry) entries.next();
+			Entry<String, String> entry = entries.next();
 			if (result.length() > 0)
 				result.append(',');
-			result.append((String) entry.getKey());
+			result.append(entry.getKey());
 			result.append('=');
-			result.append((String) entry.getValue());
+			result.append(entry.getValue());
 		}
 		return result.toString();
 	}
@@ -891,9 +893,9 @@ public class DirectorApplication implements IApplication {
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		if (!destination.equals(new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER))))
-			request.setProfileProperty(IProfile.PROP_INSTALL_FOLDER, destination);
+			request.setProfileProperty(IProfile.PROP_INSTALL_FOLDER, destination.getAbsolutePath());
 		if (!destination.equals(new File(profile.getProperty(IProfile.PROP_CACHE))))
-			request.setProfileProperty(IProfile.PROP_CACHE, destination);
+			request.setProfileProperty(IProfile.PROP_CACHE, destination.getAbsolutePath());
 		if (request.getProfileProperties().size() == 0)
 			return;
 

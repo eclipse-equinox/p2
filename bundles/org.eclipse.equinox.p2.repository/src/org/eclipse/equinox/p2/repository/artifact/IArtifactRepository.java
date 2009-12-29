@@ -14,8 +14,8 @@ import java.io.OutputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
@@ -28,19 +28,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface IArtifactRepository extends IRepository {
-
-	/**
-	 * See {@link IQuery#getProperty(String)}.  A query should implement "getExcludeArtifactKeys" returning
-	 * Boolean.TRUE to indicate that it is not interested in {@link IArtifactKey}s.
-	 */
-	public static final String QUERY_EXCLUDE_KEYS = "ExcludeArtifactKeys"; //$NON-NLS-1$
-
-	/**
-	 * See {@link IQuery#getProperty(String)}.  A query should implement "getExcludeArtifactDescriptors" returning
-	 * Boolean.TRUE to indicate that it is not interested in {@link IArtifactDescriptor}s.
-	 */
-	public static final String QUERY_EXCLUDE_DESCRIPTORS = "ExcludeArtifactDescriptors"; //$NON-NLS-1$
+public interface IArtifactRepository extends IRepository<IArtifactKey> {
 
 	/** 
 	 * The return code to use when a client could/should retry a failed getArtifact() operation.
@@ -126,6 +114,14 @@ public interface IArtifactRepository extends IRepository {
 	 * </ul>
 	 */
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException;
+
+	/**
+	 * Returns a queryable that can be queried for artifact descriptors contained in this repository
+	 * @param query The artifact descriptor query
+	 * @param monitor The progress montior
+	 * @return The query result
+	 */
+	public IQueryable<IArtifactDescriptor> descriptorQueryable();
 
 	/**
 	 * Remove the all keys, descriptors, and contents from this repository.

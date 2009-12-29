@@ -126,7 +126,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	protected abstract int performAction(ProfileChangeOperation operation, IInstallableUnit[] ius);
 
 	protected IInstallableUnit getIU(Object element) {
-		return (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+		return ProvUI.getAdapter(element, IInstallableUnit.class);
 
 	}
 
@@ -141,8 +141,8 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	 * enablement criteria for the action.  
 	 */
 	protected IInstallableUnit[] getSelectedIUs() {
-		List elements = getStructuredSelection().toList();
-		List iusList = new ArrayList(elements.size());
+		List<?> elements = getStructuredSelection().toList();
+		List<IInstallableUnit> iusList = new ArrayList<IInstallableUnit>(elements.size());
 
 		for (int i = 0; i < elements.size(); i++) {
 			if (elements.get(i) instanceof IIUElement) {
@@ -150,12 +150,12 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 				if (isSelectable(element))
 					iusList.add(getIU(element));
 			} else {
-				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(elements.get(i), IInstallableUnit.class);
+				IInstallableUnit iu = ProvUI.getAdapter(elements.get(i), IInstallableUnit.class);
 				if (iu != null && isSelectable(iu))
 					iusList.add(iu);
 			}
 		}
-		return (IInstallableUnit[]) iusList.toArray(new IInstallableUnit[iusList.size()]);
+		return iusList.toArray(new IInstallableUnit[iusList.size()]);
 	}
 
 	protected boolean isSelectable(IIUElement element) {

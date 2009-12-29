@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.query;
 
+import java.util.List;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -21,8 +23,8 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
  * 
  * @since 2.0 
  */
-public class CategoryMemberQuery extends MatchQuery {
-	private IRequirement[] required;
+public class CategoryMemberQuery extends MatchQuery<IInstallableUnit> {
+	private final List<IRequirement> required;
 
 	/**
 	 * Creates a new query that will return the members of the
@@ -35,21 +37,19 @@ public class CategoryMemberQuery extends MatchQuery {
 		if (CategoryQuery.isCategory(category))
 			this.required = category.getRequiredCapabilities();
 		else
-			this.required = new IRequirement[0];
+			this.required = CollectionUtils.emptyList();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery#isMatch(java.lang.Object)
 	 */
-	public boolean isMatch(Object object) {
-		if (!(object instanceof IInstallableUnit))
-			return false;
-		IInstallableUnit candidate = (IInstallableUnit) object;
+	public boolean isMatch(IInstallableUnit candidate) {
 		// since a category lists its members as requirements, then meeting
 		// any requirement means the candidate is a member of the category.
-		for (int i = 0; i < required.length; i++)
-			if (candidate.satisfies(required[i]))
+		int top = required.size();
+		for (int i = 0; i < top; i++)
+			if (candidate.satisfies(required.get(i)))
 				return true;
 		return false;
 	}

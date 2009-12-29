@@ -63,7 +63,7 @@ public class Bug265577 extends AbstractProvisioningTest {
 	public void testZippedRepoWithFolderFeature() {
 		IQueryResult queryResult = metadataRepo.query(new InstallableUnitQuery("Field_Assist_Example.feature.jar"), null);
 		IInstallableUnit[] ius = (IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class);
-		IArtifactKey key = (ius[0].getArtifacts())[0];
+		IArtifactKey key = (ius[0].getArtifacts()).get(0);
 
 		IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(key);
 		ArtifactDescriptor desc = (ArtifactDescriptor) descriptors[0];
@@ -87,7 +87,7 @@ public class Bug265577 extends AbstractProvisioningTest {
 	public void testZippedRepo() {
 		IQueryResult queryResult = metadataRepo.query(new InstallableUnitQuery("valid.feature.jar"), null);
 		IInstallableUnit[] ius = (IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class);
-		IArtifactKey key = (ius[0].getArtifacts())[0];
+		IArtifactKey key = (ius[0].getArtifacts()).get(0);
 
 		IArtifactDescriptor[] descriptors = artifactRepo.getArtifactDescriptors(key);
 		IArtifactDescriptor desc = descriptors[0];

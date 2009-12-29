@@ -223,8 +223,8 @@ abstract class ProvView extends ViewPart {
 		// do nothing by default
 	}
 
-	protected List getVisualProperties() {
-		ArrayList list = new ArrayList(1);
+	protected List<String> getVisualProperties() {
+		ArrayList<String> list = new ArrayList<String>(1);
 		list.add(PreferenceConstants.PREF_SHOW_GROUPS_ONLY);
 		return list;
 	}

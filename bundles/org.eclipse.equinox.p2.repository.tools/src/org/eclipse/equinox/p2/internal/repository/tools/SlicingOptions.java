@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.internal.repository.tools;
 
 import java.util.Dictionary;
-import java.util.Properties;
+import java.util.Hashtable;
 
 public class SlicingOptions {
 	private boolean includeOptionalDependencies = true;
@@ -20,7 +20,7 @@ public class SlicingOptions {
 	private boolean considerStrictDependencyOnly = false;
 	private boolean followOnlyFilteredRequirements = false;
 	private boolean latestVersion = false;
-	private Dictionary filter = null;
+	private Dictionary<String, Object> filter = null;
 
 	public boolean includeOptionalDependencies() {
 		return includeOptionalDependencies;
@@ -54,13 +54,13 @@ public class SlicingOptions {
 		this.considerStrictDependencyOnly = strict;
 	}
 
-	public Dictionary getFilter() {
+	public Dictionary<String, Object> getFilter() {
 		if (filter == null)
-			filter = new Properties();
+			filter = new Hashtable<String, Object>();
 		return filter;
 	}
 
-	public void setFilter(Dictionary filter) {
+	public void setFilter(Dictionary<String, Object> filter) {
 		this.filter = filter;
 	}
 

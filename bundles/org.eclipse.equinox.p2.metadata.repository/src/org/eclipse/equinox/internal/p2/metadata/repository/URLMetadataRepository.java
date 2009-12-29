@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
@@ -47,7 +48,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		super();
 	}
 
-	public URLMetadataRepository(URI location, String name, Map properties) {
+	public URLMetadataRepository(URI location, String name, Map<String, String> properties) {
 		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
 		content = getActualLocation(location);
 	}
@@ -78,7 +79,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		return false;
 	}
 
-	public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public synchronized IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		if (query instanceof InstallableUnitQuery)
 			return units.query((InstallableUnitQuery) query);
 		return query.perform(units.iterator());

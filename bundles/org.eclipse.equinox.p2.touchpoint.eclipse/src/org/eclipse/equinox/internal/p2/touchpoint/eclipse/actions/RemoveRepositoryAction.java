@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 public class RemoveRepositoryAction extends RepositoryAction {
 	public static final String ID = "removeRepository"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		try {
 			IProvisioningAgent agent = getAgent(parameters);
 			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
@@ -42,7 +42,7 @@ public class RemoveRepositoryAction extends RepositoryAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		try {
 			IProvisioningAgent agent = getAgent(parameters);
 			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);

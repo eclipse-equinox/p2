@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -33,7 +34,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  * 
  * @since 3.4
  */
-public class MetadataRepositoryElement extends RootElement implements IRepositoryElement {
+public class MetadataRepositoryElement extends RootElement implements IRepositoryElement<IInstallableUnit> {
 
 	URI location;
 	boolean isEnabled;
@@ -53,6 +54,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		this.isEnabled = isEnabled;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IMetadataRepository.class)
 			return getQueryable();
@@ -98,13 +100,13 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryable()
 	 */
-	public IQueryable getQueryable() {
+	public IQueryable<?> getQueryable() {
 		if (queryable == null)
 			queryable = getRepository(new NullProgressMonitor());
 		return queryable;
 	}
 
-	public IRepository getRepository(IProgressMonitor monitor) {
+	public IMetadataRepository getRepository(IProgressMonitor monitor) {
 		try {
 			return getMetadataRepository(monitor);
 		} catch (ProvisionException e) {

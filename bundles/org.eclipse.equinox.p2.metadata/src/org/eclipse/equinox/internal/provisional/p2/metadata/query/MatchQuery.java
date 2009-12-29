@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.metadata.query.IQueryResult;
  * computation, to allow {@link IQueryable} implementations to optimize their
  * execution of the query. 
  */
-public abstract class MatchQuery implements IMatchQuery {
+public abstract class MatchQuery<T> implements IMatchQuery<T> {
 
 	/**
 	 * Returns whether the given object satisfies the parameters of this query.
@@ -37,7 +37,7 @@ public abstract class MatchQuery implements IMatchQuery {
 	 * @noreference This method is not intended to be referenced by clients.
 	 * Clients should call {@link #perform(Iterator)}
 	 */
-	public abstract boolean isMatch(Object candidate);
+	public abstract boolean isMatch(T candidate);
 
 	/**
 	 * Gets the ID for this Query. 
@@ -58,13 +58,13 @@ public abstract class MatchQuery implements IMatchQuery {
 	 * Performs this query on the given iterator, passing all objects in the iterator 
 	 * that match the criteria of this query to the given result.
 	 */
-	public final IQueryResult perform(Iterator iterator) {
-		Collector result = new Collector();
+	public final IQueryResult<T> perform(Iterator<T> iterator) {
+		Collector<T> result = new Collector<T>();
 		prePerform();
 		try {
 			while (iterator.hasNext()) {
-				Object candidate = iterator.next();
-				if (isMatch(candidate))
+				T candidate = iterator.next();
+				if (candidate != null && isMatch(candidate))
 					if (!result.accept(candidate))
 						break;
 			}

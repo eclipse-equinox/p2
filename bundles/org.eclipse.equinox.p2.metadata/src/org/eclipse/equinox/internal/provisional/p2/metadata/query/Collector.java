@@ -15,6 +15,7 @@ import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.Messages;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
@@ -28,14 +29,19 @@ import org.eclipse.equinox.p2.metadata.query.IQueryResult;
  * This default collector just accepts all objects passed to it.  Clients may subclass
  * to perform different processing on the objects passed to it.
  */
-public class Collector implements IQueryResult {
-	private Set collected = null;
+public class Collector<T> implements IQueryResult<T> {
+	private Set<T> collected = null;
 
-	public static final Collector EMPTY_COLLECTOR = new Collector() {
+	public static final Collector<?> EMPTY_COLLECTOR = new Collector<Object>() {
 		public boolean accept(Object val) {
 			return false;
 		}
 	};
+
+	@SuppressWarnings("unchecked")
+	public static final <T> Collector<T> emptyCollector() {
+		return (Collector<T>) EMPTY_COLLECTOR;
+	}
 
 	/**
 	 * Creates a new collector.
@@ -56,7 +62,7 @@ public class Collector implements IQueryResult {
 	 * @return <code>true</code> if the traversal should continue,
 	 * or <code>false</code> to indicate the traversal should stop.
 	 */
-	public boolean accept(Object object) {
+	public boolean accept(T object) {
 		getCollection().add(object);
 		return true;
 	}
@@ -65,9 +71,9 @@ public class Collector implements IQueryResult {
 	 * Adds the elements from one collector to this collector
 	 * @param queryResult The collector from which the elements should be retrieved
 	 */
-	public void addAll(IQueryResult queryResult) {
+	public void addAll(IQueryResult<T> queryResult) {
 		boolean keepGoing = true;
-		for (Iterator iter = queryResult.iterator(); iter.hasNext() && keepGoing;) {
+		for (Iterator<T> iter = queryResult.iterator(); iter.hasNext() && keepGoing;) {
 			keepGoing = accept(iter.next());
 		}
 	}
@@ -80,9 +86,9 @@ public class Collector implements IQueryResult {
 	 * 
 	 * @return the collection being used to collect results.
 	 */
-	protected Collection getCollection() {
+	protected Collection<T> getCollection() {
 		if (collected == null)
-			collected = new HashSet();
+			collected = new HashSet<T>();
 		return collected;
 	}
 
@@ -100,8 +106,8 @@ public class Collector implements IQueryResult {
 	 * 
 	 * @return an iterator of the collected objects.
 	 */
-	public Iterator iterator() {
-		return collected == null ? Collections.EMPTY_LIST.iterator() : collected.iterator();
+	public Iterator<T> iterator() {
+		return collected == null ? CollectionUtils.<T> emptyList().iterator() : collected.iterator();
 	}
 
 	/**
@@ -119,9 +125,10 @@ public class Collector implements IQueryResult {
 	 * @throws ArrayStoreException the runtime type of the specified array is
 	 *         not a supertype of the runtime type of every collected object
 	 */
-	public Object[] toArray(Class clazz) {
+	public T[] toArray(Class<? extends T> clazz) {
 		int size = collected == null ? 0 : collected.size();
-		Object[] result = (Object[]) Array.newInstance(clazz, size);
+		@SuppressWarnings("unchecked")
+		T[] result = (T[]) Array.newInstance(clazz, size);
 		if (size != 0)
 			collected.toArray(result);
 		return result;
@@ -132,15 +139,15 @@ public class Collector implements IQueryResult {
 	 * 
 	 * @return An unmodifiable collection of the collected objects
 	 */
-	public Set toSet() {
-		return collected == null ? new HashSet() : new HashSet(collected);
+	public Set<T> toSet() {
+		return collected == null ? new HashSet<T>() : new HashSet<T>(collected);
 	}
 
 	/**
 	 * Performs a query on this results of this collector.  
 	 */
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		IQueryResult result;
+	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
+		IQueryResult<T> result;
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		try {
@@ -158,7 +165,8 @@ public class Collector implements IQueryResult {
 	 * 
 	 * @return An unmodifiable collection of the collected objects
 	 */
-	public Set unmodifiableSet() {
+	@SuppressWarnings("unchecked")
+	public Set<T> unmodifiableSet() {
 		return collected == null ? Collections.EMPTY_SET : Collections.unmodifiableSet(collected);
 	}
 }

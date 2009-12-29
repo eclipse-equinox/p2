@@ -87,11 +87,11 @@ public class NonMinimalState extends AbstractProvisioningTest {
 			visited.add(iu);
 			return false;
 		}
-		IRequirement[] caps = iu.getRequiredCapabilities();
-		for (int i = 0; i < caps.length; i++) {
-			boolean result = expandRequirement(iu, caps[i]);
+		List<IRequirement> caps = iu.getRequiredCapabilities();
+		for (int i = 0; i < caps.size(); i++) {
+			boolean result = expandRequirement(iu, caps.get(i));
 			if (result) {
-				System.out.println(iu + " because " + caps[i].toString());
+				System.out.println(iu + " because " + caps.get(i).toString());
 				return true;
 			}
 		}

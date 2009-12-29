@@ -12,9 +12,11 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
 import java.util.*;
 import org.apache.tools.ant.types.DataType;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.internal.repository.tools.Activator;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
@@ -101,29 +103,32 @@ public class IUDescription extends DataType {
 		return buffer.toString();
 	}
 
-	public IQuery createQuery() {
-		List queries = new ArrayList();
+	public IQuery<IInstallableUnit> createQuery() {
+		List<IQuery<IInstallableUnit>> queries = new ArrayList<IQuery<IInstallableUnit>>();
 		if (id != null) {
 			if (version == null || version.length() == 0) {
 				// Get the latest version of the iu
 				queries.add(new InstallableUnitQuery(id));
-				queries.add(new LatestIUVersionQuery());
+				queries.add(new LatestIUVersionQuery<IInstallableUnit>());
 			} else {
 				Version iuVersion = Version.parseVersion(version);
 				queries.add(new InstallableUnitQuery(id, iuVersion));
 			}
 		}
 
-		IQuery iuQuery = processQueryString();
+		IQuery<IInstallableUnit> iuQuery = processQueryString();
 		if (iuQuery != null)
 			queries.add(iuQuery);
 
 		if (queries.size() == 1)
-			return (IQuery) queries.get(0);
-		return new PipedQuery((IQuery[]) queries.toArray(new IQuery[queries.size()]));
+			return queries.get(0);
+
+		@SuppressWarnings("unchecked")
+		IQuery<IInstallableUnit> query = new PipedQuery<IInstallableUnit>(queries.toArray(new IQuery[queries.size()]));
+		return query;
 	}
 
-	private IQuery processQueryString() {
+	private IQuery<IInstallableUnit> processQueryString() {
 		if (queryString == null)
 			return null;
 		int startIdx = queryString.indexOf('[');
@@ -131,10 +136,10 @@ public class IUDescription extends DataType {
 		if (startIdx == -1 || endIdx == -1 || endIdx < startIdx)
 			return null;
 		String element = queryString.substring(0, startIdx);
-		Map attributes = processQueryAttributes(queryString.substring(startIdx + 1, endIdx));
+		Map<String, String> attributes = processQueryAttributes(queryString.substring(startIdx + 1, endIdx));
 		if (element.equals(QUERY_PROPERTY)) {
-			String name = (String) attributes.get(QUERY_NAME);
-			String value = (String) attributes.get(QUERY_VALUE);
+			String name = attributes.get(QUERY_NAME);
+			String value = attributes.get(QUERY_VALUE);
 			if (name == null)
 				return null;
 			return new IUPropertyQuery(name, value);
@@ -143,11 +148,11 @@ public class IUDescription extends DataType {
 		return null;
 	}
 
-	private Map processQueryAttributes(String attributes) {
+	private Map<String, String> processQueryAttributes(String attributes) {
 		if (attributes == null || attributes.length() == 0)
-			return Collections.EMPTY_MAP;
+			return CollectionUtils.emptyMap();
 
-		Map result = new HashMap();
+		Map<String, String> result = new HashMap<String, String>();
 		int start = 0;
 		int idx = 0;
 		while ((idx = attributes.indexOf('@', start)) > -1) {

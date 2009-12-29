@@ -70,13 +70,13 @@ public class TarFile {
 	 * 
 	 * @return enumeration of all files in the archive
 	 */
-	public Enumeration entries() {
-		return new Enumeration() {
+	public Enumeration<TarEntry> entries() {
+		return new Enumeration<TarEntry>() {
 			public boolean hasMoreElements() {
 				return (curEntry != null);
 			}
 
-			public Object nextElement() {
+			public TarEntry nextElement() {
 				TarEntry oldEntry = curEntry;
 				try {
 					curEntry = entryEnumerationStream.getNextEntry();

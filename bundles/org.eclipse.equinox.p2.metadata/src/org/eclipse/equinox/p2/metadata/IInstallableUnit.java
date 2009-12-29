@@ -11,6 +11,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import java.util.List;
 import java.util.Map;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
@@ -20,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.query.IQuery;
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
  */
-public interface IInstallableUnit extends IVersionedId, Comparable {
+public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableUnit> {
 
 	/**
 	 * A capability namespace representing a particular InstallableUnit by id.
@@ -94,7 +95,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 */
 	public static final String PROP_PROVIDER = "org.eclipse.equinox.p2.provider"; //$NON-NLS-1$
 
-	public IArtifactKey[] getArtifacts();
+	public List<IArtifactKey> getArtifacts();
 
 	/**
 	 * Returns the filter on this installable unit. The filter is matched against
@@ -103,7 +104,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 * 
 	 * See Profile#getSelectionContext.
 	 */
-	public IQuery getFilter();
+	public IQuery<Boolean> getFilter();
 
 	/**
 	 * Returns the fragments that have been bound to this installable unit, or
@@ -112,7 +113,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 * @see #isResolved()
 	 * @return The fragments bound to this installable unit, or <code>null</code>
 	 */
-	public IInstallableUnitFragment[] getFragments();
+	public List<IInstallableUnitFragment> getFragments();
 
 	/**
 	 * Returns an <i>unmodifiable copy</i> of the properties
@@ -120,7 +121,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 * 
 	 * @return an <i>unmodifiable copy</i> of the properties of this installable unit.
 	 */
-	public Map getProperties();
+	public Map<String, String> getProperties();
 
 	/**
 	 * Returns the untranslated property of this installable unit associated with the given key. 
@@ -148,13 +149,13 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 */
 	public String getProperty(String key, String locale);
 
-	public IProvidedCapability[] getProvidedCapabilities();
+	public List<IProvidedCapability> getProvidedCapabilities();
 
-	public IRequirement[] getRequiredCapabilities();
+	public List<IRequirement> getRequiredCapabilities();
 
-	public IRequirement[] getMetaRequiredCapabilities();
+	public List<IRequirement> getMetaRequiredCapabilities();
 
-	public ITouchpointData[] getTouchpointData();
+	public List<ITouchpointData> getTouchpointData();
 
 	public ITouchpointType getTouchpointType();
 
@@ -208,7 +209,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable {
 	 * </p>
 	 * @return the licenses that apply to this installable unit
 	 */
-	public ILicense[] getLicenses();
+	public List<ILicense> getLicenses();
 
 	/**
 	 * Returns the licenses that apply to this installable unit. Any translation of the

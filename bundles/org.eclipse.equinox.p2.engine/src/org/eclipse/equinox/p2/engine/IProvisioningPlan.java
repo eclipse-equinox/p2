@@ -31,7 +31,7 @@ public interface IProvisioningPlan {
 	 * 
 	 * @return The proposed profile additions
 	 */
-	public abstract IQueryable getAdditions();
+	public abstract IQueryable<IInstallableUnit> getAdditions();
 
 	/**
 	 * Returns the provisioning context in which this plan was created.
@@ -68,7 +68,7 @@ public interface IProvisioningPlan {
 	 * 
 	 * @return The proposed profile removals.
 	 */
-	public abstract IQueryable getRemovals();
+	public abstract IQueryable<IInstallableUnit> getRemovals();
 
 	/**
 	 * Returns the problems associated with changes to the given installable unit
@@ -95,7 +95,7 @@ public interface IProvisioningPlan {
 	 * @return A map of {@link IInstallableUnit} to {@link IStatus} of the additional 
 	 * changes and their corresponding explanation.
 	 */
-	public abstract Map getSideEffectChanges();
+	public abstract Map<IInstallableUnit, IStatus> getSideEffectChanges();
 
 	/**
 	 * Returns the overall plan status. The severity of this status indicates

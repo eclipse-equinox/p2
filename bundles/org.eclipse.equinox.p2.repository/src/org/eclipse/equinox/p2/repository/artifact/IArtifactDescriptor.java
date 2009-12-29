@@ -86,7 +86,7 @@ public interface IArtifactDescriptor {
 	 * Returns a read-only collection of the properties of the artifact descriptor.
 	 * @return the properties of this artifact descriptor.
 	 */
-	public Map getProperties();
+	public Map<String, String> getProperties();
 
 	/** 
 	 * Return the list of processing steps associated with this descriptor.

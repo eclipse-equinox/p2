@@ -31,12 +31,12 @@ public class FormerState {
 	}
 
 	private static void synchronizeAllIUProperties(ProfileChangeRequest request, IProfile current, IProfile target) {
-		Set currentIUset = current.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
-		Iterator targetIUs = target.query(InstallableUnitQuery.ANY, null).iterator();
-		List iusToAdd = new ArrayList();
-		List iusToUpdate = new ArrayList();
+		Set<IInstallableUnit> currentIUset = current.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
+		Iterator<IInstallableUnit> targetIUs = target.query(InstallableUnitQuery.ANY, null).iterator();
+		List<IInstallableUnit> iusToAdd = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> iusToUpdate = new ArrayList<IInstallableUnit>();
 		while (targetIUs.hasNext()) {
-			Object nxt = targetIUs.next();
+			IInstallableUnit nxt = targetIUs.next();
 			if (currentIUset.contains(nxt))
 				iusToUpdate.add(nxt);
 			else
@@ -44,35 +44,31 @@ public class FormerState {
 		}
 
 		//additions
-		for (Iterator iterator = iusToAdd.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			for (Iterator it = target.getInstallableUnitProperties(iu).entrySet().iterator(); it.hasNext();) {
-				Entry entry = (Entry) it.next();
-				String key = (String) entry.getKey();
-				String value = (String) entry.getValue();
-				request.setInstallableUnitProfileProperty(iu, key, value);
+		for (Iterator<IInstallableUnit> iterator = iusToAdd.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
+			for (Iterator<Entry<String, String>> it = target.getInstallableUnitProperties(iu).entrySet().iterator(); it.hasNext();) {
+				Entry<String, String> entry = it.next();
+				request.setInstallableUnitProfileProperty(iu, entry.getKey(), entry.getValue());
 			}
 		}
 
 		// updates
-		for (Iterator iterator = iusToUpdate.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			Map propertiesToSet = new HashMap(target.getInstallableUnitProperties(iu));
-			for (Iterator it = current.getInstallableUnitProperties(iu).entrySet().iterator(); it.hasNext();) {
-				Entry entry = (Entry) it.next();
-				String key = (String) entry.getKey();
-				String newValue = (String) propertiesToSet.get(key);
+		for (Iterator<IInstallableUnit> iterator = iusToUpdate.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
+			Map<String, String> propertiesToSet = new HashMap<String, String>(target.getInstallableUnitProperties(iu));
+			for (Iterator<Entry<String, String>> it = current.getInstallableUnitProperties(iu).entrySet().iterator(); it.hasNext();) {
+				Entry<String, String> entry = it.next();
+				String key = entry.getKey();
+				String newValue = propertiesToSet.get(key);
 				if (newValue == null) {
 					request.removeInstallableUnitProfileProperty(iu, key);
 				} else if (newValue.equals(entry.getValue()))
 					propertiesToSet.remove(key);
 			}
 
-			for (Iterator it = propertiesToSet.entrySet().iterator(); it.hasNext();) {
-				Entry entry = (Entry) it.next();
-				String key = (String) entry.getKey();
-				String value = (String) entry.getValue();
-				request.setInstallableUnitProfileProperty(iu, key, value);
+			for (Iterator<Entry<String, String>> it = propertiesToSet.entrySet().iterator(); it.hasNext();) {
+				Entry<String, String> entry = it.next();
+				request.setInstallableUnitProfileProperty(iu, entry.getKey(), entry.getValue());
 			}
 		}
 	}
@@ -82,34 +78,32 @@ public class FormerState {
 		IInstallableUnit[] targetPlannerMarkedIUs = SimplePlanner.findPlannerMarkedIUs(target);
 
 		//additions
-		List markedIUsToAdd = new ArrayList(Arrays.asList(targetPlannerMarkedIUs));
+		List<IInstallableUnit> markedIUsToAdd = new ArrayList<IInstallableUnit>(Arrays.asList(targetPlannerMarkedIUs));
 		markedIUsToAdd.removeAll(Arrays.asList(currentPlannerMarkedIUs));
-		request.addInstallableUnits((IInstallableUnit[]) markedIUsToAdd.toArray(new IInstallableUnit[markedIUsToAdd.size()]));
+		request.addInstallableUnits(markedIUsToAdd);
 
 		// removes
-		List markedIUsToRemove = new ArrayList(Arrays.asList(currentPlannerMarkedIUs));
+		List<IInstallableUnit> markedIUsToRemove = new ArrayList<IInstallableUnit>(Arrays.asList(currentPlannerMarkedIUs));
 		markedIUsToRemove.removeAll(Arrays.asList(targetPlannerMarkedIUs));
-		request.removeInstallableUnits((IInstallableUnit[]) markedIUsToRemove.toArray(new IInstallableUnit[markedIUsToRemove.size()]));
+		request.removeInstallableUnits(markedIUsToRemove);
 	}
 
 	private static void synchronizeProfileProperties(ProfileChangeRequest request, IProfile current, IProfile target) {
-		Map profilePropertiesToSet = new HashMap(target.getProperties());
-		for (Iterator it = current.getProperties().entrySet().iterator(); it.hasNext();) {
-			Entry entry = (Entry) it.next();
-			String key = (String) entry.getKey();
+		Map<String, String> profilePropertiesToSet = new HashMap<String, String>(target.getProperties());
+		for (Iterator<Entry<String, String>> it = current.getProperties().entrySet().iterator(); it.hasNext();) {
+			Entry<String, String> entry = it.next();
+			String key = entry.getKey();
 
-			String newValue = (String) profilePropertiesToSet.get(key);
+			String newValue = profilePropertiesToSet.get(key);
 			if (newValue == null) {
 				request.removeProfileProperty(key);
 			} else if (newValue.equals(entry.getValue()))
 				profilePropertiesToSet.remove(key);
 		}
 
-		for (Iterator it = profilePropertiesToSet.entrySet().iterator(); it.hasNext();) {
-			Entry entry = (Entry) it.next();
-			String key = (String) entry.getKey();
-			String value = (String) entry.getValue();
-			request.setProfileProperty(key, value);
+		for (Iterator<Entry<String, String>> it = profilePropertiesToSet.entrySet().iterator(); it.hasNext();) {
+			Entry<String, String> entry = it.next();
+			request.setProfileProperty(entry.getKey(), entry.getValue());
 		}
 	}
 }

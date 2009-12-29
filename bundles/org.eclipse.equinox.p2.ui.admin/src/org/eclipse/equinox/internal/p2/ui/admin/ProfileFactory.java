@@ -33,7 +33,7 @@ public class ProfileFactory {
 	static private EnvironmentInfo info;
 
 	public static IProfile makeProfile(String profileId) {
-		Map profileProperties = new HashMap();
+		Map<String, String> profileProperties = new HashMap<String, String>();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, getDefaultLocation());
 		profileProperties.put(IProfile.PROP_ENVIRONMENTS, getDefaultEnvironments());
 		profileProperties.put(IProfile.PROP_NL, getDefaultNL());

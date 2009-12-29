@@ -32,7 +32,7 @@ import org.eclipse.osgi.util.NLS;
  * query is performed over the URI's.  Otherwise the repositories are loaded and
  * the query is performed over the repositories themselves.
  */
-public abstract class QueryableRepositoryManager implements IQueryable {
+public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 	private ProvisioningSession session;
 	protected boolean includeDisabledRepos;
 	protected RepositoryTracker tracker;
@@ -54,8 +54,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	/**
 	 * Iterates over the repositories configured in this queryable.
 	 * For most queries, the query is run on each repository, passing any objects that satisfy the
-	 * query.  If the query is a {@link RepositoryLocationQuery}, the query
-	 * is run on the repository locations instead.
+	 * query.
 	 * <p>
 	 * This method is long-running; progress and cancellation are provided
 	 * by the given progress monitor. 
@@ -66,20 +65,29 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 *    reporting is not desired
 	 * @return The QueryResult argument
 	 */
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		IRepositoryManager manager = getRepositoryManager();
+	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
+		IRepositoryManager<T> manager = getRepositoryManager();
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		return query(getRepoLocations(manager), query, monitor);
 	}
 
-	protected URI[] getRepoLocations(IRepositoryManager manager) {
-		Set locations = new HashSet();
+	public IQueryable<URI> locationsQueriable() {
+		return new IQueryable<URI>() {
+
+			public IQueryResult<URI> query(IQuery<URI> query, IProgressMonitor monitor) {
+				return query.perform(Arrays.asList(getRepoLocations(getRepositoryManager())).iterator());
+			}
+		};
+	}
+
+	protected URI[] getRepoLocations(IRepositoryManager<T> manager) {
+		Set<URI> locations = new HashSet<URI>();
 		locations.addAll(Arrays.asList(manager.getKnownRepositories(repositoryFlags)));
 		if (includeDisabledRepos) {
 			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | repositoryFlags)));
 		}
-		return (URI[]) locations.toArray(new URI[locations.size()]);
+		return locations.toArray(new URI[locations.size()]);
 	}
 
 	/**
@@ -93,12 +101,12 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 * are not.
 	 */
 	public boolean areRepositoriesLoaded() {
-		IRepositoryManager mgr = getRepositoryManager();
+		IRepositoryManager<T> mgr = getRepositoryManager();
 		if (mgr == null)
 			return false;
 		URI[] repoURIs = getRepoLocations(mgr);
 		for (int i = 0; i < repoURIs.length; i++) {
-			IRepository repo = getRepository(mgr, repoURIs[i]);
+			IRepository<T> repo = getRepository(mgr, repoURIs[i]);
 			// A not-loaded repo doesn't count if it's considered missing (not found)
 			if (repo == null && !tracker.hasNotFoundStatusBeenReported(repoURIs[i]))
 				return false;
@@ -106,11 +114,11 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 		return true;
 	}
 
-	protected abstract IRepository getRepository(IRepositoryManager manager, URI location);
+	protected abstract IRepository<T> getRepository(IRepositoryManager<T> manager, URI location);
 
-	protected IRepository loadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException {
+	protected IRepository<T> loadRepository(IRepositoryManager<T> manager, URI location, IProgressMonitor monitor) throws ProvisionException {
 		monitor.setTaskName(NLS.bind(ProvUIMessages.QueryableMetadataRepositoryManager_LoadRepositoryProgress, URIUtil.toUnencodedString(location)));
-		IRepository repo = doLoadRepository(manager, location, monitor);
+		IRepository<T> repo = doLoadRepository(manager, location, monitor);
 		return repo;
 	}
 
@@ -118,7 +126,7 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 * Return the appropriate repository manager, or <code>null</code> if none could be found.
 	 * @return the repository manager
 	 */
-	protected abstract IRepositoryManager getRepositoryManager();
+	protected abstract IRepositoryManager<T> getRepositoryManager();
 
 	/**
 	 * Return the flags that should be used to access repositories given the
@@ -135,17 +143,13 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 	 * @return the repository that was loaded, or <code>null</code> if no repository could
 	 * be found at that location.
 	 */
-	protected abstract IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException;
+	protected abstract IRepository<T> doLoadRepository(IRepositoryManager<T> manager, URI location, IProgressMonitor monitor) throws ProvisionException;
 
-	protected IQueryResult query(URI uris[], IQuery query, IProgressMonitor monitor) {
-		if (query instanceof RepositoryLocationQuery) {
-			return query.perform(Arrays.asList(uris).iterator());
-		}
-
+	protected IQueryResult<T> query(URI uris[], IQuery<T> query, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, (uris.length + 1) * 100);
-		ArrayList loadedRepos = new ArrayList(uris.length);
+		ArrayList<IRepository<T>> loadedRepos = new ArrayList<IRepository<T>>(uris.length);
 		for (int i = 0; i < uris.length; i++) {
-			IRepository repo = null;
+			IRepository<T> repo = null;
 			try {
 				repo = loadRepository(getRepositoryManager(), uris[i], sub.newChild(100));
 			} catch (ProvisionException e) {
@@ -158,10 +162,11 @@ public abstract class QueryableRepositoryManager implements IQueryable {
 				loadedRepos.add(repo);
 		}
 		if (loadedRepos.size() > 0) {
-			IQueryable[] queryables = (IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]);
-			return new CompoundQueryable(queryables).query(query, sub.newChild(100));
+			@SuppressWarnings("unchecked")
+			IQueryable<T>[] queryables = loadedRepos.toArray(new IQueryable[loadedRepos.size()]);
+			return new CompoundQueryable<T>(queryables).query(query, sub.newChild(100));
 		}
-		return Collector.EMPTY_COLLECTOR;
+		return Collector.emptyCollector();
 	}
 
 	public void setRespositoryFlags(int flags) {

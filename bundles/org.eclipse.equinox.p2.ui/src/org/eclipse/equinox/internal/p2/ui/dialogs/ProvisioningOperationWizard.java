@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -125,10 +127,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	private boolean pageSelectionsHaveChanged(ISelectableIUsPage page) {
-		HashSet selectedIUs = new HashSet();
+		HashSet<IInstallableUnit> selectedIUs = new HashSet<IInstallableUnit>();
 		Object[] currentSelections = page.getCheckedIUElements();
 		selectedIUs.addAll(Arrays.asList(ElementUtils.elementsToIUs(currentSelections)));
-		HashSet lastIUSelections = new HashSet();
+		HashSet<IInstallableUnit> lastIUSelections = new HashSet<IInstallableUnit>();
 		lastIUSelections.addAll(Arrays.asList(ElementUtils.elementsToIUs(planSelections)));
 		return !(selectedIUs.equals(lastIUSelections));
 	}

@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.ICompositeRepository;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -25,8 +26,8 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class CompositeRepositoryApplication extends AbstractApplication {
-	private List childrenToAdd = new ArrayList();
-	private List childrenToRemove = new ArrayList();
+	private List<RepositoryDescriptor> childrenToAdd = new ArrayList<RepositoryDescriptor>();
+	private List<RepositoryDescriptor> childrenToRemove = new ArrayList<RepositoryDescriptor>();
 	private boolean failOnExists = false;
 	private String comparatorID = null;
 
@@ -34,12 +35,12 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 		try {
 			initializeRepos(new NullProgressMonitor());
 			// load repository
-			ICompositeRepository metadataRepo = (ICompositeRepository) destinationMetadataRepository;
+			ICompositeRepository<IInstallableUnit> metadataRepo = (ICompositeRepository<IInstallableUnit>) destinationMetadataRepository;
 			CompositeArtifactRepository artifactRepo = (CompositeArtifactRepository) destinationArtifactRepository;
 
 			// Remove children from the Composite Repositories
-			for (Iterator iterator = childrenToRemove.iterator(); iterator.hasNext();) {
-				RepositoryDescriptor child = (RepositoryDescriptor) iterator.next();
+			for (Iterator<RepositoryDescriptor> iterator = childrenToRemove.iterator(); iterator.hasNext();) {
+				RepositoryDescriptor child = iterator.next();
 				if (child.isArtifact() && artifactRepo != null)
 					artifactRepo.removeChild(child.getOriginalRepoLocation());
 				if (child.isMetadata() && metadataRepo != null)
@@ -47,8 +48,8 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			}
 
 			// Add children to the Composite Repositories
-			for (Iterator iterator = childrenToAdd.iterator(); iterator.hasNext();) {
-				RepositoryDescriptor child = (RepositoryDescriptor) iterator.next();
+			for (Iterator<RepositoryDescriptor> iterator = childrenToAdd.iterator(); iterator.hasNext();) {
+				RepositoryDescriptor child = iterator.next();
 				if (child.isArtifact() && artifactRepo != null)
 					artifactRepo.addChild(child.getOriginalRepoLocation());
 				if (child.isMetadata() && metadataRepo != null)
@@ -155,8 +156,8 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 	/*
 	 * Determine if the repository is valid for this operation
 	 */
-	private boolean validRepositoryLocation(IRepository repository) throws ProvisionException {
-		if (repository instanceof ICompositeRepository) {
+	private boolean validRepositoryLocation(IRepository<?> repository) throws ProvisionException {
+		if (repository instanceof ICompositeRepository<?>) {
 			// if we have an already existing repository at that location, then throw an error
 			// if the user told us to
 			if (failOnExists)
@@ -171,7 +172,7 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 	/*
 	 * Initialize a new repository
 	 */
-	private void initRepository(IRepository repository, RepositoryDescriptor desc) {
+	private void initRepository(IRepository<?> repository, RepositoryDescriptor desc) {
 		RepositoryHelper.validDestinationRepository(repository);
 		if (desc.isCompressed() && !repository.getProperties().containsKey(IRepository.PROP_COMPRESSED))
 			repository.setProperty(IRepository.PROP_COMPRESSED, String.valueOf(true));

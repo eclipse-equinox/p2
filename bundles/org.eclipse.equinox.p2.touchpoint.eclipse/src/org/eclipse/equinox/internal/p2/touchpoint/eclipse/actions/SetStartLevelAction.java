@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -28,7 +29,7 @@ import org.eclipse.osgi.util.NLS;
 public class SetStartLevelAction extends ProvisioningAction {
 	public static final String ID = "setStartLevel"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
@@ -37,11 +38,11 @@ public class SetStartLevelAction extends ProvisioningAction {
 		if (startLevel == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_START_LEVEL, ID));
 
-		IArtifactKey[] artifacts = iu.getArtifacts();
-		if (artifacts == null || artifacts.length == 0)
+		List<IArtifactKey> artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.isEmpty())
 			return Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu));
 
-		IArtifactKey artifactKey = artifacts[0];
+		IArtifactKey artifactKey = artifacts.get(0);
 		// the bundleFile might be null here, that's OK.
 		File bundleFile = Util.getArtifactFile(agent, artifactKey, profile);
 
@@ -71,7 +72,7 @@ public class SetStartLevelAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		Integer previousStartLevel = (Integer) getMemento().get(ActionConstants.PARM_PREVIOUS_START_LEVEL);
 		if (previousStartLevel == null)
@@ -81,11 +82,11 @@ public class SetStartLevelAction extends ProvisioningAction {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
 
-		IArtifactKey[] artifacts = iu.getArtifacts();
-		if (artifacts == null || artifacts.length == 0)
+		List<IArtifactKey> artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.isEmpty())
 			return Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu));
 
-		IArtifactKey artifactKey = artifacts[0];
+		IArtifactKey artifactKey = artifacts.get(0);
 		// the bundleFile might be null here, that's OK.
 		File bundleFile = Util.getArtifactFile(agent, artifactKey, profile);
 

@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
@@ -27,8 +26,8 @@ public class FragmentMethodTest extends TestCase {
 	private static final String TEST_REQUIRED = "testRequired";
 	IInstallableUnit iu1;
 	IInstallableUnit iu3;
-	IProvidedCapability[] iu1Caps;
-	IProvidedCapability[] iu3Caps;
+	List<IProvidedCapability> iu1Caps;
+	List<IProvidedCapability> iu3Caps;
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -58,21 +57,21 @@ public class FragmentMethodTest extends TestCase {
 	}
 
 	public void testCapabilities() {
-		IProvidedCapability[] iuCapabilities = iu1Caps;
-		IProvidedCapability[] initialFragmentCapabilities = iu3Caps;
+		List<IProvidedCapability> iuCapabilities = iu1Caps;
+		List<IProvidedCapability> initialFragmentCapabilities = iu3Caps;
 
-		IProvidedCapability[] mergedCapabilities = iu1.getProvidedCapabilities();
-		for (int i = 0; i < iuCapabilities.length; i++) {
-			FragmentTest.assertContainsWithEquals(mergedCapabilities, iuCapabilities[i]);
+		List<IProvidedCapability> mergedCapabilities = iu1.getProvidedCapabilities();
+		for (int i = 0; i < iuCapabilities.size(); i++) {
+			FragmentTest.assertContainsWithEquals(mergedCapabilities, iuCapabilities.get(i));
 		}
 
 		//The fragment property is not set
 		assertNull(iu1.getProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT));
 
 		//The fragment does not contain iu namespace
-		for (int i = 0; i < initialFragmentCapabilities.length; i++) {
-			if (initialFragmentCapabilities[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
-				assertDoesNotContain(mergedCapabilities, initialFragmentCapabilities[i]);
+		for (int i = 0; i < initialFragmentCapabilities.size(); i++) {
+			if (initialFragmentCapabilities.get(i).getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
+				assertDoesNotContain(mergedCapabilities, initialFragmentCapabilities.get(i));
 				break;
 			}
 		}
@@ -91,7 +90,7 @@ public class FragmentMethodTest extends TestCase {
 			assertEquals(message, expected[i], actual[i]);
 	}
 
-	protected void assertEquals(String message, Object[] expected, Object[] actual, boolean orderImportant) {
+	protected void assertEquals(String message, List<? extends Object> expected, List<? extends Object> actual, boolean orderImportant) {
 		// if the order in the array must match exactly, then call the other method
 		if (orderImportant) {
 			assertEquals(message, expected, actual);
@@ -104,12 +103,12 @@ public class FragmentMethodTest extends TestCase {
 			return;
 		if (expected == null || actual == null)
 			assertTrue(message + ".1", false);
-		if (expected.length != actual.length)
+		if (expected.size() != actual.size())
 			assertTrue(message + ".2", false);
-		boolean[] found = new boolean[expected.length];
-		for (int i = 0; i < expected.length; i++) {
-			for (int j = 0; j < expected.length; j++) {
-				if (!found[j] && expected[i].equals(actual[j]))
+		boolean[] found = new boolean[expected.size()];
+		for (int i = 0; i < expected.size(); i++) {
+			for (int j = 0; j < expected.size(); j++) {
+				if (!found[j] && expected.get(i).equals(actual.get(j)))
 					found[j] = true;
 			}
 		}
@@ -118,9 +117,9 @@ public class FragmentMethodTest extends TestCase {
 				assertTrue(message + ".3." + i, false);
 	}
 
-	public static void assertDoesNotContain(Object[] objects, Object searched) {
-		for (int i = 0; i < objects.length; i++) {
-			if (objects[i].equals(searched))
+	public static void assertDoesNotContain(List<? extends Object> objects, Object searched) {
+		for (int i = 0; i < objects.size(); i++) {
+			if (objects.get(i).equals(searched))
 				throw new AssertionFailedError("The array should not contain the searched element");
 		}
 	}

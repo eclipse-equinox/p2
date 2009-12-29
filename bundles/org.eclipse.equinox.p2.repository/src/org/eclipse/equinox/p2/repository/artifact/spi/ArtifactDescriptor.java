@@ -29,7 +29,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 	// has been downloaded (e.g, unpack, then md5 checksum, then...)
 	protected ProcessingStepDescriptor[] processingSteps = EMPTY_STEPS;
 
-	protected Map properties = new OrderedProperties();
+	protected Map<String, String> properties = new OrderedProperties();
 	protected transient IArtifactRepository repository;
 
 	public ArtifactDescriptor(IArtifactDescriptor base) {
@@ -58,7 +58,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 	}
 
 	public String getProperty(String propertyKey) {
-		return (String) properties.get(propertyKey);
+		return properties.get(propertyKey);
 	}
 
 	public void setProperty(String key, String value) {
@@ -68,7 +68,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 			properties.put(key, value);
 	}
 
-	public void addProperties(Map additionalProperties) {
+	public void addProperties(Map<String, String> additionalProperties) {
 		properties.putAll(additionalProperties);
 	}
 
@@ -76,7 +76,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 	 * Returns a read-only collection of the properties of the artifact descriptor.
 	 * @return the properties of this artifact descriptor.
 	 */
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 

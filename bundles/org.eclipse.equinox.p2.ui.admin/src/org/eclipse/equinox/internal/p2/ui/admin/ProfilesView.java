@@ -53,12 +53,12 @@ public class ProfilesView extends ProvView {
 
 		public void run() {
 			Object[] selections = getSelection().toArray();
-			List profilesOnly = new ArrayList();
+			List<String> profilesOnly = new ArrayList<String>();
 			for (int i = 0; i < selections.length; i++) {
 				if (selections[i] instanceof ProfileElement)
 					profilesOnly.add(((ProfileElement) selections[i]).getProfileId());
 			}
-			RemoveProfilesJob op = new RemoveProfilesJob(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, getProvisioningUI().getSession(), (String[]) profilesOnly.toArray(new String[profilesOnly.size()]));
+			RemoveProfilesJob op = new RemoveProfilesJob(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, getProvisioningUI().getSession(), profilesOnly.toArray(new String[profilesOnly.size()]));
 			ProfilesView.this.run(op);
 		}
 	}
@@ -160,7 +160,7 @@ public class ProfilesView extends ProvView {
 		if (selectionArray.length > 0) {
 			removeProfileAction.setEnabled(true);
 			for (int i = 0; i < selectionArray.length; i++) {
-				IProfile profile = (IProfile) ProvUI.getAdapter(selectionArray[i], IProfile.class);
+				IProfile profile = ProvUI.getAdapter(selectionArray[i], IProfile.class);
 				if (profile == null) {
 					removeProfileAction.setEnabled(false);
 					break;
@@ -186,14 +186,14 @@ public class ProfilesView extends ProvView {
 		if (firstElement instanceof InstalledIUElement) {
 			return ((InstalledIUElement) firstElement).getProfileId();
 		}
-		IProfile profile = (IProfile) ProvUI.getAdapter(firstElement, IProfile.class);
+		IProfile profile = ProvUI.getAdapter(firstElement, IProfile.class);
 		if (profile != null)
 			return profile.getProfileId();
 		return null;
 	}
 
-	protected List getVisualProperties() {
-		List list = super.getVisualProperties();
+	protected List<String> getVisualProperties() {
+		List<String> list = super.getVisualProperties();
 		list.add(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY);
 		return list;
 	}

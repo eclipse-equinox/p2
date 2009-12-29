@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
@@ -47,6 +48,7 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 		return iu.getId();
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IInstallableUnit.class)
 			return iu;
@@ -82,7 +84,7 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
 	 */
-	public IRequirement[] getRequirements() {
+	public List<IRequirement> getRequirements() {
 		return iu.getRequiredCapabilities();
 	}
 

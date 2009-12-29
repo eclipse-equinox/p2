@@ -48,7 +48,7 @@ public class DirectorTask extends Task {
 	}
 
 	private String[] getArguments() {
-		List result = new ArrayList();
+		List<String> result = new ArrayList<String>();
 		if (roaming)
 			result.add("-roaming");
 		if (profile != null) {
@@ -106,7 +106,7 @@ public class DirectorTask extends Task {
 			result.add(Application.COMMAND_NAMES[Application.COMMAND_UNINSTALL]);
 			result.add(uninstallIU);
 		}
-		return (String[]) result.toArray(new String[result.size()]);
+		return result.toArray(new String[result.size()]);
 	}
 
 	public void setArch(String value) {

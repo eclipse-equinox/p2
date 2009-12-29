@@ -79,9 +79,9 @@ public class PhaseTest extends AbstractProvisioningTest {
 			return super.initializePhase(monitor, profile, parameters);
 		}
 
-		protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
+		protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 			IInstallableUnit unit = operand.second();
-			ProvisioningAction[] parsedActions = getActions(unit, phaseId);
+			List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
 			if (parsedActions != null)
 				return parsedActions;
 
@@ -94,7 +94,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 			if (action == null) {
 				throw new IllegalArgumentException("action not found: " + phaseId);
 			}
-			return new ProvisioningAction[] {action};
+			return Collections.singletonList(action);
 		}
 	}
 
@@ -273,17 +273,17 @@ public class PhaseTest extends AbstractProvisioningTest {
 	public void testGetAction() {
 		final ArrayList actionsList1 = new ArrayList();
 		InstallableUnitPhase phase1 = new InstallableUnitPhase("test", 1) {
-			protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
-				ProvisioningAction[] actions = getActions(operand.second(), "test1");
-				actionsList1.addAll(Arrays.asList(actions));
+			protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
+				List<ProvisioningAction> actions = getActions(operand.second(), "test1");
+				actionsList1.addAll(actions);
 				return actions;
 			}
 		};
 		final ArrayList actionsList2 = new ArrayList();
 		InstallableUnitPhase phase2 = new InstallableUnitPhase("test", 1) {
-			protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
-				ProvisioningAction[] actions = getActions(operand.second(), "test2");
-				actionsList2.addAll(Arrays.asList(actions));
+			protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
+				List<ProvisioningAction> actions = getActions(operand.second(), "test2");
+				actionsList2.addAll(actions);
 				return actions;
 			}
 		};

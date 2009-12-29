@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.GroupQuery;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
@@ -72,8 +73,8 @@ public class Policy {
 	 */
 	public static final int RESTART_POLICY_PROMPT_RESTART_OR_APPLY = 4;
 
-	private IQuery visibleAvailableIUQuery = new GroupQuery();
-	private IQuery visibleInstalledIUQuery = new UserVisibleRootQuery();
+	private IQuery<IInstallableUnit> visibleAvailableIUQuery = new GroupQuery();
+	private IQuery<IInstallableUnit> visibleInstalledIUQuery = new UserVisibleRootQuery();
 	private boolean groupByCategory = true;
 	private boolean allowDrilldown = true;
 	private boolean repositoriesVisible = true;
@@ -148,7 +149,7 @@ public class Policy {
 	 * 
 	 * @return the query used to retrieve user visible available IUs
 	 */
-	public IQuery getVisibleAvailableIUQuery() {
+	public IQuery<IInstallableUnit> getVisibleAvailableIUQuery() {
 		return visibleAvailableIUQuery;
 	}
 
@@ -158,7 +159,7 @@ public class Policy {
 	 * 
 	 * @param query the query used to retrieve user visible available IUs
 	 */
-	public void setVisibleAvailableIUQuery(IQuery query) {
+	public void setVisibleAvailableIUQuery(IQuery<IInstallableUnit> query) {
 		visibleAvailableIUQuery = query;
 	}
 
@@ -168,7 +169,7 @@ public class Policy {
 	 * 
 	 * @return the query used to retrieve user visible installed IUs
 	 */
-	public IQuery getVisibleInstalledIUQuery() {
+	public IQuery<IInstallableUnit> getVisibleInstalledIUQuery() {
 		return visibleInstalledIUQuery;
 	}
 
@@ -178,7 +179,7 @@ public class Policy {
 	 * 
 	 * @param query the query used to retrieve user visible installed IUs
 	 */
-	public void setVisibleInstalledIUQuery(IQuery query) {
+	public void setVisibleInstalledIUQuery(IQuery<IInstallableUnit> query) {
 		visibleInstalledIUQuery = query;
 	}
 

@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.publisher.IPublisherAction;
+
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -28,9 +30,9 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 	}
 
 	protected IPublisherAction[] createActions() {
-		ArrayList result = new ArrayList();
+		ArrayList<IPublisherAction> result = new ArrayList<IPublisherAction>();
 		result.add(createProductAction());
-		return (IPublisherAction[]) result.toArray(new IPublisherAction[result.size()]);
+		return result.toArray(new IPublisherAction[result.size()]);
 	}
 
 	private IPublisherAction createProductAction() {

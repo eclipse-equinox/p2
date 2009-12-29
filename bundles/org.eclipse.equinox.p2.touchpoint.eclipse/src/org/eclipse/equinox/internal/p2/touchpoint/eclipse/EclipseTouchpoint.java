@@ -39,16 +39,16 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final Object PARM_AGENT = "agent"; //$NON-NLS-1$
 
 	private static final String NATIVE_TOUCHPOINT_ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
-	private static List NATIVE_ACTIONS = Arrays.asList(new String[] {"mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$
+	private static List<String> NATIVE_ACTIONS = Arrays.asList(new String[] {"mkdir", "rmdir"}); //$NON-NLS-1$//$NON-NLS-2$
 	private static final String VALIDATE_PROFILE = "org.eclipse.equinox.internal.p2.touchpoint.eclipse.validateProfile"; //$NON-NLS-1$
 
-	private static Map manipulators = new WeakHashMap();
-	private static Map wrappers = new WeakHashMap();
-	private static Map sourceManipulators = new WeakHashMap();
-	private static Map preparedIUs = new WeakHashMap();
+	private static Map<IProfile, LazyManipulator> manipulators = new WeakHashMap<IProfile, LazyManipulator>();
+	private static Map<IProfile, PlatformConfigurationWrapper> wrappers = new WeakHashMap<IProfile, PlatformConfigurationWrapper>();
+	private static Map<IProfile, SourceManipulator> sourceManipulators = new WeakHashMap<IProfile, SourceManipulator>();
+	private static Map<IProfile, Map<IInstallableUnit, IInstallableUnit>> preparedIUs = new WeakHashMap<IProfile, Map<IInstallableUnit, IInstallableUnit>>();
 
 	private static synchronized LazyManipulator getManipulator(IProvisioningAgent agent, IProfile profile) {
-		LazyManipulator manipulator = (LazyManipulator) manipulators.get(profile);
+		LazyManipulator manipulator = manipulators.get(profile);
 		if (manipulator == null) {
 			manipulator = new LazyManipulator(agent, profile);
 			manipulators.put(profile, manipulator);
@@ -57,13 +57,13 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	private static synchronized void saveManipulator(IProfile profile) throws FrameworkAdminRuntimeException, IOException {
-		LazyManipulator manipulator = (LazyManipulator) manipulators.remove(profile);
+		LazyManipulator manipulator = manipulators.remove(profile);
 		if (manipulator != null)
 			manipulator.save(false);
 	}
 
 	private static synchronized PlatformConfigurationWrapper getPlatformConfigurationWrapper(IProvisioningAgent agent, IProfile profile, LazyManipulator manipulator) {
-		PlatformConfigurationWrapper wrapper = (PlatformConfigurationWrapper) wrappers.get(profile);
+		PlatformConfigurationWrapper wrapper = wrappers.get(profile);
 		if (wrapper == null) {
 			File configLocation = Util.getConfigurationFolder(profile);
 			URI poolURI = Util.getBundlePoolLocation(agent, profile);
@@ -74,13 +74,13 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	private static synchronized void savePlatformConfigurationWrapper(IProfile profile) throws ProvisionException {
-		PlatformConfigurationWrapper wrapper = (PlatformConfigurationWrapper) wrappers.remove(profile);
+		PlatformConfigurationWrapper wrapper = wrappers.remove(profile);
 		if (wrapper != null)
 			wrapper.save();
 	}
 
 	private static synchronized SourceManipulator getSourceManipulator(IProfile profile) {
-		SourceManipulator sourceManipulator = (SourceManipulator) sourceManipulators.get(profile);
+		SourceManipulator sourceManipulator = sourceManipulators.get(profile);
 		if (sourceManipulator == null) {
 			sourceManipulator = new SourceManipulator(profile);
 			sourceManipulators.put(profile, sourceManipulator);
@@ -89,23 +89,23 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	private static synchronized void saveSourceManipulator(IProfile profile) throws IOException {
-		SourceManipulator sourceManipulator = (SourceManipulator) sourceManipulators.remove(profile);
+		SourceManipulator sourceManipulator = sourceManipulators.remove(profile);
 		if (sourceManipulator != null)
 			sourceManipulator.save();
 	}
 
 	private static synchronized IInstallableUnit getPreparedIU(IProfile profile, IInstallableUnit iu) {
-		Map preparedProfileIUs = (Map) preparedIUs.get(profile);
+		Map<IInstallableUnit, IInstallableUnit> preparedProfileIUs = preparedIUs.get(profile);
 		if (preparedProfileIUs == null)
 			return null;
 
-		return (IInstallableUnit) preparedProfileIUs.get(iu);
+		return preparedProfileIUs.get(iu);
 	}
 
 	private static synchronized void savePreparedIU(IProfile profile, IInstallableUnit iu) {
-		Map preparedProfileIUs = (Map) preparedIUs.get(profile);
+		Map<IInstallableUnit, IInstallableUnit> preparedProfileIUs = preparedIUs.get(profile);
 		if (preparedProfileIUs == null) {
-			preparedProfileIUs = new HashMap();
+			preparedProfileIUs = new HashMap<IInstallableUnit, IInstallableUnit>();
 			preparedIUs.put(profile, preparedProfileIUs);
 		}
 		preparedProfileIUs.put(iu, iu);
@@ -169,7 +169,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		return touchpointQualifier + "." + actionId; //$NON-NLS-1$
 	}
 
-	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
+	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> touchpointParameters) {
 		IProvisioningAgent agent = (IProvisioningAgent) touchpointParameters.get(PARM_AGENT);
 		LazyManipulator manipulator = getManipulator(agent, profile);
 		touchpointParameters.put(PARM_MANIPULATOR, manipulator);
@@ -178,7 +178,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		return null;
 	}
 
-	public IStatus initializeOperand(IProfile profile, Operand operand, Map parameters) {
+	public IStatus initializeOperand(IProfile profile, Operand operand, Map<String, Object> parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		IArtifactKey artifactKey = (IArtifactKey) parameters.get(PARM_ARTIFACT);
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
@@ -203,7 +203,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (preparedIU != null)
 			return preparedIU;
 
-		Class c = null;
+		Class<?> c = null;
 		try {
 			c = Class.forName("org.eclipse.equinox.p2.publisher.eclipse.BundlesAction"); //$NON-NLS-1$
 			if (c != null)
@@ -240,7 +240,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (Boolean.FALSE.toString().equals(profile.getProperty(VALIDATE_PROFILE)))
 			return Status.OK_STATUS;
 
-		Class c = null;
+		Class<?> c = null;
 		try {
 			c = Class.forName("org.eclipse.equinox.internal.provisional.p2.director.IPlanner"); //$NON-NLS-1$
 		} catch (ClassNotFoundException e) {

@@ -39,7 +39,7 @@ public class InstallAction extends ProfileModificationAction {
 		for (int i = 0; i < selectionArray.length; i++) {
 			if (selectionArray[i] instanceof InstalledIUElement && isSelectable((IIUElement) selectionArray[i]))
 				return true;
-			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(selectionArray[i], IInstallableUnit.class);
+			IInstallableUnit iu = ProvUI.getAdapter(selectionArray[i], IInstallableUnit.class);
 			if (iu != null && isSelectable(iu))
 				return true;
 		}

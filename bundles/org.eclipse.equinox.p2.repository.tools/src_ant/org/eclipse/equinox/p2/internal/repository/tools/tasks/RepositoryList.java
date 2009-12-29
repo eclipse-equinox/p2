@@ -12,11 +12,12 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.tools.ant.types.FileSet;
 
 public class RepositoryList extends RepositoryFileSet {
 	// TODO this class should extend DataType, currently RepoFileSet to support <source location="xxx" /> 
-	List repositories = new ArrayList();
-	List sourceFileSets = new ArrayList();
+	List<DestinationRepository> repositories = new ArrayList<DestinationRepository>();
+	List<FileSet> sourceFileSets = new ArrayList<FileSet>();
 
 	public DestinationRepository createRepository() {
 		DestinationRepository repo = new DestinationRepository();
@@ -30,11 +31,11 @@ public class RepositoryList extends RepositoryFileSet {
 		return fileSet;
 	}
 
-	public List getRepositoryList() {
+	public List<DestinationRepository> getRepositoryList() {
 		return repositories;
 	}
 
-	public List getFileSetList() {
+	public List<FileSet> getFileSetList() {
 		//TODO this should eventually be removed
 		sourceFileSets.add(this);
 		return sourceFileSets;

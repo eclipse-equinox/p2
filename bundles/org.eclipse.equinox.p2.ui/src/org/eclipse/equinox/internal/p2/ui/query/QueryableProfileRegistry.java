@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 /**
  * An object that adds queryable support to the profile registry.
  */
-public class QueryableProfileRegistry implements IQueryable {
+public class QueryableProfileRegistry implements IQueryable<IProfile> {
 
 	private ProvisioningUI ui;
 
@@ -32,7 +32,7 @@ public class QueryableProfileRegistry implements IQueryable {
 		this.ui = ui;
 	}
 
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult<IProfile> query(IQuery<IProfile> query, IProgressMonitor monitor) {
 		IProfile[] profiles = ui.getSession().getProfileRegistry().getProfiles();
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableProfileRegistry_QueryProfileProgress, profiles.length);
 		try {

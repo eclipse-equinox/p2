@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.Phase;
 import org.eclipse.equinox.internal.p2.engine.Profile;
@@ -22,7 +22,7 @@ public class Property extends Phase {
 
 	public class ProfilePropertyAction extends ProvisioningAction {
 
-		public IStatus execute(Map parameters) {
+		public IStatus execute(Map<String, Object> parameters) {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			PropertyOperand propertyOperand = (PropertyOperand) parameters.get(PARM_OPERAND);
 
@@ -34,7 +34,7 @@ public class Property extends Phase {
 			return null;
 		}
 
-		public IStatus undo(Map parameters) {
+		public IStatus undo(Map<String, Object> parameters) {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			PropertyOperand propertyOperand = (PropertyOperand) parameters.get(PARM_OPERAND);
 
@@ -71,10 +71,10 @@ public class Property extends Phase {
 	public class UpdateInstallableUnitProfilePropertiesAction extends ProvisioningAction {
 
 		// we do not need to use a memento here since the profile is not persisted unless the operation is successful
-		Map originalSourceProperties;
-		Map originalTargetProperties;
+		Map<String, String> originalSourceProperties;
+		Map<String, String> originalTargetProperties;
 
-		public IStatus execute(Map parameters) {
+		public IStatus execute(Map<String, Object> parameters) {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			InstallableUnitOperand iuOperand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 
@@ -90,7 +90,7 @@ public class Property extends Phase {
 			return null;
 		}
 
-		public IStatus undo(Map parameters) {
+		public IStatus undo(Map<String, Object> parameters) {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			InstallableUnitOperand iuOperand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 
@@ -109,10 +109,10 @@ public class Property extends Phase {
 	public class RemoveInstallableUnitProfilePropertiesAction extends ProvisioningAction {
 
 		// we do not need to use a memento here since the profile is not persisted unless the operation is successful
-		Map originalSourceProperties;
-		Map originalTargetProperties;
+		Map<String, String> originalSourceProperties;
+		Map<String, String> originalTargetProperties;
 
-		public IStatus execute(Map parameters) {
+		public IStatus execute(Map<String, Object> parameters) {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			InstallableUnitOperand iuOperand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 
@@ -123,7 +123,7 @@ public class Property extends Phase {
 			return null;
 		}
 
-		public IStatus undo(Map parameters) {
+		public IStatus undo(Map<String, Object> parameters) {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			InstallableUnitOperand iuOperand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 
@@ -141,17 +141,17 @@ public class Property extends Phase {
 		super(PHASE_ID, weight);
 	}
 
-	protected ProvisioningAction[] getActions(Operand operand) {
+	protected List<ProvisioningAction> getActions(Operand operand) {
 		if (operand instanceof PropertyOperand)
-			return new ProvisioningAction[] {new ProfilePropertyAction()};
+			return Collections.<ProvisioningAction> singletonList(new ProfilePropertyAction());
 
 		if (operand instanceof InstallableUnitOperand) {
 			InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
 			if (iuOperand.first() != null) {
 				if (iuOperand.second() != null) {
-					return new ProvisioningAction[] {new UpdateInstallableUnitProfilePropertiesAction()};
+					return Collections.<ProvisioningAction> singletonList(new UpdateInstallableUnitProfilePropertiesAction());
 				}
-				return new ProvisioningAction[] {new RemoveInstallableUnitProfilePropertiesAction()};
+				return Collections.<ProvisioningAction> singletonList(new RemoveInstallableUnitProfilePropertiesAction());
 			}
 		}
 		return null;

@@ -17,14 +17,14 @@ import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 
 public class RootIUResultFilterAdvice extends AbstractAdvice implements IRootIUAdvice {
-	private IQuery query;
+	private IQuery<IInstallableUnit> query;
 
-	public RootIUResultFilterAdvice(IQuery query) {
+	public RootIUResultFilterAdvice(IQuery<IInstallableUnit> query) {
 		this.query = query;
 	}
 
-	public Collection getChildren(IPublisherResult result) {
-		Collection value = result.getIUs(null, IPublisherResult.ROOT);
+	public Collection<IInstallableUnit> getChildren(IPublisherResult result) {
+		Collection<IInstallableUnit> value = result.getIUs(null, IPublisherResult.ROOT);
 		if (query == null)
 			return value;
 		return Arrays.asList(query.perform(value.iterator()).toArray(IInstallableUnit.class));

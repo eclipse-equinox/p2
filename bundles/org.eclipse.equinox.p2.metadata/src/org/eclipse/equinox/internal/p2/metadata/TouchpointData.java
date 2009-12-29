@@ -31,7 +31,7 @@ public class TouchpointData implements ITouchpointData {
 	 * of keys supported is up to the touchpoint that will process these
 	 * instructions. This map is never null.
 	 */
-	private Map instructions;
+	private Map<String, ITouchpointInstruction> instructions;
 
 	public int hashCode() {
 		return 31 * 1 + ((instructions == null) ? 0 : instructions.hashCode());
@@ -56,7 +56,7 @@ public class TouchpointData implements ITouchpointData {
 	/**
 	 * Clients must use the factory method on {@link MetadataFactory}.
 	 */
-	public TouchpointData(Map instructions) {
+	public TouchpointData(Map<String, ITouchpointInstruction> instructions) {
 		this.instructions = instructions;
 	}
 
@@ -64,7 +64,7 @@ public class TouchpointData implements ITouchpointData {
 	 * Returns the touchpoint instruction corresponding to the given key.
 	 */
 	public ITouchpointInstruction getInstruction(String instructionKey) {
-		return (ITouchpointInstruction) instructions.get(instructionKey);
+		return instructions.get(instructionKey);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class TouchpointData implements ITouchpointData {
 	 *
 	 * @return the touchpoint instructions
 	 */
-	public Map getInstructions() {
+	public Map<String, ITouchpointInstruction> getInstructions() {
 		return Collections.unmodifiableMap(instructions);
 	}
 
@@ -82,8 +82,8 @@ public class TouchpointData implements ITouchpointData {
 	 */
 	public String toString() {
 		StringBuffer result = new StringBuffer();
-		for (Iterator iterator = instructions.entrySet().iterator(); iterator.hasNext();) {
-			Entry instruction = (Entry) iterator.next();
+		for (Iterator<Entry<String, ITouchpointInstruction>> iterator = instructions.entrySet().iterator(); iterator.hasNext();) {
+			Entry<String, ITouchpointInstruction> instruction = iterator.next();
 			result.append(instruction.getKey()).append(" -> ").append(instruction.getValue()).append('\n'); //$NON-NLS-1$
 		}
 		return result.toString();

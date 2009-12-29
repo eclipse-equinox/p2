@@ -280,7 +280,7 @@ public class CompoundQueryableTest extends TestCase {
 		CompoundQueryable cQueryable1 = new CompoundQueryable(new IQueryable[] {queryable3, queryable2});
 		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {cQueryable1, queryable1});
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		IQueryResult queryResult = cQueryable.query(new PipedQuery(new IQuery[] {contextQuery, greatestNumberQuery}), monitor);
+		IQueryResult queryResult = cQueryable.query(new PipedQuery(contextQuery, greatestNumberQuery), monitor);
 		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(queryResult));
 		AbstractProvisioningTest.assertContains("1.2", queryResult, 12);
 		assertTrue("1.0", monitor.isDone());

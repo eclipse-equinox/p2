@@ -22,7 +22,7 @@ import org.eclipse.osgi.util.NLS;
 public class MkdirAction extends ProvisioningAction {
 	public static final String ID = "mkdir"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
 		if (path == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));
@@ -35,7 +35,7 @@ public class MkdirAction extends ProvisioningAction {
 		return Util.createError(NLS.bind(Messages.mkdir_failed, path, ID));
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
 		if (path == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));

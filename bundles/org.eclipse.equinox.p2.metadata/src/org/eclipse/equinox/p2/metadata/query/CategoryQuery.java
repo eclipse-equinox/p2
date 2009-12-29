@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  * A query matching every {@link IInstallableUnit} that is a category.
  * @since 2.0 
  */
-public final class CategoryQuery extends MatchQuery {
+public final class CategoryQuery extends MatchQuery<IInstallableUnit> {
 	private static final String PROP_TYPE_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
 	private IUPropertyQuery query;
 
@@ -26,7 +26,7 @@ public final class CategoryQuery extends MatchQuery {
 		query = new IUPropertyQuery(PROP_TYPE_CATEGORY, null);
 	}
 
-	public boolean isMatch(Object candidate) {
+	public boolean isMatch(IInstallableUnit candidate) {
 		return query.isMatch(candidate);
 	}
 

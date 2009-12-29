@@ -35,7 +35,7 @@ public interface ITouchpointData {
 	 *
 	 * @return the touchpoint instructions
 	 */
-	public Map getInstructions();
+	public Map<String, ITouchpointInstruction> getInstructions();
 
 	/**
 	 * Returns whether this TouchpointData is equal to the given object.

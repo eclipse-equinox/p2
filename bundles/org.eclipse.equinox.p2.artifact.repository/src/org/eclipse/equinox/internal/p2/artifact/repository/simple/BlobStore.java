@@ -93,9 +93,9 @@ public class BlobStore {
 	/**
 	 * Delete all of the blobs in the given set.
 	 */
-	public void deleteBlobs(Set set) {
-		for (Iterator i = set.iterator(); i.hasNext();)
-			deleteBlob((byte[]) i.next());
+	public void deleteBlobs(Set<byte[]> set) {
+		for (Iterator<byte[]> i = set.iterator(); i.hasNext();)
+			deleteBlob(i.next());
 	}
 
 	public URI fileFor(byte[] uuid) {

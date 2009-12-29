@@ -28,7 +28,7 @@ public class ProfilePropertyPage extends PropertyPage {
 	private ProfileGroup profileGroup;
 
 	protected Control createContents(Composite parent) {
-		IProfile profile = (IProfile) ProvUI.getAdapter(getElement(), IProfile.class);
+		IProfile profile = ProvUI.getAdapter(getElement(), IProfile.class);
 		if (profile == null) {
 			Label label = new Label(parent, SWT.DEFAULT);
 			label.setText(ProvAdminUIMessages.No_Property_Item_Selected);

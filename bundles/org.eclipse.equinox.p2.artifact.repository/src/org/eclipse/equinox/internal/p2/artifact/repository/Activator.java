@@ -23,7 +23,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
 	private static BundleContext context;
 	private ServiceRegistration repositoryManagerRegistration;
-	private static final Map createdManagers = new HashMap();
+	private static final Map<ArtifactRepositoryManager, IProvisioningAgent> createdManagers = new HashMap<ArtifactRepositoryManager, IProvisioningAgent>();
 	private ServiceTracker agentTracker;
 
 	public static BundleContext getContext() {
@@ -53,10 +53,10 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 			repositoryManagerRegistration.unregister();
 		repositoryManagerRegistration = null;
 		synchronized (createdManagers) {
-			for (Iterator it = createdManagers.keySet().iterator(); it.hasNext();) {
-				ArtifactRepositoryManager manager = (ArtifactRepositoryManager) it.next();
+			for (Iterator<ArtifactRepositoryManager> it = createdManagers.keySet().iterator(); it.hasNext();) {
+				ArtifactRepositoryManager manager = it.next();
 				manager.shutdown();
-				IProvisioningAgent agent = (IProvisioningAgent) createdManagers.get(manager);
+				IProvisioningAgent agent = createdManagers.get(manager);
 				agent.unregisterService(IArtifactRepositoryManager.SERVICE_NAME, manager);
 			}
 			createdManagers.clear();

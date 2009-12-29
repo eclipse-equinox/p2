@@ -6,7 +6,8 @@ Bundle-Localization: plugin
 Bundle-SymbolicName: org.eclipse.equinox.p2.ui.admin;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator
-Bundle-RequiredExecutionEnvironment: J2SE-1.4,
+Bundle-RequiredExecutionEnvironment: J2SE-1.5,
+ J2SE-1.4,
  CDC-1.1/Foundation-1.1
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.ui,

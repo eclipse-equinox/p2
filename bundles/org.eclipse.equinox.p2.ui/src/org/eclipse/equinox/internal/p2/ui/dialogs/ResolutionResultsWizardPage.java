@@ -206,7 +206,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		return new TreeViewer(parent, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
 	}
 
-	protected abstract IQueryable getQueryable(IProvisioningPlan plan);
+	protected abstract IQueryable<IInstallableUnit> getQueryable(IProvisioningPlan plan);
 
 	protected String getClipboardText(Control control) {
 		return CopyUtils.getIndentedClipboardText(getSelectedElements(), labelProvider);

@@ -14,8 +14,8 @@ package org.eclipse.equinox.internal.p2.metadata.repository.io;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
@@ -38,7 +38,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 	 * @param units An Iterator of {@link IInstallableUnit}.
 	 * @param size The number of units to write
 	 */
-	protected void writeInstallableUnits(Iterator units, int size) {
+	protected void writeInstallableUnits(Iterator<IInstallableUnit> units, int size) {
 		if (size == 0)
 			return;
 		start(INSTALLABLE_UNITS_ELEMENT);
@@ -46,7 +46,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		// The size is a bummer. Is it really needed? It forces the use of a collect
 		attribute(COLLECTION_SIZE_ATTRIBUTE, size);
 		while (units.hasNext())
-			writeInstallableUnit((IInstallableUnit) units.next());
+			writeInstallableUnit(units.next());
 		end(INSTALLABLE_UNITS_ELEMENT);
 	}
 
@@ -105,38 +105,39 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	protected void writeProvidedCapabilities(IProvidedCapability[] capabilities) {
-		if (capabilities != null && capabilities.length > 0) {
+	protected void writeProvidedCapabilities(List<IProvidedCapability> capabilities) {
+		if (capabilities != null && capabilities.size() > 0) {
 			start(PROVIDED_CAPABILITIES_ELEMENT);
-			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.length);
-			for (int i = 0; i < capabilities.length; i++) {
+			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.size());
+			for (int i = 0; i < capabilities.size(); i++) {
+				IProvidedCapability pc = capabilities.get(i);
 				start(PROVIDED_CAPABILITY_ELEMENT);
-				attribute(NAMESPACE_ATTRIBUTE, capabilities[i].getNamespace());
-				attribute(NAME_ATTRIBUTE, capabilities[i].getName());
-				attribute(VERSION_ATTRIBUTE, capabilities[i].getVersion());
+				attribute(NAMESPACE_ATTRIBUTE, pc.getNamespace());
+				attribute(NAME_ATTRIBUTE, pc.getName());
+				attribute(VERSION_ATTRIBUTE, pc.getVersion());
 				end(PROVIDED_CAPABILITY_ELEMENT);
 			}
 			end(PROVIDED_CAPABILITIES_ELEMENT);
 		}
 	}
 
-	protected void writeMetaRequiredCapabilities(IRequirement[] capabilities) {
-		if (capabilities != null && capabilities.length > 0) {
+	protected void writeMetaRequiredCapabilities(List<IRequirement> capabilities) {
+		if (capabilities != null && capabilities.size() > 0) {
 			start(META_REQUIRED_CAPABILITIES_ELEMENT);
-			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.length);
-			for (int i = 0; i < capabilities.length; i++) {
-				writeRequiredCapability(capabilities[i]);
+			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.size());
+			for (int i = 0; i < capabilities.size(); i++) {
+				writeRequiredCapability(capabilities.get(i));
 			}
 			end(META_REQUIRED_CAPABILITIES_ELEMENT);
 		}
 	}
 
-	protected void writeRequiredCapabilities(IRequirement[] capabilities) {
-		if (capabilities != null && capabilities.length > 0) {
+	protected void writeRequiredCapabilities(List<IRequirement> capabilities) {
+		if (capabilities != null && capabilities.size() > 0) {
 			start(REQUIRED_CAPABILITIES_ELEMENT);
-			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.length);
-			for (int i = 0; i < capabilities.length; i++) {
-				writeRequiredCapability(capabilities[i]);
+			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.size());
+			for (int i = 0; i < capabilities.size(); i++) {
+				writeRequiredCapability(capabilities.get(i));
 			}
 			end(REQUIRED_CAPABILITIES_ELEMENT);
 		}
@@ -158,16 +159,16 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		start(APPLICABILITY_SCOPE);
 		for (int i = 0; i < capabilities.length; i++) {
 			start(APPLY_ON);
-			writeRequiredCapabilities(capabilities[i]);
+			writeRequiredCapabilities(Arrays.asList(capabilities[i]));
 			end(APPLY_ON);
 		}
 		end(APPLICABILITY_SCOPE);
 	}
 
-	protected void writeRequirementsChange(IRequirementChange[] changes) {
+	protected void writeRequirementsChange(List<IRequirementChange> changes) {
 		start(REQUIREMENT_CHANGES);
-		for (int i = 0; i < changes.length; i++) {
-			writeRequirementChange(changes[i]);
+		for (int i = 0; i < changes.size(); i++) {
+			writeRequirementChange(changes.get(i));
 		}
 		end(REQUIREMENT_CHANGES);
 	}
@@ -176,12 +177,12 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		start(REQUIREMENT_CHANGE);
 		if (change.applyOn() != null) {
 			start(REQUIREMENT_FROM);
-			writeRequiredCapability((IRequirement) change.applyOn());
+			writeRequiredCapability(change.applyOn());
 			end(REQUIREMENT_FROM);
 		}
 		if (change.newValue() != null) {
 			start(REQUIREMENT_TO);
-			writeRequiredCapability((IRequirement) change.newValue());
+			writeRequiredCapability(change.newValue());
 			end(REQUIREMENT_TO);
 		}
 		end(REQUIREMENT_CHANGE);
@@ -205,15 +206,16 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 
 	}
 
-	protected void writeArtifactKeys(IArtifactKey[] artifactKeys) {
-		if (artifactKeys != null && artifactKeys.length > 0) {
+	protected void writeArtifactKeys(List<IArtifactKey> artifactKeys) {
+		if (artifactKeys != null && artifactKeys.size() > 0) {
 			start(ARTIFACT_KEYS_ELEMENT);
-			attribute(COLLECTION_SIZE_ATTRIBUTE, artifactKeys.length);
-			for (int i = 0; i < artifactKeys.length; i++) {
+			attribute(COLLECTION_SIZE_ATTRIBUTE, artifactKeys.size());
+			for (int i = 0; i < artifactKeys.size(); i++) {
+				IArtifactKey artifactKey = artifactKeys.get(i);
 				start(ARTIFACT_KEY_ELEMENT);
-				attribute(ARTIFACT_KEY_CLASSIFIER_ATTRIBUTE, artifactKeys[i].getClassifier());
-				attribute(ID_ATTRIBUTE, artifactKeys[i].getId());
-				attribute(VERSION_ATTRIBUTE, artifactKeys[i].getVersion());
+				attribute(ARTIFACT_KEY_CLASSIFIER_ATTRIBUTE, artifactKey.getClassifier());
+				attribute(ID_ATTRIBUTE, artifactKey.getId());
+				attribute(VERSION_ATTRIBUTE, artifactKey.getVersion());
 				end(ARTIFACT_KEY_ELEMENT);
 			}
 			end(ARTIFACT_KEYS_ELEMENT);
@@ -227,21 +229,21 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(TOUCHPOINT_TYPE_ELEMENT);
 	}
 
-	protected void writeTouchpointData(ITouchpointData[] touchpointData) {
-		if (touchpointData != null && touchpointData.length > 0) {
+	protected void writeTouchpointData(List<ITouchpointData> touchpointData) {
+		if (touchpointData != null && touchpointData.size() > 0) {
 			start(TOUCHPOINT_DATA_ELEMENT);
-			attribute(COLLECTION_SIZE_ATTRIBUTE, touchpointData.length);
-			for (int i = 0; i < touchpointData.length; i++) {
-				ITouchpointData nextData = touchpointData[i];
-				Map instructions = nextData.getInstructions();
+			attribute(COLLECTION_SIZE_ATTRIBUTE, touchpointData.size());
+			for (int i = 0; i < touchpointData.size(); i++) {
+				ITouchpointData nextData = touchpointData.get(i);
+				Map<String, ITouchpointInstruction> instructions = nextData.getInstructions();
 				if (instructions.size() > 0) {
 					start(TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT);
 					attribute(COLLECTION_SIZE_ATTRIBUTE, instructions.size());
-					for (Iterator iter = instructions.entrySet().iterator(); iter.hasNext();) {
-						Map.Entry entry = (Map.Entry) iter.next();
+					for (Iterator<Entry<String, ITouchpointInstruction>> iter = instructions.entrySet().iterator(); iter.hasNext();) {
+						Entry<String, ITouchpointInstruction> entry = iter.next();
 						start(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT);
 						attribute(TOUCHPOINT_DATA_INSTRUCTION_KEY_ATTRIBUTE, entry.getKey());
-						ITouchpointInstruction instruction = (ITouchpointInstruction) entry.getValue();
+						ITouchpointInstruction instruction = entry.getValue();
 						if (instruction.getImportAttribute() != null)
 							attribute(TOUCHPOINT_DATA_INSTRUCTION_IMPORT_ATTRIBUTE, instruction.getImportAttribute());
 						cdata(instruction.getBody(), true);
@@ -263,15 +265,15 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	private void writeLicenses(ILicense[] licenses) {
-		if (licenses != null && licenses.length > 0) {
+	private void writeLicenses(List<ILicense> licenses) {
+		if (licenses != null && licenses.size() > 0) {
 			// In the future there may be more than one license, so we write this 
 			// as a collection of one.
 			// See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=216911
 			start(LICENSES_ELEMENT);
-			attribute(COLLECTION_SIZE_ATTRIBUTE, licenses.length);
-			for (int i = 0; i < licenses.length; i++) {
-				ILicense license = licenses[i];
+			attribute(COLLECTION_SIZE_ATTRIBUTE, licenses.size());
+			for (int i = 0; i < licenses.size(); i++) {
+				ILicense license = licenses.get(i);
 				if (license == null)
 					continue;
 				start(LICENSE_ELEMENT);

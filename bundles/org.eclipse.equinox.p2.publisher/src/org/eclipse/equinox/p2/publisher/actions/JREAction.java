@@ -12,8 +12,10 @@ package org.eclipse.equinox.p2.publisher.actions;
 
 import java.io.*;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -37,7 +39,7 @@ public class JREAction extends AbstractPublisherAction {
 
 	private File jreLocation;
 	private String environment;
-	private Properties profileProperties;
+	private Map<String, String> profileProperties;
 
 	public JREAction(File location) {
 		this.jreLocation = location;
@@ -79,7 +81,7 @@ public class JREAction extends AbstractPublisherAction {
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configId, iu.getVersion())});
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 
 		if (jreLocation == null || !jreLocation.exists()) {
 			touchpointData.put("install", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -111,7 +113,7 @@ public class JREAction extends AbstractPublisherAction {
 			return new IProvidedCapability[0];
 
 		try {
-			ManifestElement[] jrePackages = ManifestElement.parseHeader(PROFILE_SYSTEM_PACKAGES, (String) profileProperties.get(PROFILE_SYSTEM_PACKAGES));
+			ManifestElement[] jrePackages = ManifestElement.parseHeader(PROFILE_SYSTEM_PACKAGES, profileProperties.get(PROFILE_SYSTEM_PACKAGES));
 			IProvidedCapability[] exportedPackageAsCapabilities = new IProvidedCapability[jrePackages.length + 1];
 			exportedPackageAsCapabilities[0] = PublisherHelper.createSelfCapability(id, version);
 			for (int i = 1; i <= jrePackages.length; i++) {
@@ -129,9 +131,9 @@ public class JREAction extends AbstractPublisherAction {
 		if (profileProperties == null || profileProperties.size() == 0)
 			return; //got nothing
 
-		String profileLocation = profileProperties.getProperty(PROFILE_LOCATION);
+		String profileLocation = profileProperties.get(PROFILE_LOCATION);
 
-		String profileName = profileLocation != null ? new Path(profileLocation).lastSegment() : profileProperties.getProperty(PROFILE_NAME);
+		String profileName = profileLocation != null ? new Path(profileLocation).lastSegment() : profileProperties.get(PROFILE_NAME);
 		if (profileName.endsWith(".profile")) //$NON-NLS-1$
 			profileName = profileName.substring(0, profileName.length() - 8);
 		Version version = null;
@@ -146,7 +148,7 @@ public class JREAction extends AbstractPublisherAction {
 		}
 		if (version == null) {
 			try {
-				String targetVersion = profileProperties.getProperty(PROFILE_TARGET_VERSION);
+				String targetVersion = profileProperties.get(PROFILE_TARGET_VERSION);
 				version = targetVersion != null ? Version.parseVersion(targetVersion) : null;
 			} catch (IllegalArgumentException e) {
 				//ignore
@@ -188,13 +190,13 @@ public class JREAction extends AbstractPublisherAction {
 		}
 	}
 
-	private Properties loadProfile(File profileFile) {
+	private Map<String, String> loadProfile(File profileFile) {
 		if (profileFile == null || !profileFile.exists())
 			return null;
 
 		try {
 			InputStream stream = new BufferedInputStream(new FileInputStream(profileFile));
-			Properties properties = loadProfile(stream);
+			Map<String, String> properties = loadProfile(stream);
 			if (properties != null)
 				properties.put(PROFILE_LOCATION, profileFile.getAbsolutePath());
 			return properties;
@@ -204,7 +206,7 @@ public class JREAction extends AbstractPublisherAction {
 		return null;
 	}
 
-	private Properties loadProfile(URL profileURL) {
+	private Map<String, String> loadProfile(URL profileURL) {
 		if (profileURL == null)
 			return null;
 
@@ -220,12 +222,10 @@ public class JREAction extends AbstractPublisherAction {
 	/**
 	 * Always closes the stream when done
 	 */
-	private Properties loadProfile(InputStream stream) {
+	private Map<String, String> loadProfile(InputStream stream) {
 		if (stream != null) {
 			try {
-				Properties properties = new Properties();
-				properties.load(stream);
-				return properties;
+				return CollectionUtils.loadProperties(stream);
 			} catch (IOException e) {
 				return null;
 			} finally {

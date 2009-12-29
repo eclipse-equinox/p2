@@ -187,22 +187,22 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals("1.1", bundle1IU.getVersion(), BUNDLE1_VERSION);
 
 		// check required capabilities
-		IRequirement[] requiredCapability = bundle1IU.getRequiredCapabilities();
+		List<IRequirement> requiredCapability = bundle1IU.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapability, TEST1_IUD_NAMESPACE, TEST1_IUD_NAME, TEST1_IUD_VERSION_RANGE);
-		assertEquals("2.0", 1, requiredCapability.length);
+		assertEquals("2.0", 1, requiredCapability.size());
 
 		// check provided capabilities
-		IProvidedCapability[] providedCapabilities = bundle1IU.getProvidedCapabilities();
+		List<IProvidedCapability> providedCapabilities = bundle1IU.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST1_PROVZ_NAMESPACE, TEST1_PROVZ_NAME, TEST2_PROVZ_VERSION);
 		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "source", Version.create("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
-		assertEquals("2.1", 4, providedCapabilities.length);
+		assertEquals("2.1", 4, providedCapabilities.size());
 
-		ITouchpointData[] data = bundle1IU.getTouchpointData();
+		List<ITouchpointData> data = bundle1IU.getTouchpointData();
 		boolean found = false;
-		for (int i = 0; i < data.length; i++) {
-			ITouchpointInstruction configure = data[i].getInstruction("configure");
+		for (int i = 0; i < data.size(); i++) {
+			ITouchpointInstruction configure = data.get(i).getInstruction("configure");
 			if (configure == null)
 				continue;
 			String body = configure.getBody();
@@ -222,31 +222,31 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals(bundle2IU.getVersion(), BUNDLE2_VERSION);
 
 		// check required capabilities
-		IRequirement[] requiredCapabilities = bundle2IU.getRequiredCapabilities();
+		List<IRequirement> requiredCapabilities = bundle2IU.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUA_NAMESPACE, TEST2_REQA_NAME, TEST2_IUA_VERSION_RANGE);
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUB_NAMESPACE, TEST2_REQB_NAME, TEST2_IUB_VERSION_RANGE);
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUC_NAMESPACE, TEST2_REQC_NAME, TEST2_IUC_VERSION_RANGE);
-		assertTrue(requiredCapabilities.length == 3 /*number of tested elements*/);
+		assertTrue(requiredCapabilities.size() == 3 /*number of tested elements*/);
 
 		// check provided capabilities
-		IProvidedCapability[] providedCapabilities = bundle2IU.getProvidedCapabilities();
+		List<IProvidedCapability> providedCapabilities = bundle2IU.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST2_PROVBUNDLE_NAME, PROVBUNDLE2_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROVZ_NAMESPACE, TEST2_PROVZ_NAME, TEST2_PROVZ_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROVY_NAMESPACE, TEST2_PROVY_NAME, TEST2_PROVY_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROVX_NAMESPACE, TEST2_PROVX_NAME, TEST2_PROVX_VERSION);
 		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", Version.create("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(providedCapabilities.length == 6 /*number of tested elements*/);
+		assertTrue(providedCapabilities.size() == 6 /*number of tested elements*/);
 
 		// check %bundle name is correct
 		Map prop = bundle2IU.getProperties();
 		assertTrue(prop.get("org.eclipse.equinox.p2.name").toString().equalsIgnoreCase("%bundleName"));//$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(prop.get("org.eclipse.equinox.p2.provider").toString().equalsIgnoreCase("%providerName"));//$NON-NLS-1$//$NON-NLS-2$
 
-		ITouchpointData[] data = bundle2IU.getTouchpointData();
+		List<ITouchpointData> data = bundle2IU.getTouchpointData();
 		boolean found = false;
-		for (int i = 0; i < data.length; i++) {
-			ITouchpointInstruction configure = data[i].getInstruction("configure");
+		for (int i = 0; i < data.size(); i++) {
+			ITouchpointInstruction configure = data.get(i).getInstruction("configure");
 			if (configure == null)
 				continue;
 			String body = configure.getBody();
@@ -269,11 +269,11 @@ public class BundlesActionTest extends ActionTest {
 	protected void insertPublisherInfoBehavior() {
 		//super sets publisherInfo.getMetadataRepository and publisherInfo.getContextMetadataRepository
 		super.insertPublisherInfoBehavior();
-		Properties sarProperties = new Properties();
+		Map<String, String> sarProperties = new HashMap<String, String>();
 		sarProperties.put("key1", "value1");//$NON-NLS-1$//$NON-NLS-2$
 		sarProperties.put("key2", "value2");//$NON-NLS-1$//$NON-NLS-2$
 
-		Properties sdkProperties = new Properties();
+		Map<String, String> sdkProperties = new HashMap<String, String>();
 		sdkProperties.put("key1", "value1");//$NON-NLS-1$//$NON-NLS-2$
 		sdkProperties.put("key2", "value2");//$NON-NLS-1$//$NON-NLS-2$
 

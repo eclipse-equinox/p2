@@ -10,17 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * An IQueryable contains objects, and is able to perform queries on those objects.
  * <p>
  * This interface may be implemented by clients.
  */
-public interface IQueryable {
+public interface IQueryable<T> {
 	/**
 	 * Performs a query, passing any objects that satisfy the
 	 * query to the provided collector.
@@ -34,5 +33,5 @@ public interface IQueryable {
 	 *    reporting is not desired
 	 * @return The collector argument
 	 */
-	public IQueryResult query(IQuery query, IProgressMonitor monitor);
+	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor);
 }

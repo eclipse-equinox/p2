@@ -33,9 +33,9 @@ public class NativeTouchpoint extends Touchpoint {
 
 	public static final String PARM_ARTIFACT_LOCATION = "artifact.location"; //$NON-NLS-1$
 
-	private static Map backups = new WeakHashMap();
+	private static Map<IProfile, IBackupStore> backups = new WeakHashMap<IProfile, IBackupStore>();
 
-	public IStatus initializeOperand(IProfile profile, Operand operand, Map parameters) {
+	public IStatus initializeOperand(IProfile profile, Operand operand, Map<String, Object> parameters) {
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IArtifactKey artifactKey = (IArtifactKey) parameters.get(PARM_ARTIFACT);
 		if (!parameters.containsKey(PARM_ARTIFACT_LOCATION) && artifactKey != null) {
@@ -51,7 +51,7 @@ public class NativeTouchpoint extends Touchpoint {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
+	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> touchpointParameters) {
 		touchpointParameters.put(PARM_BACKUP, getBackupStore(profile));
 		return null;
 	}
@@ -129,7 +129,7 @@ public class NativeTouchpoint extends Touchpoint {
 	 * @return a lazily initialized backup store
 	 */
 	private static synchronized IBackupStore getBackupStore(IProfile profile) {
-		IBackupStore store = (IBackupStore) backups.get(profile);
+		IBackupStore store = backups.get(profile);
 		if (store == null) {
 			store = new LazyBackupStore(escape(profile.getProfileId()));
 			backups.put(profile, store);

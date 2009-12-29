@@ -93,8 +93,9 @@ Import-Package: org.eclipse.osgi.service.localization;version="1.0.0",
  org.osgi.framework;version="1.3.0"
 Bundle-Activator: org.eclipse.equinox.internal.p2.metadata.MetadataActivator
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
- J2SE-1.4
+Bundle-RequiredExecutionEnvironment: J2SE-1.5,
+ J2SE-1.4,
+ CDC-1.1/Foundation-1.1
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.p2.core,
  org.eclipse.osgi;bundle-version="3.5.0"

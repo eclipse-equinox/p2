@@ -83,7 +83,8 @@ Require-Bundle: org.eclipse.equinox.p2.metadata.generator,
  org.eclipse.equinox.p2.ql
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: J2SE-1.5,
+ J2SE-1.4
 Export-Package: org.eclipse.equinox.p2.tests,
  org.eclipse.equinox.p2.tests.artifact.repository,
  org.eclipse.equinox.p2.tests.artifact.repository.processing,

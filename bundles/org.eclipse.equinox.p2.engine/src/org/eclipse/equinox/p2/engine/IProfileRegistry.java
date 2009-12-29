@@ -80,7 +80,7 @@ public interface IProfileRegistry {
 	 * @throws ProvisionException if a profile
 	 *         with the same id is already present in the registry.
 	 */
-	IProfile addProfile(String id, Map properties) throws ProvisionException;
+	IProfile addProfile(String id, Map<String, String> properties) throws ProvisionException;
 
 	/**
 	 * Returns whether this profile registry contains a profile with the given id.

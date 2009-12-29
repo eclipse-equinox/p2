@@ -34,7 +34,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
-	public IArtifactRepository create(URI location, String name, String type, Map properties) {
+	public IArtifactRepository create(URI location, String name, String type, Map<String, String> properties) {
 		return null;
 	}
 
@@ -85,7 +85,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 
 	public void initializeRepository(IArtifactRepository repository, URI location, IProgressMonitor monitor) throws ProvisionException {
 		UpdateSite updateSite = UpdateSite.load(location, monitor);
-		String savedChecksum = (String) repository.getProperties().get(PROP_SITE_CHECKSUM);
+		String savedChecksum = repository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
 			return;
 
@@ -101,7 +101,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 	private void generateArtifactDescriptors(UpdateSite updateSite, IArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
 		final String PACK_EXT = ".pack.gz"; //$NON-NLS-1$
 		Feature[] features = updateSite.loadFeatures(monitor);
-		Set allSiteArtifacts = new HashSet();
+		Set<IArtifactDescriptor> allSiteArtifacts = new HashSet<IArtifactDescriptor>();
 		boolean packSupported = updateSite.getSite().isPack200Supported();
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
@@ -147,7 +147,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 			}
 		}
 
-		IArtifactDescriptor[] descriptors = (IArtifactDescriptor[]) allSiteArtifacts.toArray(new IArtifactDescriptor[allSiteArtifacts.size()]);
+		IArtifactDescriptor[] descriptors = allSiteArtifacts.toArray(new IArtifactDescriptor[allSiteArtifacts.size()]);
 		repository.addDescriptors(descriptors);
 	}
 }

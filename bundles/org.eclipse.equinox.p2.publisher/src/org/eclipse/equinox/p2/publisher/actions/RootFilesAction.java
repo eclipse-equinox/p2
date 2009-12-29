@@ -68,7 +68,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 		return Status.OK_STATUS;
 	}
 
-	private void publishTopLevelRootFilesIU(Collection children, IPublisherResult result) {
+	private void publishTopLevelRootFilesIU(Collection<? extends IVersionedId> children, IPublisherResult result) {
 		InstallableUnitDescription descriptor = createParentIU(children, computeIUId(idBase, flavor), version);
 		descriptor.setSingleton(true);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
@@ -111,7 +111,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, version)});
 
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
@@ -141,12 +141,12 @@ public class RootFilesAction extends AbstractPublisherAction {
 	 * @return a compilation of <class>IRootfilesAdvice</class> from the <code>info</code>.
 	 */
 	private IRootFilesAdvice getAdvice(String configSpec) {
-		Collection advice = info.getAdvice(configSpec, true, null, null, IRootFilesAdvice.class);
-		ArrayList inclusions = new ArrayList();
-		ArrayList exclusions = new ArrayList();
+		Collection<IRootFilesAdvice> advice = info.getAdvice(configSpec, true, null, null, IRootFilesAdvice.class);
+		ArrayList<File> inclusions = new ArrayList<File>();
+		ArrayList<File> exclusions = new ArrayList<File>();
 		File root = null;
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			IRootFilesAdvice entry = (IRootFilesAdvice) i.next();
+		for (Iterator<IRootFilesAdvice> i = advice.iterator(); i.hasNext();) {
+			IRootFilesAdvice entry = i.next();
 			// TODO for now we simply get root from the first advice that has one
 			if (root == null)
 				root = entry.getRoot();
@@ -157,8 +157,8 @@ public class RootFilesAction extends AbstractPublisherAction {
 			if (list != null)
 				exclusions.addAll(Arrays.asList(list));
 		}
-		File[] includeList = (File[]) inclusions.toArray(new File[inclusions.size()]);
-		File[] excludeList = (File[]) exclusions.toArray(new File[exclusions.size()]);
+		File[] includeList = inclusions.toArray(new File[inclusions.size()]);
+		File[] excludeList = exclusions.toArray(new File[exclusions.size()]);
 		return new RootFilesAdvice(root, includeList, excludeList, configSpec);
 	}
 

@@ -92,7 +92,7 @@ public class Application implements IApplication {
 		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Ambigous_Command, new Object[] {COMMAND_NAMES[cmd1], COMMAND_NAMES[cmd2]})));
 	}
 
-	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, IQueryResult roots, boolean install) {
+	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, IQueryResult<IInstallableUnit> roots, boolean install) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		markRoots(request, roots);
 		if (install) {
@@ -120,7 +120,7 @@ public class Application implements IApplication {
 	}
 
 	private String getEnvironmentProperty() {
-		Properties values = new Properties();
+		Map<String, String> values = new HashMap<String, String>();
 		if (os != null)
 			values.put("osgi.os", os); //$NON-NLS-1$
 		if (nl != null)
@@ -250,9 +250,9 @@ public class Application implements IApplication {
 			throw new RuntimeException(Messages.Missing_Engine);
 	}
 
-	private void markRoots(ProfileChangeRequest request, IQueryResult roots) {
-		for (Iterator iterator = roots.iterator(); iterator.hasNext();) {
-			request.setInstallableUnitProfileProperty((IInstallableUnit) iterator.next(), IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+	private void markRoots(ProfileChangeRequest request, IQueryResult<IInstallableUnit> roots) {
+		for (Iterator<IInstallableUnit> iterator = roots.iterator(); iterator.hasNext();) {
+			request.setInstallableUnitProfileProperty(iterator.next(), IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 		}
 	}
 
@@ -403,7 +403,7 @@ public class Application implements IApplication {
 
 		IStatus operationStatus = Status.OK_STATUS;
 		InstallableUnitQuery query;
-		IQueryResult roots;
+		IQueryResult<IInstallableUnit> roots;
 		try {
 			initializeRepositories(command == COMMAND_INSTALL);
 			switch (command) {
@@ -412,7 +412,7 @@ public class Application implements IApplication {
 
 					IProfile profile = initializeProfile();
 					query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
-					roots = collectRootIUs(metadataRepositoryLocations, new PipedQuery(new IQuery[] {query, new LatestIUVersionQuery()}));
+					roots = collectRootIUs(metadataRepositoryLocations, new PipedQuery<IInstallableUnit>(query, new LatestIUVersionQuery<IInstallableUnit>()));
 					if (roots.isEmpty())
 						roots = profile.query(query, new NullProgressMonitor());
 					if (roots.isEmpty()) {
@@ -449,9 +449,9 @@ public class Application implements IApplication {
 						missingArgument("metadataRepository"); //$NON-NLS-1$
 
 					roots = collectRootIUs(metadataRepositoryLocations, query);
-					Iterator unitIterator = roots.iterator();
+					Iterator<IInstallableUnit> unitIterator = roots.iterator();
 					while (unitIterator.hasNext()) {
-						IInstallableUnit iu = (IInstallableUnit) unitIterator.next();
+						IInstallableUnit iu = unitIterator.next();
 						System.out.println(iu.getId());
 					}
 					break;
@@ -484,29 +484,30 @@ public class Application implements IApplication {
 		}
 	}
 
-	class LocationQueryable implements IQueryable {
+	class LocationQueryable implements IQueryable<IInstallableUnit> {
 		private URI location;
 
 		public LocationQueryable(URI location) {
 			this.location = location;
 		}
 
-		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 			return ProvisioningHelper.getInstallableUnits(location, query, monitor);
 		}
 	}
 
-	private IQueryResult collectRootIUs(URI[] locations, IQuery query) {
+	private IQueryResult<IInstallableUnit> collectRootIUs(URI[] locations, IQuery<IInstallableUnit> query) {
 		IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 		if (locations == null || locations.length == 0)
 			return ProvisioningHelper.getInstallableUnits((URI) null, query, nullMonitor);
 
-		IQueryable[] locationQueryables = new IQueryable[locations.length];
+		@SuppressWarnings("unchecked")
+		IQueryable<IInstallableUnit>[] locationQueryables = new IQueryable[locations.length];
 		for (int i = 0; i < locations.length; i++) {
 			locationQueryables[i] = new LocationQueryable(locations[i]);
 		}
-		return new CompoundQueryable(locationQueryables).query(query, nullMonitor);
+		return new CompoundQueryable<IInstallableUnit>(locationQueryables).query(query, nullMonitor);
 	}
 
 	private synchronized void setPackageAdmin(PackageAdmin service) {
@@ -537,14 +538,14 @@ public class Application implements IApplication {
 		Activator.getContext().ungetService(packageAdminRef);
 	}
 
-	private String toString(Properties context) {
+	private String toString(Map<String, String> context) {
 		StringBuffer result = new StringBuffer();
-		for (Enumeration iter = context.keys(); iter.hasMoreElements();) {
-			String key = (String) iter.nextElement();
+		for (Iterator<String> iter = context.keySet().iterator(); iter.hasNext();) {
+			String key = iter.next();
 			result.append(key);
 			result.append('=');
 			result.append(context.get(key));
-			if (iter.hasMoreElements())
+			if (iter.hasNext())
 				result.append(',');
 		}
 		return result.toString();
@@ -602,7 +603,7 @@ public class Application implements IApplication {
 		if (spec == null)
 			return null;
 		String[] urlSpecs = getArrayFromString(spec, ","); //$NON-NLS-1$
-		ArrayList result = new ArrayList(urlSpecs.length);
+		ArrayList<URI> result = new ArrayList<URI>(urlSpecs.length);
 		for (int i = 0; i < urlSpecs.length; i++) {
 			try {
 				result.add(URIUtil.fromString(urlSpecs[i]));
@@ -612,7 +613,7 @@ public class Application implements IApplication {
 		}
 		if (result.size() == 0)
 			return null;
-		return (URI[]) result.toArray(new URI[result.size()]);
+		return result.toArray(new URI[result.size()]);
 	}
 
 	/**
@@ -622,13 +623,13 @@ public class Application implements IApplication {
 	public static String[] getArrayFromString(String list, String separator) {
 		if (list == null || list.trim().equals("")) //$NON-NLS-1$
 			return new String[0];
-		List result = new ArrayList();
+		List<String> result = new ArrayList<String>();
 		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
 			if (!token.equals("")) //$NON-NLS-1$
 				result.add(token);
 		}
-		return (String[]) result.toArray(new String[result.size()]);
+		return result.toArray(new String[result.size()]);
 	}
 
 	private void logFailure(IStatus status) {

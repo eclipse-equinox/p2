@@ -42,9 +42,9 @@ public class Collect extends InstallableUnitPhase {
 		return (op.second() != null && !op.second().equals(op.first()));
 	}
 
-	protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
+	protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 		IInstallableUnit unit = operand.second();
-		ProvisioningAction[] parsedActions = getActions(unit, phaseId);
+		List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
 		if (parsedActions != null)
 			return parsedActions;
 
@@ -57,29 +57,30 @@ public class Collect extends InstallableUnitPhase {
 		if (action == null) {
 			return null;
 		}
-		return new ProvisioningAction[] {action};
+		return Collections.singletonList(action);
 	}
 
 	protected String getProblemMessage() {
 		return Messages.Phase_Collect_Error;
 	}
 
-	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
-		List artifactRequests = (List) parameters.get(PARM_ARTIFACT_REQUESTS);
+	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
+		@SuppressWarnings("unchecked")
+		List<IArtifactRequest[]> artifactRequests = (List<IArtifactRequest[]>) parameters.get(PARM_ARTIFACT_REQUESTS);
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 		IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 
 		DownloadManager dm = new DownloadManager(context, repositoryManager);
-		for (Iterator it = artifactRequests.iterator(); it.hasNext();) {
-			IArtifactRequest[] requests = (IArtifactRequest[]) it.next();
+		for (Iterator<IArtifactRequest[]> it = artifactRequests.iterator(); it.hasNext();) {
+			IArtifactRequest[] requests = it.next();
 			dm.add(requests);
 		}
 		return dm.start(monitor);
 	}
 
-	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
-		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList());
+	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
+		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList<IArtifactRequest[]>());
 		return null;
 	}
 }

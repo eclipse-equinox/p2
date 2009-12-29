@@ -57,16 +57,18 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 
-	protected void verifyProvidedCapability(IProvidedCapability[] prov, String namespace, String name, Version version) {
-		for (int i = 0; i < prov.length; i++)
-			if (prov[i].getName().equalsIgnoreCase(name) && prov[i].getNamespace().equalsIgnoreCase(namespace) && prov[i].getVersion().equals(version))
+	protected void verifyProvidedCapability(List<IProvidedCapability> prov, String namespace, String name, Version version) {
+		for (int i = 0; i < prov.size(); i++) {
+			IProvidedCapability pc = prov.get(i);
+			if (pc.getName().equalsIgnoreCase(name) && pc.getNamespace().equalsIgnoreCase(namespace) && pc.getVersion().equals(version))
 				return; // pass
+		}
 		Assert.fail("Missing ProvidedCapability: " + name + version.toString()); //$NON-NLS-1$
 	}
 
-	protected void verifyRequiredCapability(IRequirement[] requirement, String namespace, String name, VersionRange range) {
-		for (int i = 0; i < requirement.length; i++) {
-			IRequiredCapability required = (IRequiredCapability) requirement[i].getMatches();
+	protected void verifyRequiredCapability(List<IRequirement> requirement, String namespace, String name, VersionRange range) {
+		for (int i = 0; i < requirement.size(); i++) {
+			IRequiredCapability required = (IRequiredCapability) requirement.get(i).getMatches();
 			if (required.getName().equalsIgnoreCase(name) && required.getNamespace().equalsIgnoreCase(namespace) && required.getRange().equals(range))
 				return;
 		}
@@ -108,18 +110,18 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		return map;
 	}
 
-	protected void contains(IProvidedCapability[] capabilities, String namespace, String name, Version version) {
-		for (int i = 0; i < capabilities.length; i++) {
-			IProvidedCapability capability = capabilities[i];
+	protected void contains(List<IProvidedCapability> capabilities, String namespace, String name, Version version) {
+		for (int i = 0; i < capabilities.size(); i++) {
+			IProvidedCapability capability = capabilities.get(i);
 			if (capability.getNamespace().equals(namespace) && capability.getName().equals(name) && capability.getVersion().equals(version))
 				return;
 		}
 		fail();
 	}
 
-	protected void contains(IRequirement[] capabilities, String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
-		for (int i = 0; i < capabilities.length; i++) {
-			IRequiredCapability capability = (IRequiredCapability) capabilities[i].getMatches();
+	protected void contains(List<IRequirement> capabilities, String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
+		for (int i = 0; i < capabilities.size(); i++) {
+			IRequiredCapability capability = (IRequiredCapability) capabilities.get(i).getMatches();
 			if (filter == null) {
 				if (capability.getFilter() != null)
 					continue;

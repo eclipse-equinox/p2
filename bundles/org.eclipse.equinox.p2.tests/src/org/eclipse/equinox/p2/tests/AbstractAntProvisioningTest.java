@@ -17,10 +17,10 @@ import java.util.*;
 import org.eclipse.ant.core.AntRunner;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
@@ -261,11 +261,11 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 
 	}
 
-	protected static List getArtifactKeys(IQueryResult ius) {
-		List keys = new ArrayList();
+	protected static List getArtifactKeys(IQueryResult<IInstallableUnit> ius) {
+		List<IArtifactKey> keys = new ArrayList<IArtifactKey>();
 
-		for (Iterator iter = ius.iterator(); iter.hasNext();)
-			keys.addAll(Arrays.asList(((InstallableUnit) iter.next()).getArtifacts()));
+		for (Iterator<IInstallableUnit> iter = ius.iterator(); iter.hasNext();)
+			keys.addAll(iter.next().getArtifacts());
 		return keys;
 	}
 }

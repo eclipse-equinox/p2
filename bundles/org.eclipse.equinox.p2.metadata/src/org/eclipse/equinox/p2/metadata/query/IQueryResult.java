@@ -18,7 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
  * @since 2.0
  *
  */
-public interface IQueryResult extends IQueryable {
+public interface IQueryResult<T> extends IQueryable<T> {
 	/**
 	 * Returns whether this QueryResult  is empty.
 	 * @return <code>true</code> if this QueryResult has accepted any results,
@@ -31,7 +31,7 @@ public interface IQueryResult extends IQueryable {
 	 * 
 	 * @return an iterator of the collected objects.
 	 */
-	public Iterator iterator();
+	public Iterator<T> iterator();
 
 	/**
 	 * Returns the collected objects as an array
@@ -41,18 +41,18 @@ public interface IQueryResult extends IQueryable {
 	 * @throws ArrayStoreException the runtime type of the specified array is
 	 *         not a supertype of the runtime type of every collected object
 	 */
-	public Object[] toArray(Class clazz);
+	public T[] toArray(Class<? extends T> clazz);
 
 	/**
 	 * Creates a new Set copy with the contents of this query result. The
 	 * copy can be altered without any side effects on its origin.
 	 * @return A detached copy of the result.
 	 */
-	public Set toSet();
+	public Set<T> toSet();
 
 	/**
 	 * Returns a Set backed by this query result. The set is immutable.
 	 * @return A Set backed by this query result.
 	 */
-	public Set unmodifiableSet();
+	public Set<T> unmodifiableSet();
 }

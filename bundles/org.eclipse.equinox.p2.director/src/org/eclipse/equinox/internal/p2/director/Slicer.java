@@ -15,8 +15,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitPatch;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequirementChange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -27,26 +26,26 @@ import org.osgi.framework.InvalidSyntaxException;
 
 public class Slicer {
 	private static boolean DEBUG = false;
-	private IQueryable possibilites;
+	private IQueryable<IInstallableUnit> possibilites;
 
-	private LinkedList toProcess;
-	private Set considered; //IUs to add to the slice
-	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
+	private LinkedList<IInstallableUnit> toProcess;
+	private Set<IInstallableUnit> considered; //IUs to add to the slice
+	private Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
 
-	protected Dictionary selectionContext;
+	protected Dictionary<? extends Object, ? extends Object> selectionContext;
 	private MultiStatus result;
 
 	private boolean considerMetaRequirements = false;
 
-	public Slicer(IQueryable input, Dictionary context, boolean considerMetaRequirements) {
+	public Slicer(IQueryable<IInstallableUnit> input, Dictionary<? extends Object, ? extends Object> context, boolean considerMetaRequirements) {
 		possibilites = input;
-		slice = new TwoTierMap();
+		slice = new HashMap<String, Map<Version, IInstallableUnit>>();
 		selectionContext = context;
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 		this.considerMetaRequirements = considerMetaRequirements;
 	}
 
-	public IQueryable slice(IInstallableUnit[] ius, IProgressMonitor monitor) {
+	public IQueryable<IInstallableUnit> slice(IInstallableUnit[] ius, IProgressMonitor monitor) {
 		try {
 			long start = 0;
 			if (DEBUG) {
@@ -55,14 +54,14 @@ public class Slicer {
 			}
 
 			validateInput(ius);
-			considered = new HashSet(Arrays.asList(ius));
-			toProcess = new LinkedList(considered);
+			considered = new HashSet<IInstallableUnit>(Arrays.asList(ius));
+			toProcess = new LinkedList<IInstallableUnit>(considered);
 			while (!toProcess.isEmpty()) {
 				if (monitor.isCanceled()) {
 					result.merge(Status.CANCEL_STATUS);
 					throw new OperationCanceledException();
 				}
-				processIU((IInstallableUnit) toProcess.removeFirst());
+				processIU(toProcess.removeFirst());
 			}
 			if (DEBUG) {
 				long stop = System.currentTimeMillis();
@@ -75,7 +74,7 @@ public class Slicer {
 			LogHelper.log(result);
 		if (result.getSeverity() == IStatus.ERROR)
 			return null;
-		return new QueryableArray((IInstallableUnit[]) considered.toArray(new IInstallableUnit[considered.size()]));
+		return new QueryableArray(considered.toArray(new IInstallableUnit[considered.size()]));
 	}
 
 	public MultiStatus getStatus() {
@@ -92,7 +91,7 @@ public class Slicer {
 
 	// Check whether the requirement is applicable
 	protected boolean isApplicable(IRequirement req) {
-		IQuery filter = req.getFilter();
+		IQuery<Boolean> filter = req.getFilter();
 		if (filter == null)
 			return true;
 		if (filter instanceof LDAPQuery)
@@ -118,24 +117,31 @@ public class Slicer {
 	protected void processIU(IInstallableUnit iu) {
 		iu = iu.unresolved();
 
-		slice.put(iu.getId(), iu.getVersion(), iu);
+		Map<Version, IInstallableUnit> iuSlice = slice.get(iu.getId());
+		if (iuSlice == null) {
+			iuSlice = new HashMap<Version, IInstallableUnit>();
+			slice.put(iu.getId(), iuSlice);
+		}
+		iuSlice.put(iu.getVersion(), iu);
 		if (!isApplicable(iu)) {
 			return;
 		}
 
-		IRequirement[] reqs = getRequiredCapabilities(iu);
-		if (reqs.length == 0) {
+		List<IRequirement> reqs = getRequiredCapabilities(iu);
+		int reqsCount = reqs.size();
+		if (reqsCount == 0) {
 			return;
 		}
-		for (int i = 0; i < reqs.length; i++) {
-			if (!isApplicable(reqs[i]))
+		for (int i = 0; i < reqsCount; i++) {
+			IRequirement req = reqs.get(i);
+			if (!isApplicable(req))
 				continue;
 
-			if (!isGreedy(reqs[i])) {
+			if (!isGreedy(req)) {
 				continue;
 			}
 
-			expandRequirement(iu, reqs[i]);
+			expandRequirement(iu, req);
 		}
 	}
 
@@ -143,38 +149,45 @@ public class Slicer {
 		return req.isGreedy();
 	}
 
-	private IRequirement[] getRequiredCapabilities(IInstallableUnit iu) {
+	private List<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
+		List<IRequirement> iuRequirements = iu.getRequiredCapabilities();
+		int initialRequirementCount = iuRequirements.size();
 		if (!(iu instanceof IInstallableUnitPatch)) {
-			if (iu.getMetaRequiredCapabilities().length == 0 || considerMetaRequirements == false)
-				return iu.getRequiredCapabilities();
-			IRequirement[] aggregatedCapabilities = new IRequirement[iu.getRequiredCapabilities().length + iu.getMetaRequiredCapabilities().length];
-			System.arraycopy(iu.getRequiredCapabilities(), 0, aggregatedCapabilities, 0, iu.getRequiredCapabilities().length);
-			System.arraycopy(iu.getMetaRequiredCapabilities(), 0, aggregatedCapabilities, iu.getRequiredCapabilities().length, iu.getMetaRequiredCapabilities().length);
+			if (!considerMetaRequirements)
+				return iuRequirements;
+
+			List<IRequirement> iuMetaRequirements = iu.getMetaRequiredCapabilities();
+			int metaSize = iuMetaRequirements.size();
+			if (metaSize == 0)
+				return iuRequirements;
+
+			ArrayList<IRequirement> aggregatedCapabilities = new ArrayList<IRequirement>(initialRequirementCount + metaSize);
+			aggregatedCapabilities.addAll(iuRequirements);
+			aggregatedCapabilities.addAll(iuMetaRequirements);
 			return aggregatedCapabilities;
 		}
-		IRequirement[] aggregatedCapabilities;
+
 		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) iu;
-		IRequirementChange[] changes = patchIU.getRequirementsChange();
-		int initialRequirementCount = iu.getRequiredCapabilities().length;
-		aggregatedCapabilities = new IRequirement[initialRequirementCount + changes.length];
-		System.arraycopy(iu.getRequiredCapabilities(), 0, aggregatedCapabilities, 0, initialRequirementCount);
-		for (int i = 0; i < changes.length; i++) {
-			aggregatedCapabilities[initialRequirementCount++] = changes[i].newValue();
-		}
+		List<IRequirementChange> changes = patchIU.getRequirementsChange();
+		ArrayList<IRequirement> aggregatedCapabilities = new ArrayList<IRequirement>(initialRequirementCount + changes.size());
+		aggregatedCapabilities.addAll(iuRequirements);
+		for (int i = 0; i < changes.size(); i++)
+			aggregatedCapabilities.add(changes.get(i).newValue());
 		return aggregatedCapabilities;
 	}
 
 	private void expandRequirement(IInstallableUnit iu, IRequirement req) {
 		if (req.getMax() == 0)
 			return;
-		IQueryResult matches = possibilites.query(req.getMatches(), null);
+		IQueryResult<IInstallableUnit> matches = possibilites.query(req.getMatches(), null);
 		int validMatches = 0;
-		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-			IInstallableUnit match = (IInstallableUnit) iterator.next();
+		for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
+			IInstallableUnit match = iterator.next();
 			if (!isApplicable(match))
 				continue;
 			validMatches++;
-			if (!slice.containsKey(match.getId(), match.getVersion()))
+			Map<Version, IInstallableUnit> iuSlice = slice.get(match.getId());
+			if (iuSlice == null || !iuSlice.containsKey(match.getVersion()))
 				consider(match);
 		}
 

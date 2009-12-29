@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
-public class QueryableArray implements IQueryable {
+public class QueryableArray implements IQueryable<IInstallableUnit> {
 	static class IUCapability {
 		final IInstallableUnit iu;
 		final IProvidedCapability capability;
@@ -31,24 +31,24 @@ public class QueryableArray implements IQueryable {
 		}
 	}
 
-	private final List dataSet;
-	private Map namedCapabilityIndex;
+	private final List<IInstallableUnit> dataSet;
+	private Map<String, List<IUCapability>> namedCapabilityIndex;
 
 	public QueryableArray(IInstallableUnit[] ius) {
 		dataSet = Arrays.asList(ius);
 	}
 
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		if (query instanceof IRequiredCapability)
-			return queryCapability((IRequiredCapability) query, new Collector(), monitor);
+			return queryCapability((IRequiredCapability) query, new Collector<IInstallableUnit>(), monitor);
 		return query.perform(dataSet.iterator());
 	}
 
-	private Collector queryCapability(IRequiredCapability query, Collector collector, IProgressMonitor monitor) {
+	private Collector<IInstallableUnit> queryCapability(IRequiredCapability query, Collector<IInstallableUnit> collector, IProgressMonitor monitor) {
 		generateNamedCapabilityIndex();
 
-		Collection resultIUs = null;
-		Collection matchingIUs = findMatchingIUs(query);
+		Collection<IInstallableUnit> resultIUs = null;
+		Collection<IInstallableUnit> matchingIUs = findMatchingIUs(query);
 		if (matchingIUs == null)
 			return collector;
 		if (resultIUs == null)
@@ -57,20 +57,20 @@ public class QueryableArray implements IQueryable {
 			resultIUs.retainAll(matchingIUs);
 
 		if (resultIUs != null)
-			for (Iterator iterator = resultIUs.iterator(); iterator.hasNext();)
+			for (Iterator<IInstallableUnit> iterator = resultIUs.iterator(); iterator.hasNext();)
 				collector.accept(iterator.next());
 
 		return collector;
 	}
 
-	private Collection findMatchingIUs(IRequiredCapability requiredCapability) {
-		List iuCapabilities = (List) namedCapabilityIndex.get(requiredCapability.getName());
+	private Collection<IInstallableUnit> findMatchingIUs(IRequiredCapability requiredCapability) {
+		List<IUCapability> iuCapabilities = namedCapabilityIndex.get(requiredCapability.getName());
 		if (iuCapabilities == null)
 			return null;
 
-		Set matchingIUs = new HashSet();
-		for (Iterator iterator = iuCapabilities.iterator(); iterator.hasNext();) {
-			IUCapability iuCapability = (IUCapability) iterator.next();
+		Set<IInstallableUnit> matchingIUs = new HashSet<IInstallableUnit>();
+		for (Iterator<IUCapability> iterator = iuCapabilities.iterator(); iterator.hasNext();) {
+			IUCapability iuCapability = iterator.next();
 			if (iuCapability.iu.satisfies(requiredCapability))
 				matchingIUs.add(iuCapability.iu);
 		}
@@ -81,19 +81,21 @@ public class QueryableArray implements IQueryable {
 		if (namedCapabilityIndex != null)
 			return;
 
-		namedCapabilityIndex = new HashMap();
-		for (Iterator iterator = dataSet.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+		namedCapabilityIndex = new HashMap<String, List<IUCapability>>();
+		for (Iterator<IInstallableUnit> iterator = dataSet.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
 
-			IProvidedCapability[] providedCapabilities = iu.getProvidedCapabilities();
-			for (int i = 0; i < providedCapabilities.length; i++) {
-				String name = providedCapabilities[i].getName();
-				List iuCapabilities = (List) namedCapabilityIndex.get(name);
+			List<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
+			int top = providedCapabilities.size();
+			for (int i = 0; i < top; i++) {
+				IProvidedCapability pc = providedCapabilities.get(i);
+				String name = pc.getName();
+				List<IUCapability> iuCapabilities = namedCapabilityIndex.get(name);
 				if (iuCapabilities == null) {
-					iuCapabilities = new ArrayList(5);
+					iuCapabilities = new ArrayList<IUCapability>(5);
 					namedCapabilityIndex.put(name, iuCapabilities);
 				}
-				iuCapabilities.add(new IUCapability(iu, providedCapabilities[i]));
+				iuCapabilities.add(new IUCapability(iu, pc));
 			}
 		}
 	}

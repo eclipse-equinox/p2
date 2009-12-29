@@ -1025,10 +1025,10 @@ public class Generator {
 			String location = feature.getLocation();
 			boolean isExploded = (location.endsWith(".jar") ? false : true); //$NON-NLS-1$
 			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true);
-			IArtifactKey[] artifacts = featureIU.getArtifacts();
+			List artifacts = featureIU.getArtifacts();
 			storePluginShape(feature, result);
-			for (int arti = 0; arti < artifacts.length; arti++) {
-				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(artifacts[arti], new File(location), true, false);
+			for (int arti = 0; arti < artifacts.size(); arti++) {
+				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor((IArtifactKey) artifacts.get(arti), new File(location), true, false);
 				if (isExploded)
 					publishArtifact(ad, new File(location).listFiles(), destination, false, new File(location));
 				else

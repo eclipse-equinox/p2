@@ -108,13 +108,13 @@ public class ProvUI {
 		return queryContext;
 	}
 
-	public static Object getAdapter(Object object, Class adapterType) {
+	public static <T> T getAdapter(Object object, Class<T> adapterType) {
 		if (object == null)
 			return null;
 		if (adapterType.isInstance(object))
-			return object;
+			return adapterType.cast(object);
 		if (object instanceof IAdaptable)
-			return ((IAdaptable) object).getAdapter(adapterType);
+			return adapterType.cast(((IAdaptable) object).getAdapter(adapterType));
 		return null;
 	}
 

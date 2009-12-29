@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.repository.helpers;
 
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.osgi.service.debug.DebugOptions;
@@ -49,7 +50,7 @@ public class DebugHelper {
 		if (keyValueArray == null || keyValueArray.length == 0)
 			debug(name, message);
 		else {
-			Map params = new LinkedHashMap(keyValueArray.length / 2);
+			Map<Object, Object> params = new LinkedHashMap<Object, Object>(keyValueArray.length / 2);
 			for (int i = 0; i < keyValueArray.length; i += 2)
 				params.put(keyValueArray[i], keyValueArray[i + 1]);
 			StringBuffer buffer = new StringBuffer();
@@ -95,15 +96,15 @@ public class DebugHelper {
 		return buffer.toString();
 	}
 
-	public static String formatMap(Map map, boolean toString, boolean newLines) {
+	public static String formatMap(Map<?, ?> map, boolean toString, boolean newLines) {
 		if (map == null || map.size() == 0)
 			return "[]"; //$NON-NLS-1$
 
 		StringBuffer buffer = new StringBuffer();
 		buffer.append('[');
-		Iterator itor = map.entrySet().iterator();
+		Iterator<? extends Entry<?, ?>> itor = map.entrySet().iterator();
 		while (itor.hasNext()) {
-			Map.Entry e = (Map.Entry) itor.next();
+			Entry<?, ?> e = itor.next();
 			buffer.append(e.getKey());
 			buffer.append('=');
 			if (toString)

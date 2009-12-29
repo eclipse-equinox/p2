@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.*;
 public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	private boolean rippleCheckMarks = true;
-	private ArrayList savedCheckState;
+	private ArrayList<Object> savedCheckState;
 
 	/**
 	 * Constructor for ContainerCheckedTreeViewer.
@@ -219,7 +219,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	public Object[] getCheckedElements() {
 		Object[] checked = super.getCheckedElements();
 		// add all items that are children of a checked node but not created yet
-		ArrayList result = new ArrayList();
+		ArrayList<Object> result = new ArrayList<Object>();
 		for (int i = 0; i < checked.length; i++) {
 			Object curr = checked[i];
 			result.add(curr);
@@ -241,7 +241,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	 * @param element
 	 * @param result
 	 */
-	private void collectChildren(Object element, ArrayList result) {
+	private void collectChildren(Object element, ArrayList<Object> result) {
 		Object[] filteredChildren = getFilteredChildren(element);
 		for (int i = 0; i < filteredChildren.length; i++) {
 			Object curr = filteredChildren[i];
@@ -276,7 +276,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	// problem.
 	private void saveCheckedState() {
 		Object[] checked = getCheckedElements();
-		savedCheckState = new ArrayList(checked.length);
+		savedCheckState = new ArrayList<Object>(checked.length);
 		for (int i = 0; i < checked.length; i++)
 			if (!isExpandable(checked[i]) && !getGrayed(checked[i]))
 				savedCheckState.add(checked[i]);
@@ -288,7 +288,7 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 		setGrayedElements(new Object[0]);
 		Object element = null;
 		// We are assuming that once a leaf, always a leaf.
-		Iterator iter = savedCheckState.iterator();
+		Iterator<Object> iter = savedCheckState.iterator();
 		while (iter.hasNext()) {
 			element = iter.next();
 			setChecked(element, true);

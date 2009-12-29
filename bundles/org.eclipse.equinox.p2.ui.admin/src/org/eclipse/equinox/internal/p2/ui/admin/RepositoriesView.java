@@ -55,12 +55,12 @@ abstract class RepositoriesView extends ProvView {
 		public void run() {
 			RepositoryTracker tracker = RepositoriesView.this.getRepositoryTracker();
 			Object[] elements = getSelection().toArray();
-			ArrayList uris = new ArrayList(elements.length);
+			ArrayList<URI> uris = new ArrayList<URI>(elements.length);
 			for (int i = 0; i < elements.length; i++) {
-				if (elements[i] instanceof IRepositoryElement)
-					uris.add(((IRepositoryElement) elements[i]).getLocation());
+				if (elements[i] instanceof IRepositoryElement<?>)
+					uris.add(((IRepositoryElement<?>) elements[i]).getLocation());
 			}
-			tracker.removeRepositories((URI[]) uris.toArray(new URI[uris.size()]), RepositoriesView.this.getProvisioningUI().getSession());
+			tracker.removeRepositories(uris.toArray(new URI[uris.size()]), RepositoriesView.this.getProvisioningUI().getSession());
 		}
 	}
 
@@ -74,10 +74,10 @@ abstract class RepositoriesView extends ProvView {
 
 		public void run() {
 			Object[] elements = ((ITreeContentProvider) viewer.getContentProvider()).getElements(getInput());
-			ArrayList urls = new ArrayList();
+			ArrayList<URI> urls = new ArrayList<URI>();
 			for (int i = 0; i < elements.length; i++)
-				if (elements[i] instanceof IRepositoryElement)
-					urls.add(((IRepositoryElement) elements[i]).getLocation());
+				if (elements[i] instanceof IRepositoryElement<?>)
+					urls.add(((IRepositoryElement<?>) elements[i]).getLocation());
 			openAddRepositoryDialog(getShell());
 		}
 	}
@@ -193,13 +193,13 @@ abstract class RepositoriesView extends ProvView {
 	protected abstract String getRemoveCommandTooltip();
 
 	protected boolean isRepository(Object element) {
-		return element instanceof IRepositoryElement;
+		return element instanceof IRepositoryElement<?>;
 	}
 
 	protected abstract int getListenerEventTypes();
 
-	protected List getVisualProperties() {
-		List list = super.getVisualProperties();
+	protected List<String> getVisualProperties() {
+		List<String> list = super.getVisualProperties();
 		list.add(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS);
 		return list;
 	}

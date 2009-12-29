@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
+import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -37,8 +38,9 @@ public class CheckTrust extends InstallableUnitPhase {
 		return (op.second() != null);
 	}
 
-	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
-		Collection artifactRequests = (Collection) parameters.get(PARM_ARTIFACT_FILES);
+	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
+		@SuppressWarnings("unchecked")
+		Collection<File> artifactRequests = (Collection<File>) parameters.get(PARM_ARTIFACT_FILES);
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 
 		// Instantiate a check trust manager
@@ -49,9 +51,9 @@ public class CheckTrust extends InstallableUnitPhase {
 		return status;
 	}
 
-	protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
+	protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 		IInstallableUnit unit = operand.second();
-		ProvisioningAction[] parsedActions = getActions(unit, phaseId);
+		List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
 		if (parsedActions != null)
 			return parsedActions;
 
@@ -64,18 +66,18 @@ public class CheckTrust extends InstallableUnitPhase {
 		if (action == null) {
 			return null;
 		}
-		return new ProvisioningAction[] {action};
+		return Collections.singletonList(action);
 	}
 
-	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.second();
 		parameters.put(PARM_IU, iu);
 
 		return super.initializeOperand(profile, operand, parameters, monitor);
 	}
 
-	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
-		parameters.put(PARM_ARTIFACT_FILES, new ArrayList());
+	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
+		parameters.put(PARM_ARTIFACT_FILES, new ArrayList<File>());
 		return super.initializePhase(monitor, profile, parameters);
 	}
 

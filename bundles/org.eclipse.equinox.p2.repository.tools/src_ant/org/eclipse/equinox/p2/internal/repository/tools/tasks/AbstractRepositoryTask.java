@@ -19,6 +19,7 @@ import org.apache.tools.ant.types.FileSet;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.p2.internal.repository.tools.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
@@ -26,9 +27,9 @@ import org.eclipse.osgi.util.NLS;
 public abstract class AbstractRepositoryTask extends Task {
 	protected static final String ANT_PREFIX = "${"; //$NON-NLS-1$
 	protected AbstractApplication application;
-	protected List iuTasks = new ArrayList();
-	protected List sourceRepos = new ArrayList();
-	protected List destinations = new ArrayList();
+	protected List<IUDescription> iuTasks = new ArrayList<IUDescription>();
+	protected List<FileSet> sourceRepos = new ArrayList<FileSet>();
+	protected List<DestinationRepository> destinations = new ArrayList<DestinationRepository>();
 
 	protected void addMetadataSourceRepository(URI repoLocation) {
 		RepositoryDescriptor source = new RepositoryDescriptor();
@@ -101,13 +102,13 @@ public abstract class AbstractRepositoryTask extends Task {
 	 * Add source repositories to mirror from
 	 */
 	public void addConfiguredSource(RepositoryList sourceList) {
-		for (Iterator iter = sourceList.getRepositoryList().iterator(); iter.hasNext();) {
-			DestinationRepository repo = (DestinationRepository) iter.next();
+		for (Iterator<DestinationRepository> iter = sourceList.getRepositoryList().iterator(); iter.hasNext();) {
+			DestinationRepository repo = iter.next();
 			application.addSource(repo.getDescriptor());
 		}
 
-		for (Iterator iter = sourceList.getFileSetList().iterator(); iter.hasNext();) {
-			FileSet fileSet = (FileSet) iter.next();
+		for (Iterator<FileSet> iter = sourceList.getFileSetList().iterator(); iter.hasNext();) {
+			FileSet fileSet = iter.next();
 			sourceRepos.add(fileSet);
 			// Added to the application later through prepareSourceRepos
 		}
@@ -120,7 +121,7 @@ public abstract class AbstractRepositoryTask extends Task {
 	protected void prepareSourceRepos() {
 		if (sourceRepos == null || sourceRepos.isEmpty())
 			return;
-		for (Iterator iter = sourceRepos.iterator(); iter.hasNext();) {
+		for (Iterator<FileSet> iter = sourceRepos.iterator(); iter.hasNext();) {
 			RepositoryFileSet fileset = (RepositoryFileSet) iter.next();
 
 			if (fileset.getRepoLocation() != null) {
@@ -156,17 +157,17 @@ public abstract class AbstractRepositoryTask extends Task {
 		sourceRepos.clear();
 	}
 
-	protected List prepareIUs() {
+	protected List<IInstallableUnit> prepareIUs() {
 		if (iuTasks == null || iuTasks.isEmpty())
 			return null;
 
 		IMetadataRepository repository = application.getCompositeMetadataRepository();
-		List result = new ArrayList();
-		for (Iterator iter = iuTasks.iterator(); iter.hasNext();) {
-			IUDescription iu = (IUDescription) iter.next();
-			IQuery iuQuery = iu.createQuery();
+		List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+		for (Iterator<IUDescription> iter = iuTasks.iterator(); iter.hasNext();) {
+			IUDescription iu = iter.next();
+			IQuery<IInstallableUnit> iuQuery = iu.createQuery();
 
-			Iterator queryResult = repository.query(iuQuery, null).iterator();
+			Iterator<IInstallableUnit> queryResult = repository.query(iuQuery, null).iterator();
 
 			if (iu.isRequired() && !queryResult.hasNext())
 				throw new BuildException(NLS.bind(Messages.AbstractRepositoryTask_unableToFind, iu.toString()));

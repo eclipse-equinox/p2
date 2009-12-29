@@ -29,28 +29,28 @@ public class EngineSession {
 
 	private static class ActionsRecord {
 		Operand operand;
-		List actions = new ArrayList();
+		List<ProvisioningAction> actions = new ArrayList<ProvisioningAction>();
 
 		ActionsRecord(Operand operand) {
 			this.operand = operand;
 		}
 	}
 
-	private List phaseActionRecordsPairs = new ArrayList();
+	private List<Object[]> phaseActionRecordsPairs = new ArrayList<Object[]>();
 
 	private Phase currentPhase;
 	boolean currentPhaseActive;
 
-	private List currentActionRecords;
+	private List<ActionsRecord> currentActionRecords;
 	private ActionsRecord currentRecord;
 
 	private IProfile profile;
 
 	private ProvisioningContext context;
 
-	private final HashMap sessionServices = new HashMap();
+	private final HashMap<String, Object> sessionServices = new HashMap<String, Object>();
 
-	private Set touchpoints = new HashSet();
+	private Set<Touchpoint> touchpoints = new HashSet<Touchpoint>();
 
 	private final IProvisioningAgent agent;
 
@@ -93,8 +93,8 @@ public class EngineSession {
 	IStatus prepare(IProgressMonitor monitor) {
 		monitor.subTask(Messages.preparing);
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
-			Touchpoint touchpoint = (Touchpoint) iterator.next();
+		for (Iterator<Touchpoint> iterator = touchpoints.iterator(); iterator.hasNext();) {
+			Touchpoint touchpoint = iterator.next();
 			try {
 				status.add(touchpoint.prepare(profile));
 			} catch (RuntimeException e) {
@@ -119,8 +119,8 @@ public class EngineSession {
 		monitor.subTask(Messages.committing);
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		phaseActionRecordsPairs.clear();
-		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
-			Touchpoint touchpoint = (Touchpoint) iterator.next();
+		for (Iterator<Touchpoint> iterator = touchpoints.iterator(); iterator.hasNext();) {
+			Touchpoint touchpoint = iterator.next();
 			try {
 				IStatus result = touchpoint.commit(profile);
 				if (!result.isOK())
@@ -171,10 +171,11 @@ public class EngineSession {
 		}
 		currentPhase = null;
 
-		for (ListIterator it = phaseActionRecordsPairs.listIterator(phaseActionRecordsPairs.size()); it.hasPrevious();) {
-			Object[] pair = (Object[]) it.previous();
+		for (ListIterator<Object[]> it = phaseActionRecordsPairs.listIterator(phaseActionRecordsPairs.size()); it.hasPrevious();) {
+			Object[] pair = it.previous();
 			Phase phase = (Phase) pair[0];
-			List actionRecords = (List) pair[1];
+			@SuppressWarnings("unchecked")
+			List<ActionsRecord> actionRecords = (List<ActionsRecord>) pair[1];
 			try {
 				final IStatus result = rollBackPhase(phase, actionRecords);
 				if (!result.isOK())
@@ -190,8 +191,8 @@ public class EngineSession {
 		}
 
 		phaseActionRecordsPairs.clear();
-		for (Iterator iterator = touchpoints.iterator(); iterator.hasNext();) {
-			Touchpoint touchpoint = (Touchpoint) iterator.next();
+		for (Iterator<Touchpoint> iterator = touchpoints.iterator(); iterator.hasNext();) {
+			Touchpoint touchpoint = iterator.next();
 			try {
 				IStatus result = touchpoint.rollback(profile);
 				if (!result.isOK())
@@ -214,7 +215,7 @@ public class EngineSession {
 		return status;
 	}
 
-	private IStatus rollBackPhase(Phase phase, List actionRecords) {
+	private IStatus rollBackPhase(Phase phase, List<ActionsRecord> actionRecords) {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		try {
 			phase.actionManager = (ActionManager) agent.getService(ActionManager.SERVICE_NAME);
@@ -222,9 +223,9 @@ public class EngineSession {
 			if (!currentPhaseActive)
 				phase.prePerform(result, this, new NullProgressMonitor());
 
-			for (ListIterator it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
-				ActionsRecord record = (ActionsRecord) it.previous();
-				ProvisioningAction[] actions = (ProvisioningAction[]) record.actions.toArray(new ProvisioningAction[record.actions.size()]);
+			for (ListIterator<ActionsRecord> it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
+				ActionsRecord record = it.previous();
+				ProvisioningAction[] actions = record.actions.toArray(new ProvisioningAction[record.actions.size()]);
 				try {
 					phase.undo(result, this, profile, record.operand, actions, context);
 				} catch (RuntimeException e) {
@@ -264,7 +265,7 @@ public class EngineSession {
 			throw new IllegalArgumentException(Messages.not_current_phase);
 
 		currentPhaseActive = true;
-		currentActionRecords = new ArrayList();
+		currentActionRecords = new ArrayList<ActionsRecord>();
 	}
 
 	void recordPhaseEnd(Phase phase) {
@@ -318,7 +319,7 @@ public class EngineSession {
 			debugOperandEnd(operand);
 	}
 
-	void recordActionExecute(ProvisioningAction action, Map parameters) {
+	void recordActionExecute(ProvisioningAction action, Map<String, Object> parameters) {
 		if (action == null)
 			throw new IllegalArgumentException(Messages.null_action);
 
@@ -332,7 +333,7 @@ public class EngineSession {
 			debugActionExecute(action, parameters);
 	}
 
-	public void recordActionUndo(ProvisioningAction action, Map parameters) {
+	public void recordActionUndo(ProvisioningAction action, Map<String, Object> parameters) {
 		if (DebugHelper.DEBUG_ENGINE_SESSION)
 			debugActionUndo(action, parameters);
 	}
@@ -391,11 +392,11 @@ public class EngineSession {
 		DebugHelper.debug(ENGINE_SESSION, "Ending processing of operand: " + operand.toString()); //$NON-NLS-1$
 	}
 
-	private static void debugActionExecute(ProvisioningAction action, Map parameters) {
+	private static void debugActionExecute(ProvisioningAction action, Map<String, Object> parameters) {
 		DebugHelper.debug(ENGINE_SESSION, "Executing action: " + DebugHelper.formatAction(action, parameters)); //$NON-NLS-1$
 	}
 
-	private static void debugActionUndo(ProvisioningAction action, Map parameters) {
+	private static void debugActionUndo(ProvisioningAction action, Map<String, Object> parameters) {
 		DebugHelper.debug(ENGINE_SESSION, "Undoing action: " + DebugHelper.formatAction(action, parameters)); //$NON-NLS-1$
 	}
 }

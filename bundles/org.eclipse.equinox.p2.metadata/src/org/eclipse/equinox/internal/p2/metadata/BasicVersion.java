@@ -79,5 +79,5 @@ public abstract class BasicVersion extends Version {
 	 * contract.
 	 * @return The raw vector. Must be treated as read-only
 	 */
-	abstract Comparable[] getVector();
+	abstract Comparable<?>[] getVector();
 }

@@ -32,7 +32,7 @@ import org.eclipse.equinox.p2.metadata.query.IQueryResult;
  * execution of the query. <P>
  * 
  */
-public abstract class ContextQuery implements IQuery {
+public abstract class ContextQuery<T> implements IQuery<T> {
 
 	/**
 	 * Evaluates the query for a specific input.  
@@ -41,7 +41,7 @@ public abstract class ContextQuery implements IQuery {
 	 * @return The results of the query.  The collector returned must be
 	 * the collector passed in.
 	 */
-	public abstract IQueryResult perform(Iterator iterator);
+	public abstract IQueryResult<T> perform(Iterator<T> iterator);
 
 	/**
 	 * Gets the ID for this Query. 

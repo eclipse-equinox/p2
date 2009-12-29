@@ -61,8 +61,8 @@ public class ProductPublisherTask extends AbstractPublishTask {
 	private String productFile;
 	private String executables;
 	private String source;
-	private List configurations = new ArrayList(3);
-	private List advice = new ArrayList(3);
+	private List<ConfigElement> configurations = new ArrayList<ConfigElement>(3);
+	private List<AdviceElement> advice = new ArrayList<AdviceElement>(3);
 
 	public void execute() throws BuildException {
 		try {
@@ -99,8 +99,8 @@ public class ProductPublisherTask extends AbstractPublishTask {
 	}
 
 	protected void processAdvice(PublisherInfo info) {
-		for (Iterator iterator = advice.iterator(); iterator.hasNext();) {
-			AdviceElement element = (AdviceElement) iterator.next();
+		for (Iterator<AdviceElement> iterator = advice.iterator(); iterator.hasNext();) {
+			AdviceElement element = iterator.next();
 			if (element.kind == null || element.file == null)
 				continue;
 

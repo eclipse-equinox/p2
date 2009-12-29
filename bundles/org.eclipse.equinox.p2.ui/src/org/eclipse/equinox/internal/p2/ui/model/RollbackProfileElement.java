@@ -51,6 +51,7 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 		return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.LONG).format(new Date(timestamp));
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IProfile.class)
 			return getProfileSnapshot(new NullProgressMonitor());
@@ -89,7 +90,7 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getQueryable()
 	 */
-	public IQueryable getQueryable() {
+	public IQueryable<?> getQueryable() {
 		return getProfileSnapshot(new NullProgressMonitor());
 	}
 }

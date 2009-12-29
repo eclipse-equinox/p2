@@ -16,6 +16,7 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -169,7 +170,7 @@ public class PublisherHelper {
 		cu.setHost(reqs);
 
 		cu.setFilter(INSTALL_FEATURES_FILTER);
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 		touchpointData.put("install", "installFeature(feature:${artifact},featureId:default,featureVersion:default)"); //$NON-NLS-1$//$NON-NLS-2$
 		touchpointData.put("uninstall", "uninstallFeature(feature:${artifact},featureId:default,featureVersion:default)"); //$NON-NLS-1$//$NON-NLS-2$
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
@@ -191,7 +192,7 @@ public class PublisherHelper {
 		// Create a required capability on source providers
 		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, true, true, false)};
 		cu.setHost(reqs);
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 
 		touchpointData.put("install", "addSourceBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("uninstall", "removeSourceBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -199,26 +200,26 @@ public class PublisherHelper {
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
-	private static void addExtraProperties(IInstallableUnit iiu, Properties extraProperties) {
+	private static void addExtraProperties(IInstallableUnit iiu, Map<String, String> extraProperties) {
 		if (iiu instanceof InstallableUnit) {
 			InstallableUnit iu = (InstallableUnit) iiu;
 
-			for (Enumeration e = extraProperties.propertyNames(); e.hasMoreElements();) {
-				String name = (String) e.nextElement();
-				iu.setProperty(name, extraProperties.getProperty(name));
+			for (Iterator<Entry<String, String>> iter = extraProperties.entrySet().iterator(); iter.hasNext();) {
+				Entry<String, String> entry = iter.next();
+				iu.setProperty(entry.getKey(), entry.getValue());
 			}
 		}
 	}
 
-	public static IInstallableUnit[] createEclipseIU(BundleDescription bd, boolean isFolderPlugin, IArtifactKey key, Properties extraProperties) {
-		ArrayList iusCreated = new ArrayList(1);
+	public static IInstallableUnit[] createEclipseIU(BundleDescription bd, boolean isFolderPlugin, IArtifactKey key, Map<String, String> extraProperties) {
+		ArrayList<IInstallableUnit> iusCreated = new ArrayList<IInstallableUnit>(1);
 		IPublisherInfo info = new PublisherInfo();
 		String shape = isFolderPlugin ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
 		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion()), shape));
 		IInstallableUnit iu = BundlesAction.createBundleIU(bd, key, info);
 		addExtraProperties(iu, extraProperties);
 		iusCreated.add(iu);
-		return (IInstallableUnit[]) (iusCreated.toArray(new IInstallableUnit[iusCreated.size()]));
+		return (iusCreated.toArray(new IInstallableUnit[iusCreated.size()]));
 	}
 
 	public static ArtifactKey createBinaryArtifactKey(String id, Version version) {

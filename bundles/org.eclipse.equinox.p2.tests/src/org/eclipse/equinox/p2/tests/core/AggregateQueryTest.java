@@ -116,11 +116,11 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		PipedQuery compoundQuery = new PipedQuery(new IQuery[] {getLatest, getAllBut3});
+		PipedQuery compoundQuery = new PipedQuery(getLatest, getAllBut3);
 		IQueryResult result = compoundQuery.perform(get123().iterator());
 		assertEquals(0, AbstractProvisioningTest.queryResultSize(result));
 
-		compoundQuery = new PipedQuery(new IQuery[] {getAllBut3, getLatest});
+		compoundQuery = new PipedQuery(getAllBut3, getLatest);
 		result = compoundQuery.perform(get123().iterator());
 		assertEquals(1, AbstractProvisioningTest.queryResultSize(result));
 		assertEquals("2", result.iterator().next());
@@ -145,10 +145,10 @@ public class AggregateQueryTest extends TestCase {
 		};
 		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {A, B, C}, true);
 		assertTrue("1.0", compoundQuery instanceof IMatchQuery);
-		assertEquals("1.1", 3, compoundQuery.getQueries().length);
-		assertEquals("1.2", A, compoundQuery.getQueries()[0]);
-		assertEquals("1.3", B, compoundQuery.getQueries()[1]);
-		assertEquals("1.4", C, compoundQuery.getQueries()[2]);
+		assertEquals("1.1", 3, compoundQuery.getQueries().size());
+		assertEquals("1.2", A, compoundQuery.getQueries().get(0));
+		assertEquals("1.3", B, compoundQuery.getQueries().get(1));
+		assertEquals("1.4", C, compoundQuery.getQueries().get(2));
 	}
 
 	public void testCompoundSomeMatchQueries() {
@@ -170,10 +170,10 @@ public class AggregateQueryTest extends TestCase {
 		};
 		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {A, B, C}, true);
 		assertTrue("1.0", !(compoundQuery instanceof IMatchQuery));
-		assertEquals("1.1", 3, compoundQuery.getQueries().length);
-		assertEquals("1.2", A, compoundQuery.getQueries()[0]);
-		assertEquals("1.3", B, compoundQuery.getQueries()[1]);
-		assertEquals("1.4", C, compoundQuery.getQueries()[2]);
+		assertEquals("1.1", 3, compoundQuery.getQueries().size());
+		assertEquals("1.2", A, compoundQuery.getQueries().get(0));
+		assertEquals("1.3", B, compoundQuery.getQueries().get(1));
+		assertEquals("1.4", C, compoundQuery.getQueries().get(2));
 	}
 
 	public void testCompoundNoMatchQueries() {
@@ -197,10 +197,10 @@ public class AggregateQueryTest extends TestCase {
 		};
 		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {A, B, C}, true);
 		assertTrue("1.0", !(compoundQuery instanceof IMatchQuery));
-		assertEquals("1.1", 3, compoundQuery.getQueries().length);
-		assertEquals("1.2", A, compoundQuery.getQueries()[0]);
-		assertEquals("1.3", B, compoundQuery.getQueries()[1]);
-		assertEquals("1.4", C, compoundQuery.getQueries()[2]);
+		assertEquals("1.1", 3, compoundQuery.getQueries().size());
+		assertEquals("1.2", A, compoundQuery.getQueries().get(0));
+		assertEquals("1.3", B, compoundQuery.getQueries().get(1));
+		assertEquals("1.4", C, compoundQuery.getQueries().get(2));
 	}
 
 	public void testIntersection() {

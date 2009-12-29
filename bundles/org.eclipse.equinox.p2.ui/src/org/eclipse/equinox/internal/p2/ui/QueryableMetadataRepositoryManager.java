@@ -14,21 +14,23 @@ import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
-import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * An object that queries a particular set of metadata repositories.
  */
-public class QueryableMetadataRepositoryManager extends QueryableRepositoryManager {
+public class QueryableMetadataRepositoryManager extends QueryableRepositoryManager<IInstallableUnit> {
 
 	public QueryableMetadataRepositoryManager(ProvisioningUI ui, boolean includeDisabledRepos) {
 		super(ui, includeDisabledRepos);
 	}
 
-	protected IRepository getRepository(IRepositoryManager manager, URI location) {
+	protected IMetadataRepository getRepository(IRepositoryManager<IInstallableUnit> manager, URI location) {
 		// note the use of MetadataRepositoryManager (the concrete implementation).
 		if (manager instanceof MetadataRepositoryManager) {
 			return ((MetadataRepositoryManager) manager).getRepository(location);
@@ -36,11 +38,11 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 		return null;
 	}
 
-	protected IRepositoryManager getRepositoryManager() {
+	protected IMetadataRepositoryManager getRepositoryManager() {
 		return getSession().getMetadataRepositoryManager();
 	}
 
-	protected IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException {
+	protected IMetadataRepository doLoadRepository(IRepositoryManager<IInstallableUnit> manager, URI location, IProgressMonitor monitor) throws ProvisionException {
 		return ui.loadMetadataRepository(location, false, monitor);
 	}
 

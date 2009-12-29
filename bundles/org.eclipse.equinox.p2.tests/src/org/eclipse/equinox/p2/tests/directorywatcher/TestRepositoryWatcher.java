@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
 import java.io.File;
-import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Map;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -36,7 +36,7 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	 */
 	public static TestRepositoryWatcher createWatcher(File folder) {
 		RepositoryListener listener = new RepositoryListener(AbstractProvisioningTest.getUniqueString(), false);
-		Dictionary props = new Hashtable();
+		Map<String, String> props = new Hashtable<String, String>();
 		props.put(DirectoryWatcher.DIR, folder.getAbsolutePath());
 		props.put(DirectoryWatcher.POLL, "500");
 		TestRepositoryWatcher result = new TestRepositoryWatcher(props, TestActivator.getContext());
@@ -47,7 +47,7 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	/*
 	 * Constructor for the class.
 	 */
-	private TestRepositoryWatcher(Dictionary props, BundleContext context) {
+	private TestRepositoryWatcher(Map<String, String> props, BundleContext context) {
 		super(props, context);
 	}
 
@@ -63,7 +63,7 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	 * Return the list of all the IUs known to the metadata repository this watcher's listener.
 	 */
 	public IInstallableUnit[] getInstallableUnits() {
-		return (IInstallableUnit[]) listener.getMetadataRepository().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class);
+		return listener.getMetadataRepository().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class);
 	}
 
 	/*

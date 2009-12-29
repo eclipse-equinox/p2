@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -31,7 +33,7 @@ public interface IIUElement {
 
 	public void computeSize(IProgressMonitor monitor);
 
-	public IRequirement[] getRequirements();
+	public List<IRequirement> getRequirements();
 
 	public Object getParent(Object obj);
 

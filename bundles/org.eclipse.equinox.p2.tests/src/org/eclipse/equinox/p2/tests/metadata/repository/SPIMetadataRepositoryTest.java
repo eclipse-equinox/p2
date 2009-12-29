@@ -18,6 +18,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -52,7 +53,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		super.tearDown();
 	}
 
-	class SPIRequiredCapability extends MatchQuery implements IRequiredCapability {
+	class SPIRequiredCapability extends MatchQuery<IInstallableUnit> implements IRequiredCapability {
 		LDAPQuery filter;
 		String name;
 		String namespace;
@@ -153,11 +154,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this;
 		}
 
-		public boolean isMatch(Object object) {
-			if (!(object instanceof IInstallableUnit))
-				return false;
-			IInstallableUnit candidate = (IInstallableUnit) object;
-			if (!candidate.satisfies((IRequirement) this))
+		public boolean isMatch(IInstallableUnit candidate) {
+			if (!candidate.satisfies(this))
 				return false;
 			return true;
 		}
@@ -234,8 +232,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.providedCapabilities.add(providedCapability);
 		}
 
-		public IArtifactKey[] getArtifacts() {
-			return (IArtifactKey[]) this.artifacts.toArray(new IArtifactKey[artifacts.size()]);
+		public List<IArtifactKey> getArtifacts() {
+			return artifacts;
 		}
 
 		public ICopyright getCopyright() {
@@ -246,16 +244,16 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.filter;
 		}
 
-		public IInstallableUnitFragment[] getFragments() {
-			return (IInstallableUnitFragment[]) this.fragments.toArray(new IInstallableUnitFragment[fragments.size()]);
+		public List<IInstallableUnitFragment> getFragments() {
+			return fragments;
 		}
 
 		public String getId() {
 			return this.id;
 		}
 
-		public ILicense[] getLicenses() {
-			return this.license;
+		public List<ILicense> getLicenses() {
+			return CollectionUtils.unmodifiableList(license);
 		}
 
 		public Map getProperties() {
@@ -266,16 +264,16 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return (String) this.properties.get(key);
 		}
 
-		public IProvidedCapability[] getProvidedCapabilities() {
-			return (IProvidedCapability[]) this.providedCapabilities.toArray(new IProvidedCapability[profilesToRemove.size()]);
+		public List<IProvidedCapability> getProvidedCapabilities() {
+			return providedCapabilities;
 		}
 
-		public IRequiredCapability[] getRequiredCapabilities() {
-			return (IRequiredCapability[]) this.requiredCapabilities.toArray(new IRequiredCapability[requiredCapabilities.size()]);
+		public List<IRequirement> getRequiredCapabilities() {
+			return requiredCapabilities;
 		}
 
-		public ITouchpointData[] getTouchpointData() {
-			return (ITouchpointData[]) this.touchpointData.toArray(new ITouchpointData[touchpointData.size()]);
+		public List<ITouchpointData> getTouchpointData() {
+			return touchpointData;
 		}
 
 		public ITouchpointType getTouchpointType() {
@@ -305,9 +303,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		public boolean satisfies(IRequirement candidate) {
-			IProvidedCapability[] provides = getProvidedCapabilities();
-			for (int i = 0; i < provides.length; i++)
-				if (provides[i].satisfies(candidate))
+			List<IProvidedCapability> provides = getProvidedCapabilities();
+			for (int i = 0; i < provides.size(); i++)
+				if (provides.get(i).satisfies(candidate))
 					return true;
 			return false;
 		}
@@ -316,17 +314,13 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this;
 		}
 
-		public int compareTo(Object toCompareTo) {
-			if (!(toCompareTo instanceof IInstallableUnit)) {
-				return -1;
-			}
-			IInstallableUnit other = (IInstallableUnit) toCompareTo;
+		public int compareTo(IInstallableUnit other) {
 			if (getId().compareTo(other.getId()) == 0)
 				return (getVersion().compareTo(other.getVersion()));
 			return getId().compareTo(other.getId());
 		}
 
-		public IRequiredCapability[] getMetaRequiredCapabilities() {
+		public List<IRequirement> getMetaRequiredCapabilities() {
 			return null;
 		}
 
@@ -686,8 +680,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		IInstallableUnit spiUnit = (IInstallableUnit) queryResult.iterator().next();
 		assertTrue("Repo contains SPI IU)", spiUnit instanceof SPIInstallableUnit);
-		assertEquals(spiUnit.getProvidedCapabilities().length, 1);
-		assertTrue(spiUnit.getProvidedCapabilities()[0] instanceof ProvidedCapability);
+		assertEquals(spiUnit.getProvidedCapabilities().size(), 1);
+		assertTrue(spiUnit.getProvidedCapabilities().get(0) instanceof ProvidedCapability);
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
 		queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
@@ -696,8 +690,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		IInstallableUnit defaultUnit = (IInstallableUnit) queryResult.iterator().next();
 		assertTrue("Repo contains SPI IU)", defaultUnit instanceof InstallableUnit);
-		assertEquals(spiUnit.getProvidedCapabilities().length, 1);
-		assertTrue(spiUnit.getProvidedCapabilities()[0] instanceof ProvidedCapability);
+		assertEquals(spiUnit.getProvidedCapabilities().size(), 1);
+		assertTrue(spiUnit.getProvidedCapabilities().get(0) instanceof ProvidedCapability);
 	}
 
 	/**
@@ -728,8 +722,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(1, queryResultSize(queryResult));
 
 		IInstallableUnit unit = (IInstallableUnit) queryResult.iterator().next();
-		assertEquals(unit.getRequiredCapabilities().length, 1);
-		assertTrue(unit.getRequiredCapabilities()[0] instanceof SPIRequiredCapability);
+		assertEquals(unit.getRequiredCapabilities().size(), 1);
+		assertTrue(unit.getRequiredCapabilities().get(0) instanceof SPIRequiredCapability);
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
 		queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
@@ -737,9 +731,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(1, queryResultSize(queryResult));
 
 		unit = (IInstallableUnit) queryResult.iterator().next();
-		assertEquals(unit.getRequiredCapabilities().length, 1);
-		assertTrue(unit.getRequiredCapabilities()[0] instanceof RequiredCapability);
-		assertTrue(((IRequiredCapability) unit.getRequiredCapabilities()[0]).getName().equals("bar"));
+		assertEquals(unit.getRequiredCapabilities().size(), 1);
+		assertTrue(unit.getRequiredCapabilities().get(0) instanceof RequiredCapability);
+		assertTrue(((IRequiredCapability) unit.getRequiredCapabilities().get(0)).getName().equals("bar"));
 	}
 
 	/**
@@ -807,32 +801,32 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertFalse(unit == null);
 		assertFalse(patchUnit == null);
 
-		assertEquals(unit.getRequiredCapabilities().length, 1);
-		assertEquals(unit.getProvidedCapabilities().length, 1);
-		assertEquals(unit.getTouchpointData().length, 1);
-		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities()[0]).getNamespace(), spiRequiredCapability.getNamespace());
-		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities()[0]).getName(), spiRequiredCapability.getName());
-		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities()[0]).getMin(), spiRequiredCapability.getMin());
-		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities()[0]).getMax(), spiRequiredCapability.getMax());
-		assertEquals(unit.getProvidedCapabilities()[0], spiProvidedCapability);
-		assertEquals(unit.getTouchpointData()[0], spiTouchpointData);
+		assertEquals(unit.getRequiredCapabilities().size(), 1);
+		assertEquals(unit.getProvidedCapabilities().size(), 1);
+		assertEquals(unit.getTouchpointData().size(), 1);
+		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().get(0)).getNamespace(), spiRequiredCapability.getNamespace());
+		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().get(0)).getName(), spiRequiredCapability.getName());
+		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().get(0)).getMin(), spiRequiredCapability.getMin());
+		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().get(0)).getMax(), spiRequiredCapability.getMax());
+		assertEquals(unit.getProvidedCapabilities().get(0), spiProvidedCapability);
+		assertEquals(unit.getTouchpointData().get(0), spiTouchpointData);
 		assertEquals(unit.getTouchpointType(), spiTouchpointType);
-		assertEquals(unit.getLicenses()[0], spiLicense);
-		assertEquals(spiProvidedCapability, unit.getProvidedCapabilities()[0]);
-		assertEquals(spiTouchpointData, unit.getTouchpointData()[0]);
+		assertEquals(unit.getLicenses().get(0), spiLicense);
+		assertEquals(spiProvidedCapability, unit.getProvidedCapabilities().get(0));
+		assertEquals(spiTouchpointData, unit.getTouchpointData().get(0));
 		assertEquals(spiTouchpointType, unit.getTouchpointType());
-		assertEquals(spiLicense, unit.getLicenses()[0]);
+		assertEquals(spiLicense, unit.getLicenses().get(0));
 
-		assertEquals(patchUnit.getRequirementsChange().length, 1);
-		assertEquals(patchUnit.getRequirementsChange()[0], spiRequirementChange);
-		assertEquals(spiRequirementChange, patchUnit.getRequirementsChange()[0]);
+		assertEquals(patchUnit.getRequirementsChange().size(), 1);
+		assertEquals(patchUnit.getRequirementsChange().get(0), spiRequirementChange);
+		assertEquals(spiRequirementChange, patchUnit.getRequirementsChange().get(0));
 
 		// Check to make sure the actual objects are not equal.  This is because the repo has 
 		// been refreshed, and re-parsed, thus using the default implementations.
-		assertFalse(spiTouchpointData == unit.getTouchpointData()[0]);
-		assertFalse(spiRequiredCapability == unit.getRequiredCapabilities()[0]);
-		assertFalse(spiProvidedCapability == unit.getProvidedCapabilities()[0]);
+		assertFalse(spiTouchpointData == unit.getTouchpointData().get(0));
+		assertFalse(spiRequiredCapability == unit.getRequiredCapabilities().get(0));
+		assertFalse(spiProvidedCapability == unit.getProvidedCapabilities().get(0));
 		assertFalse(spiTouchpointType == unit.getTouchpointType());
-		assertFalse(spiLicense == unit.getLicenses()[0]);
+		assertFalse(spiLicense == unit.getLicenses().get(0));
 	}
 }

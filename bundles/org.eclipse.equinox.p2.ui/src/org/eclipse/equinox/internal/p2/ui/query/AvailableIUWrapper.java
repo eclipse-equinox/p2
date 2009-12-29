@@ -36,7 +36,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 	private boolean hideInstalledIUs = false;
 	private boolean drillDownChild = false;
 
-	public AvailableIUWrapper(IQueryable queryable, Object parent, boolean makeCategories, boolean makeDrillDownChild) {
+	public AvailableIUWrapper(IQueryable<?> queryable, Object parent, boolean makeCategories, boolean makeDrillDownChild) {
 		super(queryable, parent);
 		this.makeCategories = makeCategories;
 		this.drillDownChild = makeDrillDownChild;
@@ -62,7 +62,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 	InformationCache cache = null;
 
 	protected boolean shouldWrap(Object match) {
-		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(match, IInstallableUnit.class);
+		IInstallableUnit iu = ProvUI.getAdapter(match, IInstallableUnit.class);
 		cache = computeIUInformation(iu); // Cache the result
 
 		// if we are hiding, hide anything that is the same iu or older
@@ -83,11 +83,11 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 		boolean isUpdate = false;
 		boolean isInstalled = false;
 		if (profile != null && iu != null) {
-			IQueryResult queryResult = profile.query(new InstallableUnitQuery(iu.getId()), null);
-			Iterator iter = queryResult.iterator();
+			IQueryResult<IInstallableUnit> queryResult = profile.query(new InstallableUnitQuery(iu.getId()), null);
+			Iterator<IInstallableUnit> iter = queryResult.iterator();
 			// We are typically iterating over only one IU unless it's a non-singleton.
 			while (iter.hasNext()) {
-				IInstallableUnit installed = (IInstallableUnit) iter.next();
+				IInstallableUnit installed = iter.next();
 				if (installed.getVersion().compareTo(iu.getVersion()) < 0)
 					isUpdate = true;
 				else {
@@ -101,7 +101,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 	}
 
 	protected Object wrap(Object item) {
-		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(item, IInstallableUnit.class);
+		IInstallableUnit iu = ProvUI.getAdapter(item, IInstallableUnit.class);
 		boolean isUpdate = false;
 		boolean isInstalled = false;
 		if (cache != null && cache.item == item) {

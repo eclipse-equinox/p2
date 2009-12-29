@@ -36,7 +36,7 @@ import org.eclipse.equinox.internal.p2.metadata.*;
  * raw vector holds incompatible values. The method {@link #isOSGiCompatible()} can be used
  * to test.
  */
-public abstract class Version implements Comparable, Serializable {
+public abstract class Version implements Comparable<Version>, Serializable {
 	public static final String RAW_PREFIX = "raw:"; //$NON-NLS-1$
 
 	/**
@@ -106,7 +106,7 @@ public abstract class Version implements Comparable, Serializable {
 	 *         or the qualifier string is invalid.
 	 */
 	public static Version createOSGi(int major, int minor, int micro, String qualifier) {
-		Comparable logicQualifier;
+		Comparable<?> logicQualifier;
 		if (qualifier == null || qualifier.length() == 0) {
 			if (major == 0 && minor == 0 && micro == 0)
 				return emptyVersion;
@@ -192,14 +192,14 @@ public abstract class Version implements Comparable, Serializable {
 	 * versions that has a larger number of segments
 	 * @return The pad value or <code>null</code> if not set.
 	 */
-	public abstract Comparable getPad();
+	public abstract Comparable<?> getPad();
 
 	/**
 	 * An element from the raw vector representation of this version.
 	 * @param index The zero based index of the desired element
 	 * @return An element from the raw vector
 	 */
-	public abstract Comparable getSegment(int index);
+	public abstract Comparable<?> getSegment(int index);
 
 	/**
 	 * Returns the number of elements in the raw vector representation of this version.

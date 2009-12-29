@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
+import org.eclipse.equinox.p2.publisher.eclipse.Feature;
+
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
@@ -50,9 +52,9 @@ public class UpdateSite {
 	 * Some variables for caching.
 	 */
 	// map of String (URI.toString()) to UpdateSite
-	private static Map siteCache = new HashMap();
+	private static Map<String, UpdateSite> siteCache = new HashMap<String, UpdateSite>();
 	// map of String (featureID_featureVersion) to Feature
-	private Map featureCache = new HashMap();
+	private Map<String, Feature> featureCache = new HashMap<String, Feature>();
 
 	/*
 	 * Return a URI based on the given URI, which points to a site.xml file.
@@ -81,7 +83,7 @@ public class UpdateSite {
 	public static synchronized UpdateSite loadCategoryFile(URI location, IProgressMonitor monitor) throws ProvisionException {
 		if (location == null)
 			return null;
-		UpdateSite result = (UpdateSite) siteCache.get(location.toString());
+		UpdateSite result = siteCache.get(location.toString());
 		if (result != null)
 			return result;
 		InputStream input = null;
@@ -119,7 +121,7 @@ public class UpdateSite {
 	public static synchronized UpdateSite load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		if (location == null)
 			return null;
-		UpdateSite result = (UpdateSite) siteCache.get(location.toString());
+		UpdateSite result = siteCache.get(location.toString());
 		if (result != null)
 			return result;
 		InputStream input = null;
@@ -436,7 +438,7 @@ public class UpdateSite {
 	 */
 	public synchronized Feature[] loadFeatures(IProgressMonitor monitor) throws ProvisionException {
 		if (!featureCache.isEmpty())
-			return (Feature[]) featureCache.values().toArray(new Feature[featureCache.size()]);
+			return featureCache.values().toArray(new Feature[featureCache.size()]);
 		Feature[] result = loadFeaturesFromDigest(monitor);
 		return result == null ? loadFeaturesFromSite(monitor) : result;
 	}
@@ -477,7 +479,7 @@ public class UpdateSite {
 			Feature[] features = new DigestParser().parse(digestFile, digestURI);
 			if (features == null)
 				return null;
-			Map tmpFeatureCache = new HashMap(features.length);
+			Map<String, Feature> tmpFeatureCache = new HashMap<String, Feature>(features.length);
 			for (int i = 0; i < features.length; i++) {
 				String key = features[i].getId() + VERSION_SEPARATOR + features[i].getVersion();
 				tmpFeatureCache.put(key, features[i]);
@@ -518,7 +520,7 @@ public class UpdateSite {
 	private Feature[] loadFeaturesFromSite(IProgressMonitor monitor) throws ProvisionException {
 		SiteFeature[] siteFeatures = site.getFeatures();
 		FeatureParser featureParser = new FeatureParser();
-		Map tmpFeatureCache = new HashMap(siteFeatures.length);
+		Map<String, Feature> tmpFeatureCache = new HashMap<String, Feature>(siteFeatures.length);
 
 		for (int i = 0; i < siteFeatures.length; i++) {
 			if (monitor.isCanceled()) {
@@ -546,13 +548,13 @@ public class UpdateSite {
 			}
 		}
 		featureCache = tmpFeatureCache;
-		return (Feature[]) featureCache.values().toArray(new Feature[featureCache.size()]);
+		return featureCache.values().toArray(new Feature[featureCache.size()]);
 	}
 
 	/*
 	 * Load the features that are included by the given feature.
 	 */
-	private void loadIncludedFeatures(Feature feature, FeatureParser featureParser, Map features, IProgressMonitor monitor) throws ProvisionException {
+	private void loadIncludedFeatures(Feature feature, FeatureParser featureParser, Map<String, Feature> features, IProgressMonitor monitor) throws ProvisionException {
 		FeatureEntry[] featureEntries = feature.getEntries();
 		for (int i = 0; i < featureEntries.length; i++) {
 			if (monitor.isCanceled())

@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 /**
  * A query that accepts any patch that applies to a given installable unit.
  */
-public class ApplicablePatchQuery extends MatchQuery {
+public class ApplicablePatchQuery extends MatchQuery<IInstallableUnit> {
 	IInstallableUnit iu;
 
 	/**
@@ -30,7 +30,7 @@ public class ApplicablePatchQuery extends MatchQuery {
 		this.iu = iu;
 	}
 
-	public boolean isMatch(Object candidate) {
+	public boolean isMatch(IInstallableUnit candidate) {
 		if (!(candidate instanceof IInstallableUnitPatch))
 			return false;
 		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) candidate;

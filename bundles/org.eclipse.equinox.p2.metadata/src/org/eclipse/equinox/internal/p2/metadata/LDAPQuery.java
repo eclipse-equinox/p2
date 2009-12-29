@@ -4,7 +4,7 @@ import java.util.Iterator;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
-public class LDAPQuery implements IQuery {
+public class LDAPQuery implements IQuery<Boolean> {
 	private String filter;
 
 	public LDAPQuery(String filter) {
@@ -15,7 +15,7 @@ public class LDAPQuery implements IQuery {
 		return filter;
 	}
 
-	public IQueryResult perform(Iterator iterator) {
+	public IQueryResult<Boolean> perform(Iterator<Boolean> iterator) {
 		throw new IllegalStateException();
 	}
 

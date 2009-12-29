@@ -60,7 +60,7 @@ public class Util {
 		} catch (ProvisionException e) {
 			// the download cache doesn't exist or couldn't be read. Create new cache.
 			String repositoryName = location + " - Agent download cache"; //$NON-NLS-1$
-			Map properties = new HashMap(1);
+			Map<String, String> properties = new HashMap<String, String>(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			repository = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		}
@@ -108,7 +108,7 @@ public class Util {
 			in.close();
 			throw new IOException(Messages.Util_Invalid_Zip_File_Format);
 		}
-		ArrayList unzippedFiles = new ArrayList();
+		ArrayList<File> unzippedFiles = new ArrayList<File>();
 		do {
 			File outFile = new File(outputDir, ze.getName());
 			unzippedFiles.add(outFile);
@@ -135,7 +135,7 @@ public class Util {
 		} while ((ze = in.getNextEntry()) != null);
 		in.close();
 
-		return (File[]) unzippedFiles.toArray(new File[unzippedFiles.size()]);
+		return unzippedFiles.toArray(new File[unzippedFiles.size()]);
 	}
 
 	/**

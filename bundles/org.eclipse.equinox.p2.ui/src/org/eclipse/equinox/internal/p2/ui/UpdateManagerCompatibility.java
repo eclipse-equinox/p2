@@ -13,7 +13,8 @@ package org.eclipse.equinox.internal.p2.ui;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Vector;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
@@ -41,7 +42,7 @@ public class UpdateManagerCompatibility {
 	private static final String ECLIPSE_INSTALL_HANDLER_PROP = "org.eclipse.update.installHandler"; //$NON-NLS-1$
 	private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 
-	private static void parse(String fileName, Vector bookmarks) {
+	private static void parse(String fileName, Vector<MetadataRepositoryElement> bookmarks) {
 		File file = new File(fileName);
 		if (!file.exists())
 			return;
@@ -61,23 +62,18 @@ public class UpdateManagerCompatibility {
 		}
 	}
 
-	private static MetadataRepositoryElement[] getSites(Vector bookmarks) {
-		ArrayList result = new ArrayList();
-		for (int i = 0; i < bookmarks.size(); i++) {
-			if (bookmarks.get(i) instanceof MetadataRepositoryElement)
-				result.add(bookmarks.get(i));
-		}
-		return (MetadataRepositoryElement[]) result.toArray(new MetadataRepositoryElement[result.size()]);
+	private static MetadataRepositoryElement[] getSites(Vector<MetadataRepositoryElement> bookmarks) {
+		return bookmarks.toArray(new MetadataRepositoryElement[bookmarks.size()]);
 	}
 
-	private static void processRoot(Node root, Vector bookmarks) {
+	private static void processRoot(Node root, Vector<MetadataRepositoryElement> bookmarks) {
 		if (root.getNodeName().equals("bookmarks")) { //$NON-NLS-1$
 			NodeList children = root.getChildNodes();
 			processChildren(children, bookmarks);
 		}
 	}
 
-	private static void processChildren(NodeList children, Vector bookmarks) {
+	private static void processChildren(NodeList children, Vector<MetadataRepositoryElement> bookmarks) {
 		for (int i = 0; i < children.getLength(); i++) {
 			Node child = children.item(i);
 			if (child.getNodeType() == Node.ELEMENT_NODE) {
@@ -90,7 +86,7 @@ public class UpdateManagerCompatibility {
 		}
 	}
 
-	private static void createSite(Node child, Vector bookmarks) {
+	private static void createSite(Node child, Vector<MetadataRepositoryElement> bookmarks) {
 		URI uri = null;
 		try {
 			uri = URIUtil.fromString((getAttribute(child, "url"))); //$NON-NLS-1$
@@ -109,7 +105,7 @@ public class UpdateManagerCompatibility {
 		bookmarks.add(element);
 	}
 
-	private static void createFolder(Node child, Vector bookmarks) {
+	private static void createFolder(Node child, Vector<MetadataRepositoryElement> bookmarks) {
 		if (child.hasChildNodes())
 			processChildren(child.getChildNodes(), bookmarks);
 	}
@@ -123,7 +119,7 @@ public class UpdateManagerCompatibility {
 		return ""; //$NON-NLS-1$
 	}
 
-	private static void store(String fileName, Vector bookmarks) {
+	private static void store(String fileName, Vector<MetadataRepositoryElement> bookmarks) {
 		FileOutputStream fos = null;
 		OutputStreamWriter osw = null;
 		PrintWriter writer = null;
@@ -171,9 +167,9 @@ public class UpdateManagerCompatibility {
 	}
 
 	public static boolean requiresInstallHandlerSupport(IProvisioningPlan plan) {
-		IQueryResult result = plan.getAdditions().query(InstallableUnitQuery.ANY, null);
-		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+		IQueryResult<IInstallableUnit> result = plan.getAdditions().query(InstallableUnitQuery.ANY, null);
+		for (Iterator<IInstallableUnit> iterator = result.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
 			if (iu != null && iu.getProperty(ECLIPSE_INSTALL_HANDLER_PROP) != null)
 				return true;
 		}
@@ -206,13 +202,13 @@ public class UpdateManagerCompatibility {
 	}
 
 	public static MetadataRepositoryElement[] readBookmarkFile(File file) {
-		Vector bookmarks = new Vector();
+		Vector<MetadataRepositoryElement> bookmarks = new Vector<MetadataRepositoryElement>();
 		parse(file.getAbsolutePath(), bookmarks);
 		return getSites(bookmarks);
 	}
 
 	public static void writeBookmarkFile(String filename, MetadataRepositoryElement[] sites) {
-		Vector bookmarks = new Vector(sites.length);
+		Vector<MetadataRepositoryElement> bookmarks = new Vector<MetadataRepositoryElement>(sites.length);
 		for (int i = 0; i < sites.length; i++)
 			bookmarks.add(sites[i]);
 		store(filename, bookmarks);

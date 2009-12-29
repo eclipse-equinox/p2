@@ -89,7 +89,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		String filter = createFilterSpec(configSpec);
 		if (filter.length() > 0)
 			iud.setFilter(filter);
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 		touchpointData.put("configure", "setLauncherName(name:" + executableName + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		touchpointData.put("unconfigure", "setLauncherName()"); //$NON-NLS-1$ //$NON-NLS-2$
 		iud.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
@@ -155,14 +155,14 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		String[] config = parseConfigSpec(configSpec);
 		String os = config[1];
-		Map touchpointData = computeInstallActions(execDescriptor, os);
+		Map<String, String> touchpointData = computeInstallActions(execDescriptor, os);
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
 		result.addIU(unit, IPublisherResult.ROOT);
 	}
 
-	private Map computeInstallActions(ExecutablesDescriptor execDescriptor, String os) {
-		Map touchpointData = new HashMap();
+	private Map<String, String> computeInstallActions(ExecutablesDescriptor execDescriptor, String os) {
+		Map<String, String> touchpointData = new HashMap<String, String>();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		if (Constants.OS_MACOSX.equals(os)) {
 			String execName = execDescriptor.getExecutableName();
@@ -201,9 +201,9 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	private IBrandingAdvice getBrandingAdvice() {
 		// there is expected to only be one branding advice for a given configspec so
 		// just return the first one we find.
-		Collection advice = info.getAdvice(configSpec, true, null, null, IBrandingAdvice.class);
-		for (Iterator i = advice.iterator(); i.hasNext();)
-			return (IBrandingAdvice) i.next();
+		Collection<IBrandingAdvice> advice = info.getAdvice(configSpec, true, null, null, IBrandingAdvice.class);
+		for (Iterator<IBrandingAdvice> i = advice.iterator(); i.hasNext();)
+			return i.next();
 		return null;
 	}
 

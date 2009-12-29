@@ -10,32 +10,32 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
-
 import java.io.File;
 import java.io.OutputStream;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.CompoundQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 
 public class AggregatedBundleRepository extends AbstractArtifactRepository implements IFileArtifactRepository {
 
 	private static final String REPOSITORY_TYPE = AggregatedBundleRepository.class.getName();
-	private final Collection bundleRepositories;
+	private final Collection<IFileArtifactRepository> bundleRepositories;
 
-	public AggregatedBundleRepository(Collection bundleRepositories) {
+	public AggregatedBundleRepository(Collection<IFileArtifactRepository> bundleRepositories) {
 		super(REPOSITORY_TYPE, REPOSITORY_TYPE, "1.0", null, null, null, null); //$NON-NLS-1$
 		this.bundleRepositories = bundleRepositories;
 	}
 
 	public File getArtifactFile(IArtifactKey key) {
-		for (Iterator it = bundleRepositories.iterator(); it.hasNext();) {
-			IFileArtifactRepository repository = (IFileArtifactRepository) it.next();
+		for (Iterator<IFileArtifactRepository> it = bundleRepositories.iterator(); it.hasNext();) {
+			IFileArtifactRepository repository = it.next();
 			File artifactFile = repository.getArtifactFile(key);
 			if (artifactFile != null)
 				return artifactFile;
@@ -44,8 +44,8 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	}
 
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
-		for (Iterator it = bundleRepositories.iterator(); it.hasNext();) {
-			IFileArtifactRepository repository = (IFileArtifactRepository) it.next();
+		for (Iterator<IFileArtifactRepository> it = bundleRepositories.iterator(); it.hasNext();) {
+			IFileArtifactRepository repository = it.next();
 			File artifactFile = repository.getArtifactFile(descriptor);
 			if (artifactFile != null)
 				return artifactFile;
@@ -54,8 +54,8 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	}
 
 	public boolean contains(IArtifactDescriptor descriptor) {
-		for (Iterator it = bundleRepositories.iterator(); it.hasNext();) {
-			IFileArtifactRepository repository = (IFileArtifactRepository) it.next();
+		for (Iterator<IFileArtifactRepository> it = bundleRepositories.iterator(); it.hasNext();) {
+			IFileArtifactRepository repository = it.next();
 			if (repository.contains(descriptor))
 				return true;
 		}
@@ -63,8 +63,8 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	}
 
 	public boolean contains(IArtifactKey key) {
-		for (Iterator it = bundleRepositories.iterator(); it.hasNext();) {
-			IFileArtifactRepository repository = (IFileArtifactRepository) it.next();
+		for (Iterator<IFileArtifactRepository> it = bundleRepositories.iterator(); it.hasNext();) {
+			IFileArtifactRepository repository = it.next();
 			if (repository.contains(key))
 				return true;
 		}
@@ -72,14 +72,14 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	}
 
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
-		Set artifactDescriptors = new HashSet();
-		for (Iterator it = bundleRepositories.iterator(); it.hasNext();) {
-			IFileArtifactRepository repository = (IFileArtifactRepository) it.next();
+		Set<IArtifactDescriptor> artifactDescriptors = new HashSet<IArtifactDescriptor>();
+		for (Iterator<IFileArtifactRepository> it = bundleRepositories.iterator(); it.hasNext();) {
+			IFileArtifactRepository repository = it.next();
 			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
 			if (descriptors != null)
 				artifactDescriptors.addAll(Arrays.asList(descriptors));
 		}
-		return (IArtifactDescriptor[]) artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
+		return artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
 	}
 
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
@@ -102,13 +102,25 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	 * Exposed for testing and debugging purposes.
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	public Collection testGetBundleRepositories() {
+	public Collection<IFileArtifactRepository> testGetBundleRepositories() {
 		return bundleRepositories;
 	}
 
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		// Query all the all the repositories
-		CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) bundleRepositories.toArray(new IQueryable[bundleRepositories.size()]));
+		@SuppressWarnings("unchecked")
+		CompoundQueryable<IArtifactKey> queryable = new CompoundQueryable<IArtifactKey>(bundleRepositories.toArray(new IQueryable[bundleRepositories.size()]));
 		return queryable.query(query, monitor);
+	}
+
+	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
+		int repoCount = bundleRepositories.size();
+		List<IQueryable<IArtifactDescriptor>> descQueryables = new ArrayList<IQueryable<IArtifactDescriptor>>(repoCount);
+		for (Iterator<IFileArtifactRepository> itor = bundleRepositories.iterator(); itor.hasNext();)
+			descQueryables.add(itor.next().descriptorQueryable());
+
+		@SuppressWarnings("unchecked")
+		IQueryable<IArtifactDescriptor> queryable = new CompoundQueryable<IArtifactDescriptor>(descQueryables.toArray(new IQueryable[repoCount]));
+		return queryable;
 	}
 }

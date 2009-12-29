@@ -25,7 +25,7 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 public class UpdateAction extends ExistingIUInProfileAction {
 
 	protected IUElementListRoot root; // root that will be used to seed the wizard
-	protected ArrayList initialSelections; // the elements that should be selected in the wizard
+	protected ArrayList<?> initialSelections; // the elements that should be selected in the wizard
 	boolean resolveIsVisible = true;
 	boolean skipSelectionPage = false;
 

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import java.util.List;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 
@@ -29,10 +30,12 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 	}
 
 	private void addRequiredCapability(IRequirement[] toAdd) {
-		IRequirement[] current = super.getRequiredCapabilities();
-		IRequirement[] result = new IRequirement[current.length + toAdd.length];
-		System.arraycopy(current, 0, result, 0, current.length);
-		System.arraycopy(toAdd, 0, result, current.length, toAdd.length);
+		List<IRequirement> current = super.getRequiredCapabilities();
+		int currSize = current.size();
+		IRequirement[] result = new IRequirement[currSize + toAdd.length];
+		for (int i = 0; i < currSize; ++i)
+			result[i] = current.get(i);
+		System.arraycopy(toAdd, 0, result, current.size(), toAdd.length);
 		setRequiredCapabilities(result);
 	}
 

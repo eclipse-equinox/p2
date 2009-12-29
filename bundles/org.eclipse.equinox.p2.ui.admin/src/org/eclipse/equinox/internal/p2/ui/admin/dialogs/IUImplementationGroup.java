@@ -154,23 +154,23 @@ public class IUImplementationGroup extends IUGroup {
 		if (type != null) {
 			touchpointType.setText(type.getId());
 		}
-		ITouchpointData[] data = iu.getTouchpointData();
-		String[] items = new String[data.length];
-		for (int i = 0; i < data.length; i++) {
-			items[i] = data[i].toString();
+		java.util.List<ITouchpointData> data = iu.getTouchpointData();
+		String[] items = new String[data.size()];
+		for (int i = 0; i < data.size(); i++) {
+			items[i] = data.get(i).toString();
 		}
 		touchpointData.setItems(items);
 
-		IRequirement[] req = iu.getRequiredCapabilities();
-		items = new String[req.length];
-		for (int i = 0; i < req.length; i++) {
-			items[i] = req[i].toString();
+		java.util.List<IRequirement> req = iu.getRequiredCapabilities();
+		items = new String[req.size()];
+		for (int i = 0; i < req.size(); i++) {
+			items[i] = req.get(i).toString();
 		}
 		requiredCapabilities.setItems(items);
-		IProvidedCapability[] prov = iu.getProvidedCapabilities();
-		items = new String[prov.length];
-		for (int i = 0; i < prov.length; i++) {
-			items[i] = prov[i].toString();
+		java.util.List<IProvidedCapability> prov = iu.getProvidedCapabilities();
+		items = new String[prov.size()];
+		for (int i = 0; i < prov.size(); i++) {
+			items[i] = prov.get(i).toString();
 		}
 		providedCapabilities.setItems(items);
 	}

@@ -65,9 +65,9 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 	 * configure it in as the launcher.library for this configuration.
 	 */
 	private void publishCU(String id, String configSpec, IPublisherResult results) {
-		Collection advice = info.getAdvice(configSpec, true, id, null, IVersionAdvice.class);
-		for (Iterator j = advice.iterator(); j.hasNext();) {
-			IVersionAdvice versionSpec = (IVersionAdvice) j.next();
+		Collection<IVersionAdvice> advice = info.getAdvice(configSpec, true, id, null, IVersionAdvice.class);
+		for (Iterator<IVersionAdvice> j = advice.iterator(); j.hasNext();) {
+			IVersionAdvice versionSpec = j.next();
 			Version version = versionSpec.getVersion(IInstallableUnit.NAMESPACE_IU_ID, id);
 			if (version == null)
 				continue;

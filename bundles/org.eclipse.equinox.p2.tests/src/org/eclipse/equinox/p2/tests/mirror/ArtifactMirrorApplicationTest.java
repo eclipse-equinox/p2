@@ -1349,8 +1349,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Mirroring full duplicate, so any key will do.
-			IQueryResult descriptors = sourceRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
-			IArtifactDescriptor descriptor = (IArtifactDescriptor) descriptors.iterator().next();
+			IQueryResult<IArtifactDescriptor> descriptors = sourceRepository.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+			IArtifactDescriptor descriptor = descriptors.iterator().next();
 			//Mirroring full duplicate, so any descriptor will do.
 			String message = NLS.bind(org.eclipse.equinox.internal.p2.artifact.repository.Messages.mirror_alreadyExists, descriptor, destRepoLocation.toURI());
 			assertLogDoesNotContainLine(log.getFile(), message);
@@ -1421,8 +1421,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 		try {
 			//Mirroring full duplicate, so any key will do.
-			IQueryResult descriptors = sourceRepository.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
-			IArtifactDescriptor descriptor = (IArtifactDescriptor) descriptors.iterator().next();
+			IQueryResult<IArtifactDescriptor> descriptors = sourceRepository.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+			IArtifactDescriptor descriptor = descriptors.iterator().next();
 			//Mirroring full duplicate, so any descriptor will do.
 			String message = NLS.bind(org.eclipse.equinox.internal.p2.artifact.repository.Messages.mirror_alreadyExists, descriptor, destRepoLocation.toURI());
 			assertLogContainsLine(log.getFile(), message);

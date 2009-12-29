@@ -23,22 +23,22 @@ public class PublisherInfo implements IPublisherInfo {
 	private IMetadataRepository contextMetadataRepository;
 	private IArtifactRepository contextArtifactRepository;
 	private String[] configurations = new String[0];
-	private List adviceList = new ArrayList(11);
+	private List<IPublisherAdvice> adviceList = new ArrayList<IPublisherAdvice>(11);
 
 	public void addAdvice(IPublisherAdvice advice) {
 		adviceList.add(advice);
 	}
 
-	public List getAdvice() {
+	public List<IPublisherAdvice> getAdvice() {
 		return adviceList;
 	}
 
-	public Collection getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class type) {
-		ArrayList result = new ArrayList();
-		for (Iterator i = adviceList.iterator(); i.hasNext();) {
-			Object object = i.next();
-			if (type.isInstance(object) && ((IPublisherAdvice) object).isApplicable(configSpec, includeDefault, id, version))
-				result.add(object);
+	public <T extends IPublisherAdvice> Collection<T> getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class<T> type) {
+		ArrayList<T> result = new ArrayList<T>();
+		for (Iterator<IPublisherAdvice> i = adviceList.iterator(); i.hasNext();) {
+			IPublisherAdvice advice = i.next();
+			if (type.isInstance(advice) && advice.isApplicable(configSpec, includeDefault, id, version))
+				result.add(type.cast(advice));
 		}
 		return result;
 	}

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
@@ -18,7 +17,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  * a property whose value matches the provided value.  If no property name is 
  * specified, then all {@link IInstallableUnit} instances are accepted.
  */
-public class IUPropertyQuery extends MatchQuery {
+public class IUPropertyQuery extends MatchQuery<IInstallableUnit> {
 	private String propertyName;
 	private String propertyValue;
 
@@ -33,10 +32,7 @@ public class IUPropertyQuery extends MatchQuery {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.query2.Query#isMatch(java.lang.Object)
 	 */
-	public boolean isMatch(Object object) {
-		if (!(object instanceof IInstallableUnit))
-			return false;
-		IInstallableUnit candidate = (IInstallableUnit) object;
+	public boolean isMatch(IInstallableUnit candidate) {
 		if (propertyName == null)
 			return true;
 		String value = getProperty(candidate, propertyName);

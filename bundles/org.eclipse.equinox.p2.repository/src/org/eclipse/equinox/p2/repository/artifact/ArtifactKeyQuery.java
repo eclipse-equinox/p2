@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
  * An IArtifactQuery returning matching IArtifactKey objects.
  * @since 2.0
  */
-public class ArtifactKeyQuery extends MatchQuery {
+public class ArtifactKeyQuery extends MatchQuery<IArtifactKey> {
 	public static final ArtifactKeyQuery ALL_KEYS = new ArtifactKeyQuery();
 
 	private String id;
@@ -48,14 +48,9 @@ public class ArtifactKeyQuery extends MatchQuery {
 		this.artifactKey = key;
 	}
 
-	public boolean isMatch(Object candidate) {
-		if (!(candidate instanceof IArtifactKey))
-			return false;
-
+	public boolean isMatch(IArtifactKey key) {
 		if (artifactKey != null)
-			return matchKey((IArtifactKey) candidate);
-
-		IArtifactKey key = (IArtifactKey) candidate;
+			return matchKey(key);
 
 		if (classifier != null && !key.getClassifier().equals(classifier))
 			return false;

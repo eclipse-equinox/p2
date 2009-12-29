@@ -26,7 +26,7 @@ public class SiteFeature {
 	private String arch;
 	// performance
 	private URL base;
-	private List /* of String*/categoryNames;
+	private List<String> categoryNames;
 	private String featureId;
 	private String featureVersion;
 	private String label;
@@ -99,7 +99,7 @@ public class SiteFeature {
 	 */
 	public void addCategoryName(String categoryName) {
 		if (this.categoryNames == null)
-			this.categoryNames = new ArrayList();
+			this.categoryNames = new ArrayList<String>();
 		if (!this.categoryNames.contains(categoryName))
 			this.categoryNames.add(categoryName);
 	}
@@ -180,7 +180,7 @@ public class SiteFeature {
 		if (categoryNames == null)
 			return new String[0];
 
-		return (String[]) categoryNames.toArray(new String[0]);
+		return categoryNames.toArray(new String[0]);
 	}
 
 	/**
@@ -337,7 +337,7 @@ public class SiteFeature {
 		if (categoryNames == null)
 			this.categoryNames = null;
 		else
-			this.categoryNames = new ArrayList(Arrays.asList(categoryNames));
+			this.categoryNames = new ArrayList<String>(Arrays.asList(categoryNames));
 	}
 
 	/**

@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 /**
  * @since 2.0
  */
-public interface IProfile extends IQueryable {
+public interface IProfile extends IQueryable<IInstallableUnit> {
 
 	/**
 	 * Constant used to indicate that an installable unit is not locked in anyway.
@@ -124,12 +124,12 @@ public interface IProfile extends IQueryable {
 
 	public String getInstallableUnitProperty(IInstallableUnit iu, String key);
 
-	public Map getProperties();
+	public Map<String, String> getProperties();
 
-	public Map getInstallableUnitProperties(IInstallableUnit iu);
+	public Map<String, String> getInstallableUnitProperties(IInstallableUnit iu);
 
 	public long getTimestamp();
 
-	public IQueryResult available(IQuery query, IProgressMonitor monitor);
+	public IQueryResult<IInstallableUnit> available(IQuery<IInstallableUnit> query, IProgressMonitor monitor);
 
 }

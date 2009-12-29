@@ -35,7 +35,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
-public class CompositeMetadataRepository extends AbstractMetadataRepository implements IMetadataRepository, ICompositeRepository {
+public class CompositeMetadataRepository extends AbstractMetadataRepository implements IMetadataRepository, ICompositeRepository<IInstallableUnit> {
 
 	static final public String REPOSITORY_TYPE = CompositeMetadataRepository.class.getName();
 	public static final String PI_REPOSITORY_TYPE = "compositeMetadataRepository"; //$NON-NLS-1$
@@ -45,9 +45,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 
 	// keep a list of the child URIs. they can be absolute or relative. they may or may not point
 	// to a valid reachable repo
-	private List childrenURIs = new ArrayList();
+	private List<URI> childrenURIs = new ArrayList<URI>();
 	// keep a list of the repositories that we have successfully loaded
-	private List loadedRepos = new ArrayList();
+	private List<IMetadataRepository> loadedRepos = new ArrayList<IMetadataRepository>();
 	private IMetadataRepositoryManager manager;
 
 	/**
@@ -91,7 +91,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return isLocal();
 	}
 
-	CompositeMetadataRepository(IMetadataRepositoryManager manager, URI location, String name, Map properties) {
+	CompositeMetadataRepository(IMetadataRepositoryManager manager, URI location, String name, Map<String, String> properties) {
 		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
 		this.manager = manager;
 		//when creating a repository, we must ensure it exists on disk so a subsequent load will succeed
@@ -122,16 +122,16 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		result.setProvider(getProvider());
 		result.setProperties(getProperties());
 		// it is important to directly access the field so we have the relative URIs
-		result.setChildren((URI[]) childrenURIs.toArray(new URI[childrenURIs.size()]));
+		result.setChildren(childrenURIs.toArray(new URI[childrenURIs.size()]));
 		return result;
 	}
 
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		try {
 			// Query all the all the repositories this composite repo contains
-			CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]));
+			CompoundQueryable<IInstallableUnit> queryable = new CompoundQueryable<IInstallableUnit>(loadedRepos.toArray(new IQueryable[loadedRepos.size()]));
 			return queryable.query(query, monitor);
 		} finally {
 			if (monitor != null)
@@ -179,8 +179,8 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		if (removed) {
 			// we removed the child from the list so remove the associated repo object as well
 			IMetadataRepository found = null;
-			for (Iterator iter = loadedRepos.iterator(); found == null && iter.hasNext();) {
-				IMetadataRepository current = (IMetadataRepository) iter.next();
+			for (Iterator<IMetadataRepository> iter = loadedRepos.iterator(); found == null && iter.hasNext();) {
+				IMetadataRepository current = iter.next();
 				URI repoLocation = current.getLocation();
 				if (URIUtil.sameURI(childURI, repoLocation))
 					found = current;
@@ -240,7 +240,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 			return;
 		File file = getActualLocation(location);
 		File jarFile = getActualLocation(location, JAR_EXTENSION);
-		boolean compress = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		boolean compress = "true".equalsIgnoreCase(properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
 		try {
 			OutputStream output = null;
 			if (!compress) {
@@ -274,10 +274,10 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		}
 	}
 
-	public List getChildren() {
-		List result = new ArrayList();
-		for (Iterator iter = childrenURIs.iterator(); iter.hasNext();)
-			result.add(URIUtil.makeAbsolute((URI) iter.next(), location));
+	public List<URI> getChildren() {
+		List<URI> result = new ArrayList<URI>();
+		for (Iterator<URI> iter = childrenURIs.iterator(); iter.hasNext();)
+			result.add(URIUtil.makeAbsolute(iter.next(), location));
 		return result;
 	}
 

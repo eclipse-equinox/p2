@@ -36,7 +36,7 @@ public class DigestParser extends DefaultHandler {
 
 	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 	private SAXParser parser;
-	private final List features = new ArrayList();
+	private final List<Feature> features = new ArrayList<Feature>();
 	private final FeatureManifestParser featureHandler = new FeatureManifestParser(false);
 
 	public DigestParser() {
@@ -82,7 +82,7 @@ public class DigestParser extends DefaultHandler {
 				return null;
 			is = new BufferedInputStream(jar.getInputStream(entry));
 			parser.parse(new InputSource(is), this);
-			return (Feature[]) features.toArray(new Feature[features.size()]);
+			return features.toArray(new Feature[features.size()]);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
 		} catch (SAXException e) {

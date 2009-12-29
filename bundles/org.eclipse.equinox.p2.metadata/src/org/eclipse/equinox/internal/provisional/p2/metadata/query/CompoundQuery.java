@@ -30,8 +30,8 @@ import org.eclipse.equinox.p2.metadata.query.IQueryResult;
  * 
  * @noextend This class is not intended to be subclassed by clients.
  */
-public abstract class CompoundQuery implements IQuery, ICompositeQuery {
-	protected IQuery[] queries;
+public abstract class CompoundQuery<T> implements ICompositeQuery<T> {
+	protected IQuery<T>[] queries;
 	protected boolean and;
 
 	/**
@@ -48,18 +48,23 @@ public abstract class CompoundQuery implements IQuery, ICompositeQuery {
 	 * @param and <code>true</code> if this query represents a logical 'and', and
 	 * <code>false</code> if this query represents a logical 'or'.
 	 */
-	public static CompoundQuery createCompoundQuery(IQuery[] queries, boolean and) {
+	public static <T> CompoundQuery<T> createCompoundQuery(IQuery<T>[] queries, boolean and) {
 		if (isMatchQueries(queries)) {
-			return new CompoundQuery.MatchCompoundQuery(queries, and);
+			return new CompoundQuery.MatchCompoundQuery<T>(queries, and);
 		}
-		return new CompoundQuery.ContextCompoundQuery(queries, and);
+		return new CompoundQuery.ContextCompoundQuery<T>(queries, and);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> CompoundQuery<T> createCompoundQuery(IQuery<T> query1, IQuery<T> query2, boolean and) {
+		return createCompoundQuery(new IQuery[] {query1, query2}, and);
 	}
 
 	/**
 	 * Returns the queries that make up this compound query
 	 */
-	public IQuery[] getQueries() {
-		return queries;
+	public List<IQuery<T>> getQueries() {
+		return Arrays.asList(queries);
 	}
 
 	/**
@@ -72,7 +77,7 @@ public abstract class CompoundQuery implements IQuery, ICompositeQuery {
 		return and;
 	}
 
-	protected CompoundQuery(IQuery[] queries, boolean and) {
+	protected CompoundQuery(IQuery<T>[] queries, boolean and) {
 		this.queries = queries;
 		this.and = and;
 	}
@@ -80,9 +85,9 @@ public abstract class CompoundQuery implements IQuery, ICompositeQuery {
 	/**
 	 * @param queries
 	 */
-	private static boolean isMatchQueries(IQuery[] queries) {
+	private static boolean isMatchQueries(IQuery<?>[] queries) {
 		for (int i = 0; i < queries.length; i++) {
-			if (!(queries[i] instanceof IMatchQuery)) {
+			if (!(queries[i] instanceof IMatchQuery<?>)) {
 				return false;
 			}
 		}
@@ -107,15 +112,15 @@ public abstract class CompoundQuery implements IQuery, ICompositeQuery {
 	/**
 	 * The compound query instantiated when all queries are Match Queries.
 	 */
-	private static class MatchCompoundQuery extends CompoundQuery implements IMatchQuery {
+	private static class MatchCompoundQuery<T> extends CompoundQuery<T> implements IMatchQuery<T> {
 
-		protected MatchCompoundQuery(IQuery[] queries, boolean and) {
+		protected MatchCompoundQuery(IQuery<T>[] queries, boolean and) {
 			super(queries, and);
 		}
 
-		public boolean isMatch(Object candidate) {
+		public boolean isMatch(T candidate) {
 			for (int i = 0; i < queries.length; i++) {
-				boolean valid = ((IMatchQuery) queries[i]).isMatch(candidate);
+				boolean valid = ((IMatchQuery<T>) queries[i]).isMatch(candidate);
 				// if we are OR'ing then the first time we find a requirement that is met, return success
 				if (valid && !and)
 					return true;
@@ -133,12 +138,12 @@ public abstract class CompoundQuery implements IQuery, ICompositeQuery {
 		 * Performs this query on the given iterator, passing all objects in the iterator 
 		 * that match the criteria of this query to the given result.
 		 */
-		public final IQueryResult perform(Iterator iterator) {
+		public final IQueryResult<T> perform(Iterator<T> iterator) {
 			prePerform();
-			Collector result = new Collector();
+			Collector<T> result = new Collector<T>();
 			try {
 				while (iterator.hasNext()) {
-					Object candidate = iterator.next();
+					T candidate = iterator.next();
 					if (isMatch(candidate))
 						if (!result.accept(candidate))
 							break;
@@ -151,13 +156,13 @@ public abstract class CompoundQuery implements IQuery, ICompositeQuery {
 
 		public void prePerform() {
 			for (int i = 0; i < queries.length; i++) {
-				((IMatchQuery) queries[i]).prePerform();
+				((IMatchQuery<T>) queries[i]).prePerform();
 			}
 		}
 
 		public void postPerform() {
 			for (int i = 0; i < queries.length; i++) {
-				((IMatchQuery) queries[i]).postPerform();
+				((IMatchQuery<T>) queries[i]).postPerform();
 			}
 		}
 	}
@@ -166,19 +171,19 @@ public abstract class CompoundQuery implements IQuery, ICompositeQuery {
 	 * The compound query instantiated when any of the queries are not 
 	 * match queries.
 	 */
-	private static class ContextCompoundQuery extends CompoundQuery {
+	private static class ContextCompoundQuery<T> extends CompoundQuery<T> {
 
-		protected ContextCompoundQuery(IQuery[] queries, boolean and) {
+		protected ContextCompoundQuery(IQuery<T>[] queries, boolean and) {
 			super(queries, and);
 		}
 
 		/*
 		 * A collector that takes the set to puts the elements in.
 		 */
-		static class SetCollector implements IQueryResult {
-			private final Set s;
+		static class SetCollector<T> implements IQueryResult<T> {
+			private final Set<T> s;
 
-			public SetCollector(Set s) {
+			public SetCollector(Set<T> s) {
 				this.s = s;
 			}
 
@@ -186,46 +191,47 @@ public abstract class CompoundQuery implements IQuery, ICompositeQuery {
 				return s.isEmpty();
 			}
 
-			public Iterator iterator() {
+			public Iterator<T> iterator() {
 				return s.iterator();
 			}
 
-			public Object[] toArray(Class clazz) {
-				return s.toArray((Object[]) Array.newInstance(clazz, s.size()));
+			@SuppressWarnings("unchecked")
+			public T[] toArray(Class<? extends T> clazz) {
+				return s.toArray((T[]) Array.newInstance(clazz, s.size()));
 			}
 
-			public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+			public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
 				return query.perform(iterator());
 			}
 
-			public Set toSet() {
-				return new HashSet(s);
+			public Set<T> toSet() {
+				return new HashSet<T>(s);
 			}
 
-			public Set unmodifiableSet() {
+			public Set<T> unmodifiableSet() {
 				return Collections.unmodifiableSet(s);
 			}
 		}
 
-		public IQueryResult perform(Iterator iterator) {
+		public IQueryResult<T> perform(Iterator<T> iterator) {
 			if (queries.length < 1)
-				return Collector.EMPTY_COLLECTOR;
+				return Collector.emptyCollector();
 
 			if (queries.length == 1)
 				return queries[0].perform(iterator);
 
-			Collection data = new ArrayList();
+			Collection<T> data = new ArrayList<T>();
 			while (iterator.hasNext())
 				data.add(iterator.next());
 
-			Set result;
+			Set<T> result;
 			if (isAnd()) {
 				result = queries[0].perform(data.iterator()).unmodifiableSet();
 				for (int i = 1; i < queries.length && result.size() > 0; i++) {
-					HashSet retained = new HashSet();
-					Iterator itor = queries[i].perform(data.iterator()).iterator();
+					HashSet<T> retained = new HashSet<T>();
+					Iterator<T> itor = queries[i].perform(data.iterator()).iterator();
 					while (itor.hasNext()) {
-						Object nxt = itor.next();
+						T nxt = itor.next();
 						if (result.contains(nxt))
 							retained.add(nxt);
 					}
@@ -234,13 +240,13 @@ public abstract class CompoundQuery implements IQuery, ICompositeQuery {
 			} else {
 				result = queries[0].perform(data.iterator()).toSet();
 				for (int i = 1; i < queries.length; i++) {
-					Iterator itor = queries[i].perform(data.iterator()).iterator();
+					Iterator<T> itor = queries[i].perform(data.iterator()).iterator();
 					while (itor.hasNext()) {
 						result.add(itor.next());
 					}
 				}
 			}
-			return new SetCollector(result);
+			return new SetCollector<T>(result);
 		}
 	}
 }

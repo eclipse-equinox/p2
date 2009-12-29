@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -25,7 +26,7 @@ import org.eclipse.osgi.util.NLS;
 /**
  * Default implementation of {@link IMetadataRepositoryManager}.
  */
-public class MetadataRepositoryManager extends AbstractRepositoryManager implements IMetadataRepositoryManager {
+public class MetadataRepositoryManager extends AbstractRepositoryManager<IInstallableUnit> implements IMetadataRepositoryManager {
 
 	public MetadataRepositoryManager() {
 		super();
@@ -35,11 +36,11 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		super.addRepository(repository, true, null);
 	}
 
-	public IMetadataRepository createRepository(URI location, String name, String type, Map properties) throws ProvisionException {
+	public IMetadataRepository createRepository(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
 		return (IMetadataRepository) doCreateRepository(location, name, type, properties);
 	}
 
-	protected IRepository factoryCreate(URI location, String name, String type, Map properties, IExtension extension) throws ProvisionException {
+	protected IRepository<IInstallableUnit> factoryCreate(URI location, String name, String type, Map<String, String> properties, IExtension extension) throws ProvisionException {
 		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
@@ -47,7 +48,7 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager impleme
 		return factory.create(location, name, type, properties);
 	}
 
-	protected IRepository factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor) throws ProvisionException {
+	protected IRepository<IInstallableUnit> factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor) throws ProvisionException {
 		MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;

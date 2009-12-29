@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 /**
  * An object that implements a query for available updates
  */
-public class QueryableUpdates implements IQueryable {
+public class QueryableUpdates implements IQueryable<IInstallableUnit> {
 
 	private IInstallableUnit[] iusToUpdate;
 	ProvisioningUI ui;
@@ -36,17 +36,17 @@ public class QueryableUpdates implements IQueryable {
 		this.iusToUpdate = iusToUpdate;
 	}
 
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		int totalWork = 2000;
 		monitor.beginTask(ProvUIMessages.QueryableUpdates_UpdateListProgress, totalWork);
 		IPlanner planner = ui.getSession().getPlanner();
 		try {
-			ArrayList allUpdates = new ArrayList();
+			ArrayList<IInstallableUnit> allUpdates = new ArrayList<IInstallableUnit>();
 			for (int i = 0; i < iusToUpdate.length; i++) {
 				if (monitor.isCanceled())
-					return Collector.EMPTY_COLLECTOR;
+					return Collector.emptyCollector();
 				IInstallableUnit[] updates = planner.updatesFor(iusToUpdate[i], new ProvisioningContext(), new SubProgressMonitor(monitor, totalWork / 2 / iusToUpdate.length));
 				for (int j = 0; j < updates.length; j++)
 					allUpdates.add(updates[j]);
@@ -54,7 +54,7 @@ public class QueryableUpdates implements IQueryable {
 			return query.perform(allUpdates.iterator());
 		} catch (OperationCanceledException e) {
 			// Nothing more to do, return result
-			return Collector.EMPTY_COLLECTOR;
+			return Collector.emptyCollector();
 		} finally {
 			monitor.done();
 		}

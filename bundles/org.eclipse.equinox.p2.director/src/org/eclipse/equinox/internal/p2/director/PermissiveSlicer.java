@@ -22,7 +22,7 @@ public class PermissiveSlicer extends Slicer {
 	private boolean evalFilterTo;
 	private boolean onlyFilteredRequirements;
 
-	public PermissiveSlicer(IQueryable input, Dictionary context, boolean includeOptionalDependencies, boolean everythingGreedy, boolean evalFilterTo, boolean considerOnlyStrictDependency, boolean onlyFilteredRequirements) {
+	public PermissiveSlicer(IQueryable<IInstallableUnit> input, Dictionary<? extends Object, ? extends Object> context, boolean includeOptionalDependencies, boolean everythingGreedy, boolean evalFilterTo, boolean considerOnlyStrictDependency, boolean onlyFilteredRequirements) {
 		super(input, context, true);
 		this.considerFilter = (context != null && context.size() > 1) ? true : false;
 		this.includeOptionalDependencies = includeOptionalDependencies;

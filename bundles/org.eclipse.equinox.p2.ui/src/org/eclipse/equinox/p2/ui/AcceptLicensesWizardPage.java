@@ -69,8 +69,8 @@ public class AcceptLicensesWizardPage extends WizardPage {
 				return new Object[0];
 
 			if (licensesToIUs.containsKey(parentElement)) {
-				List iusWithLicense = (List) licensesToIUs.get(parentElement);
-				IInstallableUnit[] ius = (IInstallableUnit[]) iusWithLicense.toArray(new IInstallableUnit[iusWithLicense.size()]);
+				List<IInstallableUnit> iusWithLicense = licensesToIUs.get(parentElement);
+				IInstallableUnit[] ius = iusWithLicense.toArray(new IInstallableUnit[iusWithLicense.size()]);
 				IUWithLicenseParent[] children = new IUWithLicenseParent[ius.length];
 				for (int i = 0; i < ius.length; i++) {
 					children[i] = new IUWithLicenseParent((ILicense) parentElement, ius[i]);
@@ -140,7 +140,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	Button declineButton;
 	SashForm sashForm;
 	private IInstallableUnit[] originalIUs;
-	HashMap licensesToIUs; // License -> IU Name
+	HashMap<ILicense, List<IInstallableUnit>> licensesToIUs; // License -> IU Name
 	private LicenseManager manager;
 	IUColumnConfig nameColumn;
 	IUColumnConfig versionColumn;
@@ -177,12 +177,12 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	 */
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
-		ArrayList ius;
+		List<IInstallableUnit> ius;
 		if (licensesToIUs == null || licensesToIUs.size() == 0) {
 			Label label = new Label(parent, SWT.NONE);
 			setControl(label);
-		} else if (licensesToIUs.size() == 1 && (ius = (ArrayList) (licensesToIUs.values().iterator().next())).size() == 1) {
-			createLicenseContentSection(parent, (IInstallableUnit) ius.get(0));
+		} else if (licensesToIUs.size() == 1 && (ius = licensesToIUs.values().iterator().next()).size() == 1) {
+			createLicenseContentSection(parent, ius.get(0));
 		} else {
 			sashForm = new SashForm(parent, SWT.HORIZONTAL);
 			sashForm.setLayout(new GridLayout());
@@ -343,7 +343,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	private void updateLicenses(IInstallableUnit[] theIUs, IProvisioningPlan plan) {
 		this.originalIUs = theIUs;
 		if (theIUs == null)
-			licensesToIUs = new HashMap();
+			licensesToIUs = new HashMap<ILicense, List<IInstallableUnit>>();
 		else
 			findUnacceptedLicenses(theIUs, plan);
 		setDescription();
@@ -376,15 +376,15 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	private void findUnacceptedLicenses(IInstallableUnit[] selectedIUs, IProvisioningPlan plan) {
 		IInstallableUnit[] iusToCheck = selectedIUs;
 		if (plan != null) {
-			iusToCheck = (IInstallableUnit[]) plan.getAdditions().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class);
+			iusToCheck = plan.getAdditions().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class);
 		}
 
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=218532
 		// Current metadata generation can result with a feature group IU and the feature jar IU
 		// having the same name and license.  We will weed out duplicates if the license and name are both
 		// the same.  
-		licensesToIUs = new HashMap();//map of License->ArrayList of IUs with that license
-		HashMap namesSeen = new HashMap(); // map of License->HashSet of names with that license
+		licensesToIUs = new HashMap<ILicense, List<IInstallableUnit>>();//map of License->ArrayList of IUs with that license
+		HashMap<ILicense, HashSet<String>> namesSeen = new HashMap<ILicense, HashSet<String>>(); // map of License->HashSet of names with that license
 		for (int i = 0; i < iusToCheck.length; i++) {
 			IInstallableUnit iu = iusToCheck[i];
 			ILicense[] licenses = iu.getLicenses(null);
@@ -396,16 +396,16 @@ public class AcceptLicensesWizardPage extends WizardPage {
 						name = iu.getId();
 					// Have we already found this license?  
 					if (licensesToIUs.containsKey(license)) {
-						HashSet names = (HashSet) namesSeen.get(license);
+						HashSet<String> names = namesSeen.get(license);
 						if (!names.contains(name)) {
 							names.add(name);
-							((ArrayList) licensesToIUs.get(license)).add(iu);
+							((ArrayList<IInstallableUnit>) licensesToIUs.get(license)).add(iu);
 						}
 					} else {
-						ArrayList list = new ArrayList(1);
+						ArrayList<IInstallableUnit> list = new ArrayList<IInstallableUnit>(1);
 						list.add(iu);
 						licensesToIUs.put(license, list);
-						HashSet names = new HashSet(1);
+						HashSet<String> names = new HashSet<String>(1);
 						names.add(name);
 						namesSeen.put(license, names);
 					}
@@ -417,7 +417,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	private void rememberAcceptedLicenses() {
 		if (licensesToIUs == null || manager == null)
 			return;
-		Iterator iter = licensesToIUs.keySet().iterator();
+		Iterator<ILicense> iter = licensesToIUs.keySet().iterator();
 		while (iter.hasNext()) {
 			License license = (License) iter.next();
 			manager.accept(license);

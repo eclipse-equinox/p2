@@ -31,13 +31,13 @@ import org.eclipse.osgi.util.NLS;
  */
 public abstract class QueriedElementWrapper extends ElementWrapper {
 
-	protected IQueryable queryable;
+	protected IQueryable<?> queryable;
 	protected Object parent;
 	protected String emptyExplanationString;
 	protected int emptyExplanationSeverity;
 	protected String emptyExplanationDescription;
 
-	public QueriedElementWrapper(IQueryable queryable, Object parent) {
+	public QueriedElementWrapper(IQueryable<?> queryable, Object parent) {
 		this.queryable = queryable;
 		this.parent = parent;
 	}
@@ -55,7 +55,7 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 		return item;
 	}
 
-	public Collection getElements(Collector collector) {
+	public Collection<?> getElements(Collector<?> collector) {
 		// Any previously stored explanations are not valid.
 		emptyExplanationString = null;
 		emptyExplanationSeverity = IStatus.INFO;
@@ -87,7 +87,7 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 			// It is empty, but the parent is an IU, so this could be a drilldown.
 			return Collections.EMPTY_LIST;
 		}
-		Collection elements = super.getElements(collector);
+		Collection<?> elements = super.getElements(collector);
 		// We had elements but now they have been filtered out.  Hopefully
 		// we can explain this.
 		if (elements.isEmpty()) {
@@ -100,8 +100,8 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 		return elements;
 	}
 
-	Collection emptyExplanation(int severity, String explanationString, String explanationDescription) {
-		ArrayList collection = new ArrayList(1);
+	Collection<?> emptyExplanation(int severity, String explanationString, String explanationDescription) {
+		ArrayList<Object> collection = new ArrayList<Object>(1);
 		collection.add(new EmptyElementExplanation(parent, severity, explanationString, explanationDescription));
 		return collection;
 	}

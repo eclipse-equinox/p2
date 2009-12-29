@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface IMetadataRepository extends IRepository {
+public interface IMetadataRepository extends IRepository<IInstallableUnit> {
 
 	/** 
 	 * Add the given installable units to this repository

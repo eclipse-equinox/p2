@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.p2.ui;
 
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +62,7 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	 */
 	public static final QualifiedName ACCUMULATE_LOAD_ERRORS = new QualifiedName(ProvUIActivator.PLUGIN_ID, "ACCUMULATE_LOAD_ERRORS"); //$NON-NLS-1$
 
-	private List repoCache = new ArrayList();
+	private List<IMetadataRepository> repoCache = new ArrayList<IMetadataRepository>();
 	private RepositoryTracker tracker;
 	private MultiStatus accumulatedStatus;
 	private URI[] locations;

@@ -15,7 +15,6 @@ package org.eclipse.equinox.internal.p2.repository;
 import java.net.URI;
 import java.text.NumberFormat;
 import java.util.*;
-import java.util.Map.Entry;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -54,7 +53,7 @@ public class ProgressStatistics {
 
 	private int m_reportInterval;
 
-	private SortedMap m_recentSpeedMap;
+	private SortedMap<Long, Long> m_recentSpeedMap;
 
 	private long m_recentSpeedMapKey;
 
@@ -69,7 +68,7 @@ public class ProgressStatistics {
 		m_current = 0;
 		m_lastReportTime = 0;
 		m_reportInterval = DEFAULT_REPORT_INTERVAL;
-		m_recentSpeedMap = new TreeMap();
+		m_recentSpeedMap = new TreeMap<Long, Long>();
 		m_recentSpeedMapKey = 0L;
 		m_uri = uri;
 	}
@@ -96,13 +95,12 @@ public class ProgressStatistics {
 		removeObsoleteRecentSpeedData(getDuration() / SPEED_RESOLUTION);
 		long dur = 0L;
 		long amount = 0L;
-		SortedMap relevantData = m_recentSpeedMap.headMap(new Long(m_recentSpeedMapKey));
+		SortedMap<Long, Long> relevantData = m_recentSpeedMap.headMap(new Long(m_recentSpeedMapKey));
 
-		Iterator itor = relevantData.entrySet().iterator();
+		Iterator<Long> itor = relevantData.values().iterator();
 		while (itor.hasNext()) {
-			Entry entry = (Entry) itor.next();
 			dur += SPEED_RESOLUTION;
-			amount += ((Long) entry.getValue()).longValue();
+			amount += itor.next().longValue();
 		}
 
 		if (dur >= 1000)
@@ -147,7 +145,7 @@ public class ProgressStatistics {
 
 	synchronized private void registerRecentSpeed(long key, long inc) {
 		Long keyL = new Long(key);
-		Long currentValueL = (Long) m_recentSpeedMap.get(keyL);
+		Long currentValueL = m_recentSpeedMap.get(keyL);
 		long currentValue = 0L;
 		if (currentValueL != null)
 			currentValue = currentValueL.longValue();

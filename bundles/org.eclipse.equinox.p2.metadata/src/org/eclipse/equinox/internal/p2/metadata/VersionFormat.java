@@ -39,22 +39,22 @@ public class VersionFormat implements IVersionFormat, Serializable {
 
 	private static final long serialVersionUID = -5689435955091405520L;
 
-	static class TreeInfo extends ArrayList {
+	private static class StateInfo {
+		Fragment fragment;
+		int position;
+		int segmentCount;
+
+		StateInfo(int position, int segmentCount, Fragment fragment) {
+			this.fragment = fragment;
+			this.position = position;
+			this.segmentCount = segmentCount;
+		}
+	}
+
+	static class TreeInfo extends ArrayList<StateInfo> {
 		private static final long serialVersionUID = 4474591345244587260L;
 
-		private static class StateInfo {
-			Fragment fragment;
-			int position;
-			int segmentCount;
-
-			StateInfo(int position, int segmentCount, Fragment fragment) {
-				this.fragment = fragment;
-				this.position = position;
-				this.segmentCount = segmentCount;
-			}
-		}
-
-		private Comparable padValue;
+		private Comparable<?> padValue;
 		private int top;
 
 		TreeInfo(Fragment frag, int pos) {
@@ -62,18 +62,18 @@ public class VersionFormat implements IVersionFormat, Serializable {
 			top = 0;
 		}
 
-		Comparable getPadValue() {
+		Comparable<?> getPadValue() {
 			return padValue;
 		}
 
 		int getPosition() {
-			return ((StateInfo) get(top)).position;
+			return get(top).position;
 		}
 
-		void popState(List segments, Fragment frag) {
+		void popState(List<Comparable<?>> segments, Fragment frag) {
 			int idx = top;
 			while (idx > 0) {
-				StateInfo si = (StateInfo) get(idx);
+				StateInfo si = get(idx);
 				if (si.fragment == frag) {
 					int nsegs = segments.size();
 					int segMax = si.segmentCount;
@@ -86,27 +86,27 @@ public class VersionFormat implements IVersionFormat, Serializable {
 		}
 
 		void pushState(int segCount, Fragment fragment) {
-			int pos = ((StateInfo) get(top)).position;
+			int pos = get(top).position;
 			if (++top == size())
 				add(new StateInfo(pos, segCount, fragment));
 			else {
-				StateInfo si = (StateInfo) get(top);
+				StateInfo si = get(top);
 				si.fragment = fragment;
 				si.position = pos;
 				si.segmentCount = segCount;
 			}
 		}
 
-		void setPadValue(Comparable pad) {
+		void setPadValue(Comparable<?> pad) {
 			padValue = pad;
 		}
 
 		void setPosition(int pos) {
-			((StateInfo) get(top)).position = pos;
+			get(top).position = pos;
 		}
 	}
 
-	private static final Map formatCache = Collections.synchronizedMap(new HashMap());
+	private static final Map<String, VersionFormat> formatCache = Collections.synchronizedMap(new HashMap<String, VersionFormat>());
 
 	/**
 	 * The predefined OSGi format that is used when parsing OSGi
@@ -162,7 +162,7 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	public static VersionFormat compile(String format, int start, int end) throws VersionFormatException {
 		String fmtString = format.substring(start, end).intern();
 		synchronized (fmtString) {
-			VersionFormat fmt = (VersionFormat) formatCache.get(fmtString);
+			VersionFormat fmt = formatCache.get(fmtString);
 			if (fmt == null) {
 				VersionFormatParser parser = new VersionFormatParser();
 				fmt = new VersionFormat(parser.compile(format, start, end));
@@ -182,13 +182,13 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	 * @throws IllegalArgumentException If the version string could not be parsed.
 	 */
 	public static BasicVersion parseRaw(String version, IVersionFormat originalFormat, String original) {
-		Comparable[] padReturn = new Comparable[1];
-		Comparable[] vector = RAW_FORMAT.parse(version, 0, version.length(), padReturn);
-		Comparable pad = padReturn[0];
+		Comparable<?>[] padReturn = new Comparable<?>[1];
+		Comparable<?>[] vector = RAW_FORMAT.parse(version, 0, version.length(), padReturn);
+		Comparable<?> pad = padReturn[0];
 		return (originalFormat == OSGI_FORMAT) ? OSGiVersion.fromVector(vector, pad) : OmniVersion.fromVector(vector, pad, originalFormat, original);
 	}
 
-	static void rawToString(StringBuffer sb, boolean forRange, Comparable e) {
+	static void rawToString(StringBuffer sb, boolean forRange, Comparable<?> e) {
 		if (e instanceof String) {
 			writeQuotedString(sb, forRange, (String) e, '\'', 0, false);
 		} else if (e instanceof VersionVector) {
@@ -262,28 +262,28 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	}
 
 	public Version parse(String version) {
-		Comparable[] padReturn = new Comparable[1];
-		Comparable[] vector = parse(version, 0, version.length(), padReturn);
-		Comparable pad = padReturn[0];
+		Comparable<?>[] padReturn = new Comparable<?>[1];
+		Comparable<?>[] vector = parse(version, 0, version.length(), padReturn);
+		Comparable<?> pad = padReturn[0];
 		return (this == OSGI_FORMAT) ? OSGiVersion.fromVector(vector, pad) : OmniVersion.fromVector(vector, pad, this, version);
 	}
 
-	Comparable[] parse(String version, int start, int maxPos, Comparable[] padReturn) {
+	Comparable<?>[] parse(String version, int start, int maxPos, Comparable<?>[] padReturn) {
 		if (start == maxPos)
 			throw new IllegalArgumentException(NLS.bind(Messages.format_0_unable_to_parse_empty_version, this, version.substring(start, maxPos)));
 		TreeInfo info = new TreeInfo(topFragment, start);
-		ArrayList entries = new ArrayList();
+		ArrayList<Comparable<?>> entries = new ArrayList<Comparable<?>>();
 		if (!(topFragment.parse(entries, version, maxPos, info) && info.getPosition() == maxPos))
 			throw new IllegalArgumentException(NLS.bind(Messages.format_0_unable_to_parse_1, this, version.substring(start, maxPos)));
 		padReturn[0] = VersionParser.removeRedundantTrail(entries, info.getPadValue());
-		return (Comparable[]) entries.toArray(new Comparable[entries.size()]);
+		return entries.toArray(new Comparable[entries.size()]);
 	}
 
 	// Preserve cache during deserialization
 	private Object readResolve() {
 		synchronized (formatCache) {
 			String string = toString();
-			VersionFormat fmt = (VersionFormat) formatCache.put(string, this);
+			VersionFormat fmt = formatCache.put(string, this);
 			if (fmt == null)
 				fmt = this;
 			else
@@ -333,8 +333,8 @@ class RawFormat extends VersionFormat {
 	 * string as the original.
 	 */
 	public Version parse(String version, int start, int maxPos) {
-		Comparable[] padReturn = new Comparable[1];
-		Comparable[] vector = parse(version, start, maxPos, padReturn);
+		Comparable<?>[] padReturn = new Comparable<?>[1];
+		Comparable<?>[] vector = parse(version, start, maxPos, padReturn);
 		return OmniVersion.fromVector(vector, padReturn[0], null, null);
 	}
 

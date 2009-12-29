@@ -58,15 +58,15 @@ public class DefaultSiteParser extends DefaultHandler {
 	private boolean DESCRIPTION_SITE_ALREADY_SEEN = false;
 	// Current object stack (used to hold the current object we are
 	// populating in this plugin descriptor
-	Stack objectStack = new Stack();
+	Stack<Object> objectStack = new Stack<Object>();
 
 	private SAXParser parser;
 
 	// Current State Information
-	Stack stateStack = new Stack();
+	Stack<Integer> stateStack = new Stack<Integer>();
 
 	// List of string keys for translated strings
-	private final List messageKeys = new ArrayList(4);
+	private final List<String> messageKeys = new ArrayList<String>(4);
 
 	private MultiStatus status;
 	private final URI siteLocation;
@@ -130,8 +130,8 @@ public class DefaultSiteParser extends DefaultHandler {
 	public DefaultSiteParser(URI siteLocation) {
 		super();
 		this.siteLocation = siteLocation;
-		stateStack = new Stack();
-		objectStack = new Stack();
+		stateStack = new Stack<Integer>();
+		objectStack = new Stack<Object>();
 		status = null;
 		DESCRIPTION_SITE_ALREADY_SEEN = false;
 		try {
@@ -155,7 +155,7 @@ public class DefaultSiteParser extends DefaultHandler {
 	public void characters(char[] ch, int start, int length) {
 		String text = new String(ch, start, length);
 		//only push if description
-		int state = ((Integer) stateStack.peek()).intValue();
+		int state = stateStack.peek().intValue();
 		if (state == STATE_DESCRIPTION_SITE || state == STATE_DESCRIPTION_CATEGORY_DEF)
 			objectStack.push(text);
 
@@ -171,7 +171,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		String text = null;
 		URLEntry info = null;
 
-		int state = ((Integer) stateStack.peek()).intValue();
+		int state = stateStack.peek().intValue();
 		switch (state) {
 			case STATE_IGNORED_ELEMENT :
 			case STATE_ARCHIVE :
@@ -501,7 +501,7 @@ public class DefaultSiteParser extends DefaultHandler {
 	 */
 	public SiteModel parse(InputStream in) throws SAXException, IOException {
 		stateStack.push(new Integer(STATE_INITIAL));
-		currentState = ((Integer) stateStack.peek()).intValue();
+		currentState = stateStack.peek().intValue();
 		parser.parse(new InputSource(in), this);
 		if (objectStack.isEmpty())
 			throw new SAXException(Messages.DefaultSiteParser_NoSiteTag);
@@ -511,7 +511,7 @@ public class DefaultSiteParser extends DefaultHandler {
 			return site;
 		}
 		String stack = ""; //$NON-NLS-1$
-		Iterator iter = objectStack.iterator();
+		Iterator<Object> iter = objectStack.iterator();
 		while (iter.hasNext()) {
 			stack = stack + iter.next().toString() + "\r\n"; //$NON-NLS-1$
 		}
@@ -797,7 +797,7 @@ public class DefaultSiteParser extends DefaultHandler {
 				internalErrorUnknownTag(NLS.bind(Messages.DefaultSiteParser_UnknownStartState, (new String[] {getState(currentState)})));
 				break;
 		}
-		int newState = ((Integer) stateStack.peek()).intValue();
+		int newState = stateStack.peek().intValue();
 		if (newState != STATE_IGNORED_ELEMENT)
 			currentState = newState;
 

@@ -71,27 +71,27 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testLatest() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		IQueryResult result = repo.query(new QLContextQuery("latest(x | x.id == $0)", "test.bundle"), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLContextQuery(IInstallableUnit.class, "latest(x | x.id == $0)", "test.bundle"), new NullProgressMonitor());
 		assertTrue(queryResultSize(result) == 1);
 	}
 
 	public void testRange() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		IQueryResult result = repo.query(new QLMatchQuery("version ~= $0", new VersionRange("2.0.0")), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnit.class, "version ~= $0", new VersionRange("2.0.0")), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 2);
 	}
 
 	public void testProperty() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
 
-		IQueryResult result = repo.query(new QLMatchQuery("properties.exists(p | boolean(p.value))"), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnit.class, "properties.exists(p | boolean(p.value))"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 
-		result = repo.query(new QLMatchQuery("boolean(properties['org.eclipse.equinox.p2.type.group'])"), new NullProgressMonitor());
+		result = repo.query(new QLMatchQuery(IInstallableUnit.class, "boolean(properties['org.eclipse.equinox.p2.type.group'])"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 
 		Filter filter = TestActivator.context.createFilter("(org.eclipse.equinox.p2.type.group=true)");
-		result = repo.query(new QLMatchQuery("properties ~= $0", filter), new NullProgressMonitor());
+		result = repo.query(new QLMatchQuery(IInstallableUnit.class, "properties ~= $0", filter), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 	}
 
@@ -100,7 +100,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				"parent.requiredCapabilities.unique(requirementsCache).select(rc | rc.filter == null || $2 ~= filter(rc.filter)), _, " + //
 				"{rcs, child | rcs.exists(rc | child ~= rc)})}).limit(10)";
 
-		IContextExpression expr = parser.parseQuery(exprString);
+		IContextExpression expr = parser.parseQuery(IInstallableUnit.class, exprString);
 		System.out.println(expr.toString());
 		assertEquals(exprString, expr.toString());
 	}
@@ -117,7 +117,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		IExpression everything = factory.variable("everything");
 		IExpression lambda = factory.lambda(item, factory.and(new IExpression[] {cmp1, cmp2}));
 		IExpression latest = factory.latest(factory.select(everything, lambda));
-		IContextExpression e3 = factory.contextExpression(latest);
+		IContextExpression e3 = factory.contextExpression(IInstallableUnit.class, latest);
 
 		// Put the parameters in a map
 		Map args = new HashMap();
@@ -127,7 +127,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 		// Create the query
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		IQueryResult result = repo.query(new QLContextQuery(IInstallableUnit.class, e3, new Object[] {args}), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLContextQuery(e3, args), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 1);
 	}
 
@@ -146,29 +146,29 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		applicability[1][1] = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.flavor", "tooling", null, null, false, false);
 
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(new QLMatchQuery("$0.exists(rcs | rcs.all(rc | item ~= rc))", applicability), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnit.class, "$0.exists(rcs | rcs.all(rc | item ~= rc))", (Object) applicability), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 	}
 
 	public void testPattern() throws Exception {
 		IProvidedCapability pc = MetadataFactory.createProvidedCapability("org.eclipse.equinox.p2.eclipse.type", "source", null);
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(new QLMatchQuery("id ~= /tooling.*.default/", pc), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnit.class, "id ~= /tooling.*.default/", pc), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 	}
 
 	public void testLimit() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(new QLContextQuery("select(x | x.id ~= /tooling.*/).limit(1)"), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLContextQuery(IInstallableUnit.class, "select(x | x.id ~= /tooling.*/).limit(1)"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 1);
 
-		result = repo.query(new QLContextQuery("select(x | x.id ~= /tooling.*/).limit($0)", new Integer(2)), new NullProgressMonitor());
+		result = repo.query(new QLContextQuery(IInstallableUnit.class, "select(x | x.id ~= /tooling.*/).limit($0)", new Integer(2)), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 2);
 	}
 
 	public void testNot() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(new QLMatchQuery("!(id ~= /tooling.*/)"), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnit.class, "!(id ~= /tooling.*/)"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 4);
 	}
 
@@ -179,13 +179,13 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		assertNotNull(artifactManager);
 
 		IArtifactRepository repo = artifactManager.loadRepository(artifactRepo, new NullProgressMonitor());
-		IQueryResult result = repo.query(new QLMatchQuery(IArtifactKey.class, "classifier ~= /*/", null), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLMatchQuery(IArtifactKey.class, "classifier ~= /*/"), new NullProgressMonitor());
 		assertTrue(queryResultSize(result) > 1);
 		Iterator itor = result.iterator();
 		while (itor.hasNext())
 			assertTrue(itor.next() instanceof IArtifactKey);
 
-		result = repo.query(new QLMatchQuery(IArtifactDescriptor.class, "artifactKey.classifier ~= /*/", null), new NullProgressMonitor());
+		result = repo.query(new QLMatchQuery(IArtifactDescriptor.class, "artifactKey.classifier ~= /*/"), new NullProgressMonitor());
 		assertTrue(queryResultSize(result) > 1);
 		itor = result.iterator();
 		while (itor.hasNext())
@@ -194,7 +194,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testClassConstructor() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(new QLContextQuery(//
+		IQueryResult result = repo.query(new QLContextQuery(IInstallableUnit.class, //
 				"select(x | x ~= class('org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment'))"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 4);
 		repo = getMDR("/testData/galileoM7");
@@ -202,7 +202,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testTraverseWithoutIndex() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		IQueryResult result = repo.query(new QLContextQuery( //
+		IQueryResult result = repo.query(new QLContextQuery(IInstallableUnit.class, //
 				"select(x | x.id == $0 && x.version == $1).traverse(parent | select(" + //
 						"child | parent.requiredCapabilities.exists(rc | child ~= rc)))", //
 				"org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new NullProgressMonitor());
@@ -212,7 +212,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 	public void testTraverseWithIndex() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 		IQueryResult result = repo.query(//
-				new QLContextQuery("" + //
+				new QLContextQuery(IInstallableUnit.class, "" + //
 						"select(x | x.id == $0 && x.version == $1).traverse(capabilityIndex(everything), _, { index, parent |" + //
 						"index.satisfiesAny(parent.requiredCapabilities)})", //
 						"org.eclipse.sdk.feature.group",//
@@ -223,7 +223,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testTraverseWithIndexAndFilter() throws Exception {
 		// Add some filtering of requirements
-		IContextExpression expr = parser.parseQuery("" + //
+		IContextExpression expr = parser.parseQuery(IInstallableUnit.class, "" + //
 				"select(x | x.id == $0 && x.version == $1).traverse(capabilityIndex(everything), _, { index, parent |" + //
 				"index.satisfiesAny(parent.requiredCapabilities.select(rc | rc.filter == null || $2 ~= filter(rc.filter)))})");
 
@@ -231,7 +231,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		env.put("osgi.os", "linux");
 		env.put("osgi.ws", "gtk");
 		env.put("osgi.arch", "x86");
-		QLContextQuery query = new QLContextQuery(IInstallableUnit.class, expr, new Object[] {"org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2"), env});
+		QLContextQuery query = new QLContextQuery(expr, "org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2"), env);
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 		IQueryResult result = repo.query(query, new NullProgressMonitor());
@@ -242,10 +242,10 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		// Add some filtering of requirements
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		QLContextQuery indexQuery = new QLContextQuery("capabilityIndex(everything)");
+		QLContextQuery indexQuery = new QLContextQuery(IInstallableUnit.class, "capabilityIndex(everything)");
 		Object index = indexQuery.query(QL.newQueryContext(repo));
 
-		IContextExpression expr = parser.parseQuery("" + //
+		IContextExpression expr = parser.parseQuery(IInstallableUnit.class, "" + //
 				"select(x | x.id == $0 && x.version == $1).traverse(parent |" + //
 				"$5.satisfiesAny(parent.requiredCapabilities.select(rc | rc.filter == null || $4 ~= filter(rc.filter)))) && " + //
 				"select(x | x.id == $2 && x.version == $3).traverse(parent |" + //
@@ -256,13 +256,13 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		env.put("osgi.ws", "gtk");
 		env.put("osgi.arch", "x86");
 
-		QLContextQuery query = new QLContextQuery(IInstallableUnit.class, expr, new Object[] { //
+		QLContextQuery query = new QLContextQuery(expr, //
 				"org.eclipse.pde.feature.group", //
-						Version.create("3.5.0.v20090123-7Z7YF8NFE-z0VXhWU26Hu8gY"), //
-						"org.eclipse.gmf.feature.group", //
-						Version.create("1.1.1.v20090114-0940-7d8B0FXwkKwFanGNHeHHq8ymBgZ"), //
-						env,//
-						index});
+				Version.create("3.5.0.v20090123-7Z7YF8NFE-z0VXhWU26Hu8gY"), //
+				"org.eclipse.gmf.feature.group", //
+				Version.create("1.1.1.v20090114-0940-7d8B0FXwkKwFanGNHeHHq8ymBgZ"), //
+				env,//
+				index);
 
 		IQueryResult result = repo.query(query, new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 184);
@@ -289,7 +289,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testMatchQueryInjectionInContext() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		IContextExpression expr = parser.parseQuery("select(x | iquery($0, x) || iquery($1, x)).latest()");
+		IContextExpression expr = parser.parseQuery(IInstallableUnit.class, "select(x | iquery($0, x) || iquery($1, x)).latest()");
 		MatchQuery q1 = new MatchQuery() {
 			@Override
 			public boolean isMatch(Object candidate) {
@@ -302,7 +302,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				return "true".equals(((IInstallableUnit) candidate).getProperty("org.eclipse.equinox.p2.type.group"));
 			}
 		};
-		IQueryResult result = repo.query(new QLContextQuery(IInstallableUnit.class, expr, new Object[] {q1, q2}), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLContextQuery(expr, q1, q2), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 497);
 	}
 
@@ -330,7 +330,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		IQueryResult result = queryableArray.query(new InstallableUnitQuery("foo"), null);
 		assertEquals("2.1", 1, queryResultSize(result));
 
-		QLMatchQuery lq = new QLMatchQuery("translations['org.eclipse.equinox.p2.name'] ~= /German*/");
+		QLMatchQuery lq = new QLMatchQuery(IInstallableUnit.class, "translations['org.eclipse.equinox.p2.name'] ~= /German*/");
 		lq.setLocale(Locale.GERMAN);
 		Iterator itr = queryableArray.query(lq, new NullProgressMonitor()).iterator();
 		assertTrue(itr.hasNext());

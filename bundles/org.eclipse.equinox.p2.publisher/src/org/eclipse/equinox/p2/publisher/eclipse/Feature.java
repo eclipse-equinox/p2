@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 
@@ -38,9 +37,9 @@ public class Feature {
 	private String installHandlerLibrary;
 
 	private URLEntry updateSite;
-	private ArrayList discoverySites;
+	private ArrayList<URLEntry> discoverySites;
 
-	private ArrayList entries;
+	private ArrayList<FeatureEntry> entries;
 	private String providerName;
 	private String os;
 	private String ws;
@@ -49,7 +48,7 @@ public class Feature {
 
 	private String location;
 
-	private Map localizations;
+	private Map<Locale, Map<String, String>> localizations;
 
 	public Feature(String id, String version) {
 		if (id == null)
@@ -63,7 +62,7 @@ public class Feature {
 			return;
 
 		if (this.discoverySites == null)
-			this.discoverySites = new ArrayList();
+			this.discoverySites = new ArrayList<URLEntry>();
 
 		URLEntry entry = new URLEntry(url, siteLabel);
 		this.discoverySites.add(entry);
@@ -71,7 +70,7 @@ public class Feature {
 
 	public void addEntry(FeatureEntry plugin) {
 		if (entries == null)
-			entries = new ArrayList();
+			entries = new ArrayList<FeatureEntry>();
 		entries.add(plugin);
 	}
 
@@ -114,13 +113,13 @@ public class Feature {
 	public URLEntry[] getDiscoverySites() {
 		if (discoverySites == null)
 			return new URLEntry[0];
-		return (URLEntry[]) discoverySites.toArray(new URLEntry[discoverySites.size()]);
+		return discoverySites.toArray(new URLEntry[discoverySites.size()]);
 	}
 
 	public FeatureEntry[] getEntries() {
 		if (entries == null)
 			return new FeatureEntry[0];
-		return (FeatureEntry[]) entries.toArray(new FeatureEntry[entries.size()]);
+		return entries.toArray(new FeatureEntry[entries.size()]);
 	}
 
 	public String getId() {
@@ -159,7 +158,7 @@ public class Feature {
 		return null;
 	}
 
-	public Map getLocalizations() {
+	public Map<Locale, Map<String, String>> getLocalizations() {
 		return this.localizations;
 	}
 
@@ -278,7 +277,7 @@ public class Feature {
 		this.license.setURL(licenseURL);
 	}
 
-	public void setLocalizations(Map localizations) {
+	public void setLocalizations(Map<Locale, Map<String, String>> localizations) {
 		this.localizations = localizations;
 	}
 

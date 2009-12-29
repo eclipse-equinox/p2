@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  */
 public class ArtifactRepositoryElementWrapper extends QueriedElementWrapper {
 
-	public ArtifactRepositoryElementWrapper(IQueryable queryable, Object parent) {
+	public ArtifactRepositoryElementWrapper(IQueryable<URI> queryable, Object parent) {
 		super(queryable, parent);
 	}
 

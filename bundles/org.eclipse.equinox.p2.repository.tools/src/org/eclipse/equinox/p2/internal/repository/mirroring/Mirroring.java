@@ -37,7 +37,7 @@ public class Mirroring {
 	private boolean validate = false;
 	private IArtifactComparator comparator;
 	private String comparatorID;
-	private List keysToMirror;
+	private List<IArtifactKey> keysToMirror;
 	private IArtifactMirrorLog comparatorLog;
 
 	private IArtifactComparator getComparator() {
@@ -78,15 +78,15 @@ public class Mirroring {
 		if (compare)
 			getComparator(); //initialize the comparator. Only needed if we're comparing. Used to force error if comparatorID is invalid.
 		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_mirroringStatus, null);
-		Iterator keys = null;
+		Iterator<IArtifactKey> keys = null;
 		if (keysToMirror != null)
 			keys = keysToMirror.iterator();
 		else {
-			IQueryResult result = source.query(ArtifactKeyQuery.ALL_KEYS, null);
+			IQueryResult<IArtifactKey> result = source.query(ArtifactKeyQuery.ALL_KEYS, null);
 			keys = result.iterator();
 		}
 		while (keys.hasNext()) {
-			IArtifactKey key = (IArtifactKey) keys.next();
+			IArtifactKey key = keys.next();
 			IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(key);
 			for (int j = 0; j < descriptors.length; j++) {
 				IStatus result = mirror(descriptors[j], verbose);
@@ -209,15 +209,15 @@ public class Mirroring {
 		MultiStatus status = new MultiStatus(Activator.ID, 0, Messages.Mirroring_ValidationError, null);
 
 		// The keys that were mirrored in this session
-		Iterator keys = null;
+		Iterator<IArtifactKey> keys = null;
 		if (keysToMirror != null) {
 			keys = keysToMirror.iterator();
 		} else {
-			IQueryResult result = source.query(ArtifactKeyQuery.ALL_KEYS, null);
+			IQueryResult<IArtifactKey> result = source.query(ArtifactKeyQuery.ALL_KEYS, null);
 			keys = result.iterator();
 		}
 		while (keys.hasNext()) {
-			IArtifactKey artifactKey = (IArtifactKey) keys.next();
+			IArtifactKey artifactKey = keys.next();
 			IArtifactDescriptor[] srcDescriptors = source.getArtifactDescriptors(artifactKey);
 			IArtifactDescriptor[] destDescriptors = destination.getArtifactDescriptors(artifactKey);
 
@@ -239,8 +239,8 @@ public class Mirroring {
 					}
 				} else {
 					// check properties for differences
-					Map destMap = destDescriptors[dest].getProperties();
-					Map srcProperties = null;
+					Map<String, String> destMap = destDescriptors[dest].getProperties();
+					Map<String, String> srcProperties = null;
 					if (baseline != null) {
 						IArtifactDescriptor baselineDescriptor = getBaselineDescriptor(destDescriptors[dest]);
 						if (baselineDescriptor != null)
@@ -251,8 +251,8 @@ public class Mirroring {
 						srcProperties = srcDescriptors[src].getProperties();
 
 					// Cycle through properties of the originating descriptor & compare
-					for (Iterator iter = srcProperties.keySet().iterator(); iter.hasNext();) {
-						String key = (String) iter.next();
+					for (Iterator<String> iter = srcProperties.keySet().iterator(); iter.hasNext();) {
+						String key = iter.next();
 						if (!srcProperties.get(key).equals(destMap.get(key))) {
 							if (verbose)
 								System.out.println(NLS.bind(Messages.Mirroring_differentDescriptorProperty, new Object[] {destDescriptors[dest], key, srcProperties.get(key), destMap.get(key)}));
@@ -276,9 +276,9 @@ public class Mirroring {
 	}
 
 	// Simple comparator for ArtifactDescriptors
-	protected class ArtifactDescriptorComparator implements Comparator {
+	protected class ArtifactDescriptorComparator implements Comparator<IArtifactDescriptor> {
 
-		public int compare(Object arg0, Object arg1) {
+		public int compare(IArtifactDescriptor arg0, IArtifactDescriptor arg1) {
 			if (arg0 != null && arg1 != null)
 				return arg0.toString().compareTo(arg1.toString());
 			else if (arg1 == null && arg0 == null)

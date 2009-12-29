@@ -283,7 +283,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	boolean computeDeleteEnablement() {
 		// delete is permitted if none of the selected elements are the current profile
 		boolean okToDelete = true;
-		Iterator iter = ((IStructuredSelection) configsViewer.getSelection()).iterator();
+		Iterator<?> iter = ((IStructuredSelection) configsViewer.getSelection()).iterator();
 		while (iter.hasNext()) {
 			Object selected = iter.next();
 			// If it's not a recognized element or if it is the current profile, we can't delete.  Stop iterating.
@@ -332,7 +332,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		RollbackProfileElement[] result = new RollbackProfileElement[2];
 		IStructuredSelection selection = ((IStructuredSelection) configsViewer.getSelection());
 		int i = 0;
-		for (Iterator iterator = selection.toList().iterator(); iterator.hasNext();) {
+		for (Iterator<?> iterator = selection.toList().iterator(); iterator.hasNext();) {
 			Object selected = iterator.next();
 			if (selected != null && selected instanceof RollbackProfileElement) {
 				result[i++] = (RollbackProfileElement) selected;
@@ -441,7 +441,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		}
 
 		public Object[] getChildren() {
-			Set children = new HashSet();
+			Set<ProvElementNode> children = new HashSet<ProvElementNode>();
 			if (pe instanceof RollbackProfileElement) {
 				Object[] c = ((RollbackProfileElement) pe).getChildren(null);
 				for (int i = 0; i < c.length; i++) {
@@ -534,7 +534,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		String title = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_DeleteSingleConfigurationTitle : ProvUIMessages.RevertProfilePage_DeleteMultipleConfigurationsTitle;
 		String confirmMessage = selection.size() == 1 ? ProvUIMessages.RevertProfilePage_ConfirmDeleteSingleConfig : ProvUIMessages.RevertProfilePage_ConfirmDeleteMultipleConfigs;
 		if (MessageDialog.openConfirm(configsViewer.getControl().getShell(), title, confirmMessage)) {
-			Iterator iter = selection.iterator();
+			Iterator<?> iter = selection.iterator();
 			while (iter.hasNext()) {
 				Object selected = iter.next();
 				// If it is a recognized element and it is not the current profile, then it can be deleted.

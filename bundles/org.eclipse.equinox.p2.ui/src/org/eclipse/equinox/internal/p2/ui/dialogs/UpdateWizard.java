@@ -31,33 +31,33 @@ public class UpdateWizard extends WizardWithLicenses {
 	boolean skipSelectionsPage = false;
 
 	public static IInstallableUnit[] getIUsToReplace(Object[] elements) {
-		Set iusToReplace = new HashSet();
+		Set<IInstallableUnit> iusToReplace = new HashSet<IInstallableUnit>();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof AvailableUpdateElement) {
 				iusToReplace.add(((AvailableUpdateElement) elements[i]).getIUToBeUpdated());
 			}
 		}
-		return (IInstallableUnit[]) iusToReplace.toArray(new IInstallableUnit[iusToReplace.size()]);
+		return iusToReplace.toArray(new IInstallableUnit[iusToReplace.size()]);
 	}
 
 	public static IInstallableUnit[] getReplacementIUs(Object[] elements) {
-		Set replacements = new HashSet();
+		Set<IInstallableUnit> replacements = new HashSet<IInstallableUnit>();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof AvailableUpdateElement) {
 				replacements.add(((AvailableUpdateElement) elements[i]).getIU());
 			}
 		}
-		return (IInstallableUnit[]) replacements.toArray(new IInstallableUnit[replacements.size()]);
+		return replacements.toArray(new IInstallableUnit[replacements.size()]);
 	}
 
 	public static Update[] makeUpdatesFromElements(Object[] elements) {
-		Set updates = new HashSet();
+		Set<Update> updates = new HashSet<Update>();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof AvailableUpdateElement) {
 				updates.add(((AvailableUpdateElement) elements[i]).getUpdate());
 			}
 		}
-		return (Update[]) updates.toArray(new Update[updates.size()]);
+		return updates.toArray(new Update[updates.size()]);
 	}
 
 	public UpdateWizard(ProvisioningUI ui, UpdateOperation operation, Object[] initialSelections, LoadMetadataRepositoryJob preloadJob) {
@@ -80,8 +80,8 @@ public class UpdateWizard extends WizardWithLicenses {
 
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
 		root = new IUElementListRoot();
-		ArrayList list = new ArrayList(selectedElements.length);
-		ArrayList selected = new ArrayList(selectedElements.length);
+		ArrayList<AvailableUpdateElement> list = new ArrayList<AvailableUpdateElement>(selectedElements.length);
+		ArrayList<AvailableUpdateElement> selected = new ArrayList<AvailableUpdateElement>(selectedElements.length);
 		for (int i = 0; i < selectedElements.length; i++) {
 			if (selectedElements[i] instanceof AvailableUpdateElement) {
 				AvailableUpdateElement element = (AvailableUpdateElement) selectedElements[i];

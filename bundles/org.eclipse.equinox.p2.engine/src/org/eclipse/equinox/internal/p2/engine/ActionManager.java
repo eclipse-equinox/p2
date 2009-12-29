@@ -34,7 +34,7 @@ public class ActionManager implements IRegistryChangeListener {
 	 */
 	public static final String SERVICE_NAME = ActionManager.class.getName();
 
-	private HashMap actionMap;
+	private HashMap<String, IConfigurationElement> actionMap;
 	private TouchpointManager touchpointManager;
 
 	public ActionManager() {
@@ -62,7 +62,7 @@ public class ActionManager implements IRegistryChangeListener {
 	}
 
 	public ProvisioningAction getAction(String actionId, VersionRange versionRange) {
-		IConfigurationElement actionElement = (IConfigurationElement) getActionMap().get(actionId);
+		IConfigurationElement actionElement = getActionMap().get(actionId);
 		if (actionElement != null && actionElement.isValid()) {
 			try {
 				ProvisioningAction action = (ProvisioningAction) actionElement.createExecutableExtension(ATTRIBUTE_CLASS);
@@ -85,12 +85,12 @@ public class ActionManager implements IRegistryChangeListener {
 		return null;
 	}
 
-	private synchronized Map getActionMap() {
+	private synchronized Map<String, IConfigurationElement> getActionMap() {
 		if (actionMap != null)
 			return actionMap;
 		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_ACTIONS);
 		IExtension[] extensions = point.getExtensions();
-		actionMap = new HashMap(extensions.length);
+		actionMap = new HashMap<String, IConfigurationElement>(extensions.length);
 		for (int i = 0; i < extensions.length; i++) {
 			try {
 				IConfigurationElement[] elements = extensions[i].getConfigurationElements();

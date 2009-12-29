@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
+import java.io.File;
+
 import java.io.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -23,7 +25,7 @@ import org.eclipse.osgi.service.environment.Constants;
 public class ExecutablesDescriptor {
 
 	private File location;
-	private Set files;
+	private Set<File> files;
 	private String executableName;
 	private boolean temporary = false;
 	private String os;
@@ -125,9 +127,9 @@ public class ExecutablesDescriptor {
 		this.executableName = executable;
 		this.location = location;
 		if (files == null)
-			this.files = new HashSet(11);
+			this.files = new HashSet<File>(11);
 		else {
-			this.files = new HashSet(files.length);
+			this.files = new HashSet<File>(files.length);
 			for (int i = 0; i < files.length; i++)
 				addAllFiles(files[i]);
 		}
@@ -138,7 +140,7 @@ public class ExecutablesDescriptor {
 		this.location = descriptor.location;
 		this.executableName = descriptor.executableName;
 		this.temporary = descriptor.temporary;
-		this.files = new HashSet(descriptor.files);
+		this.files = new HashSet<File>(descriptor.files);
 	}
 
 	public void addAllFiles(File file) {
@@ -180,7 +182,7 @@ public class ExecutablesDescriptor {
 	}
 
 	public File[] getFiles() {
-		File[] result = (File[]) files.toArray(new File[files.size()]);
+		File[] result = files.toArray(new File[files.size()]);
 		for (int i = 0; i < result.length; i++)
 			result[i] = new File(location, result[i].getPath());
 		return result;
@@ -223,8 +225,8 @@ public class ExecutablesDescriptor {
 		try {
 			tempFile = File.createTempFile("p2.brandingIron", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			tempFile.delete();
-			for (Iterator i = files.iterator(); i.hasNext();)
-				FileUtils.copy(location, tempFile, (File) i.next(), true);
+			for (Iterator<File> i = files.iterator(); i.hasNext();)
+				FileUtils.copy(location, tempFile, i.next(), true);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error publishing artifacts", e)); //$NON-NLS-1$
 		}
@@ -245,9 +247,9 @@ public class ExecutablesDescriptor {
 		String targetExecutable = executableName;
 		String executableExtension = Constants.OS_WIN32.equals(os) ? ".exe" : ""; //$NON-NLS-1$ //$NON-NLS-2$
 		targetExecutable = executableName + executableExtension;
-		Set filesCopy = new HashSet(files);
-		for (Iterator i = filesCopy.iterator(); i.hasNext();) {
-			File file = (File) i.next();
+		Set<File> filesCopy = new HashSet<File>(files);
+		for (Iterator<File> i = filesCopy.iterator(); i.hasNext();) {
+			File file = i.next();
 			String base = file.getParent();
 
 			// use String concatenation here because new File("", "foo") is absolute on at least windows...

@@ -15,6 +15,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
@@ -28,10 +29,10 @@ import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.FlatteningIterator;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
@@ -202,11 +203,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
-	protected Set artifactDescriptors = new HashSet();
+	protected Set<SimpleArtifactDescriptor> artifactDescriptors = new HashSet<SimpleArtifactDescriptor>();
 	/**
 	 * Map<IArtifactKey,List<IArtifactDescriptor>> containing the index of artifacts in the repository.
 	 */
-	protected Map artifactMap = new HashMap();
+	protected Map<IArtifactKey, List<IArtifactDescriptor>> artifactMap = new HashMap<IArtifactKey, List<IArtifactDescriptor>>();
 	private transient BlobStore blobStore;
 	transient private Mapper mapper = new Mapper();
 
@@ -257,19 +258,19 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	/*
 	 * This is only called by the parser when loading a repository.
 	 */
-	SimpleArtifactRepository(String name, String type, String version, String description, String provider, Set artifacts, String[][] mappingRules, Map properties) {
+	SimpleArtifactRepository(String name, String type, String version, String description, String provider, Set<SimpleArtifactDescriptor> artifacts, String[][] mappingRules, Map<String, String> properties) {
 		super(name, type, version, null, description, provider, properties);
 		this.artifactDescriptors.addAll(artifacts);
 		this.mappingRules = mappingRules;
-		for (Iterator it = artifactDescriptors.iterator(); it.hasNext();)
-			mapDescriptor((IArtifactDescriptor) it.next());
+		for (Iterator<SimpleArtifactDescriptor> it = artifactDescriptors.iterator(); it.hasNext();)
+			mapDescriptor(it.next());
 	}
 
 	private void mapDescriptor(IArtifactDescriptor descriptor) {
 		IArtifactKey key = descriptor.getArtifactKey();
-		Collection descriptors = (Collection) artifactMap.get(key);
+		List<IArtifactDescriptor> descriptors = artifactMap.get(key);
 		if (descriptors == null) {
-			descriptors = new ArrayList();
+			descriptors = new ArrayList<IArtifactDescriptor>();
 			artifactMap.put(key, descriptors);
 		}
 		descriptors.add(descriptor);
@@ -277,7 +278,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	private void unmapDescriptor(IArtifactDescriptor descriptor) {
 		IArtifactKey key = descriptor.getArtifactKey();
-		Collection descriptors = (Collection) artifactMap.get(key);
+		List<IArtifactDescriptor> descriptors = artifactMap.get(key);
 		if (descriptors == null)
 			return;
 
@@ -286,13 +287,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			artifactMap.remove(key);
 	}
 
-	public SimpleArtifactRepository(String repositoryName, URI location, Map properties) {
+	public SimpleArtifactRepository(String repositoryName, URI location, Map<String, String> properties) {
 		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties);
 		initializeAfterLoad(location);
 		if (properties != null) {
 			if (properties.containsKey(PUBLISH_PACK_FILES_AS_SIBLINGS)) {
 				synchronized (this) {
-					String newValue = (String) properties.get(PUBLISH_PACK_FILES_AS_SIBLINGS);
+					String newValue = properties.get(PUBLISH_PACK_FILES_AS_SIBLINGS);
 					if (Boolean.TRUE.toString().equals(newValue)) {
 						mappingRules = PACKED_MAPPING_RULES;
 					} else {
@@ -326,10 +327,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (isFolderBased(descriptor))
 			internal.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
 		if (descriptor instanceof SimpleArtifactDescriptor) {
-			Map repoProperties = ((SimpleArtifactDescriptor) descriptor).getRepositoryProperties();
-			for (Iterator iterator = repoProperties.keySet().iterator(); iterator.hasNext();) {
-				String key = (String) iterator.next();
-				internal.setRepositoryProperty(key, (String) repoProperties.get(key));
+			Map<String, String> repoProperties = ((SimpleArtifactDescriptor) descriptor).getRepositoryProperties();
+			for (Iterator<Entry<String, String>> iterator = repoProperties.entrySet().iterator(); iterator.hasNext();) {
+				Entry<String, String> entry = iterator.next();
+				internal.setRepositoryProperty(entry.getKey(), entry.getValue());
 			}
 		}
 		return internal;
@@ -339,7 +340,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		for (int i = 0; i < descriptors.length; i++) {
 			if (artifactDescriptors.contains(descriptors[i]))
 				continue;
-			ArtifactDescriptor internalDescriptor = createInternalDescriptor(descriptors[i]);
+			SimpleArtifactDescriptor internalDescriptor = createInternalDescriptor(descriptors[i]);
 			artifactDescriptors.add(internalDescriptor);
 			mapDescriptor(internalDescriptor);
 		}
@@ -347,17 +348,17 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-		ArrayList steps = new ArrayList();
+		ArrayList<ProcessingStep> steps = new ArrayList<ProcessingStep>();
 		steps.add(new SignatureVerifier());
 		if (steps.isEmpty())
 			return destination;
-		ProcessingStep[] stepArray = (ProcessingStep[]) steps.toArray(new ProcessingStep[steps.size()]);
+		ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
 		// TODO should probably be using createAndLink here
 		return handler.link(stepArray, destination, monitor);
 	}
 
 	private OutputStream addPreSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-		ArrayList steps = new ArrayList();
+		ArrayList<ProcessingStep> steps = new ArrayList<ProcessingStep>();
 		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
 			steps.add(new ZipVerifierStep());
 		if (MD5_CHECK_ENABLED && descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_MD5) != null)
@@ -365,7 +366,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// Add steps here if needed
 		if (steps.isEmpty())
 			return destination;
-		ProcessingStep[] stepArray = (ProcessingStep[]) steps.toArray(new ProcessingStep[steps.size()]);
+		ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
 		// TODO should probably be using createAndLink here
 		return handler.link(stepArray, destination, monitor);
 	}
@@ -527,6 +528,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return mirrors.getMirrorLocation(baseLocation, monitor);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		// if we are adapting to file or writable repositories then make sure we have a file location
 		if (adapter == IFileArtifactRepository.class)
@@ -556,11 +558,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
-		Collection result = (Collection) artifactMap.get(key);
+		List<IArtifactDescriptor> result = artifactMap.get(key);
 		if (result == null)
 			return new IArtifactDescriptor[0];
 
-		return (IArtifactDescriptor[]) result.toArray(new IArtifactDescriptor[result.size()]);
+		return result.toArray(new IArtifactDescriptor[result.size()]);
 	}
 
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
@@ -579,7 +581,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		final MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK, null, null);
-		LinkedList requestsPending = new LinkedList(Arrays.asList(requests));
+		LinkedList<IArtifactRequest> requestsPending = new LinkedList<IArtifactRequest>(Arrays.asList(requests));
 
 		int numberOfJobs = Math.min(requests.length, getMaximumThreads());
 		if (numberOfJobs <= 1 || (!isForceThreading() && isLocal())) {
@@ -619,12 +621,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized IArtifactDescriptor getCompleteArtifactDescriptor(IArtifactKey key) {
-		Collection descriptors = (Collection) artifactMap.get(key);
+		List<IArtifactDescriptor> descriptors = artifactMap.get(key);
 		if (descriptors == null)
 			return null;
 
-		for (Iterator iterator = descriptors.iterator(); iterator.hasNext();) {
-			IArtifactDescriptor desc = (IArtifactDescriptor) iterator.next();
+		for (Iterator<IArtifactDescriptor> iterator = descriptors.iterator(); iterator.hasNext();) {
+			IArtifactDescriptor desc = iterator.next();
 			// look for a descriptor that matches the key and is "complete"
 			if (desc.getArtifactKey().equals(key) && desc.getProcessingSteps().length == 0)
 				return desc;
@@ -632,7 +634,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return null;
 	}
 
-	public synchronized Set getDescriptors() {
+	public synchronized Set<SimpleArtifactDescriptor> getDescriptors() {
 		return artifactDescriptors;
 	}
 
@@ -700,7 +702,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 */
 	private int getMaximumThreads() {
 		try {
-			String maxThreadString = (String) getProperties().get(PROP_MAX_THREADS);
+			String maxThreadString = getProperties().get(PROP_MAX_THREADS);
 			if (maxThreadString != null)
 				return Math.max(1, Integer.parseInt(maxThreadString));
 		} catch (NumberFormatException nfe) {
@@ -794,8 +796,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		this.location = repoLocation;
 		blobStore = new BlobStore(getBlobStoreLocation(repoLocation), 128);
 		initializeMapper();
-		for (Iterator i = artifactDescriptors.iterator(); i.hasNext();) {
-			((ArtifactDescriptor) i.next()).setRepository(this);
+		for (Iterator<SimpleArtifactDescriptor> i = artifactDescriptors.iterator(); i.hasNext();) {
+			i.next().setRepository(this);
 		}
 	}
 
@@ -839,7 +841,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized void removeAll() {
-		IArtifactDescriptor[] toRemove = (IArtifactDescriptor[]) artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
+		IArtifactDescriptor[] toRemove = artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
 		boolean changed = false;
 		for (int i = 0; i < toRemove.length; i++)
 			changed |= doRemoveArtifact(toRemove[i]);
@@ -903,7 +905,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public void save() {
-		boolean compress = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		boolean compress = "true".equalsIgnoreCase(properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
 		save(compress);
 	}
 
@@ -980,16 +982,17 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return location.toString();
 	}
 
-	public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		if (monitor != null && monitor.isCanceled())
-			return Collector.EMPTY_COLLECTOR;
+	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
+		final Collection<List<IArtifactDescriptor>> descs = artifactMap.values();
+		return new IQueryable<IArtifactDescriptor>() {
 
-		boolean excludeKeys = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_KEYS));
-		boolean excludeDescriptors = Boolean.TRUE.equals(query.getProperty(IArtifactRepository.QUERY_EXCLUDE_DESCRIPTORS));
-		if (excludeKeys && excludeDescriptors)
-			return Collector.EMPTY_COLLECTOR;
+			public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
+				return query.perform(new FlatteningIterator<IArtifactDescriptor>(descs.iterator()));
+			}
+		};
+	}
 
-		Iterator iterator = !excludeDescriptors ? new MappedCollectionIterator(artifactMap, !excludeKeys) : artifactMap.keySet().iterator();
-		return query.perform(iterator);
+	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
+		return query.perform(artifactMap.keySet().iterator());
 	}
 }

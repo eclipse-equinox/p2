@@ -14,6 +14,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -606,10 +607,10 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		IQueryResult result = metadataRepo.query(query, null);
 		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit featureIU = (IInstallableUnit) result.iterator().next();
-		IRequirement[] required = featureIU.getRequiredCapabilities();
-		for (int i = 0; i < required.length; i++) {
-			if (((IRequiredCapability) required[i]).getName().equals("org.eclipse.ui.ide")) {
-				assertEquals("2.0", VersionRange.emptyRange, ((IRequiredCapability) required[i]).getRange());
+		List<IRequirement> required = featureIU.getRequiredCapabilities();
+		for (int i = 0; i < required.size(); i++) {
+			if (((IRequiredCapability) required.get(i)).getName().equals("org.eclipse.ui.ide")) {
+				assertEquals("2.0", VersionRange.emptyRange, ((IRequiredCapability) required.get(i)).getRange());
 			}
 		}
 	}
@@ -651,9 +652,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		IQueryResult result = repository.query(new InstallableUnitQuery("test.feature.feature.jar"), getMonitor());
 		assertTrue("1.0", !result.isEmpty());
 		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
-		ITouchpointData[] data = unit.getTouchpointData();
-		assertEquals("1.1", 1, data.length);
-		Map instructions = data[0].getInstructions();
+		List<ITouchpointData> data = unit.getTouchpointData();
+		assertEquals("1.1", 1, data.size());
+		Map instructions = data.get(0).getInstructions();
 		assertEquals("1.2", 1, instructions.size());
 		assertEquals("1.3", "true", ((ITouchpointInstruction) instructions.get("zipped")).getBody());
 	}

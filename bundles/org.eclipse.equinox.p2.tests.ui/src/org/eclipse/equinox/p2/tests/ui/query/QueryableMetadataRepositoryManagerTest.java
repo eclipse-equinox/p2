@@ -183,7 +183,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		assertEquals("1.1", "test.bundle", iu.getId());
 
 		//RepoLocationQuery collects repository URLs
-		result = manager.query(new RepositoryLocationQuery(), getMonitor());
+		result = manager.locationsQueriable().query(new RepositoryLocationQuery(), getMonitor());
 		assertEquals("2.0", 3, queryResultSize(result));
 		assertContains("2.1", result, existing);
 		assertContains("2.1", result, nonExisting);

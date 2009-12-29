@@ -12,7 +12,8 @@
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -30,7 +31,7 @@ import org.eclipse.equinox.p2.repository.artifact.*;
  * TODO the current assumption that the "location" is the dir/root limits us to 
  * having just one repository in a given URL..  
  */
-public class ArtifactRepositoryManager extends AbstractRepositoryManager implements IArtifactRepositoryManager {
+public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifactKey> implements IArtifactRepositoryManager {
 
 	public ArtifactRepositoryManager() {
 		super();
@@ -40,11 +41,11 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		super.addRepository(repository, true, null);
 	}
 
-	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Properties destinationDescriptorProperties, Properties destinationRepositoryProperties) {
+	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties) {
 		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties);
 	}
 
-	public IArtifactRepository createRepository(URI location, String name, String type, Map properties) throws ProvisionException {
+	public IArtifactRepository createRepository(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
 		return (IArtifactRepository) doCreateRepository(location, name, type, properties);
 	}
 
@@ -52,7 +53,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		return (IArtifactRepository) basicGetRepository(location);
 	}
 
-	protected IRepository factoryCreate(URI location, String name, String type, Map properties, IExtension extension) throws ProvisionException {
+	protected IRepository<IArtifactKey> factoryCreate(URI location, String name, String type, Map<String, String> properties, IExtension extension) throws ProvisionException {
 		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
@@ -60,7 +61,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		return factory.create(location, name, type, properties);
 	}
 
-	protected IRepository factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor) throws ProvisionException {
+	protected IRepository<IArtifactKey> factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor) throws ProvisionException {
 		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
@@ -123,7 +124,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading download cache.", e)); //$NON-NLS-1$
 		}
 		try {
-			Map properties = new HashMap(1);
+			Map<String, String> properties = new HashMap<String, String>(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			createRepository(cacheLocation, "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
 		} catch (ProvisionException e) {

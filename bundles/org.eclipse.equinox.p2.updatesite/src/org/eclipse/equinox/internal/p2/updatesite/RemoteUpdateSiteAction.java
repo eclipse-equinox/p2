@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
+import org.eclipse.equinox.p2.publisher.IPublisherAction;
+
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
@@ -55,10 +57,10 @@ public class RemoteUpdateSiteAction implements IPublisherAction {
 	}
 
 	protected IPublisherAction[] createActions() {
-		ArrayList result = new ArrayList();
+		ArrayList<IPublisherAction> result = new ArrayList<IPublisherAction>();
 		result.add(new RemoteFeaturesAction(updateSite));
 		result.add(createSiteXMLAction());
-		return (IPublisherAction[]) result.toArray(new IPublisherAction[result.size()]);
+		return result.toArray(new IPublisherAction[result.size()]);
 	}
 
 	private IPublisherAction createSiteXMLAction() {

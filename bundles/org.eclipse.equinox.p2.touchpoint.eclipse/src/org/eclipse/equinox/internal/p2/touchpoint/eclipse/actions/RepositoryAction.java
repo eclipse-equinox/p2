@@ -53,11 +53,11 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * Returns the repository manager of the given type, or <code>null</code>
 	 * if not available.
 	 */
-	private static IRepositoryManager getRepositoryManager(int type) {
+	private static IRepositoryManager<?> getRepositoryManager(int type) {
 		if (type == IRepository.TYPE_METADATA) {
-			return (IRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+			return (IRepositoryManager<?>) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		} else if (type == IRepository.TYPE_ARTIFACT) {
-			return (IRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+			return (IRepositoryManager<?>) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		}
 		return null;
 	}
@@ -93,7 +93,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * Adds the repository corresponding to the given event to the currently running instance.
 	 */
 	protected void addToSelf(IAgentLocation agentLocation, RepositoryEvent event) {
-		IRepositoryManager manager = getRepositoryManager(event.getRepositoryType());
+		IRepositoryManager<?> manager = getRepositoryManager(event.getRepositoryType());
 		final URI location = event.getRepositoryLocation();
 		Preferences node = getRepositoryPreferenceNode(agentLocation, null, location, event.getRepositoryType());
 
@@ -117,7 +117,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 			manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 	}
 
-	protected RepositoryEvent createEvent(Map parameters) throws CoreException {
+	protected RepositoryEvent createEvent(Map<String, Object> parameters) throws CoreException {
 		String parm = (String) parameters.get(ActionConstants.PARM_REPOSITORY_LOCATION);
 		if (parm == null)
 			throw new CoreException(Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_REPOSITORY_LOCATION, getId())));
@@ -169,7 +169,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * Removes the repository corresponding to the given event from the currently running instance.
 	 */
 	protected void removeFromSelf(IAgentLocation agentLocation, RepositoryEvent event) {
-		IRepositoryManager manager = getRepositoryManager(event.getRepositoryType());
+		IRepositoryManager<?> manager = getRepositoryManager(event.getRepositoryType());
 		Preferences node = getRepositoryPreferenceNode(agentLocation, null, event.getRepositoryLocation(), event.getRepositoryType());
 		int count = getRepositoryCount(node);
 		if (--count < 1 && manager != null)
@@ -253,7 +253,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 		return key;
 	}
 
-	protected IProvisioningAgent getAgent(Map parameters) throws CoreException {
+	protected IProvisioningAgent getAgent(Map<String, Object> parameters) throws CoreException {
 		//We shouldn't really know about the session parameter
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get("agent"); //$NON-NLS-1$
 		if (agent == null)

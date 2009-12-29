@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
-
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 
 public class AbstractWrappedArtifactRepository implements IArtifactRepository {
@@ -134,7 +134,11 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 		return delegate.createArtifactDescriptor(key);
 	}
 
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
+		return delegate.descriptorQueryable();
+	}
+
+	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		return delegate.query(query, monitor);
 	}
 }

@@ -34,7 +34,7 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 	String name = "Composite Artifact Repository";
 	boolean compressed = true;
 	boolean failOnExists = false; // should we fail if a repo already exists?
-	Map properties = new HashMap();
+	Map<String, String> properties = new HashMap<String, String>();
 
 	/* (non-Javadoc)
 	 * @see org.apache.tools.ant.Task#execute()

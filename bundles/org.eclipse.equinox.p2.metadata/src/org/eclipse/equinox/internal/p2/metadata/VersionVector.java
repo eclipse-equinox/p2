@@ -18,9 +18,13 @@ import java.io.Serializable;
  *  
  * @Immutable
  */
-public class VersionVector implements Comparable, Serializable {
+public class VersionVector implements Comparable<VersionVector>, Serializable {
 
-	private static final class MaxStringValue implements Comparable, Serializable {
+	interface MinMaxComparable extends Comparable<Object>, Serializable {
+		//
+	}
+
+	private static final class MaxStringValue implements MinMaxComparable {
 		private static final long serialVersionUID = -4936252230441132767L;
 
 		MaxStringValue() {
@@ -41,7 +45,7 @@ public class VersionVector implements Comparable, Serializable {
 		}
 	}
 
-	private static final class MaxValue implements Comparable, Serializable {
+	private static final class MaxValue implements MinMaxComparable {
 		private static final long serialVersionUID = -5889641741635253589L;
 
 		MaxValue() {
@@ -62,7 +66,7 @@ public class VersionVector implements Comparable, Serializable {
 		}
 	}
 
-	private static class MinValue implements Comparable, Serializable {
+	private static class MinValue implements MinMaxComparable {
 		private static final long serialVersionUID = -1066323980049812226L;
 
 		MinValue() {
@@ -85,18 +89,18 @@ public class VersionVector implements Comparable, Serializable {
 	/**
 	 * A value that is greater then any other value
 	 */
-	public static final Comparable MAX_VALUE = new MaxValue();
+	public static final Comparable<Object> MAX_VALUE = new MaxValue();
 
 	/**
 	 * A value that is greater then any string but less then {@link #MAX_VALUE} and
 	 * any Integer or VersionVector.
 	 */
-	public static final Comparable MAXS_VALUE = new MaxStringValue();
+	public static final Comparable<Object> MAXS_VALUE = new MaxStringValue();
 
 	/**
 	 * A value that is less then any other value
 	 */
-	public static final Comparable MIN_VALUE = new MinValue();
+	public static final Comparable<Object> MIN_VALUE = new MinValue();
 
 	/**
 	 * A value that is greater then {@link #MIN_VALUE} and less then any string,
@@ -106,7 +110,7 @@ public class VersionVector implements Comparable, Serializable {
 
 	private static final long serialVersionUID = -8385373304298723744L;
 
-	static int compare(Comparable[] vectorA, Comparable padA, Comparable[] vectorB, Comparable padB) {
+	static int compare(Comparable<?>[] vectorA, Comparable<?> padA, Comparable<?>[] vectorB, Comparable<?> padB) {
 		int top = vectorA.length;
 		if (top > vectorB.length)
 			top = vectorB.length;
@@ -129,7 +133,7 @@ public class VersionVector implements Comparable, Serializable {
 		return padA == null ? (padB == null ? 0 : -1) : (padB == null ? 1 : compareSegments(padA, padB));
 	}
 
-	static boolean equals(Comparable[] vectorA, Comparable padValueA, Comparable[] vectorB, Comparable padValueB) {
+	static boolean equals(Comparable<?>[] vectorA, Comparable<?> padValueA, Comparable<?>[] vectorB, Comparable<?> padValueB) {
 		// We compare pad first since it is impossible for versions with
 		// different pad to be equal (versions are padded to infinity) 
 		if (padValueA == null) {
@@ -154,7 +158,7 @@ public class VersionVector implements Comparable, Serializable {
 		return true;
 	}
 
-	static int hashCode(Comparable[] vector, Comparable padValue) {
+	static int hashCode(Comparable<?>[] vector, Comparable<?> padValue) {
 		int hashCode = padValue == null ? 31 : padValue.hashCode();
 		int idx = vector.length;
 		while (--idx >= 0) {
@@ -166,7 +170,7 @@ public class VersionVector implements Comparable, Serializable {
 		return hashCode;
 	}
 
-	static void toString(StringBuffer sb, Comparable[] vector, Comparable padValue, boolean rangeSafe) {
+	static void toString(StringBuffer sb, Comparable<?>[] vector, Comparable<?> padValue, boolean rangeSafe) {
 		int top = vector.length;
 		if (top == 0)
 			// Write one pad value as explicit. It will be considered
@@ -186,16 +190,16 @@ public class VersionVector implements Comparable, Serializable {
 		}
 	}
 
-	private static int compareReminder(int idx, Comparable[] vector, Comparable padValue, Comparable othersPad) {
+	private static int compareReminder(int idx, Comparable<?>[] vector, Comparable<?> padValue, Comparable<?> othersPad) {
 		int cmp;
 		for (cmp = 0; idx < vector.length && cmp == 0; ++idx)
 			cmp = compareSegments(vector[idx], othersPad);
 		if (cmp == 0)
-			cmp = (padValue == null) ? -1 : padValue.compareTo(othersPad);
+			cmp = (padValue == null) ? -1 : compareSegments(padValue, othersPad);
 		return cmp;
 	}
 
-	private static int compareSegments(Comparable a, Comparable b) {
+	static int compareSegments(Comparable<?> a, Comparable<?> b) {
 		if (a == b)
 			return 0;
 
@@ -206,20 +210,20 @@ public class VersionVector implements Comparable, Serializable {
 		}
 
 		if (a instanceof String && b instanceof String)
-			return a.compareTo(b);
+			return ((String) a).compareTo((String) b);
 
 		if (a == MAX_VALUE || a == MIN_VALUE || a == MAXS_VALUE)
-			return a.compareTo(b);
+			return ((MinMaxComparable) a).compareTo(b);
 
 		if (b == MAX_VALUE || b == MIN_VALUE || b == MAXS_VALUE)
-			return -b.compareTo(a);
+			return -((MinMaxComparable) b).compareTo(a);
 
 		if (a instanceof Integer)
 			return 1;
 		if (b instanceof Integer)
 			return -1;
 		if (a instanceof VersionVector)
-			return (b instanceof VersionVector) ? a.compareTo(b) : 1;
+			return (b instanceof VersionVector) ? ((VersionVector) a).compareTo((VersionVector) b) : 1;
 
 		if (b instanceof VersionVector)
 			return -1;
@@ -227,20 +231,19 @@ public class VersionVector implements Comparable, Serializable {
 		throw new IllegalArgumentException();
 	}
 
-	private final Comparable padValue;
+	private final Comparable<?> padValue;
 
-	private final Comparable[] vector;
+	private final Comparable<?>[] vector;
 
-	public VersionVector(Comparable[] vector, Comparable pad) {
+	public VersionVector(Comparable<?>[] vector, Comparable<?> pad) {
 		this.vector = vector;
 		this.padValue = (pad == MIN_VALUE) ? null : pad;
 	}
 
-	public int compareTo(Object o) {
-		if (o == this)
+	public int compareTo(VersionVector ov) {
+		if (ov == this)
 			return 0;
 
-		VersionVector ov = (VersionVector) o;
 		return compare(vector, padValue, ov.vector, ov.padValue);
 	}
 
@@ -260,7 +263,7 @@ public class VersionVector implements Comparable, Serializable {
 	 * versions that has a raw vector with a larger number of elements
 	 * @return The pad value or <code>null</code> if not set.
 	 */
-	public Comparable getPad() {
+	public Comparable<?> getPad() {
 		return padValue;
 	}
 
@@ -269,7 +272,7 @@ public class VersionVector implements Comparable, Serializable {
 	 * @param index The zero based index of the desired element
 	 * @return An element from the raw vector
 	 */
-	public Comparable getSegment(int index) {
+	public Comparable<?> getSegment(int index) {
 		return vector[index];
 	}
 
@@ -286,7 +289,7 @@ public class VersionVector implements Comparable, Serializable {
 	 * contract.
 	 * @return The raw vector. Must be treated as read-only
 	 */
-	Comparable[] getVector() {
+	Comparable<?>[] getVector() {
 		return vector;
 	}
 

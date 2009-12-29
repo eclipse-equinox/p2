@@ -42,7 +42,7 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
-	public IMetadataRepository create(URI location, String name, String type, Map properties) {
+	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) {
 		return null;
 	}
 
@@ -103,7 +103,7 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 
 	public void initializeRepository(IMetadataRepository repository, URI location, IProgressMonitor monitor) throws ProvisionException {
 		UpdateSite updateSite = UpdateSite.load(location, monitor);
-		String savedChecksum = (String) repository.getProperties().get(PROP_SITE_CHECKSUM);
+		String savedChecksum = repository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
 			return;
 		repository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());

@@ -19,24 +19,24 @@ import org.eclipse.osgi.util.NLS;
 
 public class PhaseSet implements IPhaseSet {
 
-	public static final List DEFAULT_PHASES = Arrays.asList(new String[] {IPhaseSet.PHASE_COLLECT, IPhaseSet.PHASE_UNCONFIGURE, IPhaseSet.PHASE_UNINSTALL, IPhaseSet.PHASE_PROPERTY, IPhaseSet.PHASE_CHECK_TRUST, IPhaseSet.PHASE_INSTALL, IPhaseSet.PHASE_CONFIGURE});
+	public static final List<String> DEFAULT_PHASES = Arrays.asList(new String[] {IPhaseSet.PHASE_COLLECT, IPhaseSet.PHASE_UNCONFIGURE, IPhaseSet.PHASE_UNINSTALL, IPhaseSet.PHASE_PROPERTY, IPhaseSet.PHASE_CHECK_TRUST, IPhaseSet.PHASE_INSTALL, IPhaseSet.PHASE_CONFIGURE});
 
 	public static final boolean forcedUninstall = Boolean.valueOf(EngineActivator.getContext().getProperty("org.eclipse.equinox.p2.engine.forcedUninstall")).booleanValue(); //$NON-NLS-1$
 
 	private final Phase[] phases;
 
 	public static IPhaseSet createPhaseSetExcluding(String[] excludes) {
-		ArrayList phases = new ArrayList(DEFAULT_PHASES);
+		ArrayList<String> phases = new ArrayList<String>(DEFAULT_PHASES);
 		if (excludes != null) {
 			for (int i = 0; i < excludes.length; i++) {
 				phases.remove(excludes[i]);
 			}
 		}
-		return createPhaseSetIncluding((String[]) phases.toArray(new String[phases.size()]));
+		return createPhaseSetIncluding(phases.toArray(new String[phases.size()]));
 	}
 
 	public static IPhaseSet createPhaseSetIncluding(String[] includes) {
-		ArrayList phases = new ArrayList();
+		ArrayList<Phase> phases = new ArrayList<Phase>();
 		for (int i = 0; i < includes.length; i++) {
 			String current = includes[i];
 			if (current.equals(IPhaseSet.PHASE_CONFIGURE))
@@ -54,7 +54,7 @@ public class PhaseSet implements IPhaseSet {
 			else if (current.equals(IPhaseSet.PHASE_UNINSTALL))
 				phases.add(new Uninstall(50, forcedUninstall));
 		}
-		return new PhaseSet((Phase[]) phases.toArray(new Phase[phases.size()]));
+		return new PhaseSet(phases.toArray(new Phase[phases.size()]));
 	}
 
 	public PhaseSet(Phase[] phases) {
@@ -110,7 +110,7 @@ public class PhaseSet implements IPhaseSet {
 	}
 
 	public final IStatus validate(ActionManager actionManager, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
-		Set missingActions = new HashSet();
+		Set<MissingAction> missingActions = new HashSet<MissingAction>();
 		for (int i = 0; i < phases.length; i++) {
 			Phase phase = phases[i];
 			phase.actionManager = actionManager;
@@ -121,13 +121,13 @@ public class PhaseSet implements IPhaseSet {
 						if (!phase.isApplicable(operand))
 							continue;
 
-						ProvisioningAction[] actions = phase.getActions(operand);
+						List<ProvisioningAction> actions = phase.getActions(operand);
 						if (actions == null)
 							continue;
-						for (int k = 0; k < actions.length; k++) {
-							ProvisioningAction action = actions[k];
+						for (int k = 0; k < actions.size(); k++) {
+							ProvisioningAction action = actions.get(k);
 							if (action instanceof MissingAction)
-								missingActions.add(action);
+								missingActions.add((MissingAction) action);
 						}
 					} catch (RuntimeException e) {
 						// "perform" calls user code and might throw an unchecked exception
@@ -143,7 +143,7 @@ public class PhaseSet implements IPhaseSet {
 			}
 		}
 		if (!missingActions.isEmpty()) {
-			MissingAction[] missingActionsArray = (MissingAction[]) missingActions.toArray(new MissingAction[missingActions.size()]);
+			MissingAction[] missingActionsArray = missingActions.toArray(new MissingAction[missingActions.size()]);
 			MissingActionsException exception = new MissingActionsException(missingActionsArray);
 			return (new Status(IStatus.ERROR, EngineActivator.ID, exception.getMessage(), exception));
 		}

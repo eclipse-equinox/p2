@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
+import java.util.List;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
@@ -34,7 +35,7 @@ public class Unconfigure extends InstallableUnitPhase {
 		return (op.first() != null);
 	}
 
-	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
+	protected List<ProvisioningAction> getActions(InstallableUnitOperand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Unconfiguring_IU, unit.getId()));
 
 		IInstallableUnit unit = currentOperand.first();
@@ -48,13 +49,13 @@ public class Unconfigure extends InstallableUnitPhase {
 		return Messages.Phase_Unconfigure_Error;
 	}
 
-	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.first();
 		parameters.put(PARM_IU, iu);
 
-		IArtifactKey[] artifacts = iu.getArtifacts();
-		if (artifacts != null && artifacts.length > 0)
-			parameters.put(PARM_ARTIFACT, artifacts[0]);
+		List<IArtifactKey> artifacts = iu.getArtifacts();
+		if (artifacts != null && artifacts.size() > 0)
+			parameters.put(PARM_ARTIFACT, artifacts.get(0));
 
 		return Status.OK_STATUS;
 	}

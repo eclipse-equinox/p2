@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -50,19 +51,19 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	private void publishArtifactRepos() {
-		List artifactRepos = findArtifactRepos();
+		List<URI> artifactRepos = findArtifactRepos();
 
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
 		if (bus == null)
 			return;
-		for (Iterator it = artifactRepos.iterator(); it.hasNext();) {
-			URI repo = (URI) it.next();
+		for (Iterator<URI> it = artifactRepos.iterator(); it.hasNext();) {
+			URI repo = it.next();
 			bus.publishEvent(new RepositoryEvent(repo, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, true));
 		}
 	}
 
-	private List findArtifactRepos() {
-		List artifactRepos = new ArrayList();
+	private List<URI> findArtifactRepos() {
+		List<URI> artifactRepos = new ArrayList<URI>();
 		File p2Directory = findP2Directory();
 
 		// Add the profile registry's default agent artifact repository.
@@ -155,7 +156,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		// nothing to do
 	}
 
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		return profile.query(query, monitor);
 	}
 

@@ -29,6 +29,7 @@ public class ProfileElement extends RemoteQueriedElement {
 		this.profileId = profileId;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IProfile.class)
 			return getQueryable();
@@ -51,7 +52,7 @@ public class ProfileElement extends RemoteQueriedElement {
 		return QueryProvider.INSTALLED_IUS;
 	}
 
-	public IQueryable getQueryable() {
+	public IQueryable<?> getQueryable() {
 		return getProvisioningUI().getSession().getProfileRegistry().getProfile(profileId);
 	}
 

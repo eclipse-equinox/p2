@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  */
 public abstract class IUAnalyzer implements IIUAnalyzer {
 
-	private List errors = null;
+	private List<IStatus> errors = null;
 	private String analyzerName;
 
 	public void setName(String name) {
@@ -31,7 +31,7 @@ public abstract class IUAnalyzer implements IIUAnalyzer {
 
 	protected void error(IInstallableUnit iu, String error) {
 		if (errors == null)
-			errors = new ArrayList();
+			errors = new ArrayList<IStatus>();
 		errors.add(new Status(IStatus.ERROR, Activator.ID, error));
 	}
 
@@ -41,6 +41,6 @@ public abstract class IUAnalyzer implements IIUAnalyzer {
 	public IStatus postAnalysis() {
 		if (errors == null || errors.size() == 0)
 			return Status.OK_STATUS;
-		return new MultiStatus(Activator.ID, IStatus.ERROR, (IStatus[]) errors.toArray(new IStatus[errors.size()]), analyzerName, null);
+		return new MultiStatus(Activator.ID, IStatus.ERROR, errors.toArray(new IStatus[errors.size()]), analyzerName, null);
 	}
 }

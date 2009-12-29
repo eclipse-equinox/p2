@@ -45,8 +45,8 @@ public abstract class VersionParser {
 		}
 	}
 
-	static Comparable removeRedundantTrail(List segments, Comparable padValue) {
-		Comparable redundantTrail;
+	static Comparable<?> removeRedundantTrail(List<Comparable<?>> segments, Comparable<?> padValue) {
+		Comparable<?> redundantTrail;
 		if (padValue == null)
 			redundantTrail = VersionVector.MIN_VALUE;
 		else {
@@ -84,9 +84,9 @@ public abstract class VersionParser {
 		if (pos == maxPos)
 			return null;
 
-		Comparable[] padReturn = new Comparable[1];
-		Comparable[] vector = null;
-		Comparable pad = null;
+		Comparable<?>[] padReturn = new Comparable[1];
+		Comparable<?>[] vector = null;
+		Comparable<?> pad = null;
 		VersionFormat fmt = null;
 		char c = version.charAt(pos);
 		if (isDigit(c)) {
@@ -237,14 +237,14 @@ public abstract class VersionParser {
 		return end;
 	}
 
-	static Comparable parseRawElement(String value, int[] position, int maxPos) {
+	static Comparable<?> parseRawElement(String value, int[] position, int maxPos) {
 		int current = position[0];
 		if (current >= maxPos)
 			return null;
 
 		boolean negate = false;
 		char c = value.charAt(current);
-		Comparable v;
+		Comparable<?> v;
 		switch (c) {
 			case '\'' :
 			case '"' : {
@@ -320,7 +320,7 @@ public abstract class VersionParser {
 		return v;
 	}
 
-	private static Comparable parseRawVector(String value, int[] position, int maxPos) {
+	private static Comparable<?> parseRawVector(String value, int[] position, int maxPos) {
 		int pos = position[0];
 		if (pos >= maxPos)
 			return null;
@@ -329,7 +329,7 @@ public abstract class VersionParser {
 		if (c == '>')
 			return null;
 
-		ArrayList rawList = new ArrayList();
+		ArrayList<Comparable<?>> rawList = new ArrayList<Comparable<?>>();
 		boolean padMarkerSeen = (c == 'p');
 		if (padMarkerSeen) {
 			if (++pos >= maxPos)
@@ -337,9 +337,9 @@ public abstract class VersionParser {
 			position[0] = pos;
 		}
 
-		Comparable pad = null;
+		Comparable<?> pad = null;
 		for (;;) {
-			Comparable elem = parseRawElement(value, position, maxPos);
+			Comparable<?> elem = parseRawElement(value, position, maxPos);
 			if (elem == null)
 				return null;
 
@@ -369,7 +369,7 @@ public abstract class VersionParser {
 				return null;
 		}
 		pad = removeRedundantTrail(rawList, pad);
-		return new VersionVector((Comparable[]) rawList.toArray(new Comparable[rawList.size()]), pad);
+		return new VersionVector(rawList.toArray(new Comparable[rawList.size()]), pad);
 	}
 
 	public static int skipWhite(String string, int pos) {

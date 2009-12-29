@@ -20,7 +20,8 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.osgi.framework;version="1.3.0"
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.equinox.common
-Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
- J2SE-1.4
+Bundle-RequiredExecutionEnvironment: J2SE-1.5,
+ J2SE-1.4,
+ CDC-1.1/Foundation-1.1
 Export-Package: org.eclipse.equinox.internal.p2.touchpoint.natives;x-internal:=true,
  org.eclipse.equinox.internal.p2.touchpoint.natives.actions;x-internal:=true

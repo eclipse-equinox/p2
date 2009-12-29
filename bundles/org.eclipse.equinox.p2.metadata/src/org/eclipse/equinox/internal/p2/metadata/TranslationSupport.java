@@ -36,11 +36,11 @@ public class TranslationSupport {
 	private static TranslationSupport instance;
 
 	static final String NAMESPACE_IU_LOCALIZATION = "org.eclipse.equinox.p2.localization"; //$NON-NLS-1$
-	private IQueryable fragmentSource;
+	private IQueryable<IInstallableUnit> fragmentSource;
 
 	// Cache the IU fragments that provide localizations for a given locale.
 	// Map<String,SoftReference<IQueryResult>>: locale => soft reference to a queryResult
-	private Map localeCollectorCache = new HashMap(2);
+	private Map<String, SoftReference<IQueryResult<IInstallableUnit>>> localeCollectorCache = new HashMap<String, SoftReference<IQueryResult<IInstallableUnit>>>(2);
 
 	private LocaleProvider localeProvider;
 
@@ -57,15 +57,15 @@ public class TranslationSupport {
 	 * 
 	 * @since 2.0
 	 */
-	private TranslationSupport() {
+	protected TranslationSupport() {
 		super();
 		//no instantiate
 	}
 
 	/**
 	 */
-	private List buildLocaleVariants(String locale) {
-		ArrayList result = new ArrayList(4);
+	private List<String> buildLocaleVariants(String locale) {
+		ArrayList<String> result = new ArrayList<String>(4);
 		int lastSeparator;
 		while (true) {
 			result.add(locale);
@@ -156,10 +156,10 @@ public class TranslationSupport {
 	public ILicense[] getLicenses(IInstallableUnit iu, String locale) {
 		if (locale == null)
 			locale = getCurrentLocale();
-		ILicense[] licenses = iu.getLicenses();
-		ILicense[] translatedLicenses = new ILicense[licenses.length];
-		for (int i = 0; i < licenses.length; i++) {
-			translatedLicenses[i] = getLicense(iu, licenses[i], locale);
+		List<ILicense> licenses = iu.getLicenses();
+		ILicense[] translatedLicenses = new ILicense[licenses.size()];
+		for (int i = 0; i < licenses.size(); i++) {
+			translatedLicenses[i] = getLicense(iu, licenses.get(i), locale);
 		}
 		return translatedLicenses;
 	}
@@ -167,29 +167,30 @@ public class TranslationSupport {
 	/**
 	 * Collects the installable unit fragments that contain locale data for the given locales.
 	 */
-	private synchronized IQueryResult getLocalizationFragments(List localeVariants, String locale) {
+	private synchronized IQueryResult<IInstallableUnit> getLocalizationFragments(List<String> localeVariants, String locale) {
 		if (fragmentSource == null) {
 			LogHelper.log(new Status(IStatus.ERROR, MetadataActivator.PI_METADATA, "Profile registry unavailable. Default language will be used.", new RuntimeException())); //$NON-NLS-1$
-			return Collector.EMPTY_COLLECTOR;
+			return Collector.emptyCollector();
 		}
 
-		SoftReference queryResultReference = (SoftReference) localeCollectorCache.get(locale);
+		SoftReference<IQueryResult<IInstallableUnit>> queryResultReference = localeCollectorCache.get(locale);
 		if (queryResultReference != null) {
-			Collector cached = (Collector) queryResultReference.get();
+			Collector<IInstallableUnit> cached = (Collector<IInstallableUnit>) queryResultReference.get();
 			if (cached != null)
 				return cached;
 		}
 
-		final List locales = localeVariants;
+		final List<String> locales = localeVariants;
 
-		IQuery[] localeQuery = new IQuery[locales.size()];
+		@SuppressWarnings("unchecked")
+		IQuery<IInstallableUnit>[] localeQuery = new IQuery[locales.size()];
 		for (int j = 0; j < locales.size(); j++) {
-			localeQuery[j] = new RequiredCapability(NAMESPACE_IU_LOCALIZATION, (String) locales.get(j), VersionRange.emptyRange, null, false, false);
+			localeQuery[j] = new RequiredCapability(NAMESPACE_IU_LOCALIZATION, locales.get(j), VersionRange.emptyRange, null, false, false);
 		}
 
-		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), CompoundQuery.createCompoundQuery(localeQuery, false)});
-		IQueryResult collected = fragmentSource.query(iuQuery, null);
-		localeCollectorCache.put(locale, new SoftReference(collected));
+		IQuery<IInstallableUnit> iuQuery = new PipedQuery<IInstallableUnit>(new FragmentQuery(), CompoundQuery.createCompoundQuery(localeQuery, false));
+		IQueryResult<IInstallableUnit> collected = fragmentSource.query(iuQuery, null);
+		localeCollectorCache.put(locale, new SoftReference<IQueryResult<IInstallableUnit>>(collected));
 		return collected;
 	}
 
@@ -206,13 +207,13 @@ public class TranslationSupport {
 		if (localizedValue != null)
 			return localizedValue;
 
-		final List locales = buildLocaleVariants(locale);
+		final List<String> locales = buildLocaleVariants(locale);
 		final IInstallableUnit theUnit = iu;
 
-		IQueryResult localizationFragments = getLocalizationFragments(locales, locale);
+		IQueryResult<IInstallableUnit> localizationFragments = getLocalizationFragments(locales, locale);
 
-		MatchQuery hostLocalizationQuery = new MatchQuery() {
-			public boolean isMatch(Object object) {
+		IQuery<IInstallableUnit> hostLocalizationQuery = new MatchQuery<IInstallableUnit>() {
+			public boolean isMatch(IInstallableUnit object) {
 				boolean haveHost = false;
 				if (object instanceof IInstallableUnitFragment) {
 					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
@@ -228,14 +229,14 @@ public class TranslationSupport {
 			}
 		};
 
-		IQuery iuQuery = new PipedQuery(new IQuery[] {new FragmentQuery(), hostLocalizationQuery});
-		IQueryResult collected = iuQuery.perform(localizationFragments.iterator());
+		IQuery<IInstallableUnit> iuQuery = new PipedQuery<IInstallableUnit>(new FragmentQuery(), hostLocalizationQuery);
+		IQueryResult<IInstallableUnit> collected = iuQuery.perform(localizationFragments.iterator());
 		if (!collected.isEmpty()) {
 			String translation = null;
-			for (Iterator iter = collected.iterator(); iter.hasNext() && translation == null;) {
-				IInstallableUnit localizationIU = (IInstallableUnit) iter.next();
-				for (Iterator jter = locales.iterator(); jter.hasNext();) {
-					String localeKey = makeLocalizedKey(actualKey, (String) jter.next());
+			for (Iterator<IInstallableUnit> iter = collected.iterator(); iter.hasNext() && translation == null;) {
+				IInstallableUnit localizationIU = iter.next();
+				for (Iterator<String> jter = locales.iterator(); jter.hasNext();) {
+					String localeKey = makeLocalizedKey(actualKey, jter.next());
 					translation = localizationIU.getProperty(localeKey);
 					if (translation != null)
 						return cacheResult(iu, localizedKey, translation);
@@ -243,8 +244,8 @@ public class TranslationSupport {
 			}
 		}
 
-		for (Iterator iter = locales.iterator(); iter.hasNext();) {
-			String nextLocale = (String) iter.next();
+		for (Iterator<String> iter = locales.iterator(); iter.hasNext();) {
+			String nextLocale = iter.next();
 			String localeKey = makeLocalizedKey(actualKey, nextLocale);
 			String nextValue = iu.getProperty(localeKey);
 			if (nextValue != null)
@@ -273,8 +274,8 @@ public class TranslationSupport {
 	 * @param queryable an {@link IQueryable} that can supply the appropriate NLS
 	 * translation fragments
 	 */
-	public IQueryable setTranslationSource(IQueryable queryable) {
-		IQueryable previous = fragmentSource;
+	public IQueryable<IInstallableUnit> setTranslationSource(IQueryable<IInstallableUnit> queryable) {
+		IQueryable<IInstallableUnit> previous = fragmentSource;
 		this.fragmentSource = queryable;
 		return previous;
 	}

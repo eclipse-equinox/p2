@@ -29,7 +29,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface IRepositoryManager extends IQueryable {
+public interface IRepositoryManager<T> extends IQueryable<T> {
 	/**
 	 * Constant used to indicate that all enabled repositories are of interest.
 	 */

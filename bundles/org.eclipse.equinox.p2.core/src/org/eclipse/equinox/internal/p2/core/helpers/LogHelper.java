@@ -39,7 +39,7 @@ public class LogHelper {
 	 */
 	private static FrameworkLogEntry getLog(IStatus status) {
 		Throwable t = status.getException();
-		ArrayList childlist = new ArrayList();
+		ArrayList<FrameworkLogEntry> childlist = new ArrayList<FrameworkLogEntry>();
 
 		int stackCode = t instanceof CoreException ? 1 : 0;
 		// ensure a substatus inside a CoreException is properly logged 
@@ -57,7 +57,7 @@ public class LogHelper {
 			}
 		}
 
-		FrameworkLogEntry[] children = (FrameworkLogEntry[]) (childlist.size() == 0 ? null : childlist.toArray(new FrameworkLogEntry[childlist.size()]));
+		FrameworkLogEntry[] children = (childlist.size() == 0 ? null : childlist.toArray(new FrameworkLogEntry[childlist.size()]));
 
 		return new FrameworkLogEntry(status.getPlugin(), status.getSeverity(), status.getCode(), status.getMessage(), stackCode, t, children);
 	}

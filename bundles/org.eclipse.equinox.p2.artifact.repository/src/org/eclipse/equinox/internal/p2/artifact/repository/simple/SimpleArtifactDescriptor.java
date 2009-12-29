@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 	public static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 
-	protected Map repositoryProperties = new OrderedProperties();
+	protected Map<String, String> repositoryProperties = new OrderedProperties();
 
 	public SimpleArtifactDescriptor(IArtifactKey key) {
 		super(key);
@@ -34,7 +34,7 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 	}
 
 	public String getRepositoryProperty(String propertyKey) {
-		return (String) repositoryProperties.get(propertyKey);
+		return repositoryProperties.get(propertyKey);
 	}
 
 	public void setRepositoryProperty(String key, String value) {
@@ -44,7 +44,7 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 			repositoryProperties.put(key, value);
 	}
 
-	public void addRepositoryProperties(Map additionalProperties) {
+	public void addRepositoryProperties(Map<String, String> additionalProperties) {
 		repositoryProperties.putAll(additionalProperties);
 	}
 
@@ -52,7 +52,7 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 	 * Returns a read-only collection of the repository properties of the artifact descriptor.
 	 * @return the repository properties of this artifact descriptor.
 	 */
-	public Map getRepositoryProperties() {
+	public Map<String, String> getRepositoryProperties() {
 		return OrderedProperties.unmodifiableProperties(repositoryProperties);
 	}
 

@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AdditionalConstraints extends AbstractProvisioningTest {
@@ -53,7 +54,7 @@ public class AdditionalConstraints extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
 		ProvisioningContext ctx = new ProvisioningContext();
-		ctx.setAdditionalRequirements(Arrays.asList(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 2.0.0]"), null)[0]));
+		ctx.setAdditionalRequirements(Arrays.<IRequirement> asList(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 2.0.0]"), null)[0]));
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, ctx, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);

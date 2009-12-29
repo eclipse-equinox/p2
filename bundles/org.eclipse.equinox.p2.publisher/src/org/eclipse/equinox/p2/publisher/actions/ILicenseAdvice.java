@@ -9,10 +9,12 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
+import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
+
 /**
  * Provides advice about a license.
  */
-public interface ILicenseAdvice {
+public interface ILicenseAdvice extends IPublisherAdvice {
 
 	public String getLicenseURL();
 

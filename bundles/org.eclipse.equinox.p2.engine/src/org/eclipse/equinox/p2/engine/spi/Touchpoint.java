@@ -28,19 +28,19 @@ public abstract class Touchpoint {
 		return actionId;
 	}
 
-	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
+	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> touchpointParameters) {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
+	public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> touchpointParameters) {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus initializeOperand(IProfile profile, Operand operand, Map parameters) {
+	public IStatus initializeOperand(IProfile profile, Operand operand, Map<String, Object> parameters) {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus completeOperand(IProfile profile, Operand operand, Map parameters) {
+	public IStatus completeOperand(IProfile profile, Operand operand, Map<String, Object> parameters) {
 		return Status.OK_STATUS;
 	}
 

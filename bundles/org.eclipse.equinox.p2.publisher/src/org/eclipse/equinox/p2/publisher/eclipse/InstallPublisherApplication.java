@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.publisher.IPublisherAction;
+
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
@@ -73,9 +75,9 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 	}
 
 	protected IPublisherAction[] createActions() {
-		ArrayList result = new ArrayList();
+		ArrayList<IPublisherAction> result = new ArrayList<IPublisherAction>();
 		result.add(createEclipseInstallAction());
-		return (IPublisherAction[]) result.toArray(new IPublisherAction[result.size()]);
+		return result.toArray(new IPublisherAction[result.size()]);
 	}
 
 	private IPublisherAction createEclipseInstallAction() {

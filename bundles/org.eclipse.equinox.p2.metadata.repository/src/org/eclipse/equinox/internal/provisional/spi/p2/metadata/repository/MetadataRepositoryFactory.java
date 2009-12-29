@@ -42,7 +42,7 @@ public abstract class MetadataRepositoryFactory {
 	 * <li>There was an error writing to the given repository location.</li>
 	 * </ul>
 	 */
-	public abstract IMetadataRepository create(URI location, String name, String type, Map properties) throws ProvisionException;
+	public abstract IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) throws ProvisionException;
 
 	/**
 	 * Returns the provisioning agent associated with this factory, or <code>null</code>

@@ -9,6 +9,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
@@ -26,29 +27,30 @@ public class InstallFeatureAction extends ProvisioningAction {
 	private static final String UPDATE_FEATURE_PLUGIN_PROP = "org.eclipse.update.feature.plugin"; //$NON-NLS-1$
 	private static final String UPDATE_FEATURE_PRIMARY_PROP = "org.eclipse.update.feature.primary"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		return InstallFeatureAction.installFeature(parameters);
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		return UninstallFeatureAction.uninstallFeature(parameters);
 	}
 
-	public static IStatus installFeature(Map parameters) {
+	public static IStatus installFeature(Map<String, Object> parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
 		PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) parameters.get(EclipseTouchpoint.PARM_PLATFORM_CONFIGURATION);
 		String feature = (String) parameters.get(ActionConstants.PARM_FEATURE);
 		String featureId = (String) parameters.get(ActionConstants.PARM_FEATURE_ID);
 		String featureVersion = (String) parameters.get(ActionConstants.PARM_FEATURE_VERSION);
 
-		IArtifactKey[] artifacts = iu.getArtifacts();
-		if (artifacts == null || artifacts.length == 0)
+		List<IArtifactKey> artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.isEmpty())
 			return Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu));
 
 		IArtifactKey artifactKey = null;
-		for (int i = 0; i < artifacts.length; i++) {
-			if (artifacts[i].toString().equals(feature)) {
-				artifactKey = artifacts[i];
+		for (int i = 0; i < artifacts.size(); i++) {
+			IArtifactKey candidate = artifacts.get(i);
+			if (candidate.toString().equals(feature)) {
+				artifactKey = candidate;
 				break;
 			}
 		}

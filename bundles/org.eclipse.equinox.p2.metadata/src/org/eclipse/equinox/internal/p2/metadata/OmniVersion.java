@@ -35,9 +35,9 @@ public class OmniVersion extends BasicVersion {
 
 	private static OmniVersion maximumVersion;
 
-	private final Comparable[] vector;
+	private final Comparable<?>[] vector;
 
-	private final Comparable padValue;
+	private final Comparable<?> padValue;
 
 	/**
 	 * The optional format
@@ -49,7 +49,7 @@ public class OmniVersion extends BasicVersion {
 	 */
 	private final String original;
 
-	static BasicVersion fromVector(Comparable[] vector, Comparable padValue, IVersionFormat format, String original) {
+	static BasicVersion fromVector(Comparable<?>[] vector, Comparable<?> padValue, IVersionFormat format, String original) {
 		if (vector.length == 0) {
 			if (padValue == null)
 				return (BasicVersion) emptyVersion;
@@ -74,7 +74,7 @@ public class OmniVersion extends BasicVersion {
 		return maximumVersion;
 	}
 
-	private OmniVersion(Comparable[] array, Comparable padValue, IVersionFormat format, String original) {
+	private OmniVersion(Comparable<?>[] array, Comparable<?> padValue, IVersionFormat format, String original) {
 		this.vector = array;
 		this.padValue = padValue;
 		this.format = format;
@@ -119,7 +119,7 @@ public class OmniVersion extends BasicVersion {
 		if (vector.length != 4)
 			throw new UnsupportedOperationException();
 
-		Comparable qualifier = vector[3];
+		Comparable<?> qualifier = vector[3];
 		if (qualifier == VersionVector.MAXS_VALUE)
 			return IVersionFormat.DEFAULT_MAX_STRING_TRANSLATION;
 		if (!(qualifier instanceof String))
@@ -224,11 +224,11 @@ public class OmniVersion extends BasicVersion {
 		return v;
 	}
 
-	public Comparable getPad() {
+	public Comparable<?> getPad() {
 		return padValue;
 	}
 
-	public Comparable getSegment(int index) {
+	public Comparable<?> getSegment(int index) {
 		return vector[index];
 	}
 
@@ -236,11 +236,11 @@ public class OmniVersion extends BasicVersion {
 		return vector.length;
 	}
 
-	Comparable[] getVector() {
+	Comparable<?>[] getVector() {
 		return vector;
 	}
 
-	public int compareTo(Object v) {
+	public int compareTo(Version v) {
 		BasicVersion ov = (BasicVersion) v;
 		return VersionVector.compare(vector, padValue, ov.getVector(), ov.getPad());
 	}

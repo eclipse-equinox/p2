@@ -60,19 +60,19 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 			IMetadataRepository repository = application.getDestinationMetadataRepository();
 			IArtifactRepository artifacts = application.getDestinationArtifactRepository();
 
-			final Set toRemove = new HashSet();
-			for (Iterator iter = iuTasks.iterator(); iter.hasNext();) {
-				IUDescription iu = (IUDescription) iter.next();
-				IQuery iuQuery = iu.createQuery();
+			final Set<IInstallableUnit> toRemove = new HashSet<IInstallableUnit>();
+			for (Iterator<IUDescription> iter = iuTasks.iterator(); iter.hasNext();) {
+				IUDescription iu = iter.next();
+				IQuery<IInstallableUnit> iuQuery = iu.createQuery();
 
-				IQueryResult queryResult = repository.query(iuQuery, null);
+				IQueryResult<IInstallableUnit> queryResult = repository.query(iuQuery, null);
 
 				if (queryResult.isEmpty())
 					getProject().log(NLS.bind(Messages.AbstractRepositoryTask_unableToFind, iu.toString()));
 				else {
-					for (Iterator iterator = queryResult.iterator(); iterator.hasNext();) {
-						IInstallableUnit unit = (IInstallableUnit) iterator.next();
-						IArtifactKey[] keys = unit.getArtifacts();
+					for (Iterator<IInstallableUnit> iterator = queryResult.iterator(); iterator.hasNext();) {
+						IInstallableUnit unit = iterator.next();
+						List<IArtifactKey> keys = unit.getArtifacts();
 						Filter filter = null;
 						try {
 							filter = iu.getArtifactFilter();
@@ -83,11 +83,11 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 
 						//we will only remove the metadata if all artifacts were removed
 						boolean removeMetadata = true;
-						for (int i = 0; i < keys.length; i++) {
+						for (int i = 0; i < keys.size(); i++) {
 							if (filter == null) {
-								artifacts.removeDescriptor(keys[i]);
+								artifacts.removeDescriptor(keys.get(i));
 							} else {
-								IArtifactDescriptor[] descriptors = artifacts.getArtifactDescriptors(keys[i]);
+								IArtifactDescriptor[] descriptors = artifacts.getArtifactDescriptors(keys.get(i));
 								for (int j = 0; j < descriptors.length; j++) {
 									if (filter.match(createDictionary(descriptors[j]))) {
 										artifacts.removeDescriptor(descriptors[j]);
@@ -104,7 +104,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 			}
 
 			if (toRemove.size() > 0) {
-				repository.removeInstallableUnits((IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[toRemove.size()]), null);
+				repository.removeInstallableUnits(toRemove.toArray(new IInstallableUnit[toRemove.size()]), null);
 			}
 		} catch (ProvisionException e) {
 			throw new BuildException(e);
@@ -117,8 +117,8 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 		}
 	}
 
-	private Dictionary createDictionary(IArtifactDescriptor descriptor) {
-		Hashtable result = new Hashtable(5);
+	private Dictionary<String, Object> createDictionary(IArtifactDescriptor descriptor) {
+		Hashtable<String, Object> result = new Hashtable<String, Object>(5);
 		result.putAll(descriptor.getProperties());
 		IArtifactKey key = descriptor.getArtifactKey();
 		result.put(CLASSIFIER, key.getClassifier());

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitPatch;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IUpdateDescriptor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -20,24 +19,21 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
  * A query that finds all IUs that are considered an "Update" of the 
  * specified IU.  
  */
-public class UpdateQuery extends MatchQuery {
+public class UpdateQuery extends MatchQuery<IInstallableUnit> {
 	private IInstallableUnit updateFrom;
 
 	public UpdateQuery(IInstallableUnit updateFrom) {
 		this.updateFrom = updateFrom;
 	}
 
-	public boolean isMatch(Object obj) {
-		if (!(obj instanceof IInstallableUnit))
-			return false;
-		if (obj instanceof IInstallableUnitPatch && !(updateFrom instanceof IInstallableUnitPatch)) {
-			IInstallableUnitPatch potentialPatch = (IInstallableUnitPatch) obj;
+	public boolean isMatch(IInstallableUnit candidate) {
+		if (candidate instanceof IInstallableUnitPatch && !(updateFrom instanceof IInstallableUnitPatch)) {
+			IInstallableUnitPatch potentialPatch = (IInstallableUnitPatch) candidate;
 			IRequirement lifeCycle = potentialPatch.getLifeCycle();
 			if (lifeCycle == null)
 				return false;
 			return updateFrom.satisfies(lifeCycle);
 		}
-		IInstallableUnit candidate = (IInstallableUnit) obj;
 		IUpdateDescriptor descriptor = candidate.getUpdateDescriptor();
 		if (descriptor != null && descriptor.isUpdateOf(updateFrom)) {
 			if (!updateFrom.getId().equals(candidate.getId()))

@@ -11,8 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -40,7 +40,7 @@ public class InstallableUnit implements IInstallableUnit {
 
 	private boolean singleton;
 
-	private ArrayList touchpointData = null;
+	private ITouchpointData[] touchpointData = NO_TOUCHPOINT_DATA;
 
 	private ITouchpointType touchpointType;
 
@@ -55,26 +55,22 @@ public class InstallableUnit implements IInstallableUnit {
 	}
 
 	public void addTouchpointData(ITouchpointData newData) {
-		ensureTouchpointDataCapacity(1);
-		touchpointData.add(newData);
+		int tl = touchpointData.length;
+		if (tl == 0)
+			touchpointData = new ITouchpointData[] {newData};
+		else {
+			ITouchpointData[] newDatas = new ITouchpointData[tl + 1];
+			System.arraycopy(touchpointData, 0, newDatas, 0, tl);
+			newDatas[tl] = newData;
+			touchpointData = newDatas;
+		}
 	}
 
-	public int compareTo(Object toCompareTo) {
-		if (!(toCompareTo instanceof IInstallableUnit)) {
-			return -1;
-		}
-		IInstallableUnit other = (IInstallableUnit) toCompareTo;
-		if (getId().compareTo(other.getId()) == 0)
-			return (getVersion().compareTo(other.getVersion()));
-		return getId().compareTo(other.getId());
-	}
-
-	private void ensureTouchpointDataCapacity(int size) {
-		if (touchpointData != null) {
-			touchpointData.ensureCapacity(size);
-		} else {
-			touchpointData = new ArrayList(size);
-		}
+	public int compareTo(IInstallableUnit other) {
+		int cmp = getId().compareTo(other.getId());
+		if (cmp == 0)
+			cmp = getVersion().compareTo(other.getVersion());
+		return cmp;
 	}
 
 	public boolean equals(Object obj) {
@@ -98,16 +94,16 @@ public class InstallableUnit implements IInstallableUnit {
 		return true;
 	}
 
-	public IArtifactKey[] getArtifacts() {
-		return artifacts;
+	public List<IArtifactKey> getArtifacts() {
+		return CollectionUtils.unmodifiableList(artifacts);
 	}
 
-	public IQuery getFilter() {
+	public IQuery<Boolean> getFilter() {
 		return filter;
 	}
 
-	public IInstallableUnitFragment[] getFragments() {
-		return null;
+	public List<IInstallableUnitFragment> getFragments() {
+		return Collections.emptyList();
 	}
 
 	public String getId() {
@@ -120,7 +116,7 @@ public class InstallableUnit implements IInstallableUnit {
 	 * 
 	 * @return an <i>unmodifiable copy</i> of the IU properties.
 	 */
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		return OrderedProperties.unmodifiableProperties(properties());
 	}
 
@@ -138,22 +134,21 @@ public class InstallableUnit implements IInstallableUnit {
 		return properties().getProperty(key);
 	}
 
+	public List<IProvidedCapability> getProvidedCapabilities() {
+		return CollectionUtils.unmodifiableList(providedCapabilities);
+	}
+
 	public String getProperty(String key, String locale) {
 		return TranslationSupport.getInstance().getIUProperty(this, key, locale);
 	}
 
-	public IProvidedCapability[] getProvidedCapabilities() {
-		return providedCapabilities;
-	}
-
-	public IRequirement[] getRequiredCapabilities() {
-		return requires;
+	public List<IRequirement> getRequiredCapabilities() {
+		return CollectionUtils.unmodifiableList(requires);
 
 	}
 
-	public ITouchpointData[] getTouchpointData() {
-		return (touchpointData == null ? NO_TOUCHPOINT_DATA //
-				: (ITouchpointData[]) touchpointData.toArray(new ITouchpointData[touchpointData.size()]));
+	public List<ITouchpointData> getTouchpointData() {
+		return CollectionUtils.unmodifiableList(touchpointData);
 	}
 
 	public ITouchpointType getTouchpointType() {
@@ -213,7 +208,7 @@ public class InstallableUnit implements IInstallableUnit {
 	public String setLocalizedProperty(String key, String value) {
 		if (localizedProperties == null)
 			localizedProperties = new OrderedProperties();
-		return (String) localizedProperties.put(key, value);
+		return localizedProperties.put(key, value);
 	}
 
 	public String setProperty(String key, String value) {
@@ -229,7 +224,7 @@ public class InstallableUnit implements IInstallableUnit {
 			this.requires = NO_REQUIRES;
 		} else {
 			//copy array for safety
-			this.requires = (IRequirement[]) capabilities.clone();
+			this.requires = capabilities.clone();
 		}
 	}
 
@@ -265,8 +260,8 @@ public class InstallableUnit implements IInstallableUnit {
 		this.licenses = license == null ? NO_LICENSE : license;
 	}
 
-	public ILicense[] getLicenses() {
-		return licenses;
+	public List<ILicense> getLicenses() {
+		return CollectionUtils.unmodifiableList(licenses);
 	}
 
 	public ILicense[] getLicenses(String locale) {
@@ -297,8 +292,8 @@ public class InstallableUnit implements IInstallableUnit {
 		return false;
 	}
 
-	public IRequirement[] getMetaRequiredCapabilities() {
-		return metaRequires;
+	public List<IRequirement> getMetaRequiredCapabilities() {
+		return CollectionUtils.unmodifiableList(metaRequires);
 	}
 
 	public void setMetaRequiredCapabilities(IRequirement[] metaReqs) {
@@ -306,7 +301,7 @@ public class InstallableUnit implements IInstallableUnit {
 			this.metaRequires = NO_REQUIRES;
 		} else {
 			//copy array for safety
-			this.metaRequires = (IRequirement[]) metaReqs.clone();
+			this.metaRequires = metaReqs.clone();
 		}
 	}
 }

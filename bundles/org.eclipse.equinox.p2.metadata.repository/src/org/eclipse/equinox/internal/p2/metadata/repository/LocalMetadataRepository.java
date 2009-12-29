@@ -17,8 +17,7 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -45,7 +44,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	static final private String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
 	protected IUMap units = new IUMap();
-	protected HashSet repositories = new HashSet();
+	protected HashSet<RepositoryReference> repositories = new HashSet<RepositoryReference>();
 
 	private static File getActualLocation(URI location, String extension) {
 		File spec = URIUtil.toFile(location);
@@ -78,7 +77,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	 * @param location The location of the repository
 	 * @param name The name of the repository
 	 */
-	public LocalMetadataRepository(URI location, String name, Map properties) {
+	public LocalMetadataRepository(URI location, String name, Map<String, String> properties) {
 		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
 		if (!location.getScheme().equals("file")) //$NON-NLS-1$
 			throw new IllegalArgumentException("Invalid local repository location: " + location); //$NON-NLS-1$
@@ -121,18 +120,18 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		if (bus == null)
 			return;
 
-		List repositoriesSnapshot = createRepositoriesSnapshot();
-		for (Iterator it = repositoriesSnapshot.iterator(); it.hasNext();) {
-			RepositoryReference reference = (RepositoryReference) it.next();
+		List<RepositoryReference> repositoriesSnapshot = createRepositoriesSnapshot();
+		for (Iterator<RepositoryReference> it = repositoriesSnapshot.iterator(); it.hasNext();) {
+			RepositoryReference reference = it.next();
 			boolean isEnabled = (reference.Options & IRepository.ENABLED) != 0;
 			bus.publishEvent(new RepositoryEvent(reference.Location, reference.Type, RepositoryEvent.DISCOVERED, isEnabled));
 		}
 	}
 
-	private synchronized List createRepositoriesSnapshot() {
+	private synchronized List<RepositoryReference> createRepositoriesSnapshot() {
 		if (repositories.isEmpty())
-			return Collections.EMPTY_LIST;
-		return new ArrayList(repositories);
+			return CollectionUtils.emptyList();
+		return new ArrayList<RepositoryReference>(repositories);
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
@@ -144,7 +143,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		return true;
 	}
 
-	public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
+	public synchronized IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		if (query instanceof InstallableUnitQuery)
 			return units.query((InstallableUnitQuery) query);
 		return query.perform(units.iterator());
@@ -170,7 +169,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	private void save() {
 		File file = getActualLocation(location);
 		File jarFile = getActualLocation(location, JAR_EXTENSION);
-		boolean compress = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		boolean compress = "true".equalsIgnoreCase(properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
 		try {
 			OutputStream output = null;
 			if (!compress) {

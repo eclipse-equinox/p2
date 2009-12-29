@@ -17,11 +17,11 @@ import java.util.*;
  */
 public class Memento {
 	private static final long serialVersionUID = 3257399736837461585L;
-	private static final Collection simples = Arrays.asList(new Class[] {String.class, Integer.class, Long.class, Float.class, Double.class, Byte.class, Short.class, Character.class, Boolean.class});
-	private static final Collection simpleArrays = Arrays.asList(new Class[] {String[].class, Integer[].class, Long[].class, Float[].class, Double[].class, Byte[].class, Short[].class, Character[].class, Boolean[].class});
-	private static final Collection primitiveArrays = Arrays.asList(new Class[] {long[].class, int[].class, short[].class, char[].class, byte[].class, double[].class, float[].class, boolean[].class});
+	private static final Collection<Class<?>> simples = Arrays.<Class<?>> asList(String.class, Integer.class, Long.class, Float.class, Double.class, Byte.class, Short.class, Character.class, Boolean.class);
+	private static final Collection<Class<?>> simpleArrays = Arrays.<Class<?>> asList(String[].class, Integer[].class, Long[].class, Float[].class, Double[].class, Byte[].class, Short[].class, Character[].class, Boolean[].class);
+	private static final Collection<Class<?>> primitiveArrays = Arrays.<Class<?>> asList(long[].class, int[].class, short[].class, char[].class, byte[].class, double[].class, float[].class, boolean[].class);
 
-	Map mementoMap = new HashMap();
+	Map<String, Object> mementoMap = new HashMap<String, Object>();
 
 	public Object remove(String key) {
 		if (key == null)
@@ -48,15 +48,15 @@ public class Memento {
 		return mementoMap.get(key);
 	}
 
-	public Enumeration getKeys() {
-		return new Enumeration() {
-			Iterator keysIterator = mementoMap.keySet().iterator();
+	public Enumeration<String> getKeys() {
+		return new Enumeration<String>() {
+			Iterator<String> keysIterator = mementoMap.keySet().iterator();
 
 			public boolean hasMoreElements() {
 				return keysIterator.hasNext();
 			}
 
-			public Object nextElement() {
+			public String nextElement() {
 				return keysIterator.next();
 			}
 		};
@@ -66,7 +66,7 @@ public class Memento {
 		if (value == null)
 			return;
 
-		Class clazz = value.getClass();
+		Class<? extends Object> clazz = value.getClass();
 
 		if (simples.contains(clazz))
 			return;

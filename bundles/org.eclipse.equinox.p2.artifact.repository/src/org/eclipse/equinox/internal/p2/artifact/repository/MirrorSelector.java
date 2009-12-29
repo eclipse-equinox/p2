@@ -39,7 +39,7 @@ public class MirrorSelector {
 	/**
 	 * Encapsulates information about a single mirror
 	 */
-	public static class MirrorInfo implements Comparable {
+	public static class MirrorInfo implements Comparable<MirrorInfo> {
 		long bytesPerSecond;
 		int failureCount;
 		private final int initialRank;
@@ -57,10 +57,7 @@ public class MirrorSelector {
 		/**
 		 * Comparison used to sort mirrors.
 		 */
-		public int compareTo(Object o) {
-			if (!(o instanceof MirrorInfo))
-				return 0;
-			MirrorInfo that = (MirrorInfo) o;
+		public int compareTo(MirrorInfo that) {
 			//less failures is better
 			if (this.failureCount != that.failureCount)
 				return this.failureCount - that.failureCount;
@@ -91,7 +88,7 @@ public class MirrorSelector {
 
 	MirrorInfo[] mirrors;
 
-	private final IRepository repository;
+	private final IRepository<?> repository;
 
 	private final Random random = new Random();
 
@@ -100,10 +97,10 @@ public class MirrorSelector {
 	 * not contacted and the mirrorsURL document is not parsed until a
 	 * mirror location request is sent.
 	 */
-	public MirrorSelector(IRepository repository) {
+	public MirrorSelector(IRepository<?> repository) {
 		this.repository = repository;
 		try {
-			String base = (String) repository.getProperties().get(IRepository.PROP_MIRRORS_BASE_URL);
+			String base = repository.getProperties().get(IRepository.PROP_MIRRORS_BASE_URL);
 			if (base != null) {
 				this.baseURI = new URI(base);
 			} else {
@@ -204,7 +201,7 @@ public class MirrorSelector {
 	private MirrorInfo[] initMirrors(IProgressMonitor monitor) {
 		if (mirrors != null)
 			return mirrors;
-		String mirrorsURL = (String) repository.getProperties().get(IRepository.PROP_MIRRORS_URL);
+		String mirrorsURL = repository.getProperties().get(IRepository.PROP_MIRRORS_URL);
 		if (mirrorsURL != null)
 			mirrors = computeMirrors(mirrorsURL, monitor);
 		return mirrors;

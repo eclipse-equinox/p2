@@ -32,7 +32,7 @@ import org.eclipse.equinox.p2.metadata.query.IQuery;
  * 
  * @see IInstallableUnit#NAMESPACE_IU_ID
  */
-public class RequiredCapability extends MatchQuery implements IRequiredCapability, IRequirement {
+public class RequiredCapability extends MatchQuery<IInstallableUnit> implements IRequiredCapability, IRequirement {
 	private LDAPQuery filter;
 	private final String name;//never null
 	private final String namespace;//never null
@@ -55,7 +55,7 @@ public class RequiredCapability extends MatchQuery implements IRequiredCapabilit
 		setFilter(filter);
 	}
 
-	public RequiredCapability(String namespace, String name, VersionRange range, IQuery filter, int min, int max, boolean greedy) {
+	public RequiredCapability(String namespace, String name, VersionRange range, IQuery<Boolean> filter, int min, int max, boolean greedy) {
 		Assert.isNotNull(namespace);
 		Assert.isNotNull(name);
 		this.namespace = namespace;
@@ -186,19 +186,16 @@ public class RequiredCapability extends MatchQuery implements IRequiredCapabilit
 		return max;
 	}
 
-	public IQuery getMatches() {
+	public IQuery<IInstallableUnit> getMatches() {
 		return this;
 	}
 
-	public IQuery getFilter() {
+	public IQuery<Boolean> getFilter() {
 		return filter;
 	}
 
-	public boolean isMatch(Object object) {
-		if (!(object instanceof IInstallableUnit))
-			return false;
-		IInstallableUnit candidate = (IInstallableUnit) object;
-		if (!candidate.satisfies((IRequirement) this))
+	public boolean isMatch(IInstallableUnit candidate) {
+		if (!candidate.satisfies(this))
 			return false;
 		return true;
 	}

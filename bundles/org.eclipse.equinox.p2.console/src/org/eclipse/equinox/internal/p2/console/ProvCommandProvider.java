@@ -261,9 +261,9 @@ public class ProvCommandProvider implements CommandProvider {
 	 */
 	public void _provlg(CommandInterpreter interpreter) {
 		String urlString = processArgument(interpreter.nextArgument());
-		IQueryable queryable = null;
+		IQueryable<IInstallableUnit> queryable = null;
 		if (urlString == null) {
-			queryable = (IQueryable) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+			queryable = (IQueryable<IInstallableUnit>) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 			if (queryable == null)
 				return;
 		} else {
@@ -299,7 +299,7 @@ public class ProvCommandProvider implements CommandProvider {
 		if (repoURL == null)
 			return;
 		IArtifactRepository repo = ProvisioningHelper.getArtifactRepository(repoURL);
-		IQueryResult keys = null;
+		IQueryResult<IArtifactKey> keys = null;
 		try {
 			keys = (repo != null) ? repo.query(ArtifactKeyQuery.ALL_KEYS, null) : null;
 		} catch (UnsupportedOperationException e) {
@@ -311,8 +311,8 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		IFileArtifactRepository fileRepo = (IFileArtifactRepository) repo.getAdapter(IFileArtifactRepository.class);
-		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = (IArtifactKey) iterator.next();
+		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
 			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
 			for (int j = 0; j < descriptors.length; j++) {
 				IArtifactDescriptor descriptor = descriptors[j];
@@ -442,10 +442,10 @@ public class ProvCommandProvider implements CommandProvider {
 		}
 	}
 
-	private IInstallableUnit[] sort(IQueryResult queryResult) {
-		IInstallableUnit[] units = (IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class);
-		Arrays.sort(units, new Comparator() {
-			public int compare(Object arg0, Object arg1) {
+	private IInstallableUnit[] sort(IQueryResult<IInstallableUnit> queryResult) {
+		IInstallableUnit[] units = queryResult.toArray(IInstallableUnit.class);
+		Arrays.sort(units, new Comparator<IInstallableUnit>() {
+			public int compare(IInstallableUnit arg0, IInstallableUnit arg1) {
 				return arg0.toString().compareTo(arg1.toString());
 			}
 		});

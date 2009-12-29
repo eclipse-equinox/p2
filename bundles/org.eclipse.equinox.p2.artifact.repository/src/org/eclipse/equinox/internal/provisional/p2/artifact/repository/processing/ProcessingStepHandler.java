@@ -61,11 +61,11 @@ public class ProcessingStepHandler {
 	public static IStatus getStatus(OutputStream stream, boolean deep) {
 		if (!deep)
 			return getStatus(stream);
-		ArrayList list = new ArrayList();
+		ArrayList<IStatus> list = new ArrayList<IStatus>();
 		int severity = collectStatus(stream, list);
 		if (severity == IStatus.OK)
 			return Status.OK_STATUS;
-		IStatus[] result = (IStatus[]) list.toArray(new IStatus[list.size()]);
+		IStatus[] result = list.toArray(new IStatus[list.size()]);
 		return new MultiStatus(Activator.ID, severity, result, Messages.processing_step_results, null);
 	}
 
@@ -75,15 +75,15 @@ public class ProcessingStepHandler {
 	 * @return the requested status
 	 */
 	public static IStatus getErrorStatus(OutputStream stream) {
-		ArrayList list = new ArrayList();
+		ArrayList<IStatus> list = new ArrayList<IStatus>();
 		int severity = collectErrorStatus(stream, list);
 		if (severity == IStatus.OK)
 			return Status.OK_STATUS;
-		IStatus[] result = (IStatus[]) list.toArray(new IStatus[list.size()]);
+		IStatus[] result = list.toArray(new IStatus[list.size()]);
 		return new MultiStatus(Activator.ID, 0, result, Messages.processing_step_results, null);
 	}
 
-	private static int collectErrorStatus(OutputStream stream, ArrayList list) {
+	private static int collectErrorStatus(OutputStream stream, ArrayList<IStatus> list) {
 		IStatus status = getStatus(stream);
 		if (!status.isOK())
 			list.add(status);
@@ -106,7 +106,7 @@ public class ProcessingStepHandler {
 		return Status.OK_STATUS;
 	}
 
-	private static int collectStatus(OutputStream stream, ArrayList list) {
+	private static int collectStatus(OutputStream stream, ArrayList<IStatus> list) {
 		IStatus status = getStatus(stream);
 		list.add(status);
 		OutputStream destination = getDestination(stream);

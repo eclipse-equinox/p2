@@ -406,7 +406,7 @@ public class BackupStore implements IBackupStore {
 			throw new ClosedBackupStoreException(Messages.BackupStore_restore_closed_store);
 		// put back all files 
 		// collect things that could not be restored (so final status can be reported)
-		Set unrestorable = new HashSet();
+		Set<File> unrestorable = new HashSet<File>();
 		boolean restored = true;
 		if (!backupRoot.exists()) {
 			logError(NLS.bind(Messages.BackupStore_missing_backup_directory, backupRoot.getAbsolutePath()));
@@ -421,12 +421,12 @@ public class BackupStore implements IBackupStore {
 		closed = true;
 	}
 
-	private void logUnrestorables(Set unrestorable) {
+	private void logUnrestorables(Set<File> unrestorable) {
 		// if there are unrestorable units log them
 		//
 		if (unrestorable != null && unrestorable.size() > 0) {
-			for (Iterator itor = unrestorable.iterator(); itor.hasNext();)
-				logError(NLS.bind(Messages.BackupStore_manual_restore_needed, ((File) itor.next()).getAbsolutePath()));
+			for (Iterator<File> itor = unrestorable.iterator(); itor.hasNext();)
+				logError(NLS.bind(Messages.BackupStore_manual_restore_needed, itor.next().getAbsolutePath()));
 		}
 	}
 
@@ -509,7 +509,7 @@ public class BackupStore implements IBackupStore {
 		return file.delete();
 	}
 
-	private void restore(File root, File buRoot, Set unrestorable) {
+	private void restore(File root, File buRoot, Set<File> unrestorable) {
 		File[] children = buRoot.listFiles();
 		if (children == null) { // error - can't read the backup directory
 			unrestorable.add(buRoot);
@@ -576,7 +576,7 @@ public class BackupStore implements IBackupStore {
 	 * @param buRoot
 	 * @param unrestorable
 	 */
-	private void restoreRoots(File buRoot, Set unrestorable) {
+	private void restoreRoots(File buRoot, Set<File> unrestorable) {
 		File[] children = buRoot.listFiles();
 		if (children == null) { // error - can't read the backup directory
 			unrestorable.add(buRoot);

@@ -107,7 +107,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	Button addButton, removeButton, editButton, refreshButton, disableButton, exportButton;
 
 	class CachedMetadataRepositories extends MetadataRepositories {
-		Hashtable cachedElements;
+		Hashtable<String, Object> cachedElements;
 
 		CachedMetadataRepositories() {
 			super(ui);
@@ -123,7 +123,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				super.fetchDeferredChildren(o, collector, monitor);
 				// now we know we have children
 				Object[] children = getChildren(o);
-				cachedElements = new Hashtable(children.length);
+				cachedElements = new Hashtable<String, Object>(children.length);
 				for (int i = 0; i < children.length; i++) {
 					if (children[i] instanceof MetadataRepositoryElement)
 						cachedElements.put(URIUtil.toUnencodedString(((MetadataRepositoryElement) children[i]).getLocation()), children[i]);
@@ -509,17 +509,17 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	}
 
 	MetadataRepositoryElement[] getElements() {
-		return (MetadataRepositoryElement[]) getInput().cachedElements.values().toArray(new MetadataRepositoryElement[getInput().cachedElements.size()]);
+		return getInput().cachedElements.values().toArray(new MetadataRepositoryElement[getInput().cachedElements.size()]);
 	}
 
 	MetadataRepositoryElement[] getSelectedElements() {
 		Object[] items = ((IStructuredSelection) repositoryViewer.getSelection()).toArray();
-		ArrayList list = new ArrayList(items.length);
+		ArrayList<Object> list = new ArrayList<Object>(items.length);
 		for (int i = 0; i < items.length; i++) {
 			if (items[i] instanceof MetadataRepositoryElement)
 				list.add(items[i]);
 		}
-		return (MetadataRepositoryElement[]) list.toArray(new MetadataRepositoryElement[list.size()]);
+		return list.toArray(new MetadataRepositoryElement[list.size()]);
 	}
 
 	void validateButtons() {
@@ -644,7 +644,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			public void run() {
 				MetadataRepositoryElement[] imported = UpdateManagerCompatibility.importSites(getShell());
 				if (imported.length > 0) {
-					Hashtable repos = getInput().cachedElements;
+					Hashtable<String, Object> repos = getInput().cachedElements;
 					changed = true;
 					for (int i = 0; i < imported.length; i++)
 						repos.put(URIUtil.toUnencodedString(imported[i].getLocation()), imported[i]);

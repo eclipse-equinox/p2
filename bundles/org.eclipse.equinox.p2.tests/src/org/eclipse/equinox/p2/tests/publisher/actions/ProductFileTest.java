@@ -10,7 +10,7 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
@@ -55,7 +55,7 @@ public class ProductFileTest extends TestCase {
 	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getProperties()}.
 	 */
 	public void testGetConfigurationProperties() {
-		Properties properties = productFile.getConfigurationProperties();
+		Map<String, String> properties = productFile.getConfigurationProperties();
 		assertEquals("1.0", 4, properties.size());
 		assertEquals("1.1", "bar", properties.get("foo"));
 		assertEquals("1.2", "", properties.get("foo1"));

@@ -53,7 +53,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected static final VersionRange ANY_VERSION = VersionRange.emptyRange;
 	protected static final IProvidedCapability[] BUNDLE_CAPABILITY = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", Version.createOSGi(1, 0, 0))};
 
-	private static final IRequiredCapability[] BUNDLE_REQUIREMENT = new IRequiredCapability[] {(IRequiredCapability) MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
+	private static final IRequiredCapability[] BUNDLE_REQUIREMENT = new IRequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
 
 	protected static final Version DEFAULT_VERSION = Version.createOSGi(1, 0, 0);
 	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", Version.createOSGi(1, 0, 0));
@@ -467,39 +467,31 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static void changeVersion(InstallableUnitDescription desc, Version newVersion) {
-		IProvidedCapability[] capabilities = desc.getProvidedCapabilities();
-		for (int i = 0; i < capabilities.length; i++) {
-			if (desc.getVersion().equals(capabilities[i].getVersion()))
-				capabilities[i] = MetadataFactory.createProvidedCapability(capabilities[i].getNamespace(), capabilities[i].getName(), newVersion);
+		List<IProvidedCapability> capabilities = new ArrayList(desc.getProvidedCapabilities());
+		for (int i = 0; i < capabilities.size(); i++) {
+			IProvidedCapability pc = capabilities.get(i);
+			if (desc.getVersion().equals(pc.getVersion()))
+				capabilities.set(i, MetadataFactory.createProvidedCapability(pc.getNamespace(), pc.getName(), newVersion));
 		}
 		desc.setVersion(newVersion);
+		desc.setCapabilities(capabilities.toArray(new IProvidedCapability[capabilities.size()]));
 	}
 
 	public static MetadataFactory.InstallableUnitDescription createIUDescriptor(IInstallableUnit prototype) {
 		InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
-		desc.setArtifacts(prototype.getArtifacts());
-		IProvidedCapability originalCapabilities[] = prototype.getProvidedCapabilities();
-		IProvidedCapability newCapabilities[] = new IProvidedCapability[originalCapabilities.length];
-		for (int i = 0; i < originalCapabilities.length; i++) {
-			newCapabilities[i] = MetadataFactory.createProvidedCapability(originalCapabilities[i].getNamespace(), originalCapabilities[i].getName(), originalCapabilities[i].getVersion());
-		}
-		desc.setCapabilities(newCapabilities);
+		List<IArtifactKey> originalArtifacts = prototype.getArtifacts();
+		desc.setArtifacts(originalArtifacts.toArray(new IArtifactKey[originalArtifacts.size()]));
+		List<IProvidedCapability> originalCapabilities = prototype.getProvidedCapabilities();
+		desc.setCapabilities(originalCapabilities.toArray(new IProvidedCapability[originalCapabilities.size()]));
 		desc.setCopyright(prototype.getCopyright());
 		desc.setFilter(prototype.getFilter() == null ? null : ((LDAPQuery) prototype.getFilter()).getFilter());
 		desc.setId(prototype.getId());
-		desc.setLicenses(prototype.getLicenses());
-		IRequirement[] originalRequirements = prototype.getRequiredCapabilities();
-		IRequirement[] newRequirements = new IRequiredCapability[originalRequirements.length];
-		for (int i = 0; i < newRequirements.length; i++) {
-			if (originalRequirements[i] instanceof IRequirement) {
-				IRequiredCapability reqCapability = (IRequiredCapability) originalRequirements[i];
-				newRequirements[i] = MetadataFactory.createRequiredCapability(reqCapability.getNamespace(), reqCapability.getName(), reqCapability.getRange(), reqCapability.getFilter(), reqCapability.getMin(), reqCapability.getMax(), reqCapability.isGreedy());
-			} else {
-				throw new IllegalStateException();
-			}
-
-		}
-		desc.setRequiredCapabilities(prototype.getRequiredCapabilities());
+		List<ILicense> originalLicenses = prototype.getLicenses();
+		desc.setLicenses(originalLicenses.toArray(new ILicense[originalLicenses.size()]));
+		List<IRequirement> originalRequirements = prototype.getRequiredCapabilities();
+		desc.setRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
+		originalRequirements = prototype.getMetaRequiredCapabilities();
+		desc.setMetaRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
 		desc.setSingleton(prototype.isSingleton());
 		desc.setTouchpointType(MetadataFactory.createTouchpointType(prototype.getTouchpointType().getId(), prototype.getTouchpointType().getVersion()));
 		desc.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(prototype.getUpdateDescriptor().getId(), prototype.getUpdateDescriptor().getRange(), prototype.getUpdateDescriptor().getSeverity(), prototype.getUpdateDescriptor().getDescription()));
@@ -528,7 +520,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Creates and returns a required capability with the provided attributes.
 	 */
 	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
-		return new IRequiredCapability[] {(IRequiredCapability) MetadataFactory.createRequiredCapability(namespace, name, range, filter, false, false)};
+		return new IRequiredCapability[] {MetadataFactory.createRequiredCapability(namespace, name, range, filter, false, false)};
 	}
 
 	public static boolean delete(File file) {
@@ -1436,7 +1428,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		int count = 0;
 		try {
 			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(location, null);
-			IQueryResult descriptors = repo.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+			IQueryResult descriptors = repo.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
 			return queryResultSize(descriptors);
 		} catch (ProvisionException e) {
 			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");

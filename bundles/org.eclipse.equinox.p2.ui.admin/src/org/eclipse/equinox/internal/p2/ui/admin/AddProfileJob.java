@@ -23,9 +23,9 @@ import org.eclipse.equinox.p2.operations.ProvisioningSession;
  */
 public class AddProfileJob extends ProvisioningJob {
 	private String profileId;
-	private Map profileProperties;
+	private Map<String, String> profileProperties;
 
-	public AddProfileJob(String label, ProvisioningSession session, String profileId, Map profileProperties) {
+	public AddProfileJob(String label, ProvisioningSession session, String profileId, Map<String, String> profileProperties) {
 		super(label, session);
 		this.profileId = profileId;
 		this.profileProperties = profileProperties;

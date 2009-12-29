@@ -113,8 +113,8 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		return ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY;
 	}
 
-	protected List getVisualProperties() {
-		List list = super.getVisualProperties();
+	protected List<String> getVisualProperties() {
+		List<String> list = super.getVisualProperties();
 		list.add(PreferenceConstants.PREF_USE_CATEGORIES);
 		list.add(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS);
 		return list;

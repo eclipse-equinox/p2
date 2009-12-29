@@ -26,7 +26,7 @@ public class ExtensionLocationArtifactRepositoryFactory extends ArtifactReposito
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
-	public IArtifactRepository create(URI location, String name, String type, Map properties) throws ProvisionException {
+	public IArtifactRepository create(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
 		// TODO proper progress monitoring
 		IStatus status = validate(location, null);
 		if (!status.isOK())

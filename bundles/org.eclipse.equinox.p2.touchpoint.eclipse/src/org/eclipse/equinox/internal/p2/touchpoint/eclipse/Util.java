@@ -86,7 +86,7 @@ public class Util {
 		}
 		try {
 			String repositoryName = Messages.BundlePool;
-			Map properties = new HashMap(1);
+			Map<String, String> properties = new HashMap<String, String>(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			return (IFileArtifactRepository) manager.createRepository(location, repositoryName, REPOSITORY_TYPE, properties);
 		} catch (ProvisionException e) {
@@ -100,7 +100,7 @@ public class Util {
 	}
 
 	public static IFileArtifactRepository getAggregatedBundleRepository(IProvisioningAgent agent, IProfile profile, int repoFilter) {
-		List bundleRepositories = new ArrayList();
+		List<IFileArtifactRepository> bundleRepositories = new ArrayList<IFileArtifactRepository>();
 
 		// we check for a shared bundle pool first as it should be preferred over the user bundle pool in a shared install
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager(agent);
@@ -111,7 +111,7 @@ public class Util {
 					URI repoLocation = new File(sharedCache).toURI();
 					IArtifactRepository repository = manager.loadRepository(repoLocation, null);
 					if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
-						bundleRepositories.add(repository);
+						bundleRepositories.add((IFileArtifactRepository) repository);
 				} catch (ProvisionException e) {
 					//skip repository if it could not be read
 				}
@@ -125,10 +125,10 @@ public class Util {
 		}
 
 		if ((repoFilter & AGGREGATE_CACHE_EXTENSIONS) != 0) {
-			List repos = getListProfileProperty(profile, CACHE_EXTENSIONS);
-			for (Iterator iterator = repos.iterator(); iterator.hasNext();) {
+			List<String> repos = getListProfileProperty(profile, CACHE_EXTENSIONS);
+			for (Iterator<String> iterator = repos.iterator(); iterator.hasNext();) {
 				try {
-					String repo = (String) iterator.next();
+					String repo = iterator.next();
 					URI repoLocation;
 					try {
 						repoLocation = new URI(repo);
@@ -138,7 +138,7 @@ public class Util {
 					}
 					IArtifactRepository repository = manager.loadRepository(repoLocation, null);
 					if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
-						bundleRepositories.add(repository);
+						bundleRepositories.add((IFileArtifactRepository) repository);
 				} catch (ProvisionException e) {
 					//skip repositories that could not be read
 				} catch (URISyntaxException e) {
@@ -150,8 +150,8 @@ public class Util {
 		return new AggregatedBundleRepository(bundleRepositories);
 	}
 
-	private static List getListProfileProperty(IProfile profile, String key) {
-		List listProperty = new ArrayList();
+	private static List<String> getListProfileProperty(IProfile profile, String key) {
+		List<String> listProperty = new ArrayList<String>();
 		String dropinRepositories = profile.getProperty(key);
 		if (dropinRepositories != null) {
 			StringTokenizer tokenizer = new StringTokenizer(dropinRepositories, PIPE);
@@ -169,20 +169,21 @@ public class Util {
 
 		bundleInfo.setManifest(manifest);
 		try {
-			Map headers = ManifestElement.parseBundleManifest(new ByteArrayInputStream(manifest.getBytes("UTF-8")), new HashMap()); //$NON-NLS-1$
-			ManifestElement[] element = ManifestElement.parseHeader("bsn", (String) headers.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
+			@SuppressWarnings("unchecked")
+			Map<String, String> headers = ManifestElement.parseBundleManifest(new ByteArrayInputStream(manifest.getBytes("UTF-8")), new HashMap<String, String>()); //$NON-NLS-1$
+			ManifestElement[] element = ManifestElement.parseHeader("bsn", headers.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
 			if (element == null || element.length == 0)
 				return null;
 			bundleInfo.setSymbolicName(element[0].getValue());
 
-			String version = (String) headers.get(Constants.BUNDLE_VERSION);
+			String version = headers.get(Constants.BUNDLE_VERSION);
 			if (version == null)
 				return null;
 			// convert to a Version object first to ensure we are consistent with our version number w.r.t.
 			// padding zeros at the end
 			bundleInfo.setVersion(Version.parseVersion(version).toString());
 
-			String fragmentHost = (String) headers.get(Constants.FRAGMENT_HOST);
+			String fragmentHost = headers.get(Constants.FRAGMENT_HOST);
 			if (fragmentHost != null)
 				bundleInfo.setFragmentHost(fragmentHost.trim());
 
@@ -300,9 +301,9 @@ public class Util {
 		return null;
 	}
 
-	public static String getManifest(ITouchpointData[] data) {
-		for (int i = 0; i < data.length; i++) {
-			ITouchpointInstruction manifestInstruction = data[i].getInstruction("manifest"); //$NON-NLS-1$
+	public static String getManifest(List<ITouchpointData> data) {
+		for (int i = 0; i < data.size(); i++) {
+			ITouchpointInstruction manifestInstruction = data.get(i).getInstruction("manifest"); //$NON-NLS-1$
 			if (manifestInstruction == null)
 				return null;
 			String manifest = manifestInstruction.getBody();
@@ -325,7 +326,7 @@ public class Util {
 		return launcherConfig == null ? null : new File(launcherConfig);
 	}
 
-	public static String resolveArtifactParam(Map parameters) throws CoreException {
+	public static String resolveArtifactParam(Map<String, Object> parameters) throws CoreException {
 		String artifactLocation = (String) parameters.get(EclipseTouchpoint.PARM_ARTIFACT_LOCATION);
 		if (artifactLocation != null)
 			return artifactLocation;

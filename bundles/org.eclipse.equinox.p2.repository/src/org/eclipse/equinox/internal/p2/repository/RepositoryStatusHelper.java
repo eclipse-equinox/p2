@@ -122,7 +122,7 @@ public abstract class RepositoryStatusHelper {
 
 	public static Throwable unwind(Throwable t) {
 		for (;;) {
-			Class tc = t.getClass();
+			Class<? extends Throwable> tc = t.getClass();
 
 			// We don't use instanceof operator since we want
 			// the explicit class, not subclasses.

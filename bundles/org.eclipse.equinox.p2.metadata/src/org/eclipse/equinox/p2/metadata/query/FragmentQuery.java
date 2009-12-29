@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  * A query matching every {@link IInstallableUnit} that is a category.
  * @since 2.0
  */
-public final class FragmentQuery extends MatchQuery {
+public final class FragmentQuery extends MatchQuery<IInstallableUnit> {
 	private static final String PROP_TYPE_FRAGMENT = "org.eclipse.equinox.p2.type.fragment"; //$NON-NLS-1$
 	private IUPropertyQuery query;
 
@@ -27,7 +27,7 @@ public final class FragmentQuery extends MatchQuery {
 		query = new IUPropertyQuery(PROP_TYPE_FRAGMENT, null);
 	}
 
-	public boolean isMatch(Object candidate) {
+	public boolean isMatch(IInstallableUnit candidate) {
 		return query.isMatch(candidate);
 	}
 

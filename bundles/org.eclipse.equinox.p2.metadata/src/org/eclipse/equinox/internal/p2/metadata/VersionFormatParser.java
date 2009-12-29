@@ -30,12 +30,12 @@ class VersionFormatParser {
 
 	static class Instructions {
 		char[] characters = null;
-		Comparable defaultValue = null;
+		Comparable<?> defaultValue = null;
 		char oppositeTranslationChar = 0;
 		int oppositeTranslationRepeat = 0;
 		boolean ignore = false;
 		boolean inverted = false;
-		Comparable padValue = null;
+		Comparable<?> padValue = null;
 		int rangeMax = Integer.MAX_VALUE;
 		int rangeMin = 0;
 	}
@@ -78,7 +78,7 @@ class VersionFormatParser {
 			return sb.toString();
 		}
 
-		Comparable getDefaultValue() {
+		Comparable<?> getDefaultValue() {
 			return null;
 		}
 
@@ -86,7 +86,7 @@ class VersionFormatParser {
 			return this;
 		}
 
-		Comparable getPadValue() {
+		Comparable<?> getPadValue() {
 			return null;
 		}
 
@@ -94,13 +94,13 @@ class VersionFormatParser {
 			return qualifier;
 		}
 
-		boolean parse(List segments, String version, int maxPos, TreeInfo info) {
+		boolean parse(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			return qualifier.parse(new Fragment[] {this}, 0, segments, version, maxPos, info);
 		}
 
-		abstract boolean parseOne(List segments, String version, int maxPos, TreeInfo info);
+		abstract boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info);
 
-		void setDefaults(List segments) {
+		void setDefaults(List<Comparable<?>> segments) {
 			// No-op at this level
 		}
 
@@ -151,7 +151,7 @@ class VersionFormatParser {
 			return min;
 		}
 
-		boolean parse(Fragment[] fragments, int fragIdx, List segments, String version, int maxPos, TreeInfo info) {
+		boolean parse(Fragment[] fragments, int fragIdx, List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			Fragment fragment = fragments[fragIdx++];
 			int idx = 0;
 
@@ -186,7 +186,7 @@ class VersionFormatParser {
 					if (fragment instanceof StringFragment) {
 						// Check for translations if we default to for MINS or MAXS
 						StringFragment stringFrag = (StringFragment) fragment;
-						Comparable opposite = stringFrag.getOppositeDefaultValue();
+						Comparable<?> opposite = stringFrag.getOppositeDefaultValue();
 						if (opposite != null) {
 							idx = segments.size() - 1;
 							if (stringFrag.isOppositeTranslation(segments.get(idx)))
@@ -275,7 +275,7 @@ class VersionFormatParser {
 			super(instr, qualifier);
 		}
 
-		boolean parseOne(List segments, String version, int maxPos, TreeInfo info) {
+		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			maxPos = checkRange(pos, maxPos);
 			if (maxPos < 0)
@@ -360,7 +360,7 @@ class VersionFormatParser {
 			return true;
 		}
 
-		boolean parseOne(List segments, String version, int maxPos, TreeInfo info) {
+		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			if (pos < maxPos && isMatch(version, pos)) {
 				// Just swallow, a delimiter does not contribute to the vector.
@@ -456,9 +456,9 @@ class VersionFormatParser {
 
 	private static abstract class ElementFragment extends Fragment {
 		private static final long serialVersionUID = -6834591415456539713L;
-		private final Comparable defaultValue;
+		private final Comparable<?> defaultValue;
 		private final boolean ignored;
-		private final Comparable padValue;
+		private final Comparable<?> padValue;
 
 		ElementFragment(VersionFormatParser.Instructions instr, Qualifier qualifier) {
 			super(qualifier);
@@ -473,11 +473,11 @@ class VersionFormatParser {
 			}
 		}
 
-		Comparable getDefaultValue() {
+		Comparable<?> getDefaultValue() {
 			return defaultValue;
 		}
 
-		Comparable getPadValue() {
+		Comparable<?> getPadValue() {
 			return padValue;
 		}
 
@@ -485,8 +485,8 @@ class VersionFormatParser {
 			return ignored;
 		}
 
-		void setDefaults(List segments) {
-			Object defaultVal = getDefaultValue();
+		void setDefaults(List<Comparable<?>> segments) {
+			Comparable<?> defaultVal = getDefaultValue();
 			if (defaultVal != null)
 				segments.add(defaultVal);
 		}
@@ -531,26 +531,26 @@ class VersionFormatParser {
 			return fragments[0].getFirstLeaf();
 		}
 
-		boolean parseOne(List segments, String version, int maxPos, TreeInfo info) {
+		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			if (array) {
-				ArrayList subSegs = new ArrayList();
+				ArrayList<Comparable<?>> subSegs = new ArrayList<Comparable<?>>();
 				boolean success = fragments[0].getQualifier().parse(fragments, 0, subSegs, version, maxPos, info);
 				if (!success || subSegs.isEmpty())
 					return false;
 
-				Comparable padValue = info.getPadValue();
+				Comparable<?> padValue = info.getPadValue();
 				if (padValue != null)
 					info.setPadValue(null); // Prevent outer group from getting this.
 				else
 					padValue = getPadValue();
 
 				padValue = VersionParser.removeRedundantTrail(segments, padValue);
-				segments.add(new VersionVector((Comparable[]) subSegs.toArray(new Comparable[subSegs.size()]), padValue));
+				segments.add(new VersionVector(subSegs.toArray(new Comparable[subSegs.size()]), padValue));
 				return true;
 			}
 
 			if (fragments[0].getQualifier().parse(fragments, 0, segments, version, maxPos, info)) {
-				Comparable padValue = getPadValue();
+				Comparable<?> padValue = getPadValue();
 				if (padValue != null)
 					info.setPadValue(padValue);
 				return true;
@@ -558,8 +558,8 @@ class VersionFormatParser {
 			return false;
 		}
 
-		void setDefaults(List segments) {
-			Comparable dflt = getDefaultValue();
+		void setDefaults(List<Comparable<?>> segments) {
+			Comparable<?> dflt = getDefaultValue();
 			if (dflt != null) {
 				// A group default overrides any defaults within the
 				// group fragments
@@ -603,7 +603,7 @@ class VersionFormatParser {
 			this.string = string;
 		}
 
-		boolean parseOne(List segments, String version, int maxPos, TreeInfo info) {
+		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			int litLen = string.length();
 			if (pos + litLen > maxPos)
@@ -660,7 +660,7 @@ class VersionFormatParser {
 			this.signed = signed;
 		}
 
-		boolean parseOne(List segments, String version, int maxPos, TreeInfo info) {
+		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			maxPos = checkRange(pos, maxPos);
 			if (maxPos < 0)
@@ -733,13 +733,13 @@ class VersionFormatParser {
 			super(null, qualifier);
 		}
 
-		boolean parseOne(List segments, String version, int maxPos, TreeInfo info) {
+		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			if (pos >= maxPos || version.charAt(pos) != 'p')
 				return false;
 
 			int[] position = new int[] {++pos};
-			Comparable v = VersionParser.parseRawElement(version, position, maxPos);
+			Comparable<?> v = VersionParser.parseRawElement(version, position, maxPos);
 			if (v == null)
 				return false;
 
@@ -762,7 +762,7 @@ class VersionFormatParser {
 			super(instr, qualifier);
 		}
 
-		boolean parseOne(List segments, String version, int maxPos, TreeInfo info) {
+		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			if (pos >= maxPos)
 				return false;
@@ -913,9 +913,9 @@ class VersionFormatParser {
 			super(processing, qualifier);
 		}
 
-		boolean parseOne(List segments, String version, int maxPos, TreeInfo info) {
+		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int[] position = new int[] {info.getPosition()};
-			Comparable v = VersionParser.parseRawElement(version, position, maxPos);
+			Comparable<?> v = VersionParser.parseRawElement(version, position, maxPos);
 			if (v == null)
 				return false;
 
@@ -960,8 +960,8 @@ class VersionFormatParser {
 			oppositeTranslationRepeat = otr;
 		}
 
-		Comparable getOppositeDefaultValue() {
-			Comparable dflt = getDefaultValue();
+		Comparable<?> getOppositeDefaultValue() {
+			Comparable<?> dflt = getDefaultValue();
 			return dflt == VersionVector.MAXS_VALUE ? VersionVector.MINS_VALUE : (dflt == VersionVector.MINS_VALUE ? VersionVector.MAXS_VALUE : null);
 		}
 
@@ -979,7 +979,7 @@ class VersionFormatParser {
 			return false;
 		}
 
-		boolean parseOne(List segments, String version, int maxPos, TreeInfo info) {
+		boolean parseOne(List<Comparable<?>> segments, String version, int maxPos, TreeInfo info) {
 			int pos = info.getPosition();
 			maxPos = checkRange(pos, maxPos);
 			if (maxPos < 0)
@@ -1033,7 +1033,7 @@ class VersionFormatParser {
 
 	private int current;
 
-	private List currentList;
+	private List<Fragment> currentList;
 
 	private int eos;
 
@@ -1049,7 +1049,7 @@ class VersionFormatParser {
 		start = pos;
 		current = pos;
 		eos = maxPos;
-		currentList = new ArrayList();
+		currentList = new ArrayList<Fragment>();
 		while (current < eos)
 			parseFragment();
 
@@ -1058,14 +1058,14 @@ class VersionFormatParser {
 			case 0 :
 				throw new VersionFormatException(Messages.format_is_empty);
 			case 1 :
-				Fragment frag = (Fragment) currentList.get(0);
+				Fragment frag = currentList.get(0);
 				if (frag.isGroup()) {
 					topFrag = frag;
 					break;
 				}
 				// Fall through to default
 			default :
-				topFrag = createGroupFragment(null, EXACT_ONE_QUALIFIER, (Fragment[]) currentList.toArray(new Fragment[currentList.size()]), false);
+				topFrag = createGroupFragment(null, EXACT_ONE_QUALIFIER, currentList.toArray(new Fragment[currentList.size()]), false);
 		}
 		currentList = null;
 		return topFrag;
@@ -1129,8 +1129,8 @@ class VersionFormatParser {
 	}
 
 	private void parseBracketGroup() throws VersionFormatException {
-		List saveList = currentList;
-		currentList = new ArrayList();
+		List<Fragment> saveList = currentList;
+		currentList = new ArrayList<Fragment>();
 		while (current < eos && format.charAt(current) != ']')
 			parseFragment();
 
@@ -1139,7 +1139,7 @@ class VersionFormatParser {
 
 		++current;
 		VersionFormatParser.Instructions ep = parseProcessing();
-		saveList.add(createGroupFragment(ep, ZERO_OR_ONE_QUALIFIER, (Fragment[]) currentList.toArray(new Fragment[currentList.size()]), false));
+		saveList.add(createGroupFragment(ep, ZERO_OR_ONE_QUALIFIER, currentList.toArray(new Fragment[currentList.size()]), false));
 		currentList = saveList;
 	}
 
@@ -1256,8 +1256,8 @@ class VersionFormatParser {
 	}
 
 	private void parseGroup(boolean array) throws VersionFormatException {
-		List saveList = currentList;
-		currentList = new ArrayList();
+		List<Fragment> saveList = currentList;
+		currentList = new ArrayList<Fragment>();
 		char expectedEnd = array ? '>' : ')';
 		while (current < eos && format.charAt(current) != expectedEnd)
 			parseFragment();
@@ -1274,7 +1274,7 @@ class VersionFormatParser {
 
 		if (currentList.isEmpty())
 			throw formatException(array ? Messages.array_can_not_be_empty : Messages.group_can_not_be_empty);
-		saveList.add(createGroupFragment(ep, parseQualifier(), (Fragment[]) currentList.toArray(new Fragment[currentList.size()]), array));
+		saveList.add(createGroupFragment(ep, parseQualifier(), currentList.toArray(new Fragment[currentList.size()]), array));
 		currentList = saveList;
 	}
 
@@ -1430,7 +1430,7 @@ class VersionFormatParser {
 				throw formatException(Messages.default_defined_more_then_once);
 			if (processing.ignore)
 				throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
-			Comparable dflt = parseRawElement();
+			Comparable<?> dflt = parseRawElement();
 			processing.defaultValue = dflt;
 			if (current < eos && format.charAt(current) == '{') {
 				// =m{<translated min char>}
@@ -1518,9 +1518,9 @@ class VersionFormatParser {
 		currentList.add(createRawFragment(ep, parseQualifier()));
 	}
 
-	private Comparable parseRawElement() throws VersionFormatException {
+	private Comparable<?> parseRawElement() throws VersionFormatException {
 		int[] position = new int[] {current};
-		Comparable v = VersionParser.parseRawElement(format, position, eos);
+		Comparable<?> v = VersionParser.parseRawElement(format, position, eos);
 		if (v == null)
 			throw new VersionFormatException(NLS.bind(Messages.raw_element_expected_0, format));
 		current = position[0];

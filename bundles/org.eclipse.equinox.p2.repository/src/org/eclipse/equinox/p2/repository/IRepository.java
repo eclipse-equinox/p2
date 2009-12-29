@@ -22,7 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface IRepository extends IAdaptable, IQueryable {
+public interface IRepository<T> extends IAdaptable, IQueryable<T> {
 	/** 
 	 * The key for a boolean property indicating that the repository
 	 * is a system repository.  System repositories are implementation details
@@ -154,7 +154,7 @@ public interface IRepository extends IAdaptable, IQueryable {
 	 * Returns a read-only collection of the properties of the repository.
 	 * @return the properties of this repository.
 	 */
-	public Map getProperties();
+	public Map<String, String> getProperties();
 
 	/**
 	 * Returns <code>true</code> if this repository can be modified.

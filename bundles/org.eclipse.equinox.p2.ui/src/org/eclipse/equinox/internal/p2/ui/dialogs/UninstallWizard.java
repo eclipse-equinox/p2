@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
+
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -46,8 +48,8 @@ public class UninstallWizard extends ProvisioningOperationWizard {
 
 	protected void initializeResolutionModelElements(Object[] selectedElements) {
 		root = new IUElementListRoot();
-		ArrayList list = new ArrayList(selectedElements.length);
-		ArrayList selections = new ArrayList(selectedElements.length);
+		ArrayList<InstalledIUElement> list = new ArrayList<InstalledIUElement>(selectedElements.length);
+		ArrayList<InstalledIUElement> selections = new ArrayList<InstalledIUElement>(selectedElements.length);
 		for (int i = 0; i < selectedElements.length; i++) {
 			IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
 			if (iu != null) {

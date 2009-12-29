@@ -42,8 +42,8 @@ public class IUComparator extends ViewerComparator {
 	}
 
 	public int compare(Viewer viewer, Object obj1, Object obj2) {
-		IInstallableUnit iu1 = (IInstallableUnit) ProvUI.getAdapter(obj1, IInstallableUnit.class);
-		IInstallableUnit iu2 = (IInstallableUnit) ProvUI.getAdapter(obj2, IInstallableUnit.class);
+		IInstallableUnit iu1 = ProvUI.getAdapter(obj1, IInstallableUnit.class);
+		IInstallableUnit iu2 = ProvUI.getAdapter(obj2, IInstallableUnit.class);
 		if (iu1 == null || iu2 == null)
 			// If these are not iu's use the super class comparator.
 			return super.compare(viewer, obj1, obj2);

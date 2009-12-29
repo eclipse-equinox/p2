@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
@@ -35,7 +34,7 @@ public class CheckTrustAction extends ProvisioningAction {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction#execute(java.util.Map)
 	 */
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
 		if (iu == null)
 			return null;
@@ -44,12 +43,13 @@ public class CheckTrustAction extends ProvisioningAction {
 		//if the IU is already in the profile there is nothing to do
 		if (!profile.available(new InstallableUnitQuery(iu), null).isEmpty())
 			return null;
-		Collection bundleFiles = (Collection) parameters.get(ActionConstants.PARM_ARTIFACT_FILES);
-		IArtifactKey[] artifacts = iu.getArtifacts();
+		@SuppressWarnings("unchecked")
+		Collection<File> bundleFiles = (Collection<File>) parameters.get(ActionConstants.PARM_ARTIFACT_FILES);
+		List<IArtifactKey> artifacts = iu.getArtifacts();
 		if (artifacts == null)
 			return null;
-		for (int i = 0; i < artifacts.length; i++) {
-			File bundleFile = Util.getArtifactFile(agent, artifacts[i], profile);
+		for (int i = 0; i < artifacts.size(); i++) {
+			File bundleFile = Util.getArtifactFile(agent, artifacts.get(i), profile);
 			if (!bundleFiles.contains(bundleFile))
 				bundleFiles.add(bundleFile);
 		}
@@ -59,7 +59,7 @@ public class CheckTrustAction extends ProvisioningAction {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction#undo(java.util.Map)
 	 */
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		return Status.OK_STATUS;
 	}
 }

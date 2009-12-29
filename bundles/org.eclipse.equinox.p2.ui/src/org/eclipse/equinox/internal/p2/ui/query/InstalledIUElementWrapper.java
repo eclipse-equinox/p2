@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  */
 public class InstalledIUElementWrapper extends QueriedElementWrapper {
 
-	public InstalledIUElementWrapper(IQueryable queryable, Object parent) {
+	public InstalledIUElementWrapper(IQueryable<?> queryable, Object parent) {
 		super(queryable, parent);
 	}
 

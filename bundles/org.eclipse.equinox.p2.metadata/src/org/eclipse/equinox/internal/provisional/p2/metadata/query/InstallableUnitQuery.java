@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.metadata.IVersionedId;
 /**
  * A query that matches on the id and version of an {@link IInstallableUnit}.
  */
-public class InstallableUnitQuery extends MatchQuery {
+public class InstallableUnitQuery extends MatchQuery<IInstallableUnit> {
 	/**
 	 * A convenience query that will match any {@link IInstallableUnit}
 	 * it encounters.
@@ -92,10 +92,7 @@ public class InstallableUnitQuery extends MatchQuery {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.query2.Query#isMatch(java.lang.Object)
 	 */
-	public boolean isMatch(Object object) {
-		if (!(object instanceof IInstallableUnit))
-			return false;
-		IInstallableUnit candidate = (IInstallableUnit) object;
+	public boolean isMatch(IInstallableUnit candidate) {
 		if (id != null && !id.equals(candidate.getId()))
 			return false;
 		if (range != null && !range.isIncluded(candidate.getVersion()))

@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -34,11 +35,11 @@ import org.osgi.framework.ServiceReference;
 public abstract class AbstractApplication {
 	protected boolean removeAddedRepositories = true;
 
-	protected List sourceRepositories = new ArrayList(); //List of repository descriptors
-	protected List artifactReposToRemove = new ArrayList();
-	protected List metadataReposToRemove = new ArrayList();
-	protected List sourceIUs = new ArrayList();
-	private List destinationRepos = new ArrayList();
+	protected List<RepositoryDescriptor> sourceRepositories = new ArrayList<RepositoryDescriptor>(); //List of repository descriptors
+	protected List<URI> artifactReposToRemove = new ArrayList<URI>();
+	protected List<URI> metadataReposToRemove = new ArrayList<URI>();
+	protected List<IInstallableUnit> sourceIUs = new ArrayList();
+	private List<RepositoryDescriptor> destinationRepos = new ArrayList<RepositoryDescriptor>();
 
 	protected IArtifactRepository destinationArtifactRepository = null;
 	protected IMetadataRepository destinationMetadataRepository = null;
@@ -78,18 +79,18 @@ public abstract class AbstractApplication {
 		Activator.getBundleContext().ungetService(providerRef);
 	}
 
-	public void setSourceIUs(List ius) {
+	public void setSourceIUs(List<IInstallableUnit> ius) {
 		sourceIUs = ius;
 	}
 
 	protected void finalizeRepositories() throws ProvisionException {
 		if (removeAddedRepositories) {
 			IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
-			for (Iterator iter = artifactReposToRemove.iterator(); iter.hasNext();)
-				artifactRepositoryManager.removeRepository((URI) iter.next());
+			for (Iterator<URI> iter = artifactReposToRemove.iterator(); iter.hasNext();)
+				artifactRepositoryManager.removeRepository(iter.next());
 			IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
-			for (Iterator iter = metadataReposToRemove.iterator(); iter.hasNext();)
-				metadataRepositoryManager.removeRepository((URI) iter.next());
+			for (Iterator<URI> iter = metadataReposToRemove.iterator(); iter.hasNext();)
+				metadataRepositoryManager.removeRepository(iter.next());
 		}
 		metadataReposToRemove = null;
 		artifactReposToRemove = null;
@@ -112,8 +113,8 @@ public abstract class AbstractApplication {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		URI curLocation = null;
 		try {
-			for (Iterator iter = sourceRepositories.iterator(); iter.hasNext();) {
-				RepositoryDescriptor repo = (RepositoryDescriptor) iter.next();
+			for (Iterator<RepositoryDescriptor> iter = sourceRepositories.iterator(); iter.hasNext();) {
+				RepositoryDescriptor repo = iter.next();
 				curLocation = repo.getRepoLocation();
 				if (repo.isBoth()) {
 					addRepository(artifactRepositoryManager, curLocation, 0, progress);
@@ -152,9 +153,9 @@ public abstract class AbstractApplication {
 		RepositoryDescriptor artifactRepoDescriptor = null;
 		RepositoryDescriptor metadataRepoDescriptor = null;
 
-		Iterator iter = destinationRepos.iterator();
+		Iterator<RepositoryDescriptor> iter = destinationRepos.iterator();
 		while (iter.hasNext() && (artifactRepoDescriptor == null || metadataRepoDescriptor == null)) {
-			RepositoryDescriptor repo = (RepositoryDescriptor) iter.next();
+			RepositoryDescriptor repo = iter.next();
 			if (repo.isArtifact() && artifactRepoDescriptor == null)
 				artifactRepoDescriptor = repo;
 			if (repo.isMetadata() && metadataRepoDescriptor == null)
@@ -234,12 +235,12 @@ public abstract class AbstractApplication {
 		}
 	}
 
-	protected boolean initDestinationRepository(IRepository repository, RepositoryDescriptor descriptor) {
+	protected boolean initDestinationRepository(IRepository<?> repository, RepositoryDescriptor descriptor) {
 		if (repository != null && repository.isModifiable()) {
 			if (descriptor.getName() != null)
 				repository.setName(descriptor.getName());
-			if (repository instanceof ICompositeRepository && !descriptor.isAppend())
-				((ICompositeRepository) repository).removeAllChildren();
+			if (repository instanceof ICompositeRepository<?> && !descriptor.isAppend())
+				((ICompositeRepository<?>) repository).removeAllChildren();
 			else if (repository instanceof IMetadataRepository && !descriptor.isAppend())
 				((IMetadataRepository) repository).removeAll();
 			else if (repository instanceof IArtifactRepository && !descriptor.isAppend())
@@ -258,8 +259,8 @@ public abstract class AbstractApplication {
 			} catch (URISyntaxException e) {
 				//Can't happen
 			}
-			for (Iterator iter = sourceRepositories.iterator(); iter.hasNext();) {
-				RepositoryDescriptor repo = (RepositoryDescriptor) iter.next();
+			for (Iterator<RepositoryDescriptor> iter = sourceRepositories.iterator(); iter.hasNext();) {
+				RepositoryDescriptor repo = iter.next();
 				if (repo.isMetadata())
 					compositeMetadataRepository.addChild(repo.getRepoLocation());
 			}
@@ -276,8 +277,8 @@ public abstract class AbstractApplication {
 			} catch (URISyntaxException e) {
 				//Can't happen
 			}
-			for (Iterator iter = sourceRepositories.iterator(); iter.hasNext();) {
-				RepositoryDescriptor repo = (RepositoryDescriptor) iter.next();
+			for (Iterator<RepositoryDescriptor> iter = sourceRepositories.iterator(); iter.hasNext();) {
+				RepositoryDescriptor repo = iter.next();
 				if (repo.isArtifact())
 					compositeArtifactRepository.addChild(repo.getRepoLocation());
 			}

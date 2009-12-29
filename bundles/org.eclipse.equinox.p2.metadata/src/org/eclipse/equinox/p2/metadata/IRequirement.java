@@ -22,9 +22,9 @@ public interface IRequirement {
 
 	public int getMax();
 
-	public IQuery getMatches();
+	public IQuery<IInstallableUnit> getMatches();
 
-	public IQuery getFilter();
+	public IQuery<Boolean> getFilter();
 
 	public boolean isGreedy();
 }

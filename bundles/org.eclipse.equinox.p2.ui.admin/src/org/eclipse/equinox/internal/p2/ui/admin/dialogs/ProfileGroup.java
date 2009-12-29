@@ -177,9 +177,9 @@ public class ProfileGroup {
 		}
 	}
 
-	public Map getProfileProperties() {
+	public Map<String, String> getProfileProperties() {
 		if (profile == null) {
-			Map profileProperties = new HashMap();
+			Map<String, String> profileProperties = new HashMap<String, String>();
 
 			String value = location.getText().trim();
 			if (value.length() > 0) {

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
+
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -56,8 +58,8 @@ public class InstallWizard extends WizardWithLicenses {
 		if (selectedElements == null)
 			return;
 		root = new IUElementListRoot();
-		ArrayList list = new ArrayList(selectedElements.length);
-		ArrayList selections = new ArrayList(selectedElements.length);
+		ArrayList<AvailableIUElement> list = new ArrayList<AvailableIUElement>(selectedElements.length);
+		ArrayList<AvailableIUElement> selections = new ArrayList<AvailableIUElement>(selectedElements.length);
 		for (int i = 0; i < selectedElements.length; i++) {
 			IInstallableUnit iu = ElementUtils.getIU(selectedElements[i]);
 			if (iu != null) {

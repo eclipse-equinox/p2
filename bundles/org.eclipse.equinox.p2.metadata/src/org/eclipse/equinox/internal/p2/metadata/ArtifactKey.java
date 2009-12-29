@@ -31,7 +31,7 @@ public class ArtifactKey implements IArtifactKey {
 	private static String[] getArrayFromList(String stringList, String separator) {
 		if (stringList == null || stringList.trim().length() == 0)
 			return new String[0];
-		ArrayList list = new ArrayList();
+		ArrayList<String> list = new ArrayList<String>();
 		boolean separatorSeen = true;
 		StringTokenizer tokens = new StringTokenizer(stringList, separator, true);
 		while (tokens.hasMoreTokens()) {
@@ -48,7 +48,7 @@ public class ArtifactKey implements IArtifactKey {
 		}
 		if (separatorSeen)
 			list.add(""); //$NON-NLS-1$
-		return (String[]) list.toArray(new String[list.size()]);
+		return list.toArray(new String[list.size()]);
 	}
 
 	public static IArtifactKey parse(String specification) {

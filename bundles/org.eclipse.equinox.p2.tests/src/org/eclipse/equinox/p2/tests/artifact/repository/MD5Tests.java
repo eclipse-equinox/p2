@@ -35,9 +35,9 @@ public class MD5Tests extends AbstractProvisioningTest {
 	}
 
 	public void testCheckMD5() {
-		IQueryResult descriptors = repo.query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
-		for (Iterator iterator = descriptors.iterator(); iterator.hasNext();) {
-			IArtifactDescriptor desc = (IArtifactDescriptor) iterator.next();
+		IQueryResult<IArtifactDescriptor> descriptors = repo.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+		for (Iterator<IArtifactDescriptor> iterator = descriptors.iterator(); iterator.hasNext();) {
+			IArtifactDescriptor desc = iterator.next();
 			IStatus status = repo.getArtifact(desc, new ByteArrayOutputStream(500), new NullProgressMonitor());
 			//All artifacts that are expected to fail MD5 check are those whose id starts with bogus
 			if (desc.getArtifactKey().getId().startsWith("bogus")) {

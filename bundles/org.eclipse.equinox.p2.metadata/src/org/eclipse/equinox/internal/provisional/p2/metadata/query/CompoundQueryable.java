@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
@@ -19,31 +20,31 @@ import org.eclipse.equinox.p2.metadata.query.IQueryResult;
  * A queryable that holds a number of other IQueryables and provides
  * a mechanism for querying the entire set.
  */
-public class CompoundQueryable implements IQueryable {
+public class CompoundQueryable<T> implements IQueryable<T> {
 
-	private IQueryable[] queryables;
+	private IQueryable<T>[] queryables;
 
-	public CompoundQueryable(IQueryable[] queryables) {
+	public CompoundQueryable(IQueryable<T>[] queryables) {
 		this.queryables = queryables;
 	}
 
-	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-		IQueryResult subResults = null;
+	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
+		IQueryResult<T> subResults = null;
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
-		boolean isMatchQuery = query instanceof IMatchQuery;
+		boolean isMatchQuery = query instanceof IMatchQuery<?>;
 		int totalWork = isMatchQuery ? queryables.length : queryables.length + 1;
 
 		try {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, totalWork * 10);
-			Collector results;
+			Collector<T> results;
 			if (!isMatchQuery) {
 				// If it is not a match query, then collect the results
 				// as a list, we will query this list for the final results
-				results = new ListCollector();
+				results = new ListCollector<T>();
 			} else
-				results = new Collector();
+				results = new Collector<T>();
 
 			for (int i = 0; i < queryables.length; i++) {
 				if (subMonitor.isCanceled())
@@ -74,16 +75,16 @@ public class CompoundQueryable implements IQueryable {
 	 * @noextend This class is not intended to be subclassed by clients.
 	 * 
 	 */
-	public class ListCollector extends Collector {
-		private List collected;
+	public static class ListCollector<T> extends Collector<T> {
+		private List<T> collected;
 
 		public ListCollector() {
 			super();
 		}
 
-		protected Collection getCollection() {
+		protected Collection<T> getCollection() {
 			if (collected == null)
-				collected = new ArrayList();
+				collected = new ArrayList<T>();
 			return collected;
 		}
 
@@ -91,17 +92,18 @@ public class CompoundQueryable implements IQueryable {
 			return collected == null || collected.isEmpty();
 		}
 
-		public Object[] toArray(Class clazz) {
+		@SuppressWarnings("unchecked")
+		public T[] toArray(Class<? extends T> clazz) {
 			int size = collected == null ? 0 : collected.size();
-			Object[] result = (Object[]) Array.newInstance(clazz, size);
+			T[] result = (T[]) Array.newInstance(clazz, size);
 			if (size != 0)
 				collected.toArray(result);
 			return result;
 		}
 
-		public boolean accept(Object object) {
+		public boolean accept(T object) {
 			if (collected == null)
-				collected = new ArrayList();
+				collected = new ArrayList<T>();
 			collected.add(object);
 			return true;
 		}
@@ -111,12 +113,12 @@ public class CompoundQueryable implements IQueryable {
 		 * 
 		 * @return An unmodifiable collection of the collected objects
 		 */
-		public Set toSet() {
-			return collected == null ? Collections.EMPTY_SET : new HashSet(collected);
+		public Set<T> toSet() {
+			return collected == null ? new HashSet<T>() : new HashSet<T>(collected);
 		}
 
-		public Iterator iterator() {
-			return collected == null ? Collections.EMPTY_LIST.iterator() : collected.iterator();
+		public Iterator<T> iterator() {
+			return collected == null ? CollectionUtils.<T> emptyList().iterator() : collected.iterator();
 		}
 
 		public int size() {

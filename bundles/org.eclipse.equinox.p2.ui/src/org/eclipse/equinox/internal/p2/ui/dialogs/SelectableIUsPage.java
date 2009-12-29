@@ -201,7 +201,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	protected IInstallableUnit[] elementsToIUs(Object[] elements) {
 		IInstallableUnit[] theIUs = new IInstallableUnit[elements.length];
 		for (int i = 0; i < elements.length; i++) {
-			theIUs[i] = (IInstallableUnit) ProvUI.getAdapter(elements[i], IInstallableUnit.class);
+			theIUs[i] = ProvUI.getAdapter(elements[i], IInstallableUnit.class);
 		}
 		return theIUs;
 	}

@@ -35,7 +35,7 @@ public abstract class IUPropertyPage extends PropertyPage {
 
 	protected Control createContents(Composite parent) {
 		noDefaultAndApplyButton();
-		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(getElement(), IInstallableUnit.class);
+		IInstallableUnit iu = ProvUI.getAdapter(getElement(), IInstallableUnit.class);
 		Control control;
 		if (iu == null) {
 			Label label = new Label(parent, SWT.DEFAULT);

@@ -55,7 +55,7 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 			fetchJob = new Job(ProvUIMessages.ProvElementContentProvider_FetchJobTitle) {
 				protected IStatus run(IProgressMonitor monitor) {
 					IDeferredWorkbenchAdapter parent = (IDeferredWorkbenchAdapter) input;
-					final ArrayList children = new ArrayList();
+					final ArrayList<Object> children = new ArrayList<Object>();
 					parent.fetchDeferredChildren(parent, new IElementCollector() {
 						public void add(Object element, IProgressMonitor mon) {
 							if (mon.isCanceled())

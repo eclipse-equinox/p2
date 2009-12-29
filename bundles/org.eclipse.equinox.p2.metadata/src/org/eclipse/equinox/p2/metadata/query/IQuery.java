@@ -22,7 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
  */
-public interface IQuery {
+public interface IQuery<T> {
 
 	/**
 	 * Evaluates the query for a specific input.  
@@ -31,7 +31,7 @@ public interface IQuery {
 	 * @return The results of the query.  The collector returned must be
 	 * the collector passed in.
 	 */
-	public abstract IQueryResult perform(Iterator iterator);
+	public abstract IQueryResult<T> perform(Iterator<T> iterator);
 
 	/**
 	 * Gets the ID for this Query. 

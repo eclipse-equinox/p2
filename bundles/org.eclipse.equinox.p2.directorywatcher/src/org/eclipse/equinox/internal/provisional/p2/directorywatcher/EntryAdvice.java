@@ -12,8 +12,8 @@ package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
 import java.io.File;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -27,8 +27,8 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
  * only one entry at a time and that entry is the the only entry being published.  
  */
 public class EntryAdvice implements IPropertyAdvice {
-	private Properties metadataProps = new Properties();
-	private Properties artifactProps = new Properties();
+	private Map<String, String> metadataProps = new HashMap<String, String>();
+	private Map<String, String> artifactProps = new HashMap<String, String>();
 
 	public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
 		return true;
@@ -42,27 +42,23 @@ public class EntryAdvice implements IPropertyAdvice {
 		if (reference == null)
 			artifactProps.remove(RepositoryListener.ARTIFACT_REFERENCE);
 		else
-			artifactProps.setProperty(RepositoryListener.ARTIFACT_REFERENCE, reference.toString());
+			artifactProps.put(RepositoryListener.ARTIFACT_REFERENCE, reference.toString());
 		if (location.isDirectory())
-			artifactProps.setProperty(RepositoryListener.ARTIFACT_FOLDER, Boolean.TRUE.toString());
+			artifactProps.put(RepositoryListener.ARTIFACT_FOLDER, Boolean.TRUE.toString());
 		else
 			artifactProps.remove(RepositoryListener.ARTIFACT_FOLDER);
-		artifactProps.setProperty(RepositoryListener.FILE_NAME, location.getAbsolutePath());
-		metadataProps.setProperty(RepositoryListener.FILE_NAME, location.getAbsolutePath());
-		metadataProps.setProperty(RepositoryListener.FILE_LAST_MODIFIED, Long.toString(timestamp));
+		artifactProps.put(RepositoryListener.FILE_NAME, location.getAbsolutePath());
+		metadataProps.put(RepositoryListener.FILE_NAME, location.getAbsolutePath());
+		metadataProps.put(RepositoryListener.FILE_LAST_MODIFIED, Long.toString(timestamp));
 		if (linkFile != null)
-			metadataProps.setProperty(Site.PROP_LINK_FILE, linkFile);
+			metadataProps.put(Site.PROP_LINK_FILE, linkFile);
 	}
 
-	public Map getInstructions(File location) {
-		return null;
-	}
-
-	public Properties getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
+	public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
 		return artifactProps;
 	}
 
-	public Properties getInstallableUnitProperties(InstallableUnitDescription iu) {
+	public Map<String, String> getInstallableUnitProperties(InstallableUnitDescription iu) {
 		return metadataProps;
 	}
 }

@@ -45,7 +45,7 @@ public class RootFilesActionTest extends ActionTest {
 	private File root = new File(TestActivator.getTestDataFolder(), "RootFilesActionTest/eclipse"); //$NON-NLS-1$
 	private File[] includedFiles;
 	private File[] excludedFiles;
-	private Collection<RootFilesAdvice> adviceCollection;
+	private Collection<IRootFilesAdvice> adviceCollection;
 	private String FILE1 = "level1/level2/file1.jar"; //$NON-NLS-1$
 	private String FILE2 = "level1/level2/level3/file1.jar"; //$NON-NLS-1$
 	private int testArg;

@@ -53,7 +53,7 @@ public class RepositoryHelper {
 	 * @param repository the repository to test
 	 * @return the repository
 	 */
-	public static IRepository validDestinationRepository(IRepository repository) {
+	public static <T> IRepository<T> validDestinationRepository(IRepository<T> repository) {
 		if (!repository.isModifiable())
 			throw new IllegalStateException(NLS.bind(Messages.DestinationNotModifiable, repository.getLocation()));
 		return repository;

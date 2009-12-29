@@ -26,15 +26,15 @@ public class CleanupzipAction extends ProvisioningAction {
 	private static final String UNZIPPED = "unzipped"; //$NON-NLS-1$
 	public static final String ACTION_CLEANUPZIP = "cleanupzip"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		return cleanupzip(parameters, true);
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		return UnzipAction.unzip(parameters, false);
 	}
 
-	public static IStatus cleanupzip(Map parameters, boolean restoreable) {
+	public static IStatus cleanupzip(Map<String, Object> parameters, boolean restoreable) {
 		String source = (String) parameters.get(ActionConstants.PARM_SOURCE);
 		if (source == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_SOURCE, ACTION_CLEANUPZIP));
@@ -51,15 +51,15 @@ public class CleanupzipAction extends ProvisioningAction {
 		if (unzipped == null) {
 			// best effort
 			// we try to substitute the current target with what was written.
-			Map iuProperties = profile.getInstallableUnitProperties(iu);
+			Map<String, String> iuProperties = profile.getInstallableUnitProperties(iu);
 			String sourcePrefix = UNZIPPED + ActionConstants.PIPE + source + ActionConstants.PIPE;
-			for (Iterator iterator = iuProperties.keySet().iterator(); iterator.hasNext();) {
-				String key = (String) iterator.next();
+			for (Iterator<String> iterator = iuProperties.keySet().iterator(); iterator.hasNext();) {
+				String key = iterator.next();
 				if (key.startsWith(sourcePrefix)) {
 					if (unzipped == null) {
 						iuPropertyKey = key;
 						String storedTarget = key.substring(sourcePrefix.length());
-						unzipped = substituteTarget(storedTarget, target, (String) iuProperties.get(key));
+						unzipped = substituteTarget(storedTarget, target, iuProperties.get(key));
 					} else
 						return Status.OK_STATUS; // possible two unzips of this source - give up on best effort
 				}
@@ -71,7 +71,7 @@ public class CleanupzipAction extends ProvisioningAction {
 
 		IBackupStore store = restoreable ? (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP) : null;
 		StringTokenizer tokenizer = new StringTokenizer(unzipped, ActionConstants.PIPE);
-		List directories = new ArrayList();
+		List<File> directories = new ArrayList<File>();
 		while (tokenizer.hasMoreTokens()) {
 			String fileName = tokenizer.nextToken();
 			File file = new File(fileName);
@@ -96,8 +96,8 @@ public class CleanupzipAction extends ProvisioningAction {
 		// the leafs first in the list of directories.
 		// Since backup will deny backup of non empty directory a check must be made
 		// 
-		for (Iterator it = directories.iterator(); it.hasNext();) {
-			File directory = (File) it.next();
+		for (Iterator<File> it = directories.iterator(); it.hasNext();) {
+			File directory = it.next();
 			if (store != null) {
 				File[] children = directory.listFiles();
 				if (children == null || children.length == 0)

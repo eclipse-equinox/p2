@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-
 import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
@@ -54,8 +53,8 @@ public class DebugHelper {
 		System.out.println(buffer.toString());
 	}
 
-	public static String formatArray(Object[] array, boolean toString, boolean newLines) {
-		if (array == null || array.length == 0)
+	public static String formatArray(List<? extends Object> array, boolean toString, boolean newLines) {
+		if (array == null || array.size() == 0)
 			return "[]"; //$NON-NLS-1$
 
 		StringBuffer buffer = new StringBuffer();
@@ -63,11 +62,11 @@ public class DebugHelper {
 		int i = 0;
 		for (;;) {
 			if (toString)
-				buffer.append(array[i].toString());
+				buffer.append(array.get(i).toString());
 			else
-				buffer.append(array[i].getClass().getName());
+				buffer.append(array.get(i).getClass().getName());
 			i++;
-			if (i == array.length)
+			if (i == array.size())
 				break;
 			buffer.append(',');
 			if (newLines)
@@ -101,7 +100,7 @@ public class DebugHelper {
 				operandStrings[i] = operands[i].toString();
 			}
 		}
-		return DebugHelper.formatArray(operandStrings, true, true);
+		return DebugHelper.formatArray(Arrays.asList(operandStrings), true, true);
 	}
 
 	public static String formatInstallableUnitOperand(InstallableUnitOperand iuOperand) {
@@ -118,19 +117,19 @@ public class DebugHelper {
 
 	public static String formatPhaseSet(PhaseSet phaseSet) {
 		StringBuffer buffer = new StringBuffer(phaseSet.getClass().getName());
-		buffer.append(DebugHelper.formatArray(phaseSet.getPhases(), false, false));
+		buffer.append(DebugHelper.formatArray(Arrays.asList(phaseSet.getPhases()), false, false));
 		return buffer.toString();
 	}
 
 	public static String formatContext(ProvisioningContext context) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("{artifactRepos=" + DebugHelper.formatArray(context.getArtifactRepositories(), true, false)); //$NON-NLS-1$
-		buffer.append(", metadataRepos=" + DebugHelper.formatArray(context.getMetadataRepositories(), true, false)); //$NON-NLS-1$
+		buffer.append("{artifactRepos=" + DebugHelper.formatArray(Arrays.asList(context.getArtifactRepositories()), true, false)); //$NON-NLS-1$
+		buffer.append(", metadataRepos=" + DebugHelper.formatArray(Arrays.asList(context.getMetadataRepositories()), true, false)); //$NON-NLS-1$
 		buffer.append(", properties=" + context.getProperties() + "}"); //$NON-NLS-1$ //$NON-NLS-2$
 		return buffer.toString();
 	}
 
-	public static String formatAction(ProvisioningAction action, Map parameters) {
+	public static String formatAction(ProvisioningAction action, Map<String, Object> parameters) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(action.getClass().getName());
 		if (action instanceof ParameterizedProvisioningAction) {
@@ -143,16 +142,16 @@ public class DebugHelper {
 		return buffer.toString();
 	}
 
-	public static String formatParameters(Map parameters) {
-		Iterator it = parameters.entrySet().iterator();
+	public static String formatParameters(Map<String, ? extends Object> parameters) {
+		Iterator<? extends Entry<String, ? extends Object>> it = parameters.entrySet().iterator();
 		if (!it.hasNext())
 			return "{}"; //$NON-NLS-1$
 
 		StringBuffer buffer = new StringBuffer();
 		buffer.append('{');
 		for (;;) {
-			Entry e = (Entry) it.next();
-			String key = (String) e.getKey();
+			Entry<String, ? extends Object> e = it.next();
+			String key = e.getKey();
 			buffer.append(key);
 			buffer.append('=');
 			Object value = e.getValue();

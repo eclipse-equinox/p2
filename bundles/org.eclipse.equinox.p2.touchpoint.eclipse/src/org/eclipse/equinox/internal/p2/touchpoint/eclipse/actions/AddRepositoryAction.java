@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 public class AddRepositoryAction extends RepositoryAction {
 	public static final String ID = "addRepository"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		try {
 			IProvisioningAgent agent = getAgent(parameters);
 			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
@@ -46,7 +46,7 @@ public class AddRepositoryAction extends RepositoryAction {
 		return ID;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		try {
 			IProvisioningAgent agent = getAgent(parameters);
 			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);

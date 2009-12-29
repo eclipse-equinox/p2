@@ -16,12 +16,12 @@ import java.util.List;
 /**
  * @since 2.0
  */
-public interface ICompositeRepository extends IRepository {
+public interface ICompositeRepository<T> extends IRepository<T> {
 	/**
 	 * 
 	 * @return a list of URIs containing the locations of the children repositories
 	 */
-	public abstract List getChildren();
+	public abstract List<URI> getChildren();
 
 	/**
 	 * Removes all child repositories

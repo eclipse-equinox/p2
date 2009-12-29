@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnitFragment;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -66,12 +65,12 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 				//verify required capability
 				verifyRequiredCapability(iu.getRequiredCapabilities(), PublisherHelper.OSGI_BUNDLE_CLASSIFIER, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER, VersionRange.emptyRange);
 				verifyRequiredCapability(iu.getRequiredCapabilities(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-				assertTrue(iu.getRequiredCapabilities().length == 2);
+				assertTrue(iu.getRequiredCapabilities().size() == 2);
 
-				IProvidedCapability[] cap = iu.getProvidedCapabilities();
+				List<IProvidedCapability> cap = iu.getProvidedCapabilities();
 				verifyProvidedCapability(cap, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$ 
 				verifyProvidedCapability(cap, "org.eclipse.equinox.p2.flavor", flavorArg, Version.create("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$ 
-				assertTrue(cap.length == 2);
+				assertTrue(cap.size() == 2);
 
 				Map prop = iu.getProperties();
 				assertTrue(prop.get("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$ //$NON-NLS-2$

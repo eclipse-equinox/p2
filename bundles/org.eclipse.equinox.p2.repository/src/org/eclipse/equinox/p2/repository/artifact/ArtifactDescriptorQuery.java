@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
  * An implementation of IArtifactQuery that matches IArtifactDescriptors
  * @since 2.0
  */
-public class ArtifactDescriptorQuery extends MatchQuery {
+public class ArtifactDescriptorQuery extends MatchQuery<IArtifactDescriptor> {
 	public static final ArtifactDescriptorQuery ALL_DESCRIPTORS = new ArtifactDescriptorQuery();
 	private VersionRange range = null;
 	private String id = null;
@@ -66,24 +66,20 @@ public class ArtifactDescriptorQuery extends MatchQuery {
 		this.descriptor = (descriptor.getClass() == ArtifactDescriptor.class) ? (ArtifactDescriptor) descriptor : new ArtifactDescriptor(descriptor);
 	}
 
-	public boolean isMatch(Object candidate) {
-		if (!(candidate instanceof IArtifactDescriptor))
-			return false;
-
+	public boolean isMatch(IArtifactDescriptor candidate) {
 		if (descriptor != null)
-			return matchDescriptor((IArtifactDescriptor) candidate);
+			return matchDescriptor(candidate);
 
-		IArtifactDescriptor candidateDescriptor = (IArtifactDescriptor) candidate;
-		if (id != null && !id.equals(candidateDescriptor.getArtifactKey().getId()))
+		if (id != null && !id.equals(candidate.getArtifactKey().getId()))
 			return false;
 
-		if (range != null && !range.isIncluded(candidateDescriptor.getArtifactKey().getVersion()))
+		if (range != null && !range.isIncluded(candidate.getArtifactKey().getVersion()))
 			return false;
 
-		if (format != null && !format.equals(candidateDescriptor.getProperty(IArtifactDescriptor.FORMAT)))
+		if (format != null && !format.equals(candidate.getProperty(IArtifactDescriptor.FORMAT)))
 			return false;
 
-		if (repository != null && repository != candidateDescriptor.getRepository())
+		if (repository != null && repository != candidate.getRepository())
 			return false;
 
 		return true;

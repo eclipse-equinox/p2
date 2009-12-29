@@ -26,7 +26,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -479,7 +478,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
-		PipedQuery cQuery = new PipedQuery(new IQuery[] {new MatchQuery() {
+		PipedQuery cQuery = new PipedQuery(new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iInstallableUnit = (IInstallableUnit) candidate;
@@ -488,7 +487,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 				}
 				return false;
 			}
-		}, new LatestIUVersionQuery()});
+		}, new LatestIUVersionQuery());
 		IQueryResult queryResult = compositeRepo.query(cQuery, monitor);
 		assertEquals("1.0", 1, queryResultSize(queryResult));
 		assertEquals("1.1", Version.createOSGi(2, 2, 0), ((IInstallableUnit) queryResult.iterator().next()).getVersion());

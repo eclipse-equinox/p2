@@ -20,7 +20,7 @@ import java.util.Map;
  *
  */
 public class ConfigurationCache {
-	private static Map cache = new HashMap();
+	private static Map<String, CacheEntry> cache = new HashMap<String, CacheEntry>();
 
 	// class used to represent cache values
 	static class CacheEntry {
@@ -46,7 +46,7 @@ public class ConfigurationCache {
 	 */
 	public static Configuration get(File file) {
 		String key = toKey(file);
-		CacheEntry entry = (CacheEntry) cache.get(key);
+		CacheEntry entry = cache.get(key);
 		if (entry == null)
 			return null;
 		return file.lastModified() == entry.timestamp ? entry.config : null;

@@ -13,6 +13,8 @@ package org.eclipse.equinox.p2.engine;
 
 import java.net.URI;
 import java.util.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
  * @since 2.0
@@ -20,9 +22,9 @@ import java.util.*;
 public class ProvisioningContext {
 	private URI[] metadataRepositories; //metadata repositories to consult
 	private URI[] artifactRepositories; //artifact repositories to consult
-	private Properties properties = new Properties();
-	private List extraIUs = new ArrayList();
-	private Collection additionalRequirements;
+	private Map<String, String> properties = new HashMap<String, String>();
+	private List<IInstallableUnit> extraIUs = new ArrayList<IInstallableUnit>();
+	private Collection<IRequirement> additionalRequirements;
 
 	public ProvisioningContext() {
 		// null repos means look at them all
@@ -51,30 +53,30 @@ public class ProvisioningContext {
 	}
 
 	public String getProperty(String key) {
-		return properties.getProperty(key);
+		return properties.get(key);
 	}
 
 	public void setProperty(String key, String value) {
-		properties.setProperty(key, value);
+		properties.put(key, value);
 	}
 
-	public Properties getProperties() {
+	public Map<String, String> getProperties() {
 		return properties;
 	}
 
-	public List getExtraIUs() {
+	public List<IInstallableUnit> getExtraIUs() {
 		return extraIUs;
 	}
 
-	public void setExtraIUs(List extraIUs) {
+	public void setExtraIUs(List<IInstallableUnit> extraIUs) {
 		this.extraIUs = extraIUs;
 	}
 
-	public void setAdditionalRequirements(Collection requirements) {
+	public void setAdditionalRequirements(Collection<IRequirement> requirements) {
 		additionalRequirements = requirements;
 	}
 
-	public Collection getAdditionalRequirements() {
+	public Collection<IRequirement> getAdditionalRequirements() {
 		return additionalRequirements;
 	}
 }

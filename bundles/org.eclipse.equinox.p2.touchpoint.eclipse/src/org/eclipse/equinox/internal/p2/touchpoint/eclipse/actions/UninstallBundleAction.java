@@ -9,6 +9,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -24,19 +25,18 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.osgi.util.NLS;
 
-
 public class UninstallBundleAction extends ProvisioningAction {
 	public static final String ID = "uninstallBundle"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		return UninstallBundleAction.uninstallBundle(parameters);
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		return InstallBundleAction.installBundle(parameters);
 	}
 
-	public static IStatus uninstallBundle(Map parameters) {
+	public static IStatus uninstallBundle(Map<String, Object> parameters) {
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
@@ -51,14 +51,15 @@ public class UninstallBundleAction extends ProvisioningAction {
 			return Status.OK_STATUS;
 		}
 
-		IArtifactKey[] artifacts = iu.getArtifacts();
-		if (artifacts == null || artifacts.length == 0)
+		List<IArtifactKey> artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.isEmpty())
 			return Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu));
 
 		IArtifactKey artifactKey = null;
-		for (int i = 0; i < artifacts.length; i++) {
-			if (artifacts[i].toString().equals(bundleId)) {
-				artifactKey = artifacts[i];
+		for (int i = 0; i < artifacts.size(); i++) {
+			IArtifactKey candidate = artifacts.get(i);
+			if (candidate.toString().equals(bundleId)) {
+				artifactKey = candidate;
 				break;
 			}
 		}

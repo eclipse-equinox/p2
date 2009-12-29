@@ -62,31 +62,31 @@ public class AdviceFileParser {
 	public static final Version COMPATIBLE_VERSION = Version.createOSGi(1, 0, 0);
 	public static final VersionRange VERSION_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
 
-	private Properties adviceProperties = new Properties();
-	private List adviceProvides = new ArrayList();
-	private List adviceRequires = new ArrayList();
-	private List adviceMetaRequires = new ArrayList();
-	private Map adviceInstructions = new HashMap();
-	private List adviceOtherIUs = new ArrayList();
+	private Map<String, String> adviceProperties = new HashMap<String, String>();
+	private List<IProvidedCapability> adviceProvides = new ArrayList<IProvidedCapability>();
+	private List<IRequirement> adviceRequires = new ArrayList<IRequirement>();
+	private List<IRequirement> adviceMetaRequires = new ArrayList<IRequirement>();
+	private Map<String, ITouchpointInstruction> adviceInstructions = new HashMap<String, ITouchpointInstruction>();
+	private List<InstallableUnitDescription> adviceOtherIUs = new ArrayList<InstallableUnitDescription>();
 
-	private final Map advice;
-	private Iterator keysIterator;
+	private final Map<String, String> advice;
+	private Iterator<String> keysIterator;
 	private String current;
 	//	private String hostId; not currently used
 	private Version hostVersion;
 
-	public AdviceFileParser(String id, Version version, Map advice) {
+	public AdviceFileParser(String id, Version version, Map<String, String> advice) {
 		// this.hostId = id; not currently used
 		this.hostVersion = version;
 		this.advice = advice;
 	}
 
 	public void parse() {
-		String adviceVersion = (String) advice.get(ADVICE_VERSION);
+		String adviceVersion = advice.get(ADVICE_VERSION);
 		if (adviceVersion != null)
 			checkAdviceVersion(adviceVersion);
 
-		List keys = new ArrayList(advice.keySet());
+		List<String> keys = new ArrayList<String>(advice.keySet());
 		Collections.sort(keys);
 
 		keysIterator = keys.iterator();
@@ -121,14 +121,14 @@ public class AdviceFileParser {
 	}
 
 	private void next() {
-		current = (String) (keysIterator.hasNext() ? keysIterator.next() : null);
+		current = keysIterator.hasNext() ? keysIterator.next() : null;
 	}
 
 	private String currentValue() {
-		return ((String) advice.get(current)).trim();
+		return advice.get(current).trim();
 	}
 
-	private void parseProperties(String prefix, Map properties) {
+	private void parseProperties(String prefix, Map<String, String> properties) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
 			if (dotIndex == -1)
@@ -138,7 +138,7 @@ public class AdviceFileParser {
 		}
 	}
 
-	private void parseProperty(String prefix, Map properties) {
+	private void parseProperty(String prefix, Map<String, String> properties) {
 		String propertyName = null;
 		String propertyValue = null;
 		while (current != null && current.startsWith(prefix)) {
@@ -156,7 +156,7 @@ public class AdviceFileParser {
 		properties.put(propertyName, propertyValue);
 	}
 
-	private void parseProvides(String prefix, List provides) {
+	private void parseProvides(String prefix, List<IProvidedCapability> provides) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
 			if (dotIndex == -1)
@@ -166,7 +166,7 @@ public class AdviceFileParser {
 		}
 	}
 
-	private void parseProvided(String prefix, List provides) {
+	private void parseProvided(String prefix, List<IProvidedCapability> provides) {
 		String namespace = null;
 		String name = null;
 		Version capabilityVersion = null;
@@ -188,7 +188,7 @@ public class AdviceFileParser {
 		provides.add(capability);
 	}
 
-	private void parseRequires(String prefix, List requires) {
+	private void parseRequires(String prefix, List<IRequirement> requires) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
 			if (dotIndex == -1)
@@ -198,7 +198,7 @@ public class AdviceFileParser {
 		}
 	}
 
-	private void parseRequired(String prefix, List requires) {
+	private void parseRequired(String prefix, List<IRequirement> requires) {
 
 		String namespace = null;
 		String name = null;
@@ -233,7 +233,7 @@ public class AdviceFileParser {
 		requires.add(capability);
 	}
 
-	private void parseInstructions(String prefix, Map instructions) {
+	private void parseInstructions(String prefix, Map<String, ITouchpointInstruction> instructions) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
 			if (dotIndex != -1)
@@ -243,7 +243,7 @@ public class AdviceFileParser {
 		}
 	}
 
-	private void parseInstruction(String prefix, Map instructions) {
+	private void parseInstruction(String prefix, Map<String, ITouchpointInstruction> instructions) {
 		String phase = current.substring(current.lastIndexOf('.') + 1);
 		String body = currentValue();
 		next();
@@ -262,7 +262,7 @@ public class AdviceFileParser {
 		instructions.put(phase, instruction);
 	}
 
-	private void parseUnits(String prefix, List ius) {
+	private void parseUnits(String prefix, List<InstallableUnitDescription> ius) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
 			if (dotIndex == -1)
@@ -272,7 +272,7 @@ public class AdviceFileParser {
 		}
 	}
 
-	private void parseUnit(String prefix, List units) {
+	private void parseUnit(String prefix, List<InstallableUnitDescription> units) {
 		String unitId = null;
 		Version unitVersion = null;
 		boolean unitSingleton = false;
@@ -287,14 +287,14 @@ public class AdviceFileParser {
 		int unitUpdateSeverity = 0;
 		String unitUpdateDescription = null;
 
-		List unitArtifacts = new ArrayList();
-		Properties unitProperties = new Properties();
-		List unitHostRequirements = new ArrayList();
-		List unitProvides = new ArrayList();
-		List unitRequires = new ArrayList();
-		List unitMetaRequirements = new ArrayList();
-		List unitLicenses = new ArrayList();
-		Map unitInstructions = new HashMap();
+		List<IArtifactKey> unitArtifacts = new ArrayList<IArtifactKey>();
+		Map<String, String> unitProperties = new HashMap<String, String>();
+		List<IRequirement> unitHostRequirements = new ArrayList<IRequirement>();
+		List<IProvidedCapability> unitProvides = new ArrayList<IProvidedCapability>();
+		List<IRequirement> unitRequires = new ArrayList<IRequirement>();
+		List<IRequirement> unitMetaRequirements = new ArrayList<IRequirement>();
+		List<ILicense> unitLicenses = new ArrayList<ILicense>();
+		Map<String, ITouchpointInstruction> unitInstructions = new HashMap<String, ITouchpointInstruction>();
 		//		updatedescriptor ??
 
 		while (current != null && current.startsWith(prefix)) {
@@ -377,29 +377,29 @@ public class AdviceFileParser {
 			description.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(unitUpdateId, unitUpdateRange, unitUpdateSeverity, unitUpdateDescription));
 
 		if (!unitLicenses.isEmpty())
-			description.setLicenses((ILicense[]) unitLicenses.toArray(new ILicense[unitLicenses.size()]));
+			description.setLicenses(unitLicenses.toArray(new ILicense[unitLicenses.size()]));
 
 		if (!unitArtifacts.isEmpty())
-			description.setArtifacts((IArtifactKey[]) unitArtifacts.toArray(new IArtifactKey[unitArtifacts.size()]));
+			description.setArtifacts(unitArtifacts.toArray(new IArtifactKey[unitArtifacts.size()]));
 
 		if (!unitHostRequirements.isEmpty())
-			((InstallableUnitFragmentDescription) description).setHost((IRequirement[]) unitHostRequirements.toArray(new IRequirement[unitHostRequirements.size()]));
+			((InstallableUnitFragmentDescription) description).setHost(unitHostRequirements.toArray(new IRequirement[unitHostRequirements.size()]));
 
 		if (!unitProperties.isEmpty()) {
-			for (Iterator iterator = unitProperties.entrySet().iterator(); iterator.hasNext();) {
-				Entry entry = (Entry) iterator.next();
-				description.setProperty((String) entry.getKey(), (String) entry.getValue());
+			for (Iterator<Entry<String, String>> iterator = unitProperties.entrySet().iterator(); iterator.hasNext();) {
+				Entry<String, String> entry = iterator.next();
+				description.setProperty(entry.getKey(), entry.getValue());
 			}
 		}
 
 		if (!unitProvides.isEmpty())
-			description.setCapabilities((IProvidedCapability[]) unitProvides.toArray(new IProvidedCapability[unitProvides.size()]));
+			description.setCapabilities(unitProvides.toArray(new IProvidedCapability[unitProvides.size()]));
 
 		if (!unitRequires.isEmpty())
-			description.setRequiredCapabilities((IRequirement[]) unitRequires.toArray(new IRequirement[unitRequires.size()]));
+			description.setRequiredCapabilities(unitRequires.toArray(new IRequirement[unitRequires.size()]));
 
 		if (!unitMetaRequirements.isEmpty())
-			description.setMetaRequiredCapabilities((IRequirement[]) unitMetaRequirements.toArray(new IRequirement[unitMetaRequirements.size()]));
+			description.setMetaRequiredCapabilities(unitMetaRequirements.toArray(new IRequirement[unitMetaRequirements.size()]));
 
 		if (!unitInstructions.isEmpty())
 			description.addTouchpointData(MetadataFactory.createTouchpointData(unitInstructions));
@@ -407,7 +407,7 @@ public class AdviceFileParser {
 		adviceOtherIUs.add(description);
 	}
 
-	private void parseLicenses(String prefix, List licenses) {
+	private void parseLicenses(String prefix, List<ILicense> licenses) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
 			if (dotIndex != -1)
@@ -417,7 +417,7 @@ public class AdviceFileParser {
 		}
 	}
 
-	private void parseLicense(String prefix, List licenses) {
+	private void parseLicense(String prefix, List<ILicense> licenses) {
 		String body = currentValue();
 		next();
 
@@ -441,7 +441,7 @@ public class AdviceFileParser {
 		}
 	}
 
-	private void parseArtifacts(String prefix, List artifacts) {
+	private void parseArtifacts(String prefix, List<IArtifactKey> artifacts) {
 		while (current != null && current.startsWith(prefix)) {
 			int dotIndex = current.indexOf('.', prefix.length());
 			if (dotIndex == -1)
@@ -451,7 +451,7 @@ public class AdviceFileParser {
 		}
 	}
 
-	private void parseArtifact(String prefix, List artifacts) {
+	private void parseArtifact(String prefix, List<IArtifactKey> artifacts) {
 		String artifactClassifier = null;
 		String artifactId = null;
 		Version artifactVersion = null;
@@ -516,7 +516,7 @@ public class AdviceFileParser {
 		return buffer.toString();
 	}
 
-	public Properties getProperties() {
+	public Map<String, String> getProperties() {
 		if (adviceProperties.isEmpty())
 			return null;
 		return adviceProperties;
@@ -526,17 +526,17 @@ public class AdviceFileParser {
 		if (adviceRequires.isEmpty())
 			return null;
 
-		return (IRequirement[]) adviceRequires.toArray(new IRequirement[adviceRequires.size()]);
+		return adviceRequires.toArray(new IRequirement[adviceRequires.size()]);
 	}
 
 	public IProvidedCapability[] getProvidedCapabilities() {
 		if (adviceProvides.isEmpty())
 			return null;
 
-		return (IProvidedCapability[]) adviceProvides.toArray(new IProvidedCapability[adviceProvides.size()]);
+		return adviceProvides.toArray(new IProvidedCapability[adviceProvides.size()]);
 	}
 
-	public Map getTouchpointInstructions() {
+	public Map<String, ITouchpointInstruction> getTouchpointInstructions() {
 		if (adviceInstructions.isEmpty())
 			return null;
 
@@ -547,13 +547,13 @@ public class AdviceFileParser {
 		if (adviceOtherIUs.isEmpty())
 			return null;
 
-		return (InstallableUnitDescription[]) adviceOtherIUs.toArray(new InstallableUnitDescription[adviceOtherIUs.size()]);
+		return adviceOtherIUs.toArray(new InstallableUnitDescription[adviceOtherIUs.size()]);
 	}
 
 	public IRequirement[] getMetaRequiredCapabilities() {
 		if (adviceMetaRequires.isEmpty())
 			return null;
 
-		return (IRequirement[]) adviceMetaRequires.toArray(new IRequirement[adviceMetaRequires.size()]);
+		return adviceMetaRequires.toArray(new IRequirement[adviceMetaRequires.size()]);
 	}
 }

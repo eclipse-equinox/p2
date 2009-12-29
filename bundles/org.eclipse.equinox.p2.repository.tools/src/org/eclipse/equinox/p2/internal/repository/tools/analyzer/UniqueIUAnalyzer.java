@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
  */
 public class UniqueIUAnalyzer extends IUAnalyzer {
 
-	Set versionedNames = null;
+	Set<String> versionedNames = null;
 
 	public void analyzeIU(IInstallableUnit iu) {
 		// Create a unique name / version pair and cache it
@@ -33,6 +33,6 @@ public class UniqueIUAnalyzer extends IUAnalyzer {
 	}
 
 	public void preAnalysis(IMetadataRepository repo) {
-		versionedNames = new HashSet();
+		versionedNames = new HashSet<String>();
 	}
 }

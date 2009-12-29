@@ -81,25 +81,25 @@ public class JREActionTest extends ActionTest {
 		assertTrue(foo.getTouchpointType().getVersion().equals(Version.create("1.0.0"))); //$NON-NLS-1$
 
 		// check provided capabilities
-		IProvidedCapability[] fooProvidedCapabilities = foo.getProvidedCapabilities();
-		assertTrue(fooProvidedCapabilities.length == numProvidedCapabilities);
+		List<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
+		assertTrue(fooProvidedCapabilities.size() == numProvidedCapabilities);
 
 		ArrayList barIUs = new ArrayList(publisherResult.getIUs("config." + id, IPublisherResult.ROOT)); //$NON-NLS-1$
 		assertTrue(barIUs.size() == 1);
 		IInstallableUnit bar = (IInstallableUnit) barIUs.get(0);
 
 		if (testInstructions) {
-			Map instructions = bar.getTouchpointData()[0].getInstructions();
+			Map instructions = bar.getTouchpointData().get(0).getInstructions();
 			assertTrue(((ITouchpointInstruction) instructions.get("install")).getBody().equals("unzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$//$NON-NLS-2$
 			assertTrue(((ITouchpointInstruction) instructions.get("uninstall")).getBody().equals("cleanupzip(source:@artifact, target:${installFolder});")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		IRequirement[] requiredCapability = bar.getRequiredCapabilities();
+		List<IRequirement> requiredCapability = bar.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(JREVersion, true, Version.MAX_VERSION, true)); //$NON-NLS-1$ 
-		assertTrue(requiredCapability.length == 1);
+		assertTrue(requiredCapability.size() == 1);
 
-		IProvidedCapability[] providedCapability = bar.getProvidedCapabilities();
+		List<IProvidedCapability> providedCapability = bar.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, "config." + id, JREVersion); //$NON-NLS-1$ 
-		assertTrue(providedCapability.length == 1);
+		assertTrue(providedCapability.size() == 1);
 
 		assertTrue(bar.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(bar.getVersion().equals(JREVersion));

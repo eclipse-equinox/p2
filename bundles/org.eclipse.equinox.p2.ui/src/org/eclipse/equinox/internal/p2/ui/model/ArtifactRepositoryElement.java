@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
@@ -26,7 +27,7 @@ import org.eclipse.osgi.util.NLS;
  * 
  * @since 3.4
  */
-public class ArtifactRepositoryElement extends RemoteQueriedElement implements IRepositoryElement {
+public class ArtifactRepositoryElement extends RemoteQueriedElement implements IRepositoryElement<IArtifactKey> {
 
 	URI location;
 	IArtifactRepository repo;
@@ -44,6 +45,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 		ui = ProvUIActivator.getDefault().getProvisioningUI();
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IArtifactRepository.class)
 			return getRepository(null);
@@ -64,7 +66,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 		return URIUtil.toUnencodedString(getLocation());
 	}
 
-	public IRepository getRepository(IProgressMonitor monitor) {
+	public IArtifactRepository getRepository(IProgressMonitor monitor) {
 		if (repo == null)
 			try {
 				repo = ui.getSession().getArtifactRepositoryManager().loadRepository(location, monitor);
@@ -133,7 +135,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryable()
 	 */
-	public IQueryable getQueryable() {
+	public IQueryable<?> getQueryable() {
 		if (queryable == null)
 			queryable = getRepository(new NullProgressMonitor());
 		return queryable;

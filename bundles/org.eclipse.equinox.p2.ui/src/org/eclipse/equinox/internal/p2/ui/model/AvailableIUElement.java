@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.net.URI;
+import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
@@ -69,6 +70,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		return iu.getId();
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IInstallableUnit.class)
 			return iu;
@@ -119,7 +121,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
 	 */
-	public IRequirement[] getRequirements() {
+	public List<IRequirement> getRequirements() {
 		return iu.getRequiredCapabilities();
 	}
 
@@ -171,8 +173,8 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	}
 
 	private ProvisioningContext getProvisioningContext() {
-		if (hasQueryable() && getQueryable() instanceof IRepository)
-			return new ProvisioningContext(new URI[] {((IRepository) getQueryable()).getLocation()});
+		if (hasQueryable() && getQueryable() instanceof IRepository<?>)
+			return new ProvisioningContext(new URI[] {((IRepository<?>) getQueryable()).getLocation()});
 		return new ProvisioningContext();
 	}
 }

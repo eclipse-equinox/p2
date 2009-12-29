@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
  * Tokenzier which supports quoting using '"'
  * The resulting tokens will not contain the quote character '"' unless it was escaped '\"'
  */
-public class QuotedTokenizer implements Enumeration {
+public class QuotedTokenizer implements Enumeration<String> {
 	private StreamTokenizer tokenizer = null;
 
 	/**
@@ -132,7 +132,7 @@ public class QuotedTokenizer implements Enumeration {
 		return hasMoreTokens();
 	}
 
-	public Object nextElement() {
+	public String nextElement() {
 		return nextToken();
 	}
 }

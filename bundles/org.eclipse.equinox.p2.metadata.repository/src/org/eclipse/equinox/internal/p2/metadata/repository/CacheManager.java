@@ -77,7 +77,7 @@ public class CacheManager {
 	private static final String RESUME_DEFAULT = "true"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
-	private final HashSet knownPrefixes = new HashSet(5);
+	private final HashSet<String> knownPrefixes = new HashSet<String>(5);
 
 	/**
 	 * Returns a hash of the repository location.
@@ -216,8 +216,8 @@ public class CacheManager {
 	 * @param repositoryLocation
 	 */
 	void deleteCache(URI repositoryLocation) {
-		for (Iterator it = knownPrefixes.iterator(); it.hasNext();) {
-			String prefix = (String) it.next();
+		for (Iterator<String> it = knownPrefixes.iterator(); it.hasNext();) {
+			String prefix = it.next();
 			File[] cacheFiles = getCacheFiles(repositoryLocation, prefix);
 			for (int i = 0; i < cacheFiles.length; i++) {
 				// delete the cache file if it exists

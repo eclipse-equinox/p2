@@ -232,30 +232,30 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String[][] extractProvides(IInstallableUnit iu) {
-		IProvidedCapability[] provydes = iu.getProvidedCapabilities();
-		String[][] tuples = new String[provydes.length][3];
-		for (int i = 0; i < provydes.length; i++) {
-			IProvidedCapability next = provydes[i];
+		List<IProvidedCapability> provydes = iu.getProvidedCapabilities();
+		String[][] tuples = new String[provydes.size()][3];
+		for (int i = 0; i < provydes.size(); i++) {
+			IProvidedCapability next = provydes.get(i);
 			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getVersion().toString()};
 		}
 		return tuples;
 	}
 
 	private static String[][] extractRequires(IInstallableUnit iu) {
-		IRequirement[] requyres = iu.getRequiredCapabilities();
-		String[][] tuples = new String[requyres.length][4];
-		for (int i = 0; i < requyres.length; i++) {
-			IRequiredCapability next = (IRequiredCapability) requyres[i];
+		List<IRequirement> requyres = iu.getRequiredCapabilities();
+		String[][] tuples = new String[requyres.size()][4];
+		for (int i = 0; i < requyres.size(); i++) {
+			IRequiredCapability next = (IRequiredCapability) requyres.get(i);
 			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
 		return tuples;
 	}
 
 	private static String[][] extractMetaRequires(IInstallableUnit iu) {
-		IRequirement[] requyres = iu.getMetaRequiredCapabilities();
-		String[][] tuples = new String[requyres.length][4];
-		for (int i = 0; i < requyres.length; i++) {
-			IRequiredCapability next = (IRequiredCapability) requyres[i];
+		List<IRequirement> requyres = iu.getMetaRequiredCapabilities();
+		String[][] tuples = new String[requyres.size()][4];
+		for (int i = 0; i < requyres.size(); i++) {
+			IRequiredCapability next = (IRequiredCapability) requyres.get(i);
 			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
 		return tuples;
@@ -395,7 +395,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
 		InstallableUnit iu1 = (InstallableUnit) parser.getRootObject();
 		validateIU(iu1);
-		assertEquals(2, iu1.getLicenses().length);
+		assertEquals(2, iu1.getLicenses().size());
 		ByteArrayOutputStream output1 = new ByteArrayOutputStream(1492);
 		IUStringWriter writer = new IUStringWriter(output1);
 		writer.writeTest(iu1);
@@ -422,11 +422,11 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		validateIU(iu);
 		assertTrue(iu.getApplicabilityScope() != null);
 		assertTrue(iu.getRequiredCapabilities() != null);
-		assertEquals(3, iu.getRequirementsChange().length);
-		assertEquals(null, iu.getRequirementsChange()[1].applyOn());
-		assertNotNull(iu.getRequirementsChange()[1].newValue());
-		assertEquals(null, iu.getRequirementsChange()[2].newValue());
-		assertNotNull(iu.getRequirementsChange()[2].applyOn());
+		assertEquals(3, iu.getRequirementsChange().size());
+		assertEquals(null, iu.getRequirementsChange().get(1).applyOn());
+		assertNotNull(iu.getRequirementsChange().get(1).newValue());
+		assertEquals(null, iu.getRequirementsChange().get(2).newValue());
+		assertNotNull(iu.getRequirementsChange().get(2).applyOn());
 		assertEquals(2, iu.getApplicabilityScope().length);
 		assertEquals(2, iu.getApplicabilityScope()[0].length);
 		assertEquals(1, iu.getApplicabilityScope()[1].length);
@@ -437,11 +437,11 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		validateIU(iu);
 		assertTrue(iu.getApplicabilityScope() != null);
 		assertTrue(iu.getRequiredCapabilities() != null);
-		assertEquals(3, iu.getRequirementsChange().length);
-		assertEquals(null, iu.getRequirementsChange()[1].applyOn());
-		assertNotNull(iu.getRequirementsChange()[1].newValue());
-		assertEquals(null, iu.getRequirementsChange()[2].newValue());
-		assertNotNull(iu.getRequirementsChange()[2].applyOn());
+		assertEquals(3, iu.getRequirementsChange().size());
+		assertEquals(null, iu.getRequirementsChange().get(1).applyOn());
+		assertNotNull(iu.getRequirementsChange().get(1).newValue());
+		assertEquals(null, iu.getRequirementsChange().get(2).newValue());
+		assertNotNull(iu.getRequirementsChange().get(2).applyOn());
 		assertEquals(0, iu.getApplicabilityScope().length);
 		assertNull(iu.getLifeCycle());
 	}

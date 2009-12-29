@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 import junit.framework.AssertionFailedError;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -37,8 +36,8 @@ public class FragmentTest extends AbstractProvisioningTest {
 		for (; iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(ID)) {
-				assertEquals(iu.getFragments().length, 1);
-				assertEquals(iu.getFragments()[0].getId(), "iuFragment.test1");
+				assertEquals(iu.getFragments().size(), 1);
+				assertEquals(iu.getFragments().get(0).getId(), "iuFragment.test1");
 			}
 		}
 	}
@@ -55,19 +54,19 @@ public class FragmentTest extends AbstractProvisioningTest {
 		for (; iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(ID1)) {
-				assertEquals(iu.getFragments().length, 1);
-				assertEquals(iu.getFragments()[0].getId(), "iuFragment.test1");
+				assertEquals(iu.getFragments().size(), 1);
+				assertEquals(iu.getFragments().get(0).getId(), "iuFragment.test1");
 			}
 			if (iu.getId().equals(ID3)) {
-				assertEquals(iu.getFragments().length, 1);
-				assertEquals(iu.getFragments()[0].getId(), "iuFragment.test1");
+				assertEquals(iu.getFragments().size(), 1);
+				assertEquals(iu.getFragments().get(0).getId(), "iuFragment.test1");
 			}
 		}
 	}
 
 	public void testTouchpointData() {
-		assertEquals(createIUWithTouchpointData().getTouchpointData().length, 1);
-		assertEquals(createBundleFragment("iuFragment.test1").getTouchpointData().length, 1);
+		assertEquals(createIUWithTouchpointData().getTouchpointData().size(), 1);
+		assertEquals(createBundleFragment("iuFragment.test1").getTouchpointData().size(), 1);
 		IInstallableUnit iu1 = createIUWithTouchpointData();
 		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
@@ -76,7 +75,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		for (; iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(iu1.getId()))
-				assertEquals(2, iu.getTouchpointData().length);
+				assertEquals(2, iu.getTouchpointData().size());
 
 		}
 	}
@@ -88,11 +87,12 @@ public class FragmentTest extends AbstractProvisioningTest {
 
 	public void testDefaultIUCapability() {
 		IInstallableUnit iu = createEclipseIU("ui.test1");
-		IProvidedCapability[] cap = iu.getProvidedCapabilities();
-		for (int i = 0; i < cap.length; i++) {
-			if (cap[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
-				assertEquals(cap[i].getNamespace(), IInstallableUnit.NAMESPACE_IU_ID);
-				assertEquals(cap[i].getName(), iu.getId());
+		List<IProvidedCapability> cap = iu.getProvidedCapabilities();
+		for (int i = 0; i < cap.size(); i++) {
+			IProvidedCapability c = cap.get(i);
+			if (c.getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
+				assertEquals(c.getNamespace(), IInstallableUnit.NAMESPACE_IU_ID);
+				assertEquals(c.getName(), iu.getId());
 				return;
 			}
 		}
@@ -107,9 +107,9 @@ public class FragmentTest extends AbstractProvisioningTest {
 		throw new AssertionFailedError("The array does not contain the searched element");
 	}
 
-	public static void assertContainsWithEquals(Object[] objects, Object searched) {
-		for (int i = 0; i < objects.length; i++) {
-			if (objects[i].equals(searched))
+	public static void assertContainsWithEquals(List<? extends Object> objects, Object searched) {
+		for (int i = 0; i < objects.size(); i++) {
+			if (objects.get(i).equals(searched))
 				return;
 		}
 		throw new AssertionFailedError("The array does not contain the searched element");

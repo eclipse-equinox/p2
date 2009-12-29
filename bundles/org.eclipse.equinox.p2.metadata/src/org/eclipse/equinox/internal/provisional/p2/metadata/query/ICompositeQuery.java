@@ -9,18 +9,19 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
+import java.util.List;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A query that contains a number of sub queries.  All queries that support sub-queries 
  * should implement this interface so clients can access the sub queries.
  */
-public interface ICompositeQuery {
+public interface ICompositeQuery<T> extends IQuery<T> {
 
 	/**
 	 * Returns all the child queries of a CompositeQuery.
 	 * @return All the child queries.
 	 */
-	public IQuery[] getQueries();
+	public List<IQuery<T>> getQueries();
 
 }

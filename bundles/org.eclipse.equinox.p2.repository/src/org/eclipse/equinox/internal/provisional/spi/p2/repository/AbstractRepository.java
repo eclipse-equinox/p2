@@ -23,16 +23,16 @@ import org.eclipse.equinox.p2.repository.IRepository;
 * Clients may extend this class.
 * </p>
 */
-public abstract class AbstractRepository extends PlatformObject implements IRepository {
+public abstract class AbstractRepository<T> extends PlatformObject implements IRepository<T> {
 	protected String description;
 	protected transient URI location;
 	protected String name;
-	protected Map properties = new OrderedProperties();
+	protected Map<String, String> properties = new OrderedProperties();
 	protected String provider;
 	protected String type;
 	protected String version;
 
-	protected AbstractRepository(String name, String type, String version, URI location, String description, String provider, Map properties) {
+	protected AbstractRepository(String name, String type, String version, URI location, String description, String provider, Map<String, String> properties) {
 		this.name = name;
 		this.type = type;
 		this.version = version;
@@ -83,7 +83,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 * Returns a read-only collection of the properties of the repository.
 	 * @return the properties of this repository.
 	 */
-	public synchronized Map getProperties() {
+	public synchronized Map<String, String> getProperties() {
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
@@ -125,7 +125,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 
 	public synchronized String setProperty(String key, String value) {
 		assertModifiable();
-		return (String) (value == null ? properties.remove(key) : properties.put(key, value));
+		return (value == null ? properties.remove(key) : properties.put(key, value));
 	}
 
 	public synchronized void setProvider(String provider) {

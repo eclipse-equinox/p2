@@ -24,7 +24,7 @@ public class QueryHelpers {
 	 * 
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	public static String getId(IQuery query) {
+	public static String getId(IQuery<?> query) {
 		return query.getClass().getName();
 	}
 
@@ -35,8 +35,8 @@ public class QueryHelpers {
 	 * 
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	public static Object getProperty(IQuery query, String property) {
-		Class clazz = query.getClass();
+	public static Object getProperty(IQuery<?> query, String property) {
+		Class<?> clazz = query.getClass();
 		Object result = null;
 		try {
 			Method method = clazz.getMethod("get" + property, new Class[0]); //$NON-NLS-1$

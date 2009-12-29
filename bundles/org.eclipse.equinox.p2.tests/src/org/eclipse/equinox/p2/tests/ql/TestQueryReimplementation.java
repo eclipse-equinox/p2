@@ -57,7 +57,7 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		 * A convenience query that will match any {@link IInstallableUnit}
 		 * it encounters.
 		 */
-		public static final QLMatchQuery ANY = new QLMatchQuery("");
+		public static final QLMatchQuery ANY = new QLMatchQuery(IInstallableUnit.class, "");
 
 		private static final IMatchExpression idVersionQuery;
 		private static final IMatchExpression idRangeQuery;

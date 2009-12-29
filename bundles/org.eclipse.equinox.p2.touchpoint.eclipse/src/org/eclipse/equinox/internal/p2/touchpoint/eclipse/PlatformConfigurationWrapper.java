@@ -104,8 +104,8 @@ public class PlatformConfigurationWrapper {
 	 * Otherwise the default is USER-EXCLUDE.
 	 */
 	private String getDefaultPolicy() {
-		for (Iterator iter = configuration.getSites().iterator(); iter.hasNext();) {
-			Site site = (Site) iter.next();
+		for (Iterator<Site> iter = configuration.getSites().iterator(); iter.hasNext();) {
+			Site site = iter.next();
 			if (Site.POLICY_MANAGED_ONLY.equals(site.getPolicy()))
 				return Site.POLICY_MANAGED_ONLY;
 		}
@@ -133,10 +133,10 @@ public class PlatformConfigurationWrapper {
 	 * the given URL. Return null if there is no match.
 	 */
 	private Site getSite(URI url) {
-		List sites = configuration.getSites();
+		List<Site> sites = configuration.getSites();
 		File file = URIUtil.toFile(url);
-		for (Iterator iter = sites.iterator(); iter.hasNext();) {
-			Site nextSite = (Site) iter.next();
+		for (Iterator<Site> iter = sites.iterator(); iter.hasNext();) {
+			Site nextSite = iter.next();
 			try {
 				File nextFile = URLUtil.toFile(new URL(nextSite.getUrl()));
 				if (nextFile == null)
@@ -155,9 +155,9 @@ public class PlatformConfigurationWrapper {
 	 * with the given identifier and version. Return null if there is none.
 	 */
 	private Site getSite(String id, String version) {
-		List sites = configuration.getSites();
-		for (Iterator iter = sites.iterator(); iter.hasNext();) {
-			Site site = (Site) iter.next();
+		List<Site> sites = configuration.getSites();
+		for (Iterator<Site> iter = sites.iterator(); iter.hasNext();) {
+			Site site = iter.next();
 			Feature[] features = site.getFeatures();
 			for (int i = 0; i < features.length; i++) {
 				if (id.equals(features[i].getId()) && version.equals(features[i].getVersion()))

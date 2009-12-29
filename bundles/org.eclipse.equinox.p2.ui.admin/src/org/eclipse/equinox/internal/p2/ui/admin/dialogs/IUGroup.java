@@ -38,7 +38,7 @@ public abstract class IUGroup {
 	}
 
 	public IInstallableUnit getIU() {
-		return (IInstallableUnit) ProvUI.getAdapter(iuElement, IInstallableUnit.class);
+		return ProvUI.getAdapter(iuElement, IInstallableUnit.class);
 	}
 
 	public void updateIU() {

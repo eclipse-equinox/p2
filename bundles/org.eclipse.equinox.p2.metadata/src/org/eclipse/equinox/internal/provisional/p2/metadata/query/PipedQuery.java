@@ -9,7 +9,7 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.query;
 
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
@@ -18,11 +18,16 @@ import org.eclipse.equinox.p2.metadata.query.IQueryResult;
  * is executed in succession.  The results from the ith sub-query
  * are piped as input into the i+1th sub-query.
  */
-public class PipedQuery implements IQuery, ICompositeQuery {
-	protected IQuery[] queries;
+public class PipedQuery<T> implements ICompositeQuery<T> {
+	protected final IQuery<T>[] queries;
 
-	public PipedQuery(IQuery[] queries) {
+	public PipedQuery(IQuery<T>[] queries) {
 		this.queries = queries;
+	}
+
+	@SuppressWarnings("unchecked")
+	public PipedQuery(IQuery<T> query1, IQuery<T> query2) {
+		this(new IQuery[] {query1, query2});
 	}
 
 	/**
@@ -41,22 +46,14 @@ public class PipedQuery implements IQuery, ICompositeQuery {
 	}
 
 	/**
-	 * Set the queries of this composite.  This is needed to allow subclasses of 
-	 * CompsiteQuery to set the queries in a constructor
-	 */
-	protected final void setQueries(IQuery[] queries) {
-		this.queries = queries;
-	}
-
-	/**
 	 * Returns the queries that make up this compound query
 	 */
-	public IQuery[] getQueries() {
-		return queries;
+	public List<IQuery<T>> getQueries() {
+		return Arrays.asList(queries);
 	}
 
-	public IQueryResult perform(Iterator iterator) {
-		IQueryResult last = Collector.EMPTY_COLLECTOR;
+	public IQueryResult<T> perform(Iterator<T> iterator) {
+		IQueryResult<T> last = Collector.emptyCollector();
 		if (queries.length > 0) {
 			last = queries[0].perform(iterator);
 			for (int i = 1; i < queries.length; i++)

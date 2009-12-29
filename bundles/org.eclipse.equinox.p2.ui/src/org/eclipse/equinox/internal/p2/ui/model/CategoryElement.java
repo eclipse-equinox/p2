@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -26,8 +27,8 @@ import org.eclipse.equinox.p2.operations.ProvisioningSession;
  */
 public class CategoryElement extends RemoteQueriedElement implements IIUElement {
 
-	private ArrayList ius = new ArrayList(1);
-	private IRequirement[] requirements;
+	private ArrayList<IInstallableUnit> ius = new ArrayList<IInstallableUnit>(1);
+	private List<IRequirement> requirements;
 
 	public CategoryElement(Object parent, IInstallableUnit iu) {
 		super(parent);
@@ -50,6 +51,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IInstallableUnit.class)
 			return getIU();
@@ -63,7 +65,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 	public IInstallableUnit getIU() {
 		if (ius == null || ius.isEmpty())
 			return null;
-		return (IInstallableUnit) ius.get(0);
+		return ius.get(0);
 	}
 
 	public long getSize() {
@@ -101,20 +103,20 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		return mergeKey;
 	}
 
-	public IRequirement[] getRequirements() {
+	public List<IRequirement> getRequirements() {
 		if (ius == null || ius.isEmpty())
-			return new IRequirement[0];
+			return CollectionUtils.emptyList();
 		if (requirements == null) {
 			if (ius.size() == 1)
 				requirements = getIU().getRequiredCapabilities();
 			else {
-				ArrayList capabilities = new ArrayList();
-				Iterator iter = ius.iterator();
+				ArrayList<IRequirement> capabilities = new ArrayList<IRequirement>();
+				Iterator<IInstallableUnit> iter = ius.iterator();
 				while (iter.hasNext()) {
-					IInstallableUnit iu = (IInstallableUnit) iter.next();
-					capabilities.addAll(Arrays.asList(iu.getRequiredCapabilities()));
+					IInstallableUnit iu = iter.next();
+					capabilities.addAll(iu.getRequiredCapabilities());
 				}
-				requirements = (IRequirement[]) capabilities.toArray(new IRequirement[capabilities.size()]);
+				requirements = capabilities;
 			}
 		}
 		return requirements;

@@ -53,7 +53,7 @@ public class Mapper {
 
 	public URI map(URI repositoryLocation, String classifier, String id, String version, String format) {
 		String locationString = URIUtil.toUnencodedString(repositoryLocation);
-		Dictionary values = new Hashtable(5);
+		Dictionary<String, Object> values = new Hashtable<String, Object>(5);
 		if (repositoryLocation != null)
 			values.put(REPOURL, locationString);
 

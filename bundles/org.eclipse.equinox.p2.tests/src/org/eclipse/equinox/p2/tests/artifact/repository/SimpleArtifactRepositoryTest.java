@@ -24,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.MappedCollectionIterator;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
@@ -364,98 +364,17 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		repo.addDescriptor(d2);
 		repo.addDescriptor(d3);
 
-		IQueryResult result = repo.query(new ArtifactDescriptorQuery("a", null, null), null);
+		IQueryable<IArtifactDescriptor> descQueryable = repo.descriptorQueryable();
+		IQueryResult<IArtifactDescriptor> result = descQueryable.query(new ArtifactDescriptorQuery("a", null, null), null);
 		assertEquals(3, queryResultSize(result));
 
-		result = repo.query(new ArtifactDescriptorQuery(null, new VersionRange("[2.0.0, 3.0.0)"), null), null);
+		result = descQueryable.query(new ArtifactDescriptorQuery(null, new VersionRange("[2.0.0, 3.0.0)"), null), null);
 		assertEquals(2, queryResultSize(result));
 		assertNotContains(result, d1);
 
-		result = repo.query(new ArtifactDescriptorQuery(null, null, IArtifactDescriptor.FORMAT_PACKED), null);
+		result = descQueryable.query(new ArtifactDescriptorQuery(null, null, IArtifactDescriptor.FORMAT_PACKED), null);
 		assertEquals(1, queryResultSize(result));
-		IArtifactDescriptor resultDescriptor = (IArtifactDescriptor) result.iterator().next();
+		IArtifactDescriptor resultDescriptor = result.iterator().next();
 		assertEquals(d3.getArtifactKey(), resultDescriptor.getArtifactKey());
-	}
-
-	public void testArtifactIterator() throws Exception {
-		HashMap map = new HashMap();
-
-		IArtifactKey key = new ArtifactKey("osgi.bundle", "a", Version.create("1.0.0"));
-		map.put(key, new ArtifactDescriptor(key));
-
-		Collection collection = new ArrayList(2);
-		key = new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0"));
-		collection.add(new ArtifactDescriptor(key));
-		ArtifactDescriptor d = new ArtifactDescriptor(key);
-		d.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
-		collection.add(d);
-		map.put(key, collection);
-
-		MappedCollectionIterator iterator = new MappedCollectionIterator(map, true);
-		assertTrue(iterator.hasNext());
-		Object o = iterator.next();
-		assertTrue(o instanceof IArtifactKey);
-		if (((IArtifactKey) o).getVersion().equals(Version.parseVersion("1.0.0"))) {
-			assertTrue(iterator.hasNext());
-			assertTrue(iterator.next() instanceof IArtifactDescriptor);
-			assertTrue(iterator.hasNext());
-			assertTrue(iterator.next() instanceof IArtifactKey);
-			assertTrue(iterator.hasNext());
-			assertFalse(iterator.hasNextKey());
-			assertTrue(iterator.next() instanceof IArtifactDescriptor);
-			assertTrue(iterator.hasNext());
-			assertTrue(iterator.next() instanceof IArtifactDescriptor);
-			assertFalse(iterator.hasNext());
-		} else {
-			assertTrue(iterator.hasNext());
-			assertTrue(iterator.next() instanceof IArtifactDescriptor);
-			assertTrue(iterator.hasNext());
-			assertTrue(iterator.next() instanceof IArtifactDescriptor);
-			assertTrue(iterator.hasNext());
-			assertTrue(iterator.hasNextKey());
-			assertTrue(iterator.next() instanceof IArtifactKey);
-			assertTrue(iterator.hasNext());
-			assertFalse(iterator.hasNextKey());
-			assertTrue(iterator.next() instanceof IArtifactDescriptor);
-			assertFalse(iterator.hasNext());
-		}
-	}
-
-	public void testArtifactIterator_2() throws Exception {
-		HashMap map = new HashMap();
-
-		IArtifactKey key = new ArtifactKey("osgi.bundle", "a", Version.create("1.0.0"));
-		map.put(key, new ArtifactDescriptor(key));
-
-		Collection collection = new ArrayList(2);
-		key = new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0"));
-		collection.add(new ArtifactDescriptor(key));
-		ArtifactDescriptor d = new ArtifactDescriptor(key);
-		d.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
-		collection.add(d);
-		map.put(key, collection);
-
-		MappedCollectionIterator iterator = new MappedCollectionIterator(map, false);
-		assertFalse(iterator.hasNextKey());
-		assertTrue(iterator.hasNext());
-		assertTrue(iterator.next() instanceof IArtifactDescriptor);
-		assertTrue(iterator.next() instanceof IArtifactDescriptor);
-		assertTrue(iterator.next() instanceof IArtifactDescriptor);
-		assertFalse(iterator.hasNext());
-
-		iterator = new MappedCollectionIterator(map, true);
-		Object o = iterator.next();
-		assertTrue(o instanceof IArtifactKey);
-		if (((IArtifactKey) o).getVersion().equals(Version.parseVersion("1.0.0"))) {
-			assertNotNull(iterator.nextKey());
-			assertFalse(iterator.hasNextKey());
-			assertTrue(iterator.next() instanceof IArtifactDescriptor);
-			assertTrue(iterator.next() instanceof IArtifactDescriptor);
-		} else {
-			assertNotNull(iterator.nextKey());
-			assertFalse(iterator.hasNextKey());
-			assertTrue(iterator.next() instanceof IArtifactDescriptor);
-		}
-		assertFalse(iterator.hasNext());
 	}
 }

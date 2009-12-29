@@ -122,7 +122,7 @@ public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 		}
 	}
 
-	public IArtifactRepository create(URI location, String name, String type, Map properties) {
+	public IArtifactRepository create(URI location, String name, String type, Map<String, String> properties) {
 		return new SimpleArtifactRepository(name, location, properties);
 	}
 

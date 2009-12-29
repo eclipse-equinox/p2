@@ -34,7 +34,7 @@ public class CreateCompositeMetadataRepositoryTask extends Task {
 	String name = "Composite Metadata Repository";
 	boolean compressed = true; // compress by default
 	boolean failOnExists = false; // should we fail if one already exists?
-	Map properties = new HashMap();
+	Map<String, String> properties = new HashMap<String, String>();
 
 	/* (non-Javadoc)
 	 * @see org.apache.tools.ant.Task#execute()

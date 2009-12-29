@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.repository.artifact;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.Properties;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -26,7 +25,7 @@ import org.eclipse.equinox.p2.repository.IRepositoryManager;
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface IArtifactRepositoryManager extends IRepositoryManager {
+public interface IArtifactRepositoryManager extends IRepositoryManager<IArtifactKey> {
 	/**
 	 * The name used for obtaining a reference to the metadata repository manager service
 	 */
@@ -50,7 +49,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * , or <code>null</code> to indicate no additional properties are needed
 	 * @return the newly created request object
 	 */
-	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Properties destinationDescriptorProperties, Properties destinationRepositoryProperties);
+	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties);
 
 	/**
 	 * Creates and returns a new empty artifact repository of the given type at 
@@ -74,7 +73,7 @@ public interface IArtifactRepositoryManager extends IRepositoryManager {
 	 * <li>A repository already exists at that location.</li>
 	 * </ul>
 	 */
-	public IArtifactRepository createRepository(URI location, String name, String type, Map properties) throws ProvisionException;
+	public IArtifactRepository createRepository(URI location, String name, String type, Map<String, String> properties) throws ProvisionException;
 
 	/**
 	 * Loads the repository at the given location.  The location is expected to contain 

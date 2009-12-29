@@ -108,7 +108,7 @@ public class MetadataRepositoryIO {
 
 	}
 
-	protected XMLWriter.ProcessingInstruction[] createPI(Class repositoryClass) {
+	protected XMLWriter.ProcessingInstruction[] createPI(Class<?> repositoryClass) {
 		//TODO We should remove this processing instruction, but currently old clients rely on this. See bug 210450.
 		return new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeTargetVersionInstruction(XMLConstants.PI_REPOSITORY_TARGET, XMLConstants.CURRENT_VERSION)};
 	}
@@ -116,7 +116,7 @@ public class MetadataRepositoryIO {
 	// XML writer for a IMetadataRepository
 	protected class Writer extends MetadataWriter implements XMLConstants {
 
-		public Writer(OutputStream output, Class repositoryClass) throws IOException {
+		public Writer(OutputStream output, Class<? extends IMetadataRepository> repositoryClass) throws IOException {
 			super(output, createPI(repositoryClass));
 		}
 
@@ -133,11 +133,11 @@ public class MetadataRepositoryIO {
 
 			writeProperties(repository.getProperties());
 			if (repository instanceof LocalMetadataRepository) {
-				Set references = ((LocalMetadataRepository) repository).repositories;
+				Set<RepositoryReference> references = ((LocalMetadataRepository) repository).repositories;
 				writeRepositoryReferences(references.iterator(), references.size());
 			}
 			// The size attribute is a problematic since it forces the use of a collection.
-			Set units = repository.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
+			Set<IInstallableUnit> units = repository.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
 			writeInstallableUnits(units.iterator(), units.size());
 
 			end(REPOSITORY_ELEMENT);
@@ -149,13 +149,13 @@ public class MetadataRepositoryIO {
 		 * @param references An Iterator of {@link RepositoryReference}.
 		 * @param size The number of references  to write
 		 */
-		protected void writeRepositoryReferences(Iterator references, int size) {
+		protected void writeRepositoryReferences(Iterator<RepositoryReference> references, int size) {
 			if (size == 0)
 				return;
 			start(REPOSITORY_REFERENCES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, size);
 			while (references.hasNext())
-				writeRepositoryReference((RepositoryReference) references.next());
+				writeRepositoryReference(references.next());
 			end(REPOSITORY_REFERENCES_ELEMENT);
 		}
 
@@ -307,7 +307,7 @@ public class MetadataRepositoryIO {
 						//can't create repository if missing type - this is already logged when parsing attributes
 						if (state.Type == null)
 							return;
-						Class clazz = Class.forName(state.Type);
+						Class<?> clazz = Class.forName(state.Type);
 						Object repositoryObject = clazz.newInstance();
 						if (repositoryObject instanceof AbstractMetadataRepository) {
 							repository = (AbstractMetadataRepository) repositoryObject;

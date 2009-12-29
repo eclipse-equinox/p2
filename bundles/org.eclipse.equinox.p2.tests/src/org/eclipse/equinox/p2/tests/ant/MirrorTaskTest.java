@@ -753,7 +753,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 	protected int getArtifactKeyCount(IQueryResult ius) {
 		int count = 0;
 		for (Iterator iter = ius.iterator(); iter.hasNext();)
-			count += ((InstallableUnit) iter.next()).getArtifacts().length;
+			count += ((InstallableUnit) iter.next()).getArtifacts().size();
 		return count;
 	}
 

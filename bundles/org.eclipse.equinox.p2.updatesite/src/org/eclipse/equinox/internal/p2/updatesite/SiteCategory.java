@@ -12,8 +12,7 @@ package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Comparator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A category in an update site.
@@ -22,11 +21,11 @@ import java.util.Map;
  */
 public class SiteCategory {
 
-	private static Comparator comp;
+	private static Comparator<SiteCategory> comp;
 	private String description;
 	private String label;
 	private String name;
-	private Map localizations;
+	private Map<Locale, Map<String, String>> localizations;
 
 	/**
 	 * Returns a comparator for category models.
@@ -34,19 +33,16 @@ public class SiteCategory {
 	 * @return comparator
 	 * @since 2.0
 	 */
-	public static Comparator getComparator() {
+	public static Comparator<SiteCategory> getComparator() {
 		if (comp == null) {
-			comp = new Comparator() {
+			comp = new Comparator<SiteCategory>() {
 				/*
 				 * @see Comparator#compare(Object,Object)
 				 * Returns 0 if versions are equal.
 				 * Returns -1 if object1 is after than object2.
 				 * Returns +1 if object1 is before than object2.
 				 */
-				public int compare(Object o1, Object o2) {
-
-					SiteCategory cat1 = (SiteCategory) o1;
-					SiteCategory cat2 = (SiteCategory) o2;
+				public int compare(SiteCategory cat1, SiteCategory cat2) {
 
 					if (cat1.equals(cat2))
 						return 0;
@@ -108,7 +104,7 @@ public class SiteCategory {
 	 * @return a map from locale to property set
 	 * @since 3.4
 	 */
-	public Map getLocalizations() {
+	public Map<Locale, Map<String, String>> getLocalizations() {
 		return this.localizations;
 	}
 
@@ -181,7 +177,7 @@ public class SiteCategory {
 	 * @param localizations as a map from locale to property set
 	 * @since 3.4
 	 */
-	public void setLocalizations(Map localizations) {
+	public void setLocalizations(Map<Locale, Map<String, String>> localizations) {
 		this.localizations = localizations;
 	}
 

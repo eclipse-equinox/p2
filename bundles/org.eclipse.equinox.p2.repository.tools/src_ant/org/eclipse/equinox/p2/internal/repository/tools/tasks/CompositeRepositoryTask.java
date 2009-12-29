@@ -40,8 +40,8 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 	 * Add the listed repositories to the composite repository
 	 */
 	public void addConfiguredAdd(RepositoryList list) {
-		for (Iterator iter = list.getRepositoryList().iterator(); iter.hasNext();) {
-			DestinationRepository repo = (DestinationRepository) iter.next();
+		for (Iterator<DestinationRepository> iter = list.getRepositoryList().iterator(); iter.hasNext();) {
+			DestinationRepository repo = iter.next();
 			((CompositeRepositoryApplication) application).addChild(repo.getDescriptor());
 		}
 	}
@@ -50,8 +50,8 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 	 * Remove the listed repositories from the composite repository
 	 */
 	public void addConfiguredRemove(RepositoryList list) {
-		for (Iterator iter = list.getRepositoryList().iterator(); iter.hasNext();) {
-			DestinationRepository repo = (DestinationRepository) iter.next();
+		for (Iterator<DestinationRepository> iter = list.getRepositoryList().iterator(); iter.hasNext();) {
+			DestinationRepository repo = iter.next();
 			((CompositeRepositoryApplication) application).removeChild(repo.getDescriptor());
 		}
 	}

@@ -15,25 +15,27 @@ import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
-import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * An object that queries a particular set of artifact repositories.
  */
-public class QueryableArtifactRepositoryManager extends QueryableRepositoryManager {
+public class QueryableArtifactRepositoryManager extends QueryableRepositoryManager<IArtifactKey> {
 
 	public QueryableArtifactRepositoryManager(ProvisioningUI ui, boolean includeDisabledRepos) {
 		super(ui, includeDisabledRepos);
 	}
 
-	protected IRepositoryManager getRepositoryManager() {
+	protected IArtifactRepositoryManager getRepositoryManager() {
 		return getSession().getArtifactRepositoryManager();
 	}
 
-	protected IRepository doLoadRepository(IRepositoryManager manager, URI location, IProgressMonitor monitor) throws ProvisionException {
+	protected IArtifactRepository doLoadRepository(IRepositoryManager<IArtifactKey> manager, URI location, IProgressMonitor monitor) throws ProvisionException {
 		return ui.loadArtifactRepository(location, false, monitor);
 	}
 
@@ -44,7 +46,7 @@ public class QueryableArtifactRepositoryManager extends QueryableRepositoryManag
 		return repositoryManipulator.getArtifactRepositoryFlags();
 	}
 
-	protected IRepository getRepository(IRepositoryManager manager, URI location) {
+	protected IArtifactRepository getRepository(IRepositoryManager<IArtifactKey> manager, URI location) {
 		// note the use of ArtifactRepositoryManager (the concrete implementation).
 		if (manager instanceof ArtifactRepositoryManager) {
 			return ((ArtifactRepositoryManager) manager).getRepository(location);

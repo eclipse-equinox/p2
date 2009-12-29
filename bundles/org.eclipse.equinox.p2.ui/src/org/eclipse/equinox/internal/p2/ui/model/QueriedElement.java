@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
@@ -28,11 +29,11 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
  */
 public abstract class QueriedElement extends ProvElement {
 
-	protected IQueryable queryable;
+	protected IQueryable<?> queryable;
 	// This cache is used internally to facilitate child elements
 	// that want to eliminate duplicates from the parent hierarchy.
 	// This cache is *not* used as a general purpose child cache.
-	private Collection cachedChildren;
+	private Collection<?> cachedChildren;
 
 	protected QueriedElement(Object parent) {
 		super(parent);
@@ -95,16 +96,16 @@ public abstract class QueriedElement extends ProvElement {
 	}
 
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
-		cachedChildren = Collections.EMPTY_LIST;
+		cachedChildren = CollectionUtils.emptyList();
 		if (getQueryProvider() == null)
 			return new Object[0];
 		ElementQueryDescriptor queryDescriptor = getQueryProvider().getQueryDescriptor(this);
 		if (queryDescriptor == null)
 			return new Object[0];
-		Collection results = queryDescriptor.performQuery(monitor);
+		Collection<?> results = queryDescriptor.performQuery(monitor);
 		cachedChildren = Collections.unmodifiableCollection(results);
 		if (results.size() > 0) {
-			Collection returnedChildren = new HashSet();
+			Collection<Object> returnedChildren = new HashSet<Object>();
 			returnedChildren.addAll(results);
 			Object[] siblings = getSiblings();
 			for (int i = 0; i < siblings.length; i++) {
@@ -115,11 +116,11 @@ public abstract class QueriedElement extends ProvElement {
 		return new Object[0];
 	}
 
-	public void setQueryable(IQueryable queryable) {
+	public void setQueryable(IQueryable<?> queryable) {
 		this.queryable = queryable;
 	}
 
-	public IQueryable getQueryable() {
+	public IQueryable<?> getQueryable() {
 		return queryable;
 	}
 

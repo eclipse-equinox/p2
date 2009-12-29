@@ -21,7 +21,7 @@ import org.eclipse.osgi.util.NLS;
 public class SetProgramPropertyAction extends ProvisioningAction {
 	public static final String ID = "setProgramProperty"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String propName = (String) parameters.get(ActionConstants.PARM_PROP_NAME);
 		if (propName == null)
@@ -40,7 +40,7 @@ public class SetProgramPropertyAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String propName = (String) parameters.get(ActionConstants.PARM_PROP_NAME);
 		if (propName == null)
