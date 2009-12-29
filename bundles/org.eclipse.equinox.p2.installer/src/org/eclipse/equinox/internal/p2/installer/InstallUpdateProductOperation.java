@@ -50,7 +50,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	private IProfileRegistry profileRegistry;
 	private IStatus result;
 
-	private ArrayList serviceReferences = new ArrayList();
+	private ArrayList<ServiceReference> serviceReferences = new ArrayList<ServiceReference>();
 
 	public InstallUpdateProductOperation(BundleContext context, InstallDescription description) {
 		this.bundleContext = context;
@@ -61,21 +61,21 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * Determine what top level installable units should be installed by the director
 	 */
 	private IInstallableUnit[] computeUnitsToInstall() throws CoreException {
-		ArrayList result = new ArrayList();
+		ArrayList<IInstallableUnit> units = new ArrayList<IInstallableUnit>();
 		IVersionedId roots[] = installDescription.getRoots();
 		for (int i = 0; i < roots.length; i++) {
 			IVersionedId root = roots[i];
 			IInstallableUnit iu = findUnit(root);
 			if (iu != null)
-				result.add(iu);
+				units.add(iu);
 		}
-		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
+		return units.toArray(new IInstallableUnit[units.size()]);
 	}
 
 	/**
 	 * This profile is being updated; return the units to uninstall from the profile.
 	 */
-	private IQueryResult computeUnitsToUninstall(IProfile p) {
+	private IQueryResult<IInstallableUnit> computeUnitsToUninstall(IProfile p) {
 		return p.query(InstallableUnitQuery.ANY, null);
 	}
 
@@ -85,7 +85,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	private IProfile createProfile() throws ProvisionException {
 		IProfile profile = getProfile();
 		if (profile == null) {
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<String, String>();
 			properties.put(IProfile.PROP_INSTALL_FOLDER, installDescription.getInstallLocation().toString());
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(InstallerActivator.getDefault().getContext(), EnvironmentInfo.class.getName());
 			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -118,7 +118,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			s = director.provision(request, null, monitor.newChild(90));
 		} else {
 			monitor.setTaskName(NLS.bind(Messages.Op_Updating, installDescription.getProductName()));
-			IQueryResult toUninstall = computeUnitsToUninstall(p);
+			IQueryResult<IInstallableUnit> toUninstall = computeUnitsToUninstall(p);
 			request.removeInstallableUnits(toUninstall);
 			request.addInstallableUnits(toInstall);
 			s = director.provision(request, null, monitor.newChild(90));
@@ -153,12 +153,12 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		VersionRange range = VersionRange.emptyRange;
 		if (version != null && !version.equals(Version.emptyVersion))
 			range = new VersionRange(version, true, version, true);
-		IQuery query = new InstallableUnitQuery(id, range);
-		Iterator matches = metadataRepoMan.query(query, null).iterator();
+		IQuery<IInstallableUnit> query = new InstallableUnitQuery(id, range);
+		Iterator<IInstallableUnit> matches = metadataRepoMan.query(query, null).iteratorX();
 		// pick the newest match
 		IInstallableUnit newest = null;
 		while (matches.hasNext()) {
-			IInstallableUnit candidate = (IInstallableUnit) matches.next();
+			IInstallableUnit candidate = matches.next();
 			if (newest == null || (newest.getVersion().compareTo(candidate.getVersion()) < 0))
 				newest = candidate;
 		}
@@ -235,8 +235,8 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	private void postInstall() {
-		for (Iterator it = serviceReferences.iterator(); it.hasNext();) {
-			ServiceReference sr = (ServiceReference) it.next();
+		for (Iterator<ServiceReference> it = serviceReferences.iterator(); it.hasNext();) {
+			ServiceReference sr = it.next();
 			bundleContext.ungetService(sr);
 		}
 		serviceReferences.clear();

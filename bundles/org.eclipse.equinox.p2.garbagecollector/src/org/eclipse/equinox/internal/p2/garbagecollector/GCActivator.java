@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.garbagecollector;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -86,11 +88,11 @@ public class GCActivator implements BundleActivator {
 		IPreferencesService prefService = (IPreferencesService) getService(context, IPreferencesService.class.getName());
 		if (prefService == null)
 			return defaultValue;
-		List nodes = new ArrayList();
+		List<IEclipsePreferences> nodes = new ArrayList<IEclipsePreferences>();
 		// todo we should look in the instance scope as well but have to be careful that the instance location has been set
 		nodes.add(new ConfigurationScope().getNode(ID));
 		nodes.add(new DefaultScope().getNode(ID));
-		return Boolean.valueOf(prefService.get(key, Boolean.toString(defaultValue), (Preferences[]) nodes.toArray(new Preferences[nodes.size()]))).booleanValue();
+		return Boolean.valueOf(prefService.get(key, Boolean.toString(defaultValue), nodes.toArray(new Preferences[nodes.size()]))).booleanValue();
 	}
 
 	private void unregisterGCTrigger() {

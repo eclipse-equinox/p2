@@ -33,15 +33,15 @@ public class CoreGarbageCollector {
 	 * in aRepository that are not mapped to by an IArtifactKey in markSet
 	 */
 	public synchronized void clean(IArtifactKey[] markSet, IArtifactRepository aRepository) {
-		final Set set = new HashSet(Arrays.asList(markSet));
+		final Set<IArtifactKey> set = new HashSet<IArtifactKey>(Arrays.asList(markSet));
 		ArtifactKeyQuery query = new ArtifactKeyQuery() {
-			public boolean isMatch(Object candidate) {
+			public boolean isMatch(IArtifactKey candidate) {
 				return !set.contains(candidate);
 			}
 		};
-		IQueryResult inactive = aRepository.query(query, null);
-		for (Iterator iterator = inactive.iterator(); iterator.hasNext();) {
-			IArtifactKey key = (IArtifactKey) iterator.next();
+		IQueryResult<IArtifactKey> inactive = aRepository.query(query, null);
+		for (Iterator<IArtifactKey> iterator = inactive.iteratorX(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
 			aRepository.removeDescriptor(key);
 			if (debugMode) {
 				Tracing.debug("Key removed:" + key); //$NON-NLS-1$

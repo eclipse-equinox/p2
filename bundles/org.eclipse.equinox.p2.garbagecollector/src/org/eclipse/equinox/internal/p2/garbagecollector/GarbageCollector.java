@@ -37,7 +37,7 @@ public class GarbageCollector {
 	/**
 	 * Maps IArtifactRepository objects to their respective "marked set" of IArtifactKeys
 	 */
-	private Map markSet;
+	private Map<IArtifactRepository, Collection<IArtifactKey>> markSet;
 	final IProvisioningAgent agent;
 
 	public GarbageCollector() {
@@ -46,7 +46,7 @@ public class GarbageCollector {
 	}
 
 	public void runGC(IProfile profile) {
-		markSet = new HashMap();
+		markSet = new HashMap<IArtifactRepository, Collection<IArtifactKey>>();
 		if (!traverseMainProfile(profile))
 			return;
 
@@ -77,10 +77,10 @@ public class GarbageCollector {
 	}
 
 	private void invokeCoreGC() {
-		Iterator keyIterator = markSet.keySet().iterator();
+		Iterator<IArtifactRepository> keyIterator = markSet.keySet().iterator();
 		while (keyIterator.hasNext()) {
-			IArtifactRepository nextRepo = (IArtifactRepository) keyIterator.next();
-			IArtifactKey[] keys = (IArtifactKey[]) ((Collection) markSet.get(nextRepo)).toArray(new IArtifactKey[0]);
+			IArtifactRepository nextRepo = keyIterator.next();
+			IArtifactKey[] keys = markSet.get(nextRepo).toArray(new IArtifactKey[0]);
 			MarkSet aMarkSet = new MarkSet(keys, nextRepo);
 			new CoreGarbageCollector().clean(aMarkSet.getKeys(), aMarkSet.getRepo());
 		}
@@ -148,10 +148,10 @@ public class GarbageCollector {
 			if (aProfileMarkSets[i] == null) {
 				continue;
 			}
-			Collection keys = (Collection) markSet.get(aProfileMarkSets[i].getRepo());
+			Collection<IArtifactKey> keys = markSet.get(aProfileMarkSets[i].getRepo());
 			if (keys == null) {
 				if (addRepositories) {
-					keys = new HashSet();
+					keys = new HashSet<IArtifactKey>();
 					markSet.put(aProfileMarkSets[i].getRepo(), keys);
 					addKeys(keys, aProfileMarkSets[i].getKeys());
 				}
@@ -161,7 +161,7 @@ public class GarbageCollector {
 		}
 	}
 
-	private void addKeys(Collection keyList, IArtifactKey[] keyArray) {
+	private void addKeys(Collection<IArtifactKey> keyList, IArtifactKey[] keyArray) {
 		for (int i = 0; i < keyArray.length; i++)
 			keyList.add(keyArray[i]);
 	}

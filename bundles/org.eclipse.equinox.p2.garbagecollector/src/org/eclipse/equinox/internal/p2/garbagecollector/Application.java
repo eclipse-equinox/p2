@@ -38,7 +38,7 @@ public class Application implements IApplication {
 	 */
 	public Object start(IApplicationContext context) throws Exception {
 		// TODO - do we have to start exemplarySetup here?
-		Map allArgs = context.getArguments();
+		Map<?, ?> allArgs = context.getArguments();
 		String[] args = (String[]) allArgs.get(IApplicationContext.APPLICATION_ARGS);
 		processArguments(args);
 		// if the user didn't give us a profile id, then use the default SDK one

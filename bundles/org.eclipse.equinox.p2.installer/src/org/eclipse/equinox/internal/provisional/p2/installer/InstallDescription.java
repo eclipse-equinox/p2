@@ -32,7 +32,7 @@ public class InstallDescription {
 	private URI[] metadataRepos;
 	private String productName;
 	private IVersionedId[] roots;
-	private final Map profileProperties = new HashMap();
+	private final Map<String, String> profileProperties = new HashMap<String, String>();
 
 	/**
 	 * Returns the p2 agent location, or <code>null</code> to indicate
@@ -85,7 +85,7 @@ public class InstallDescription {
 	/**
 	 * Returns the profile properties for this install.
 	 */
-	public Map getProfileProperties() {
+	public Map<String, String> getProfileProperties() {
 		return profileProperties;
 	}
 
@@ -139,7 +139,7 @@ public class InstallDescription {
 	 * Supplies a set of profile properties to be added when the profile is created.
 	 * @param properties the profile properties to be added
 	 */
-	public void setProfileProperties(Map properties) {
+	public void setProfileProperties(Map<String, String> properties) {
 		profileProperties.putAll(properties);
 	}
 
