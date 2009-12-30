@@ -39,10 +39,8 @@ public class CapabilityIndex implements ICapabilityIndex {
 		HashMap<String, Object> index = new HashMap<String, Object>();
 		while (itor.hasNext()) {
 			IInstallableUnit iu = itor.next();
-			List<IProvidedCapability> pcs = iu.getProvidedCapabilities();
-			int idx = pcs.size();
-			while (--idx >= 0) {
-				IProvidedCapability pc = pcs.get(idx);
+			Collection<IProvidedCapability> pcs = iu.getProvidedCapabilities();
+			for (IProvidedCapability pc : pcs) {
 				IUCapability iuCap = new IUCapability(iu, pc);
 				String name = pc.getName();
 				Object prev = index.put(name, iuCap);
