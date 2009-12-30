@@ -70,7 +70,7 @@ public class CollectAction extends ProvisioningAction {
 
 	// TODO: Here we may want to consult multiple caches
 	static IArtifactRequest[] collect(IProvisioningAgent agent, IProfile profile, IInstallableUnit installableUnit) throws ProvisionException {
-		List<IArtifactKey> toDownload = installableUnit.getArtifacts();
+		Collection<IArtifactKey> toDownload = installableUnit.getArtifacts();
 		if (toDownload == null || toDownload.size() == 0)
 			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
 
@@ -80,8 +80,7 @@ public class CollectAction extends ProvisioningAction {
 			throw new ProvisionException(Util.createError(NLS.bind(Messages.no_bundle_pool, profile.getProfileId())));
 
 		List<IArtifactRequest> requests = new ArrayList<IArtifactRequest>();
-		for (int i = 0; i < toDownload.size(); i++) {
-			IArtifactKey key = toDownload.get(i);
+		for (IArtifactKey key : toDownload) {
 			if (!aggregatedRepositoryView.contains(key)) {
 				Map<String, String> repositoryProperties = CollectAction.createArtifactDescriptorProperties(installableUnit);
 				requests.add(Util.getArtifactRepositoryManager(agent).createMirrorRequest(key, bundlePool, null, repositoryProperties));

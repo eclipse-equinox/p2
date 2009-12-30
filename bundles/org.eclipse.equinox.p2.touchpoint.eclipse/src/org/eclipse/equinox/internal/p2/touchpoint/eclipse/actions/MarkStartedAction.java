@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
 import java.io.File;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -38,11 +38,11 @@ public class MarkStartedAction extends ProvisioningAction {
 		if (started == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_STARTED, ID));
 
-		List<IArtifactKey> artifacts = iu.getArtifacts();
-		if (artifacts == null || artifacts.size() == 0)
+		Collection<IArtifactKey> artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.isEmpty())
 			return Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu));
 
-		IArtifactKey artifactKey = artifacts.get(0);
+		IArtifactKey artifactKey = artifacts.iterator().next();
 
 		// the bundleFile might be null here, that's OK.
 		File bundleFile = Util.getArtifactFile(agent, artifactKey, profile);
@@ -79,11 +79,11 @@ public class MarkStartedAction extends ProvisioningAction {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
 
-		List<IArtifactKey> artifacts = iu.getArtifacts();
+		Collection<IArtifactKey> artifacts = iu.getArtifacts();
 		if (artifacts == null || artifacts.isEmpty())
 			return Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu));
 
-		IArtifactKey artifactKey = artifacts.get(0);
+		IArtifactKey artifactKey = artifacts.iterator().next();
 		// the bundleFile might be null here, that's OK.
 		File bundleFile = Util.getArtifactFile(agent, artifactKey, profile);
 

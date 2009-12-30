@@ -127,13 +127,10 @@ public class Slicer {
 			return;
 		}
 
-		List<IRequirement> reqs = getRequiredCapabilities(iu);
-		int reqsCount = reqs.size();
-		if (reqsCount == 0) {
+		Collection<IRequirement> reqs = getRequiredCapabilities(iu);
+		if (reqs.isEmpty())
 			return;
-		}
-		for (int i = 0; i < reqsCount; i++) {
-			IRequirement req = reqs.get(i);
+		for (IRequirement req : reqs) {
 			if (!isApplicable(req))
 				continue;
 
@@ -149,8 +146,8 @@ public class Slicer {
 		return req.isGreedy();
 	}
 
-	private List<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
-		List<IRequirement> iuRequirements = iu.getRequiredCapabilities();
+	private Collection<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
+		Collection<IRequirement> iuRequirements = iu.getRequiredCapabilities();
 		int initialRequirementCount = iuRequirements.size();
 		if (!(iu instanceof IInstallableUnitPatch)) {
 			if (!considerMetaRequirements)

@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
 import org.eclipse.equinox.internal.p2.engine.Messages;
@@ -53,9 +52,9 @@ public class Unconfigure extends InstallableUnitPhase {
 		IInstallableUnit iu = operand.first();
 		parameters.put(PARM_IU, iu);
 
-		List<IArtifactKey> artifacts = iu.getArtifacts();
+		Collection<IArtifactKey> artifacts = iu.getArtifacts();
 		if (artifacts != null && artifacts.size() > 0)
-			parameters.put(PARM_ARTIFACT, artifacts.get(0));
+			parameters.put(PARM_ARTIFACT, artifacts.iterator().next());
 
 		return Status.OK_STATUS;
 	}

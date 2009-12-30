@@ -354,11 +354,12 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String[][] extractRequires(IInstallableUnit iu) {
-		List<IRequirement> requyres = iu.getRequiredCapabilities();
-		String[][] tuples = new String[requyres.size()][4];
-		for (int i = 0; i < requyres.size(); i++) {
-			IRequiredCapability next = (IRequiredCapability) requyres.get(i);
-			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
+		Collection<IRequirement> reqs = iu.getRequiredCapabilities();
+		String[][] tuples = new String[reqs.size()][4];
+		int i = 0;
+		for (Iterator iterator = reqs.iterator(); iterator.hasNext();) {
+			IRequiredCapability next = (IRequiredCapability) iterator.next();
+			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
 		return tuples;
 	}

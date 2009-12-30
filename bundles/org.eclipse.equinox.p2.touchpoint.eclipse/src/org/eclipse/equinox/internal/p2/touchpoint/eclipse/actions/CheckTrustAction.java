@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
@@ -45,11 +46,11 @@ public class CheckTrustAction extends ProvisioningAction {
 			return null;
 		@SuppressWarnings("unchecked")
 		Collection<File> bundleFiles = (Collection<File>) parameters.get(ActionConstants.PARM_ARTIFACT_FILES);
-		List<IArtifactKey> artifacts = iu.getArtifacts();
+		Collection<IArtifactKey> artifacts = iu.getArtifacts();
 		if (artifacts == null)
 			return null;
-		for (int i = 0; i < artifacts.size(); i++) {
-			File bundleFile = Util.getArtifactFile(agent, artifacts.get(i), profile);
+		for (IArtifactKey key : artifacts) {
+			File bundleFile = Util.getArtifactFile(agent, key, profile);
 			if (!bundleFiles.contains(bundleFile))
 				bundleFiles.add(bundleFile);
 		}

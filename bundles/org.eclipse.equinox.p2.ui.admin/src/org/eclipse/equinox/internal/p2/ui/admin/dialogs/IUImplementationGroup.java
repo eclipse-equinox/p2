@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
+import java.util.Collection;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
@@ -161,10 +162,11 @@ public class IUImplementationGroup extends IUGroup {
 		}
 		touchpointData.setItems(items);
 
-		java.util.List<IRequirement> req = iu.getRequiredCapabilities();
-		items = new String[req.size()];
-		for (int i = 0; i < req.size(); i++) {
-			items[i] = req.get(i).toString();
+		Collection<IRequirement> reqs = iu.getRequiredCapabilities();
+		items = new String[reqs.size()];
+		int j = 0;
+		for (IRequirement req : reqs) {
+			items[j++] = req.toString();
 		}
 		requiredCapabilities.setItems(items);
 		java.util.List<IProvidedCapability> prov = iu.getProvidedCapabilities();

@@ -71,7 +71,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 				else {
 					for (Iterator<IInstallableUnit> iterator = queryResult.iterator(); iterator.hasNext();) {
 						IInstallableUnit unit = iterator.next();
-						List<IArtifactKey> keys = unit.getArtifacts();
+						Collection<IArtifactKey> keys = unit.getArtifacts();
 						Filter filter = null;
 						try {
 							filter = iu.getArtifactFilter();
@@ -82,11 +82,11 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 
 						//we will only remove the metadata if all artifacts were removed
 						boolean removeMetadata = true;
-						for (int i = 0; i < keys.size(); i++) {
+						for (IArtifactKey key : keys) {
 							if (filter == null) {
-								artifacts.removeDescriptor(keys.get(i));
+								artifacts.removeDescriptor(key);
 							} else {
-								IArtifactDescriptor[] descriptors = artifacts.getArtifactDescriptors(keys.get(i));
+								IArtifactDescriptor[] descriptors = artifacts.getArtifactDescriptors(key);
 								for (int j = 0; j < descriptors.length; j++) {
 									if (filter.match(createDictionary(descriptors[j]))) {
 										artifacts.removeDescriptor(descriptors[j]);

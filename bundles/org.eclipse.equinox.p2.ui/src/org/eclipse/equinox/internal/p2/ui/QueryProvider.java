@@ -12,7 +12,7 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Collection;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.query.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
@@ -150,11 +150,12 @@ public class QueryProvider {
 			case INSTALLED_IUS :
 				// Querying of IU's.  We are drilling down into the requirements.
 				if (element instanceof IIUElement && context.getShowInstallChildren()) {
-					List<IRequirement> reqs = ((IIUElement) element).getRequirements();
+					Collection<IRequirement> reqs = ((IIUElement) element).getRequirements();
 					@SuppressWarnings("unchecked")
 					IQuery<IInstallableUnit>[] meetsAnyRequirementQuery = new IQuery[reqs.size()];
-					for (int i = 0; i < meetsAnyRequirementQuery.length; i++) {
-						meetsAnyRequirementQuery[i] = reqs.get(i).getMatches();
+					int i = 0;
+					for (IRequirement req : reqs) {
+						meetsAnyRequirementQuery[i++] = req.getMatches();
 					}
 					IQuery<IInstallableUnit> visibleAsAvailableQuery = policy.getVisibleAvailableIUQuery();
 					@SuppressWarnings("unchecked")

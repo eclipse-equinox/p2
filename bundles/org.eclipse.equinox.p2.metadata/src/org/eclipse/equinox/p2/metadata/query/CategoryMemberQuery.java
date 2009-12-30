@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.query;
 
-import java.util.List;
+import java.util.Collection;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
  * @since 2.0 
  */
 public class CategoryMemberQuery extends MatchQuery<IInstallableUnit> {
-	private final List<IRequirement> required;
+	private final Collection<IRequirement> required;
 
 	/**
 	 * Creates a new query that will return the members of the
@@ -47,10 +47,10 @@ public class CategoryMemberQuery extends MatchQuery<IInstallableUnit> {
 	public boolean isMatch(IInstallableUnit candidate) {
 		// since a category lists its members as requirements, then meeting
 		// any requirement means the candidate is a member of the category.
-		int top = required.size();
-		for (int i = 0; i < top; i++)
-			if (candidate.satisfies(required.get(i)))
+		for (IRequirement req : required) {
+			if (candidate.satisfies(req))
 				return true;
+		}
 		return false;
 	}
 }

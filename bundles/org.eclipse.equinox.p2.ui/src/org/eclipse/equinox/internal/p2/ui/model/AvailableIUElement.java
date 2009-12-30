@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
@@ -121,7 +121,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
 	 */
-	public List<IRequirement> getRequirements() {
+	public Collection<IRequirement> getRequirements() {
 		return iu.getRequiredCapabilities();
 	}
 

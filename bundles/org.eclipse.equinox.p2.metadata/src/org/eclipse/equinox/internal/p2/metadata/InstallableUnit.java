@@ -94,7 +94,7 @@ public class InstallableUnit implements IInstallableUnit {
 		return true;
 	}
 
-	public List<IArtifactKey> getArtifacts() {
+	public Collection<IArtifactKey> getArtifacts() {
 		return CollectionUtils.unmodifiableList(artifacts);
 	}
 

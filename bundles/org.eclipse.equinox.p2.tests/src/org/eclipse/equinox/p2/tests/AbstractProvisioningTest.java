@@ -479,7 +479,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	public static MetadataFactory.InstallableUnitDescription createIUDescriptor(IInstallableUnit prototype) {
 		InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
-		List<IArtifactKey> originalArtifacts = prototype.getArtifacts();
+		Collection<IArtifactKey> originalArtifacts = prototype.getArtifacts();
 		desc.setArtifacts(originalArtifacts.toArray(new IArtifactKey[originalArtifacts.size()]));
 		List<IProvidedCapability> originalCapabilities = prototype.getProvidedCapabilities();
 		desc.setCapabilities(originalCapabilities.toArray(new IProvidedCapability[originalCapabilities.size()]));
@@ -488,7 +488,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		desc.setId(prototype.getId());
 		List<ILicense> originalLicenses = prototype.getLicenses();
 		desc.setLicenses(originalLicenses.toArray(new ILicense[originalLicenses.size()]));
-		List<IRequirement> originalRequirements = prototype.getRequiredCapabilities();
+		Collection<IRequirement> originalRequirements = prototype.getRequiredCapabilities();
 		desc.setRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
 		originalRequirements = prototype.getMetaRequiredCapabilities();
 		desc.setMetaRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));

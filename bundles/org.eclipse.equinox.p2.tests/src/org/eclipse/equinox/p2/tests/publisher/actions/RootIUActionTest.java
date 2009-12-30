@@ -270,7 +270,7 @@ public class RootIUActionTest extends ActionTest {
 		IInstallableUnit iu = (IInstallableUnit) ius.get(0);
 		assertTrue(iu != null);
 		assertTrue(iu.getVersion().equals(versionArg));
-		List<IRequirement> required = iu.getRequiredCapabilities();
+		Collection<IRequirement> required = iu.getRequiredCapabilities();
 		if ((testSpec & EMPTY) > 0)
 			assertEquals(required.size(), 0);
 		String confirmedIUs = ""; //$NON-NLS-1$
@@ -296,10 +296,12 @@ public class RootIUActionTest extends ActionTest {
 			debug("Confirmed \t\t  Empty"); //$NON-NLS-1$
 	}
 
-	private boolean contains(List<IRequirement> required, String iu) {
-		for (int i = 0; i < required.size(); i++)
-			if (((IRequiredCapability) required.get(i)).getName().equalsIgnoreCase(iu))
+	private boolean contains(Collection<IRequirement> required, String iu) {
+		for (Iterator iterator = required.iterator(); iterator.hasNext();) {
+			IRequiredCapability req = (IRequiredCapability) iterator.next();
+			if (req.getName().equalsIgnoreCase(iu))
 				return true;
+		}
 		return false;
 	}
 

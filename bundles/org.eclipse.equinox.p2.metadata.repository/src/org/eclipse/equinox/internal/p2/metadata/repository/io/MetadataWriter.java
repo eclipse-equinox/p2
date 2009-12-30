@@ -132,12 +132,12 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	protected void writeRequiredCapabilities(List<IRequirement> capabilities) {
+	protected void writeRequiredCapabilities(Collection<IRequirement> capabilities) {
 		if (capabilities != null && capabilities.size() > 0) {
 			start(REQUIRED_CAPABILITIES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.size());
-			for (int i = 0; i < capabilities.size(); i++) {
-				writeRequiredCapability(capabilities.get(i));
+			for (IRequirement req : capabilities) {
+				writeRequiredCapability(req);
 			}
 			end(REQUIRED_CAPABILITIES_ELEMENT);
 		}
@@ -206,12 +206,11 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 
 	}
 
-	protected void writeArtifactKeys(List<IArtifactKey> artifactKeys) {
+	protected void writeArtifactKeys(Collection<IArtifactKey> artifactKeys) {
 		if (artifactKeys != null && artifactKeys.size() > 0) {
 			start(ARTIFACT_KEYS_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, artifactKeys.size());
-			for (int i = 0; i < artifactKeys.size(); i++) {
-				IArtifactKey artifactKey = artifactKeys.get(i);
+			for (IArtifactKey artifactKey : artifactKeys) {
 				start(ARTIFACT_KEY_ELEMENT);
 				attribute(ARTIFACT_KEY_CLASSIFIER_ATTRIBUTE, artifactKey.getClassifier());
 				attribute(ID_ATTRIBUTE, artifactKey.getId());

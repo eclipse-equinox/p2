@@ -95,7 +95,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	private void addArtifactKeys(IProfile aProfile) {
 		Iterator<IInstallableUnit> installableUnits = aProfile.query(InstallableUnitQuery.ANY, null).iterator();
 		while (installableUnits.hasNext()) {
-			List<IArtifactKey> keys = installableUnits.next().getArtifacts();
+			Collection<IArtifactKey> keys = installableUnits.next().getArtifacts();
 			if (keys == null)
 				continue;
 			artifactKeyList.addAll(keys);

@@ -46,7 +46,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return result;
 	}
 
-	public List<IArtifactKey> getArtifacts() {
+	public Collection<IArtifactKey> getArtifacts() {
 		return original.getArtifacts();
 	}
 
@@ -81,8 +81,8 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return result;
 	}
 
-	public List<IRequirement> getRequiredCapabilities() {
-		List<IRequirement> originalCapabilities = original.getRequiredCapabilities();
+	public Collection<IRequirement> getRequiredCapabilities() {
+		Collection<IRequirement> originalCapabilities = original.getRequiredCapabilities();
 		if (fragments.length == 0)
 			return originalCapabilities;
 

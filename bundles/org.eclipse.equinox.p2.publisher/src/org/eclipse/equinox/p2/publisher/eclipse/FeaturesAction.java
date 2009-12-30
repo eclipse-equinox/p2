@@ -453,7 +453,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 				IInstallableUnit iu = createFeatureRootFileIU(feature.getId(), feature.getVersion(), null, descriptor);
 
 				File[] files = descriptor.getFiles();
-				IArtifactKey artifactKey = iu.getArtifacts().get(0);
+				IArtifactKey artifactKey = iu.getArtifacts().iterator().next();
 				ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(artifactKey);
 				IPathComputer computer = advice.getRootFileComputer(config);
 				if (computer == null)
@@ -600,10 +600,10 @@ public class FeaturesAction extends AbstractPublisherAction {
 		// TODO this is a little strange.  If there are several artifacts, how do we know which files go with
 		// which artifacts when we publish them?  For now it would be surprising to have more than one
 		// artifact per feature IU.
-		List<IArtifactKey> artifacts = featureIU.getArtifacts();
-		for (int j = 0; j < artifacts.size(); j++) {
+		Collection<IArtifactKey> artifacts = featureIU.getArtifacts();
+		for (IArtifactKey artifactKey : artifacts) {
 			File file = new File(feature.getLocation());
-			ArtifactDescriptor ad = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(info.getArtifactRepository(), artifacts.get(j), file);
+			ArtifactDescriptor ad = (ArtifactDescriptor) PublisherHelper.createArtifactDescriptor(info.getArtifactRepository(), artifactKey, file);
 			processArtifactPropertiesAdvice(featureIU, ad, publisherInfo);
 			ad.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 			// if the artifact is a dir then zip it up.

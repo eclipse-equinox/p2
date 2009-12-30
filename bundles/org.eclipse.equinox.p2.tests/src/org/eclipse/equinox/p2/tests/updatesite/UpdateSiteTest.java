@@ -14,8 +14,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import junit.framework.Test;
@@ -607,10 +606,11 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		IQueryResult result = metadataRepo.query(query, null);
 		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit featureIU = (IInstallableUnit) result.iterator().next();
-		List<IRequirement> required = featureIU.getRequiredCapabilities();
-		for (int i = 0; i < required.size(); i++) {
-			if (((IRequiredCapability) required.get(i)).getName().equals("org.eclipse.ui.ide")) {
-				assertEquals("2.0", VersionRange.emptyRange, ((IRequiredCapability) required.get(i)).getRange());
+		Collection<IRequirement> required = featureIU.getRequiredCapabilities();
+		for (Iterator iterator = required.iterator(); iterator.hasNext();) {
+			IRequiredCapability req = (IRequiredCapability) iterator.next();
+			if (req.getName().equals("org.eclipse.ui.ide")) {
+				assertEquals("2.0", VersionRange.emptyRange, req.getRange());
 			}
 		}
 	}

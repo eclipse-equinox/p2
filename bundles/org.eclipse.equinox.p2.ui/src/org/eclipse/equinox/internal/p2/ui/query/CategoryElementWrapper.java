@@ -38,9 +38,8 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 	protected boolean shouldWrap(Object match) {
 		if (match instanceof IInstallableUnit) {
 			IInstallableUnit iu = (IInstallableUnit) match;
-			List<IRequirement> requirements = iu.getRequiredCapabilities();
-			for (int i = 0; i < requirements.size(); i++) {
-				IRequirement requirement = requirements.get(i);
+			Collection<IRequirement> requirements = iu.getRequiredCapabilities();
+			for (IRequirement requirement : requirements) {
 				if (requirement instanceof IRequiredCapability) {
 					if (((IRequiredCapability) requirement).getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
 						referredIUs.add(((IRequiredCapability) requirement).getName());

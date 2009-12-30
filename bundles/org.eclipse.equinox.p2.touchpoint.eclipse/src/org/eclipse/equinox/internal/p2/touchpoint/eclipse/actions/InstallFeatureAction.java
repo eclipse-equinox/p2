@@ -9,7 +9,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
 import java.io.File;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
@@ -42,13 +42,12 @@ public class InstallFeatureAction extends ProvisioningAction {
 		String featureId = (String) parameters.get(ActionConstants.PARM_FEATURE_ID);
 		String featureVersion = (String) parameters.get(ActionConstants.PARM_FEATURE_VERSION);
 
-		List<IArtifactKey> artifacts = iu.getArtifacts();
+		Collection<IArtifactKey> artifacts = iu.getArtifacts();
 		if (artifacts == null || artifacts.isEmpty())
 			return Util.createError(NLS.bind(Messages.iu_contains_no_arifacts, iu));
 
 		IArtifactKey artifactKey = null;
-		for (int i = 0; i < artifacts.size(); i++) {
-			IArtifactKey candidate = artifacts.get(i);
+		for (IArtifactKey candidate : artifacts) {
 			if (candidate.toString().equals(feature)) {
 				artifactKey = candidate;
 				break;

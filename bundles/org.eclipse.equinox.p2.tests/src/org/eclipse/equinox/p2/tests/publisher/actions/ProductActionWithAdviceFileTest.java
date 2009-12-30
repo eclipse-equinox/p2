@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
@@ -84,14 +83,16 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 		IQueryResult results = publisherResult.query(new IUQuery("org.eclipse.platform.ide", Version.create("3.5.0.I20081118")), null);
 		assertEquals("1.0", 1, queryResultSize(results));
 		IInstallableUnit unit = (IInstallableUnit) results.iterator().next();
-		List<IRequirement> requiredCapabilities = unit.getRequiredCapabilities();
+		Collection<IRequirement> requiredCapabilities = unit.getRequiredCapabilities();
 
 		IRequiredCapability capability = null;
-		for (int i = 0; i < requiredCapabilities.size(); i++)
-			if ((((IRequiredCapability) requiredCapabilities.get(i)).getName().equals("org.eclipse.equinox.p2.user.ui.feature.group"))) {
-				capability = (IRequiredCapability) requiredCapabilities.get(i);
+		for (Iterator iterator = requiredCapabilities.iterator(); iterator.hasNext();) {
+			IRequiredCapability req = (IRequiredCapability) iterator.next();
+			if (req.getName().equals("org.eclipse.equinox.p2.user.ui.feature.group")) {
+				capability = req;
 				break;
 			}
+		}
 		assertTrue("1.1", capability != null);
 		assertEquals("1.2", "(org.eclipse.update.install.features=true)", ((LDAPQuery) capability.getFilter()).getFilter());
 	}

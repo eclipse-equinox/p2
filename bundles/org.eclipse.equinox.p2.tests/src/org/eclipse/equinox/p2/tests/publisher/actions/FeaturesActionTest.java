@@ -87,7 +87,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertEquals("Foo Copyright", foo.getCopyright().getBody());
 		assertTrue(foo.getProperty("key1").equals("value1")); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(foo.getProperty("key2").equals("value2")); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(foo.getArtifacts().get(0).equals(FOO_KEY));
+		assertTrue(foo.getArtifacts().iterator().next().equals(FOO_KEY));
 		assertTrue(((LDAPQuery) foo.getFilter()).getFilter().equalsIgnoreCase("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
 
 		//check touchpointType
@@ -99,7 +99,7 @@ public class FeaturesActionTest extends ActionTest {
 		String fooValue = ((ITouchpointInstruction) tpData.get(0).getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
 		assertTrue(fooValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
-		List<IRequirement> fooRequiredCapabilities = foo.getRequiredCapabilities();
+		Collection<IRequirement> fooRequiredCapabilities = foo.getRequiredCapabilities();
 		assertTrue(fooRequiredCapabilities.size() == 0);
 
 		List<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
@@ -130,14 +130,14 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(bar.getProperty("key2").equals("value2")); //$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(bar.getProperties().containsKey("org.eclipse.update.installHandler")); //$NON-NLS-1$
 		assertTrue(bar.getProperties().containsValue("handler=bar handler")); //$NON-NLS-1$
-		assertTrue(bar.getArtifacts().get(0).equals(BAR_KEY));
+		assertTrue(bar.getArtifacts().iterator().next().equals(BAR_KEY));
 		assertTrue(((LDAPQuery) bar.getFilter()).getFilter().equalsIgnoreCase("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
 		assertTrue(bar.isSingleton());
 
 		barIUs = new ArrayList(publisherResult.getIUs("bar.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
 		assertTrue(fooIUs.size() == 1);
 		IInstallableUnit barGroup = (IInstallableUnit) barIUs.get(0);
-		List<IRequirement> barRequiredCapabilities = barGroup.getRequiredCapabilities();
+		Collection<IRequirement> barRequiredCapabilities = barGroup.getRequiredCapabilities();
 		//contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), null, false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "org.bar.feature.feature.group", VersionRange.emptyRange, "(&(|(osgi.nl=de)(osgi.nl=en)(osgi.nl=fr)))", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$

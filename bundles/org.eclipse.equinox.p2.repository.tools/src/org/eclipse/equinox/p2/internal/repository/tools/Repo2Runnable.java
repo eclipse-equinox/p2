@@ -51,15 +51,15 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			IInstallableUnit installableUnit = operand.second();
 
 			IArtifactRepositoryManager manager = getArtifactRepositoryManager();
-			List<IArtifactKey> toDownload = installableUnit.getArtifacts();
+			Collection<IArtifactKey> toDownload = installableUnit.getArtifacts();
 			if (toDownload == null)
 				return Status.OK_STATUS;
 
 			@SuppressWarnings("unchecked")
 			List<IArtifactRequest> artifactRequests = (List<IArtifactRequest>) parameters.get(NATIVE_ARTIFACTS);
 
-			for (int i = 0; i < toDownload.size(); i++) {
-				IArtifactRequest request = manager.createMirrorRequest(toDownload.get(i), destinationArtifactRepository, null, null);
+			for (IArtifactKey keyToDownload : toDownload) {
+				IArtifactRequest request = manager.createMirrorRequest(keyToDownload, destinationArtifactRepository, null, null);
 				artifactRequests.add(request);
 			}
 			return Status.OK_STATUS;

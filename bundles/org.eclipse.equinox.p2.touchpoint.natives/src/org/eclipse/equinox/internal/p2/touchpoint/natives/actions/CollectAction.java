@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
@@ -49,15 +50,15 @@ public class CollectAction extends ProvisioningAction {
 	}
 
 	IArtifactRequest[] collect(IProvisioningAgent agent, IInstallableUnit installableUnit, IProfile profile) throws ProvisionException {
-		List<IArtifactKey> toDownload = installableUnit.getArtifacts();
+		Collection<IArtifactKey> toDownload = installableUnit.getArtifacts();
 		if (toDownload == null)
 			return new IArtifactRequest[0];
 		IArtifactRepository destination = Util.getDownloadCacheRepo(agent);
 		IArtifactRequest[] requests = new IArtifactRequest[toDownload.size()];
 		int count = 0;
-		for (int i = 0; i < toDownload.size(); i++) {
+		for (IArtifactKey key : toDownload) {
 			//TODO Here there are cases where the download is not necessary again because what needs to be done is just a configuration step
-			requests[count++] = Util.getArtifactRepositoryManager(agent).createMirrorRequest(toDownload.get(i), destination, null, null);
+			requests[count++] = Util.getArtifactRepositoryManager(agent).createMirrorRequest(key, destination, null, null);
 		}
 
 		if (requests.length == count)

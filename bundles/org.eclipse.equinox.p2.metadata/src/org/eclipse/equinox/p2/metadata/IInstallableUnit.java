@@ -11,8 +11,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
@@ -95,7 +94,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 */
 	public static final String PROP_PROVIDER = "org.eclipse.equinox.p2.provider"; //$NON-NLS-1$
 
-	public List<IArtifactKey> getArtifacts();
+	public Collection<IArtifactKey> getArtifacts();
 
 	/**
 	 * Returns the filter on this installable unit. The filter is matched against
@@ -151,7 +150,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 
 	public List<IProvidedCapability> getProvidedCapabilities();
 
-	public List<IRequirement> getRequiredCapabilities();
+	public Collection<IRequirement> getRequiredCapabilities();
 
 	public List<IRequirement> getMetaRequiredCapabilities();
 

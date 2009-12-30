@@ -247,10 +247,8 @@ public class Projector {
 		BigInteger optionalWeight = maxWeight.negate();
 		long countOptional = 1;
 		List<IInstallableUnit> requestedPatches = new ArrayList<IInstallableUnit>();
-		List<IRequirement> reqs = metaIu.getRequiredCapabilities();
-		int top = reqs.size();
-		for (int j = 0; j < top; j++) {
-			IRequirement req = reqs.get(j);
+		Collection<IRequirement> reqs = metaIu.getRequiredCapabilities();
+		for (IRequirement req : reqs) {
 			if (req.getMin() > 0)
 				continue;
 			IQueryResult<IInstallableUnit> matches = picker.query(req.getMatches(), null);
@@ -390,14 +388,12 @@ public class Projector {
 		}
 	}
 
-	private void expandRequirements(List<IRequirement> reqs, IInstallableUnit iu, boolean isRootIu) throws ContradictionException {
-		int top = reqs.size();
-		if (top == 0) {
+	private void expandRequirements(Collection<IRequirement> reqs, IInstallableUnit iu, boolean isRootIu) throws ContradictionException {
+		if (reqs.isEmpty())
 			return;
-		}
 		List<AbstractVariable> optionalAbstractRequirements = new ArrayList<AbstractVariable>();
-		for (int i = 0; i < top; i++) {
-			expandRequirement(reqs.get(i), iu, optionalAbstractRequirements, isRootIu);
+		for (IRequirement req : reqs) {
+			expandRequirement(req, iu, optionalAbstractRequirements, isRootIu);
 		}
 		createOptionalityExpression(iu, optionalAbstractRequirements);
 	}
@@ -427,8 +423,8 @@ public class Projector {
 		}
 	}
 
-	private List<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
-		List<IRequirement> rqs = iu.getRequiredCapabilities();
+	private Collection<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
+		Collection<IRequirement> rqs = iu.getRequiredCapabilities();
 		if (!considerMetaRequirements)
 			return rqs;
 
@@ -450,7 +446,7 @@ public class Projector {
 
 	private void expandRequirementsWithPatches(IInstallableUnit iu, IQueryResult<IInstallableUnit> applicablePatches, boolean isRootIu) throws ContradictionException {
 		//Unmodified dependencies
-		List<IRequirement> iuRequirements = getRequiredCapabilities(iu);
+		Collection<IRequirement> iuRequirements = getRequiredCapabilities(iu);
 		Map<IRequirement, List<IInstallableUnitPatch>> unchangedRequirements = new HashMap<IRequirement, List<IInstallableUnitPatch>>(iuRequirements.size());
 		Map<IRequirement, Pending> nonPatchedRequirements = new HashMap<IRequirement, Pending>(iuRequirements.size());
 		for (Iterator<IInstallableUnit> iterator = applicablePatches.iterator(); iterator.hasNext();) {
@@ -667,7 +663,7 @@ public class Projector {
 		if (patch == null)
 			return null;
 		List<IRequirementChange> changes = patch.getRequirementsChange();
-		List<IRequirement> iuRequirements = iu.getRequiredCapabilities();
+		Collection<IRequirement> iuRequirements = iu.getRequiredCapabilities();
 		IRequirement[] originalRequirements = iuRequirements.toArray(new IRequirement[iuRequirements.size()]);
 		List<IRequirement[]> rrr = new ArrayList<IRequirement[]>();
 		boolean found = false;

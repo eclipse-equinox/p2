@@ -66,9 +66,9 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		Assert.fail("Missing ProvidedCapability: " + name + version.toString()); //$NON-NLS-1$
 	}
 
-	protected void verifyRequiredCapability(List<IRequirement> requirement, String namespace, String name, VersionRange range) {
-		for (int i = 0; i < requirement.size(); i++) {
-			IRequiredCapability required = (IRequiredCapability) requirement.get(i).getMatches();
+	protected void verifyRequiredCapability(Collection<IRequirement> requirement, String namespace, String name, VersionRange range) {
+		for (Iterator iterator = requirement.iterator(); iterator.hasNext();) {
+			IRequiredCapability required = (IRequiredCapability) iterator.next();
 			if (required.getName().equalsIgnoreCase(name) && required.getNamespace().equalsIgnoreCase(namespace) && required.getRange().equals(range))
 				return;
 		}
@@ -119,9 +119,9 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		fail();
 	}
 
-	protected void contains(List<IRequirement> capabilities, String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
-		for (int i = 0; i < capabilities.size(); i++) {
-			IRequiredCapability capability = (IRequiredCapability) capabilities.get(i).getMatches();
+	protected void contains(Collection<IRequirement> capabilities, String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
+		for (Iterator iterator = capabilities.iterator(); iterator.hasNext();) {
+			IRequiredCapability capability = (IRequiredCapability) iterator.next();
 			if (filter == null) {
 				if (capability.getFilter() != null)
 					continue;

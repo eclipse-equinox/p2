@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
@@ -29,7 +29,7 @@ import org.eclipse.equinox.p2.operations.ProvisioningSession;
 public class CategoryElement extends RemoteQueriedElement implements IIUElement {
 
 	private ArrayList<IInstallableUnit> ius = new ArrayList<IInstallableUnit>(1);
-	private List<IRequirement> requirements;
+	private Collection<IRequirement> requirements;
 
 	public CategoryElement(Object parent, IInstallableUnit iu) {
 		super(parent);
@@ -104,7 +104,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		return mergeKey;
 	}
 
-	public List<IRequirement> getRequirements() {
+	public Collection<IRequirement> getRequirements() {
 		if (ius == null || ius.isEmpty())
 			return CollectionUtils.emptyList();
 		if (requirements == null) {

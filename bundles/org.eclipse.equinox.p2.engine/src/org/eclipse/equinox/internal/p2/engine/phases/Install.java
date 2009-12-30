@@ -118,9 +118,9 @@ public class Install extends InstallableUnitPhase {
 		monitor.subTask(NLS.bind(Messages.Phase_Install_Task, iu.getId()));
 		parameters.put(PARM_IU, iu);
 
-		List<IArtifactKey> artifacts = iu.getArtifacts();
+		Collection<IArtifactKey> artifacts = iu.getArtifacts();
 		if (artifacts != null && artifacts.size() > 0)
-			parameters.put(PARM_ARTIFACT, artifacts.get(0));
+			parameters.put(PARM_ARTIFACT, artifacts.iterator().next());
 
 		return Status.OK_STATUS;
 	}
