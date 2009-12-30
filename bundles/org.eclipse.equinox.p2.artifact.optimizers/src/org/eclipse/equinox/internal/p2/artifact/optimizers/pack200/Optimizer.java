@@ -32,9 +32,9 @@ public class Optimizer {
 	}
 
 	public void run() {
-		IQueryResult keys = repository.query(ArtifactKeyQuery.ALL_KEYS, null);
-		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = (IArtifactKey) iterator.next();
+		IQueryResult<IArtifactKey> keys = repository.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
 			if (!key.getClassifier().equals("plugin")) //$NON-NLS-1$
 				continue;
 			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);

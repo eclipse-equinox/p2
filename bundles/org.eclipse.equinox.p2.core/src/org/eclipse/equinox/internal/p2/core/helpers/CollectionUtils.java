@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.core.helpers;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -228,5 +227,18 @@ public class CollectionUtils {
 			String key = (String) keys.nextElement();
 			result.put(key, properties.getProperty(key));
 		}
+	}
+
+	/**
+	 * Stores the properties using {@link Properties#store(OutputStream, String)} on the given <code>stream</code>.
+	 * @param properties The properties to store
+	 * @param stream The stream to store to
+	 * @param comment The comment to use
+	 * @throws IOException
+	 */
+	public static void storeProperties(Map<String, String> properties, OutputStream stream, String comment) throws IOException {
+		Properties props = new Properties();
+		props.putAll(properties);
+		props.store(stream, comment);
 	}
 }

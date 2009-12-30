@@ -15,8 +15,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -51,17 +50,16 @@ public class ProfileSynchronizer {
 	private static final String EXPLANATION = "org.eclipse.equinox.p2.director.explain"; //$NON-NLS-1$
 	final IProfile profile;
 
-	final Map repositoryMap;
-	private Properties timestamps;
+	final Map<String, IMetadataRepository> repositoryMap;
+	private Map<String, String> timestamps;
 
 	/*
 	 * Constructor for the class.
 	 */
-	public ProfileSynchronizer(IProfile profile, Collection repositories) {
+	public ProfileSynchronizer(IProfile profile, Collection<IMetadataRepository> repositories) {
 		this.profile = profile;
-		this.repositoryMap = new HashMap();
-		for (Iterator it = repositories.iterator(); it.hasNext();) {
-			IMetadataRepository repository = (IMetadataRepository) it.next();
+		this.repositoryMap = new HashMap<String, IMetadataRepository>();
+		for (IMetadataRepository repository : repositories) {
 			repositoryMap.put(repository.getLocation().toString(), repository);
 		}
 	}
@@ -120,13 +118,12 @@ public class ProfileSynchronizer {
 	private void writeTimestamps() {
 		timestamps.clear();
 		timestamps.put(PROFILE_TIMESTAMP, Long.toString(profile.getTimestamp()));
-		for (Iterator it = repositoryMap.entrySet().iterator(); it.hasNext();) {
-			Entry entry = (Entry) it.next();
-			IMetadataRepository repository = (IMetadataRepository) entry.getValue();
-			Map props = repository.getProperties();
+		for (Entry<String, IMetadataRepository> entry : repositoryMap.entrySet()) {
+			IMetadataRepository repository = entry.getValue();
+			Map<String, String> props = repository.getProperties();
 			String timestamp = null;
 			if (props != null)
-				timestamp = (String) props.get(IRepository.PROP_TIMESTAMP);
+				timestamp = props.get(IRepository.PROP_TIMESTAMP);
 
 			if (timestamp == null)
 				timestamp = NO_TIMESTAMP;
@@ -138,7 +135,7 @@ public class ProfileSynchronizer {
 			File file = Activator.getContext().getDataFile(TIMESTAMPS_FILE_PREFIX + profile.getProfileId().hashCode());
 			OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
 			try {
-				timestamps.store(os, "Timestamps for " + profile.getProfileId()); //$NON-NLS-1$
+				CollectionUtils.storeProperties(timestamps, os, "Timestamps for " + profile.getProfileId()); //$NON-NLS-1$
 			} finally {
 				if (os != null)
 					os.close();
@@ -155,26 +152,25 @@ public class ProfileSynchronizer {
 		if ("true".equals(Activator.getContext().getProperty("osgi.checkConfiguration"))) //$NON-NLS-1$//$NON-NLS-2$
 			return false;
 
-		String lastKnownProfileTimeStamp = (String) timestamps.remove(PROFILE_TIMESTAMP);
+		String lastKnownProfileTimeStamp = timestamps.remove(PROFILE_TIMESTAMP);
 		if (lastKnownProfileTimeStamp == null)
 			return false;
 		if (!lastKnownProfileTimeStamp.equals(Long.toString(profile.getTimestamp())))
 			return false;
 
 		//When we get here the timestamps map only contains information related to repos
-		for (Iterator it = repositoryMap.entrySet().iterator(); it.hasNext();) {
-			Entry entry = (Entry) it.next();
-			IMetadataRepository repository = (IMetadataRepository) entry.getValue();
+		for (Entry<String, IMetadataRepository> entry : repositoryMap.entrySet()) {
+			IMetadataRepository repository = entry.getValue();
 
-			Map props = repository.getProperties();
+			Map<String, String> props = repository.getProperties();
 			String currentTimestamp = null;
 			if (props != null)
-				currentTimestamp = (String) props.get(IRepository.PROP_TIMESTAMP);
+				currentTimestamp = props.get(IRepository.PROP_TIMESTAMP);
 
 			if (currentTimestamp == null)
 				currentTimestamp = NO_TIMESTAMP;
 
-			String lastKnownTimestamp = (String) timestamps.remove(entry.getKey());
+			String lastKnownTimestamp = timestamps.remove(entry.getKey());
 			//A repo has been added 
 			if (lastKnownTimestamp == null)
 				return false;
@@ -191,53 +187,54 @@ public class ProfileSynchronizer {
 
 	private void readTimestamps() {
 		File file = Activator.getContext().getDataFile(TIMESTAMPS_FILE_PREFIX + profile.getProfileId().hashCode());
-		timestamps = new Properties();
 		try {
 			InputStream is = new BufferedInputStream(new FileInputStream(file));
 			try {
-				timestamps.load(is);
+				timestamps = CollectionUtils.loadProperties(is);
 			} finally {
 				if (is != null)
 					is.close();
 			}
 		} catch (FileNotFoundException e) {
+			timestamps = new HashMap<String, String>();
 			//Ignore
 		} catch (IOException e) {
 			//Ignore
+			timestamps = new HashMap<String, String>();
 		}
 	}
 
 	private ProvisioningContext getContext() {
-		ArrayList repoURLs = new ArrayList();
-		for (Iterator iterator = repositoryMap.keySet().iterator(); iterator.hasNext();) {
+		ArrayList<URI> repoURLs = new ArrayList<URI>();
+		for (Iterator<String> iterator = repositoryMap.keySet().iterator(); iterator.hasNext();) {
 			try {
-				repoURLs.add(new URI((String) iterator.next()));
+				repoURLs.add(new URI(iterator.next()));
 			} catch (URISyntaxException e) {
 				//ignore
 			}
 		}
-		ProvisioningContext result = new ProvisioningContext((URI[]) repoURLs.toArray(new URI[repoURLs.size()]));
+		ProvisioningContext result = new ProvisioningContext(repoURLs.toArray(new URI[repoURLs.size()]));
 		result.setArtifactRepositories(new URI[0]);
 		return result;
 	}
 
 	private String synchronizeCacheExtensions() {
-		List currentExtensions = new ArrayList();
+		List<String> currentExtensions = new ArrayList<String>();
 		StringBuffer buffer = new StringBuffer();
 
-		List repositories = new ArrayList(repositoryMap.keySet());
+		List<String> repositories = new ArrayList<String>(repositoryMap.keySet());
 		final String OSGiInstallArea = Activator.getOSGiInstallArea().toExternalForm() + Constants.EXTENSION_LOCATION;
-		Collections.sort(repositories, new Comparator() {
-			public int compare(Object left, Object right) {
+		Collections.sort(repositories, new Comparator<String>() {
+			public int compare(String left, String right) {
 				if (OSGiInstallArea.equals(left))
 					return -1;
 				if (OSGiInstallArea.equals(right))
 					return 1;
-				return ((String) left).compareTo((String) right);
+				return left.compareTo(right);
 			}
 		});
-		for (Iterator it = repositories.iterator(); it.hasNext();) {
-			String repositoryId = (String) it.next();
+		for (Iterator<String> it = repositories.iterator(); it.hasNext();) {
+			String repositoryId = it.next();
 			try {
 				IArtifactRepository repository = Activator.loadArtifactRepository(new URI(repositoryId), null);
 
@@ -256,7 +253,7 @@ public class ProfileSynchronizer {
 		}
 		String currentExtensionsProperty = (buffer.length() == 0) ? null : buffer.toString();
 
-		List previousExtensions = new ArrayList();
+		List<String> previousExtensions = new ArrayList<String>();
 		String previousExtensionsProperty = profile.getProperty(CACHE_EXTENSIONS);
 		if (previousExtensionsProperty != null) {
 			StringTokenizer tokenizer = new StringTokenizer(previousExtensionsProperty, PIPE);
@@ -291,19 +288,19 @@ public class ProfileSynchronizer {
 		if (resolve)
 			request.removeProfileProperty("org.eclipse.equinox.p2.resolve"); //$NON-NLS-1$
 
-		List toAdd = new ArrayList();
-		List toRemove = new ArrayList();
+		List<IInstallableUnit> toAdd = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>();
 
 		boolean foundIUsToAdd = false;
-		Set profileIUs = profile.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
+		Set<IInstallableUnit> profileIUs = profile.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
 
 		// we use IProfile.available(...) here so that we also gather any shared IUs
-		Set availableProfileIUs = profile.available(InstallableUnitQuery.ANY, null).unmodifiableSet();
+		Set<IInstallableUnit> availableProfileIUs = profile.available(InstallableUnitQuery.ANY, null).unmodifiableSet();
 
 		// get all IUs from all our repos (toAdd)
-		Collector allIUs = getAllIUsFromRepos();
-		for (Iterator iter = allIUs.iterator(); iter.hasNext();) {
-			final IInstallableUnit iu = (IInstallableUnit) iter.next();
+		IQueryResult<IInstallableUnit> allIUs = getAllIUsFromRepos();
+		for (Iterator<IInstallableUnit> iter = allIUs.iterator(); iter.hasNext();) {
+			final IInstallableUnit iu = iter.next();
 			// if the IU is already installed in the profile then skip it
 			if (!profileIUs.contains(iu)) {
 				if (GroupQuery.isGroup(iu))
@@ -323,10 +320,10 @@ public class ProfileSynchronizer {
 		}
 
 		// get all IUs from profile with marked property (existing)
-		IQueryResult dropinIUs = profile.query(new IUProfilePropertyQuery(PROP_FROM_DROPINS, Boolean.toString(true)), null);
-		Set all = allIUs.unmodifiableSet();
-		for (Iterator iter = dropinIUs.iterator(); iter.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iter.next();
+		IQueryResult<IInstallableUnit> dropinIUs = profile.query(new IUProfilePropertyQuery(PROP_FROM_DROPINS, Boolean.toString(true)), null);
+		Set<IInstallableUnit> all = allIUs.unmodifiableSet();
+		for (Iterator<IInstallableUnit> iter = dropinIUs.iterator(); iter.hasNext();) {
+			IInstallableUnit iu = iter.next();
 			// the STRICT policy is set when we install things via the UI, we use it to differentiate between IUs installed
 			// via the dropins and the UI. (dropins are considered optional) If an IU has both properties set it means that
 			// it was initially installed via the dropins but then upgraded via the UI. (properties are copied from the old IU
@@ -351,8 +348,8 @@ public class ProfileSynchronizer {
 		}
 
 		context.setExtraIUs(toAdd);
-		request.addInstallableUnits((IInstallableUnit[]) toAdd.toArray(new IInstallableUnit[toAdd.size()]));
-		request.removeInstallableUnits((IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[toRemove.size()]));
+		request.addInstallableUnits(toAdd.toArray(new IInstallableUnit[toAdd.size()]));
+		request.removeInstallableUnits(toRemove.toArray(new IInstallableUnit[toRemove.size()]));
 		debug(request);
 		return request;
 	}
@@ -372,13 +369,12 @@ public class ProfileSynchronizer {
 				Tracing.debug(PREFIX + "Adding IU: " + toAdd[i].getId() + ' ' + toAdd[i].getVersion()); //$NON-NLS-1$
 			}
 		}
-		Map propsToAdd = request.getInstallableUnitProfilePropertiesToAdd();
+		Map<IInstallableUnit, Map<String, String>> propsToAdd = request.getInstallableUnitProfilePropertiesToAdd();
 		if (propsToAdd == null || propsToAdd.isEmpty()) {
 			Tracing.debug(PREFIX + "No IU properties to add."); //$NON-NLS-1$
 		} else {
-			for (Iterator iter = propsToAdd.keySet().iterator(); iter.hasNext();) {
-				Object key = iter.next();
-				Tracing.debug(PREFIX + "Adding IU property: " + key + "->" + propsToAdd.get(key)); //$NON-NLS-1$ //$NON-NLS-2$
+			for (Entry<IInstallableUnit, Map<String, String>> entry : propsToAdd.entrySet()) {
+				Tracing.debug(PREFIX + "Adding IU property: " + entry.getKey() + "->" + entry.getValue()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 
@@ -390,23 +386,20 @@ public class ProfileSynchronizer {
 				Tracing.debug(PREFIX + "Removing IU: " + toRemove[i].getId() + ' ' + toRemove[i].getVersion()); //$NON-NLS-1$
 			}
 		}
-		Map propsToRemove = request.getInstallableUnitProfilePropertiesToRemove();
+		Map<IInstallableUnit, List<String>> propsToRemove = request.getInstallableUnitProfilePropertiesToRemove();
 		if (propsToRemove == null || propsToRemove.isEmpty()) {
 			Tracing.debug(PREFIX + "No IU properties to remove."); //$NON-NLS-1$
 		} else {
-			for (Iterator iter = propsToRemove.keySet().iterator(); iter.hasNext();) {
-				Object key = iter.next();
-				Tracing.debug(PREFIX + "Removing IU property: " + key + "->" + propsToRemove.get(key)); //$NON-NLS-1$ //$NON-NLS-2$
+			for (Entry<IInstallableUnit, List<String>> entry : propsToRemove.entrySet()) {
+				Tracing.debug(PREFIX + "Removing IU property: " + entry.getKey() + "->" + entry.getValue()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}
 
-	private Collector getAllIUsFromRepos() {
+	private IQueryResult<IInstallableUnit> getAllIUsFromRepos() {
 		// TODO: Should consider using a sequenced iterator here instead of collecting
-		Collector allRepos = new Collector();
-		for (Iterator it = repositoryMap.entrySet().iterator(); it.hasNext();) {
-			Entry entry = (Entry) it.next();
-			IMetadataRepository repository = (IMetadataRepository) entry.getValue();
+		Collector<IInstallableUnit> allRepos = new Collector<IInstallableUnit>();
+		for (IMetadataRepository repository : repositoryMap.values()) {
 			allRepos.addAll(repository.query(InstallableUnitQuery.ANY, null));
 		}
 		return allRepos;

@@ -20,9 +20,9 @@ public class DeltaComputer {
 	private File destination;
 	private ZipFile baseJar;
 	private ZipFile targetJar;
-	private Set baseEntries;
-	private ArrayList additions;
-	private ArrayList changes;
+	private Set<String> baseEntries;
+	private ArrayList<ZipEntry> additions;
+	private ArrayList<ZipEntry> changes;
 	private ZipFile manifestJar = null;
 
 	public DeltaComputer(File base, File target, File destination) {
@@ -53,14 +53,14 @@ public class DeltaComputer {
 				// write out the removals.  These are all the entries left in the baseEntries
 				// since they were not seen in the targetJar.  Here just write out an empty
 				// entry with a name that signals the delta processor to delete.
-				for (Iterator i = baseEntries.iterator(); i.hasNext();)
-					writeEntry(result, new ZipEntry(((String) i.next()) + ".delete"), null, false);
+				for (String baseEntry : baseEntries)
+					writeEntry(result, new ZipEntry(baseEntry + ".delete"), null, false);
 				// write out the additions.
-				for (Iterator i = additions.iterator(); i.hasNext();)
-					writeEntry(result, (ZipEntry) i.next(), targetJar, false);
+				for (ZipEntry entry : additions)
+					writeEntry(result, entry, targetJar, false);
 				// write out the changes.
-				for (Iterator i = changes.iterator(); i.hasNext();)
-					writeEntry(result, (ZipEntry) i.next(), targetJar, false);
+				for (ZipEntry entry : changes)
+					writeEntry(result, entry, targetJar, false);
 			} finally {
 				if (result != null)
 					result.close();
@@ -116,12 +116,12 @@ public class DeltaComputer {
 	}
 
 	private void computeDelta() throws IOException {
-		changes = new ArrayList();
-		additions = new ArrayList();
+		changes = new ArrayList<ZipEntry>();
+		additions = new ArrayList<ZipEntry>();
 		// start out assuming that all the base entries are being removed
 		baseEntries = getEntries(baseJar);
-		for (Enumeration e = targetJar.entries(); e.hasMoreElements();)
-			check((ZipEntry) e.nextElement(), targetJar);
+		for (Enumeration<? extends ZipEntry> e = targetJar.entries(); e.hasMoreElements();)
+			check(e.nextElement(), targetJar);
 	}
 
 	private boolean openJars() {
@@ -188,10 +188,10 @@ public class DeltaComputer {
 		return true;
 	}
 
-	private Set getEntries(ZipFile jar) {
-		HashSet result = new HashSet(jar.size());
-		for (Enumeration e = jar.entries(); e.hasMoreElements();) {
-			ZipEntry entry = (ZipEntry) e.nextElement();
+	private Set<String> getEntries(ZipFile jar) {
+		HashSet<String> result = new HashSet<String>(jar.size());
+		for (Enumeration<? extends ZipEntry> e = jar.entries(); e.hasMoreElements();) {
+			ZipEntry entry = e.nextElement();
 			checkForManifest(entry, jar);
 			result.add(entry.getName());
 		}

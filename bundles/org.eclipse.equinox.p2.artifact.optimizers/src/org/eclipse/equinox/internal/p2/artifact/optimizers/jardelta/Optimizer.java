@@ -35,8 +35,8 @@ public class Optimizer {
 	private static final String JAR_DELTA_FORMAT = "jarDelta"; //$NON-NLS-1$
 	private static final String JAR_DELTA_PATCH_STEP = "org.eclipse.equinox.p2.processing.JarDeltaPatchStep"; //$NON-NLS-1$
 
-	private static final Comparator ARTIFACT_DESCRIPTOR_VERSION_COMPARATOR = new ArtifactDescriptorVersionComparator();
-	private static final Comparator ARTIFACT_KEY_VERSION_COMPARATOR = new ArtifactKeyVersionComparator();
+	private static final Comparator<IArtifactDescriptor> ARTIFACT_DESCRIPTOR_VERSION_COMPARATOR = new ArtifactDescriptorVersionComparator();
+	private static final Comparator<IArtifactKey> ARTIFACT_KEY_VERSION_COMPARATOR = new ArtifactKeyVersionComparator();
 
 	/**
 	 * This optimizer performs delta generation based on (currently) jbdiff. 
@@ -75,8 +75,8 @@ public class Optimizer {
 
 	public void run() {
 		System.out.println("Starting delta (jardelta) optimizations (width=" + width + ", depth=" + depth + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		IQueryResult queryResult = repository.query(ArtifactKeyQuery.ALL_KEYS, null);
-		IArtifactKey[][] keys = getSortedRelatedArtifactKeys((IArtifactKey[]) queryResult.toArray(IArtifactKey.class));
+		IQueryResult<IArtifactKey> queryResult = repository.query(ArtifactKeyQuery.ALL_KEYS, null);
+		IArtifactKey[][] keys = getSortedRelatedArtifactKeys(queryResult);
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i].length < 2)
 				// Nothing to diff here!
@@ -128,22 +128,22 @@ public class Optimizer {
 	 * @param artifactKeys
 	 * @return the sorted artifact keys
 	 */
-	private IArtifactKey[][] getSortedRelatedArtifactKeys(IArtifactKey[] artifactKeys) {
-		Map map = new HashMap();
-		for (int i = 0; i < artifactKeys.length; i++) {
-			IArtifactKey freeKey = getVersionlessKey(artifactKeys[i]);
-			List values = (List) map.get(freeKey);
+	private IArtifactKey[][] getSortedRelatedArtifactKeys(IQueryResult<IArtifactKey> artifactKeys) {
+		Map<IArtifactKey, List<IArtifactKey>> map = new HashMap<IArtifactKey, List<IArtifactKey>>();
+		for (Iterator<IArtifactKey> iter = artifactKeys.iterator(); iter.hasNext();) {
+			IArtifactKey nxt = iter.next();
+			IArtifactKey freeKey = getVersionlessKey(nxt);
+			List<IArtifactKey> values = map.get(freeKey);
 			if (values == null) {
-				values = new ArrayList();
+				values = new ArrayList<IArtifactKey>();
 				map.put(freeKey, values);
 			}
-			values.add(artifactKeys[i]);
+			values.add(nxt);
 		}
 		IArtifactKey[][] lists = new IArtifactKey[map.size()][];
 		int i = 0;
-		for (Iterator iterator = map.values().iterator(); iterator.hasNext();) {
-			List artifactKeyList = (List) iterator.next();
-			IArtifactKey[] relatedArtifactKeys = (IArtifactKey[]) artifactKeyList.toArray(new IArtifactKey[artifactKeyList.size()]);
+		for (List<IArtifactKey> artifactKeyList : map.values()) {
+			IArtifactKey[] relatedArtifactKeys = artifactKeyList.toArray(new IArtifactKey[artifactKeyList.size()]);
 			Arrays.sort(relatedArtifactKeys, ARTIFACT_KEY_VERSION_COMPARATOR);
 			lists[i++] = relatedArtifactKeys;
 		}
@@ -214,7 +214,7 @@ public class Optimizer {
 
 	private IArtifactDescriptor[] getSortedCompletePredecessors(IArtifactKey artifactKey, IArtifactKey[] relatedArtifactKeys) {
 		// get all artifact keys
-		List completeDescriptors = new ArrayList(relatedArtifactKeys.length);
+		List<IArtifactDescriptor> completeDescriptors = new ArrayList<IArtifactDescriptor>(relatedArtifactKeys.length);
 		for (int i = 0; i < relatedArtifactKeys.length; i++) {
 			// if we find ´our self´ skip
 			if (relatedArtifactKeys[i].equals(artifactKey))
@@ -229,7 +229,7 @@ public class Optimizer {
 			}
 		}
 
-		IArtifactDescriptor[] completeSortedDescriptors = (IArtifactDescriptor[]) completeDescriptors.toArray(new IArtifactDescriptor[completeDescriptors.size()]);
+		IArtifactDescriptor[] completeSortedDescriptors = completeDescriptors.toArray(new IArtifactDescriptor[completeDescriptors.size()]);
 		// Sort, so to allow a depth lookup!
 		Arrays.sort(completeSortedDescriptors, ARTIFACT_DESCRIPTOR_VERSION_COMPARATOR);
 		return completeSortedDescriptors;
@@ -246,15 +246,15 @@ public class Optimizer {
 		return descriptor.getProcessingSteps().length == 0;
 	}
 
-	static final class ArtifactDescriptorVersionComparator implements Comparator {
-		public int compare(Object artifactDescriptor0, Object artifactDescriptor1) {
-			return -1 * ((IArtifactDescriptor) artifactDescriptor0).getArtifactKey().getVersion().compareTo(((IArtifactDescriptor) artifactDescriptor1).getArtifactKey().getVersion());
+	static final class ArtifactDescriptorVersionComparator implements Comparator<IArtifactDescriptor> {
+		public int compare(IArtifactDescriptor artifactDescriptor0, IArtifactDescriptor artifactDescriptor1) {
+			return -1 * artifactDescriptor0.getArtifactKey().getVersion().compareTo(artifactDescriptor1.getArtifactKey().getVersion());
 		}
 	}
 
-	static final class ArtifactKeyVersionComparator implements Comparator {
-		public int compare(Object artifactKey0, Object artifactKey1) {
-			return -1 * ((IArtifactKey) artifactKey0).getVersion().compareTo(((IArtifactKey) artifactKey1).getVersion());
+	static final class ArtifactKeyVersionComparator implements Comparator<IArtifactKey> {
+		public int compare(IArtifactKey artifactKey0, IArtifactKey artifactKey1) {
+			return -1 * artifactKey0.getVersion().compareTo(artifactKey1.getVersion());
 		}
 	}
 }

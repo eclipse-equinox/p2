@@ -29,7 +29,7 @@ public class Application implements IApplication {
 	private int depth = 1;
 
 	public Object start(IApplicationContext context) throws Exception {
-		Map args = context.getArguments();
+		Map<?, ?> args = context.getArguments();
 		initializeFromArguments((String[]) args.get("application.args")); //$NON-NLS-1$
 		IArtifactRepository repository = setupRepository(artifactRepositoryLocation);
 		new Optimizer(repository, width, depth).run();

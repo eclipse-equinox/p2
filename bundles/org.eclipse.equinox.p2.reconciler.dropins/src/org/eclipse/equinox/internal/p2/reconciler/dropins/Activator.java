@@ -51,9 +51,9 @@ public class Activator implements BundleActivator {
 	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
 	private ServiceReference packageAdminRef;
-	private List watchers = new ArrayList();
-	private final static Set repositories = new HashSet();
-	private Collection filesToCheck = null;
+	private List<DirectoryWatcher> watchers = new ArrayList<DirectoryWatcher>();
+	private final static Set<IMetadataRepository> repositories = new HashSet<IMetadataRepository>();
+	private Collection<File> filesToCheck = null;
 
 	/**
 	 * Helper method to create an extension location metadata repository at the given URI. 
@@ -64,7 +64,7 @@ public class Activator implements BundleActivator {
 	 * @throws IllegalStateException
 	 * @throws ProvisionException 
 	 */
-	public static IMetadataRepository createExtensionLocationMetadataRepository(URI location, String name, Map properties) throws ProvisionException {
+	public static IMetadataRepository createExtensionLocationMetadataRepository(URI location, String name, Map<String, String> properties) throws ProvisionException {
 		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
@@ -100,7 +100,7 @@ public class Activator implements BundleActivator {
 	 * @throws IllegalStateException
 	 * @throws ProvisionException 
 	 */
-	public static IArtifactRepository createExtensionLocationArtifactRepository(URI location, String name, Map properties) throws ProvisionException {
+	public static IArtifactRepository createExtensionLocationArtifactRepository(URI location, String name, Map<String, String> properties) throws ProvisionException {
 		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
@@ -133,7 +133,7 @@ public class Activator implements BundleActivator {
 	 * Return the set of metadata repositories known to this bundle. It is constructed from the repos
 	 * for the drop-ins as well as the ones in the configuration.
 	 */
-	public static Set getRepositories() {
+	public static Set<IMetadataRepository> getRepositories() {
 		return repositories;
 	}
 
@@ -220,9 +220,9 @@ public class Activator implements BundleActivator {
 			return false;
 
 		// gather the list of files/folders that we need to check
-		Collection files = getFilesToCheck();
-		for (Iterator iter = files.iterator(); iter.hasNext();) {
-			File file = (File) iter.next();
+		Collection<File> files = getFilesToCheck();
+		for (Iterator<File> iter = files.iterator(); iter.hasNext();) {
+			File file = iter.next();
 			String key = file.getAbsolutePath();
 			String timestamp = timestamps.getProperty(key);
 			if (timestamp == null)
@@ -266,11 +266,11 @@ public class Activator implements BundleActivator {
 	 * Return a collection of files which are interesting to us when we want to record timestamps
 	 * to figure out if something has changed and perhaps avoid an unnecessary reconcilation.
 	 */
-	private Collection getFilesToCheck() {
+	private Collection<File> getFilesToCheck() {
 		if (filesToCheck != null)
 			return filesToCheck;
 
-		Set result = new HashSet();
+		Set<File> result = new HashSet<File>();
 
 		// configuration/org.eclipse.update/platform.xml, configuration/../plugins, configuration/../features
 		File configuration = getConfigurationLocation();
@@ -314,8 +314,8 @@ public class Activator implements BundleActivator {
 	 * Iterate over the given collection of files (could be dropins or links folders) and 
 	 * return a collection of files that might be interesting to check the timestamps of.
 	 */
-	private Collection getDropinsToCheck(File[] files) {
-		Collection result = new HashSet();
+	private Collection<File> getDropinsToCheck(File[] files) {
+		Collection<File> result = new HashSet<File>();
 		for (int outer = 0; outer < files.length; outer++) {
 			// add top-level file/folder
 			result.add(files[outer]);
@@ -372,9 +372,9 @@ public class Activator implements BundleActivator {
 	 */
 	private void writeTimestamps() {
 		Properties timestamps = new Properties();
-		Collection files = getFilesToCheck();
-		for (Iterator iter = files.iterator(); iter.hasNext();) {
-			File file = (File) iter.next();
+		Collection<File> files = getFilesToCheck();
+		for (Iterator<File> iter = files.iterator(); iter.hasNext();) {
+			File file = iter.next();
 			timestamps.put(file.getAbsolutePath(), Long.toString(file.lastModified()));
 		}
 
@@ -465,6 +465,7 @@ public class Activator implements BundleActivator {
 		PlatformXmlListener listener = new PlatformXmlListener(configFile);
 		watcher.addListener(listener);
 		watcher.poll();
+		watchers.add(watcher);
 		repositories.addAll(listener.getMetadataRepositories());
 	}
 
@@ -472,7 +473,7 @@ public class Activator implements BundleActivator {
 	 * Create a new directory watcher with a repository listener on the drop-ins folder. 
 	 */
 	private void watchDropins() {
-		List directories = new ArrayList();
+		List<File> directories = new ArrayList<File>();
 		File[] dropinsDirectories = getDropinsDirectories();
 		directories.addAll(Arrays.asList(dropinsDirectories));
 		File[] linksDirectories = getLinksDirectories();
@@ -481,9 +482,10 @@ public class Activator implements BundleActivator {
 			return;
 
 		DropinsRepositoryListener listener = new DropinsRepositoryListener(DROPINS);
-		DirectoryWatcher watcher = new DirectoryWatcher((File[]) directories.toArray(new File[directories.size()]));
+		DirectoryWatcher watcher = new DirectoryWatcher(directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();
+		watchers.add(watcher);
 		repositories.addAll(listener.getMetadataRepositories());
 	}
 
@@ -491,10 +493,8 @@ public class Activator implements BundleActivator {
 	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext context) throws Exception {
-		for (Iterator iter = watchers.iterator(); iter.hasNext();) {
-			DirectoryWatcher watcher = (DirectoryWatcher) iter.next();
+		for (DirectoryWatcher watcher : watchers)
 			watcher.stop();
-		}
 		bundleContext = null;
 		setPackageAdmin(null);
 		context.ungetService(packageAdminRef);
@@ -571,7 +571,7 @@ public class Activator implements BundleActivator {
 	 * more than one to be returned here if we are running in shared mode.
 	 */
 	private static File[] getLinksDirectories() {
-		List linksDirectories = new ArrayList();
+		List<File> linksDirectories = new ArrayList<File>();
 		File root = getEclipseHome();
 		if (root != null)
 			linksDirectories.add(new File(root, LINKS));
@@ -584,7 +584,7 @@ public class Activator implements BundleActivator {
 			if (configuration != null && configuration.getParentFile() != null)
 				linksDirectories.add(new File(configuration.getParentFile(), LINKS));
 		}
-		return (File[]) linksDirectories.toArray(new File[linksDirectories.size()]);
+		return linksDirectories.toArray(new File[linksDirectories.size()]);
 	}
 
 	/*
@@ -594,7 +594,7 @@ public class Activator implements BundleActivator {
 	 * local dropins directory.
 	 */
 	private static File[] getDropinsDirectories() {
-		List dropinsDirectories = new ArrayList();
+		List<File> dropinsDirectories = new ArrayList<File>();
 		// did the user specify one via System properties?
 		String watchedDirectoryProperty = bundleContext.getProperty(DROPINS_DIRECTORY);
 		if (watchedDirectoryProperty != null)
@@ -613,7 +613,7 @@ public class Activator implements BundleActivator {
 			if (configuration != null && configuration.getParentFile() != null)
 				dropinsDirectories.add(new File(configuration.getParentFile(), DROPINS));
 		}
-		return (File[]) dropinsDirectories.toArray(new File[dropinsDirectories.size()]);
+		return dropinsDirectories.toArray(new File[dropinsDirectories.size()]);
 	}
 
 	/*

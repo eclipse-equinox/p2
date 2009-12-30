@@ -40,8 +40,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private static final String DROPIN_ARTIFACT_REPOSITORIES = "dropin.artifactRepositories"; //$NON-NLS-1$
 	private static final String DROPIN_METADATA_REPOSITORIES = "dropin.metadataRepositories"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
-	private List metadataRepositories = new ArrayList();
-	private List artifactRepositories = new ArrayList();
+	private List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
+	private List<IArtifactRepository> artifactRepositories = new ArrayList<IArtifactRepository>();
 
 	public DropinsRepositoryListener(String repositoryName) {
 		super(repositoryName, true);
@@ -67,7 +67,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 
 	private void addRepository(File file) {
 		URI repoLocation = createRepositoryLocation(file);
-		Properties properties = new Properties();
+		Map<String, String> properties = new HashMap<String, String>();
 		// if the file pointed to a link file, keep track of the attribute
 		// so we can add it to the repo later
 		if (file.isFile() && file.getName().endsWith(LINK)) {
@@ -174,7 +174,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		return repo.toURI();
 	}
 
-	public void getMetadataRepository(URI repoURL, Properties properties) {
+	public void getMetadataRepository(URI repoURL, Map<String, String> properties) {
 		try {
 			IMetadataRepository repository = null;
 			try {
@@ -189,7 +189,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		}
 	}
 
-	public void getArtifactRepository(URI repoURL, Properties properties) {
+	public void getArtifactRepository(URI repoURL, Map<String, String> properties) {
 		try {
 			IArtifactRepository repository = null;
 			try {
@@ -212,14 +212,14 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private void synchronizeDropinMetadataRepositories() {
-		List currentRepositories = new ArrayList();
-		for (Iterator it = metadataRepositories.iterator(); it.hasNext();) {
-			IMetadataRepository repository = (IMetadataRepository) it.next();
+		List<String> currentRepositories = new ArrayList<String>();
+		for (Iterator<IMetadataRepository> it = metadataRepositories.iterator(); it.hasNext();) {
+			IMetadataRepository repository = it.next();
 			currentRepositories.add(repository.getLocation().toString());
 		}
-		List previousRepositories = getListRepositoryProperty(getMetadataRepository(), DROPIN_METADATA_REPOSITORIES);
-		for (Iterator iterator = previousRepositories.iterator(); iterator.hasNext();) {
-			String repository = (String) iterator.next();
+		List<String> previousRepositories = getListRepositoryProperty(getMetadataRepository(), DROPIN_METADATA_REPOSITORIES);
+		for (Iterator<String> iterator = previousRepositories.iterator(); iterator.hasNext();) {
+			String repository = iterator.next();
 			if (!currentRepositories.contains(repository))
 				removeMetadataRepository(repository);
 		}
@@ -238,14 +238,14 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private void synchronizeDropinArtifactRepositories() {
-		List currentRepositories = new ArrayList();
-		for (Iterator it = artifactRepositories.iterator(); it.hasNext();) {
-			IArtifactRepository repository = (IArtifactRepository) it.next();
+		List<String> currentRepositories = new ArrayList<String>();
+		for (Iterator<IArtifactRepository> it = artifactRepositories.iterator(); it.hasNext();) {
+			IArtifactRepository repository = it.next();
 			currentRepositories.add(repository.getLocation().toString());
 		}
-		List previousRepositories = getListRepositoryProperty(getArtifactRepository(), DROPIN_ARTIFACT_REPOSITORIES);
-		for (Iterator iterator = previousRepositories.iterator(); iterator.hasNext();) {
-			String repository = (String) iterator.next();
+		List<String> previousRepositories = getListRepositoryProperty(getArtifactRepository(), DROPIN_ARTIFACT_REPOSITORIES);
+		for (Iterator<String> iterator = previousRepositories.iterator(); iterator.hasNext();) {
+			String repository = iterator.next();
 			if (!currentRepositories.contains(repository))
 				removeArtifactRepository(repository);
 		}
@@ -263,9 +263,9 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		}
 	}
 
-	private List getListRepositoryProperty(IRepository repository, String key) {
-		List listProperty = new ArrayList();
-		String dropinRepositories = (String) repository.getProperties().get(key);
+	private List<String> getListRepositoryProperty(IRepository<?> repository, String key) {
+		List<String> listProperty = new ArrayList<String>();
+		String dropinRepositories = repository.getProperties().get(key);
 		if (dropinRepositories != null) {
 			StringTokenizer tokenizer = new StringTokenizer(dropinRepositories, PIPE);
 			while (tokenizer.hasMoreTokens()) {
@@ -275,10 +275,10 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		return listProperty;
 	}
 
-	private void setListRepositoryProperty(IRepository repository, String key, List listProperty) {
+	private void setListRepositoryProperty(IRepository<?> repository, String key, List<String> listProperty) {
 		StringBuffer buffer = new StringBuffer();
-		for (Iterator it = listProperty.iterator(); it.hasNext();) {
-			String repositoryString = (String) it.next();
+		for (Iterator<String> it = listProperty.iterator(); it.hasNext();) {
+			String repositoryString = it.next();
 			buffer.append(repositoryString);
 			if (it.hasNext())
 				buffer.append(PIPE);
@@ -287,8 +287,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		repository.setProperty(key, value);
 	}
 
-	public Collection getMetadataRepositories() {
-		List result = new ArrayList(metadataRepositories);
+	public Collection<IMetadataRepository> getMetadataRepositories() {
+		List<IMetadataRepository> result = new ArrayList<IMetadataRepository>(metadataRepositories);
 		result.add(getMetadataRepository());
 		return result;
 	}

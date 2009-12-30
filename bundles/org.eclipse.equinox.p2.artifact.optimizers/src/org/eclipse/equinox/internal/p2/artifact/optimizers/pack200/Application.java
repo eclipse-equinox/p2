@@ -30,7 +30,7 @@ public class Application implements IApplication {
 	private URI artifactRepositoryLocation;
 
 	public Object start(IApplicationContext context) throws Exception {
-		Map args = context.getArguments();
+		Map<?, ?> args = context.getArguments();
 		initializeFromArguments((String[]) args.get("application.args")); //$NON-NLS-1$
 		IArtifactRepository repository = setupRepository(artifactRepositoryLocation);
 		if (!repository.isModifiable())
