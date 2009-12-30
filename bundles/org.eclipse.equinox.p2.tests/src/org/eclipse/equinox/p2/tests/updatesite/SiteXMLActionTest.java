@@ -12,7 +12,8 @@ package org.eclipse.equinox.p2.tests.updatesite;
 
 import java.io.File;
 import java.net.URI;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction;
@@ -58,10 +59,10 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 			assertTrue("1.0", unit.getId().startsWith(sitelocation));
 			assertEquals("2.0", "Test Category Label", unit.getProperty(IInstallableUnit.PROP_NAME));
 
-			List<IProvidedCapability> provided = unit.getProvidedCapabilities();
+			Collection<IProvidedCapability> provided = unit.getProvidedCapabilities();
 			assertEquals(1, provided.size());
-			assertTrue(provided.get(0).getName().startsWith(sitelocation));
-			assertEquals(provided.get(0).getVersion(), unit.getVersion());
+			assertTrue(provided.iterator().next().getName().startsWith(sitelocation));
+			assertEquals(provided.iterator().next().getVersion(), unit.getVersion());
 		}
 	}
 

@@ -37,10 +37,10 @@ Import-Package: javax.xml.parsers,
  org.osgi.util.tracker;version="1.3.0",
  org.w3c.dom,
  org.xml.sax
-Export-Package: org.eclipse.equinox.internal.p2.touchpoint.eclipse;x-friends:="org.eclipse.equinox.p2.reconciler.dropins,org.eclipse.equinox.p2.extensionlocation",
- org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;x-internal:=true,
- org.eclipse.equinox.internal.p2.update;x-friends:="org.eclipse.equinox.p2.reconciler.dropins,org.eclipse.equinox.p2.extensionlocation,org.eclipse.equinox.p2.directorywatcher",
- org.eclipse.equinox.p2.touchpoint.eclipse.query
+Export-Package: org.eclipse.equinox.internal.p2.touchpoint.eclipse;version="2.0.0";x-friends:="org.eclipse.equinox.p2.reconciler.dropins,org.eclipse.equinox.p2.extensionlocation",
+ org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;version="2.0.0";x-internal:=true,
+ org.eclipse.equinox.internal.p2.update;version="2.0.0";x-friends:="org.eclipse.equinox.p2.reconciler.dropins,org.eclipse.equinox.p2.extensionlocation,org.eclipse.equinox.p2.directorywatcher",
+ org.eclipse.equinox.p2.touchpoint.eclipse.query;version="2.0.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  J2SE-1.4,
  CDC-1.1/Foundation-1.1

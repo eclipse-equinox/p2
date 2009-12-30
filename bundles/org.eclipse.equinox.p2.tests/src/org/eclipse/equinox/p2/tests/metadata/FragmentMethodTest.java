@@ -26,8 +26,8 @@ public class FragmentMethodTest extends TestCase {
 	private static final String TEST_REQUIRED = "testRequired";
 	IInstallableUnit iu1;
 	IInstallableUnit iu3;
-	List<IProvidedCapability> iu1Caps;
-	List<IProvidedCapability> iu3Caps;
+	Collection<IProvidedCapability> iu1Caps;
+	Collection<IProvidedCapability> iu3Caps;
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -57,26 +57,24 @@ public class FragmentMethodTest extends TestCase {
 	}
 
 	public void testCapabilities() {
-		List<IProvidedCapability> iuCapabilities = iu1Caps;
-		List<IProvidedCapability> initialFragmentCapabilities = iu3Caps;
-
-		List<IProvidedCapability> mergedCapabilities = iu1.getProvidedCapabilities();
-		for (int i = 0; i < iuCapabilities.size(); i++) {
-			FragmentTest.assertContainsWithEquals(mergedCapabilities, iuCapabilities.get(i));
+		Collection<IProvidedCapability> mergedCapabilities = iu1.getProvidedCapabilities();
+		for (IProvidedCapability capability : mergedCapabilities) {
+			FragmentTest.assertContainsWithEquals(mergedCapabilities, capability);
 		}
 
 		//The fragment property is not set
 		assertNull(iu1.getProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT));
 
 		//The fragment does not contain iu namespace
-		for (int i = 0; i < initialFragmentCapabilities.size(); i++) {
-			if (initialFragmentCapabilities.get(i).getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
-				assertDoesNotContain(mergedCapabilities, initialFragmentCapabilities.get(i));
+		Collection<IProvidedCapability> initialFragmentCapabilities = iu3Caps;
+		for (IProvidedCapability capability : initialFragmentCapabilities) {
+			if (capability.getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
+				assertDoesNotContain(mergedCapabilities, capability);
 				break;
 			}
 		}
 
-		assertEquals("The fragment capabilities should not change", initialFragmentCapabilities, iu3.getProvidedCapabilities(), false);
+		assertEquals("The fragment capabilities should not change", initialFragmentCapabilities, iu3.getProvidedCapabilities());
 	}
 
 	protected void assertEquals(String message, Object[] expected, Object[] actual) {
@@ -90,13 +88,7 @@ public class FragmentMethodTest extends TestCase {
 			assertEquals(message, expected[i], actual[i]);
 	}
 
-	protected void assertEquals(String message, List<? extends Object> expected, List<? extends Object> actual, boolean orderImportant) {
-		// if the order in the array must match exactly, then call the other method
-		if (orderImportant) {
-			assertEquals(message, expected, actual);
-			return;
-		}
-		// otherwise use this method and check that the arrays are equal in any order
+	protected void assertEquals(String message, Collection<? extends Object> expected, Collection<? extends Object> actual) {
 		if (expected == null && actual == null)
 			return;
 		if (expected == actual)
@@ -105,23 +97,13 @@ public class FragmentMethodTest extends TestCase {
 			assertTrue(message + ".1", false);
 		if (expected.size() != actual.size())
 			assertTrue(message + ".2", false);
-		boolean[] found = new boolean[expected.size()];
-		for (int i = 0; i < expected.size(); i++) {
-			for (int j = 0; j < expected.size(); j++) {
-				if (!found[j] && expected.get(i).equals(actual.get(j)))
-					found[j] = true;
-			}
-		}
-		for (int i = 0; i < found.length; i++)
-			if (!found[i])
-				assertTrue(message + ".3." + i, false);
+		if (!expected.containsAll(actual))
+			fail(message + ".3");
 	}
 
-	public static void assertDoesNotContain(List<? extends Object> objects, Object searched) {
-		for (int i = 0; i < objects.size(); i++) {
-			if (objects.get(i).equals(searched))
-				throw new AssertionFailedError("The array should not contain the searched element");
-		}
+	public static void assertDoesNotContain(Collection<? extends Object> objects, Object searched) {
+		if (objects.contains(searched))
+			throw new AssertionFailedError("The array should not contain the searched element");
 	}
 
 	public void testProperties() {

@@ -102,7 +102,7 @@ public class FeaturesActionTest extends ActionTest {
 		Collection<IRequirement> fooRequiredCapabilities = foo.getRequiredCapabilities();
 		assertTrue(fooRequiredCapabilities.size() == 0);
 
-		List<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
+		Collection<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
 		contains(fooProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "foo.feature.jar", fooVersion); //$NON-NLS-1$
 		contains(fooProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$ 
 		contains(fooProvidedCapabilities, "org.eclipse.update.feature", FOO, fooVersion); //$NON-NLS-1$
@@ -155,7 +155,7 @@ public class FeaturesActionTest extends ActionTest {
 
 		assertTrue(barRequiredCapabilities.size() == 0);
 
-		List<IProvidedCapability> barProvidedCapabilities = bar.getProvidedCapabilities();
+		Collection<IProvidedCapability> barProvidedCapabilities = bar.getProvidedCapabilities();
 		contains(barProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", barVersion); //$NON-NLS-1$ 
 		contains(barProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$ 
 		contains(barProvidedCapabilities, "org.eclipse.update.feature", BAR, barVersion); //$NON-NLS-1$

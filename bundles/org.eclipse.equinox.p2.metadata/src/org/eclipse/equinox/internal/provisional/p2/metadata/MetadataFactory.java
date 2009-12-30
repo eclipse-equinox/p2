@@ -64,7 +64,7 @@ public class MetadataFactory {
 		public void addProvidedCapabilities(Collection<IProvidedCapability> additional) {
 			if (additional == null || additional.size() == 0)
 				return;
-			List<IProvidedCapability> current = unit().getProvidedCapabilities();
+			Collection<IProvidedCapability> current = unit().getProvidedCapabilities();
 			ArrayList<IProvidedCapability> all = new ArrayList<IProvidedCapability>(additional.size() + current.size());
 			all.addAll(current);
 			all.addAll(additional);
@@ -90,7 +90,7 @@ public class MetadataFactory {
 			return unit().getId();
 		}
 
-		public List<IProvidedCapability> getProvidedCapabilities() {
+		public Collection<IProvidedCapability> getProvidedCapabilities() {
 			return unit().getProvidedCapabilities();
 		}
 

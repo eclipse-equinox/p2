@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.touchpoint.eclipse.query;
 
-import java.util.List;
+import java.util.Collection;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -31,10 +31,9 @@ public class OSGiBundleQuery extends MatchQuery<IInstallableUnit> {
 	 * @return <tt>true</tt> if the parameter describes an OSGi bundle.
 	 */
 	public static boolean isOSGiBundle(IInstallableUnit iu) {
-		List<IProvidedCapability> provided = iu.getProvidedCapabilities();
-		int sz = provided.size();
-		for (int i = 0; i < sz; i++) {
-			if (provided.get(i).getNamespace().equals("osgi.bundle")) { //$NON-NLS-1$
+		Collection<IProvidedCapability> provided = iu.getProvidedCapabilities();
+		for (IProvidedCapability capability : provided) {
+			if (capability.getNamespace().equals("osgi.bundle")) { //$NON-NLS-1$
 				return true;
 			}
 		}

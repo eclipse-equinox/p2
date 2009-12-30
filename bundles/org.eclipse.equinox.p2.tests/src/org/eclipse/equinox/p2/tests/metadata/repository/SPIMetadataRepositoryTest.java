@@ -681,7 +681,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		IInstallableUnit spiUnit = (IInstallableUnit) queryResult.iterator().next();
 		assertTrue("Repo contains SPI IU)", spiUnit instanceof SPIInstallableUnit);
 		assertEquals(spiUnit.getProvidedCapabilities().size(), 1);
-		assertTrue(spiUnit.getProvidedCapabilities().get(0) instanceof ProvidedCapability);
+		assertTrue(spiUnit.getProvidedCapabilities().iterator().next() instanceof ProvidedCapability);
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
 		queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
@@ -691,7 +691,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		IInstallableUnit defaultUnit = (IInstallableUnit) queryResult.iterator().next();
 		assertTrue("Repo contains SPI IU)", defaultUnit instanceof InstallableUnit);
 		assertEquals(spiUnit.getProvidedCapabilities().size(), 1);
-		assertTrue(spiUnit.getProvidedCapabilities().get(0) instanceof ProvidedCapability);
+		assertTrue(spiUnit.getProvidedCapabilities().iterator().next() instanceof ProvidedCapability);
 	}
 
 	/**
@@ -808,11 +808,11 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().iterator().next()).getName(), spiRequiredCapability.getName());
 		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().iterator().next()).getMin(), spiRequiredCapability.getMin());
 		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().iterator().next()).getMax(), spiRequiredCapability.getMax());
-		assertEquals(unit.getProvidedCapabilities().get(0), spiProvidedCapability);
+		assertEquals(unit.getProvidedCapabilities().iterator().next(), spiProvidedCapability);
 		assertEquals(unit.getTouchpointData().get(0), spiTouchpointData);
 		assertEquals(unit.getTouchpointType(), spiTouchpointType);
 		assertEquals(unit.getLicenses().get(0), spiLicense);
-		assertEquals(spiProvidedCapability, unit.getProvidedCapabilities().get(0));
+		assertEquals(spiProvidedCapability, unit.getProvidedCapabilities().iterator().next());
 		assertEquals(spiTouchpointData, unit.getTouchpointData().get(0));
 		assertEquals(spiTouchpointType, unit.getTouchpointType());
 		assertEquals(spiLicense, unit.getLicenses().get(0));
@@ -825,7 +825,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		// been refreshed, and re-parsed, thus using the default implementations.
 		assertFalse(spiTouchpointData == unit.getTouchpointData().get(0));
 		assertFalse(spiRequiredCapability == unit.getRequiredCapabilities().iterator().next());
-		assertFalse(spiProvidedCapability == unit.getProvidedCapabilities().get(0));
+		assertFalse(spiProvidedCapability == unit.getProvidedCapabilities().iterator().next());
 		assertFalse(spiTouchpointType == unit.getTouchpointType());
 		assertFalse(spiLicense == unit.getLicenses().get(0));
 	}

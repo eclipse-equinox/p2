@@ -13,8 +13,7 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 import static org.easymock.EasyMock.expect;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
@@ -60,7 +59,7 @@ public class ConfigCUsActionTest extends ActionTest {
 		assertTrue(iu.getId().equalsIgnoreCase(flavor + id + ".configuration")); //$NON-NLS-1$
 
 		//verify ProvidedCapabilities
-		List<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
+		Collection<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, "org.eclipse.equinox.p2.iu", iu.getId(), version); //$NON-NLS-1$
 		//		verifyProvidedCapability(providedCapabilities, flavor + id, id + ".config", version); //$NON-NLS-1$
 		assertTrue(providedCapabilities.size() == 1);
@@ -85,7 +84,7 @@ public class ConfigCUsActionTest extends ActionTest {
 				assertTrue(((LDAPQuery) iu.getFilter()).getFilter().equals("(& (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))")); //$NON-NLS-1$
 				assertTrue(iu.getVersion().equals(version));
 				assertFalse(iu.isSingleton());
-				List<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
+				Collection<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + "." + cuType + "." + configSpec, version); //$NON-NLS-1$//$NON-NLS-2$
 				verifyProvidedCapability(providedCapabilities, flavor + id, id + "." + cuType, version); //$NON-NLS-1$
 				assertTrue(providedCapabilities.size() == 2);

@@ -87,9 +87,8 @@ public class FragmentTest extends AbstractProvisioningTest {
 
 	public void testDefaultIUCapability() {
 		IInstallableUnit iu = createEclipseIU("ui.test1");
-		List<IProvidedCapability> cap = iu.getProvidedCapabilities();
-		for (int i = 0; i < cap.size(); i++) {
-			IProvidedCapability c = cap.get(i);
+		Collection<IProvidedCapability> capabilities = iu.getProvidedCapabilities();
+		for (IProvidedCapability c : capabilities) {
 			if (c.getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
 				assertEquals(c.getNamespace(), IInstallableUnit.NAMESPACE_IU_ID);
 				assertEquals(c.getName(), iu.getId());
@@ -107,11 +106,10 @@ public class FragmentTest extends AbstractProvisioningTest {
 		throw new AssertionFailedError("The array does not contain the searched element");
 	}
 
-	public static void assertContainsWithEquals(List<? extends Object> objects, Object searched) {
-		for (int i = 0; i < objects.size(); i++) {
-			if (objects.get(i).equals(searched))
-				return;
-		}
+	public static void assertContainsWithEquals(Collection<? extends Object> objects, Object searched) {
+		if (objects.contains(searched))
+			return;
+
 		throw new AssertionFailedError("The array does not contain the searched element");
 	}
 

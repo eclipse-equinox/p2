@@ -182,9 +182,10 @@ public class IUPropertyUtils {
 				boolean haveLocale = false;
 				if (object instanceof IInstallableUnitFragment) {
 					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
-					List<IProvidedCapability> provides = fragment.getProvidedCapabilities();
-					for (int j = 0; j < provides.size() && !haveLocale; j++) {
-						IProvidedCapability nextProvide = provides.get(j);
+					Collection<IProvidedCapability> provides = fragment.getProvidedCapabilities();
+					Iterator<IProvidedCapability> it = provides.iterator();
+					while (it.hasNext() && !haveLocale) {
+						IProvidedCapability nextProvide = it.next();
 						if (NAMESPACE_IU_LOCALIZATION.equals(nextProvide.getNamespace())) {
 							String providedLocale = nextProvide.getName();
 							if (providedLocale != null) {

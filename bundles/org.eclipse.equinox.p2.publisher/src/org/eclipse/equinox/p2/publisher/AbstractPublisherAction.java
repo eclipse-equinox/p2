@@ -359,10 +359,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			//process provided capabilities
 			IProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
 			if (providedAdvice != null) {
-				List<IProvidedCapability> current = iu.getProvidedCapabilities();
+				Collection<IProvidedCapability> current = iu.getProvidedCapabilities();
 				Set<IProvidedCapability> resultProvidedCapabilities = new HashSet<IProvidedCapability>(current);
-				for (int j = 0; j < current.size(); j++) {
-					IProvidedCapability currentProvidedCapability = current.get(j);
+				for (IProvidedCapability currentProvidedCapability : resultProvidedCapabilities) {
 					for (int k = 0; k < providedAdvice.length; k++) {
 						IProvidedCapability providedCapability = providedAdvice[k];
 						if (providedCapability.getNamespace().equals(currentProvidedCapability.getNamespace()) && providedCapability.getName().equals(currentProvidedCapability.getName())) {

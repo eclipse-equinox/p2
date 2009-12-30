@@ -344,11 +344,11 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String[][] extractProvides(IInstallableUnit iu) {
-		List<IProvidedCapability> provydes = iu.getProvidedCapabilities();
+		Collection<IProvidedCapability> provydes = iu.getProvidedCapabilities();
 		String[][] tuples = new String[provydes.size()][3];
-		for (int i = 0; i < provydes.size(); i++) {
-			IProvidedCapability next = provydes.get(i);
-			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getVersion().toString()};
+		int i = 0;
+		for (IProvidedCapability capability : provydes) {
+			tuples[i++] = new String[] {capability.getNamespace(), capability.getName(), capability.getVersion().toString()};
 		}
 		return tuples;
 	}

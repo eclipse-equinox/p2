@@ -70,8 +70,8 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getProperty(key, locale);
 	}
 
-	public List<IProvidedCapability> getProvidedCapabilities() {
-		List<IProvidedCapability> originalCapabilities = original.getProvidedCapabilities();
+	public Collection<IProvidedCapability> getProvidedCapabilities() {
+		Collection<IProvidedCapability> originalCapabilities = original.getProvidedCapabilities();
 		if (fragments.length == 0)
 			return originalCapabilities;
 
@@ -185,11 +185,11 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 	}
 
 	public boolean satisfies(IRequirement candidate) {
-		List<IProvidedCapability> provides = getProvidedCapabilities();
-		int top = provides.size();
-		for (int i = 0; i < top; i++)
-			if (provides.get(i).satisfies(candidate))
+		Collection<IProvidedCapability> provides = getProvidedCapabilities();
+		for (IProvidedCapability capability : provides) {
+			if (capability.satisfies(candidate))
 				return true;
+		}
 		return false;
 	}
 

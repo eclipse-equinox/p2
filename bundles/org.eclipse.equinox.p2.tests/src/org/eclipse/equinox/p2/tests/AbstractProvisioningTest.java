@@ -481,7 +481,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
 		Collection<IArtifactKey> originalArtifacts = prototype.getArtifacts();
 		desc.setArtifacts(originalArtifacts.toArray(new IArtifactKey[originalArtifacts.size()]));
-		List<IProvidedCapability> originalCapabilities = prototype.getProvidedCapabilities();
+		Collection<IProvidedCapability> originalCapabilities = prototype.getProvidedCapabilities();
 		desc.setCapabilities(originalCapabilities.toArray(new IProvidedCapability[originalCapabilities.size()]));
 		desc.setCopyright(prototype.getCopyright());
 		desc.setFilter(prototype.getFilter() == null ? null : ((LDAPQuery) prototype.getFilter()).getFilter());

@@ -134,7 +134,7 @@ public class InstallableUnit implements IInstallableUnit {
 		return properties().getProperty(key);
 	}
 
-	public List<IProvidedCapability> getProvidedCapabilities() {
+	public Collection<IProvidedCapability> getProvidedCapabilities() {
 		return CollectionUtils.unmodifiableList(providedCapabilities);
 	}
 

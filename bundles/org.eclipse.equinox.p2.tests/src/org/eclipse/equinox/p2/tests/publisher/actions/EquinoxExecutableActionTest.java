@@ -92,7 +92,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			IInstallableUnit possibleEclipse = (IInstallableUnit) iuList.get(i);
 			if (possibleEclipse.getId().equals(flavorArg + idBase + ".executable." + configSpec)) {//$NON-NLS-1$ 
 				IInstallableUnitFragment fragment = (IInstallableUnitFragment) iuList.get(i);
-				List<IProvidedCapability> providedCapability = fragment.getProvidedCapabilities();
+				Collection<IProvidedCapability> providedCapability = fragment.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + idBase + ".executable." + configSpec, version); //$NON-NLS-1$ 
 				assertTrue(providedCapability.size() == 1);
 				Collection<IRequirement> requiredCapability = fragment.getRequiredCapabilities();
@@ -112,7 +112,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			IInstallableUnit possibleEclipse = (IInstallableUnit) iuList.get(i);
 			if (possibleEclipse.getId().equals((idBase + ".executable." + configSpec + ".eclipse"))) { //$NON-NLS-1$//$NON-NLS-2$
 				assertTrue(possibleEclipse.getVersion().equals(version));
-				List<IProvidedCapability> providedCapability = possibleEclipse.getProvidedCapabilities();
+				Collection<IProvidedCapability> providedCapability = possibleEclipse.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec + ".eclipse", version); //$NON-NLS-1$ //$NON-NLS-2$ 
 				assertTrue(providedCapability.size() == 1);
 				Collection<IRequirement> req = possibleEclipse.getRequiredCapabilities();
@@ -138,7 +138,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				assertTrue(eKey.getClassifier().equals("binary")); //$NON-NLS-1$
 				assertTrue(eKey.getId().equals(idBase + ".executable." + configSpec)); //$NON-NLS-1$
 				assertTrue(eKey.getVersion().equals(version));
-				List<IProvidedCapability> providedCapabilities = possibleExec.getProvidedCapabilities();
+				Collection<IProvidedCapability> providedCapabilities = possibleExec.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec, version); //$NON-NLS-1$ 
 				verifyProvidedCapability(providedCapabilities, flavorArg + idBase, idBase + ".executable", version); //$NON-NLS-1$
 				assertTrue(providedCapabilities.size() == 2);

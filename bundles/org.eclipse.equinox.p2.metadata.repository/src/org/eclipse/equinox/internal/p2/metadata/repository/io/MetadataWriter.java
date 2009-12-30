@@ -105,16 +105,15 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	protected void writeProvidedCapabilities(List<IProvidedCapability> capabilities) {
+	protected void writeProvidedCapabilities(Collection<IProvidedCapability> capabilities) {
 		if (capabilities != null && capabilities.size() > 0) {
 			start(PROVIDED_CAPABILITIES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.size());
-			for (int i = 0; i < capabilities.size(); i++) {
-				IProvidedCapability pc = capabilities.get(i);
+			for (IProvidedCapability capability : capabilities) {
 				start(PROVIDED_CAPABILITY_ELEMENT);
-				attribute(NAMESPACE_ATTRIBUTE, pc.getNamespace());
-				attribute(NAME_ATTRIBUTE, pc.getName());
-				attribute(VERSION_ATTRIBUTE, pc.getVersion());
+				attribute(NAMESPACE_ATTRIBUTE, capability.getNamespace());
+				attribute(NAME_ATTRIBUTE, capability.getName());
+				attribute(VERSION_ATTRIBUTE, capability.getVersion());
 				end(PROVIDED_CAPABILITY_ELEMENT);
 			}
 			end(PROVIDED_CAPABILITIES_ELEMENT);

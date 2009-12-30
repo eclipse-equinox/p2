@@ -169,10 +169,11 @@ public class IUImplementationGroup extends IUGroup {
 			items[j++] = req.toString();
 		}
 		requiredCapabilities.setItems(items);
-		java.util.List<IProvidedCapability> prov = iu.getProvidedCapabilities();
+		Collection<IProvidedCapability> prov = iu.getProvidedCapabilities();
 		items = new String[prov.size()];
-		for (int i = 0; i < prov.size(); i++) {
-			items[i] = prov.get(i).toString();
+		int i = 0;
+		for (IProvidedCapability capability : prov) {
+			items[i++] = capability.toString();
 		}
 		providedCapabilities.setItems(items);
 	}

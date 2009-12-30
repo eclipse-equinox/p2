@@ -81,7 +81,7 @@ public class JREActionTest extends ActionTest {
 		assertTrue(foo.getTouchpointType().getVersion().equals(Version.create("1.0.0"))); //$NON-NLS-1$
 
 		// check provided capabilities
-		List<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
+		Collection<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
 		assertTrue(fooProvidedCapabilities.size() == numProvidedCapabilities);
 
 		ArrayList barIUs = new ArrayList(publisherResult.getIUs("config." + id, IPublisherResult.ROOT)); //$NON-NLS-1$
@@ -97,7 +97,7 @@ public class JREActionTest extends ActionTest {
 		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(JREVersion, true, Version.MAX_VERSION, true)); //$NON-NLS-1$ 
 		assertTrue(requiredCapability.size() == 1);
 
-		List<IProvidedCapability> providedCapability = bar.getProvidedCapabilities();
+		Collection<IProvidedCapability> providedCapability = bar.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, "config." + id, JREVersion); //$NON-NLS-1$ 
 		assertTrue(providedCapability.size() == 1);
 

@@ -321,14 +321,17 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(false, req1.isGreedy());
 		assertEquals(1, req1.getMin());
 
-		List<IProvidedCapability> provided = iu1.getProvidedCapabilities();
+		Collection<IProvidedCapability> provided = iu1.getProvidedCapabilities();
+		Iterator<IProvidedCapability> it4 = provided.iterator();
+		IProvidedCapability cap1 = it4.next();
+		IProvidedCapability cap2 = it4.next();
 		assertEquals(2, provided.size());
-		assertEquals("testNamespace1", provided.get(0).getNamespace());
-		assertEquals("testName1", provided.get(0).getName());
-		assertEquals(Version.create("1.2.3"), provided.get(0).getVersion());
-		assertEquals("testNamespace2", provided.get(1).getNamespace());
-		assertEquals("testName2", provided.get(1).getName());
-		assertEquals(Version.emptyVersion, provided.get(1).getVersion());
+		assertEquals("testNamespace1", cap1.getNamespace());
+		assertEquals("testName1", cap1.getName());
+		assertEquals(Version.create("1.2.3"), cap1.getVersion());
+		assertEquals("testNamespace2", cap2.getNamespace());
+		assertEquals("testName2", cap2.getName());
+		assertEquals(Version.emptyVersion, cap2.getVersion());
 
 		Collection<IRequirement> metarequirements = iu1.getMetaRequiredCapabilities();
 		assertEquals(2, metarequirements.size());

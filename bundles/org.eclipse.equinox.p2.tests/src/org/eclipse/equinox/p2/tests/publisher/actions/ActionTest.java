@@ -57,9 +57,8 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 
-	protected void verifyProvidedCapability(List<IProvidedCapability> prov, String namespace, String name, Version version) {
-		for (int i = 0; i < prov.size(); i++) {
-			IProvidedCapability pc = prov.get(i);
+	protected void verifyProvidedCapability(Collection<IProvidedCapability> prov, String namespace, String name, Version version) {
+		for (IProvidedCapability pc : prov) {
 			if (pc.getName().equalsIgnoreCase(name) && pc.getNamespace().equalsIgnoreCase(namespace) && pc.getVersion().equals(version))
 				return; // pass
 		}
@@ -110,9 +109,8 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		return map;
 	}
 
-	protected void contains(List<IProvidedCapability> capabilities, String namespace, String name, Version version) {
-		for (int i = 0; i < capabilities.size(); i++) {
-			IProvidedCapability capability = capabilities.get(i);
+	protected void contains(Collection<IProvidedCapability> capabilities, String namespace, String name, Version version) {
+		for (IProvidedCapability capability : capabilities) {
 			if (capability.getNamespace().equals(namespace) && capability.getName().equals(name) && capability.getVersion().equals(version))
 				return;
 		}

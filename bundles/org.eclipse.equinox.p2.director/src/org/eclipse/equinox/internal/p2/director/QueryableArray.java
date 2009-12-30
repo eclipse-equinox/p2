@@ -83,10 +83,8 @@ public class QueryableArray implements IQueryable<IInstallableUnit> {
 		namedCapabilityIndex = new HashMap<String, List<IUCapability>>();
 		for (IInstallableUnit iu : dataSet) {
 
-			List<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
-			int top = providedCapabilities.size();
-			for (int i = 0; i < top; i++) {
-				IProvidedCapability pc = providedCapabilities.get(i);
+			Collection<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
+			for (IProvidedCapability pc : providedCapabilities) {
 				String name = pc.getName();
 				List<IUCapability> iuCapabilities = namedCapabilityIndex.get(name);
 				if (iuCapabilities == null) {

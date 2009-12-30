@@ -192,7 +192,7 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals("2.0", 1, requiredCapability.size());
 
 		// check provided capabilities
-		List<IProvidedCapability> providedCapabilities = bundle1IU.getProvidedCapabilities();
+		Collection<IProvidedCapability> providedCapabilities = bundle1IU.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST1_PROVZ_NAMESPACE, TEST1_PROVZ_NAME, TEST2_PROVZ_VERSION);
@@ -229,7 +229,7 @@ public class BundlesActionTest extends ActionTest {
 		assertTrue(requiredCapabilities.size() == 3 /*number of tested elements*/);
 
 		// check provided capabilities
-		List<IProvidedCapability> providedCapabilities = bundle2IU.getProvidedCapabilities();
+		Collection<IProvidedCapability> providedCapabilities = bundle2IU.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST2_PROVBUNDLE_NAME, PROVBUNDLE2_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROVZ_NAMESPACE, TEST2_PROVZ_NAME, TEST2_PROVZ_VERSION);

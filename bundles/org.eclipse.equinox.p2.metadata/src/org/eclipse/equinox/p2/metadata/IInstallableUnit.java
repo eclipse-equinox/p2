@@ -148,7 +148,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 */
 	public String getProperty(String key, String locale);
 
-	public List<IProvidedCapability> getProvidedCapabilities();
+	public Collection<IProvidedCapability> getProvidedCapabilities();
 
 	public Collection<IRequirement> getRequiredCapabilities();
 

@@ -67,7 +67,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 				verifyRequiredCapability(iu.getRequiredCapabilities(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 				assertTrue(iu.getRequiredCapabilities().size() == 2);
 
-				List<IProvidedCapability> cap = iu.getProvidedCapabilities();
+				Collection<IProvidedCapability> cap = iu.getProvidedCapabilities();
 				verifyProvidedCapability(cap, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$ 
 				verifyProvidedCapability(cap, "org.eclipse.equinox.p2.flavor", flavorArg, Version.create("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$ 
 				assertTrue(cap.size() == 2);

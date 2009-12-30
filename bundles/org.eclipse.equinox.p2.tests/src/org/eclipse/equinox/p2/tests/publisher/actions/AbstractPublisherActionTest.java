@@ -89,7 +89,7 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		action.testProcessCapabilityAdvice(iu, info);
 
 		assertEquals("name1", ((IRequiredCapability) iu.getRequiredCapabilities().iterator().next()).getName());
-		assertEquals("name2", iu.getProvidedCapabilities().get(0).getName());
+		assertEquals("name2", iu.getProvidedCapabilities().iterator().next().getName());
 		assertEquals("name3", ((IRequiredCapability) iu.getMetaRequiredCapabilities().iterator().next()).getName());
 	}
 
@@ -146,7 +146,7 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability("ns2", "name2", null)});
 		iu.setMetaRequiredCapabilities(createRequiredCapabilities("ns3", "name3", null, ""));
 
-		assertNotSame(9, Version.toOSGiVersion(iu.getProvidedCapabilities().get(0).getVersion()).getMajor());
+		assertNotSame(9, Version.toOSGiVersion(iu.getProvidedCapabilities().iterator().next().getVersion()).getMajor());
 		assertTrue(iu.getRequiredCapabilities().iterator().next().isGreedy());
 		assertTrue(iu.getMetaRequiredCapabilities().iterator().next().isGreedy());
 
@@ -159,7 +159,7 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		TestAction action = new TestAction();
 		action.testProcessCapabilityAdvice(iu, info);
 
-		assertEquals(9, Version.toOSGiVersion(iu.getProvidedCapabilities().get(0).getVersion()).getMajor());
+		assertEquals(9, Version.toOSGiVersion(iu.getProvidedCapabilities().iterator().next().getVersion()).getMajor());
 		assertFalse(iu.getRequiredCapabilities().iterator().next().isGreedy());
 		assertFalse(iu.getMetaRequiredCapabilities().iterator().next().isGreedy());
 	}
