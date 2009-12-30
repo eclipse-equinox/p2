@@ -39,7 +39,7 @@ public class UpdateChecker implements IUpdateChecker {
 	/**
 	 * Map of IUpdateListener->UpdateCheckThread.
 	 */
-	private HashMap checkers = new HashMap();
+	private HashMap<IUpdateListener, UpdateCheckThread> checkers = new HashMap<IUpdateListener, UpdateCheckThread>();
 
 	IProfileRegistry profileRegistry;
 	IPlanner planner;
@@ -49,9 +49,9 @@ public class UpdateChecker implements IUpdateChecker {
 		long poll, delay;
 		IUpdateListener listener;
 		String profileId;
-		IQuery query;
+		IQuery<IInstallableUnit> query;
 
-		UpdateCheckThread(String profileId, IQuery query, long delay, long poll, IUpdateListener listener) {
+		UpdateCheckThread(String profileId, IQuery<IInstallableUnit> query, long delay, long poll, IUpdateListener listener) {
 			this.poll = poll;
 			this.delay = delay;
 			this.profileId = profileId;
@@ -93,7 +93,7 @@ public class UpdateChecker implements IUpdateChecker {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker#addUpdateCheck(java.lang.String, long, long, org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener)
 	 */
-	public void addUpdateCheck(String profileId, IQuery query, long delay, long poll, IUpdateListener listener) {
+	public void addUpdateCheck(String profileId, IQuery<IInstallableUnit> query, long delay, long poll, IUpdateListener listener) {
 		if (checkers.containsKey(listener))
 			return;
 		trace("Adding update checker for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -113,22 +113,22 @@ public class UpdateChecker implements IUpdateChecker {
 	 * Return the array of ius in the profile that have updates
 	 * available.
 	 */
-	IInstallableUnit[] checkForUpdates(String profileId, IQuery query) {
+	IInstallableUnit[] checkForUpdates(String profileId, IQuery<IInstallableUnit> query) {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
-		ArrayList iusWithUpdates = new ArrayList();
+		ArrayList<IInstallableUnit> iusWithUpdates = new ArrayList<IInstallableUnit>();
 		if (profile == null)
 			return new IInstallableUnit[0];
 		ProvisioningContext context = new ProvisioningContext(getAvailableRepositories());
 		if (query == null)
 			query = InstallableUnitQuery.ANY;
-		Iterator iter = profile.query(query, null).iterator();
+		Iterator<IInstallableUnit> iter = profile.query(query, null).iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) iter.next();
+			IInstallableUnit iu = iter.next();
 			IInstallableUnit[] replacements = getPlanner().updatesFor(iu, context, null);
 			if (replacements.length > 0)
 				iusWithUpdates.add(iu);
 		}
-		return (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]);
+		return iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]);
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class UpdateChecker implements IUpdateChecker {
 	private URI[] getAvailableRepositories() {
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		URI[] repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		ArrayList available = new ArrayList();
+		ArrayList<URI> available = new ArrayList<URI>();
 		for (int i = 0; i < repositories.length; i++) {
 			try {
 				repoMgr.loadRepository(repositories[i], null);
@@ -146,7 +146,7 @@ public class UpdateChecker implements IUpdateChecker {
 				LogHelper.log(e.getStatus());
 			}
 		}
-		return (URI[]) available.toArray(new URI[available.size()]);
+		return available.toArray(new URI[available.size()]);
 	}
 
 	void trace(String message) {

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.updatechecker;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
@@ -41,7 +42,7 @@ public interface IUpdateChecker {
 	 * @param listener The listener to be notified of updates
 	 * @see #removeUpdateCheck(IUpdateListener)
 	 */
-	public abstract void addUpdateCheck(String profileId, IQuery iusToCheckQuery, long delay, long poll, IUpdateListener listener);
+	public abstract void addUpdateCheck(String profileId, IQuery<IInstallableUnit> iusToCheckQuery, long delay, long poll, IUpdateListener listener);
 
 	/**
 	 * Removes an update listener from the set of listeners registered with this update
