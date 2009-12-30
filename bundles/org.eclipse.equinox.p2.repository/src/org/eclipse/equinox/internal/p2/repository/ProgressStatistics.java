@@ -14,7 +14,8 @@ package org.eclipse.equinox.internal.p2.repository;
 
 import java.net.URI;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -97,10 +98,9 @@ public class ProgressStatistics {
 		long amount = 0L;
 		SortedMap<Long, Long> relevantData = m_recentSpeedMap.headMap(new Long(m_recentSpeedMapKey));
 
-		Iterator<Long> itor = relevantData.values().iterator();
-		while (itor.hasNext()) {
+		for (Long rl : relevantData.values()) {
 			dur += SPEED_RESOLUTION;
-			amount += itor.next().longValue();
+			amount += rl.longValue();
 		}
 
 		if (dur >= 1000)

@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.update;
 
 import java.io.*;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -58,9 +57,8 @@ public class XMLWriter extends PrintWriter {
 		sb.append("<"); //$NON-NLS-1$
 		sb.append(name);
 		if (parameters != null)
-			for (Iterator<String> it = parameters.keySet().iterator(); it.hasNext();) {
+			for (String key : parameters.keySet()) {
 				sb.append(" "); //$NON-NLS-1$
-				String key = it.next();
 				sb.append(key);
 				sb.append("=\""); //$NON-NLS-1$
 				sb.append(getEscaped(String.valueOf(parameters.get(key))));

@@ -102,9 +102,7 @@ public class DebugHelper {
 
 		StringBuffer buffer = new StringBuffer();
 		buffer.append('[');
-		Iterator<? extends Entry<?, ?>> itor = map.entrySet().iterator();
-		while (itor.hasNext()) {
-			Entry<?, ?> e = itor.next();
+		for (Entry<?, ?> e : map.entrySet()) {
 			buffer.append(e.getKey());
 			buffer.append('=');
 			if (toString)

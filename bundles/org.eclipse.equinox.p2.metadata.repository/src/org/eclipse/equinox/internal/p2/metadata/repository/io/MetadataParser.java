@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
 import java.net.URI;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
@@ -98,10 +99,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			int size = units.size();
 			IInstallableUnit[] result = new IInstallableUnit[size];
 			int i = 0;
-			for (Iterator<InstallableUnitDescription> it = units.iterator(); it.hasNext(); i++) {
-				InstallableUnitDescription desc = it.next();
-				result[i] = MetadataFactory.createInstallableUnit(desc);
-			}
+			for (InstallableUnitDescription desc : units)
+				result[i++] = MetadataFactory.createInstallableUnit(desc);
 			return result;
 		}
 
@@ -275,9 +274,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				OrderedProperties properties = (propertiesHandler == null ? new OrderedProperties(0) : propertiesHandler.getProperties());
 				String updateFrom = null;
 				VersionRange updateRange = null;
-				for (Enumeration<String> e = properties.keys(); e.hasMoreElements();) {
-					String key = e.nextElement();
-					String value = properties.getProperty(key);
+				for (Entry<String, String> e : properties.entrySet()) {
+					String key = e.getKey();
+					String value = e.getValue();
 					//Backward compatibility
 					if (key.equals("equinox.p2.update.from")) { //$NON-NLS-1$
 						updateFrom = value;

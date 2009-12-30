@@ -314,14 +314,12 @@ public class Profile implements IProfile {
 		snapshot.setTimestamp(timestamp);
 
 		if (subProfileIds != null) {
-			for (Iterator<String> it = subProfileIds.iterator(); it.hasNext();) {
-				String subProfileId = it.next();
+			for (String subProfileId : subProfileIds) {
 				snapshot.addSubProfile(subProfileId);
 			}
 		}
 
-		for (Iterator<IInstallableUnit> it = ius.iterator(); it.hasNext();) {
-			IInstallableUnit iu = it.next();
+		for (IInstallableUnit iu : ius) {
 			snapshot.addInstallableUnit(iu);
 			Map<String, String> properties = getInstallableUnitProperties(iu);
 			if (properties != null)
@@ -332,8 +330,7 @@ public class Profile implements IProfile {
 	}
 
 	public void addInstallableUnitProperties(IInstallableUnit iu, Map<String, String> properties) {
-		for (Iterator<Entry<String, String>> it = properties.entrySet().iterator(); it.hasNext();) {
-			Entry<String, String> entry = it.next();
+		for (Entry<String, String> entry : properties.entrySet()) {
 			setInstallableUnitProperty(iu, entry.getKey(), entry.getValue());
 		}
 	}
@@ -347,14 +344,13 @@ public class Profile implements IProfile {
 		Set<IInstallableUnit> keys = iuProperties.keySet();
 		//		Set orphans = new HashSet();
 		Collection<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>();
-		for (Iterator<IInstallableUnit> iterator = keys.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
+		for (IInstallableUnit iu : keys) {
 			if (!ius.contains(iu))
 				toRemove.add(iu);
 		}
 
-		for (Iterator<IInstallableUnit> iterator = toRemove.iterator(); iterator.hasNext();) {
-			iuProperties.remove(iterator.next());
+		for (IInstallableUnit iu : toRemove) {
+			iuProperties.remove(iu);
 		}
 		//		List iuKeys = new ArrayList();
 		//		for (Iterator it = ius.iterator(); it.hasNext();)

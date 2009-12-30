@@ -77,8 +77,7 @@ public class CollectActionTest extends AbstractProvisioningTest {
 	}
 
 	private boolean hasRequest(List<IArtifactRequest[]> requests, IArtifactKey key) {
-		for (Iterator<IArtifactRequest[]> iterator = requests.iterator(); iterator.hasNext();) {
-			IArtifactRequest[] request = iterator.next();
+		for (IArtifactRequest[] request : requests) {
 			for (int i = 0; i < request.length; i++) {
 				if (key.equals(request[i].getArtifactKey()))
 					return true;

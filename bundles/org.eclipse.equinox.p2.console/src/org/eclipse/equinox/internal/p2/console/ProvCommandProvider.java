@@ -186,10 +186,10 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		String environments = interpreter.nextArgument();
-		Properties props = new Properties();
-		props.setProperty(IProfile.PROP_INSTALL_FOLDER, location);
+		Map<String, String> props = new HashMap<String, String>();
+		props.put(IProfile.PROP_INSTALL_FOLDER, location);
 		if (environments != null)
-			props.setProperty(IProfile.PROP_ENVIRONMENTS, environments);
+			props.put(IProfile.PROP_ENVIRONMENTS, environments);
 
 		try {
 			ProvisioningHelper.addProfile(profileId, props);

@@ -126,9 +126,8 @@ public class Util {
 
 		if ((repoFilter & AGGREGATE_CACHE_EXTENSIONS) != 0) {
 			List<String> repos = getListProfileProperty(profile, CACHE_EXTENSIONS);
-			for (Iterator<String> iterator = repos.iterator(); iterator.hasNext();) {
+			for (String repo : repos) {
 				try {
-					String repo = iterator.next();
 					URI repoLocation;
 					try {
 						repoLocation = new URI(repo);

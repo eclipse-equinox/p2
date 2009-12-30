@@ -12,7 +12,8 @@ package org.eclipse.equinox.p2.publisher.actions;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
@@ -124,12 +125,10 @@ public class RootIUAction extends AbstractPublisherAction {
 		Collection<IRootIUAdvice> rootAdvice = info.getAdvice(null, true, null, null, IRootIUAdvice.class);
 		if (rootAdvice == null)
 			return children;
-		for (Iterator<IRootIUAdvice> i = rootAdvice.iterator(); i.hasNext();) {
-			IRootIUAdvice advice = i.next();
+		for (IRootIUAdvice advice : rootAdvice) {
 			Collection<? extends Object> list = advice.getChildren(result);
 			if (list != null)
-				for (Iterator<? extends Object> j = list.iterator(); j.hasNext();) {
-					Object object = j.next();
+				for (Object object : list) {
 					// if the advice is a string, look it up in the result.  if not there then 
 					// query the known metadata repos
 					if (object instanceof String) {
@@ -173,8 +172,7 @@ public class RootIUAction extends AbstractPublisherAction {
 			if (versionAdvice == null)
 				return null;
 		}
-		for (Iterator<IVersionAdvice> i = versionAdvice.iterator(); i.hasNext();) {
-			IVersionAdvice advice = i.next();
+		for (IVersionAdvice advice : versionAdvice) {
 			// TODO have to figure a way to know the namespace here.  for now just look everywhere
 			Version result = advice.getVersion(IInstallableUnit.NAMESPACE_IU_ID, iuID);
 			if (result == null)

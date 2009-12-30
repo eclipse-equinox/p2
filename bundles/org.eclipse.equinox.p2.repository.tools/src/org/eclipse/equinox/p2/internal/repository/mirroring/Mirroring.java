@@ -251,8 +251,7 @@ public class Mirroring {
 						srcProperties = srcDescriptors[src].getProperties();
 
 					// Cycle through properties of the originating descriptor & compare
-					for (Iterator<String> iter = srcProperties.keySet().iterator(); iter.hasNext();) {
-						String key = iter.next();
+					for (String key : srcProperties.keySet()) {
 						if (!srcProperties.get(key).equals(destMap.get(key))) {
 							if (verbose)
 								System.out.println(NLS.bind(Messages.Mirroring_differentDescriptorProperty, new Object[] {destDescriptors[dest], key, srcProperties.get(key), destMap.get(key)}));

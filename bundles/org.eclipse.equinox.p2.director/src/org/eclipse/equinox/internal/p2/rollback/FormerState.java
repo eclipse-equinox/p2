@@ -44,20 +44,16 @@ public class FormerState {
 		}
 
 		//additions
-		for (Iterator<IInstallableUnit> iterator = iusToAdd.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
-			for (Iterator<Entry<String, String>> it = target.getInstallableUnitProperties(iu).entrySet().iterator(); it.hasNext();) {
-				Entry<String, String> entry = it.next();
+		for (IInstallableUnit iu : iusToAdd) {
+			for (Entry<String, String> entry : target.getInstallableUnitProperties(iu).entrySet()) {
 				request.setInstallableUnitProfileProperty(iu, entry.getKey(), entry.getValue());
 			}
 		}
 
 		// updates
-		for (Iterator<IInstallableUnit> iterator = iusToUpdate.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
+		for (IInstallableUnit iu : iusToUpdate) {
 			Map<String, String> propertiesToSet = new HashMap<String, String>(target.getInstallableUnitProperties(iu));
-			for (Iterator<Entry<String, String>> it = current.getInstallableUnitProperties(iu).entrySet().iterator(); it.hasNext();) {
-				Entry<String, String> entry = it.next();
+			for (Entry<String, String> entry : current.getInstallableUnitProperties(iu).entrySet()) {
 				String key = entry.getKey();
 				String newValue = propertiesToSet.get(key);
 				if (newValue == null) {
@@ -66,8 +62,7 @@ public class FormerState {
 					propertiesToSet.remove(key);
 			}
 
-			for (Iterator<Entry<String, String>> it = propertiesToSet.entrySet().iterator(); it.hasNext();) {
-				Entry<String, String> entry = it.next();
+			for (Entry<String, String> entry : propertiesToSet.entrySet()) {
 				request.setInstallableUnitProfileProperty(iu, entry.getKey(), entry.getValue());
 			}
 		}
@@ -90,8 +85,7 @@ public class FormerState {
 
 	private static void synchronizeProfileProperties(ProfileChangeRequest request, IProfile current, IProfile target) {
 		Map<String, String> profilePropertiesToSet = new HashMap<String, String>(target.getProperties());
-		for (Iterator<Entry<String, String>> it = current.getProperties().entrySet().iterator(); it.hasNext();) {
-			Entry<String, String> entry = it.next();
+		for (Entry<String, String> entry : current.getProperties().entrySet()) {
 			String key = entry.getKey();
 
 			String newValue = profilePropertiesToSet.get(key);
@@ -101,8 +95,7 @@ public class FormerState {
 				profilePropertiesToSet.remove(key);
 		}
 
-		for (Iterator<Entry<String, String>> it = profilePropertiesToSet.entrySet().iterator(); it.hasNext();) {
-			Entry<String, String> entry = it.next();
+		for (Entry<String, String> entry : profilePropertiesToSet.entrySet()) {
 			request.setProfileProperty(entry.getKey(), entry.getValue());
 		}
 	}

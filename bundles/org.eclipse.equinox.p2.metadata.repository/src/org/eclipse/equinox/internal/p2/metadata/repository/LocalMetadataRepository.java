@@ -121,8 +121,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 			return;
 
 		List<RepositoryReference> repositoriesSnapshot = createRepositoriesSnapshot();
-		for (Iterator<RepositoryReference> it = repositoriesSnapshot.iterator(); it.hasNext();) {
-			RepositoryReference reference = it.next();
+		for (RepositoryReference reference : repositoriesSnapshot) {
 			boolean isEnabled = (reference.Options & IRepository.ENABLED) != 0;
 			bus.publishEvent(new RepositoryEvent(reference.Location, reference.Type, RepositoryEvent.DISCOVERED, isEnabled));
 		}

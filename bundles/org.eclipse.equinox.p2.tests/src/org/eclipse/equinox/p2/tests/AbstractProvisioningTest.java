@@ -1437,7 +1437,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public int countPlanElements(IProvisioningPlan plan) {
-		return queryResultSize(new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getRemovals()}).query(InstallableUnitQuery.ANY, null));
+		return queryResultSize(new CompoundQueryable(plan.getAdditions(), plan.getRemovals()).query(InstallableUnitQuery.ANY, null));
 	}
 
 	/**

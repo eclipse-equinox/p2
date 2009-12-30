@@ -86,11 +86,11 @@ public abstract class AbstractApplication {
 	protected void finalizeRepositories() throws ProvisionException {
 		if (removeAddedRepositories) {
 			IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
-			for (Iterator<URI> iter = artifactReposToRemove.iterator(); iter.hasNext();)
-				artifactRepositoryManager.removeRepository(iter.next());
+			for (URI uri : artifactReposToRemove)
+				artifactRepositoryManager.removeRepository(uri);
 			IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
-			for (Iterator<URI> iter = metadataReposToRemove.iterator(); iter.hasNext();)
-				metadataRepositoryManager.removeRepository(iter.next());
+			for (URI uri : metadataReposToRemove)
+				metadataRepositoryManager.removeRepository(uri);
 		}
 		metadataReposToRemove = null;
 		artifactReposToRemove = null;
@@ -113,8 +113,7 @@ public abstract class AbstractApplication {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		URI curLocation = null;
 		try {
-			for (Iterator<RepositoryDescriptor> iter = sourceRepositories.iterator(); iter.hasNext();) {
-				RepositoryDescriptor repo = iter.next();
+			for (RepositoryDescriptor repo : sourceRepositories) {
 				curLocation = repo.getRepoLocation();
 				if (repo.isBoth()) {
 					addRepository(artifactRepositoryManager, curLocation, 0, progress);
@@ -259,8 +258,7 @@ public abstract class AbstractApplication {
 			} catch (URISyntaxException e) {
 				//Can't happen
 			}
-			for (Iterator<RepositoryDescriptor> iter = sourceRepositories.iterator(); iter.hasNext();) {
-				RepositoryDescriptor repo = iter.next();
+			for (RepositoryDescriptor repo : sourceRepositories) {
 				if (repo.isMetadata())
 					compositeMetadataRepository.addChild(repo.getRepoLocation());
 			}
@@ -277,8 +275,7 @@ public abstract class AbstractApplication {
 			} catch (URISyntaxException e) {
 				//Can't happen
 			}
-			for (Iterator<RepositoryDescriptor> iter = sourceRepositories.iterator(); iter.hasNext();) {
-				RepositoryDescriptor repo = iter.next();
+			for (RepositoryDescriptor repo : sourceRepositories) {
 				if (repo.isArtifact())
 					compositeArtifactRepository.addChild(repo.getRepoLocation());
 			}

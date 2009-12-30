@@ -235,10 +235,8 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	private void postInstall() {
-		for (Iterator<ServiceReference> it = serviceReferences.iterator(); it.hasNext();) {
-			ServiceReference sr = it.next();
+		for (ServiceReference sr : serviceReferences)
 			bundleContext.ungetService(sr);
-		}
 		serviceReferences.clear();
 	}
 

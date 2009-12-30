@@ -54,8 +54,7 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 					//nothing
 				}
 		}
-		for (Iterator<Entry<String, String>> itor = properties.entrySet().iterator(); itor.hasNext();) {
-			Entry<String, String> entry = itor.next();
+		for (Entry<String, String> entry : properties.entrySet()) {
 			String key = entry.getKey();
 			if (idSuffix != null)
 				key += idSuffix;
@@ -109,8 +108,7 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 		if (!(advice instanceof VersionAdvice))
 			return this;
 		VersionAdvice source = (VersionAdvice) advice;
-		for (Iterator<String> i = source.versions.keySet().iterator(); i.hasNext();) {
-			String namespace = i.next();
+		for (String namespace : source.versions.keySet()) {
 			Map<String, Version> myValues = versions.get(namespace);
 			Map<String, Version> sourceValues = source.versions.get(namespace);
 			if (myValues == null)
@@ -123,8 +121,7 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 
 	private Map<String, Version> merge(Map<String, Version> myValues, Map<String, Version> sourceValues) {
 		Map<String, Version> result = new HashMap<String, Version>(myValues);
-		for (Iterator<String> i = sourceValues.keySet().iterator(); i.hasNext();) {
-			String key = i.next();
+		for (String key : sourceValues.keySet()) {
 			if (result.get(key) == null)
 				result.put(key, sourceValues.get(key));
 		}

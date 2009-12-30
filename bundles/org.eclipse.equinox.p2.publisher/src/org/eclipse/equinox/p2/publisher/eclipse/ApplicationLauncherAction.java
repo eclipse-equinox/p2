@@ -62,10 +62,10 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 		createAdvice(publisherInfo, results);
 		IPublisherResult innerResult = new PublisherResult();
 		MultiStatus finalStatus = new MultiStatus(ApplicationLauncherAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
-		for (Iterator<IPublisherAction> i = actions.iterator(); i.hasNext();) {
+		for (IPublisherAction action : actions) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			finalStatus.merge(i.next().perform(publisherInfo, innerResult, monitor));
+			finalStatus.merge(action.perform(publisherInfo, innerResult, monitor));
 		}
 		if (!finalStatus.isOK())
 			return finalStatus;
@@ -90,8 +90,7 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 		Collection<IInstallableUnit> ius = getIUs(results.getIUs(null, null), EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER);
 		VersionAdvice advice = new VersionAdvice();
 		boolean found = false;
-		for (Iterator<IInstallableUnit> i = ius.iterator(); i.hasNext();) {
-			IInstallableUnit iu = i.next();
+		for (IInstallableUnit iu : ius) {
 			// skip over source bundles and fragments
 			// TODO should we use the source property here rather than magic name matching?
 			if (iu.getId().endsWith(".source") || FragmentQuery.isFragment(iu)) //$NON-NLS-1$
@@ -105,8 +104,7 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 
 	private Collection<IInstallableUnit> getIUs(Collection<IInstallableUnit> ius, String prefix) {
 		Set<IInstallableUnit> result = new HashSet<IInstallableUnit>();
-		for (Iterator<IInstallableUnit> iterator = ius.iterator(); iterator.hasNext();) {
-			IInstallableUnit tmp = iterator.next();
+		for (IInstallableUnit tmp : ius) {
 			if (tmp.getId().startsWith(prefix))
 				result.add(tmp);
 		}

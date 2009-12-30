@@ -201,13 +201,12 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		if (removed) {
 			// we removed the child from the list so remove the associated repo object as well
 			ChildInfo found = null;
-			for (Iterator<ChildInfo> iter = loadedRepos.iterator(); found == null && iter.hasNext();) {
-				ChildInfo current = iter.next();
+			for (ChildInfo current : loadedRepos) {
 				URI repoLocation = current.repo.getLocation();
-				if (URIUtil.sameURI(childURI, repoLocation))
+				if (URIUtil.sameURI(childURI, repoLocation) || URIUtil.sameURI(other, repoLocation)) {
 					found = current;
-				else if (URIUtil.sameURI(other, repoLocation))
-					found = current;
+					break;
+				}
 			}
 			if (found != null)
 				loadedRepos.remove(found);
@@ -223,8 +222,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	public List<URI> getChildren() {
 		List<URI> result = new ArrayList<URI>();
-		for (Iterator<URI> iter = childrenURIs.iterator(); iter.hasNext();)
-			result.add(URIUtil.makeAbsolute(iter.next(), location));
+		for (URI uri : childrenURIs)
+			result.add(URIUtil.makeAbsolute(uri, location));
 		return result;
 	}
 
@@ -273,8 +272,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	public boolean contains(IArtifactKey key) {
-		for (Iterator<ChildInfo> repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			ChildInfo current = repositoryIterator.next();
+		for (ChildInfo current : loadedRepos) {
 			if (current.isGood() && current.repo.contains(key))
 				return true;
 		}
@@ -282,8 +280,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	public boolean contains(IArtifactDescriptor descriptor) {
-		for (Iterator<ChildInfo> repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			ChildInfo current = repositoryIterator.next();
+		for (ChildInfo current : loadedRepos) {
 			if (current.isGood() && current.repo.contains(descriptor))
 				return true;
 		}
@@ -292,8 +289,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		ArrayList<IArtifactDescriptor> result = new ArrayList<IArtifactDescriptor>();
-		for (Iterator<ChildInfo> repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			ChildInfo current = repositoryIterator.next();
+		for (ChildInfo current : loadedRepos) {
 			if (current.isGood()) {
 				IArtifactDescriptor[] tempResult = current.repo.getArtifactDescriptors(key);
 				for (int i = 0; i < tempResult.length; i++)
@@ -306,8 +302,10 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 		MultiStatus multiStatus = new MultiStatus(Activator.ID, IStatus.OK, Messages.message_childrenRepos, null);
-		for (Iterator<ChildInfo> repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext() && requests.length > 0;) {
-			IArtifactRepository current = repositoryIterator.next().repo;
+		for (ChildInfo childInfo : loadedRepos) {
+			if (requests.length == 0)
+				break;
+			IArtifactRepository current = childInfo.repo;
 			IArtifactRequest[] applicable = getRequestsForRepository(current, requests);
 			IStatus dlStatus = current.getArtifacts(applicable, subMonitor.newChild(requests.length));
 			multiStatus.add(dlStatus);
@@ -441,8 +439,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 */
 	private boolean isSane(IArtifactRepository toCheckRepo, String comparatorID) {
 		IArtifactComparator comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorID);
-		for (Iterator<ChildInfo> repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			IArtifactRepository current = repositoryIterator.next().repo;
+		for (ChildInfo childInfo : loadedRepos) {
+			IArtifactRepository current = childInfo.repo;
 			if (!current.equals(toCheckRepo)) {
 				if (!isSane(toCheckRepo, current, comparator))
 					return false;
@@ -519,26 +517,22 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		// Query all the all the repositories this composite repo contains
 		List<IArtifactRepository> repos = new ArrayList<IArtifactRepository>();
-		for (Iterator<ChildInfo> repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			ChildInfo info = repositoryIterator.next();
+		for (ChildInfo info : loadedRepos) {
 			if (info.isGood())
 				repos.add(info.repo);
 		}
-		@SuppressWarnings("unchecked")
-		CompoundQueryable<IArtifactKey> queryable = new CompoundQueryable<IArtifactKey>(repos.toArray(new IQueryable[repos.size()]));
+		CompoundQueryable<IArtifactKey> queryable = new CompoundQueryable<IArtifactKey>(repos);
 		return queryable.query(query, monitor);
 	}
 
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
 		// Query all the all the repositories this composite repo contains
 		List<IQueryable<IArtifactDescriptor>> repos = new ArrayList<IQueryable<IArtifactDescriptor>>();
-		for (Iterator<ChildInfo> repositoryIterator = loadedRepos.iterator(); repositoryIterator.hasNext();) {
-			ChildInfo info = repositoryIterator.next();
+		for (ChildInfo info : loadedRepos) {
 			if (info.isGood())
 				repos.add(info.repo.descriptorQueryable());
 		}
-		@SuppressWarnings("unchecked")
-		CompoundQueryable<IArtifactDescriptor> queryable = new CompoundQueryable<IArtifactDescriptor>(repos.toArray(new IQueryable[repos.size()]));
+		CompoundQueryable<IArtifactDescriptor> queryable = new CompoundQueryable<IArtifactDescriptor>(repos);
 		return queryable;
 	}
 }

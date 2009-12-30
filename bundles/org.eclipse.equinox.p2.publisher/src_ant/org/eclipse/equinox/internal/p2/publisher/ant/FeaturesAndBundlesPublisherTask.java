@@ -46,8 +46,7 @@ public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 
 	private File[] getLocations(List<Object> collection) {
 		ArrayList<Object> results = new ArrayList<Object>();
-		for (Iterator<Object> iterator = collection.iterator(); iterator.hasNext();) {
-			Object obj = iterator.next();
+		for (Object obj : collection) {
 			if (obj instanceof FileSet) {
 				FileSet set = (FileSet) obj;
 

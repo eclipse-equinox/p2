@@ -93,8 +93,7 @@ public class EngineSession {
 	IStatus prepare(IProgressMonitor monitor) {
 		monitor.subTask(Messages.preparing);
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-		for (Iterator<Touchpoint> iterator = touchpoints.iterator(); iterator.hasNext();) {
-			Touchpoint touchpoint = iterator.next();
+		for (Touchpoint touchpoint : touchpoints) {
 			try {
 				status.add(touchpoint.prepare(profile));
 			} catch (RuntimeException e) {
@@ -119,8 +118,7 @@ public class EngineSession {
 		monitor.subTask(Messages.committing);
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		phaseActionRecordsPairs.clear();
-		for (Iterator<Touchpoint> iterator = touchpoints.iterator(); iterator.hasNext();) {
-			Touchpoint touchpoint = iterator.next();
+		for (Touchpoint touchpoint : touchpoints) {
 			try {
 				IStatus result = touchpoint.commit(profile);
 				if (!result.isOK())
@@ -191,8 +189,7 @@ public class EngineSession {
 		}
 
 		phaseActionRecordsPairs.clear();
-		for (Iterator<Touchpoint> iterator = touchpoints.iterator(); iterator.hasNext();) {
-			Touchpoint touchpoint = iterator.next();
+		for (Touchpoint touchpoint : touchpoints) {
 			try {
 				IStatus result = touchpoint.rollback(profile);
 				if (!result.isOK())

@@ -11,10 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
-import java.io.File;
-
 import java.io.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -225,8 +224,8 @@ public class ExecutablesDescriptor {
 		try {
 			tempFile = File.createTempFile("p2.brandingIron", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			tempFile.delete();
-			for (Iterator<File> i = files.iterator(); i.hasNext();)
-				FileUtils.copy(location, tempFile, i.next(), true);
+			for (File file : files)
+				FileUtils.copy(location, tempFile, file, true);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error publishing artifacts", e)); //$NON-NLS-1$
 		}
@@ -248,8 +247,7 @@ public class ExecutablesDescriptor {
 		String executableExtension = Constants.OS_WIN32.equals(os) ? ".exe" : ""; //$NON-NLS-1$ //$NON-NLS-2$
 		targetExecutable = executableName + executableExtension;
 		Set<File> filesCopy = new HashSet<File>(files);
-		for (Iterator<File> i = filesCopy.iterator(); i.hasNext();) {
-			File file = i.next();
+		for (File file : filesCopy) {
 			String base = file.getParent();
 
 			// use String concatenation here because new File("", "foo") is absolute on at least windows...

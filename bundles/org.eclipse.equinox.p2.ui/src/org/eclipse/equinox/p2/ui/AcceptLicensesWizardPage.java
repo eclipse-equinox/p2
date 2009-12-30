@@ -417,11 +417,8 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	private void rememberAcceptedLicenses() {
 		if (licensesToIUs == null || manager == null)
 			return;
-		Iterator<ILicense> iter = licensesToIUs.keySet().iterator();
-		while (iter.hasNext()) {
-			License license = (License) iter.next();
+		for (ILicense license : licensesToIUs.keySet())
 			manager.accept(license);
-		}
 	}
 
 	private void setDescription() {

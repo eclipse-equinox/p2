@@ -72,8 +72,7 @@ public class Collect extends InstallableUnitPhase {
 		IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 
 		DownloadManager dm = new DownloadManager(context, repositoryManager);
-		for (Iterator<IArtifactRequest[]> it = artifactRequests.iterator(); it.hasNext();) {
-			IArtifactRequest[] requests = it.next();
+		for (IArtifactRequest[] requests : artifactRequests) {
 			dm.add(requests);
 		}
 		return dm.start(monitor);

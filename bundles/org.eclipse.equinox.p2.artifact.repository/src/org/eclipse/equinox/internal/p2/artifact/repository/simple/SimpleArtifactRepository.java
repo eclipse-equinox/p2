@@ -262,8 +262,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		super(name, type, version, null, description, provider, properties);
 		this.artifactDescriptors.addAll(artifacts);
 		this.mappingRules = mappingRules;
-		for (Iterator<SimpleArtifactDescriptor> it = artifactDescriptors.iterator(); it.hasNext();)
-			mapDescriptor(it.next());
+		for (SimpleArtifactDescriptor desc : artifactDescriptors)
+			mapDescriptor(desc);
 	}
 
 	private void mapDescriptor(IArtifactDescriptor descriptor) {
@@ -328,8 +328,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			internal.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
 		if (descriptor instanceof SimpleArtifactDescriptor) {
 			Map<String, String> repoProperties = ((SimpleArtifactDescriptor) descriptor).getRepositoryProperties();
-			for (Iterator<Entry<String, String>> iterator = repoProperties.entrySet().iterator(); iterator.hasNext();) {
-				Entry<String, String> entry = iterator.next();
+			for (Entry<String, String> entry : repoProperties.entrySet()) {
 				internal.setRepositoryProperty(entry.getKey(), entry.getValue());
 			}
 		}
@@ -625,8 +624,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (descriptors == null)
 			return null;
 
-		for (Iterator<IArtifactDescriptor> iterator = descriptors.iterator(); iterator.hasNext();) {
-			IArtifactDescriptor desc = iterator.next();
+		for (IArtifactDescriptor desc : descriptors) {
 			// look for a descriptor that matches the key and is "complete"
 			if (desc.getArtifactKey().equals(key) && desc.getProcessingSteps().length == 0)
 				return desc;
@@ -796,9 +794,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		this.location = repoLocation;
 		blobStore = new BlobStore(getBlobStoreLocation(repoLocation), 128);
 		initializeMapper();
-		for (Iterator<SimpleArtifactDescriptor> i = artifactDescriptors.iterator(); i.hasNext();) {
-			i.next().setRepository(this);
-		}
+		for (SimpleArtifactDescriptor desc : artifactDescriptors)
+			desc.setRepository(this);
 	}
 
 	private synchronized void initializeMapper() {

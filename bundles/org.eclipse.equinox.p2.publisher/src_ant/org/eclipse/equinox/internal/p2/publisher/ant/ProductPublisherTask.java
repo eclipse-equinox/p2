@@ -99,8 +99,7 @@ public class ProductPublisherTask extends AbstractPublishTask {
 	}
 
 	protected void processAdvice(PublisherInfo info) {
-		for (Iterator<AdviceElement> iterator = advice.iterator(); iterator.hasNext();) {
-			AdviceElement element = iterator.next();
+		for (AdviceElement element : advice) {
 			if (element.kind == null || element.file == null)
 				continue;
 

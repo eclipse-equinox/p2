@@ -50,8 +50,7 @@ public class Site {
 	public Feature getFeature(String id, String version) {
 		if (id == null)
 			return null;
-		for (Iterator<Feature> iter = features.iterator(); iter.hasNext();) {
-			Feature feature = iter.next();
+		for (Feature feature : features) {
 			if (id.equals(feature.getId())) {
 				if (version == null || version.equals(feature.getVersion()))
 					return feature;
@@ -61,8 +60,7 @@ public class Site {
 	}
 
 	public Feature removeFeature(String featureURL) {
-		for (Iterator<Feature> iter = features.iterator(); iter.hasNext();) {
-			Feature feature = iter.next();
+		for (Feature feature : features) {
 			String nextURL = feature.getUrl();
 			if (nextURL != null && nextURL.equals(featureURL))
 				return features.remove(feature) ? feature : null;

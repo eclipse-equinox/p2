@@ -56,8 +56,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
 		if (bus == null)
 			return;
-		for (Iterator<URI> it = artifactRepos.iterator(); it.hasNext();) {
-			URI repo = it.next();
+		for (URI repo : artifactRepos) {
 			bus.publishEvent(new RepositoryEvent(repo, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, true));
 		}
 	}

@@ -205,13 +205,11 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		}
 
 		List<BundleInfo> bundleInfos = product.getBundleInfos();
-		for (Iterator<BundleInfo> i = bundleInfos.iterator(); i.hasNext();) {
+		for (BundleInfo bundleInfo : bundleInfos) {
 			// For each bundle that has configuration information, if the bundle is in the 
 			// bundles bound by version, add the "configured" bundle instead
 			// If the bundle is not bound to a version, then replace all bounded versions
 			// with this one.  Otherwise, just add this one (don't replace)
-			BundleInfo bundleInfo = i.next();
-
 			if (versionBoundBundles.contains(bundleInfo)) {
 				// If we found a version with the same name and version, replace it with the "configured" bundle
 				data.removeBundle(bundleInfo);
@@ -222,8 +220,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 				if (list == null)
 					data.addBundle(bundleInfo);
 				else
-					for (Iterator<BundleInfo> iterator = list.iterator(); iterator.hasNext();) {
-						BundleInfo target = iterator.next();
+					for (BundleInfo target : list) {
 						target.setStartLevel(bundleInfo.getStartLevel());
 						target.setMarkedAsStarted(bundleInfo.isMarkedAsStarted());
 					}
@@ -246,8 +243,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		Set<BundleInfo> set = new HashSet<BundleInfo>();
 		set.addAll(Arrays.asList(data.getBundles()));
 
-		for (Iterator<IVersionedId> i = bundles.iterator(); i.hasNext();) {
-			IVersionedId vid = i.next();
+		for (IVersionedId vid : bundles) {
 			BundleInfo bundleInfo = new BundleInfo();
 			bundleInfo.setSymbolicName(vid.getId());
 			bundleInfo.setVersion(vid.getVersion().toString());
@@ -264,8 +260,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		// Add all the bundles here.  We replace / update them later
 		// if we find configuration information
 		List<IVersionedId> bundles = product.getBundles(true);
-		for (Iterator<IVersionedId> i = bundles.iterator(); i.hasNext();) {
-			IVersionedId vid = i.next();
+		for (IVersionedId vid : bundles) {
 			BundleInfo bundleInfo = new BundleInfo();
 			bundleInfo.setSymbolicName(vid.getId());
 			bundleInfo.setVersion(vid.getVersion().toString());

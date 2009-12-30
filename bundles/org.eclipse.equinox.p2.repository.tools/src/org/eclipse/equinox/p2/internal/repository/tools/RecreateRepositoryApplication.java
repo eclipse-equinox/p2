@@ -104,8 +104,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 			throw new ProvisionException(NLS.bind(Messages.exception_notLocalFileRepo, repository.getLocation()));
 
 		IFileArtifactRepository simple = (IFileArtifactRepository) repository;
-		for (Iterator<IArtifactKey> iterator = repoMap.keySet().iterator(); iterator.hasNext();) {
-			IArtifactKey key = iterator.next();
+		for (IArtifactKey key : repoMap.keySet()) {
 			IArtifactDescriptor[] descriptors = repoMap.get(key);
 
 			String unpackedSize = null;

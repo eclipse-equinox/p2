@@ -405,8 +405,7 @@ public class MetadataFactory {
 			return initial;
 
 		Map<String, ITouchpointInstruction> resultInstructions = new HashMap<String, ITouchpointInstruction>(initial.getInstructions());
-		for (Iterator<String> iterator = incomingInstructions.keySet().iterator(); iterator.hasNext();) {
-			String key = iterator.next();
+		for (String key : incomingInstructions.keySet()) {
 			ITouchpointInstruction instruction = incomingInstructions.get(key);
 			ITouchpointInstruction existingInstruction = resultInstructions.get(key);
 

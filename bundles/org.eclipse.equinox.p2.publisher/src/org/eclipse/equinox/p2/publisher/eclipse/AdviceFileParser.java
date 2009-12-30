@@ -386,8 +386,7 @@ public class AdviceFileParser {
 			((InstallableUnitFragmentDescription) description).setHost(unitHostRequirements.toArray(new IRequirement[unitHostRequirements.size()]));
 
 		if (!unitProperties.isEmpty()) {
-			for (Iterator<Entry<String, String>> iterator = unitProperties.entrySet().iterator(); iterator.hasNext();) {
-				Entry<String, String> entry = iterator.next();
+			for (Entry<String, String> entry : unitProperties.entrySet()) {
 				description.setProperty(entry.getKey(), entry.getValue());
 			}
 		}

@@ -332,8 +332,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		RollbackProfileElement[] result = new RollbackProfileElement[2];
 		IStructuredSelection selection = ((IStructuredSelection) configsViewer.getSelection());
 		int i = 0;
-		for (Iterator<?> iterator = selection.toList().iterator(); iterator.hasNext();) {
-			Object selected = iterator.next();
+		for (Object selected : selection.toList()) {
 			if (selected != null && selected instanceof RollbackProfileElement) {
 				result[i++] = (RollbackProfileElement) selected;
 			}

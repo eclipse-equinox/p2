@@ -53,8 +53,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 
 			writer.startTag(ELEMENT_CONFIG, args);
 
-			for (Iterator<Site> iter = configuration.internalGetSites(false).iterator(); iter.hasNext();) {
-				Site site = iter.next();
+			for (Site site : configuration.internalGetSites(false)) {
 				write(writer, site, osgiInstallArea);
 			}
 

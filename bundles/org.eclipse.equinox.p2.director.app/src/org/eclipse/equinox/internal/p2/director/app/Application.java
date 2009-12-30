@@ -146,18 +146,18 @@ public class Application implements IApplication {
 			if (flavor == null)
 				flavor = System.getProperty("eclipse.p2.configurationFlavor", FLAVOR_DEFAULT); //$NON-NLS-1$
 
-			Properties props = new Properties();
-			props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination.toOSString());
+			Map<String, String> props = new HashMap<String, String>();
+			props.put(IProfile.PROP_INSTALL_FOLDER, destination.toOSString());
 			if (bundlePool == null || bundlePool.equals(Messages.destination_commandline))
-				props.setProperty(IProfile.PROP_CACHE, destination.toOSString());
+				props.put(IProfile.PROP_CACHE, destination.toOSString());
 			else
-				props.setProperty(IProfile.PROP_CACHE, bundlePool);
+				props.put(IProfile.PROP_CACHE, bundlePool);
 			if (roamingProfile)
-				props.setProperty(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
+				props.put(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
 
 			String env = getEnvironmentProperty();
 			if (env != null)
-				props.setProperty(IProfile.PROP_ENVIRONMENTS, env);
+				props.put(IProfile.PROP_ENVIRONMENTS, env);
 			if (profileProperties != null) {
 				putProperties(profileProperties, props);
 			}
@@ -380,7 +380,7 @@ public class Application implements IApplication {
 	 * @param pairs	a comma separated list of tag=value pairs
 	 * @param properties the collection into which the pairs are put
 	 */
-	private void putProperties(String pairs, Properties properties) {
+	private void putProperties(String pairs, Map<String, String> properties) {
 		StringTokenizer tok = new StringTokenizer(pairs, ",", true); //$NON-NLS-1$
 		while (tok.hasMoreTokens()) {
 			String next = tok.nextToken().trim();
@@ -502,11 +502,9 @@ public class Application implements IApplication {
 		if (locations == null || locations.length == 0)
 			return ProvisioningHelper.getInstallableUnits((URI) null, query, nullMonitor);
 
-		@SuppressWarnings("unchecked")
-		IQueryable<IInstallableUnit>[] locationQueryables = new IQueryable[locations.length];
-		for (int i = 0; i < locations.length; i++) {
-			locationQueryables[i] = new LocationQueryable(locations[i]);
-		}
+		List<IQueryable<IInstallableUnit>> locationQueryables = new ArrayList<IQueryable<IInstallableUnit>>(locations.length);
+		for (int i = 0; i < locations.length; i++)
+			locationQueryables.add(new LocationQueryable(locations[i]));
 		return new CompoundQueryable<IInstallableUnit>(locationQueryables).query(query, nullMonitor);
 	}
 
@@ -540,13 +538,15 @@ public class Application implements IApplication {
 
 	private String toString(Map<String, String> context) {
 		StringBuffer result = new StringBuffer();
-		for (Iterator<String> iter = context.keySet().iterator(); iter.hasNext();) {
-			String key = iter.next();
+		boolean first = true;
+		for (String key : context.keySet()) {
+			if (first)
+				first = false;
+			else
+				result.append(',');
 			result.append(key);
 			result.append('=');
 			result.append(context.get(key));
-			if (iter.hasNext())
-				result.append(',');
 		}
 		return result.toString();
 	}

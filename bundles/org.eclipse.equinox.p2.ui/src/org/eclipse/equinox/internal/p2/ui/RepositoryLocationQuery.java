@@ -59,8 +59,8 @@ public class RepositoryLocationQuery implements IQuery<URI> {
 	private URI getLocation(Object o) {
 		if (o instanceof URI)
 			return (URI) o;
-		if (o instanceof IRepository)
-			return ((IRepository) o).getLocation();
+		if (o instanceof IRepository<?>)
+			return ((IRepository<?>) o).getLocation();
 		return null;
 	}
 }

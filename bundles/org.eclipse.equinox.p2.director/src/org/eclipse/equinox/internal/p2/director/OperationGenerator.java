@@ -51,8 +51,7 @@ public class OperationGenerator {
 		//Note that despite the fact that they are the same, a different CU can be attached.
 		//The objects contained in the intersection are the one that were originally in the from collection.
 		TreeSet<IInstallableUnit> to = new TreeSet<IInstallableUnit>(to_);
-		for (Iterator<IInstallableUnit> iterator = intersection.iterator(); iterator.hasNext();) {
-			IInstallableUnit fromIU = iterator.next();
+		for (IInstallableUnit fromIU : intersection) {
 			IInstallableUnit toIU = to.tailSet(fromIU).first();
 			generateConfigurationOperation(fromIU, toIU, operations);
 		}
@@ -109,8 +108,7 @@ public class OperationGenerator {
 		Set<IInstallableUnit> removedFromTo = new HashSet<IInstallableUnit>();
 
 		Map<String, List<IInstallableUnit>> fromById = new HashMap<String, List<IInstallableUnit>>();
-		for (Iterator<IInstallableUnit> iterator = from.iterator(); iterator.hasNext();) {
-			IInstallableUnit iuFrom = iterator.next();
+		for (IInstallableUnit iuFrom : from) {
 			List<IInstallableUnit> ius = fromById.get(iuFrom.getId());
 			if (ius == null) {
 				ius = new ArrayList<IInstallableUnit>();

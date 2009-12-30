@@ -162,9 +162,7 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 				loadedRepos.add(repo);
 		}
 		if (loadedRepos.size() > 0) {
-			@SuppressWarnings("unchecked")
-			IQueryable<T>[] queryables = loadedRepos.toArray(new IQueryable[loadedRepos.size()]);
-			return new CompoundQueryable<T>(queryables).query(query, sub.newChild(100));
+			return new CompoundQueryable<T>(loadedRepos).query(query, sub.newChild(100));
 		}
 		return Collector.emptyCollector();
 	}

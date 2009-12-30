@@ -69,8 +69,7 @@ public class QueryableArray implements IQueryable<IInstallableUnit> {
 			return null;
 
 		Set<IInstallableUnit> matchingIUs = new HashSet<IInstallableUnit>();
-		for (Iterator<IUCapability> iterator = iuCapabilities.iterator(); iterator.hasNext();) {
-			IUCapability iuCapability = iterator.next();
+		for (IUCapability iuCapability : iuCapabilities) {
 			if (iuCapability.iu.satisfies(requiredCapability))
 				matchingIUs.add(iuCapability.iu);
 		}
@@ -82,8 +81,7 @@ public class QueryableArray implements IQueryable<IInstallableUnit> {
 			return;
 
 		namedCapabilityIndex = new HashMap<String, List<IUCapability>>();
-		for (Iterator<IInstallableUnit> iterator = dataSet.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
+		for (IInstallableUnit iu : dataSet) {
 
 			List<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
 			int top = providedCapabilities.size();

@@ -204,8 +204,7 @@ public class PublisherHelper {
 		if (iiu instanceof InstallableUnit) {
 			InstallableUnit iu = (InstallableUnit) iiu;
 
-			for (Iterator<Entry<String, String>> iter = extraProperties.entrySet().iterator(); iter.hasNext();) {
-				Entry<String, String> entry = iter.next();
+			for (Entry<String, String> entry : extraProperties.entrySet()) {
 				iu.setProperty(entry.getKey(), entry.getValue());
 			}
 		}

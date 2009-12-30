@@ -53,8 +53,7 @@ public class CleanupzipAction extends ProvisioningAction {
 			// we try to substitute the current target with what was written.
 			Map<String, String> iuProperties = profile.getInstallableUnitProperties(iu);
 			String sourcePrefix = UNZIPPED + ActionConstants.PIPE + source + ActionConstants.PIPE;
-			for (Iterator<String> iterator = iuProperties.keySet().iterator(); iterator.hasNext();) {
-				String key = iterator.next();
+			for (String key : iuProperties.keySet()) {
 				if (key.startsWith(sourcePrefix)) {
 					if (unzipped == null) {
 						iuPropertyKey = key;
@@ -96,8 +95,7 @@ public class CleanupzipAction extends ProvisioningAction {
 		// the leafs first in the list of directories.
 		// Since backup will deny backup of non empty directory a check must be made
 		// 
-		for (Iterator<File> it = directories.iterator(); it.hasNext();) {
-			File directory = it.next();
+		for (File directory : directories) {
 			if (store != null) {
 				File[] children = directory.listFiles();
 				if (children == null || children.length == 0)

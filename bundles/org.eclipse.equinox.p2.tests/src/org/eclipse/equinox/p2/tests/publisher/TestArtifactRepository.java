@@ -141,8 +141,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 	}
 
 	public synchronized boolean contains(IArtifactKey key) {
-		for (Iterator<IArtifactDescriptor> iterator = repo.keySet().iterator(); iterator.hasNext();) {
-			IArtifactDescriptor descriptor = iterator.next();
+		for (IArtifactDescriptor descriptor : repo.keySet()) {
 			if (descriptor.getArtifactKey().equals(key))
 				return true;
 		}
@@ -164,8 +163,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		Set<IArtifactDescriptor> result = new HashSet<IArtifactDescriptor>();
-		for (Iterator<IArtifactDescriptor> iterator = repo.keySet().iterator(); iterator.hasNext();) {
-			IArtifactDescriptor descriptor = iterator.next();
+		for (IArtifactDescriptor descriptor : repo.keySet()) {
 			if (descriptor.getArtifactKey().equals(key))
 				result.add(descriptor);
 		}
@@ -297,8 +295,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 			return Collector.emptyCollector();
 
 		Collector<IArtifactKey> collector = new Collector<IArtifactKey>();
-		for (Iterator<IArtifactDescriptor> iterator = repo.keySet().iterator(); iterator.hasNext();) {
-			IArtifactDescriptor descriptor = iterator.next();
+		for (IArtifactDescriptor descriptor : repo.keySet()) {
 			collector.accept(descriptor.getArtifactKey());
 		}
 		return collector;

@@ -113,12 +113,10 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 		Map<Locale, Map<String, String>> localizations = feature.getLocalizations();
 		if (localizations != null) {
-			for (Iterator<Entry<Locale, Map<String, String>>> iter = localizations.entrySet().iterator(); iter.hasNext();) {
-				Entry<Locale, Map<String, String>> locEntry = iter.next();
+			for (Entry<Locale, Map<String, String>> locEntry : localizations.entrySet()) {
 				Locale locale = locEntry.getKey();
 				Map<String, String> translatedStrings = locEntry.getValue();
-				for (Iterator<Entry<String, String>> transIter = translatedStrings.entrySet().iterator(); transIter.hasNext();) {
-					Entry<String, String> entry = transIter.next();
+				for (Entry<String, String> entry : translatedStrings.entrySet()) {
 					iu.setProperty(locale.toString() + '.' + entry.getKey(), entry.getValue());
 				}
 				providedCapabilities.add(PublisherHelper.makeTranslationCapability(id, locale));
@@ -274,12 +272,10 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 		Map<Locale, Map<String, String>> localizations = feature.getLocalizations();
 		if (localizations != null) {
-			for (Iterator<Entry<Locale, Map<String, String>>> iter = localizations.entrySet().iterator(); iter.hasNext();) {
-				Entry<Locale, Map<String, String>> locEntry = iter.next();
+			for (Entry<Locale, Map<String, String>> locEntry : localizations.entrySet()) {
 				Locale locale = locEntry.getKey();
 				Map<String, String> translatedStrings = locEntry.getValue();
-				for (Iterator<Entry<String, String>> transIter = translatedStrings.entrySet().iterator(); transIter.hasNext();) {
-					Entry<String, String> e = transIter.next();
+				for (Entry<String, String> e : translatedStrings.entrySet()) {
 					iu.setProperty(locale.toString() + '.' + e.getKey(), e.getValue());
 				}
 				providedCapabilities.add(PublisherHelper.makeTranslationCapability(id, locale));
@@ -362,12 +358,10 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 		Map<Locale, Map<String, String>> localizations = feature.getLocalizations();
 		if (localizations != null) {
-			for (Iterator<Entry<Locale, Map<String, String>>> iter = localizations.entrySet().iterator(); iter.hasNext();) {
-				Entry<Locale, Map<String, String>> locEntry = iter.next();
+			for (Entry<Locale, Map<String, String>> locEntry : localizations.entrySet()) {
 				Locale locale = locEntry.getKey();
 				Map<String, String> translatedStrings = locEntry.getValue();
-				for (Iterator<Entry<String, String>> transIter = translatedStrings.entrySet().iterator(); transIter.hasNext();) {
-					Entry<String, String> e = transIter.next();
+				for (Entry<String, String> e : translatedStrings.entrySet()) {
 					iu.setProperty(locale.toString() + '.' + e.getKey(), e.getValue());
 				}
 				providedCapabilities.add(PublisherHelper.makeTranslationCapability(id, locale));

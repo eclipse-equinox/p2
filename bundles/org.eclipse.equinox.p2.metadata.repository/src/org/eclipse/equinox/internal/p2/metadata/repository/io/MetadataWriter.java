@@ -239,8 +239,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 				if (instructions.size() > 0) {
 					start(TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT);
 					attribute(COLLECTION_SIZE_ATTRIBUTE, instructions.size());
-					for (Iterator<Entry<String, ITouchpointInstruction>> iter = instructions.entrySet().iterator(); iter.hasNext();) {
-						Entry<String, ITouchpointInstruction> entry = iter.next();
+					for (Entry<String, ITouchpointInstruction> entry : instructions.entrySet()) {
 						start(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT);
 						attribute(TOUCHPOINT_DATA_INSTRUCTION_KEY_ATTRIBUTE, entry.getKey());
 						ITouchpointInstruction instruction = entry.getValue();

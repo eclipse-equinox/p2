@@ -196,12 +196,10 @@ public class BundlesAction extends AbstractPublisherAction {
 			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), Version.fromOSGiVersion(bd.getVersion())));
 
 		if (manifestLocalizations != null) {
-			for (Iterator<Entry<Locale, Map<String, String>>> iter = manifestLocalizations.entrySet().iterator(); iter.hasNext();) {
-				Entry<Locale, Map<String, String>> locEntry = iter.next();
+			for (Entry<Locale, Map<String, String>> locEntry : manifestLocalizations.entrySet()) {
 				Locale locale = locEntry.getKey();
 				Map<String, String> translatedStrings = locEntry.getValue();
-				for (Iterator<Entry<String, String>> transIter = translatedStrings.entrySet().iterator(); transIter.hasNext();) {
-					Entry<String, String> entry = transIter.next();
+				for (Entry<String, String> entry : translatedStrings.entrySet()) {
 					iu.setProperty(locale.toString() + '.' + entry.getKey(), entry.getValue());
 				}
 				providedCapabilities.add(PublisherHelper.makeTranslationCapability(bd.getSymbolicName(), locale));
@@ -279,12 +277,10 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// Create a provided capability for each locale and add the translated properties.
 		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>(hostLocalizations.keySet().size());
-		for (Iterator<Entry<Locale, Map<String, String>>> iter = hostLocalizations.entrySet().iterator(); iter.hasNext();) {
-			Entry<Locale, Map<String, String>> localeEntry = iter.next();
+		for (Entry<Locale, Map<String, String>> localeEntry : hostLocalizations.entrySet()) {
 			Locale locale = localeEntry.getKey();
 			Map<String, String> translatedStrings = localeEntry.getValue();
-			for (Iterator<Entry<String, String>> transItor = translatedStrings.entrySet().iterator(); transItor.hasNext();) {
-				Entry<String, String> entry = transItor.next();
+			for (Entry<String, String> entry : translatedStrings.entrySet()) {
 				fragment.setProperty(locale.toString() + '.' + entry.getKey(), entry.getValue());
 			}
 			providedCapabilities.add(PublisherHelper.makeTranslationCapability(hostId, locale));
@@ -382,8 +378,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (p == null)
 			return null;
 		StringBuffer result = new StringBuffer();
-		for (Iterator<Entry<String, String>> iterator = p.entrySet().iterator(); iterator.hasNext();) {
-			Entry<String, String> aProperty = iterator.next();
+		for (Entry<String, String> aProperty : p.entrySet()) {
 			if (aProperty.getKey().equals(BUNDLE_SHAPE))
 				continue;
 			result.append(aProperty.getKey()).append(": ").append(aProperty.getValue()).append('\n'); //$NON-NLS-1$

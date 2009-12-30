@@ -160,7 +160,7 @@ public class CompoundQueryableTest extends TestCase {
 	};
 
 	public void testMatchQuery() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(matchQuery, monitor);
 		assertEquals("1.0", 6, AbstractProvisioningTest.queryResultSize(queryResult));
@@ -173,7 +173,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testSingleQueryable() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(matchQuery, monitor);
 		assertEquals("1.0", 2, AbstractProvisioningTest.queryResultSize(queryResult));
@@ -182,7 +182,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testSingleContextQuery() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(greatestNumberQuery, monitor);
 		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(queryResult));
@@ -190,7 +190,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testMultipleContextQueries() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(greatestNumberQuery, monitor);
 		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(queryResult));
@@ -198,7 +198,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testCompoundMatchAndQuery() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(CompoundQuery.createCompoundQuery(new IQuery[] {matchQuery, matchMod4query}, true), monitor);
 		assertEquals("1.0", 3, AbstractProvisioningTest.queryResultSize(queryResult));
@@ -208,7 +208,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testCompoundMatchOrQuery() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(CompoundQuery.createCompoundQuery(new IQuery[] {matchQuery, matchMod4query}, false), monitor);
 		assertEquals("1.0", 6, AbstractProvisioningTest.queryResultSize(queryResult));
@@ -221,7 +221,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testMatchQueryProgressMonitor() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		cQueryable.query(matchQuery, monitor);
 		assertTrue("1.0", monitor.isDone());
@@ -229,7 +229,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testSingleQueryableProgressMonitor() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		cQueryable.query(matchQuery, monitor);
 		assertTrue("1.0", monitor.isDone());
@@ -237,7 +237,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testSingleContextQueryProgressMonitor() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		cQueryable.query(greatestNumberQuery, monitor);
 		assertTrue("1.0", monitor.isDone());
@@ -245,7 +245,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testMultipleContextQueriesProgressMonitor() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		cQueryable.query(greatestNumberQuery, monitor);
 		assertTrue("1.0", monitor.isDone());
@@ -253,15 +253,15 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testNullProgressMonitor() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		cQueryable.query(greatestNumberQuery, null);
 		// this is the same as above will null passed in, this should not throw any exceptions
 
 	}
 
 	public void testDoubleCompoundContextOrQuery() {
-		CompoundQueryable cQueryable1 = new CompoundQueryable(new IQueryable[] {queryable3, queryable2});
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {cQueryable1, queryable1});
+		CompoundQueryable cQueryable1 = new CompoundQueryable(queryable3, queryable2);
+		CompoundQueryable cQueryable = new CompoundQueryable(cQueryable1, queryable1);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(CompoundQuery.createCompoundQuery(new IQuery[] {contextQuery, greatestNumberQuery}, false), monitor);
 		assertEquals("1.0", 7, AbstractProvisioningTest.queryResultSize(queryResult));
@@ -277,8 +277,8 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testDoubleCompositeQuery() {
-		CompoundQueryable cQueryable1 = new CompoundQueryable(new IQueryable[] {queryable3, queryable2});
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {cQueryable1, queryable1});
+		CompoundQueryable cQueryable1 = new CompoundQueryable(queryable3, queryable2);
+		CompoundQueryable cQueryable = new CompoundQueryable(cQueryable1, queryable1);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(new PipedQuery(contextQuery, greatestNumberQuery), monitor);
 		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(queryResult));

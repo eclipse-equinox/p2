@@ -108,8 +108,8 @@ public class Projector {
 					long stop = System.currentTimeMillis();
 					Tracing.debug("Explanation found: " + (stop - start)); //$NON-NLS-1$
 					Tracing.debug("Explanation:"); //$NON-NLS-1$
-					for (Iterator<Explanation> i = explanation.iterator(); i.hasNext();) {
-						Tracing.debug(i.next().toString());
+					for (Explanation ex : explanation) {
+						Tracing.debug(ex.toString());
 					}
 				}
 			} catch (TimeoutException e) {
@@ -210,8 +210,7 @@ public class Projector {
 		final BigInteger POWER = BigInteger.valueOf(2);
 
 		BigInteger maxWeight = POWER;
-		for (Iterator<Entry<String, Map<Version, IInstallableUnit>>> iterator = s.iterator(); iterator.hasNext();) {
-			Entry<String, Map<Version, IInstallableUnit>> entry = iterator.next();
+		for (Entry<String, Map<Version, IInstallableUnit>> entry : s) {
 			Map<Version, IInstallableUnit> conflictingEntries = entry.getValue();
 			if (conflictingEntries.size() == 1) {
 				continue;
@@ -232,16 +231,15 @@ public class Projector {
 		maxWeight = maxWeight.multiply(POWER);
 
 		// Weight the no-op variables beneath the abstract variables
-		for (Iterator<AbstractVariable> iterator = noopVariables.values().iterator(); iterator.hasNext();) {
-			weightedObjects.add(WeightedObject.newWO(iterator.next(), maxWeight));
-		}
+		for (AbstractVariable var : noopVariables.values())
+			weightedObjects.add(WeightedObject.newWO(var, maxWeight));
 
 		maxWeight = maxWeight.multiply(POWER);
 
 		// Add the abstract variables
 		BigInteger abstractWeight = maxWeight.negate();
-		for (Iterator<AbstractVariable> iterator = abstractVariables.iterator(); iterator.hasNext();) {
-			weightedObjects.add(WeightedObject.newWO(iterator.next(), abstractWeight));
+		for (AbstractVariable var : abstractVariables) {
+			weightedObjects.add(WeightedObject.newWO(var, abstractWeight));
 		}
 
 		maxWeight = maxWeight.multiply(POWER);
@@ -279,8 +277,7 @@ public class Projector {
 	private void createObjectiveFunction(List<WeightedObject<? extends Object>> weightedObjects) {
 		if (DEBUG) {
 			StringBuffer b = new StringBuffer();
-			for (Iterator<WeightedObject<? extends Object>> i = weightedObjects.iterator(); i.hasNext();) {
-				WeightedObject<? extends Object> object = i.next();
+			for (WeightedObject<? extends Object> object : weightedObjects) {
 				if (b.length() > 0)
 					b.append(", "); //$NON-NLS-1$
 				b.append(object.getWeight());
@@ -579,14 +576,12 @@ public class Projector {
 		}
 
 		// Fix: now create the pending non-patch requirements based on the full set of patches
-		for (Iterator<Pending> iterator = nonPatchedRequirements.values().iterator(); iterator.hasNext();) {
-			Pending pending = iterator.next();
+		for (Pending pending : nonPatchedRequirements.values()) {
 			createImplication(pending.left, pending.matches, pending.explanation);
 		}
 
 		List<AbstractVariable> optionalAbstractRequirements = new ArrayList<AbstractVariable>();
-		for (Iterator<Entry<IRequirement, List<IInstallableUnitPatch>>> iterator = unchangedRequirements.entrySet().iterator(); iterator.hasNext();) {
-			Entry<IRequirement, List<IInstallableUnitPatch>> entry = iterator.next();
+		for (Entry<IRequirement, List<IInstallableUnitPatch>> entry : unchangedRequirements.entrySet()) {
 			List<IInstallableUnitPatch> patchesApplied = entry.getValue();
 			Iterator<IInstallableUnit> allPatches = applicablePatches.iterator();
 			List<IInstallableUnitPatch> requiredPatches = new ArrayList<IInstallableUnitPatch>();
@@ -714,8 +709,7 @@ public class Projector {
 		if (optionalRequirements.isEmpty())
 			return;
 		AbstractVariable noop = getNoOperationVariable(iu);
-		for (Iterator<AbstractVariable> i = optionalRequirements.iterator(); i.hasNext();) {
-			AbstractVariable abs = i.next();
+		for (AbstractVariable abs : optionalRequirements) {
 			createIncompatibleValues(abs, noop);
 		}
 		optionalRequirements.add(noop);
@@ -727,10 +721,8 @@ public class Projector {
 		if (DEBUG) {
 			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		for (Iterator<?> iterator = right.iterator(); iterator.hasNext();) {
-			dependencyHelper.implication(new Object[] {left}).impliesNot(iterator.next()).named(name);
-		}
-
+		for (Object r : right)
+			dependencyHelper.implication(new Object[] {left}).impliesNot(r).named(name);
 	}
 
 	private void createImplication(Object left, List<?> right, Explanation name) throws ContradictionException {
@@ -759,8 +751,7 @@ public class Projector {
 	//When there is a mix of singleton and non singleton, several constraints are generated
 	private void createConstraintsForSingleton() throws ContradictionException {
 		Set<Entry<String, Map<Version, IInstallableUnit>>> s = slice.entrySet();
-		for (Iterator<Entry<String, Map<Version, IInstallableUnit>>> iterator = s.iterator(); iterator.hasNext();) {
-			Entry<String, Map<Version, IInstallableUnit>> entry = iterator.next();
+		for (Entry<String, Map<Version, IInstallableUnit>> entry : s) {
 			Map<Version, IInstallableUnit> conflictingEntries = entry.getValue();
 			if (conflictingEntries.size() < 2)
 				continue;
@@ -768,8 +759,7 @@ public class Projector {
 			Collection<IInstallableUnit> conflictingVersions = conflictingEntries.values();
 			List<IInstallableUnit> singletons = new ArrayList<IInstallableUnit>();
 			List<IInstallableUnit> nonSingletons = new ArrayList<IInstallableUnit>();
-			for (Iterator<IInstallableUnit> conflictIterator = conflictingVersions.iterator(); conflictIterator.hasNext();) {
-				IInstallableUnit iu = conflictIterator.next();
+			for (IInstallableUnit iu : conflictingVersions) {
 				if (iu.isSingleton()) {
 					singletons.add(iu);
 				} else {
@@ -785,8 +775,8 @@ public class Projector {
 				createAtMostOne(singletonArray);
 			} else {
 				singletonArray = singletons.toArray(new IInstallableUnit[singletons.size() + 1]);
-				for (Iterator<IInstallableUnit> iterator2 = nonSingletons.iterator(); iterator2.hasNext();) {
-					singletonArray[singletonArray.length - 1] = iterator2.next();
+				for (IInstallableUnit nonSingleton : nonSingletons) {
+					singletonArray[singletonArray.length - 1] = nonSingleton;
 					createAtMostOne(singletonArray);
 				}
 			}
@@ -870,8 +860,8 @@ public class Projector {
 	private void backToIU() {
 		solution = new ArrayList<IInstallableUnit>();
 		IVec<Object> sat4jSolution = dependencyHelper.getSolution();
-		for (Iterator<Object> i = sat4jSolution.iterator(); i.hasNext();) {
-			Object var = i.next();
+		for (Iterator<Object> iter = sat4jSolution.iterator(); iter.hasNext();) {
+			Object var = iter.next();
 			if (var instanceof IInstallableUnit) {
 				IInstallableUnit iu = (IInstallableUnit) var;
 				if (iu == entryPoint)
@@ -886,8 +876,8 @@ public class Projector {
 		Collections.sort(l);
 		Tracing.debug("Solution:"); //$NON-NLS-1$
 		Tracing.debug("Numbers of IUs selected: " + l.size()); //$NON-NLS-1$
-		for (Iterator<IInstallableUnit> iterator = l.iterator(); iterator.hasNext();) {
-			Tracing.debug(iterator.next().toString());
+		for (IInstallableUnit s : l) {
+			Tracing.debug(s.toString());
 		}
 	}
 
@@ -927,14 +917,12 @@ public class Projector {
 
 	public Map<IInstallableUnitFragment, List<IInstallableUnit>> getFragmentAssociation() {
 		Map<IInstallableUnitFragment, List<IInstallableUnit>> resolvedFragments = new HashMap<IInstallableUnitFragment, List<IInstallableUnit>>(fragments.size());
-		for (Iterator<Entry<IInstallableUnitFragment, Set<IInstallableUnit>>> iterator = fragments.entrySet().iterator(); iterator.hasNext();) {
-			Entry<IInstallableUnitFragment, Set<IInstallableUnit>> fragment = iterator.next();
+		for (Entry<IInstallableUnitFragment, Set<IInstallableUnit>> fragment : fragments.entrySet()) {
 			if (!dependencyHelper.getBooleanValueFor(fragment.getKey()))
 				continue;
 			Set<IInstallableUnit> potentialHosts = fragment.getValue();
 			List<IInstallableUnit> resolvedHost = new ArrayList<IInstallableUnit>(potentialHosts.size());
-			for (Iterator<IInstallableUnit> iterator2 = potentialHosts.iterator(); iterator2.hasNext();) {
-				IInstallableUnit host = iterator2.next();
+			for (IInstallableUnit host : potentialHosts) {
 				if (dependencyHelper.getBooleanValueFor(host))
 					resolvedHost.add(host);
 			}

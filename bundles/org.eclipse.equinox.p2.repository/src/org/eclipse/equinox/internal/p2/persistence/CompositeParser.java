@@ -12,7 +12,8 @@ package org.eclipse.equinox.internal.p2.persistence;
 
 import java.io.*;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
@@ -43,13 +44,7 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 		}
 
 		public URI[] getChildren() {
-			int size = children.size();
-			URI[] result = new URI[size];
-			int i = 0;
-			for (Iterator<URI> it = children.iterator(); it.hasNext(); i++) {
-				result[i] = it.next();
-			}
-			return result;
+			return children.toArray(new URI[children.size()]);
 		}
 
 		public void startElement(String name, Attributes attributes) {

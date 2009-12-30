@@ -216,8 +216,7 @@ public class CacheManager {
 	 * @param repositoryLocation
 	 */
 	void deleteCache(URI repositoryLocation) {
-		for (Iterator<String> it = knownPrefixes.iterator(); it.hasNext();) {
-			String prefix = it.next();
+		for (String prefix : knownPrefixes) {
 			File[] cacheFiles = getCacheFiles(repositoryLocation, prefix);
 			for (int i = 0; i < cacheFiles.length; i++) {
 				// delete the cache file if it exists

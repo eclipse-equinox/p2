@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CompoundQueryable;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -464,9 +463,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			if (repositories == null)
 				restoreRepositories();
 			ArrayList<URI> result = new ArrayList<URI>();
-			int i = 0;
-			for (Iterator<RepositoryInfo<T>> it = repositories.values().iterator(); it.hasNext(); i++) {
-				RepositoryInfo<T> info = it.next();
+			for (RepositoryInfo<T> info : repositories.values()) {
 				if (matchesFlags(info, flags))
 					result.add(info.location);
 			}
@@ -1018,8 +1015,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		boolean changed = false;
 		synchronized (repositoryLock) {
 			if (repositories != null) {
-				for (Iterator<RepositoryInfo<T>> it = repositories.values().iterator(); it.hasNext();) {
-					RepositoryInfo<T> info = it.next();
+				for (RepositoryInfo<T> info : repositories.values()) {
 					changed |= remember(info, false);
 				}
 			}
@@ -1090,9 +1086,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			}
 		}
 		try {
-			@SuppressWarnings("unchecked")
-			IQueryable<T>[] queryablesArray = queryables.toArray(new IQueryable[queryables.size()]);
-			CompoundQueryable<T> compoundQueryable = new CompoundQueryable<T>(queryablesArray);
+			CompoundQueryable<T> compoundQueryable = new CompoundQueryable<T>(queryables);
 			return compoundQueryable.query(query, sub.newChild(locations.length * 1));
 		} finally {
 			sub.done();

@@ -33,8 +33,8 @@ public class PublisherResult implements IPublisherResult {
 	}
 
 	public void addIUs(Collection<IInstallableUnit> ius, String type) {
-		for (Iterator<IInstallableUnit> i = ius.iterator(); i.hasNext();)
-			addIU(i.next(), type);
+		for (IInstallableUnit iu : ius)
+			addIU(iu, type);
 	}
 
 	private void addIU(Map<String, Set<IInstallableUnit>> map, String id, IInstallableUnit iu) {
@@ -49,16 +49,14 @@ public class PublisherResult implements IPublisherResult {
 	public IInstallableUnit getIU(String id, Version version, String type) {
 		if (type == null || type == ROOT) {
 			Collection<IInstallableUnit> ius = rootIUs.get(id);
-			for (Iterator<IInstallableUnit> i = ius.iterator(); i.hasNext();) {
-				IInstallableUnit iu = i.next();
+			for (IInstallableUnit iu : ius) {
 				if (iu.getVersion().equals(version))
 					return iu;
 			}
 		}
 		if (type == null || type == NON_ROOT) {
 			Collection<IInstallableUnit> ius = nonRootIUs.get(id);
-			for (Iterator<IInstallableUnit> i = ius.iterator(); i.hasNext();) {
-				IInstallableUnit iu = i.next();
+			for (IInstallableUnit iu : ius) {
 				if (iu.getVersion().equals(version))
 					return iu;
 			}
@@ -106,9 +104,9 @@ public class PublisherResult implements IPublisherResult {
 
 	protected List<IInstallableUnit> flatten(Collection<Set<IInstallableUnit>> values) {
 		ArrayList<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
-		for (Iterator<Set<IInstallableUnit>> i = values.iterator(); i.hasNext();)
-			for (Iterator<IInstallableUnit> j = i.next().iterator(); j.hasNext();)
-				result.add(j.next());
+		for (Set<IInstallableUnit> iuSet : values)
+			for (IInstallableUnit iu : iuSet)
+				result.add(iu);
 		return result;
 	}
 
@@ -146,17 +144,14 @@ public class PublisherResult implements IPublisherResult {
 			return queryIU((InstallableUnitQuery) query, monitor);
 		IQueryable<IInstallableUnit> nonRootQueryable = new QueryableMap(nonRootIUs);
 		IQueryable<IInstallableUnit> rootQueryable = new QueryableMap(rootIUs);
-		@SuppressWarnings("unchecked")
-		IQueryable<IInstallableUnit>[] queryables = new IQueryable[] {nonRootQueryable, rootQueryable};
-		return new CompoundQueryable<IInstallableUnit>(queryables).query(query, monitor);
+		return new CompoundQueryable<IInstallableUnit>(nonRootQueryable, rootQueryable).query(query, monitor);
 	}
 
 	private IQueryResult<IInstallableUnit> queryIU(InstallableUnitQuery query, IProgressMonitor monitor) {
 		Collector<IInstallableUnit> result = new Collector<IInstallableUnit>();
 		Collection<IInstallableUnit> matches = getIUs(query.getId(), null);
 		VersionRange queryRange = query.getRange();
-		for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-			IInstallableUnit match = it.next();
+		for (IInstallableUnit match : matches) {
 			if (queryRange == null || queryRange.isIncluded(match.getVersion()))
 				if (!result.accept(match))
 					break;

@@ -251,8 +251,7 @@ public class SiteListener extends DirectoryChangeListener {
 		}
 		Map<String, File> pluginCache = getPlugins(siteFile);
 		Map<File, Feature> featureCache = getFeatures(siteFile);
-		for (Iterator<File> iter = featureCache.keySet().iterator(); iter.hasNext();) {
-			File featureFile = iter.next();
+		for (File featureFile : featureCache.keySet()) {
 			// add the feature path
 			result.add(featureFile.toString());
 			Feature feature = featureCache.get(featureFile);

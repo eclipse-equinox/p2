@@ -251,9 +251,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		Map<String, Profile> profileMap = getProfileMap();
 		Profile[] result = new Profile[profileMap.size()];
 		int i = 0;
-		for (Iterator<Profile> it = profileMap.values().iterator(); it.hasNext(); i++) {
-			Profile profile = it.next();
-			result[i] = profile.snapshot();
+		for (Profile profile : profileMap.values()) {
+			result[i++] = profile.snapshot();
 		}
 		return result;
 	}
@@ -633,8 +632,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		public Map<String, Profile> getProfileMap() {
 			Map<String, Profile> profileMap = new HashMap<String, Profile>();
-			for (Iterator<String> it = profileHandlers.keySet().iterator(); it.hasNext();) {
-				String profileId = it.next();
+			for (String profileId : profileHandlers.keySet()) {
 				addProfile(profileId, profileMap);
 			}
 			return profileMap;
@@ -666,8 +664,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 					profile.addInstallableUnit(iu);
 					Map<String, String> iuProperties = profileHandler.getIUProperties(iu);
 					if (iuProperties != null) {
-						for (Iterator<Entry<String, String>> it = iuProperties.entrySet().iterator(); it.hasNext();) {
-							Entry<String, String> entry = it.next();
+						for (Entry<String, String> entry : iuProperties.entrySet()) {
 							profile.setInstallableUnitProperty(iu, entry.getKey(), entry.getValue());
 						}
 					}

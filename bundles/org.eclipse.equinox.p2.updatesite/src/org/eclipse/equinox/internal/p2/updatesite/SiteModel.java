@@ -240,8 +240,7 @@ public class SiteModel {
 		this.localizations = localizations;
 		if (localizations != null && !localizations.isEmpty() && //
 				categories != null && !categories.isEmpty()) {
-			for (Iterator<SiteCategory> catIter = categories.values().iterator(); catIter.hasNext();) {
-				SiteCategory category = catIter.next();
+			for (SiteCategory category : categories.values()) {
 				category.setLocalizations(localizations);
 			}
 		}

@@ -102,13 +102,11 @@ public abstract class AbstractRepositoryTask extends Task {
 	 * Add source repositories to mirror from
 	 */
 	public void addConfiguredSource(RepositoryList sourceList) {
-		for (Iterator<DestinationRepository> iter = sourceList.getRepositoryList().iterator(); iter.hasNext();) {
-			DestinationRepository repo = iter.next();
+		for (DestinationRepository repo : sourceList.getRepositoryList()) {
 			application.addSource(repo.getDescriptor());
 		}
 
-		for (Iterator<FileSet> iter = sourceList.getFileSetList().iterator(); iter.hasNext();) {
-			FileSet fileSet = iter.next();
+		for (FileSet fileSet : sourceList.getFileSetList()) {
 			sourceRepos.add(fileSet);
 			// Added to the application later through prepareSourceRepos
 		}
@@ -163,8 +161,7 @@ public abstract class AbstractRepositoryTask extends Task {
 
 		IMetadataRepository repository = application.getCompositeMetadataRepository();
 		List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
-		for (Iterator<IUDescription> iter = iuTasks.iterator(); iter.hasNext();) {
-			IUDescription iu = iter.next();
+		for (IUDescription iu : iuTasks) {
 			IQuery<IInstallableUnit> iuQuery = iu.createQuery();
 
 			Iterator<IInstallableUnit> queryResult = repository.query(iuQuery, null).iterator();

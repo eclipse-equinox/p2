@@ -57,8 +57,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	private void addRunningFeatures(IProfile profile, IArtifactRepository repositoryToGC) {
 		try {
 			List<Feature> allFeatures = getAllFeatures(Configuration.load(new File(Util.getConfigurationFolder(profile), "org.eclipse.update/platform.xml"), null)); //$NON-NLS-1$
-			for (Iterator<Feature> iterator = allFeatures.iterator(); iterator.hasNext();) {
-				Feature f = iterator.next();
+			for (Feature f : allFeatures) {
 				IArtifactKey match = searchArtifact(f.getId(), Version.create(f.getVersion()), ARTIFACT_CLASSIFIER_FEATURE, repositoryToGC);
 				if (match != null)
 					artifactKeyList.add(match);
@@ -73,8 +72,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 			return CollectionUtils.emptyList();
 		List<Site> sites = cfg.getSites();
 		ArrayList<Feature> result = new ArrayList<Feature>();
-		for (Iterator<Site> iterator = sites.iterator(); iterator.hasNext();) {
-			Site object = iterator.next();
+		for (Site object : sites) {
 			Feature[] features = object.getFeatures();
 			for (int i = 0; i < features.length; i++) {
 				result.add(features[i]);

@@ -39,8 +39,7 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			CompositeArtifactRepository artifactRepo = (CompositeArtifactRepository) destinationArtifactRepository;
 
 			// Remove children from the Composite Repositories
-			for (Iterator<RepositoryDescriptor> iterator = childrenToRemove.iterator(); iterator.hasNext();) {
-				RepositoryDescriptor child = iterator.next();
+			for (RepositoryDescriptor child : childrenToRemove) {
 				if (child.isArtifact() && artifactRepo != null)
 					artifactRepo.removeChild(child.getOriginalRepoLocation());
 				if (child.isMetadata() && metadataRepo != null)
@@ -48,8 +47,7 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			}
 
 			// Add children to the Composite Repositories
-			for (Iterator<RepositoryDescriptor> iterator = childrenToAdd.iterator(); iterator.hasNext();) {
-				RepositoryDescriptor child = iterator.next();
+			for (RepositoryDescriptor child : childrenToAdd) {
 				if (child.isArtifact() && artifactRepo != null)
 					artifactRepo.addChild(child.getOriginalRepoLocation());
 				if (child.isMetadata() && metadataRepo != null)

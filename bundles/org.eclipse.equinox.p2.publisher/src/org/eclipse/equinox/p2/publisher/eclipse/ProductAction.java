@@ -145,8 +145,7 @@ public class ProductAction extends AbstractPublisherAction {
 	private Collection<IVersionedId> versionElements(Collection<IVersionedId> elements, String namespace) {
 		Collection<IVersionAdvice> versionAdvice = info.getAdvice(null, true, null, null, IVersionAdvice.class);
 		List<IVersionedId> result = new ArrayList<IVersionedId>();
-		for (Iterator<IVersionedId> i = elements.iterator(); i.hasNext();) {
-			IVersionedId element = i.next();
+		for (IVersionedId element : elements) {
 			Version elementVersion = element.getVersion();
 			if (elementVersion == null || Version.emptyVersion.equals(elementVersion)) {
 				Iterator<IVersionAdvice> advice = versionAdvice.iterator();
@@ -174,8 +173,7 @@ public class ProductAction extends AbstractPublisherAction {
 		if (suffix == null || suffix.length() == 0)
 			return elements;
 		ArrayList<IVersionedId> result = new ArrayList<IVersionedId>(elements.size());
-		for (Iterator<IVersionedId> i = elements.iterator(); i.hasNext();) {
-			IVersionedId elementName = i.next();
+		for (IVersionedId elementName : elements) {
 			result.add(new VersionedId(elementName.getId() + suffix, elementName.getVersion()));
 		}
 		return result;

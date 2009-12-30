@@ -133,8 +133,8 @@ public class DirectoryWatcher {
 		removals = scannedFiles;
 		scannedFiles = new HashSet<File>();
 		pendingDeletions = new HashSet<File>();
-		for (Iterator<DirectoryChangeListener> i = listeners.iterator(); i.hasNext();)
-			i.next().startPoll();
+		for (DirectoryChangeListener listener : listeners)
+			listener.startPoll();
 	}
 
 	private void scanDirectories() {
@@ -155,8 +155,7 @@ public class DirectoryWatcher {
 					// removed at the end.  Then notify all the listeners as needed.
 					scannedFiles.add(file);
 					removals.remove(file);
-					for (Iterator<DirectoryChangeListener> iterator = listeners.iterator(); iterator.hasNext();) {
-						DirectoryChangeListener listener = iterator.next();
+					for (DirectoryChangeListener listener : listeners) {
 						if (isInterested(listener, file))
 							processFile(file, listener);
 					}
@@ -168,8 +167,8 @@ public class DirectoryWatcher {
 	private void stopPoll() {
 		notifyRemovals();
 		removals = scannedFiles;
-		for (Iterator<DirectoryChangeListener> i = listeners.iterator(); i.hasNext();)
-			i.next().stopPoll();
+		for (DirectoryChangeListener listener : listeners)
+			listener.stopPoll();
 		processPendingDeletions();
 	}
 
@@ -182,10 +181,8 @@ public class DirectoryWatcher {
 	 */
 	private void notifyRemovals() {
 		Set<File> removed = removals;
-		for (Iterator<DirectoryChangeListener> i = listeners.iterator(); i.hasNext();) {
-			DirectoryChangeListener listener = i.next();
-			for (Iterator<File> j = removed.iterator(); j.hasNext();) {
-				File file = j.next();
+		for (DirectoryChangeListener listener : listeners) {
+			for (File file : removed) {
 				if (isInterested(listener, file))
 					listener.removed(file);
 			}

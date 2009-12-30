@@ -177,8 +177,7 @@ public class SimpleArtifactRepositoryIO {
 		private void writeArtifacts(Set<SimpleArtifactDescriptor> artifactDescriptors) {
 			start(ARTIFACTS_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, artifactDescriptors.size());
-			for (Iterator<SimpleArtifactDescriptor> iter = artifactDescriptors.iterator(); iter.hasNext();) {
-				SimpleArtifactDescriptor descriptor = iter.next();
+			for (SimpleArtifactDescriptor descriptor : artifactDescriptors) {
 				IArtifactKey key = descriptor.getArtifactKey();
 				start(ARTIFACT_ELEMENT);
 				attribute(ARTIFACT_CLASSIFIER_ATTRIBUTE, key.getClassifier());

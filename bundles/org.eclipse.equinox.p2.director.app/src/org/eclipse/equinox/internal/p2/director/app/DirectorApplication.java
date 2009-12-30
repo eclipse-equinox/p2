@@ -236,10 +236,9 @@ public class DirectorApplication implements IApplication {
 		if (top == 0)
 			return getInstallableUnits(null, query, nullMonitor);
 
-		@SuppressWarnings("unchecked")
-		IQueryable<IInstallableUnit>[] locationQueryables = new IQueryable[top];
+		List<IQueryable<IInstallableUnit>> locationQueryables = new ArrayList<IQueryable<IInstallableUnit>>(top);
 		for (int i = 0; i < top; i++)
-			locationQueryables[i] = new LocationQueryable(metadataRepositoryLocations.get(i));
+			locationQueryables.add(new LocationQueryable(metadataRepositoryLocations.get(i)));
 		return new CompoundQueryable<IInstallableUnit>(locationQueryables).query(query, nullMonitor);
 	}
 
@@ -470,9 +469,7 @@ public class DirectorApplication implements IApplication {
 			while (roots.hasNext())
 				allRoots.add(roots.next());
 		} else {
-			Iterator<IVersionedId> r = rootsToList.iterator();
-			while (r.hasNext()) {
-				IVersionedId rootName = r.next();
+			for (IVersionedId rootName : rootsToList) {
 				Version v = rootName.getVersion();
 				IQuery<IInstallableUnit> query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
 				Iterator<IInstallableUnit> roots = collectRootIUs(query).iterator();
@@ -482,9 +479,7 @@ public class DirectorApplication implements IApplication {
 		}
 
 		Collections.sort(allRoots);
-		Iterator<IInstallableUnit> i = allRoots.iterator();
-		while (i.hasNext()) {
-			IInstallableUnit iu = i.next();
+		for (IInstallableUnit iu : allRoots) {
 			System.out.println(iu.getId() + '=' + iu.getVersion());
 		}
 	}
@@ -863,9 +858,7 @@ public class DirectorApplication implements IApplication {
 
 	private String toString(Map<String, String> context) {
 		StringBuffer result = new StringBuffer();
-		Iterator<Entry<String, String>> entries = context.entrySet().iterator();
-		while (entries.hasNext()) {
-			Entry<String, String> entry = entries.next();
+		for (Entry<String, String> entry : context.entrySet()) {
 			if (result.length() > 0)
 				result.append(',');
 			result.append(entry.getKey());

@@ -66,10 +66,8 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				// We use an additive check state cache so we need to remove
 				// previously checked items if the user unchecked them.
 				if (!event.getChecked() && checkState != null) {
-					Iterator<Object> iter = checkState.iterator();
 					ArrayList<Object> toRemove = new ArrayList<Object>(1);
-					while (iter.hasNext()) {
-						Object element = iter.next();
+					for (Object element : checkState) {
 						if (checkboxViewer.getComparer().equals(element, event.getElement())) {
 							toRemove.add(element);
 							// Do not break out of the loop.  We may have duplicate equal

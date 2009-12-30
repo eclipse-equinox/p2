@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import java.util.Iterator;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -40,8 +39,7 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 	 * Add the listed repositories to the composite repository
 	 */
 	public void addConfiguredAdd(RepositoryList list) {
-		for (Iterator<DestinationRepository> iter = list.getRepositoryList().iterator(); iter.hasNext();) {
-			DestinationRepository repo = iter.next();
+		for (DestinationRepository repo : list.getRepositoryList()) {
 			((CompositeRepositoryApplication) application).addChild(repo.getDescriptor());
 		}
 	}
@@ -50,8 +48,7 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 	 * Remove the listed repositories from the composite repository
 	 */
 	public void addConfiguredRemove(RepositoryList list) {
-		for (Iterator<DestinationRepository> iter = list.getRepositoryList().iterator(); iter.hasNext();) {
-			DestinationRepository repo = iter.next();
+		for (DestinationRepository repo : list.getRepositoryList()) {
 			((CompositeRepositoryApplication) application).removeChild(repo.getDescriptor());
 		}
 	}

@@ -11,7 +11,8 @@
 package org.eclipse.equinox.internal.p2.console;
 
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -95,7 +96,7 @@ public class ProvisioningHelper {
 		manager.removeRepository(location);
 	}
 
-	public static IProfile addProfile(String profileId, Properties properties) throws ProvisionException {
+	public static IProfile addProfile(String profileId, Map<String, String> properties) throws ProvisionException {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			return null;
@@ -103,13 +104,7 @@ public class ProvisioningHelper {
 		if (profile != null)
 			return profile;
 
-		Map profileProperties = new HashMap();
-
-		for (Iterator it = properties.keySet().iterator(); it.hasNext();) {
-			String key = (String) it.next();
-			profileProperties.put(key, properties.getProperty(key));
-		}
-
+		Map<String, String> profileProperties = new HashMap<String, String>(properties);
 		if (profileProperties.get(IProfile.PROP_ENVIRONMENTS) == null) {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 			if (info != null)
@@ -280,7 +275,7 @@ public class ProvisioningHelper {
 	public static IStatus uninstall(String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
-		IQueryResult units = profile.query(new InstallableUnitQuery(unitId, Version.create(version)), progress);
+		IQueryResult<IInstallableUnit> units = profile.query(new InstallableUnitQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuffer error = new StringBuffer();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');

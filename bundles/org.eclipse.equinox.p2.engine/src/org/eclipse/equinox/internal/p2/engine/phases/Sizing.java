@@ -77,8 +77,7 @@ public class Sizing extends InstallableUnitPhase {
 
 		Set<IArtifactRequest> artifactsToObtain = new HashSet<IArtifactRequest>(artifactRequests.size());
 
-		for (Iterator<IArtifactRequest[]> it = artifactRequests.iterator(); it.hasNext();) {
-			IArtifactRequest[] requests = it.next();
+		for (IArtifactRequest[] requests : artifactRequests) {
 			if (requests == null)
 				continue;
 			for (int i = 0; i < requests.length; i++) {
@@ -96,8 +95,9 @@ public class Sizing extends InstallableUnitPhase {
 		else
 			repositories = context.getArtifactRepositories();
 
-		for (Iterator<IArtifactRequest> iterator = artifactsToObtain.iterator(); iterator.hasNext() && !monitor.isCanceled();) {
-			IArtifactRequest artifactRequest = iterator.next();
+		for (IArtifactRequest artifactRequest : artifactsToObtain) {
+			if (monitor.isCanceled())
+				break;
 			boolean found = false;
 			for (int i = 0; i < repositories.length; i++) {
 				IArtifactRepository repo;

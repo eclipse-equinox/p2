@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointInstruction;
@@ -69,13 +68,15 @@ public class TouchpointInstruction implements ITouchpointInstruction {
 	public static String encodeAction(String actionName, Map<String, String> parameters) {
 		StringBuffer result = new StringBuffer(actionName);
 		result.append('(');
-		for (Iterator<Entry<String, String>> it = parameters.entrySet().iterator(); it.hasNext();) {
-			Entry<String, String> entry = it.next();
+		boolean first = true;
+		for (Entry<String, String> entry : parameters.entrySet()) {
+			if (first)
+				first = false;
+			else
+				result.append(',');
 			result.append(entry.getKey());
 			result.append(':');
 			appendEncoded(result, entry.getValue());
-			if (it.hasNext())
-				result.append(',');
 		}
 		result.append(')').append(';');
 		return result.toString();

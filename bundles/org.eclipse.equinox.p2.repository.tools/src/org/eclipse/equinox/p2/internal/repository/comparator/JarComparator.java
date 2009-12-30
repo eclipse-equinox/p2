@@ -148,8 +148,7 @@ public class JarComparator implements IArtifactComparator {
 		Attributes attributes2 = manifest2.getMainAttributes();
 		if (attributes.size() != attributes2.size())
 			return false;
-		for (Iterator<Entry<Object, Object>> iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
-			Entry<Object, Object> entry = iterator.next();
+		for (Entry<Object, Object> entry : attributes.entrySet()) {
 			Object value2 = attributes2.get(entry.getKey());
 			if (value2 == null) {
 				return false;

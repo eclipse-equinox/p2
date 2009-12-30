@@ -257,8 +257,7 @@ public class TranslationSupport {
 			}
 		}
 
-		for (Iterator<String> iter = locales.iterator(); iter.hasNext();) {
-			String nextLocale = iter.next();
+		for (String nextLocale : locales) {
 			String localeKey = makeLocalizedKey(actualKey, nextLocale);
 			String nextValue = iu.getProperty(localeKey);
 			if (nextValue != null)

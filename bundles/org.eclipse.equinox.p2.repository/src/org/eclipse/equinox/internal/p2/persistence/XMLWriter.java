@@ -226,8 +226,7 @@ public class XMLWriter implements XMLConstants {
 		if (properties != null && properties.size() > 0) {
 			start(propertiesElement);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, properties.size());
-			for (Iterator<Entry<String, String>> iter = properties.entrySet().iterator(); iter.hasNext();) {
-				Entry<String, String> entry = iter.next();
+			for (Entry<String, String> entry : properties.entrySet()) {
 				writeProperty(entry.getKey(), entry.getValue());
 			}
 			end(propertiesElement);

@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
@@ -111,9 +112,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 				requirements = getIU().getRequiredCapabilities();
 			else {
 				ArrayList<IRequirement> capabilities = new ArrayList<IRequirement>();
-				Iterator<IInstallableUnit> iter = ius.iterator();
-				while (iter.hasNext()) {
-					IInstallableUnit iu = iter.next();
+				for (IInstallableUnit iu : ius) {
 					capabilities.addAll(iu.getRequiredCapabilities());
 				}
 				requirements = capabilities;

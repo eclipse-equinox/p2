@@ -145,8 +145,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 		ArrayList<File> inclusions = new ArrayList<File>();
 		ArrayList<File> exclusions = new ArrayList<File>();
 		File root = null;
-		for (Iterator<IRootFilesAdvice> i = advice.iterator(); i.hasNext();) {
-			IRootFilesAdvice entry = i.next();
+		for (IRootFilesAdvice entry : advice) {
 			// TODO for now we simply get root from the first advice that has one
 			if (root == null)
 				root = entry.getRoot();

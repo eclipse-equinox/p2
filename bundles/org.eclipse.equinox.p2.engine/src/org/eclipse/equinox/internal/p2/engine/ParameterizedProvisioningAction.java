@@ -42,8 +42,7 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 
 	private Map<String, Object> processActionParameters(Map<String, Object> parameters) {
 		Map<String, Object> result = new HashMap<String, Object>(parameters);
-		for (Iterator<Entry<String, String>> it = actionParameters.entrySet().iterator(); it.hasNext();) {
-			Entry<String, String> entry = it.next();
+		for (Entry<String, String> entry : actionParameters.entrySet()) {
 			String name = entry.getKey();
 			String value = processVariables(entry.getValue(), parameters);
 			result.put(name, value);

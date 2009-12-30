@@ -77,9 +77,7 @@ public class GarbageCollector {
 	}
 
 	private void invokeCoreGC() {
-		Iterator<IArtifactRepository> keyIterator = markSet.keySet().iterator();
-		while (keyIterator.hasNext()) {
-			IArtifactRepository nextRepo = keyIterator.next();
+		for (IArtifactRepository nextRepo : markSet.keySet()) {
 			IArtifactKey[] keys = markSet.get(nextRepo).toArray(new IArtifactKey[0]);
 			MarkSet aMarkSet = new MarkSet(keys, nextRepo);
 			new CoreGarbageCollector().clean(aMarkSet.getKeys(), aMarkSet.getRepo());

@@ -82,8 +82,7 @@ public class TouchpointData implements ITouchpointData {
 	 */
 	public String toString() {
 		StringBuffer result = new StringBuffer();
-		for (Iterator<Entry<String, ITouchpointInstruction>> iterator = instructions.entrySet().iterator(); iterator.hasNext();) {
-			Entry<String, ITouchpointInstruction> instruction = iterator.next();
+		for (Entry<String, ITouchpointInstruction> instruction : instructions.entrySet()) {
 			result.append(instruction.getKey()).append(" -> ").append(instruction.getValue()).append('\n'); //$NON-NLS-1$
 		}
 		return result.toString();

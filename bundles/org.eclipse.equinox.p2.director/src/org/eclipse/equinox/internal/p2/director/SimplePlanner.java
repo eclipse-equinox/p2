@@ -120,8 +120,7 @@ public class SimplePlanner implements IPlanner {
 		MultiStatus root = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Unsatisfied_Dependencies, null);
 		//try to find a more specific root message if possible
 		String specificMessage = null;
-		for (Iterator<Explanation> it = explanations.iterator(); it.hasNext();) {
-			final Explanation next = it.next();
+		for (Explanation next : explanations) {
 			root.add(next.toStatus());
 			if (specificMessage == null && next instanceof Explanation.MissingIU)
 				specificMessage = Messages.Explanation_rootMissing;
@@ -149,22 +148,15 @@ public class SimplePlanner implements IPlanner {
 		}
 		// Now deal with profile property changes/additions
 		Map<String, String> propertyChanges = profileChangeRequest.getPropertiesToAdd();
-		Iterator<Entry<String, String>> iter = propertyChanges.entrySet().iterator();
-		while (iter.hasNext()) {
-			Entry<String, String> entry = iter.next();
+		for (Entry<String, String> entry : propertyChanges.entrySet()) {
 			operands.add(new PropertyOperand(entry.getKey(), existingProperties.get(entry.getKey()), entry.getValue()));
 		}
 		// Now deal with iu property changes/additions.
 		// TODO we aren't yet checking that the IU will exist in the final profile, will the engine do this?
 		Map<IInstallableUnit, Map<String, String>> allIUPropertyChanges = profileChangeRequest.getInstallableUnitProfilePropertiesToAdd();
-		Iterator<Entry<IInstallableUnit, Map<String, String>>> allIter = allIUPropertyChanges.entrySet().iterator();
-		while (allIter.hasNext()) {
-			Entry<IInstallableUnit, Map<String, String>> entry = allIter.next();
+		for (Entry<IInstallableUnit, Map<String, String>> entry : allIUPropertyChanges.entrySet()) {
 			IInstallableUnit iu = entry.getKey();
-			Map<String, String> iuPropertyChanges = entry.getValue();
-			Iterator<Entry<String, String>> iuPropIter = iuPropertyChanges.entrySet().iterator();
-			while (iuPropIter.hasNext()) {
-				Entry<String, String> entry2 = iuPropIter.next();
+			for (Entry<String, String> entry2 : entry.getValue().entrySet()) {
 				Object oldValue = profile.getInstallableUnitProperty(iu, entry2.getKey());
 				operands.add(new InstallableUnitPropertyOperand(iu, entry2.getKey(), oldValue, entry2.getValue()));
 			}
@@ -172,14 +164,11 @@ public class SimplePlanner implements IPlanner {
 		// Now deal with iu property removals.
 		// TODO we could optimize by not generating property removals for IU's that aren't there or won't be there.
 		Map<IInstallableUnit, List<String>> allIUPropertyDeletions = profileChangeRequest.getInstallableUnitProfilePropertiesToRemove();
-		Iterator<Entry<IInstallableUnit, List<String>>> delItor = allIUPropertyDeletions.entrySet().iterator();
-		while (delItor.hasNext()) {
-			Entry<IInstallableUnit, List<String>> entry = delItor.next();
+		for (Entry<IInstallableUnit, List<String>> entry : allIUPropertyDeletions.entrySet()) {
 			IInstallableUnit iu = entry.getKey();
 			Map<String, String> existingIUProperties = profile.getInstallableUnitProperties(iu);
 			List<String> iuPropertyRemovals = entry.getValue();
-			for (Iterator<String> it = iuPropertyRemovals.iterator(); it.hasNext();) {
-				String key = it.next();
+			for (String key : iuPropertyRemovals) {
 				if (existingIUProperties.containsKey(key))
 					operands.add(new InstallableUnitPropertyOperand(iu, key, existingIUProperties.get(key), null));
 			}
@@ -236,8 +225,7 @@ public class SimplePlanner implements IPlanner {
 			}
 		}
 		if (context != null) {
-			for (Iterator<IInstallableUnit> iter = context.getExtraIUs().iterator(); iter.hasNext();) {
-				IInstallableUnit iu = iter.next();
+			for (IInstallableUnit iu : context.getExtraIUs()) {
 				String key = iu.getId() + '_' + iu.getVersion().toString();
 				resultsMap.put(key, iu);
 			}
@@ -401,8 +389,7 @@ public class SimplePlanner implements IPlanner {
 	//Verify that all the meta requirements necessary to perform the uninstallation (if necessary) and all t
 	private Collection<IRequirement> areMetaRequirementsSatisfied(IProfile oldProfile, Collection<IInstallableUnit> newProfile, IProvisioningPlan initialPlan) {
 		Collection<IRequirement> allMetaRequirements = extractMetaRequirements(newProfile, initialPlan);
-		for (Iterator<IRequirement> iterator = allMetaRequirements.iterator(); iterator.hasNext();) {
-			IRequirement requirement = iterator.next();
+		for (IRequirement requirement : allMetaRequirements) {
 			if (oldProfile.query(new LimitQuery<IInstallableUnit>(requirement.getMatches(), 1), null).isEmpty())
 				return allMetaRequirements;
 		}
@@ -412,8 +399,7 @@ public class SimplePlanner implements IPlanner {
 	//Return all the meta requirements for the list of IU specified and all the meta requirements listed necessary to satisfy the uninstallation 
 	private Collection<IRequirement> extractMetaRequirements(Collection<IInstallableUnit> ius, IProvisioningPlan plan) {
 		Set<IRequirement> allMetaRequirements = new HashSet<IRequirement>();
-		for (Iterator<IInstallableUnit> iterator = ius.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = iterator.next();
+		for (IInstallableUnit iu : ius) {
 			allMetaRequirements.addAll(iu.getMetaRequiredCapabilities());
 		}
 		IQueryResult<IInstallableUnit> queryResult = plan.getRemovals().query(InstallableUnitQuery.ANY, null);
@@ -493,8 +479,7 @@ public class SimplePlanner implements IPlanner {
 
 		//Create an agent request from the initial request
 		ProfileChangeRequest agentRequest = new ProfileChangeRequest(profile);
-		for (Iterator<Entry<String, String>> it = initialRequest.getPropertiesToAdd().entrySet().iterator(); it.hasNext();) {
-			Entry<String, String> entry = it.next();
+		for (Entry<String, String> entry : initialRequest.getPropertiesToAdd().entrySet()) {
 			agentRequest.setProfileProperty(entry.getKey(), entry.getValue());
 		}
 		String[] removedProperties = initialRequest.getPropertiesToRemove();
@@ -502,11 +487,9 @@ public class SimplePlanner implements IPlanner {
 			agentRequest.removeProfileProperty(removedProperties[i]);
 		}
 		Map<IInstallableUnit, List<String>> removedIUProperties = initialRequest.getInstallableUnitProfilePropertiesToRemove();
-		for (Iterator<Entry<IInstallableUnit, List<String>>> iterator = removedIUProperties.entrySet().iterator(); iterator.hasNext();) {
-			Entry<IInstallableUnit, List<String>> entry = iterator.next();
-			List<String> value = entry.getValue();
-			for (Iterator<String> iterator2 = value.iterator(); iterator2.hasNext();) {
-				agentRequest.removeInstallableUnitProfileProperty(entry.getKey(), iterator2.next());
+		for (Entry<IInstallableUnit, List<String>> entry : removedIUProperties.entrySet()) {
+			for (String propKey : entry.getValue()) {
+				agentRequest.removeInstallableUnitProfileProperty(entry.getKey(), propKey);
 			}
 		}
 
@@ -621,8 +604,7 @@ public class SimplePlanner implements IPlanner {
 		IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
 		IInstallableUnit[] removed = profileChangeRequest.getRemovedInstallableUnits();
 
-		for (Iterator<Entry<IInstallableUnit, List<String>>> iterator = profileChangeRequest.getInstallableUnitProfilePropertiesToRemove().entrySet().iterator(); iterator.hasNext();) {
-			Entry<IInstallableUnit, List<String>> object = iterator.next();
+		for (Entry<IInstallableUnit, List<String>> object : profileChangeRequest.getInstallableUnitProfilePropertiesToRemove().entrySet()) {
 			if (object.getValue().contains(INCLUSION_RULES))
 				profileChangeRequest.setInstallableUnitProfileProperty(object.getKey(), INCLUSION_RULES, PlannerHelper.createStrictInclusionRule(object.getKey()));
 		}

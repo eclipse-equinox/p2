@@ -193,8 +193,7 @@ public class OrderedProperties extends Dictionary<String, String> implements Map
 
 		UnmodifiableProperties(Map<String, String> properties) {
 			super();
-			for (Iterator<Map.Entry<String, String>> iter = properties.entrySet().iterator(); iter.hasNext();) {
-				Map.Entry<String, String> entry = iter.next();
+			for (Map.Entry<String, String> entry : properties.entrySet()) {
 				super.put(entry.getKey(), entry.getValue());
 			}
 		}

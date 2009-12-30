@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.util.Collection;
-import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
@@ -66,8 +65,7 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 	 */
 	private void publishCU(String id, String configSpec, IPublisherResult results) {
 		Collection<IVersionAdvice> advice = info.getAdvice(configSpec, true, id, null, IVersionAdvice.class);
-		for (Iterator<IVersionAdvice> j = advice.iterator(); j.hasNext();) {
-			IVersionAdvice versionSpec = j.next();
+		for (IVersionAdvice versionSpec : advice) {
 			Version version = versionSpec.getVersion(IInstallableUnit.NAMESPACE_IU_ID, id);
 			if (version == null)
 				continue;

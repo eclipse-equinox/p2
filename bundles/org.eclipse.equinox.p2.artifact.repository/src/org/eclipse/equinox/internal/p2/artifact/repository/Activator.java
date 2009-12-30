@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.osgi.framework.*;
@@ -53,8 +54,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 			repositoryManagerRegistration.unregister();
 		repositoryManagerRegistration = null;
 		synchronized (createdManagers) {
-			for (Iterator<ArtifactRepositoryManager> it = createdManagers.keySet().iterator(); it.hasNext();) {
-				ArtifactRepositoryManager manager = it.next();
+			for (ArtifactRepositoryManager manager : createdManagers.keySet()) {
 				manager.shutdown();
 				IProvisioningAgent agent = createdManagers.get(manager);
 				agent.unregisterService(IArtifactRepositoryManager.SERVICE_NAME, manager);

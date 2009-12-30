@@ -115,8 +115,7 @@ public class DownloadManager {
 
 	private IArtifactRequest[] getRequestsForRepository(IArtifactRepository repository) {
 		ArrayList<IArtifactRequest> applicable = new ArrayList<IArtifactRequest>();
-		for (Iterator<IArtifactRequest> it = requestsToProcess.iterator(); it.hasNext();) {
-			IArtifactRequest request = it.next();
+		for (IArtifactRequest request : requestsToProcess) {
 			if (repository.contains(request.getArtifactKey()))
 				applicable.add(request);
 		}
@@ -136,8 +135,8 @@ public class DownloadManager {
 			return Status.OK_STATUS;
 
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-		for (Iterator<IArtifactRequest> iterator = requestsToProcess.iterator(); iterator.hasNext();) {
-			IStatus failed = iterator.next().getResult();
+		for (IArtifactRequest request : requestsToProcess) {
+			IStatus failed = request.getResult();
 			if (failed != null && !failed.isOK())
 				result.add(failed);
 		}

@@ -23,7 +23,6 @@ import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CompoundQueryable;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -131,7 +130,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 			monitor = new NullProgressMonitor();
 		try {
 			// Query all the all the repositories this composite repo contains
-			CompoundQueryable<IInstallableUnit> queryable = new CompoundQueryable<IInstallableUnit>(loadedRepos.toArray(new IQueryable[loadedRepos.size()]));
+			CompoundQueryable<IInstallableUnit> queryable = new CompoundQueryable<IInstallableUnit>(loadedRepos);
 			return queryable.query(query, monitor);
 		} finally {
 			if (monitor != null)
@@ -179,13 +178,12 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		if (removed) {
 			// we removed the child from the list so remove the associated repo object as well
 			IMetadataRepository found = null;
-			for (Iterator<IMetadataRepository> iter = loadedRepos.iterator(); found == null && iter.hasNext();) {
-				IMetadataRepository current = iter.next();
+			for (IMetadataRepository current : loadedRepos) {
 				URI repoLocation = current.getLocation();
-				if (URIUtil.sameURI(childURI, repoLocation))
+				if (URIUtil.sameURI(childURI, repoLocation) || URIUtil.sameURI(other, repoLocation)) {
 					found = current;
-				else if (URIUtil.sameURI(other, repoLocation))
-					found = current;
+					break;
+				}
 			}
 			if (found != null)
 				loadedRepos.remove(found);
@@ -276,8 +274,8 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 
 	public List<URI> getChildren() {
 		List<URI> result = new ArrayList<URI>();
-		for (Iterator<URI> iter = childrenURIs.iterator(); iter.hasNext();)
-			result.add(URIUtil.makeAbsolute(iter.next(), location));
+		for (URI childURI : childrenURIs)
+			result.add(URIUtil.makeAbsolute(childURI, location));
 		return result;
 	}
 

@@ -24,8 +24,28 @@ public class CompoundQueryable<T> implements IQueryable<T> {
 
 	private IQueryable<T>[] queryables;
 
-	public CompoundQueryable(IQueryable<T>[] queryables) {
+	private CompoundQueryable(IQueryable<T>[] queryables) {
 		this.queryables = queryables;
+	}
+
+	@SuppressWarnings("unchecked")
+	public CompoundQueryable(Collection<? extends IQueryable<T>> queryables) {
+		this(queryables.toArray(new IQueryable[queryables.size()]));
+	}
+
+	@SuppressWarnings("unchecked")
+	public CompoundQueryable(IQueryable<T> q) {
+		this(new IQueryable[] {q});
+	}
+
+	@SuppressWarnings("unchecked")
+	public CompoundQueryable(IQueryable<T> q1, IQueryable<T> q2) {
+		this(new IQueryable[] {q1, q2});
+	}
+
+	@SuppressWarnings("unchecked")
+	public CompoundQueryable(IQueryable<T> q1, IQueryable<T> q2, IQueryable<T> q3) {
+		this(new IQueryable[] {q1, q2, q3});
 	}
 
 	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {

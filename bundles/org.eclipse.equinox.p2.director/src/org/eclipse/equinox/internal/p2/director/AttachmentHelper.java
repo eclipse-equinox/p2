@@ -25,13 +25,11 @@ public class AttachmentHelper {
 		Map<IInstallableUnit, IInstallableUnitFragment> fragmentBindings = new HashMap<IInstallableUnit, IInstallableUnitFragment>();
 		//Build a map inverse of the one provided in input (host --> List of fragments)
 		Map<IInstallableUnit, List<IInstallableUnitFragment>> iusToFragment = new HashMap<IInstallableUnit, List<IInstallableUnitFragment>>(fragmentsToIUs.size());
-		for (Iterator<Entry<IInstallableUnitFragment, List<IInstallableUnit>>> iterator = fragmentsToIUs.entrySet().iterator(); iterator.hasNext();) {
-			Entry<IInstallableUnitFragment, List<IInstallableUnit>> mapping = iterator.next();
+		for (Entry<IInstallableUnitFragment, List<IInstallableUnit>> mapping : fragmentsToIUs.entrySet()) {
 			IInstallableUnitFragment fragment = mapping.getKey();
 			List<IInstallableUnit> existingMatches = mapping.getValue();
 
-			for (Iterator<IInstallableUnit> iterator2 = existingMatches.iterator(); iterator2.hasNext();) {
-				IInstallableUnit host = iterator2.next();
+			for (IInstallableUnit host : existingMatches) {
 				List<IInstallableUnitFragment> potentialFragments = iusToFragment.get(host);
 				if (potentialFragments == null) {
 					potentialFragments = new ArrayList<IInstallableUnitFragment>();
@@ -41,13 +39,11 @@ public class AttachmentHelper {
 			}
 		}
 
-		for (Iterator<Entry<IInstallableUnit, List<IInstallableUnitFragment>>> iterator = iusToFragment.entrySet().iterator(); iterator.hasNext();) {
-			Entry<IInstallableUnit, List<IInstallableUnitFragment>> entry = iterator.next();
+		for (Entry<IInstallableUnit, List<IInstallableUnitFragment>> entry : iusToFragment.entrySet()) {
 			IInstallableUnit hostIU = entry.getKey();
 			List<IInstallableUnitFragment> potentialIUFragments = entry.getValue();
 			ArrayList<IInstallableUnitFragment> applicableFragments = new ArrayList<IInstallableUnitFragment>();
-			for (Iterator<IInstallableUnitFragment> iterator2 = potentialIUFragments.iterator(); iterator2.hasNext();) {
-				IInstallableUnitFragment potentialFragment = iterator2.next();
+			for (IInstallableUnitFragment potentialFragment : potentialIUFragments) {
 				if (hostIU.equals(potentialFragment))
 					continue;
 
@@ -72,8 +68,7 @@ public class AttachmentHelper {
 
 			IInstallableUnitFragment theFragment = null;
 			int specificityLevel = 0;
-			for (Iterator<IInstallableUnitFragment> iterator4 = applicableFragments.iterator(); iterator4.hasNext();) {
-				IInstallableUnitFragment fragment = iterator4.next();
+			for (IInstallableUnitFragment fragment : applicableFragments) {
 				if (fragment.getHost().length > specificityLevel) {
 					theFragment = fragment;
 					specificityLevel = fragment.getHost().length;

@@ -124,8 +124,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	// fill in the missing data.
 	private BundleInfo[] fillInBundles(Collection<IConfigAdvice> configAdvice, IPublisherResult results) {
 		ArrayList<BundleInfo> result = new ArrayList<BundleInfo>();
-		for (Iterator<IConfigAdvice> j = configAdvice.iterator(); j.hasNext();) {
-			IConfigAdvice advice = j.next();
+		for (IConfigAdvice advice : configAdvice) {
 
 			int defaultStart = BundleInfo.NO_LEVEL;
 			Map<String, String> adviceProperties = advice.getProperties();
@@ -245,10 +244,8 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
 		Set<String> properties = new HashSet<String>();
-		for (Iterator<IConfigAdvice> i = configAdvice.iterator(); i.hasNext();) {
-			IConfigAdvice advice = i.next();
-			for (Iterator<Entry<String, String>> iterator = advice.getProperties().entrySet().iterator(); iterator.hasNext();) {
-				Entry<String, String> aProperty = iterator.next();
+		for (IConfigAdvice advice : configAdvice) {
+			for (Entry<String, String> aProperty : advice.getProperties().entrySet()) {
 				String key = aProperty.getKey();
 				if (shouldPublishProperty(key) && !properties.contains(key)) {
 					properties.add(key);
@@ -278,8 +275,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 
 		Set<String> jvmSet = new HashSet<String>();
 		Set<String> programSet = new HashSet<String>();
-		for (Iterator<IExecutableAdvice> j = launchingAdvice.iterator(); j.hasNext();) {
-			IExecutableAdvice advice = j.next();
+		for (IExecutableAdvice advice : launchingAdvice) {
 			String[] jvmArgs = advice.getVMArguments();
 			for (int i = 0; i < jvmArgs.length; i++)
 				if (shouldPublishJvmArg(jvmArgs[i]) && !jvmSet.contains(jvmArgs[i])) {

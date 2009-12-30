@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
 import java.net.*;
-import java.util.Iterator;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
@@ -104,8 +103,7 @@ public class PlatformConfigurationWrapper {
 	 * Otherwise the default is USER-EXCLUDE.
 	 */
 	private String getDefaultPolicy() {
-		for (Iterator<Site> iter = configuration.getSites().iterator(); iter.hasNext();) {
-			Site site = iter.next();
+		for (Site site : configuration.getSites()) {
 			if (Site.POLICY_MANAGED_ONLY.equals(site.getPolicy()))
 				return Site.POLICY_MANAGED_ONLY;
 		}
@@ -135,8 +133,7 @@ public class PlatformConfigurationWrapper {
 	private Site getSite(URI url) {
 		List<Site> sites = configuration.getSites();
 		File file = URIUtil.toFile(url);
-		for (Iterator<Site> iter = sites.iterator(); iter.hasNext();) {
-			Site nextSite = iter.next();
+		for (Site nextSite : sites) {
 			try {
 				File nextFile = URLUtil.toFile(new URL(nextSite.getUrl()));
 				if (nextFile == null)
@@ -156,8 +153,7 @@ public class PlatformConfigurationWrapper {
 	 */
 	private Site getSite(String id, String version) {
 		List<Site> sites = configuration.getSites();
-		for (Iterator<Site> iter = sites.iterator(); iter.hasNext();) {
-			Site site = iter.next();
+		for (Site site : sites) {
 			Feature[] features = site.getFeatures();
 			for (int i = 0; i < features.length; i++) {
 				if (id.equals(features[i].getId()) && version.equals(features[i].getVersion()))

@@ -61,8 +61,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 			IArtifactRepository artifacts = application.getDestinationArtifactRepository();
 
 			final Set<IInstallableUnit> toRemove = new HashSet<IInstallableUnit>();
-			for (Iterator<IUDescription> iter = iuTasks.iterator(); iter.hasNext();) {
-				IUDescription iu = iter.next();
+			for (IUDescription iu : iuTasks) {
 				IQuery<IInstallableUnit> iuQuery = iu.createQuery();
 
 				IQueryResult<IInstallableUnit> queryResult = repository.query(iuQuery, null);

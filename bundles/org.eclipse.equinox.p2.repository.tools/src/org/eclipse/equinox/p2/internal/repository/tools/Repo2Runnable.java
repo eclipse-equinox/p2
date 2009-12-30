@@ -96,8 +96,8 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 			IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 			DownloadManager dm = new DownloadManager(context, repositoryManager);
-			for (Iterator<IArtifactRequest> it = artifactRequests.iterator(); it.hasNext();) {
-				dm.add(it.next());
+			for (IArtifactRequest request : artifactRequests) {
+				dm.add(request);
 			}
 			return dm.start(monitor);
 		}

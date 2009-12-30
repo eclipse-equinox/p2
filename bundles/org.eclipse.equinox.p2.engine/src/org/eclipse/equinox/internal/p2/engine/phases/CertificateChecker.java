@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
-import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
@@ -66,8 +65,7 @@ public class CertificateChecker {
 		IStatus status = Status.OK_STATUS;
 		if (artifacts.size() == 0 || serviceUI == null)
 			return status;
-		for (Iterator<File> it = artifacts.iterator(); it.hasNext();) {
-			File artifact = it.next();
+		for (File artifact : artifacts) {
 			try {
 				content = verifierFactory.getSignedContent(artifact);
 				if (!content.isSigned()) {

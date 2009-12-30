@@ -53,8 +53,8 @@ public class ProfileChangeRequest implements Cloneable {
 	public Map<String, String> getProfileProperties() {
 		Map<String, String> result = new HashMap<String, String>(profile.getProperties());
 		if (propertiesToRemove != null) {
-			for (Iterator<String> it = propertiesToRemove.iterator(); it.hasNext();) {
-				result.remove(it.next());
+			for (String key : propertiesToRemove) {
+				result.remove(key);
 			}
 		}
 		if (propertiesToAdd != null)
@@ -70,8 +70,8 @@ public class ProfileChangeRequest implements Cloneable {
 	}
 
 	public void addInstallableUnits(Collection<IInstallableUnit> toInstall) {
-		for (Iterator<IInstallableUnit> itor = toInstall.iterator(); itor.hasNext();)
-			addInstallableUnit(itor.next());
+		for (IInstallableUnit iu : toInstall)
+			addInstallableUnit(iu);
 	}
 
 	public void addInstallableUnits(IQueryResult<IInstallableUnit> toInstall) {
@@ -96,8 +96,8 @@ public class ProfileChangeRequest implements Cloneable {
 	}
 
 	public void removeInstallableUnits(Collection<IInstallableUnit> toUninstall) {
-		for (Iterator<IInstallableUnit> itor = toUninstall.iterator(); itor.hasNext();)
-			removeInstallableUnit(itor.next());
+		for (IInstallableUnit iu : toUninstall)
+			removeInstallableUnit(iu);
 	}
 
 	public void removeInstallableUnits(IQueryResult<IInstallableUnit> toUninstall) {
@@ -215,16 +215,16 @@ public class ProfileChangeRequest implements Cloneable {
 		result.append('\n');
 		result.append("==Additions=="); //$NON-NLS-1$
 		result.append('\n');
-		for (Iterator<IInstallableUnit> iterator = iusToAdd.iterator(); iterator.hasNext();) {
+		for (IInstallableUnit iu : iusToAdd) {
 			result.append('\t');
-			result.append(iterator.next());
+			result.append(iu);
 			result.append('\n');
 		}
 		result.append("==Removals=="); //$NON-NLS-1$
 		result.append('\n');
-		for (Iterator<IInstallableUnit> iterator = iusToRemove.iterator(); iterator.hasNext();) {
+		for (IInstallableUnit iu : iusToRemove) {
 			result.append('\t');
-			result.append(iterator.next());
+			result.append(iu);
 			result.append('\n');
 		}
 		return result.toString();

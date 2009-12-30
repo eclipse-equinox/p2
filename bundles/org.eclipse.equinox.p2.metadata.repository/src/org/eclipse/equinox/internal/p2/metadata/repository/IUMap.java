@@ -101,7 +101,7 @@ public class IUMap {
 	}
 
 	public void removeAll(Collection<IInstallableUnit> toRemove) {
-		for (Iterator<IInstallableUnit> it = toRemove.iterator(); it.hasNext();)
-			remove(it.next());
+		for (IInstallableUnit iu : toRemove)
+			remove(iu);
 	}
 }

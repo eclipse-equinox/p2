@@ -43,8 +43,8 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 	}
 
 	private void saveRemovals() {
-		for (Iterator<IArtifactDescriptor> i = descriptorsToRemove.iterator(); i.hasNext();)
-			innerRepo.removeDescriptor(i.next());
+		for (IArtifactDescriptor desc : descriptorsToRemove)
+			innerRepo.removeDescriptor(desc);
 		descriptorsToRemove.clear();
 	}
 
@@ -57,8 +57,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 	}
 
 	private void savePropertyChanges() {
-		for (Iterator<String> i = propertyChanges.keySet().iterator(); i.hasNext();) {
-			String key = i.next();
+		for (String key : propertyChanges.keySet()) {
 			String value = propertyChanges.get(key);
 			innerRepo.setProperty(key, value == NULL ? null : value);
 		}
@@ -247,9 +246,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 			}
 		};
 
-		@SuppressWarnings("unchecked")
-		CompoundQueryable<IArtifactDescriptor> compound = new CompoundQueryable<IArtifactDescriptor>(new IQueryable[] {cached, innerRepo.descriptorQueryable()});
-		return compound;
+		return new CompoundQueryable<IArtifactDescriptor>(cached, innerRepo.descriptorQueryable());
 	}
 
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
@@ -260,8 +257,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 			}
 		};
 
-		@SuppressWarnings("unchecked")
-		CompoundQueryable<IArtifactKey> compound = new CompoundQueryable<IArtifactKey>(new IQueryable[] {cached, innerRepo});
+		CompoundQueryable<IArtifactKey> compound = new CompoundQueryable<IArtifactKey>(cached, innerRepo);
 		return compound.query(query, monitor);
 	}
 }

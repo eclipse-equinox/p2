@@ -80,8 +80,7 @@ public class CleanupcopyAction extends ProvisioningAction {
 			}
 		}
 
-		for (Iterator<File> it = directories.iterator(); it.hasNext();) {
-			File directory = it.next();
+		for (File directory : directories) {
 			File[] children = directory.listFiles();
 			if (children == null)
 				return Util.createError(NLS.bind(Messages.Error_list_children_0, directory));

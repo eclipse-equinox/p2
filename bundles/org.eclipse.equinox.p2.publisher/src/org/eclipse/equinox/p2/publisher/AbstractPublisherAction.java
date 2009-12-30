@@ -161,8 +161,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	protected Collection<IRequirement> createIURequirements(Collection<? extends IVersionedId> children) {
 		ArrayList<IRequirement> result = new ArrayList<IRequirement>(children.size());
-		for (Iterator<? extends IVersionedId> i = children.iterator(); i.hasNext();) {
-			IVersionedId next = i.next();
+		for (IVersionedId next : children) {
 			if (next instanceof IInstallableUnit) {
 				IInstallableUnit iu = (IInstallableUnit) next;
 				VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
@@ -181,8 +180,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		if (info == null)
 			return null;
 		Collection<IFilterAdvice> filterAdvice = info.getAdvice(CONFIG_ANY, true, name.getId(), name.getVersion(), IFilterAdvice.class);
-		for (Iterator<IFilterAdvice> i = filterAdvice.iterator(); i.hasNext();) {
-			IFilterAdvice advice = i.next();
+		for (IFilterAdvice advice : filterAdvice) {
 			String result = advice.getFilter(name.getId(), name.getVersion(), false);
 			if (result != null)
 				return result;
@@ -238,8 +236,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			return null;
 
 		List<InstallableUnitDescription> ius = new ArrayList<InstallableUnitDescription>();
-		for (Iterator<IAdditionalInstallableUnitAdvice> iterator = advice.iterator(); iterator.hasNext();) {
-			IAdditionalInstallableUnitAdvice entry = iterator.next();
+		for (IAdditionalInstallableUnitAdvice entry : advice) {
 			InstallableUnitDescription[] others = entry.getAdditionalInstallableUnitDescriptions(iu);
 			if (others != null)
 				ius.addAll(Arrays.asList(others));
@@ -258,13 +255,11 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			return;
 
 		Collection<IPropertyAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IPropertyAdvice.class);
-		for (Iterator<IPropertyAdvice> i = advice.iterator(); i.hasNext();) {
-			IPropertyAdvice entry = i.next();
+		for (IPropertyAdvice entry : advice) {
 			Map<String, String> props = entry.getArtifactProperties(iu, descriptor);
 			if (props == null)
 				continue;
-			for (Iterator<Entry<String, String>> j = props.entrySet().iterator(); j.hasNext();) {
-				Entry<String, String> pe = j.next();
+			for (Entry<String, String> pe : props.entrySet()) {
 				((SimpleArtifactDescriptor) descriptor).setRepositoryProperty(pe.getKey(), pe.getValue());
 			}
 		}
@@ -277,13 +272,11 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	protected static void processInstallableUnitPropertiesAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
 		Collection<IPropertyAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IPropertyAdvice.class);
-		for (Iterator<IPropertyAdvice> i = advice.iterator(); i.hasNext();) {
-			IPropertyAdvice entry = i.next();
+		for (IPropertyAdvice entry : advice) {
 			Map<String, String> props = entry.getInstallableUnitProperties(iu);
 			if (props == null)
 				continue;
-			for (Iterator<Entry<String, String>> j = props.entrySet().iterator(); j.hasNext();) {
-				Entry<String, String> pe = j.next();
+			for (Entry<String, String> pe : props.entrySet()) {
 				iu.setProperty(pe.getKey(), pe.getValue());
 			}
 		}
@@ -299,8 +292,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		if (advice.isEmpty())
 			return;
 
-		for (Iterator<ICapabilityAdvice> i = advice.iterator(); i.hasNext();) {
-			ICapabilityAdvice entry = i.next();
+		for (ICapabilityAdvice entry : advice) {
 
 			//process required capabilities
 			IRequirement[] requiredAdvice = entry.getRequiredCapabilities(iu);
@@ -406,8 +398,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 		ITouchpointData result = MetadataFactory.createTouchpointData(currentInstructions);
 		if (advice != null) {
-			for (Iterator<ITouchpointAdvice> i = advice.iterator(); i.hasNext();) {
-				ITouchpointAdvice entry = i.next();
+			for (ITouchpointAdvice entry : advice) {
 				result = entry.getTouchpointData(result);
 			}
 		}

@@ -411,9 +411,8 @@ public class Credentials {
 			return;
 		// reset entries rather than creating a new empty map since the entries
 		// are also used as locks
-		Iterator<HostEntry> itor = r.values().iterator();
-		while (itor.hasNext())
-			itor.next().reset();
+		for (HostEntry entry : r.values())
+			entry.reset();
 	}
 
 	/**

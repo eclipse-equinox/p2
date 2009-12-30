@@ -425,8 +425,8 @@ public class BackupStore implements IBackupStore {
 		// if there are unrestorable units log them
 		//
 		if (unrestorable != null && unrestorable.size() > 0) {
-			for (Iterator<File> itor = unrestorable.iterator(); itor.hasNext();)
-				logError(NLS.bind(Messages.BackupStore_manual_restore_needed, itor.next().getAbsolutePath()));
+			for (File file : unrestorable)
+				logError(NLS.bind(Messages.BackupStore_manual_restore_needed, file.getAbsolutePath()));
 		}
 	}
 

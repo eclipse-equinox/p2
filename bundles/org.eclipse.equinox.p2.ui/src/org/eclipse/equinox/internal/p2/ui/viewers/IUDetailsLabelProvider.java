@@ -11,11 +11,8 @@
 
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
-import org.eclipse.core.runtime.jobs.Job;
-
 import java.text.NumberFormat;
 import java.util.HashMap;
-import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
@@ -230,11 +227,8 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 
 	public void dispose() {
 		super.dispose();
-		Iterator<Job> iter = jobs.values().iterator();
-		while (iter.hasNext()) {
-			Job job = iter.next();
+		for (Job job : jobs.values())
 			job.cancel();
-		}
 	}
 
 }
