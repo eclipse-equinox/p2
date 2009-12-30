@@ -88,9 +88,9 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		TestAction action = new TestAction();
 		action.testProcessCapabilityAdvice(iu, info);
 
-		assertEquals("name1", ((IRequiredCapability) iu.getRequiredCapabilities().get(0)).getName());
+		assertEquals("name1", ((IRequiredCapability) iu.getRequiredCapabilities().iterator().next()).getName());
 		assertEquals("name2", iu.getProvidedCapabilities().get(0).getName());
-		assertEquals("name3", ((IRequiredCapability) iu.getMetaRequiredCapabilities().get(0)).getName());
+		assertEquals("name3", ((IRequiredCapability) iu.getMetaRequiredCapabilities().iterator().next()).getName());
 	}
 
 	public void testAddCapabilitiesIdentityCounts() {
@@ -147,8 +147,8 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		iu.setMetaRequiredCapabilities(createRequiredCapabilities("ns3", "name3", null, ""));
 
 		assertNotSame(9, Version.toOSGiVersion(iu.getProvidedCapabilities().get(0).getVersion()).getMajor());
-		assertTrue(iu.getRequiredCapabilities().get(0).isGreedy());
-		assertTrue(iu.getMetaRequiredCapabilities().get(0).isGreedy());
+		assertTrue(iu.getRequiredCapabilities().iterator().next().isGreedy());
+		assertTrue(iu.getMetaRequiredCapabilities().iterator().next().isGreedy());
 
 		IPublisherInfo info = new PublisherInfo();
 		IRequiredCapability testRequiredCapability = MetadataFactory.createRequiredCapability("ns1", "name1", null, null, false, false, false);
@@ -160,8 +160,8 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		action.testProcessCapabilityAdvice(iu, info);
 
 		assertEquals(9, Version.toOSGiVersion(iu.getProvidedCapabilities().get(0).getVersion()).getMajor());
-		assertFalse(iu.getRequiredCapabilities().get(0).isGreedy());
-		assertFalse(iu.getMetaRequiredCapabilities().get(0).isGreedy());
+		assertFalse(iu.getRequiredCapabilities().iterator().next().isGreedy());
+		assertFalse(iu.getMetaRequiredCapabilities().iterator().next().isGreedy());
 	}
 
 	public void testReplaceCapabilitiesIdentityCounts() {

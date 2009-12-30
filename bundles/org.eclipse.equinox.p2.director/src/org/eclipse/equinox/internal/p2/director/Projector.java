@@ -428,7 +428,7 @@ public class Projector {
 		if (!considerMetaRequirements)
 			return rqs;
 
-		List<IRequirement> metaRqs = iu.getMetaRequiredCapabilities();
+		Collection<IRequirement> metaRqs = iu.getMetaRequiredCapabilities();
 		if (metaRqs.isEmpty())
 			return rqs;
 

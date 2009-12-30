@@ -98,7 +98,7 @@ public class MetadataFactory {
 			return unit().getRequiredCapabilities();
 		}
 
-		public List<IRequirement> getMetaRequiredCapabilities() {
+		public Collection<IRequirement> getMetaRequiredCapabilities() {
 			return unit().getMetaRequiredCapabilities();
 		}
 

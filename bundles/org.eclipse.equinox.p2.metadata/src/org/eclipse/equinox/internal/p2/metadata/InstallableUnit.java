@@ -292,7 +292,7 @@ public class InstallableUnit implements IInstallableUnit {
 		return false;
 	}
 
-	public List<IRequirement> getMetaRequiredCapabilities() {
+	public Collection<IRequirement> getMetaRequiredCapabilities() {
 		return CollectionUtils.unmodifiableList(metaRequires);
 	}
 

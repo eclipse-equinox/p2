@@ -153,7 +153,7 @@ public class Slicer {
 			if (!considerMetaRequirements)
 				return iuRequirements;
 
-			List<IRequirement> iuMetaRequirements = iu.getMetaRequiredCapabilities();
+			Collection<IRequirement> iuMetaRequirements = iu.getMetaRequiredCapabilities();
 			int metaSize = iuMetaRequirements.size();
 			if (metaSize == 0)
 				return iuRequirements;

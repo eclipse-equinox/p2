@@ -328,12 +328,11 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			//process meta required capabilities
 			IRequirement[] metaRequiredAdvice = entry.getMetaRequiredCapabilities(iu);
 			if (metaRequiredAdvice != null) {
-				List<IRequirement> current = iu.getMetaRequiredCapabilities();
+				Collection<IRequirement> current = iu.getMetaRequiredCapabilities();
 				Set<IRequirement> resultMetaRequiredCapabilities = new HashSet<IRequirement>(current);
 
 				// remove current meta-required capabilities that match (same name and namespace) advice.
-				for (int j = 0; j < current.size(); j++) {
-					IRequirement curr = current.get(j);
+				for (IRequirement curr : current) {
 					IRequiredCapability currentMetaRequiredCapability = null;
 					if (curr instanceof IRequiredCapability)
 						currentMetaRequiredCapability = (IRequiredCapability) curr;

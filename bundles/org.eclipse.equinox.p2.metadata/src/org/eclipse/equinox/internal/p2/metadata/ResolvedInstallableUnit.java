@@ -92,8 +92,8 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return result;
 	}
 
-	public List<IRequirement> getMetaRequiredCapabilities() {
-		List<IRequirement> originalCapabilities = original.getMetaRequiredCapabilities();
+	public Collection<IRequirement> getMetaRequiredCapabilities() {
+		Collection<IRequirement> originalCapabilities = original.getMetaRequiredCapabilities();
 		if (fragments.length == 0)
 			return originalCapabilities;
 

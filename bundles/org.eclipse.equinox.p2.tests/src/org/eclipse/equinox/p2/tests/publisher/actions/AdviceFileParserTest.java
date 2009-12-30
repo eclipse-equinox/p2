@@ -330,18 +330,21 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testName2", provided.get(1).getName());
 		assertEquals(Version.emptyVersion, provided.get(1).getVersion());
 
-		List<IRequirement> metarequirements = iu1.getMetaRequiredCapabilities();
+		Collection<IRequirement> metarequirements = iu1.getMetaRequiredCapabilities();
 		assertEquals(2, metarequirements.size());
-		assertEquals("testNamespace1", ((IRequiredCapability) metarequirements.get(0).getMatches()).getNamespace());
-		assertEquals("testName1", ((IRequiredCapability) metarequirements.get(0).getMatches()).getName());
-		assertEquals(new VersionRange("[1.2.3, 2)"), ((IRequiredCapability) metarequirements.get(0).getMatches()).getRange());
-		assertEquals(true, metarequirements.get(0).isGreedy());
-		assertEquals(0, metarequirements.get(0).getMin());
-		assertEquals("testNamespace2", ((IRequiredCapability) metarequirements.get(1).getMatches()).getNamespace());
-		assertEquals("testName2", ((IRequiredCapability) metarequirements.get(1).getMatches()).getName());
-		assertEquals(new VersionRange(Version.emptyVersion.toString()), ((IRequiredCapability) metarequirements.get(1).getMatches()).getRange());
-		assertEquals(false, metarequirements.get(1).isGreedy());
-		assertEquals(1, metarequirements.get(1).getMin());
+		Iterator it3 = metarequirements.iterator();
+		IRequirement metaReq0 = (IRequirement) it3.next();
+		IRequirement metaReq1 = (IRequirement) it3.next();
+		assertEquals("testNamespace1", ((IRequiredCapability) metaReq0.getMatches()).getNamespace());
+		assertEquals("testName1", ((IRequiredCapability) metaReq0.getMatches()).getName());
+		assertEquals(new VersionRange("[1.2.3, 2)"), ((IRequiredCapability) metaReq0.getMatches()).getRange());
+		assertEquals(true, metaReq0.isGreedy());
+		assertEquals(0, metaReq0.getMin());
+		assertEquals("testNamespace2", ((IRequiredCapability) metaReq1.getMatches()).getNamespace());
+		assertEquals("testName2", ((IRequiredCapability) metaReq1.getMatches()).getName());
+		assertEquals(new VersionRange(Version.emptyVersion.toString()), ((IRequiredCapability) metaReq1.getMatches()).getRange());
+		assertEquals(false, metaReq1.isGreedy());
+		assertEquals(1, metaReq1.getMin());
 
 		assertEquals(1, iu1.getTouchpointData().size());
 		ITouchpointInstruction configure = iu1.getTouchpointData().get(0).getInstruction("configure");

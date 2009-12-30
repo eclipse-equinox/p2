@@ -152,7 +152,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 
 	public Collection<IRequirement> getRequiredCapabilities();
 
-	public List<IRequirement> getMetaRequiredCapabilities();
+	public Collection<IRequirement> getMetaRequiredCapabilities();
 
 	public List<ITouchpointData> getTouchpointData();
 

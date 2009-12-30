@@ -253,11 +253,12 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String[][] extractMetaRequires(IInstallableUnit iu) {
-		List<IRequirement> requyres = iu.getMetaRequiredCapabilities();
+		Collection<IRequirement> requyres = iu.getMetaRequiredCapabilities();
 		String[][] tuples = new String[requyres.size()][4];
-		for (int i = 0; i < requyres.size(); i++) {
-			IRequiredCapability next = (IRequiredCapability) requyres.get(i);
-			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
+		int i = 0;
+		for (Iterator iterator = requyres.iterator(); iterator.hasNext();) {
+			IRequiredCapability next = (IRequiredCapability) iterator.next();
+			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
 		return tuples;
 	}
