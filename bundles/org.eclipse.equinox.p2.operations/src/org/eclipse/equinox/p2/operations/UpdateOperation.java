@@ -61,8 +61,8 @@ import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 public class UpdateOperation extends ProfileChangeOperation {
 
 	private IInstallableUnit[] iusToUpdate;
-	private HashMap possibleUpdatesByIU = new HashMap();
-	private List defaultUpdates;
+	private HashMap<IInstallableUnit, List<Update>> possibleUpdatesByIU = new HashMap<IInstallableUnit, List<Update>>();
+	private List<Update> defaultUpdates;
 
 	/**
 	 * Create an update operation on the specified provisioning session that updates
@@ -109,7 +109,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	public Update[] getSelectedUpdates() {
 		if (defaultUpdates == null)
 			return new Update[0];
-		return (Update[]) defaultUpdates.toArray(new Update[defaultUpdates.size()]);
+		return defaultUpdates.toArray(new Update[defaultUpdates.size()]);
 	}
 
 	/**
@@ -119,29 +119,27 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * @return an array of all possible updates
 	 */
 	public Update[] getPossibleUpdates() {
-		ArrayList all = new ArrayList();
-		Iterator iter = possibleUpdatesByIU.values().iterator();
-		while (iter.hasNext()) {
-			all.addAll((List) iter.next());
-		}
-		return (Update[]) all.toArray(new Update[all.size()]);
+		ArrayList<Update> all = new ArrayList<Update>();
+		for (List<Update> updates : possibleUpdatesByIU.values())
+			all.addAll(updates);
+		return all.toArray(new Update[all.size()]);
 	}
 
 	private Update[] updatesFor(IInstallableUnit iu, IProfile profile, IProgressMonitor monitor) {
-		List updates;
+		List<Update> updates;
 		if (possibleUpdatesByIU.containsKey(iu)) {
 			// We've already looked them up in the planner, use the cache
-			updates = (List) possibleUpdatesByIU.get(iu);
+			updates = possibleUpdatesByIU.get(iu);
 		} else {
 			// We must consult the planner
 			IInstallableUnit[] replacements = session.getPlanner().updatesFor(iu, context, monitor);
-			updates = new ArrayList(replacements.length);
+			updates = new ArrayList<Update>(replacements.length);
 			for (int i = 0; i < replacements.length; i++) {
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=273967
 				// In the case of patches, it's possible that a patch is returned as an available update
 				// even though it is already installed, because we are querying each IU for updates individually.
 				// For now, we ignore any proposed update that is already installed.
-				IQueryResult alreadyInstalled = profile.query(new InstallableUnitQuery(replacements[i]), null);
+				IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(new InstallableUnitQuery(replacements[i]), null);
 				if (alreadyInstalled.isEmpty()) {
 					Update update = new Update(iu, replacements[i]);
 					updates.add(update);
@@ -149,7 +147,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 			}
 			possibleUpdatesByIU.put(iu, updates);
 		}
-		return (Update[]) updates.toArray(new Update[updates.size()]);
+		return updates.toArray(new Update[updates.size()]);
 	}
 
 	/* (non-Javadoc)
@@ -160,8 +158,8 @@ public class UpdateOperation extends ProfileChangeOperation {
 		// otherwise specified in the selections.
 		// We have to consider the scenario where the only updates available are patches, in which case the original
 		// IU should not be removed as part of the update.
-		Set toBeUpdated = new HashSet();
-		HashSet elementsToPlan = new HashSet();
+		Set<IInstallableUnit> toBeUpdated = new HashSet<IInstallableUnit>();
+		HashSet<Update> elementsToPlan = new HashSet<Update>();
 		boolean selectionSpecified = false;
 		IProfile profile = session.getProfileRegistry().getProfile(profileId);
 		if (profile == null)
@@ -187,7 +185,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 				// Patches are keyed by their id because they are unique and should not be compared to
 				// each other.  Updates are keyed by the IU they are updating so we can compare the
 				// versions and select the latest one
-				HashMap latestVersions = new HashMap();
+				HashMap<String, Update> latestVersions = new HashMap<String, Update>();
 				boolean foundUpdate = false;
 				boolean foundPatch = false;
 				for (int j = 0; j < updates.length; j++) {
@@ -199,7 +197,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 						foundUpdate = true;
 						key = updates[j].toUpdate.getId();
 					}
-					Update latestUpdate = (Update) latestVersions.get(key);
+					Update latestUpdate = latestVersions.get(key);
 					IInstallableUnit latestIU = latestUpdate == null ? null : latestUpdate.replacement;
 					if (latestIU == null || updates[j].replacement.getVersion().compareTo(latestIU.getVersion()) > 0)
 						latestVersions.put(key, updates[j]);
@@ -207,11 +205,9 @@ public class UpdateOperation extends ProfileChangeOperation {
 				// If there is a true update available, ignore any patches found
 				// Patches are keyed by their own id
 				if (foundPatch && foundUpdate) {
-					Set keys = new HashSet();
+					Set<String> keys = new HashSet<String>();
 					keys.addAll(latestVersions.keySet());
-					Iterator keyIter = keys.iterator();
-					while (keyIter.hasNext()) {
-						String id = (String) keyIter.next();
+					for (String id : keys) {
 						// Get rid of things keyed by a different id.  We've already made sure
 						// that updates with a different id are keyed under the original id
 						if (!id.equals(iusToUpdate[i].getId())) {
@@ -231,12 +227,10 @@ public class UpdateOperation extends ProfileChangeOperation {
 		}
 
 		request = ProfileChangeRequest.createByProfileId(profileId);
-		Iterator iter = elementsToPlan.iterator();
-		while (iter.hasNext()) {
-			Update update = (Update) iter.next();
+		for (Update update : elementsToPlan) {
 			IInstallableUnit theUpdate = update.replacement;
 			if (defaultUpdates == null) {
-				defaultUpdates = new ArrayList();
+				defaultUpdates = new ArrayList<Update>();
 				defaultUpdates.add(update);
 			} else {
 				if (!defaultUpdates.contains(update))

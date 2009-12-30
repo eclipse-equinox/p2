@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 public class ResolutionResult {
 	private static final String NESTING_INDENT = "  "; //$NON-NLS-1$
 
-	private HashMap iuToStatusMap = new HashMap();
+	private final HashMap<IInstallableUnit, MultiStatus> iuToStatusMap = new HashMap<IInstallableUnit, MultiStatus>();
 	private MultiStatus summaryStatus;
 
 	public IStatus getSummaryStatus() {
@@ -41,11 +41,11 @@ public class ResolutionResult {
 	}
 
 	public IStatus statusOf(IInstallableUnit iu) {
-		return (IStatus) iuToStatusMap.get(iu);
+		return iuToStatusMap.get(iu);
 	}
 
 	public void addStatus(IInstallableUnit iu, IStatus status) {
-		MultiStatus iuSummaryStatus = (MultiStatus) iuToStatusMap.get(iu);
+		MultiStatus iuSummaryStatus = iuToStatusMap.get(iu);
 		if (iuSummaryStatus == null) {
 			iuSummaryStatus = new MultiStatus(Activator.ID, IStatusCodes.IU_REQUEST_ALTERED, new IStatus[] {status}, getIUString(iu), null);
 		} else
@@ -75,7 +75,7 @@ public class ResolutionResult {
 	public String getDetailedReport(IInstallableUnit[] ius) {
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0; i < ius.length; i++) {
-			MultiStatus iuStatus = (MultiStatus) iuToStatusMap.get(ius[i]);
+			MultiStatus iuStatus = iuToStatusMap.get(ius[i]);
 			if (iuStatus != null)
 				appendDetailText(iuStatus, buffer, 0, true);
 		}

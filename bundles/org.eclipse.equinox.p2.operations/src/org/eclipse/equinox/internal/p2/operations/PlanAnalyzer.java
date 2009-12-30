@@ -11,8 +11,7 @@
 
 package org.eclipse.equinox.internal.p2.operations;
 
-import java.util.Iterator;
-import java.util.Map;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
@@ -125,11 +124,9 @@ public class PlanAnalyzer {
 		}
 
 		// Now process the side effects
-		Map sideEffects = plan.getSideEffectChanges();
-		Iterator iusWithSideEffects = sideEffects.keySet().iterator();
-		while (iusWithSideEffects.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) iusWithSideEffects.next();
-			RequestStatus rs = (RequestStatus) sideEffects.get(iu);
+		for (Entry<IInstallableUnit, IStatus> entry : plan.getSideEffectChanges().entrySet()) {
+			IInstallableUnit iu = entry.getKey();
+			RequestStatus rs = (RequestStatus) entry.getValue();
 			if (rs.getInitialRequestType() == RequestStatus.ADDED) {
 				report.addStatus(iu, new Status(rs.getSeverity(), Activator.ID, IStatusCodes.ALTERED_SIDE_EFFECT_INSTALL, NLS.bind(Messages.PlanAnalyzer_SideEffectInstall, getIUString(iu)), null));
 			} else {

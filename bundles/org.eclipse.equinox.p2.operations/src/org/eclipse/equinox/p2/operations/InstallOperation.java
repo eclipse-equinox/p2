@@ -74,12 +74,12 @@ public class InstallOperation extends ProfileChangeOperation {
 				request.setInstallableUnitInclusionRules(toInstall[i], PlannerHelper.createOptionalInclusionRule(toInstall[i]));
 
 			// Check to see if it is already installed.  This may alter the request.
-			IQueryResult alreadyInstalled = profile.query(new InstallableUnitQuery(toInstall[i].getId()), null);
+			IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(new InstallableUnitQuery(toInstall[i].getId()), null);
 			// TODO ideally we should only do this check if the iu is a singleton, but in practice many iu's that should
 			// be singletons are not, so we don't check this (yet)
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=230878
 			if (!alreadyInstalled.isEmpty()) { //  && installedIU.isSingleton()
-				IInstallableUnit installedIU = (IInstallableUnit) alreadyInstalled.iterator().next();
+				IInstallableUnit installedIU = alreadyInstalled.iterator().next();
 				int compareTo = toInstall[i].getVersion().compareTo(installedIU.getVersion());
 				// If the iu is a newer version of something already installed, consider this an
 				// update request

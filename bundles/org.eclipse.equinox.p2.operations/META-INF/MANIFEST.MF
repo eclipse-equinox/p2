@@ -27,8 +27,9 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.p2.repository.artifact,
  org.eclipse.equinox.p2.repository.metadata,
  org.osgi.framework;version="1.4.0"
-Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
- J2SE-1.4
+Bundle-RequiredExecutionEnvironment: J2SE-1.5,
+ J2SE-1.4,
+ CDC-1.1/Foundation-1.1
 Export-Package: org.eclipse.equinox.p2.operations
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.common;bundle-version="[3.3.0,4.0)"

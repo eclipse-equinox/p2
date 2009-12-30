@@ -22,7 +22,8 @@ import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.CompoundQueryable;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
@@ -44,7 +45,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 public class ProvisioningSession {
 	private IProvisioningAgent agent;
 
-	private Set scheduledJobs = Collections.synchronizedSet(new HashSet());
+	private Set<Job> scheduledJobs = Collections.synchronizedSet(new HashSet<Job>());
 
 	/**
 	 * A constant indicating that there was nothing to size (there
@@ -183,14 +184,7 @@ public class ProvisioningSession {
 	}
 
 	private int countPlanElements(IProvisioningPlan plan) {
-		IQueryResult result = new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getRemovals()}).query(InstallableUnitQuery.ANY, null);
-		int cnt = 0;
-		Iterator itor = result.iterator();
-		while (itor.hasNext()) {
-			itor.next();
-			++cnt;
-		}
-		return cnt;
+		return new CompoundQueryable<IInstallableUnit>(plan.getAdditions(), plan.getRemovals()).query(InstallableUnitQuery.ANY, null).unmodifiableSet().size();
 	}
 
 	/**
@@ -225,7 +219,7 @@ public class ProvisioningSession {
 				// we will be able to get everything else.
 				ProfileChangeRequest downloadRequest = new ProfileChangeRequest(profile);
 				downloadRequest.setAbsoluteMode(true);
-				downloadRequest.addInstallableUnits(new CompoundQueryable(new IQueryable[] {plan.getAdditions(), plan.getInstallerPlan().getAdditions()}).query(InstallableUnitQuery.ANY, null));
+				downloadRequest.addInstallableUnits(new CompoundQueryable<IInstallableUnit>(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(InstallableUnitQuery.ANY, null));
 
 				PhaseSet download = new DownloadPhaseSet();
 				IProvisioningPlan downloadPlan = getPlanner().getProvisioningPlan(downloadRequest, context, mon.newChild(100));
@@ -278,7 +272,7 @@ public class ProvisioningSession {
 
 	private Job[] getScheduledJobs() {
 		synchronized (scheduledJobs) {
-			return (Job[]) scheduledJobs.toArray(new Job[scheduledJobs.size()]);
+			return scheduledJobs.toArray(new Job[scheduledJobs.size()]);
 		}
 	}
 
@@ -313,13 +307,13 @@ public class ProvisioningSession {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 		if (profile == null)
 			return new IInstallableUnit[0];
-		IQuery query;
+		IQuery<IInstallableUnit> query;
 		if (all)
 			query = InstallableUnitQuery.ANY;
 		else
 			query = new UserVisibleRootQuery();
-		IQueryResult queryResult = profile.query(query, null);
-		return (IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class);
+		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
+		return queryResult.toArray(IInstallableUnit.class);
 	}
 
 }
