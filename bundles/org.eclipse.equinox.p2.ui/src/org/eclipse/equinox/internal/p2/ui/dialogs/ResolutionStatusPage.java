@@ -114,7 +114,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		// We either haven't resolved, or we failed to resolve and reported some error
 		// while doing so.  Since the specific error was already reported, the description
 		// text can be used for the selected IU.
-		if (resolvedOperation == null) {
+		if (resolvedOperation == null || !resolvedOperation.hasResolved()) {
 			if (selectedIU != null) {
 				detail = getIUDescription(selectedIU);
 				detailsGroup.enablePropertyLink(true);
