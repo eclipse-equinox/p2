@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
-
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -33,6 +31,7 @@ import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
@@ -363,7 +362,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			if (providedAdvice != null) {
 				Collection<IProvidedCapability> current = iu.getProvidedCapabilities();
 				Set<IProvidedCapability> resultProvidedCapabilities = new HashSet<IProvidedCapability>(current);
-				for (IProvidedCapability currentProvidedCapability : resultProvidedCapabilities) {
+				for (IProvidedCapability currentProvidedCapability : current) {
 					for (int k = 0; k < providedAdvice.length; k++) {
 						IProvidedCapability providedCapability = providedAdvice[k];
 						if (providedCapability.getNamespace().equals(currentProvidedCapability.getNamespace()) && providedCapability.getName().equals(currentProvidedCapability.getName())) {
