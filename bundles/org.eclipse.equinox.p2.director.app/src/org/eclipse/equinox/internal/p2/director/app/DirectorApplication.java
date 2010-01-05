@@ -204,6 +204,7 @@ public class DirectorApplication implements IApplication {
 	private PackageAdmin packageAdmin;
 	private ServiceReference packageAdminRef;
 	private IPlanner planner;
+	private ILog log = null;
 
 	private IProvisioningAgent agent;
 
@@ -351,7 +352,7 @@ public class DirectorApplication implements IApplication {
 				anyValid = true;
 			} catch (ProvisionException e) {
 				//one of the repositories did not load
-				LogHelper.log(e.getStatus());
+				logStatus(e.getStatus());
 			}
 		}
 		if (!anyValid)
@@ -379,7 +380,7 @@ public class DirectorApplication implements IApplication {
 				anyValid = true;
 			} catch (ProvisionException e) {
 				//one of the repositories did not load
-				LogHelper.log(e.getStatus());
+				logStatus(e.getStatus());
 			}
 		}
 		if (!anyValid)
@@ -443,11 +444,28 @@ public class DirectorApplication implements IApplication {
 			throw new ProvisionException(Messages.Missing_Engine);
 	}
 
-	private void logFailure(IStatus status) {
-		FrameworkLog log = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
+	private void logStatus(IStatus status) {
 		if (log != null)
-			System.err.println("Application failed, log file location: " + log.getFile()); //$NON-NLS-1$
-		LogHelper.log(status);
+			log.log(status);
+		else
+			LogHelper.log(status);
+	}
+
+	private void printMessage(String message) {
+		if (log != null)
+			log.log(message);
+		else
+			System.out.println(message);
+	}
+
+	private void logFailure(IStatus status) {
+		if (log == null) {
+			FrameworkLog frameworkLog = (FrameworkLog) ServiceHelper.getService(Activator.getContext(), FrameworkLog.class.getName());
+			if (frameworkLog != null)
+				System.err.println("Application failed, log file location: " + frameworkLog.getFile()); //$NON-NLS-1$
+		}
+
+		logStatus(status);
 	}
 
 	private void markRoots(ProfileChangeRequest request, IInstallableUnit[] roots) {
@@ -525,11 +543,11 @@ public class DirectorApplication implements IApplication {
 	private void printRequest(ProfileChangeRequest request) {
 		IInstallableUnit[] toAdd = request.getAddedInstallableUnits();
 		for (int i = 0; i < toAdd.length; i++) {
-			System.out.println(NLS.bind(Messages.Installing, toAdd[i].getId(), toAdd[i].getVersion()));
+			printMessage(NLS.bind(Messages.Installing, toAdd[i].getId(), toAdd[i].getVersion()));
 		}
 		IInstallableUnit[] toRemove = request.getRemovedInstallableUnits();
 		for (int i = 0; i < toRemove.length; i++) {
-			System.out.println(NLS.bind(Messages.Uninstalling, toRemove[i].getId(), toRemove[i].getVersion()));
+			printMessage(NLS.bind(Messages.Uninstalling, toRemove[i].getId(), toRemove[i].getVersion()));
 		}
 	}
 
@@ -667,7 +685,7 @@ public class DirectorApplication implements IApplication {
 		}
 
 		if (!printHelpInfo && !printIUList && rootsToInstall.isEmpty() && rootsToUninstall.isEmpty() && revertToPreviousState == -1) {
-			System.out.println(Messages.Help_Missing_argument);
+			printMessage(Messages.Help_Missing_argument);
 			printHelpInfo = true;
 		}
 	}
@@ -719,10 +737,11 @@ public class DirectorApplication implements IApplication {
 					performProvisioningActions();
 				if (printIUList)
 					performList();
-				System.out.println(NLS.bind(Messages.Operation_complete, new Long(System.currentTimeMillis() - time)));
+				printMessage(NLS.bind(Messages.Operation_complete, new Long(System.currentTimeMillis() - time)));
 			}
 			return IApplication.EXIT_OK;
 		} catch (CoreException e) {
+			printMessage(Messages.Operation_failed);
 			deeplyPrint(e.getStatus(), System.err, 0);
 			logFailure(e.getStatus());
 			//set empty exit data to suppress error dialog from launcher
@@ -906,6 +925,11 @@ public class DirectorApplication implements IApplication {
 	}
 
 	public void stop() {
-		// Nothing left to do here
+		if (log != null)
+			log.close();
+	}
+
+	public void setLog(ILog log) {
+		this.log = log;
 	}
 }

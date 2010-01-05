@@ -68,6 +68,9 @@ public class Messages extends NLS {
 	public static String Uninstalling;
 	public static String unknown_option_0;
 
+	public static String problem_CallingDirector;
+	public static String problem_repoMustBeURI;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
