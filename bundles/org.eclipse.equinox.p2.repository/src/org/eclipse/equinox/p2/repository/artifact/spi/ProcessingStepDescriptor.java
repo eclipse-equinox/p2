@@ -12,6 +12,9 @@ package org.eclipse.equinox.p2.repository.artifact.spi;
 
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 
+/**
+ * @since 2.0
+ */
 public class ProcessingStepDescriptor implements IProcessingStepDescriptor {
 
 	private final String processorId; //the operation to be applied (e.g: unpack, md5, signature verification, etc.)
