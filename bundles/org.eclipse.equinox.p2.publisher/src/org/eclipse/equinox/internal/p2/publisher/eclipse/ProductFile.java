@@ -13,13 +13,16 @@
 
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
-
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.provisional.p2.core.VersionedName;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
@@ -703,14 +706,26 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private void addIcon(String os, String value) {
 		if (value == null)
 			return;
+
+		File iconFile = new File(value);
+		if (!iconFile.isFile()) {
+			//workspace
+			Location instanceLocation = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.INSTANCE_FILTER);
+			if (instanceLocation != null && instanceLocation.getURL() != null) {
+				File workspace = URLUtil.toFile(instanceLocation.getURL());
+				if (workspace != null)
+					iconFile = new File(workspace, value);
+			}
+		}
+		if (!iconFile.isFile())
+			iconFile = new File(location.getParentFile(), value);
+
 		Collection list = (Collection) icons.get(os);
 		if (list == null) {
 			list = new ArrayList(6);
 			icons.put(os, list);
 		}
-		if (!new File(value).isAbsolute())
-			value = new File(location.getParentFile(), value).getAbsolutePath();
-		list.add(value);
+		list.add(iconFile.getAbsolutePath());
 	}
 
 	private void processSolaris(Attributes attributes) {
