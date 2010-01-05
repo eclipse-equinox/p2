@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.director.app.ant;
 
-import java.io.File;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -43,6 +43,7 @@ public class DirectorTask extends Task implements ILog {
 	private List ius = new ArrayList();
 	private String outputProperty;
 	private StringBuffer outputBuffer = null;
+	private File logFile = null;
 
 	public static class IUDescription {
 		private String id = null;
@@ -80,9 +81,7 @@ public class DirectorTask extends Task implements ILog {
 			getProject().log(Messages.problem_CallingDirector, e, Project.MSG_ERR);
 			throw new BuildException(Messages.problem_CallingDirector, e);
 		} finally {
-			if (outputBuffer != null) {
-				getProject().setNewProperty(outputProperty, outputBuffer.toString());
-			}
+			log(outputBuffer);
 		}
 		if (result != null && !result.equals(IApplication.EXIT_OK)) {
 			getProject().log(Messages.problem_CallingDirector, Project.MSG_ERR);
@@ -283,8 +282,48 @@ public class DirectorTask extends Task implements ILog {
 		}
 	}
 
+	private void log(StringBuffer buffer) {
+		if (outputBuffer == null)
+			return;
+
+		String logString = outputBuffer.toString();
+		getProject().setNewProperty(outputProperty, logString);
+
+		if (logFile != null) {
+			File parentFile = logFile.getParentFile();
+			if (parentFile != null && !parentFile.exists())
+				parentFile.mkdirs();
+
+			FileWriter writer = null;
+			try {
+				writer = new FileWriter(logFile);
+				writer.write(logString);
+
+			} catch (IOException e) {
+				getProject().log(NLS.bind(Messages.unableToWriteLogFile, logFile.getAbsolutePath()), e, Project.MSG_WARN);
+			} finally {
+				if (writer != null) {
+					try {
+						writer.close();
+					} catch (IOException e) {
+						//ignore
+					}
+				}
+			}
+		}
+	}
+
 	public void setOutputProperty(String property) {
 		this.outputProperty = property;
+	}
+
+	public void setLogFile(String file) {
+		if (file != null && !file.startsWith(ANT_PREFIX)) {
+			this.logFile = new File(file);
+			if (!logFile.isAbsolute()) {
+				logFile = new File(getProject().getBaseDir(), file);
+			}
+		}
 	}
 
 	public void close() {

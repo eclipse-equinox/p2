@@ -70,6 +70,7 @@ public class Messages extends NLS {
 
 	public static String problem_CallingDirector;
 	public static String problem_repoMustBeURI;
+	public static String unableToWriteLogFile;
 
 	static {
 		// initialize resource bundle
