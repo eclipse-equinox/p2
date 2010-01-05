@@ -389,9 +389,16 @@ public class Projector {
 		return aggregatedCapabilities;
 	}
 
+	static final class Pending {
+		List matches;
+		Explanation explanation;
+		Object left;
+	}
+
 	private void expandRequirementsWithPatches(IInstallableUnit iu, Collector applicablePatches, boolean isRootIu) throws ContradictionException {
 		//Unmodified dependencies
 		Map unchangedRequirements = new HashMap(getRequiredCapabilities(iu).length);
+		Map nonPatchedRequirements = new HashMap(getRequiredCapabilities(iu).length);
 		for (Iterator iterator = applicablePatches.iterator(); iterator.hasNext();) {
 			IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator.next();
 			IRequiredCapability[][] reqs = mergeRequirements(iu, patch);
@@ -456,6 +463,15 @@ public class Projector {
 				//-P1 -> (A -> B) ( equiv. A -> (P1 or B) )
 				if (isApplicable(reqs[i][0])) {
 					IRequiredCapability req = reqs[i][0];
+
+					// Fix: if multiple patches apply to the same IU-req, we need to make sure we list each
+					// patch as an optional match
+					Pending pending = (Pending) nonPatchedRequirements.get(req);
+					if (pending != null) {
+						pending.matches.add(patch);
+						continue;
+					}
+
 					List matches = getApplicableMatches(req);
 					if (isHostRequirement(iu, req)) {
 						rememberHostMatches(iu, matches);
@@ -477,13 +493,26 @@ public class Projector {
 							} else {
 								explanation = new Explanation.HardRequirement(iu, req);
 							}
-							createImplication(iu, matches, explanation);
+
+							// Fix: make sure we collect all patches that will impact this IU-req, not just one
+							pending = new Pending();
+							pending.left = iu;
+							pending.explanation = explanation;
+							pending.matches = matches;
+							nonPatchedRequirements.put(req, pending);
 						}
 					} else {
 						if (!matches.isEmpty()) {
 							AbstractVariable abs = getAbstractVariable();
 							matches.add(patch);
-							createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
+
+							// Fix: make sure we collect all patches that will impact this IU-req, not just one
+							pending = new Pending();
+							pending.left = new Object[] {abs, iu};
+							pending.explanation = Explanation.OPTIONAL_REQUIREMENT;
+							pending.matches = matches;
+							nonPatchedRequirements.put(req, pending);
+
 							optionalAbstractRequirements.add(abs);
 						}
 					}
@@ -491,6 +520,13 @@ public class Projector {
 			}
 			createOptionalityExpression(iu, optionalAbstractRequirements);
 		}
+
+		// Fix: now create the pending non-patch requirements based on the full set of patches
+		for (Iterator iterator = nonPatchedRequirements.values().iterator(); iterator.hasNext();) {
+			Pending pending = (Pending) iterator.next();
+			createImplication(pending.left, pending.matches, pending.explanation);
+		}
+
 		List optionalAbstractRequirements = new ArrayList();
 		for (Iterator iterator = unchangedRequirements.entrySet().iterator(); iterator.hasNext();) {
 			Entry entry = (Entry) iterator.next();
@@ -855,10 +891,10 @@ public class Projector {
 		IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
 		IRequiredCapability[] reqs = fragment.getHost();
 		for (int i = 0; i < reqs.length; i++) {
-			if (req == reqs[i])
+			if (req.equals(reqs[i]))
 				return true;
 		}
-		return true;
+		return false;
 	}
 
 }
