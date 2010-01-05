@@ -72,10 +72,22 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 	}
 
 	public IRequiredCapability[] getRequiredCapabilities() {
-		ArrayList result = new ArrayList();
+		ArrayList result = new ArrayList(original.getRequiredCapabilities().length + 2);
 		result.addAll(Arrays.asList(original.getRequiredCapabilities()));
 		for (int i = 0; i < fragments.length; i++) {
-			result.addAll(Arrays.asList(fragments[i].getRequiredCapabilities()));
+			IRequiredCapability hostReqs[] = ((IInstallableUnitFragment) fragments[i]).getHost();
+			IRequiredCapability normalReqs[] = fragments[i].getRequiredCapabilities();
+			for (int j = 0; j < normalReqs.length; j++) {
+				boolean hostMatch = false;
+				for (int k = 0; k < hostReqs.length; k++) {
+					if (normalReqs[j].equals(hostReqs[k])) {
+						hostMatch = true;
+						break;
+					}
+				}
+				if (!hostMatch)
+					result.add(normalReqs[j]);
+			}
 		}
 		return (IRequiredCapability[]) result.toArray(new IRequiredCapability[result.size()]);
 	}
