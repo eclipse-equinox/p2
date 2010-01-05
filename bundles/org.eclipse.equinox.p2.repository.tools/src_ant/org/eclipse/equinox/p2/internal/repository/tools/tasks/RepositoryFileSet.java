@@ -47,17 +47,14 @@ public class RepositoryFileSet extends FileSet {
 	}
 
 	public void setLocation(String value) {
-		// TODO depreciate 
 		myLocation = value;
 	}
 
 	public String getRepoLocation() {
-		// TODO depreciate 
 		return myLocation;
 	}
 
 	public URI getRepoLocationURI() {
-		// TODO depreciate 
 		try {
 			return RepositoryHelper.localRepoURIHelper(URIUtil.fromString(getRepoLocation()));
 		} catch (URISyntaxException e) {
