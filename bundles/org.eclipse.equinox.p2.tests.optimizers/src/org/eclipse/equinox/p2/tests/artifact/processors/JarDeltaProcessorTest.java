@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+
 import java.io.*;
 import java.util.zip.ZipInputStream;
 import junit.framework.TestCase;
@@ -22,7 +26,6 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.optimizers.TestData;
 
@@ -39,7 +42,7 @@ public class JarDeltaProcessorTest extends TestCase {
 	public void testProcessing() throws IOException {
 		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/testdata_1.0.0.1.jar");
 		ProcessingStep step = new MockableJarDeltaProcessorStep(repoMock);
-		ProcessingStepDescriptor stepDescriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0.0.1", true);
+		IProcessingStepDescriptor stepDescriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0.0.1", true);
 		IArtifactKey key = new ArtifactKey("cl", "id1", Version.create("1.0.0.2"));
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
 		step.initialize(stepDescriptor, descriptor);

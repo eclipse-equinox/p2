@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -252,7 +254,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 			// Create a descriptor for a packed repo
 			ArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("org.eclipse.update.feature", "test", Version.parseVersion("1.0.0")));
 			descriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
-			descriptor.setProcessingSteps(new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)});
+			descriptor.setProcessingSteps(new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)});
 
 			// Create repository
 			Map properties = new HashMap();
@@ -268,7 +270,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	private static class TestDescriptor implements IArtifactDescriptor {
-		private static final ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[0];
+		private static final IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[0];
 		private IArtifactKey artifactKey;
 		private Properties properties = new Properties();
 
@@ -280,7 +282,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 			return artifactKey;
 		}
 
-		public ProcessingStepDescriptor[] getProcessingSteps() {
+		public IProcessingStepDescriptor[] getProcessingSteps() {
 			return steps;
 		}
 

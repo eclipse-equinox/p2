@@ -97,7 +97,7 @@ public interface IArtifactDescriptor {
 	 * 
 	 * @return the list of processing steps for this descriptor
 	 */
-	public abstract ProcessingStepDescriptor[] getProcessingSteps();
+	public abstract IProcessingStepDescriptor[] getProcessingSteps();
 
 	/**
 	 * Return the artifact repository that holds the artifact described by this descriptor.

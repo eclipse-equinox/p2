@@ -11,12 +11,13 @@
 *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing;
 
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.ProcessingStepDescriptor;
 
 /**
  * ProcessingSteps process the data written to them and pass the resultant data on
@@ -40,7 +41,7 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	 * @param descriptor description of the step
 	 * @param context the context in which the step is being used
 	 */
-	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+	public void initialize(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		// nothing to do here!
 	}
 

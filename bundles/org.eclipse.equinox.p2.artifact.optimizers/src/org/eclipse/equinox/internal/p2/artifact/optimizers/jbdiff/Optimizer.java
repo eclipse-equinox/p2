@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
@@ -183,8 +185,8 @@ public class Optimizer {
 			System.out.println("\t with " + strategy + " against " + descriptors[i].getArtifactKey());
 			String predecessorData = descriptors[i].getArtifactKey().toExternalForm();
 			ArtifactDescriptor newDescriptor = new ArtifactDescriptor(complete);
-			ProcessingStepDescriptor patchStep = new ProcessingStepDescriptor(strategy, predecessorData, true);
-			ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {patchStep};
+			IProcessingStepDescriptor patchStep = new ProcessingStepDescriptor(strategy, predecessorData, true);
+			IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {patchStep};
 			newDescriptor.setProcessingSteps(steps);
 			newDescriptor.setProperty(IArtifactDescriptor.FORMAT, strategy);
 			OutputStream repositoryStream = null;

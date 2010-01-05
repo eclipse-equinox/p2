@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.pack200;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
@@ -61,7 +63,7 @@ public class Optimizer {
 
 	private void optimize(IArtifactDescriptor descriptor) {
 		ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
-		ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+		IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 		newDescriptor.setProcessingSteps(steps);
 		newDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 		OutputStream repositoryStream = null;

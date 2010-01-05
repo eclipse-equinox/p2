@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+
 import java.io.*;
 import java.util.Arrays;
 import junit.framework.TestCase;
@@ -21,7 +25,6 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.optimizers.TestData;
 
@@ -34,7 +37,7 @@ public class JBPatchStepTest extends TestCase {
 	public void testPatchEclipseExe32to33() throws IOException {
 		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/eclipse-3.2.exe");
 		ProcessingStep patcher = new MockableJBPatchStep(repoMock);
-		ProcessingStepDescriptor descriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
+		IProcessingStepDescriptor descriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
 		IArtifactKey key = new ArtifactKey("cl", "id1", Version.create("1.1"));
 		ArtifactDescriptor context = new ArtifactDescriptor(key);
 		patcher.initialize(descriptor, context);

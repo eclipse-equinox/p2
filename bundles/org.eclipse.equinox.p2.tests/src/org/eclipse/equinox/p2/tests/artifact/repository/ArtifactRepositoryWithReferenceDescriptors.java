@@ -18,7 +18,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ArtifactRepositoryWithReferenceDescriptors extends AbstractProvisioningTest {
@@ -40,13 +40,13 @@ public class ArtifactRepositoryWithReferenceDescriptors extends AbstractProvisio
 		repo = createArtifactRepository(getTempFolder().toURI(), null);
 		File fileLocation = getTestData("Artifacts for repositor with references", "testData/referenceArtifactRepo/test1 Reference.jar");
 		descriptor1 = new SimpleArtifactDescriptor(new ArtifactKey("osgi.bundle", "test1Reference", Version.create("1.0.0")));
-		descriptor1.setProcessingSteps(new ProcessingStepDescriptor[0]);
+		descriptor1.setProcessingSteps(new IProcessingStepDescriptor[0]);
 		descriptor1.setRepositoryProperty("artifact.reference", fileLocation.toURL().toExternalForm());
 		descriptor1.setRepositoryProperty("file.name", fileLocation.getAbsolutePath());
 		descriptor1.setRepositoryProperty("file.lastModified", Long.toString(fileLocation.lastModified()));
 
 		descriptor2 = new SimpleArtifactDescriptor(new ArtifactKey("osgi.bundle", "test1Reference", Version.create("1.0.0")));
-		descriptor2.setProcessingSteps(new ProcessingStepDescriptor[0]);
+		descriptor2.setProcessingSteps(new IProcessingStepDescriptor[0]);
 		descriptor2.setRepositoryProperty("artifact.reference", fileLocation.toURI().toString());
 		descriptor2.setRepositoryProperty("file.name", fileLocation.getAbsolutePath());
 		descriptor2.setRepositoryProperty("file.lastModified", Long.toString(fileLocation.lastModified()));

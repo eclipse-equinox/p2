@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.p2.internal.repository.tools;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -145,7 +147,7 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 			ArtifactDescriptor result = new ArtifactDescriptor(key);
 			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, installSize);
 			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(packFile.length()));
-			ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+			IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 			result.setProcessingSteps(steps);
 			result.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 			return result;

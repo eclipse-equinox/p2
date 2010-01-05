@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -67,8 +67,8 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			IArtifactKey key = (IArtifactKey) obj;
 			return key.getId() + " [" + key.getClassifier() + "]"; //$NON-NLS-1$//$NON-NLS-2$
 		}
-		if (obj instanceof ProcessingStepDescriptor) {
-			ProcessingStepDescriptor descriptor = (ProcessingStepDescriptor) obj;
+		if (obj instanceof IProcessingStepDescriptor) {
+			IProcessingStepDescriptor descriptor = (IProcessingStepDescriptor) obj;
 			return descriptor.getProcessorId();
 		}
 		if (obj instanceof IRequiredCapability) {

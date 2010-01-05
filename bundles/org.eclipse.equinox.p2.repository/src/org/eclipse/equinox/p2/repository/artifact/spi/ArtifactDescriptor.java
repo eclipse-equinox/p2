@@ -21,13 +21,13 @@ import org.eclipse.equinox.p2.repository.artifact.*;
  * @since 2.0
  */
 public class ArtifactDescriptor implements IArtifactDescriptor {
-	private static final ProcessingStepDescriptor[] EMPTY_STEPS = new ProcessingStepDescriptor[0];
+	private static final IProcessingStepDescriptor[] EMPTY_STEPS = new ProcessingStepDescriptor[0];
 
 	protected IArtifactKey key; // The key associated with this artifact
 
 	// The list of post processing steps that must be applied one the artifact once it 
 	// has been downloaded (e.g, unpack, then md5 checksum, then...)
-	protected ProcessingStepDescriptor[] processingSteps = EMPTY_STEPS;
+	protected IProcessingStepDescriptor[] processingSteps = EMPTY_STEPS;
 
 	protected Map<String, String> properties = new OrderedProperties();
 	protected transient IArtifactRepository repository;
@@ -80,11 +80,11 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
-	public ProcessingStepDescriptor[] getProcessingSteps() {
+	public IProcessingStepDescriptor[] getProcessingSteps() {
 		return processingSteps;
 	}
 
-	public void setProcessingSteps(ProcessingStepDescriptor[] value) {
+	public void setProcessingSteps(IProcessingStepDescriptor[] value) {
 		processingSteps = value == null ? EMPTY_STEPS : value;
 	}
 

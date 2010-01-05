@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors;
 
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+
 import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -28,7 +30,7 @@ import org.eclipse.equinox.p2.repository.artifact.*;
  */
 public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 
-	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+	public void initialize(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(descriptor, context);
 		if (!getStatus().isOK())
 			return;

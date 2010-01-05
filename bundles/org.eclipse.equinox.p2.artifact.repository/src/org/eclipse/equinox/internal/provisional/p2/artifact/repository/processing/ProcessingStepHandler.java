@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing;
 
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+
 import java.io.OutputStream;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
@@ -18,7 +20,6 @@ import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository.ArtifactOutputStream;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.ProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -43,7 +44,7 @@ public class ProcessingStepHandler {
 		IExtensionPoint point = registry.getExtensionPoint(PROCESSING_STEPS_EXTENSION_ID);
 		if (point == null)
 			return false;
-		ProcessingStepDescriptor[] steps = descriptor.getProcessingSteps();
+		IProcessingStepDescriptor[] steps = descriptor.getProcessingSteps();
 		for (int i = 0; i < steps.length; i++) {
 			if (point.getExtension(steps[i].getProcessorId()) == null)
 				return false;
@@ -126,14 +127,14 @@ public class ProcessingStepHandler {
 		return null;
 	}
 
-	public ProcessingStep[] create(ProcessingStepDescriptor[] descriptors, IArtifactDescriptor context) {
+	public ProcessingStep[] create(IProcessingStepDescriptor[] descriptors, IArtifactDescriptor context) {
 		ProcessingStep[] result = new ProcessingStep[descriptors.length];
 		for (int i = 0; i < descriptors.length; i++)
 			result[i] = create(descriptors[i], context);
 		return result;
 	}
 
-	public ProcessingStep create(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+	public ProcessingStep create(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		IExtensionRegistry registry = RegistryFactory.getRegistry();
 		IExtension extension = registry.getExtension(PROCESSING_STEPS_EXTENSION_ID, descriptor.getProcessorId());
 		Exception error;
@@ -156,7 +157,7 @@ public class ProcessingStepHandler {
 		return result;
 	}
 
-	public OutputStream createAndLink(ProcessingStepDescriptor[] descriptors, IArtifactDescriptor context, OutputStream output, IProgressMonitor monitor) {
+	public OutputStream createAndLink(IProcessingStepDescriptor[] descriptors, IArtifactDescriptor context, OutputStream output, IProgressMonitor monitor) {
 		if (descriptors == null)
 			return output;
 		ProcessingStep[] steps = create(descriptors, context);

@@ -11,13 +11,14 @@
 *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository.processing;
 
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+
 import java.io.IOException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.ProcessingStepDescriptor;
 
 public class Adder extends ProcessingStep {
 
@@ -32,7 +33,7 @@ public class Adder extends ProcessingStep {
 		this.operand = operand;
 	}
 
-	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+	public void initialize(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(descriptor, context);
 		try {
 			operand = Integer.valueOf(descriptor.getData()).intValue();

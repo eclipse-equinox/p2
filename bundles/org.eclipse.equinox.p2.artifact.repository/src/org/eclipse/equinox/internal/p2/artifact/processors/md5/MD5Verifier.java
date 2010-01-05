@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors.md5;
 
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -19,7 +21,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.artifact.ProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 public class MD5Verifier extends ProcessingStep {
@@ -38,7 +39,7 @@ public class MD5Verifier extends ProcessingStep {
 	}
 
 	//This handle the case where the MD5 verification is initiated by a processing step
-	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+	public void initialize(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(descriptor, context);
 		String data = descriptor.getData();
 		if (IArtifactDescriptor.DOWNLOAD_MD5.equals(data))
@@ -50,7 +51,7 @@ public class MD5Verifier extends ProcessingStep {
 		basicInitialize(descriptor);
 	}
 
-	private void basicInitialize(ProcessingStepDescriptor descriptor) {
+	private void basicInitialize(IProcessingStepDescriptor descriptor) {
 		int code = (descriptor == null) ? IStatus.ERROR : descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
 		if (expectedMD5 == null || expectedMD5.length() != 32)
 			setStatus(new Status(code, Activator.ID, NLS.bind(Messages.Error_invalid_hash, expectedMD5)));

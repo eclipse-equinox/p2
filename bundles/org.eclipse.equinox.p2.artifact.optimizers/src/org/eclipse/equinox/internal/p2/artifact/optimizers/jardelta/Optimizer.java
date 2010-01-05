@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
@@ -170,8 +172,8 @@ public class Optimizer {
 			System.out.println("\t with jar delta against " + descriptors[i].getArtifactKey()); //$NON-NLS-1$
 			String predecessorData = descriptors[i].getArtifactKey().toExternalForm();
 			ArtifactDescriptor newDescriptor = new ArtifactDescriptor(canonical);
-			ProcessingStepDescriptor patchStep = new ProcessingStepDescriptor(JAR_DELTA_PATCH_STEP, predecessorData, true);
-			ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {patchStep};
+			IProcessingStepDescriptor patchStep = new ProcessingStepDescriptor(JAR_DELTA_PATCH_STEP, predecessorData, true);
+			IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {patchStep};
 			newDescriptor.setProcessingSteps(steps);
 			newDescriptor.setProperty(IArtifactDescriptor.FORMAT, JAR_DELTA_FORMAT);
 			OutputStream repositoryStream = null;

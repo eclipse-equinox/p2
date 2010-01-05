@@ -8,19 +8,11 @@
 * Contributors:
 * 	compeople AG (Stefan Liebig) - initial API and implementation
 *******************************************************************************/
-package org.eclipse.equinox.p2.repository.artifact;
+package org.eclipse.equinox.p2.repository.artifact.spi;
 
-/**
- * Describes a processing step. Processing steps are pieces of code that participate
- * in the the transfer of an artifact between artifact repositories. A step may alter
- * the shape of the artifact from its storage format in the repository (such as performing
- * compression), or it may perform additional checks on the transferred bytes such as 
- * checksums or signature verification.
- * 
- * @see IArtifactDescriptor#getProcessingSteps()
- * @since 2.0
- */
-public class ProcessingStepDescriptor {
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+
+public class ProcessingStepDescriptor implements IProcessingStepDescriptor {
 
 	private final String processorId; //the operation to be applied (e.g: unpack, md5, signature verification, etc.)
 	private final String data; //data requested for the processing (eg. expected checksum)
@@ -40,28 +32,22 @@ public class ProcessingStepDescriptor {
 		this.required = required;
 	}
 
-	/**
-	 * Returns the fully qualified id of the processing step extension.
-	 * 
-	 * @return The fully qualified processing step extension id
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor#getProcessorId()
 	 */
 	public String getProcessorId() {
 		return processorId;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor#getData()
+	 */
 	public String getData() {
 		return data;
 	}
 
-	/**
-	 * Returns whether the successful execution of this processing step is
-	 * required for the transfer to be successful. If the processing step extension
-	 * is not installed, or fails to execute, then the artifact transfer will fail if the
-	 * step is required. Failure of optional steps will result in warnings but not prevent
-	 * the transfer from succeeding.
-	 * 
-	 * @return <code>true</code> if the transfer will fail if this step does not succeed,
-	 * and <code>false</code> otherwise
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor#isRequired()
 	 */
 	public boolean isRequired() {
 		return required;
@@ -87,20 +73,20 @@ public class ProcessingStepDescriptor {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof ProcessingStepDescriptor))
+		if (!(obj instanceof IProcessingStepDescriptor))
 			return false;
-		final ProcessingStepDescriptor other = (ProcessingStepDescriptor) obj;
+		final IProcessingStepDescriptor other = (IProcessingStepDescriptor) obj;
 		if (data == null) {
-			if (other.data != null)
+			if (other.getData() != null)
 				return false;
-		} else if (!data.equals(other.data))
+		} else if (!data.equals(other.getData()))
 			return false;
 		if (processorId == null) {
-			if (other.processorId != null)
+			if (other.getProcessorId() != null)
 				return false;
-		} else if (!processorId.equals(other.processorId))
+		} else if (!processorId.equals(other.getProcessorId()))
 			return false;
-		if (required != other.required)
+		if (required != other.isRequired())
 			return false;
 		return true;
 	}

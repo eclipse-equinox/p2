@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.optimizers;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+
 import java.io.*;
 import java.util.Arrays;
 import junit.framework.TestCase;
@@ -20,7 +24,6 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.artifact.processors.ArtifactRepositoryMock;
 import org.eclipse.equinox.p2.tests.optimizers.TestData;
@@ -38,7 +41,7 @@ public class JBDiffZipStepTest extends TestCase {
 	public void testDiffJdt32to33() throws IOException {
 		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/org.eclipse.jdt_3.2.0.v20060605-1400.njar");
 		MockableJBDiffZipStep differ = new MockableJBDiffZipStep(repoMock);
-		ProcessingStepDescriptor stepDescriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
+		IProcessingStepDescriptor stepDescriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
 		IArtifactKey key = new ArtifactKey("cl", "id1", Version.create("1.1"));
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
 		differ.initialize(stepDescriptor, descriptor);

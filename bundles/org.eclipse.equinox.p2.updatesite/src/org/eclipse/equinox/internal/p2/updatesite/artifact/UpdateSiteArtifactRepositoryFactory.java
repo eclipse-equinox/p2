@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.artifact;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -116,7 +118,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 				featureArtifactDescriptor = new SimpleArtifactDescriptor(featureKey);
 				featureURL = updateSite.getFeatureURI(feature.getId(), feature.getVersion());
 				featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toString() + PACK_EXT);
-				ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+				IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 				featureArtifactDescriptor.setProcessingSteps(steps);
 				featureArtifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 				allSiteArtifacts.add(featureArtifactDescriptor);
@@ -138,7 +140,7 @@ public class UpdateSiteArtifactRepositoryFactory extends ArtifactRepositoryFacto
 						artifactDescriptor = new SimpleArtifactDescriptor(key);
 						pluginURL = updateSite.getPluginURI(entry);
 						artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toString() + PACK_EXT);
-						ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+						IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 						artifactDescriptor.setProcessingSteps(steps);
 						artifactDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 						allSiteArtifacts.add(artifactDescriptor);

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -26,8 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.artifact.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
@@ -191,7 +192,7 @@ public class SimpleArtifactRepositoryIO {
 			end(ARTIFACTS_ELEMENT);
 		}
 
-		private void writeProcessingSteps(ProcessingStepDescriptor[] processingSteps) {
+		private void writeProcessingSteps(IProcessingStepDescriptor[] processingSteps) {
 			if (processingSteps.length > 0) {
 				start(PROCESSING_STEPS_ELEMENT);
 				attribute(COLLECTION_SIZE_ATTRIBUTE, processingSteps.length);
@@ -450,7 +451,7 @@ public class SimpleArtifactRepositoryIO {
 					properties = (repositoryPropertiesHandler == null ? new OrderedProperties(0) : repositoryPropertiesHandler.getProperties());
 					currentArtifact.addRepositoryProperties(properties);
 
-					ProcessingStepDescriptor[] processingSteps = (processingStepsHandler == null ? new ProcessingStepDescriptor[0] //
+					IProcessingStepDescriptor[] processingSteps = (processingStepsHandler == null ? new ProcessingStepDescriptor[0] //
 							: processingStepsHandler.getProcessingSteps());
 					currentArtifact.setProcessingSteps(processingSteps);
 					artifacts.add(currentArtifact);
@@ -460,15 +461,15 @@ public class SimpleArtifactRepositoryIO {
 
 		protected class ProcessingStepsHandler extends AbstractHandler {
 
-			private List<ProcessingStepDescriptor> processingSteps;
+			private List<IProcessingStepDescriptor> processingSteps;
 
 			public ProcessingStepsHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, PROCESSING_STEPS_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				processingSteps = (size != null ? new ArrayList<ProcessingStepDescriptor>(new Integer(size).intValue()) : new ArrayList<ProcessingStepDescriptor>(4));
+				processingSteps = (size != null ? new ArrayList<IProcessingStepDescriptor>(new Integer(size).intValue()) : new ArrayList<IProcessingStepDescriptor>(4));
 			}
 
-			public ProcessingStepDescriptor[] getProcessingSteps() {
+			public IProcessingStepDescriptor[] getProcessingSteps() {
 				return processingSteps.toArray(new ProcessingStepDescriptor[processingSteps.size()]);
 			}
 
@@ -486,7 +487,7 @@ public class SimpleArtifactRepositoryIO {
 			private final String[] required = new String[] {ID_ATTRIBUTE, STEP_REQUIRED_ATTRIBUTE};
 			private final String[] optional = new String[] {STEP_DATA_ATTRIBUTE};
 
-			public ProcessingStepHandler(AbstractHandler parentHandler, Attributes attributes, List<ProcessingStepDescriptor> processingSteps) {
+			public ProcessingStepHandler(AbstractHandler parentHandler, Attributes attributes, List<IProcessingStepDescriptor> processingSteps) {
 				super(parentHandler, PROCESSING_STEP_ELEMENT);
 				String[] attributeValues = parseAttributes(attributes, required, optional);
 				processingSteps.add(new ProcessingStepDescriptor(attributeValues[0], attributeValues[2], checkBoolean(PROCESSING_STEP_ELEMENT, STEP_REQUIRED_ATTRIBUTE, attributeValues[1]).booleanValue()));
