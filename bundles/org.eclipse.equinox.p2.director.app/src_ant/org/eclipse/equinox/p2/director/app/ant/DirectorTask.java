@@ -15,9 +15,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.apache.tools.ant.*;
-import org.apache.tools.ant.util.StringUtils;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.internal.p2.director.app.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedId;
 import org.eclipse.osgi.util.NLS;
@@ -29,6 +29,10 @@ import org.eclipse.osgi.util.NLS;
  */
 public class DirectorTask extends Task implements ILog {
 	private static final String ANT_PREFIX = "${"; //$NON-NLS-1$
+	private static final String ENTRY = "!ENTRY "; //$NON-NLS-1$
+	private static final String SUBENTRY = "!SUBENTRY "; //$NON-NLS-1$
+	private static final String logEntry = "{0} {1} {2}\n"; //$NON-NLS-1$
+	private static final String MESSAGE = "!MESSAGE "; //$NON-NLS-1$
 
 	private boolean roaming;
 	private boolean list;
@@ -63,6 +67,7 @@ public class DirectorTask extends Task implements ILog {
 	 * @see org.apache.tools.ant.Task#execute()
 	 */
 	public void execute() throws BuildException {
+		Object result = null;
 		try {
 			if (outputProperty != null)
 				outputBuffer = new StringBuffer();
@@ -70,7 +75,7 @@ public class DirectorTask extends Task implements ILog {
 			// collect the arguments and call the application
 			DirectorApplication application = new DirectorApplication();
 			application.setLog(this);
-			application.run(getArguments());
+			result = application.run(getArguments());
 		} catch (Exception e) {
 			getProject().log(Messages.problem_CallingDirector, e, Project.MSG_ERR);
 			throw new BuildException(Messages.problem_CallingDirector, e);
@@ -78,6 +83,10 @@ public class DirectorTask extends Task implements ILog {
 			if (outputBuffer != null) {
 				getProject().setNewProperty(outputProperty, outputBuffer.toString());
 			}
+		}
+		if (result != null && !result.equals(IApplication.EXIT_OK)) {
+			getProject().log(Messages.problem_CallingDirector, Project.MSG_ERR);
+			throw new BuildException(Messages.problem_CallingDirector);
 		}
 	}
 
@@ -245,24 +254,33 @@ public class DirectorTask extends Task implements ILog {
 		if (outputBuffer != null) {
 			outputBuffer.append(msg);
 			if (!msg.endsWith("\n")) //$NON-NLS-1$
-				outputBuffer.append(StringUtils.LINE_SEP);
+				outputBuffer.append('\n');
 		}
 		super.log(msg, Project.MSG_INFO);
 	}
 
 	public void log(IStatus status) {
+		log(0, status);
 		if (status.isMultiStatus()) {
 			IStatus[] children = status.getChildren();
-			for (int i = 0; i < children.length; i++)
-				log(children[i]);
+			for (int i = 0; i < children.length; i++) {
+				log(1, children[i]);
+			}
 		}
+	}
 
+	private void log(int depth, IStatus status) {
 		log(status.getMessage(), status.getException(), Project.MSG_ERR);
 		if (outputBuffer != null) {
+			if (depth == 0)
+				outputBuffer.append(ENTRY);
+			else
+				outputBuffer.append(SUBENTRY);
+			outputBuffer.append(NLS.bind(logEntry, new String[] {status.getPlugin(), Integer.toString(status.getSeverity()), Integer.toString(status.getCode())}));
+			outputBuffer.append(MESSAGE);
 			outputBuffer.append(status.getMessage());
-			outputBuffer.append(StringUtils.LINE_SEP);
+			outputBuffer.append('\n');
 		}
-
 	}
 
 	public void setOutputProperty(String property) {
