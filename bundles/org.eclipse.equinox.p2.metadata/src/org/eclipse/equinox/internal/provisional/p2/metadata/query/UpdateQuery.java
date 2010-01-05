@@ -20,20 +20,21 @@ public class UpdateQuery extends MatchQuery {
 		this.updateFrom = updateFrom;
 	}
 
-	public boolean isMatch(Object obj) {
-		if (!(obj instanceof IInstallableUnit))
-			return false;
-		if (obj instanceof IInstallableUnitPatch) {
-			IInstallableUnitPatch potentialPatch = (IInstallableUnitPatch) obj;
+	public boolean isMatch(Object candidate) {
+		if (candidate instanceof IInstallableUnitPatch && !(updateFrom instanceof IInstallableUnitPatch)) {
+			IInstallableUnitPatch potentialPatch = (IInstallableUnitPatch) candidate;
 			IRequiredCapability lifeCycle = potentialPatch.getLifeCycle();
 			if (lifeCycle == null)
 				return false;
 			return updateFrom.satisfies(lifeCycle);
 		}
-		IInstallableUnit candidate = (IInstallableUnit) obj;
-		IUpdateDescriptor descriptor = candidate.getUpdateDescriptor();
-		if (descriptor != null && descriptor.isUpdateOf(updateFrom) && updateFrom.getVersion().compareTo(candidate.getVersion()) < 0)
-			return true;
+		IInstallableUnit candidateIU = (IInstallableUnit) candidate;
+		IUpdateDescriptor descriptor = candidateIU.getUpdateDescriptor();
+		if (descriptor != null && descriptor.isUpdateOf(updateFrom)) {
+			if (!updateFrom.getId().equals(candidateIU.getId()))
+				return true;
+			return updateFrom.getVersion().compareTo(candidateIU.getVersion()) < 0;
+		}
 		return false;
 	}
 }
