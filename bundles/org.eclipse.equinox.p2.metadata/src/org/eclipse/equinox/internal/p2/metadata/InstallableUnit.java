@@ -103,7 +103,7 @@ public class InstallableUnit implements IInstallableUnit {
 	}
 
 	public List<IInstallableUnitFragment> getFragments() {
-		return Collections.emptyList();
+		return CollectionUtils.emptyList();
 	}
 
 	public String getId() {
