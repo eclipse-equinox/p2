@@ -95,7 +95,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 			return false;
 
 		// Other implementations of IArtifactDescriptor must not be considered equal
-		if (!(obj instanceof ArtifactDescriptor))
+		if (!(obj.getClass().equals(getClass())))
 			return false;
 
 		ArtifactDescriptor other = (ArtifactDescriptor) obj;

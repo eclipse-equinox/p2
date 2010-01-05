@@ -395,7 +395,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized boolean contains(IArtifactDescriptor descriptor) {
-		return artifactDescriptors.contains(descriptor);
+		SimpleArtifactDescriptor simpleDescriptor = createInternalDescriptor(descriptor);
+		return artifactDescriptors.contains(simpleDescriptor);
 	}
 
 	public synchronized boolean contains(IArtifactKey key) {
