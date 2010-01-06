@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -172,7 +172,8 @@ public class CollectionUtils {
 	/**
 	 * The emptyMap() method was introduced in Java 1.5 so we need this here to be able to
 	 * down compile to 1.4.
-	 * @param <T> The type of the elements
+	 * @param <K> The type of the map keys
+	 * @param <V> The type of the map values
 	 * @return An empty set
 	 */
 	@SuppressWarnings("unchecked")
