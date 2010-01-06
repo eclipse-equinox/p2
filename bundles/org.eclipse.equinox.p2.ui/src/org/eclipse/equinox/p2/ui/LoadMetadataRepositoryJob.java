@@ -11,8 +11,6 @@
 
 package org.eclipse.equinox.p2.ui;
 
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -99,24 +98,17 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	}
 
 	private IStatus doLoad(IProgressMonitor monitor) {
-		ui.signalRepositoryOperationStart();
-		try {
-			SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.LoadMetadataRepositoryJob_ContactSitesProgress, locations.length * 100);
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.LoadMetadataRepositoryJob_ContactSitesProgress, locations.length * 100);
+		if (sub.isCanceled())
+			return Status.CANCEL_STATUS;
+		for (int i = 0; i < locations.length; i++) {
 			if (sub.isCanceled())
 				return Status.CANCEL_STATUS;
-			for (int i = 0; i < locations.length; i++) {
-				if (sub.isCanceled())
-					return Status.CANCEL_STATUS;
-				try {
-					repoCache.add(ui.getSession().getMetadataRepositoryManager().loadRepository(locations[i], sub.newChild(100)));
-				} catch (ProvisionException e) {
-					handleLoadFailure(e, locations[i]);
-				}
+			try {
+				repoCache.add(ui.getSession().getMetadataRepositoryManager().loadRepository(locations[i], sub.newChild(100)));
+			} catch (ProvisionException e) {
+				handleLoadFailure(e, locations[i]);
 			}
-		} finally {
-			// we only want to update the UI if this was a user visible
-			// job
-			ui.signalRepositoryOperationComplete(null, isUser());
 		}
 		return getCurrentStatus();
 	}
