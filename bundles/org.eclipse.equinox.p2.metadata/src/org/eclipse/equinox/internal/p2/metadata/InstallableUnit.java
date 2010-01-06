@@ -197,8 +197,7 @@ public class InstallableUnit implements IInstallableUnit {
 	}
 
 	public void setFilter(String filter) {
-		if (filter != null)
-			this.filter = new LDAPQuery(filter);
+		this.filter = filter == null ? null : new LDAPQuery(filter);
 	}
 
 	public void setId(String id) {
