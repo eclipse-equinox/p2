@@ -22,6 +22,11 @@ or launch provisioning wizards.
 <li><b>Policy</b> defines those aspects of the provisioning UI that can be configured
 by clients.
 </li>
+<li><b>LicenseManager</b> describes a service which accepts or rejects
+licenses and remembers the accepted licenses.  Clients should register
+an implementation of LicenseManager in order to remember the
+licenses.
+</li>
 <li>Various <b>pages</b> define reusable pages that can be hosted inside wizards
 and dialogs.  In general, the pages are meant to be contributed by extension point.
 In some cases, direct instantiation of the pages is permitted.  See the individual page

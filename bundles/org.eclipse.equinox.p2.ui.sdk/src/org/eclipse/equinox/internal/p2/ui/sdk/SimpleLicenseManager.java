@@ -11,13 +11,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
+import org.eclipse.equinox.p2.ui.LicenseManager;
+
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
-import org.eclipse.equinox.p2.common.LicenseManager;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
