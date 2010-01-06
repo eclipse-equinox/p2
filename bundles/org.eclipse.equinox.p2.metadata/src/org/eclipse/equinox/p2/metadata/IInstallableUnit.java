@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -11,14 +11,28 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
-import java.util.Collection;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
-
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
+ * An installable unit represents an atomic, indivisible unit of installable functionality
+ * in a provisioned system. Everything that can be installed or uninstalled in a system, 
+ * including both concrete artifacts and instructions describing steps to be performed
+ * during install, must be expressed as one or more installable units. Thus the set of
+ * installable units present in a system, together with the existing environment 
+ * (operating system, etc), completely describes the initial installed state of that system.
+ * <p>
+ * Installable units may have dependencies on functionality provided by other installable
+ * units, such that the unit cannot be installed unless some other installable unit
+ * is present in the installed system that provides a matching capability. Such 
+ * dependencies are referred to as <i>required capabilities</i>. Conversely,
+ * installable units may declared <i>provided capabilities</i>, describing the
+ * capabilities that they make available to other units in the system. Note the
+ * weak coupling at work here: installable units never directly depend on each other,
+ * but instead depend on abstract capabilities that any other installable unit may provide.
+ * </p>
+ * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
@@ -97,14 +111,23 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 */
 	public static final String PROP_PROVIDER = "org.eclipse.equinox.p2.provider"; //$NON-NLS-1$
 
+	/**
+	 * Returns the collection of artifacts associated with this installable unit.
+	 * Installing this unit into a system will cause these artifacts to be fetched from
+	 * a repository and applied to the installed system. Uninstalling this unit
+	 * will cause these artifacts to be removed from the system.
+	 * 
+	 * @return The artifacts associated with this installable unit
+	 */
 	public Collection<IArtifactKey> getArtifacts();
 
 	/**
 	 * Returns the filter on this installable unit. The filter is matched against
-	 * the selection context of the profile the unit is installed into. An IU will not
-	 * be installed if it has a filter condition that is not satisfied by the context.
+	 * the properties of the environment the unit is installed into. An installable
+	 * unit will not be installed if it has a filter condition that is not satisfied by the 
+	 * properties of the environment.
 	 * 
-	 * See Profile#getSelectionContext.
+	 * @return The installation filter for this unit, or <code>null</code>
 	 */
 	public IQuery<Boolean> getFilter();
 
@@ -151,6 +174,11 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 */
 	public String getProperty(String key, String locale);
 
+	/**
+	 * Returns the collection of capabilities provided by this installable unit. 
+	 * 
+	 * @return The collection of capabilities provided by this installable unit. 
+	 */
 	public Collection<IProvidedCapability> getProvidedCapabilities();
 
 	public Collection<IRequirement> getRequiredCapabilities();
@@ -173,13 +201,18 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 */
 	public boolean isResolved();
 
+	/**
+	 * Returns whether this installable unit is a singleton. Only one singleton
+	 * installable unit with a given id is allowed to exist in a given installed system.
+	 * Attempting to install multiple versions of a singleton will fail.
+	 * @return <code>true</code> if this unit is a singleton, and <code>false</code> otherwise
+	 */
 	public boolean isSingleton();
 
 	/**
 	 * Returns whether this unit has a provided capability that satisfies the given 
-	 * required capability.
-	 * @return <code>true</code> if this unit satisfies the given required
-	 * capability, and <code>false</code> otherwise.
+	 * requirement.
+	 * @return <code>true</code> if this unit satisfies the given requirement, and <code>false</code> otherwise.
 	 */
 	public boolean satisfies(IRequirement candidate);
 
