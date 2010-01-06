@@ -29,8 +29,7 @@ public interface IContextExpression<T> extends IExpression {
 	 * the <code>everything</code> iterator filtered for instances of <code>elementClass</code>.</p>
 	 * <p>The values of the iterator will be copied if necessary (when everything is referenced
 	 * more then once).</p>
-	 * @param elementClass The class of the elements to extract from <code>everything</code>
-	 * @param iterator The iterator that represents all queried material.
+	 * @param everything The iterator that represents all queried material.
 	 * @param params The parameters to use for the evaluation.
 	 * @return A new evaluation context.
 	 */
@@ -42,8 +41,7 @@ public interface IContextExpression<T> extends IExpression {
 	 * the <code>everything</code> iterator filtered for instances of <code>elementClass</code>.</p>
 	 * <p>The values of the iterator will be copied if necessary (when everything is referenced
 	 * more then once).</p>
-	 * @param elementClass The class of the elements to extract from <code>everything</code>
-	 * @param iterator The iterator that represents all queried material.
+	 * @param everything The iterator that represents all queried material.
 	 * @param params The parameters to use for the evaluation.
 	 * @param translations A translation support object to be assigned to the variable 'translations'
 	 * @return A new evaluation context.

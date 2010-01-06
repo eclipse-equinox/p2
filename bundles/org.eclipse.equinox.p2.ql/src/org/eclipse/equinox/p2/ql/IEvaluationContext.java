@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@ package org.eclipse.equinox.p2.ql;
  * The evaluation context. Contexts can be nested and new contexts are pushed for each closure
  * during an evaluation of an expression.
  * @see IMatchExpression#createContext(Object[])
- * @see IContextExpression#createContext(Class, java.util.Iterator, Object[])
+ * @see IContextExpression#createContext(java.util.Iterator, Object[])
  */
 public interface IEvaluationContext {
 	/**
@@ -40,7 +40,7 @@ public interface IEvaluationContext {
 
 	/**
 	 * Returns the value of the parameter at the given <code>key</code>
-	 * @param position The key for the parameter
+	 * @param key The key for the parameter
 	 * @return The parameter value
 	 */
 	Object getParameter(String key);
