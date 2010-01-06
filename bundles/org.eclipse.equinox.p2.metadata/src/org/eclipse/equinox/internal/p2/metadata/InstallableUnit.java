@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import java.util.Collection;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
+
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
@@ -260,7 +263,7 @@ public class InstallableUnit implements IInstallableUnit {
 		this.licenses = license == null ? NO_LICENSE : license;
 	}
 
-	public List<ILicense> getLicenses() {
+	public Collection<ILicense> getLicenses() {
 		return CollectionUtils.unmodifiableList(licenses);
 	}
 

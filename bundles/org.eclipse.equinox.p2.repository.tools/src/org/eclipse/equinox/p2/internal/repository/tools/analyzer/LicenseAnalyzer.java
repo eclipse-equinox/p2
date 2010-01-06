@@ -9,7 +9,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
-import java.util.List;
+import java.util.Collection;
 import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -23,18 +23,16 @@ public class LicenseAnalyzer extends IUAnalyzer {
 
 	public void analyzeIU(IInstallableUnit iu) {
 		if (Boolean.valueOf(iu.getProperty(InstallableUnitDescription.PROP_TYPE_GROUP)).booleanValue()) {
-			List<ILicense> licenses = iu.getLicenses();
+			Collection<ILicense> licenses = iu.getLicenses();
 			if (iu.getLicenses() == null || licenses.size() == 0) {
 				// If there is no license then this is an error
 				error(iu, "[ERROR] " + iu.getId() + " has no license");
 				return;
-			} else if (licenses.get(0).getBody().length() == 0) {
+			} else if (licenses.iterator().next().getBody().length() == 0) {
 				error(iu, "[ERROR] " + iu.getId() + " has no license");
 				return;
 			}
-
-			for (int i = 0; i < licenses.size(); i++) {
-				ILicense license = licenses.get(i);
+			for (ILicense license : licenses) {
 				if (license.getBody().startsWith("%")) {
 					String licenseProperty = license.getBody().substring(1);
 					if (iu.getProperty("df_LT." + licenseProperty) == null) {

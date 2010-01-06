@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import java.util.Collection;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
+
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -169,7 +172,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getUpdateDescriptor();
 	}
 
-	public List<ILicense> getLicenses() {
+	public Collection<ILicense> getLicenses() {
 		return original.getLicenses();
 	}
 

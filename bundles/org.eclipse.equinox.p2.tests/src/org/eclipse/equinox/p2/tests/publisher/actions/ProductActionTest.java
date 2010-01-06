@@ -92,8 +92,8 @@ public class ProductActionTest extends ActionTest {
 		Collection ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
 		assertEquals("1.0", 1, ius.size());
 		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
-		assertEquals("1.1", "http://www.example.com", iu.getLicenses().get(0).getLocation().toString());
-		assertEquals("1.2", "This is the liCenSE.", iu.getLicenses().get(0).getBody().trim());
+		assertEquals("1.1", "http://www.example.com", iu.getLicenses().iterator().next().getLocation().toString());
+		assertEquals("1.2", "This is the liCenSE.", iu.getLicenses().iterator().next().getBody().trim());
 	}
 
 	public void testLicenseNoURL() throws Exception {
@@ -105,8 +105,8 @@ public class ProductActionTest extends ActionTest {
 		Collection ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
 		assertEquals("1.0", 1, ius.size());
 		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
-		assertEquals("1.1", "", iu.getLicenses().get(0).getLocation().toString());
-		assertEquals("1.2", "This is the liCenSE.", iu.getLicenses().get(0).getBody().trim());
+		assertEquals("1.1", "", iu.getLicenses().iterator().next().getLocation().toString());
+		assertEquals("1.2", "This is the liCenSE.", iu.getLicenses().iterator().next().getBody().trim());
 	}
 
 	public void testLicenseNoText() throws Exception {
@@ -118,8 +118,8 @@ public class ProductActionTest extends ActionTest {
 		Collection ius = publisherResult.getIUs("licenseIU.product", IPublisherResult.NON_ROOT);
 		assertEquals("1.0", 1, ius.size());
 		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
-		assertEquals("1.1", "http://www.example.com", iu.getLicenses().get(0).getLocation().toString());
-		assertEquals("1.2", "", iu.getLicenses().get(0).getBody().trim());
+		assertEquals("1.1", "http://www.example.com", iu.getLicenses().iterator().next().getLocation().toString());
+		assertEquals("1.2", "", iu.getLicenses().iterator().next().getBody().trim());
 	}
 
 	public void testMissingLicense() throws Exception {

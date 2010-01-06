@@ -252,7 +252,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.id;
 		}
 
-		public List<ILicense> getLicenses() {
+		public Collection<ILicense> getLicenses() {
 			return CollectionUtils.unmodifiableList(license);
 		}
 
@@ -811,11 +811,11 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(unit.getProvidedCapabilities().iterator().next(), spiProvidedCapability);
 		assertEquals(unit.getTouchpointData().get(0), spiTouchpointData);
 		assertEquals(unit.getTouchpointType(), spiTouchpointType);
-		assertEquals(unit.getLicenses().get(0), spiLicense);
+		assertEquals(unit.getLicenses().iterator().next(), spiLicense);
 		assertEquals(spiProvidedCapability, unit.getProvidedCapabilities().iterator().next());
 		assertEquals(spiTouchpointData, unit.getTouchpointData().get(0));
 		assertEquals(spiTouchpointType, unit.getTouchpointType());
-		assertEquals(spiLicense, unit.getLicenses().get(0));
+		assertEquals(spiLicense, unit.getLicenses().iterator().next());
 
 		assertEquals(patchUnit.getRequirementsChange().size(), 1);
 		assertEquals(patchUnit.getRequirementsChange().get(0), spiRequirementChange);
@@ -827,6 +827,6 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertFalse(spiRequiredCapability == unit.getRequiredCapabilities().iterator().next());
 		assertFalse(spiProvidedCapability == unit.getProvidedCapabilities().iterator().next());
 		assertFalse(spiTouchpointType == unit.getTouchpointType());
-		assertFalse(spiLicense == unit.getLicenses().get(0));
+		assertFalse(spiLicense == unit.getLicenses().iterator().next());
 	}
 }

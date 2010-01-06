@@ -486,7 +486,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		desc.setCopyright(prototype.getCopyright());
 		desc.setFilter(prototype.getFilter() == null ? null : ((LDAPQuery) prototype.getFilter()).getFilter());
 		desc.setId(prototype.getId());
-		List<ILicense> originalLicenses = prototype.getLicenses();
+		Collection<ILicense> originalLicenses = prototype.getLicenses();
 		desc.setLicenses(originalLicenses.toArray(new ILicense[originalLicenses.size()]));
 		Collection<IRequirement> originalRequirements = prototype.getRequiredCapabilities();
 		desc.setRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));

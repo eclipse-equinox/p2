@@ -11,6 +11,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import java.util.Collection;
+import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
+
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
@@ -208,7 +211,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 * </p>
 	 * @return the licenses that apply to this installable unit
 	 */
-	public List<ILicense> getLicenses();
+	public Collection<ILicense> getLicenses();
 
 	/**
 	 * Returns the licenses that apply to this installable unit. Any translation of the

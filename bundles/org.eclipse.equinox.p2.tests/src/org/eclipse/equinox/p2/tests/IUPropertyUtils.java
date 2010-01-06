@@ -63,10 +63,11 @@ public class IUPropertyUtils {
 	}
 
 	public ILicense[] getLicenses(IInstallableUnit iu, Locale locale) {
-		List<ILicense> licenses = iu.getLicenses();
+		Collection<ILicense> licenses = iu.getLicenses();
 		ILicense[] translatedLicenses = new ILicense[licenses.size()];
-		for (int i = 0; i < licenses.size(); i++) {
-			translatedLicenses[i] = getLicense(iu, licenses.get(i), locale);
+		int i = 0;
+		for (ILicense license : translatedLicenses) {
+			translatedLicenses[i++] = getLicense(iu, license, locale);
 		}
 		return translatedLicenses;
 	}

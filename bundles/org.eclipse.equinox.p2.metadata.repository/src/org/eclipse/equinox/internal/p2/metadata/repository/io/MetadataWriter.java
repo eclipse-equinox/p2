@@ -262,15 +262,14 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	private void writeLicenses(List<ILicense> licenses) {
+	private void writeLicenses(Collection<ILicense> licenses) {
 		if (licenses != null && licenses.size() > 0) {
 			// In the future there may be more than one license, so we write this 
 			// as a collection of one.
 			// See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=216911
 			start(LICENSES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, licenses.size());
-			for (int i = 0; i < licenses.size(); i++) {
-				ILicense license = licenses.get(i);
+			for (ILicense license : licenses) {
 				if (license == null)
 					continue;
 				start(LICENSE_ELEMENT);

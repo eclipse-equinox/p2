@@ -83,7 +83,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(foo.getVersion().equals(fooVersion));
 		assertEquals("Foo Feature", foo.getProperty(IInstallableUnit.PROP_NAME));
 		assertEquals("Foo Description", foo.getProperty(IInstallableUnit.PROP_DESCRIPTION));
-		assertEquals("Foo License", foo.getLicenses().get(0).getBody());
+		assertEquals("Foo License", foo.getLicenses().iterator().next().getBody());
 		assertEquals("Foo Copyright", foo.getCopyright().getBody());
 		assertTrue(foo.getProperty("key1").equals("value1")); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(foo.getProperty("key2").equals("value2")); //$NON-NLS-1$//$NON-NLS-2$

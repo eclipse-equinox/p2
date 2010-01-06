@@ -169,10 +169,11 @@ public class TranslationSupport {
 	public ILicense[] getLicenses(IInstallableUnit iu, String locale) {
 		if (locale == null)
 			locale = getCurrentLocale();
-		List<ILicense> licenses = iu.getLicenses();
+		Collection<ILicense> licenses = iu.getLicenses();
 		ILicense[] translatedLicenses = new ILicense[licenses.size()];
-		for (int i = 0; i < licenses.size(); i++) {
-			translatedLicenses[i] = getLicense(iu, licenses.get(i), locale);
+		int i = 0;
+		for (ILicense iLicense : licenses) {
+			translatedLicenses[i++] = getLicense(iu, iLicense, locale);
 		}
 		return translatedLicenses;
 	}

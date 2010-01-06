@@ -300,8 +300,8 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testCopyright", iu1.getCopyright().getBody());
 		assertEquals("http://localhost/test", iu1.getCopyright().getLocation().toString());
 		assertEquals("test=testFilter", ((LDAPQuery) iu1.getFilter()).getFilter());
-		assertEquals("testLicense", iu1.getLicenses().get(0).getBody());
-		assertEquals("http://localhost/license", iu1.getLicenses().get(0).getLocation().toString());
+		assertEquals("testLicense", iu1.getLicenses().iterator().next().getBody());
+		assertEquals("http://localhost/license", iu1.getLicenses().iterator().next().getLocation().toString());
 		assertEquals("testValue1", iu1.getProperty("testName1"));
 		assertEquals("testValue2", iu1.getProperty("testName2"));
 
