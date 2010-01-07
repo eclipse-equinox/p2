@@ -35,7 +35,7 @@ public class Configuration {
 	String shared_ur;
 
 	public static Configuration load(File location, URL osgiInstallArea) throws ProvisionException {
-		return ConfigurationParser.parse(location, osgiInstallArea);
+		return ConfigurationIO.read(location, osgiInstallArea);
 	}
 
 	public Configuration() {
@@ -43,7 +43,7 @@ public class Configuration {
 	}
 
 	public void save(File location, URL osgiInstallArea) throws ProvisionException {
-		ConfigurationWriter.save(this, location, osgiInstallArea);
+		ConfigurationIO.write(location, this, osgiInstallArea);
 	}
 
 	public String getSharedUR() {
