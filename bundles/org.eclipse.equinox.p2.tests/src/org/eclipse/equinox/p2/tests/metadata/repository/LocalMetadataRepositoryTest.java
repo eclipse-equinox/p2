@@ -34,10 +34,6 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	private static final String TEST_VALUE = "TestValue";
 	protected File repoLocation;
 
-	private IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
-	}
-
 	protected void setUp() throws Exception {
 		super.setUp();
 		String tempDir = System.getProperty("java.io.tmpdir");
