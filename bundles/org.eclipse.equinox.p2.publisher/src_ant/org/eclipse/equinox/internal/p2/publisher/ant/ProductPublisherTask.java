@@ -8,13 +8,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.ant;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.File;
 import java.util.*;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;

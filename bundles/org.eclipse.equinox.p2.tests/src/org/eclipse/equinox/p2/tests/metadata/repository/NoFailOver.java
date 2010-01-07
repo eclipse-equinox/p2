@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.File;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**

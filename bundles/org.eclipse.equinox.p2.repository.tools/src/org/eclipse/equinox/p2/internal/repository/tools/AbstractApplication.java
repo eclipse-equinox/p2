@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -20,7 +22,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 
 import java.io.*;
@@ -23,7 +25,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.util.NLS;
 import org.xml.sax.SAXException;

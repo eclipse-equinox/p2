@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.WeakHashMap;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.Operand;

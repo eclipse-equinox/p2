@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;

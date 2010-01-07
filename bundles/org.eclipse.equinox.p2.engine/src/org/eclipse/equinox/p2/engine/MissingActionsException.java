@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import org.eclipse.equinox.internal.p2.engine.Messages;
 
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
 /**

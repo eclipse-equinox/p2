@@ -8,6 +8,8 @@
 
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.security.cert.Certificate;
@@ -16,7 +18,6 @@ import java.text.ParseException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;

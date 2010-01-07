@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
  * request is executed against a repository, it will be executed and the result
  * of the execution will become available.
  * 
- * @see IArtifactRepositoryManager#createMirrorRequest(IArtifactKey, IArtifactRepository, java.util.Properties, java.util.Properties)
+ * @see IArtifactRepositoryManager#createMirrorRequest(IArtifactKey, IArtifactRepository, java.util.Map, java.util.Map)
  * @see IArtifactRepository#getArtifacts(IArtifactRequest[], IProgressMonitor)
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0

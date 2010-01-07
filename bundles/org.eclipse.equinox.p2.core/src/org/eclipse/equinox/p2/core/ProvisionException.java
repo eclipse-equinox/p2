@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.core;
+package org.eclipse.equinox.p2.core;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.core.Activator;
  * The status provides a further description of the problem.
  * 
  * @noextend This class is not intended to be subclassed by clients.
+ * @since 2.0
  */
 public class ProvisionException extends CoreException {
 	private static final long serialVersionUID = 1L;

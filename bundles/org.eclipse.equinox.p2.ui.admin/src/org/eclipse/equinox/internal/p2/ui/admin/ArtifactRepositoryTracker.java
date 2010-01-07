@@ -11,9 +11,10 @@
 
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.net.URI;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;

@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,7 +21,6 @@ import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.jarprocessor.ant.JarProcessorTask;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.*;
 import org.eclipse.osgi.util.NLS;
 

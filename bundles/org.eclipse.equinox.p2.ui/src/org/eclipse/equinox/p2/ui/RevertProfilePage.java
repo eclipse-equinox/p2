@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -24,7 +26,6 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.CopyUtils;
 import org.eclipse.equinox.internal.p2.ui.dialogs.InstalledIUGroup;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.*;

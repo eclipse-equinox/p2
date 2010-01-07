@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.OutputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.IRepository;

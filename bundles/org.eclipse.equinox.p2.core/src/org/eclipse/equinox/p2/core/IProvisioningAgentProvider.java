@@ -11,12 +11,11 @@
 package org.eclipse.equinox.p2.core;
 
 import java.net.URI;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
  * A service that is used to create or obtain instances of an
  * {@link IProvisioningAgent}.
- * @since 1.1
+ * @since 2.0
  */
 public interface IProvisioningAgentProvider {
 

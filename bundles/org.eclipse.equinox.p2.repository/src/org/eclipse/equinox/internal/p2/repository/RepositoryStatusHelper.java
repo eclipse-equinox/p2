@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
 import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
 /**

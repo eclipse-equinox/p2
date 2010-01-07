@@ -18,7 +18,7 @@ import java.net.URI;
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
- * @since 1.1
+ * @since 2.0
  */
 public interface IAgentLocation {
 	/**

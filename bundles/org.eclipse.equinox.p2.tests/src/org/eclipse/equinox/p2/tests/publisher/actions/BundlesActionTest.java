@@ -19,6 +19,7 @@ import org.easymock.EasyMock;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -29,7 +30,8 @@ import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.IBundleShapeAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
-import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -120,8 +122,9 @@ public class BundlesActionTest extends ActionTest {
 		IQueryResult result = queryableArray.query(new InstallableUnitQuery("foo"), null);
 		assertEquals("3.1", 1, queryResultSize(result));
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
-		IUPropertyUtils iuPropertyUtils = new IUPropertyUtils(queryableArray);
-		assertEquals("3.2", "English Foo", iuPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
+		TranslationSupport utils = new TranslationSupport();
+		utils.setTranslationSource(queryableArray);
+		assertEquals("3.2", "English Foo", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
 
 		bundlesAction = new BundlesAction(new File[] {foo_fragment});
 		bundlesAction.perform(info, results, new NullProgressMonitor());
@@ -131,8 +134,8 @@ public class BundlesActionTest extends ActionTest {
 		result = queryableArray.query(new InstallableUnitQuery("foo"), null);
 		assertEquals("2.1", 1, queryResultSize(result));
 		iu = (IInstallableUnit) result.iterator().next();
-		iuPropertyUtils = new IUPropertyUtils(queryableArray);
-		assertEquals("2.2", "German Foo", iuPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));
+		utils.setTranslationSource(queryableArray);
+		assertEquals("2.2", "German Foo", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 	}
 
 	private void verifyBundlesAction() throws Exception {

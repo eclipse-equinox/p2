@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.operations.Activator;
 import org.eclipse.equinox.internal.p2.operations.Messages;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
 /**

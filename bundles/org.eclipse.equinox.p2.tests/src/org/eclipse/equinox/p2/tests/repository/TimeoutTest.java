@@ -8,13 +8,14 @@
 
 package org.eclipse.equinox.p2.tests.repository;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.security.cert.Certificate;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.tests.metadata.repository.AllServerTests;
 import org.eclipse.equinox.p2.tests.testserver.helper.AbstractTestServerClientCase;
 

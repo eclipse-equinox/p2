@@ -10,9 +10,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;

@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 
 import java.io.IOException;
@@ -21,7 +23,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;

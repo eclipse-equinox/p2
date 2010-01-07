@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.update;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.File;
 import java.net.URL;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /*
  * Class which controls the reading and writing of Configuration (platform.xml) objects.

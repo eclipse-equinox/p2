@@ -8,7 +8,6 @@ Bundle-Activator: org.eclipse.equinox.internal.p2.repository.Activator
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.ecf.filetransfer,
  org.eclipse.ecf,
- org.eclipse.equinox.p2.core,
  org.eclipse.equinox.registry;bundle-version="3.3.0",
  org.eclipse.ecf.provider.filetransfer;bundle-version="3.0.1"
 Bundle-ActivationPolicy: lazy
@@ -19,10 +18,14 @@ Bundle-Vendor: %providerName
 Import-Package: javax.xml.parsers,
  org.eclipse.core.runtime.jobs,
  org.eclipse.core.runtime.preferences;version="3.2.0",
+ org.eclipse.equinox.internal.p2.core,
+ org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.repository.helpers,
  org.eclipse.equinox.internal.provisional.p2.core,
+ org.eclipse.equinox.internal.provisional.p2.core.eventbus,
  org.eclipse.equinox.internal.provisional.p2.metadata,
  org.eclipse.equinox.internal.provisional.p2.metadata.query,
+ org.eclipse.equinox.p2.core,
  org.eclipse.equinox.p2.metadata,
  org.eclipse.equinox.p2.metadata.query,
  org.eclipse.equinox.security.storage,

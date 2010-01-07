@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 
 import java.net.URI;
@@ -18,7 +20,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.AbstractDeltaStep;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
 

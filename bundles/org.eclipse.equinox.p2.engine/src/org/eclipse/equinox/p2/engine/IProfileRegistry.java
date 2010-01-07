@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.util.Map;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
  * This encapsulates the access to the profile registry. 

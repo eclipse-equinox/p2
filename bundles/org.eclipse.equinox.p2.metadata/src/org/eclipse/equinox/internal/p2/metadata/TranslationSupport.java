@@ -57,9 +57,8 @@ public class TranslationSupport {
 	 * 
 	 * @since 2.0
 	 */
-	protected TranslationSupport() {
+	public TranslationSupport() {
 		super();
-		//no instantiate
 	}
 
 	/**
