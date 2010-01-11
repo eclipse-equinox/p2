@@ -8,21 +8,24 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
+package org.eclipse.equinox.p2.repository.metadata.spi;
+
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 
 /**
  * The common base class for all metadata repositories.
  * <p>
  * Clients may subclass this class.
  * <p>
+ * @since 2.0
  */
 public abstract class AbstractMetadataRepository extends AbstractRepository<IInstallableUnit> implements IMetadataRepository {
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 
 /**
  * A metadata repository stores information about a set of installable units
@@ -61,7 +62,7 @@ public interface IMetadataRepository extends IRepository<IInstallableUnit> {
 	/**
 	 * Removes all installable units that match the given query from this repository.
 	 * 
-	 * @param query the installable units to remove
+	 * @param installableUnits the installable units to remove
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return <code>true</code> if any units were actually removed, and

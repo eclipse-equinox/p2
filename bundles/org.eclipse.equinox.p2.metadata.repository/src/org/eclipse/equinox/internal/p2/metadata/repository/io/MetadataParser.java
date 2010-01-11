@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
+
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
@@ -21,7 +23,6 @@ import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
 import org.eclipse.equinox.p2.metadata.*;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.Attributes;

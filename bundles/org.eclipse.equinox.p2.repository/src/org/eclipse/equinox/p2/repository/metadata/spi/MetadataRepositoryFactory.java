@@ -8,15 +8,14 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
+package org.eclipse.equinox.p2.repository.metadata.spi;
 
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
@@ -24,6 +23,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
  * A metadata repository factory is responsible for creating and loading instances
  * of a particular type of metadata repository. Factories are provided via the 
  * <tt>org.eclipse.equinox.p2.metadata.repository.metadataRepositories</tt> extension point.
+ * @since 2.0
  */
 public abstract class MetadataRepositoryFactory {
 	private IProvisioningAgent agent;

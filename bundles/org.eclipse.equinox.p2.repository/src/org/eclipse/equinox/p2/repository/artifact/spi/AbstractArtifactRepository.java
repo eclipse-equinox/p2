@@ -8,19 +8,27 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository;
+package org.eclipse.equinox.p2.repository.artifact.spi;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.*;
-import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
+/**
+ * The common base class for all artifact repository implementations. Clients must
+ * subclass this class to create their own repository implementations.
+ * <p>
+ * This base class provides default implementations of all methods that modify the repository.
+ * These default methods throw an exception if {@link #isModifiable()} returns <code>false</code>.
+ * Therefore a client can implement a read-only repository by overriding only the abstract methods.
+ * @since 2.0
+ */
 public abstract class AbstractArtifactRepository extends AbstractRepository<IArtifactKey> implements IArtifactRepository {
 
 	protected AbstractArtifactRepository(String name, String type, String version, URI location, String description, String provider, Map<String, String> properties) {

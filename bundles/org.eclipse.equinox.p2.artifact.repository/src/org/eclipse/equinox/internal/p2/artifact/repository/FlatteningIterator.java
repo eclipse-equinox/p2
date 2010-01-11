@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository;
+package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.util.*;
 

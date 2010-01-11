@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
+
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -22,8 +24,6 @@ import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryCreationException;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;
@@ -131,7 +131,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		}
 	}
 
-	public void initialize(URI repoURL, InputStream descriptorFile) throws RepositoryCreationException {
+	public void initialize(URI repoURL, InputStream descriptorFile) {
 		location = repoURL;
 	}
 

@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.OutputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 
 /**
  * A repository containing artifacts.
@@ -118,9 +118,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 
 	/**
 	 * Returns a queryable that can be queried for artifact descriptors contained in this repository
-	 * @param query The artifact descriptor query
-	 * @param monitor The progress montior
-	 * @return The query result
+	 * @return The queryable of artifact descriptors
 	 */
 	public IQueryable<IArtifactDescriptor> descriptorQueryable();
 

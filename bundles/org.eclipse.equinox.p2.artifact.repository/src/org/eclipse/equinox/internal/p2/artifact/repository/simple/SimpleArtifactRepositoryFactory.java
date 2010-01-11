@@ -8,7 +8,9 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository;
+package org.eclipse.equinox.internal.p2.artifact.repository.simple;
+
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
 
@@ -20,8 +22,6 @@ import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
-import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
-import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryIO;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.p2.repository.Transport;

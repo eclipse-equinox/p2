@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.spi.p2.repository;
+package org.eclipse.equinox.p2.repository.spi;
 
 import java.net.URI;
 import java.util.Map;
@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
 * <p>
 * Clients may extend this class.
 * </p>
+ * @since 2.0
 */
 public abstract class AbstractRepository<T> extends PlatformObject implements IRepository<T> {
 	protected String description;

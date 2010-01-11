@@ -8,9 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
+package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.io.*;
 import java.net.URI;
@@ -19,9 +17,10 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
-import org.eclipse.equinox.internal.p2.metadata.repository.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
@@ -73,7 +72,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IStatus validate(URI location, IProgressMonitor monitor) {
 		try {
@@ -85,7 +84,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		return validateAndLoad(location, true, flags, monitor);

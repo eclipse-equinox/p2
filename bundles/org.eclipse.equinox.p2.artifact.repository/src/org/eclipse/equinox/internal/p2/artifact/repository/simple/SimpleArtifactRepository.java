@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
+
+import org.eclipse.equinox.internal.p2.artifact.repository.FlatteningIterator;
+
 import org.eclipse.equinox.p2.core.ProvisionException;
 
 import java.io.*;
@@ -32,8 +36,6 @@ import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.FlatteningIterator;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.metadata.query.IQueryResult;

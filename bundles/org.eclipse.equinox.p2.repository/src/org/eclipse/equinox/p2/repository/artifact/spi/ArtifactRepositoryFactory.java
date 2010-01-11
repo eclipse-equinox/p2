@@ -8,14 +8,13 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
+package org.eclipse.equinox.p2.repository.artifact.spi;
 
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
@@ -23,6 +22,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
  * An artifact repository factory is responsible for creating and loading instances
  * of a particular type of artifact repository. Factories are provided via the 
  * <tt>org.eclipse.equinox.p2.artifact.repository.artifactRepositories</tt> extension point.
+ * @since 2.0
  */
 public abstract class ArtifactRepositoryFactory {
 
@@ -87,7 +87,10 @@ public abstract class ArtifactRepositoryFactory {
 	public abstract IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
-	 * Sets the provisioning agent associated with this repository factory.
+	 * Sets the provisioning agent associated with this repository factory. This method
+	 * is called by the provisioning agent to provide access to the agent instance. This
+	 * method is not intended to be called by clients.
+	 * 
 	 * @param agent The provisioning agent
 	 */
 	public void setAgent(IProvisioningAgent agent) {

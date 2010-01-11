@@ -10,16 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
 public class ExtensionLocationArtifactRepositoryFactory extends ArtifactRepositoryFactory {

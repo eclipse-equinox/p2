@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
+
 import org.eclipse.equinox.p2.core.ProvisionException;
 
 import java.io.*;
@@ -26,7 +28,6 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactC
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactComparator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CompoundQueryable;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.query.IQuery;

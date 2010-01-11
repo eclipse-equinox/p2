@@ -49,8 +49,9 @@ Export-Package: org.eclipse.equinox.internal.p2.persistence;x-friends:="org.ecli
    org.eclipse.equinox.p2.ui,
    org.eclipse.equinox.p2.metadata.generator",
  org.eclipse.equinox.internal.provisional.p2.repository;uses:="org.osgi.framework,org.eclipse.core.runtime",
- org.eclipse.equinox.internal.provisional.spi.p2.repository,
  org.eclipse.equinox.p2.repository,
  org.eclipse.equinox.p2.repository.artifact,
  org.eclipse.equinox.p2.repository.artifact.spi,
- org.eclipse.equinox.p2.repository.metadata
+ org.eclipse.equinox.p2.repository.metadata,
+ org.eclipse.equinox.p2.repository.metadata.spi,
+ org.eclipse.equinox.p2.repository.spi

@@ -8,12 +8,13 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
+package org.eclipse.equinox.p2.repository.spi;
 
 import java.net.URI;
 
 /**
  * Serialization helper class for repository references.
+ * @since 2.0
  */
 public class RepositoryReference {
 	public URI Location;

@@ -12,6 +12,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
+import org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory;
+
+import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
+
 import org.eclipse.equinox.p2.core.ProvisionException;
 
 import java.io.File;
@@ -23,8 +27,6 @@ import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.p2.updatesite.*;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -41,7 +43,7 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
 	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) {
 		return null;
