@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
 * <p>
 * Clients may extend this class.
 * </p>
+* @param <T> the type of object that can be queried for in this repository
  * @since 2.0
 */
 public abstract class AbstractRepository<T> extends PlatformObject implements IRepository<T> {
