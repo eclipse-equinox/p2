@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,8 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
 
 import java.net.*;
 import java.util.*;
@@ -22,8 +20,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.IProvisioningAgentProvider;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -39,7 +36,7 @@ public abstract class AbstractApplication {
 	protected List<RepositoryDescriptor> sourceRepositories = new ArrayList<RepositoryDescriptor>(); //List of repository descriptors
 	protected List<URI> artifactReposToRemove = new ArrayList<URI>();
 	protected List<URI> metadataReposToRemove = new ArrayList<URI>();
-	protected List<IInstallableUnit> sourceIUs = new ArrayList();
+	protected List<IInstallableUnit> sourceIUs = new ArrayList<IInstallableUnit>();
 	private List<RepositoryDescriptor> destinationRepos = new ArrayList<RepositoryDescriptor>();
 
 	protected IArtifactRepository destinationArtifactRepository = null;
@@ -84,7 +81,7 @@ public abstract class AbstractApplication {
 		sourceIUs = ius;
 	}
 
-	protected void finalizeRepositories() throws ProvisionException {
+	protected void finalizeRepositories() {
 		if (removeAddedRepositories) {
 			IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 			for (URI uri : artifactReposToRemove)
