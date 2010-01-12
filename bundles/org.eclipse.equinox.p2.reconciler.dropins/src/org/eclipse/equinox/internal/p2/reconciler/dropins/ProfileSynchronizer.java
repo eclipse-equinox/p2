@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -73,7 +73,7 @@ public class ProfileSynchronizer {
 			return Status.OK_STATUS;
 
 		ProvisioningContext context = getContext();
-		context.setProperty(EXPLANATION, Boolean.FALSE.toString());
+		context.setProperty(EXPLANATION, new Boolean(Tracing.DEBUG_RECONCILER).toString());
 
 		ProfileChangeRequest request = createProfileChangeRequest(context);
 		String updatedCacheExtensions = synchronizeCacheExtensions();
@@ -96,6 +96,7 @@ public class ProfileSynchronizer {
 			IStatus status = plan.getStatus();
 			if (status.getSeverity() == IStatus.ERROR || status.getSeverity() == IStatus.CANCEL)
 				return status;
+			debug(request, plan);
 
 			if (plan.getAdditions().query(InstallableUnitQuery.ANY, null).isEmpty() && plan.getRemovals().query(InstallableUnitQuery.ANY, null).isEmpty()) {
 				writeTimestamps();
@@ -352,6 +353,41 @@ public class ProfileSynchronizer {
 		request.removeInstallableUnits(toRemove.toArray(new IInstallableUnit[toRemove.size()]));
 		debug(request);
 		return request;
+	}
+
+	private void debug(ProfileChangeRequest request, IProvisioningPlan plan) {
+		if (!Tracing.DEBUG_RECONCILER)
+			return;
+		final String PREFIX = "[reconciler] [plan] "; //$NON-NLS-1$
+		// get the request
+		List<IInstallableUnit> toAdd = new ArrayList<IInstallableUnit>();
+		toAdd.addAll(Arrays.asList(request.getAddedInstallableUnits()));
+		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>();
+		toRemove.addAll(Arrays.asList(request.getRemovedInstallableUnits()));
+		// remove from the request everything what is in the plan
+		Operand[] ops = plan.getOperands();
+		for (int i = 0; i < ops.length; i++) {
+			if (ops[i] instanceof InstallableUnitOperand) {
+				InstallableUnitOperand iuo = (InstallableUnitOperand) ops[i];
+				if (iuo.first() == null && iuo.second() != null)
+					toAdd.remove(iuo.second());
+				if (iuo.first() != null && iuo.second() == null)
+					toRemove.remove(iuo.first());
+			}
+		}
+		// if anything is left in the request, then something is wrong with the plan
+		if (toAdd.size() == 0 && toRemove.size() == 0)
+			Tracing.debug(PREFIX + "Plan matches the request."); //$NON-NLS-1$
+		if (toAdd.size() != 0) {
+			Tracing.debug(PREFIX + "Some units will not be installed, because they are already installed or there are dependency issues:"); //$NON-NLS-1$
+			for (IInstallableUnit unit : toAdd)
+				Tracing.debug(PREFIX + unit);
+		}
+		if (toRemove.size() != 0) {
+			Tracing.debug(PREFIX + "Some units will not be uninstalled:"); //$NON-NLS-1$
+			for (IInstallableUnit unit : toRemove)
+				Tracing.debug(PREFIX + unit);
+		}
 	}
 
 	/*

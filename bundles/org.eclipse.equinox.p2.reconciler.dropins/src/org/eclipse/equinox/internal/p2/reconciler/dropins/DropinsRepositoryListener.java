@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,19 +11,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationArtifactRepository;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepository;
 import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -32,6 +34,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class DropinsRepositoryListener extends RepositoryListener {
+	private static final String PREFIX = "[reconciler] [dropins] "; //$NON-NLS-1$
 	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
 	private static final String JAR = ".jar"; //$NON-NLS-1$
@@ -53,15 +56,21 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	public boolean added(File file) {
-		if (super.added(file))
+		if (super.added(file)) {
+			if (Tracing.DEBUG_RECONCILER)
+				Tracing.debug(PREFIX + "Interesting feature or bundle added: " + file); //$NON-NLS-1$
 			return true;
+		}
 		addRepository(file);
 		return true;
 	}
 
 	public boolean changed(File file) {
-		if (super.changed(file))
+		if (super.changed(file)) {
+			if (Tracing.DEBUG_RECONCILER)
+				Tracing.debug(PREFIX + "Interesting feature or bundle changed: " + file); //$NON-NLS-1$			
 			return true;
+		}
 		addRepository(file);
 		return true;
 	}
@@ -185,9 +194,20 @@ public class DropinsRepositoryListener extends RepositoryListener {
 				repository = Activator.loadMetadataRepository(repoURL, null);
 			}
 			metadataRepositories.add(repository);
+			debugRepository(repository);
 		} catch (ProvisionException ex) {
 			LogHelper.log(ex);
 		}
+	}
+
+	private void debugRepository(IMetadataRepository repository) {
+		if (!Tracing.DEBUG_RECONCILER)
+			return;
+		Tracing.debug(PREFIX + "Repository created " + repository.getLocation()); //$NON-NLS-1$
+		// Print out a list of all the IUs in the repository
+		IQueryResult<IInstallableUnit> result = repository.query(InstallableUnitQuery.ANY, new NullProgressMonitor());
+		for (Iterator<IInstallableUnit> iter = result.iterator(); iter.hasNext();)
+			Tracing.debug(PREFIX + "\t" + iter.next()); //$NON-NLS-1$
 	}
 
 	public void getArtifactRepository(URI repoURL, Map<String, String> properties) {
