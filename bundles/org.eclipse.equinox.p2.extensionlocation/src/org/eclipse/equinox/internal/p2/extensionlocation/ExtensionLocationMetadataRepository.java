@@ -11,19 +11,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
-import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 

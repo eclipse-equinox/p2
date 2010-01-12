@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.perf;
 
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+
 import org.eclipse.core.tests.harness.PerformanceTestRunner;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
+import org.eclipse.equinox.p2.query.IQuery;
 
 /**
  * Performance tests for the p2 publisher

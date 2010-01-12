@@ -8,11 +8,10 @@
 
 package org.eclipse.equinox.p2.tests.repository;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.testserver.helper.AbstractTestServerClientCase;

@@ -11,7 +11,8 @@
 package org.eclipse.equinox.p2.publisher.actions;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;

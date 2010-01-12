@@ -13,11 +13,11 @@ package org.eclipse.equinox.p2.tests.ui.query;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
  * Tests for {@link LatestIUVersionQuery}. This has all the tests of the superclass,

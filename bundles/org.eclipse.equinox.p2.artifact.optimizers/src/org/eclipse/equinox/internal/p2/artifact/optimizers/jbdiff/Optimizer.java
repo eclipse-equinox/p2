@@ -11,10 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
-import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
@@ -23,10 +19,12 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.VersionlessArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 
 public class Optimizer {
 

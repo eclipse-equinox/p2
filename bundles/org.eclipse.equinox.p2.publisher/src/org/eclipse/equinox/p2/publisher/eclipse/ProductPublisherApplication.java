@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.p2.publisher.IPublisherAction;
-
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;

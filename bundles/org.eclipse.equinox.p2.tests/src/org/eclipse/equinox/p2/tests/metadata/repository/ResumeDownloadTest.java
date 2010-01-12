@@ -8,8 +8,6 @@
 
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.net.URI;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -17,6 +15,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.ecf.filetransfer.IFileRangeSpecification;
 import org.eclipse.ecf.filetransfer.IIncomingFileTransfer;
 import org.eclipse.equinox.internal.p2.repository.FileReader;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;

@@ -10,22 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
-
-import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
 /**
  * A simple metadata repository used for testing purposes.  All metadata

@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
 
 /**
  * A repository factory that always throws exceptions. The "fail" flag must be set to

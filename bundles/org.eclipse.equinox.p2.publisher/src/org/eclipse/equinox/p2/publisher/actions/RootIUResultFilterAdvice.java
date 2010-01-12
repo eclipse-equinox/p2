@@ -12,9 +12,9 @@ package org.eclipse.equinox.p2.publisher.actions;
 import java.util.Arrays;
 import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
+import org.eclipse.equinox.p2.query.IQuery;
 
 public class RootIUResultFilterAdvice extends AbstractAdvice implements IRootIUAdvice {
 	private IQuery<IInstallableUnit> query;

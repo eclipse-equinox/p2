@@ -13,8 +13,8 @@ package org.eclipse.equinox.p2.tests.ui.query;
 import org.eclipse.equinox.internal.p2.ui.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.tests.MockQueryable;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 

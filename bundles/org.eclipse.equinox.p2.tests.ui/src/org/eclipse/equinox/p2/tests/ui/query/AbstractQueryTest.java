@@ -11,9 +11,9 @@
 package org.eclipse.equinox.p2.tests.ui.query;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;

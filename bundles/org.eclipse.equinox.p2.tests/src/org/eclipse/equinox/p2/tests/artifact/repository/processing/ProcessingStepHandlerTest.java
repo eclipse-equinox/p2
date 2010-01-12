@@ -11,10 +11,6 @@
 *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository.processing;
 
-import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
-
-import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
-
 import java.io.*;
 import java.util.Arrays;
 import junit.framework.TestCase;
@@ -24,6 +20,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.jarprocessor.PackStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class ProcessingStepHandlerTest extends TestCase {

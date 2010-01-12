@@ -11,17 +11,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.mirroring;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactComparatorFactory;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactComparator;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.Activator;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.util.NLS;

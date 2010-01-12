@@ -8,14 +8,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.ant;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.types.FileSet;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;

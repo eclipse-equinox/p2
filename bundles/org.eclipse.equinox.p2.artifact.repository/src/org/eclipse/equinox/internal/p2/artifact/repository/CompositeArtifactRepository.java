@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,15 +22,14 @@ import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactComparatorFactory;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactComparator;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.CompoundQueryable;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.ICompositeRepository;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class CompositeArtifactRepository extends AbstractArtifactRepository implements ICompositeRepository<IArtifactKey> {

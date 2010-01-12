@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.repository;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
  * Base interface that defines common properties that may be provided by 

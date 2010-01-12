@@ -12,8 +12,8 @@
 package org.eclipse.equinox.p2.repository.artifact;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.MatchQuery;
 
 /**
  * An IArtifactQuery returning matching IArtifactKey objects.

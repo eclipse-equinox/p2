@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.ui;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.query.Collector;
 
 /**
  * Wraps query results inside corresponding UI elements

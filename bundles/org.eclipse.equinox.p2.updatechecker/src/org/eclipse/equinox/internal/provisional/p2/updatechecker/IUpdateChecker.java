@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.updatechecker;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.query.IQuery;
 
 /**
  * An update checker periodically polls for updates to specified profiles and

@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository;
 
+import org.eclipse.equinox.p2.query.IQueryable;
+
 import java.net.URI;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 
 /**
