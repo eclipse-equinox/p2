@@ -11,11 +11,12 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+
 import java.io.*;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.VersionVector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 
 /**
  * Base class for version testing. Adds useful assert methods.

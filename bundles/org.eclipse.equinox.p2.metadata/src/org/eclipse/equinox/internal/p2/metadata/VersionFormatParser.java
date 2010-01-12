@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import org.eclipse.equinox.p2.metadata.VersionFormatException;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.metadata.VersionFormat.TreeInfo;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionFormatException;
 import org.eclipse.osgi.util.NLS;
 
 /**

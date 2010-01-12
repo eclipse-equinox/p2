@@ -13,9 +13,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.simpleconfigurator.manipulator.SimpleConfiguratorManipulatorImpl;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.Version;
 
 //This class deals with source bundles and how their addition to the source.info
 public class SourceManipulator {

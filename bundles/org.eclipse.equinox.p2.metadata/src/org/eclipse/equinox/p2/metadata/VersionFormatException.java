@@ -8,10 +8,11 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.p2.metadata;
 
 /**
  * Exception thrown when parsing Omni Version formats.
+ * @since 2.0
  */
 public class VersionFormatException extends Exception {
 

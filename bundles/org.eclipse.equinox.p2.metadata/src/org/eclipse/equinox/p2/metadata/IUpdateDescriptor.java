@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 
 /**
  * @noimplement This interface is not intended to be implemented by clients.

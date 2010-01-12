@@ -11,8 +11,8 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionFormat;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.IVersionFormat;
+import org.eclipse.equinox.p2.metadata.Version;
 
 /**
  * Test common patterns:

@@ -10,12 +10,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
 import java.io.File;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.update.Site;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.actions.IPropertyAdvice;

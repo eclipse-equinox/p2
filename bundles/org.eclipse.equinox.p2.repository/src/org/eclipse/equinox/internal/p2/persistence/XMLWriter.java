@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 public class XMLWriter implements XMLConstants {
 

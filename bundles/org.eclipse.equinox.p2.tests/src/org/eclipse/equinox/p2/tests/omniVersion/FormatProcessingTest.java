@@ -11,8 +11,9 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 /**
  * Tests processing rules not tested elsewhere, and combinations of processing rules.

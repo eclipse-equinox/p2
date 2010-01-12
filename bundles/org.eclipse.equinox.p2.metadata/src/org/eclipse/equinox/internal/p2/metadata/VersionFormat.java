@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.metadata;
 import java.io.Serializable;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.VersionFormatParser.Fragment;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
 /**

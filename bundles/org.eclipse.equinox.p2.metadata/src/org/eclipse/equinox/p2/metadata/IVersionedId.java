@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 /**
  * An interface representing a (id,version) pair. 

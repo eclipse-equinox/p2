@@ -9,7 +9,7 @@
  *     Cloudsmith Inc - initial API and implementation.
  *******************************************************************************/
 
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.p2.metadata;
 
 import java.io.Serializable;
 import org.eclipse.equinox.internal.p2.metadata.*;
@@ -35,6 +35,7 @@ import org.eclipse.equinox.internal.p2.metadata.*;
  * to use it as such might render a {@link UnsupportedOperationException} in case the
  * raw vector holds incompatible values. The method {@link #isOSGiCompatible()} can be used
  * to test.
+ * @since 2.0
  */
 public abstract class Version implements Comparable<Version>, Serializable {
 	public static final String RAW_PREFIX = "raw:"; //$NON-NLS-1$

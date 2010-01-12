@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 
 import org.eclipse.equinox.p2.metadata.ILicense;

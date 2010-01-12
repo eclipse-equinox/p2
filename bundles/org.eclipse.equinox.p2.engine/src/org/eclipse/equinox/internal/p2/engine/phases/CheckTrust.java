@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import org.eclipse.equinox.p2.metadata.ITouchpointType;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,6 +19,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
 
 /**
  * An install phase that checks if the certificates used to sign the artifacts

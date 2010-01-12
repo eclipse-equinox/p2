@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc - rewrite to handle non-OSGi versions.
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.p2.metadata;
 
 import java.io.Serializable;
 import org.eclipse.equinox.internal.p2.metadata.*;
@@ -21,6 +21,7 @@ import org.eclipse.osgi.util.NLS;
  *
  * @Immutable
  * @noextend This class is not intended to be subclassed by clients.
+ * @since 2.0
  */
 public class VersionRange implements Serializable {
 	private static final long serialVersionUID = 4988030307298088028L;

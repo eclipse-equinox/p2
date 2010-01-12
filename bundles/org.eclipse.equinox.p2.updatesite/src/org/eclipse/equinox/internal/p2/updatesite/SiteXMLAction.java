@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 
 import java.io.File;

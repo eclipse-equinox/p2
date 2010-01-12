@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
-import org.eclipse.equinox.p2.metadata.ITouchpointType;
-
 import java.util.*;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.engine.MissingAction;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
 public class InstructionParser {

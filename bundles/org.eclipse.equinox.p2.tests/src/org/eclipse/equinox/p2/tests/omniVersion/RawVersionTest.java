@@ -11,8 +11,9 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
 import org.eclipse.equinox.internal.p2.metadata.VersionVector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 /**
  * Tests the OmniVersion raw version format.

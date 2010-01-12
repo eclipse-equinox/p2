@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 /**
  * Provide standardised artifact information to uniquely identify the 

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionFormat;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.IVersionFormat;
+import org.eclipse.equinox.p2.metadata.Version;
 
 /**
  * <p>The Generic Omni Version is composed of a vector of Comparable objects and a pad value. The pad

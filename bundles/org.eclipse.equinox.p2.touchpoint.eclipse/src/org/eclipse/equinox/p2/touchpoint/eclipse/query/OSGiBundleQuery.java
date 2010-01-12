@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.touchpoint.eclipse.query;
 
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-
 import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.query.MatchQuery;
 
 /**

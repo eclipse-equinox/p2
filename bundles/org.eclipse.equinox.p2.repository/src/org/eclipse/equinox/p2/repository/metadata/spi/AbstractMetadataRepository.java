@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.metadata.spi;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;

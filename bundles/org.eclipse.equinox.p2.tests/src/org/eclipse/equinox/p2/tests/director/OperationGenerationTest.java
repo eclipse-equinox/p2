@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+
 import java.util.*;
 import org.eclipse.equinox.internal.p2.director.OperationGenerator;
 import org.eclipse.equinox.internal.p2.metadata.ResolvedInstallableUnit;
