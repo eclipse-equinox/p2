@@ -5,9 +5,7 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ql.IRepeatableIterator;
 import org.eclipse.equinox.internal.p2.ql.RepeatableIterator;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 
 class QueryResult<T> implements IQueryResult<T> {
 

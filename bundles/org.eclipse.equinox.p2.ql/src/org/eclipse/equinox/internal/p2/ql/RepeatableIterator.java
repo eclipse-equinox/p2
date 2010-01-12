@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
+import org.eclipse.equinox.p2.query.IQueryResult;
+
 import java.util.*;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 	private final List<T> values;

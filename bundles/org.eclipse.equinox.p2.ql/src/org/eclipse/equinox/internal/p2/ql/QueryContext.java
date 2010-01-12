@@ -3,13 +3,10 @@ package org.eclipse.equinox.internal.p2.ql;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.ContextQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 import org.eclipse.equinox.p2.ql.IQueryContext;
 import org.eclipse.equinox.p2.ql.ITranslationSupport;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.service.localization.LocaleProvider;
 
 public class QueryContext<T> implements IQueryContext<T> {

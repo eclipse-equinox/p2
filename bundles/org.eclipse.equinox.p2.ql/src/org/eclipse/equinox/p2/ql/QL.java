@@ -14,7 +14,7 @@ import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.ql.QueryContext;
 import org.eclipse.equinox.internal.p2.ql.expression.ExpressionFactory;
 import org.eclipse.equinox.internal.p2.ql.parser.ExpressionParser;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
  * The public access point to all QL functionality.

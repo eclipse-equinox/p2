@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.ql;
 
 import java.util.Locale;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.QueryHelpers;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.internal.p2.query.QueryHelpers;
+import org.eclipse.equinox.p2.query.IQuery;
 
 /**
  * An IQuery 'context query' implementation that is based on the p2 query language.

@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.ql;
 
 import java.util.Iterator;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
  * An IQuery 'context query' implementation that is based on the p2 query language.

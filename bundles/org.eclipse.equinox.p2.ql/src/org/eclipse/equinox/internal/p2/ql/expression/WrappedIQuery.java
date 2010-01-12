@@ -11,9 +11,9 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IMatchQuery;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 import org.eclipse.equinox.p2.ql.IEvaluationContext;
+import org.eclipse.equinox.p2.query.IMatchQuery;
+import org.eclipse.equinox.p2.query.IQuery;
 
 final class WrappedIQuery extends Function {
 
