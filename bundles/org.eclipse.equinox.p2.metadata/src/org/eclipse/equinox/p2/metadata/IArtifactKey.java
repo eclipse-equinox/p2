@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -13,11 +13,11 @@ package org.eclipse.equinox.p2.metadata;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 /**
- * Provide standardized artifact information to uniquely identify the 
+ * Provide standardised artifact information to uniquely identify the 
  * corresponding bytes (perhaps not stored as a file). 
  * <p>
  * Artifact keys represent both a unique opaque identifier as well as structured 
- * and standardized pieces of information.
+ * and standardised pieces of information.
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
