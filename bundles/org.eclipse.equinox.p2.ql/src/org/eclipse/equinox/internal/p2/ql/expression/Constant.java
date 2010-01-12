@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql.expression;
 
-import org.eclipse.equinox.p2.query.IQueryResult;
-
 import java.util.*;
 import org.eclipse.equinox.p2.ql.IEvaluationContext;
 import org.eclipse.equinox.p2.ql.SimplePattern;
+import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
  * An expression that represents a constant value.

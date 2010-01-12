@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql.expression;
 
-import org.eclipse.equinox.p2.query.IQueryResult;
-
 import java.util.*;
 import org.eclipse.equinox.internal.p2.ql.IRepeatableIterator;
 import org.eclipse.equinox.internal.p2.ql.RepeatableIterator;
 import org.eclipse.equinox.internal.p2.ql.parser.IParserConstants;
 import org.eclipse.equinox.p2.ql.*;
+import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
  * The base class of the expression tree.

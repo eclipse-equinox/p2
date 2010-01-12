@@ -10,13 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.ql.ICapabilityIndex;
 
 /**

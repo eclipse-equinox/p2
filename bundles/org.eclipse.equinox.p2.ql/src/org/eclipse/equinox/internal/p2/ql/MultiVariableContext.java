@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
-import org.eclipse.equinox.p2.ql.IExpression;
 import org.eclipse.equinox.p2.ql.IEvaluationContext;
+import org.eclipse.equinox.p2.ql.IExpression;
 
 public final class MultiVariableContext implements IEvaluationContext {
 	private final IEvaluationContext parentContext;
