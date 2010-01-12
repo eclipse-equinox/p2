@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;

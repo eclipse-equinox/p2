@@ -1,7 +1,5 @@
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.Slicer;
@@ -12,6 +10,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;

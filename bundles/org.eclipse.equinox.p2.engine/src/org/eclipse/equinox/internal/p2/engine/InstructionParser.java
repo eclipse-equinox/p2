@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+
 import java.util.*;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;

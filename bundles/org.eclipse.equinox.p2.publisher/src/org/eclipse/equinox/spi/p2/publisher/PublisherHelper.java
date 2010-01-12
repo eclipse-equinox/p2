@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.spi.p2.publisher;
 
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

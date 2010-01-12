@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ql;
 
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.ql.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;

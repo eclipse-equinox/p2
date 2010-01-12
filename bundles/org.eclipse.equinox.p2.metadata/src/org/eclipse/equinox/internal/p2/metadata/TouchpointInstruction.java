@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.Map;
 import java.util.Map.Entry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointInstruction;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
 
 /**
  * A touchpoint instruction contains either a sequence of instruction statements

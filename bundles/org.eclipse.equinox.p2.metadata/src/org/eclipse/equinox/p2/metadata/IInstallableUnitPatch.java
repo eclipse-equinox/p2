@@ -8,11 +8,9 @@
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.p2.metadata;
 
 import java.util.List;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
  * An installable unit patch is an installable unit that alters the required capabilities of another
@@ -20,6 +18,7 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
+ * @since 2.0
  */
 public interface IInstallableUnitPatch extends IInstallableUnit {
 	/**

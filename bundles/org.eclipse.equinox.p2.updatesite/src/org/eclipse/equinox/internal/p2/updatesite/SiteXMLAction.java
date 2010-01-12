@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;

@@ -10,6 +10,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;

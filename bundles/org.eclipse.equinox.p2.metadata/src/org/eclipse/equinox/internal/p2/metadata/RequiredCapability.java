@@ -12,10 +12,8 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.MatchQuery;
 

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 
 import java.io.*;

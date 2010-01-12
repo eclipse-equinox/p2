@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;

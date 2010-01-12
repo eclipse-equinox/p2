@@ -17,9 +17,11 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.InstructionParser;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class InstructionParserTest extends AbstractProvisioningTest {

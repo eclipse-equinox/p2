@@ -12,6 +12,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
+
 import org.eclipse.equinox.p2.core.ProvisionException;
 
 import java.io.*;

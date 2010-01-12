@@ -22,7 +22,6 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 

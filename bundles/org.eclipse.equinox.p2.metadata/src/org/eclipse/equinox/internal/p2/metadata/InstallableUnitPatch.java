@@ -10,9 +10,7 @@ package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.List;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitPatch;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequirementChange;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 
 public class InstallableUnitPatch extends InstallableUnit implements IInstallableUnitPatch {
 	private IRequirementChange[] changes;

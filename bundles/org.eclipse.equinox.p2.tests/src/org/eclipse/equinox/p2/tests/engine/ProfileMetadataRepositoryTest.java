@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-
 import java.io.File;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;

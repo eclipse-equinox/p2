@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
+import org.eclipse.equinox.p2.metadata.ILicense;
+
 import java.io.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 
 /**
  * LicenseManager defines a service which records the licenses that have been

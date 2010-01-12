@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui;
 
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+
 import java.io.File;
 import java.net.URI;
 import org.eclipse.core.runtime.*;

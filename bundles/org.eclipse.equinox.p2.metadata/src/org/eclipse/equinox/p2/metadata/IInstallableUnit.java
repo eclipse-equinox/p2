@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.metadata;
 
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.query.IQuery;
 
 /**

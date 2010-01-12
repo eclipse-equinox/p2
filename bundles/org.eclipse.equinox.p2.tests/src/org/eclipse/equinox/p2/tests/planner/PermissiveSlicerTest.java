@@ -10,15 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-
 import java.io.File;
 import java.util.Properties;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;

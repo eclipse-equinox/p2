@@ -14,7 +14,9 @@ package org.eclipse.equinox.internal.p2.metadata;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
 
 /**
  * Touchpoint data instances contain the additional information needed by a touchpoint

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -31,6 +29,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProv
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;

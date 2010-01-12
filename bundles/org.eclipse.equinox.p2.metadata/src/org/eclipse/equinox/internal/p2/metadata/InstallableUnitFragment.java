@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.List;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 
 public class InstallableUnitFragment extends InstallableUnit implements IInstallableUnitFragment {

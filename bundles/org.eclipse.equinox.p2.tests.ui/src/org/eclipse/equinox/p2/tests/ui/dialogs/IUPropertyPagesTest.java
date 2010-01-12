@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
+import org.eclipse.equinox.p2.metadata.ILicense;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;

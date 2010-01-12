@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,6 +23,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;

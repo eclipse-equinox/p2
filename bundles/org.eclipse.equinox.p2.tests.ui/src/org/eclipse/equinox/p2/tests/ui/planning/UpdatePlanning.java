@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.planning;
 
+import org.eclipse.equinox.p2.metadata.IRequirementChange;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+
+import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;

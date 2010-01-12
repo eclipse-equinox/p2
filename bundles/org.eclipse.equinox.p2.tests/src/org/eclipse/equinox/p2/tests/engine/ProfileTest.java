@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -22,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.BundleContext;

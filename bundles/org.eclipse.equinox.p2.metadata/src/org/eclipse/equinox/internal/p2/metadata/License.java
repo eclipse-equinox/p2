@@ -16,7 +16,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
+import org.eclipse.equinox.p2.metadata.ILicense;
 
 /**
  * The <code>License</code> class represents a software license.  A license has required body text

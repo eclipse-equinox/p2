@@ -19,10 +19,10 @@ import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**

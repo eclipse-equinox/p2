@@ -8,6 +8,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.ITouchpointInstruction;
+
+import org.eclipse.equinox.p2.metadata.ILicense;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;

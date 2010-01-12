@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.p2.metadata.ResolvedInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class OperationGenerationTest extends AbstractProvisioningTest {

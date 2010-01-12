@@ -12,8 +12,8 @@
 package org.eclipse.equinox.p2.tests.metadata;
 
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.ILicense;
 
 /**
  * Tests for License class

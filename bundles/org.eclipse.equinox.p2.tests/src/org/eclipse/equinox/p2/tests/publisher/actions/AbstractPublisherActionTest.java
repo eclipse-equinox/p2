@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;

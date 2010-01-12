@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
+import org.eclipse.equinox.p2.metadata.*;
+
 import java.util.Collection;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;

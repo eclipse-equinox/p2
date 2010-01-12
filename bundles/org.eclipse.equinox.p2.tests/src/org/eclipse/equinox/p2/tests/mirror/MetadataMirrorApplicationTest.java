@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.mirror;
 
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-
 import java.io.File;
 import java.net.*;
 import java.util.HashMap;
@@ -20,6 +18,7 @@ import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepo
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;

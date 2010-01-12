@@ -15,9 +15,7 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointData;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {

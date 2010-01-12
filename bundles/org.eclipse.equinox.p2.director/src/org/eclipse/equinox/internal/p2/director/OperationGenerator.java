@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.engine.InstallableUnitOperand;

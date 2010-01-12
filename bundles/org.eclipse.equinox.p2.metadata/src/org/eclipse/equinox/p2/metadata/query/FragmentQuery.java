@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.query;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+
 import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.MatchQuery;
 

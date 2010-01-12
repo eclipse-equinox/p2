@@ -11,6 +11,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.IRequirementChange;
+
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
+
 import java.math.BigInteger;
 import java.util.*;
 import java.util.Map.Entry;

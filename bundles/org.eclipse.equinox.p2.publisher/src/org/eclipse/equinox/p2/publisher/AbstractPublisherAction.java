@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;

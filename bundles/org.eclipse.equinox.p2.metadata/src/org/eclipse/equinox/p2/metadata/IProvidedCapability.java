@@ -8,17 +8,16 @@
 *   EclipseSource - initial API and implementation
  *   IBM - ongoing development
 ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.IRequirement;
-
-
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 /**
  * Describes a capability as exposed or required by an installable unit
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
+ * @since 2.0
  */
 public interface IProvidedCapability {
 

@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;

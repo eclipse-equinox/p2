@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;

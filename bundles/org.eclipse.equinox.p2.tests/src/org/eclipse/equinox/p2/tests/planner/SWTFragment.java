@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
@@ -19,6 +17,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 

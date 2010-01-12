@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.metadata.*;
+
 import java.io.*;
 import java.util.Map;
 import java.util.zip.ZipEntry;

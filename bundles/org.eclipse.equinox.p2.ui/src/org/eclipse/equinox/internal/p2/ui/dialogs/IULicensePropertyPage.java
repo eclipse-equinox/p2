@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.p2.metadata.ILicense;
+
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;

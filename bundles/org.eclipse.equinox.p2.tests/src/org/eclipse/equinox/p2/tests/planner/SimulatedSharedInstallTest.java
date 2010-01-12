@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -20,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 

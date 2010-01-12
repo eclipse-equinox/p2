@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.query;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitPatch;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+
+import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.query.MatchQuery;

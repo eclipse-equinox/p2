@@ -9,9 +9,10 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;

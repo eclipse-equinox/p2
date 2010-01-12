@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.Properties;
@@ -21,6 +19,8 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProvisioningTest {

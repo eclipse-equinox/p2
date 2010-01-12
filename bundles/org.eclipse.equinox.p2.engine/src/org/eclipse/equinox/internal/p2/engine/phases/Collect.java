@@ -11,11 +11,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;

@@ -11,6 +11,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.ILicense;
+
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 
 import java.io.File;
