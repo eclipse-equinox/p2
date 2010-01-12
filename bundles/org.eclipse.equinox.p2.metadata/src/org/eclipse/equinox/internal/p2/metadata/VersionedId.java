@@ -11,7 +11,9 @@
  *     Thomas Hallgren - Fix for bug 268659
  *     IBM - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.internal.p2.metadata;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 import org.eclipse.equinox.internal.p2.core.helpers.StringHelper;
 import org.eclipse.equinox.p2.metadata.IVersionedId;

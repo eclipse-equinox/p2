@@ -13,6 +13,8 @@
 
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
+import org.eclipse.equinox.internal.p2.metadata.VersionedId;
+
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.SAXParser;
@@ -20,7 +22,6 @@ import javax.xml.parsers.SAXParserFactory;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.xml.sax.Attributes;

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.director.app.ant;
 
+import org.eclipse.equinox.internal.p2.metadata.VersionedId;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,7 +21,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.internal.p2.director.app.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedId;
 import org.eclipse.osgi.util.NLS;
 
 /**

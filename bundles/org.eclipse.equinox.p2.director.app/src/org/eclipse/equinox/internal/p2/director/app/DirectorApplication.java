@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
+import org.eclipse.equinox.internal.p2.metadata.VersionedId;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
