@@ -9,9 +9,6 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
-
-
-
 import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -20,6 +17,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 /**
  * A queryable that holds a number of other IQueryables and provides
  * a mechanism for querying the entire set.
+ * @since 2.0
  */
 public class CompoundQueryable<T> implements IQueryable<T> {
 

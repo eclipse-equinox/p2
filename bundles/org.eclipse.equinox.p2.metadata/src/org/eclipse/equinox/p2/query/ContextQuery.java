@@ -9,8 +9,6 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
-
-
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.query.QueryHelpers;
 
@@ -32,6 +30,7 @@ import org.eclipse.equinox.internal.p2.query.QueryHelpers;
  * computation, to allow {@link IQueryable} implementations to optimize their
  * execution of the query. <P>
  * 
+ * @since 2.0
  */
 public abstract class ContextQuery<T> implements IQuery<T> {
 

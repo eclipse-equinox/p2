@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * An IQueryable contains objects, and is able to perform queries on those objects.
  * <p>
  * This interface may be implemented by clients.
+ * @since 2.0
  */
 public interface IQueryable<T> {
 	/**

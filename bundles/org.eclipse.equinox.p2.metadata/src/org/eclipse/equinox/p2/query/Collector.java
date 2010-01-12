@@ -26,6 +26,7 @@ import org.eclipse.equinox.internal.p2.metadata.Messages;
  * <p>
  * This default collector just accepts all objects passed to it.  Clients may subclass
  * to perform different processing on the objects passed to it.
+ * @since 2.0
  */
 public class Collector<T> implements IQueryResult<T> {
 	private Set<T> collected = null;

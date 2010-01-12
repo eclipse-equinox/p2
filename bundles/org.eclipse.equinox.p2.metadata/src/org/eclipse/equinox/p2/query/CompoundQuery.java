@@ -28,6 +28,7 @@ import org.eclipse.equinox.internal.p2.query.QueryHelpers;
  * resulting compound query will be a {@link ContextQuery}.
  * 
  * @noextend This class is not intended to be subclassed by clients.
+ * @since 2.0
  */
 public abstract class CompoundQuery<T> implements ICompositeQuery<T> {
 	protected IQuery<T>[] queries;

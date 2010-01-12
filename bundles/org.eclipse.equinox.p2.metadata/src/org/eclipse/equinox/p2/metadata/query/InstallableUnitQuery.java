@@ -18,6 +18,7 @@ import org.eclipse.equinox.p2.query.MatchQuery;
 
 /**
  * A query that matches on the id and version of an {@link IInstallableUnit}.
+ * @since 2.0
  */
 public class InstallableUnitQuery extends MatchQuery<IInstallableUnit> {
 	/**
