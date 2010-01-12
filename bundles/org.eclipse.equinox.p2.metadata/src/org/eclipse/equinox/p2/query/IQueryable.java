@@ -8,11 +8,9 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata.query;
+package org.eclipse.equinox.p2.query;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
 
 /**
  * An IQueryable contains objects, and is able to perform queries on those objects.

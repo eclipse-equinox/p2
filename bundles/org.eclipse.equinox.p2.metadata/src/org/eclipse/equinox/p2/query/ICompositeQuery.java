@@ -7,10 +7,10 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata.query;
+package org.eclipse.equinox.p2.query;
+
 
 import java.util.List;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A query that contains a number of sub queries.  All queries that support sub-queries 

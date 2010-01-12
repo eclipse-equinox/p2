@@ -8,7 +8,9 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata.query;
+package org.eclipse.equinox.internal.p2.metadata.query;
+
+import org.eclipse.equinox.p2.query.MatchQuery;
 
 /**
  * Special implementation for use without generic support

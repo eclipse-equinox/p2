@@ -7,11 +7,10 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.p2.metadata.query;
+package org.eclipse.equinox.p2.query;
 
 import java.util.Iterator;
 import java.util.Set;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 
 /**
  * An IQueryResult represents the results of a query.  

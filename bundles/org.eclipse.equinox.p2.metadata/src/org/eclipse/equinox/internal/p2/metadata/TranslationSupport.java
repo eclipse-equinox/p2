@@ -17,9 +17,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.*;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.service.localization.LocaleProvider;
 
 /**

@@ -12,9 +12,9 @@ package org.eclipse.equinox.p2.metadata.query;
 
 import java.util.Collection;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.query.MatchQuery;
 
 /**
 /**

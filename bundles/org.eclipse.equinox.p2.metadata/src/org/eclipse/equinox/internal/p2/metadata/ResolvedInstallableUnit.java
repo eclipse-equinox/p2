@@ -11,14 +11,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import java.util.Collection;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
-
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.query.IQuery;
 
 public class ResolvedInstallableUnit implements IInstallableUnit {
 	private static IInstallableUnitFragment[] NO_IU = new IInstallableUnitFragment[0];

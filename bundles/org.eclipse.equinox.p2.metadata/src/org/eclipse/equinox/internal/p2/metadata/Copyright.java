@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.ICopyright;
-
 import java.net.URI;
+import org.eclipse.equinox.p2.metadata.ICopyright;
 
 /**
  * The <code>Copyright</code> class represents a software copyright.  A copyright has 

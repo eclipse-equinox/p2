@@ -7,11 +7,10 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata.query;
+package org.eclipse.equinox.p2.query;
 
 import java.util.*;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.internal.p2.query.QueryHelpers;
 
 /**
  * A PipedQuery is an aggregate query in which each sub-query

@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.metadata;
 
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
+import org.eclipse.equinox.p2.query.IQuery;
 
 /**
  * An installable unit represents an atomic, indivisible unit of installable functionality

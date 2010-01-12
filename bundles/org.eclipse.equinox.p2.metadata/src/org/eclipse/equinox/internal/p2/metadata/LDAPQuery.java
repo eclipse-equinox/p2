@@ -1,8 +1,8 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.Iterator;
-import org.eclipse.equinox.p2.metadata.query.IQuery;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 
 public class LDAPQuery implements IQuery<Boolean> {
 	private String filter;

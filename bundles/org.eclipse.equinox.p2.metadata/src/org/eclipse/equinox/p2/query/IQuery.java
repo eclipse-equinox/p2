@@ -9,10 +9,10 @@
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.p2.metadata.query;
+package org.eclipse.equinox.p2.query;
+
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 
 /**
  * The superclass of all queries that can be performed on an {@link IQueryable}.

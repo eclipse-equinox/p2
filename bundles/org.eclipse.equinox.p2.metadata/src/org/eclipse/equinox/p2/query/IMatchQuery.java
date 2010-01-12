@@ -7,9 +7,8 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata.query;
+package org.eclipse.equinox.p2.query;
 
-import org.eclipse.equinox.p2.metadata.query.IQuery;
 
 /**
  * A query in which the elements can be evaluated by calling isMatch on. Each

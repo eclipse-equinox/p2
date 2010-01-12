@@ -7,11 +7,11 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata.query;
+package org.eclipse.equinox.internal.p2.metadata.query;
 
 import java.util.*;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
-import org.eclipse.equinox.p2.metadata.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 
 /**
  * This query returns the latest version for each unique VersionedID.  

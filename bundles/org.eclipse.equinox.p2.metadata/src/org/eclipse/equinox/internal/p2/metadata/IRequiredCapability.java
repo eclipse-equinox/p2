@@ -11,9 +11,9 @@ package org.eclipse.equinox.internal.p2.metadata;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IMatchQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.query.IMatchQuery;
 
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.
