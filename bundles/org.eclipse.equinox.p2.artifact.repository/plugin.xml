@@ -32,38 +32,4 @@
 			id="org.eclipse.equinox.p2.processing.MD5Verifier">
 		<step class="org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier"/>
 	</extension>
-	
-	<extension point="org.eclipse.equinox.p2.artifact.repository.artifactComparators">
-		<artifactComparator class="org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5ArtifactComparator"
-		id="org.eclipse.equinox.artifact.md5.comparator"/>
-	</extension>
-	
-	<extension point="org.eclipse.ant.core.antTasks">
-		
-		<antTask
-			library="ant_tasks/artifactRepository-ant.jar"
-			name="p2.composite.artifact.repository.add"
-			class="org.eclipse.equinox.internal.p2.artifact.repository.ant.AddChildTask">
-		</antTask>
-		
-		<antTask
-			library="ant_tasks/artifactRepository-ant.jar"
-			name="p2.composite.artifact.repository.create"
-			class="org.eclipse.equinox.internal.p2.artifact.repository.ant.CreateCompositeArtifactRepositoryTask">
-		</antTask>
-		
-		<antTask
-			library="ant_tasks/artifactRepository-ant.jar"
-			name="p2.composite.artifact.repository.remove"
-			class="org.eclipse.equinox.internal.p2.artifact.repository.ant.RemoveChildTask">
-		</antTask>
-		
-		<antTask
-			library="ant_tasks/artifactRepository-ant.jar"
-			name="p2.composite.artifact.repository.validate"
-			class="org.eclipse.equinox.internal.p2.artifact.repository.ant.ValidateTask">
-		</antTask>
-
-	</extension>
-
 </plugin>

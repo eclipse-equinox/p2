@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQuery;
@@ -1141,7 +1142,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		System.setOut(newOut);
 		try {
 			//Set compare flag.
-			String[] args = new String[] {"-source", repo1Location.toURL().toExternalForm(), "-destination", repo2Location.toURL().toExternalForm(), "-verbose", "-compare"};
+			String[] args = new String[] {"-source", repo1Location.toURL().toExternalForm(), "-destination", repo2Location.toURL().toExternalForm(), "-verbose", "-compare", "-comparator", MD5ArtifactComparator.MD5_COMPARATOR_ID};
 			//run the mirror application
 			runMirrorApplication("Running with duplicate descriptors with different md5 values", args);
 		} catch (Exception e) {
@@ -1211,7 +1212,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		System.setOut(newOut);
 		try {
 			//Set compareAgaist
-			String[] args = new String[] {"-source", repoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-compareAgainst", baselineLocation.toURL().toExternalForm(), "-verbose", "-compare"};
+			String[] args = new String[] {"-source", repoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-compareAgainst", baselineLocation.toURL().toExternalForm(), "-verbose", "-compare", "-comparator", MD5ArtifactComparator.MD5_COMPARATOR_ID};
 			//run the mirror application
 			runMirrorApplication("Running with baseline compare", args);
 		} catch (Exception e) {

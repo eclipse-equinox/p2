@@ -18,13 +18,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5ArtifactComparator;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator;
+import org.eclipse.equinox.p2.internal.repository.tools.ArtifactRepositoryValidator;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -669,7 +670,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertEquals("Repository should only have 1 child", 1, compRepo.getChildren().size());
 	}
 
-	public void testValidate() {
+	public void testValidate() throws Exception {
 		//Setup create descriptors with different md5 values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
@@ -704,10 +705,11 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		compRepo.addChild(repo2Location.toURI());
 
 		//validate using the MD5 Comparator
-		assertFalse("Running verify on invalid repository", compRepo.validate(MD5ArtifactComparator.MD5_COMPARATOR_ID));
+		ArtifactRepositoryValidator validator = new ArtifactRepositoryValidator(MD5ArtifactComparator.MD5_COMPARATOR_ID);
+		assertFalse("Running verify on invalid repository", validator.validateComposite(compRepo).isOK());
 	}
 
-	public void testAddChildWithValidate() {
+	public void testAddChildWithValidate() throws ProvisionException {
 		//Setup create descriptors with different md5 values
 		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
@@ -738,10 +740,10 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		//Add conflicting repositories
-		assertTrue("Adding first child with validate", compRepo.addChild(repo1Location.toURI(), MD5ArtifactComparator.MD5_COMPARATOR_ID));
-		assertFalse("Adding conflicting child with validate", compRepo.addChild(repo2Location.toURI(), MD5ArtifactComparator.MD5_COMPARATOR_ID));
-
-		assertEquals("Asserting Composite Repository only has 1 child", 1, compRepo.getChildren().size());
+		ArtifactRepositoryValidator validator = new ArtifactRepositoryValidator(MD5ArtifactComparator.MD5_COMPARATOR_ID);
+		assertTrue(validator.validateComposite(compRepo, repo1).isOK());
+		compRepo.addChild(repo1Location.toURI());
+		assertFalse(validator.validateComposite(compRepo, repo2).isOK());
 	}
 
 	public void testEnabledAndSystemValues() {

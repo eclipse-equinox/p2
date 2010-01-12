@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.p2.artifact.processors.md5.Messages;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -678,6 +679,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 			// Create a comparator element 
 			AntTaskElement comparator = new AntTaskElement("comparator");
+			comparator.addAttribute("comparator", MD5ArtifactComparator.MD5_COMPARATOR_ID);
 			comparator.addElement(getRepositoryElement(baselineLocation.toURI(), null));
 			mirror.addElement(comparator);
 

@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.net.MalformedURLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.ICompositeRepository;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -29,6 +29,7 @@ import org.eclipse.osgi.util.NLS;
 public class CompositeRepositoryApplication extends AbstractApplication {
 	private List<RepositoryDescriptor> childrenToAdd = new ArrayList<RepositoryDescriptor>();
 	private List<RepositoryDescriptor> childrenToRemove = new ArrayList<RepositoryDescriptor>();
+	private boolean removeAllChildren = false;
 	private boolean failOnExists = false;
 	private String comparatorID = null;
 
@@ -39,12 +40,19 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			ICompositeRepository<IInstallableUnit> metadataRepo = (ICompositeRepository<IInstallableUnit>) destinationMetadataRepository;
 			CompositeArtifactRepository artifactRepo = (CompositeArtifactRepository) destinationArtifactRepository;
 
-			// Remove children from the Composite Repositories
-			for (RepositoryDescriptor child : childrenToRemove) {
-				if (child.isArtifact() && artifactRepo != null)
-					artifactRepo.removeChild(child.getOriginalRepoLocation());
-				if (child.isMetadata() && metadataRepo != null)
-					metadataRepo.removeChild(child.getOriginalRepoLocation());
+			if (removeAllChildren) {
+				if (artifactRepo != null)
+					artifactRepo.removeAllChildren();
+				if (metadataRepo != null)
+					metadataRepo.removeAllChildren();
+			} else {
+				// Remove children from the Composite Repositories
+				for (RepositoryDescriptor child : childrenToRemove) {
+					if (child.isArtifact() && artifactRepo != null)
+						artifactRepo.removeChild(child.getOriginalRepoLocation());
+					if (child.isMetadata() && metadataRepo != null)
+						metadataRepo.removeChild(child.getOriginalRepoLocation());
+				}
 			}
 
 			// Add children to the Composite Repositories
@@ -55,9 +63,10 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 					metadataRepo.addChild(child.getOriginalRepoLocation());
 			}
 
-			if (comparatorID != null)
-				if (!artifactRepo.validate(comparatorID))
-					return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CompositeRepositoryApplication_failedComparator, comparatorID));
+			if (comparatorID != null) {
+				ArtifactRepositoryValidator validator = new ArtifactRepositoryValidator(comparatorID);
+				return validator.validateComposite(artifactRepo);
+			}
 			return Status.OK_STATUS;
 		} finally {
 			finalizeRepositories();
@@ -70,6 +79,10 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 
 	public void removeChild(RepositoryDescriptor child) {
 		childrenToRemove.add(child);
+	}
+
+	public void setRemoveAll(boolean all) {
+		removeAllChildren = all;
 	}
 
 	public void setFailOnExists(boolean value) {

@@ -22,6 +22,7 @@ public class Messages extends NLS {
 	public static String exception_needIUsOrNonEmptyRepo;
 	public static String exception_needDestinationRepo;
 	public static String exception_onlyOneComparator;
+	public static String exception_loadingRepository;
 
 	public static String AbstractApplication_no_valid_destinations;
 
@@ -63,6 +64,11 @@ public class Messages extends NLS {
 	public static String Mirroring_ValidationError;
 	public static String Mirroring_missingDescriptor;
 	public static String Mirroring_differentDescriptorProperty;
+
+	public static String invalidComparatorId;
+	public static String info_noMD5Infomation;
+	public static String info_noMD5InRepository;
+	public static String warning_differentMD5;
 
 	static {
 		// initialize resource bundles

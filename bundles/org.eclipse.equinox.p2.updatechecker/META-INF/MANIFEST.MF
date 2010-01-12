@@ -7,7 +7,6 @@ Bundle-Localization: plugin
 Bundle-Version: 1.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.updatechecker.Activator
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
- org.eclipse.equinox.internal.provisional.p2.artifact.repository,
  org.eclipse.equinox.internal.provisional.p2.director,
  org.eclipse.equinox.internal.provisional.p2.metadata,
  org.eclipse.equinox.p2.core,

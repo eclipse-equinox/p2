@@ -20,8 +20,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactComparatorFactory;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactComparator;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -171,21 +169,21 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		}
 	}
 
-	public boolean addChild(URI childURI, String comparatorID) {
-		try {
-			IArtifactRepository repo = load(childURI);
-			if (isSane(repo, comparatorID)) {
-				addChild(childURI);
-				//Add was successful
-				return true;
-			}
-		} catch (ProvisionException e) {
-			LogHelper.log(e);
-		}
-
-		//Add was not successful
-		return false;
-	}
+	//	public boolean addChild(URI childURI, String comparatorID) {
+	//		try {
+	//			IArtifactRepository repo = load(childURI);
+	//			if (isSane(repo, comparatorID)) {
+	//				addChild(childURI);
+	//				//Add was successful
+	//				return true;
+	//			}
+	//		} catch (ProvisionException e) {
+	//			LogHelper.log(e);
+	//		}
+	//
+	//		//Add was not successful
+	//		return false;
+	//	}
 
 	public void removeChild(URI childURI) {
 		boolean removed = childrenURIs.remove(childURI);
@@ -221,6 +219,14 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		List<URI> result = new ArrayList<URI>();
 		for (URI uri : childrenURIs)
 			result.add(URIUtil.makeAbsolute(uri, location));
+		return result;
+	}
+
+	public List<IArtifactRepository> getLoadedChildren() {
+		List<IArtifactRepository> result = new ArrayList<IArtifactRepository>(loadedRepos.size());
+		for (ChildInfo info : loadedRepos) {
+			result.add(info.repo);
+		}
 		return result;
 	}
 
@@ -426,73 +432,73 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return repo;
 	}
 
-	/**
-	 * A method to check if the content of a repository is consistent with the other children by
-	 * comparing content using the artifactComparator specified by the comparatorID
-	 * @param toCheckRepo the repository to check
-	 * @param comparatorID
-	 * @return <code>true</code> if toCheckRepo is consistent, <code>false</code> if toCheckRepo 
-	 * contains an equal descriptor to that of a child and they refer to different artifacts on disk.
-	 */
-	private boolean isSane(IArtifactRepository toCheckRepo, String comparatorID) {
-		IArtifactComparator comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorID);
-		for (ChildInfo childInfo : loadedRepos) {
-			IArtifactRepository current = childInfo.repo;
-			if (!current.equals(toCheckRepo)) {
-				if (!isSane(toCheckRepo, current, comparator))
-					return false;
-			}
-		}
-		return true;
-	}
-
-	/*
-	 * Check the two given repositories against each other using the given comparator.
-	 */
-	private boolean isSane(IArtifactRepository one, IArtifactRepository two, IArtifactComparator comparator) {
-		IQueryResult<IArtifactKey> toCheckKeys = one.query(ArtifactKeyQuery.ALL_KEYS, null);
-		for (Iterator<IArtifactKey> iterator = toCheckKeys.iterator(); iterator.hasNext();) {
-			IArtifactKey key = iterator.next();
-			if (!two.contains(key))
-				continue;
-			IArtifactDescriptor[] toCheckDescriptors = one.getArtifactDescriptors(key);
-			IArtifactDescriptor[] currentDescriptors = two.getArtifactDescriptors(key);
-			for (int j = 0; j < toCheckDescriptors.length; j++) {
-				if (!two.contains(toCheckDescriptors[j]))
-					continue;
-				for (int k = 0; k < currentDescriptors.length; k++) {
-					if (currentDescriptors[k].equals(toCheckDescriptors[j])) {
-						IStatus compareResult = comparator.compare(two, currentDescriptors[k], two, toCheckDescriptors[j]);
-						if (!compareResult.isOK()) {
-							LogHelper.log(compareResult);
-							return false;
-						}
-						break;
-					}
-				}
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * A method that verifies that all children with matching artifact descriptors contain the same set of bytes
-	 * The verification is done using the artifactComparator specified by comparatorID
-	 * Assumes more valuable logging and output is the responsibility of the artifactComparator implementation.
-	 * @param comparatorID
-	 * @returns true if the repository is consistent, false if two equal descriptors refer to different artifacts on disk.
-	 */
-	public boolean validate(String comparatorID) {
-		IArtifactComparator comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorID);
-		ChildInfo[] repos = loadedRepos.toArray(new ChildInfo[loadedRepos.size()]);
-		for (int outer = 0; outer < repos.length; outer++) {
-			for (int inner = outer + 1; inner < repos.length; inner++) {
-				if (!isSane(repos[outer].repo, repos[inner].repo, comparator))
-					return false;
-			}
-		}
-		return true;
-	}
+	//	/**
+	//	 * A method to check if the content of a repository is consistent with the other children by
+	//	 * comparing content using the artifactComparator specified by the comparatorID
+	//	 * @param toCheckRepo the repository to check
+	//	 * @param comparatorID
+	//	 * @return <code>true</code> if toCheckRepo is consistent, <code>false</code> if toCheckRepo 
+	//	 * contains an equal descriptor to that of a child and they refer to different artifacts on disk.
+	//	 */
+	//	private boolean isSane(IArtifactRepository toCheckRepo, String comparatorID) {
+	//		IArtifactComparator comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorID);
+	//		for (ChildInfo childInfo : loadedRepos) {
+	//			IArtifactRepository current = childInfo.repo;
+	//			if (!current.equals(toCheckRepo)) {
+	//				if (!isSane(toCheckRepo, current, comparator))
+	//					return false;
+	//			}
+	//		}
+	//		return true;
+	//	}
+	//
+	//	/*
+	//	 * Check the two given repositories against each other using the given comparator.
+	//	 */
+	//	private boolean isSane(IArtifactRepository one, IArtifactRepository two, IArtifactComparator comparator) {
+	//		IQueryResult<IArtifactKey> toCheckKeys = one.query(ArtifactKeyQuery.ALL_KEYS, null);
+	//		for (Iterator<IArtifactKey> iterator = toCheckKeys.iterator(); iterator.hasNext();) {
+	//			IArtifactKey key = iterator.next();
+	//			if (!two.contains(key))
+	//				continue;
+	//			IArtifactDescriptor[] toCheckDescriptors = one.getArtifactDescriptors(key);
+	//			IArtifactDescriptor[] currentDescriptors = two.getArtifactDescriptors(key);
+	//			for (int j = 0; j < toCheckDescriptors.length; j++) {
+	//				if (!two.contains(toCheckDescriptors[j]))
+	//					continue;
+	//				for (int k = 0; k < currentDescriptors.length; k++) {
+	//					if (currentDescriptors[k].equals(toCheckDescriptors[j])) {
+	//						IStatus compareResult = comparator.compare(two, currentDescriptors[k], two, toCheckDescriptors[j]);
+	//						if (!compareResult.isOK()) {
+	//							LogHelper.log(compareResult);
+	//							return false;
+	//						}
+	//						break;
+	//					}
+	//				}
+	//			}
+	//		}
+	//		return true;
+	//	}
+	//
+	//	/**
+	//	 * A method that verifies that all children with matching artifact descriptors contain the same set of bytes
+	//	 * The verification is done using the artifactComparator specified by comparatorID
+	//	 * Assumes more valuable logging and output is the responsibility of the artifactComparator implementation.
+	//	 * @param comparatorID
+	//	 * @returns true if the repository is consistent, false if two equal descriptors refer to different artifacts on disk.
+	//	 */
+	//	private boolean validate(String comparatorID) {
+	//		IArtifactComparator comparator = ArtifactComparatorFactory.getArtifactComparator(comparatorID);
+	//		ChildInfo[] repos = loadedRepos.toArray(new ChildInfo[loadedRepos.size()]);
+	//		for (int outer = 0; outer < repos.length; outer++) {
+	//			for (int inner = outer + 1; inner < repos.length; inner++) {
+	//				if (!isSane(repos[outer].repo, repos[inner].repo, comparator))
+	//					return false;
+	//			}
+	//		}
+	//		return true;
+	//	}
 
 	private static class ChildInfo {
 		IArtifactRepository repo;

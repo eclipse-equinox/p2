@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.comparator;
 
+import org.eclipse.equinox.p2.internal.repository.comparator.java.*;
+
+import org.eclipse.equinox.p2.repository.tools.comparator.IArtifactComparator;
+
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -17,7 +21,6 @@ import java.util.jar.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactComparator;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.osgi.util.NLS;
