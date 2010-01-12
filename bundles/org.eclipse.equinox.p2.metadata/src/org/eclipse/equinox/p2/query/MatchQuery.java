@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.p2.query.QueryHelpers;
  * specify their match algorithm, and expose the parameters involved in the match
  * computation, to allow {@link IQueryable} implementations to optimize their
  * execution of the query. 
+ * @since 2.0
  */
 public abstract class MatchQuery<T> implements IMatchQuery<T> {
 

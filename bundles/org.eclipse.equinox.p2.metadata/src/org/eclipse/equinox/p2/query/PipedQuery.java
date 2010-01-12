@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.query.QueryHelpers;
  * A PipedQuery is an aggregate query in which each sub-query
  * is executed in succession.  The results from the ith sub-query
  * are piped as input into the i+1th sub-query.
+ * @since 2.0
  */
 public class PipedQuery<T> implements ICompositeQuery<T> {
 	protected final IQuery<T>[] queries;

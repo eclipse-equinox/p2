@@ -14,6 +14,7 @@ import java.util.*;
 /**
  * A limit query can be used to limit the number of query results returned.  Once
  * the limit is reached, the query is terminated.
+ * @since 2.0
  */
 public class LimitQuery<T> extends ContextQuery<T> implements ICompositeQuery<T> {
 
