@@ -93,7 +93,7 @@ public class InstallOperation extends ProfileChangeOperation {
 						// iu should not be updated
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_UPDATE, toInstall[i]));
 					} else {
-						request.addInstallableUnit(toInstall[i]);
+						request.addInstallableUnits(toInstall[i]);
 						request.removeInstallableUnit(installedIU);
 						// Add a status informing the user that the update has been inferred
 						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, toInstall[i]));

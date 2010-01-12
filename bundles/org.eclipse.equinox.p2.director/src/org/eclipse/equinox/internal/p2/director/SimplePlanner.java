@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
@@ -26,8 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -454,7 +451,7 @@ public class SimplePlanner implements IPlanner {
 		IInstallableUnit previousActionsIU = getPreviousIUForMetaRequirements(agentProfile, getActionGatheringIUId(targetedProfile), sub);
 
 		ProfileChangeRequest agentRequest = new ProfileChangeRequest(agentProfile);
-		agentRequest.addInstallableUnit(actionsIU);
+		agentRequest.addInstallableUnits(actionsIU);
 		if (previousActionsIU != null)
 			agentRequest.removeInstallableUnit(previousActionsIU);
 		Object externalInstallerPlan = getSolutionFor(agentRequest, initialContext, sub.newChild(10));
@@ -497,7 +494,7 @@ public class SimplePlanner implements IPlanner {
 
 		if (previousMetaRequirementIU != null)
 			agentRequest.removeInstallableUnit(previousMetaRequirementIU);
-		agentRequest.addInstallableUnit(metaRequirementIU);
+		agentRequest.addInstallableUnits(metaRequirementIU);
 
 		ProvisioningContext agentCtx = new ProvisioningContext(new URI[0]);
 		ArrayList<IInstallableUnit> extraIUs = new ArrayList<IInstallableUnit>(unattachedState);

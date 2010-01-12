@@ -43,7 +43,7 @@ public class AvailableUpdateElement extends AvailableIUElement {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileID);
 		if (iuToBeUpdated.getId().equals(getIU().getId()))
 			request.removeInstallableUnit(iuToBeUpdated);
-		request.addInstallableUnit(getIU());
+		request.addInstallableUnits(getIU());
 		return ProvUIActivator.getDefault().getSession().getPlanner().getProvisioningPlan(request, new ProvisioningContext(), monitor);
 	}
 

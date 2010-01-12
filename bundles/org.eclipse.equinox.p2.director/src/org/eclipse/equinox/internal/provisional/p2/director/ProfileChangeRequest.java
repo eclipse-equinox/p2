@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
-import org.eclipse.equinox.p2.query.IQueryResult;
-
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -19,6 +17,7 @@ import org.eclipse.equinox.internal.p2.director.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQueryResult;
 
 public class ProfileChangeRequest implements Cloneable {
 
@@ -64,7 +63,7 @@ public class ProfileChangeRequest implements Cloneable {
 		return result;
 	}
 
-	public void addInstallableUnit(IInstallableUnit toInstall) {
+	private void addInstallableUnit(IInstallableUnit toInstall) {
 		if (iusToAdd == null)
 			iusToAdd = new ArrayList<IInstallableUnit>();
 		iusToAdd.add(toInstall);
@@ -80,7 +79,7 @@ public class ProfileChangeRequest implements Cloneable {
 			addInstallableUnit(itor.next());
 	}
 
-	public void addInstallableUnits(IInstallableUnit[] toInstall) {
+	public void addInstallableUnits(IInstallableUnit... toInstall) {
 		for (int i = 0; i < toInstall.length; i++)
 			addInstallableUnit(toInstall[i]);
 	}

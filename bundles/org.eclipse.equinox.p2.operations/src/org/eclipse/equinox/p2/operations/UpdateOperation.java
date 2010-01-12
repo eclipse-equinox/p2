@@ -236,7 +236,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 				if (!defaultUpdates.contains(update))
 					defaultUpdates.add(update);
 			}
-			request.addInstallableUnit(theUpdate);
+			request.addInstallableUnits(theUpdate);
 			//			if (rootMarkerKey != null)
 			request.setInstallableUnitProfileProperty(theUpdate, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			if (PatchQuery.isPatch(theUpdate)) {
