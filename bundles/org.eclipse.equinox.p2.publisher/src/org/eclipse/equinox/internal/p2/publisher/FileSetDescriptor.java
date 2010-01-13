@@ -16,8 +16,8 @@ import java.util.*;
 public class FileSetDescriptor {
 	private final String key;
 	private String configSpec = null;
-	private HashSet fileset = new HashSet();
-	private final ArrayList permissions = new ArrayList();
+	private HashSet<File> fileset = new HashSet<File>();
+	private final ArrayList<String[]> permissions = new ArrayList<String[]>();
 	private String links = ""; //$NON-NLS-1$
 
 	public FileSetDescriptor(String key, String configSpec) {
@@ -51,11 +51,11 @@ public class FileSetDescriptor {
 	}
 
 	public String[][] getPermissions() {
-		return (String[][]) permissions.toArray(new String[permissions.size()][]);
+		return permissions.toArray(new String[permissions.size()][]);
 	}
 
 	public File[] getFiles() {
-		return (File[]) fileset.toArray(new File[fileset.size()]);
+		return fileset.toArray(new File[fileset.size()]);
 	}
 
 	public int size() {

@@ -28,9 +28,9 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 	}
 
 	protected IPublisherAction[] createActions() {
-		ArrayList result = new ArrayList();
+		ArrayList<IPublisherAction> result = new ArrayList<IPublisherAction>();
 		result.add(createProductAction());
-		return (IPublisherAction[]) result.toArray(new IPublisherAction[result.size()]);
+		return result.toArray(new IPublisherAction[result.size()]);
 	}
 
 	private IPublisherAction createProductAction() {

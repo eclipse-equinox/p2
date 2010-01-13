@@ -51,8 +51,8 @@ public class FeatureParser extends DefaultHandler {
 				input = new BufferedInputStream(new FileInputStream(file));
 				feature = parser.parse(input);
 				if (feature != null) {
-					List messageKeys = parser.getMessageKeys();
-					String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
+					List<String> messageKeys = parser.getMessageKeys();
+					String[] keyStrings = messageKeys.toArray(new String[messageKeys.size()]);
 					feature.setLocalizations(LocalizationHelper.getDirPropertyLocalizations(location, "feature", null, keyStrings)); //$NON-NLS-1$
 				}
 			} catch (FileNotFoundException e) {
@@ -76,8 +76,8 @@ public class FeatureParser extends DefaultHandler {
 				InputStream input = new BufferedInputStream(jar.getInputStream(entry));
 				feature = parser.parse(input);
 				if (feature != null) {
-					List messageKeys = parser.getMessageKeys();
-					String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
+					List<String> messageKeys = parser.getMessageKeys();
+					String[] keyStrings = messageKeys.toArray(new String[messageKeys.size()]);
 					feature.setLocalizations(LocalizationHelper.getJarPropertyLocalizations(location, "feature", null, keyStrings)); //$NON-NLS-1$
 				}
 			} catch (IOException e) {

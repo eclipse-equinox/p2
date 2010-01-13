@@ -11,9 +11,9 @@
 package org.eclipse.equinox.p2.publisher;
 
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 public class PublisherInfo implements IPublisherInfo {
 
@@ -23,18 +23,23 @@ public class PublisherInfo implements IPublisherInfo {
 	private IMetadataRepository contextMetadataRepository;
 	private IArtifactRepository contextArtifactRepository;
 	private String[] configurations = new String[0];
-	private List adviceList = new ArrayList(11);
+	private List<IPublisherAdvice> adviceList = new ArrayList<IPublisherAdvice>(11);
 
 	public void addAdvice(IPublisherAdvice advice) {
 		adviceList.add(advice);
 	}
 
-	public Collection getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class type) {
-		ArrayList result = new ArrayList();
-		for (Iterator i = adviceList.iterator(); i.hasNext();) {
-			Object object = i.next();
-			if (type.isInstance(object) && ((IPublisherAdvice) object).isApplicable(configSpec, includeDefault, id, version))
-				result.add(object);
+	public List<IPublisherAdvice> getAdvice() {
+		return adviceList;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends IPublisherAdvice> Collection<T> getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class<T> type) {
+		ArrayList<T> result = new ArrayList<T>();
+		for (IPublisherAdvice advice : adviceList) {
+			if (type.isInstance(advice) && advice.isApplicable(configSpec, includeDefault, id, version))
+				// Ideally, we would use Class.cast here but it was introduced in Java 1.5
+				result.add((T) advice);
 		}
 		return result;
 	}

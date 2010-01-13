@@ -10,20 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.*;
-import java.util.*;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.actions.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 /**
  * Publishing advice from a p2 advice file. An advice file (p2.inf) can be embedded
@@ -40,11 +40,11 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	private final String id;
 	private final Version version;
 
-	private Map touchpointInstructions;
+	private Map<String, ITouchpointInstruction> touchpointInstructions;
 	private IProvidedCapability[] providedCapabilities;
-	private IRequiredCapability[] requiredCapabilities;
-	private IRequiredCapability[] metaRequiredCapabilities;
-	private Properties iuProperties;
+	private IRequirement[] requiredCapabilities;
+	private IRequirement[] metaRequiredCapabilities;
+	private Map<String, String> iuProperties;
 	private InstallableUnitDescription[] additionalIUs;
 	private boolean containsAdvice = false;
 
@@ -69,7 +69,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		this.id = id;
 		this.version = version;
 
-		Map advice = loadAdviceMap(basePath, adviceFilePath);
+		Map<String, String> advice = loadAdviceMap(basePath, adviceFilePath);
 		if (advice.isEmpty())
 			return;
 
@@ -98,10 +98,10 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	/**
 	 * Loads the advice file and returns it in map form.
 	 */
-	private static Map loadAdviceMap(IPath basePath, IPath adviceFilePath) {
+	private static Map<String, String> loadAdviceMap(IPath basePath, IPath adviceFilePath) {
 		File location = basePath.toFile();
 		if (location == null || !location.exists())
-			return Collections.EMPTY_MAP;
+			return CollectionUtils.emptyMap();
 
 		ZipFile jar = null;
 		InputStream stream = null;
@@ -109,25 +109,22 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 			if (location.isDirectory()) {
 				File adviceFile = new File(location, adviceFilePath.toString());
 				if (!adviceFile.isFile())
-					return Collections.EMPTY_MAP;
+					return CollectionUtils.emptyMap();
 				stream = new BufferedInputStream(new FileInputStream(adviceFile));
 			} else if (location.isFile()) {
 				jar = new ZipFile(location);
 				ZipEntry entry = jar.getEntry(adviceFilePath.toString());
 				if (entry == null)
-					return Collections.EMPTY_MAP;
+					return CollectionUtils.emptyMap();
 
 				stream = new BufferedInputStream(jar.getInputStream(entry));
 			}
-
-			Properties advice = new Properties();
-			advice.load(stream);
-			return (advice != null ? advice : Collections.EMPTY_MAP);
+			return CollectionUtils.loadProperties(stream);
 		} catch (IOException e) {
 			String message = "An error occured while reading advice file: basePath=" + basePath + ", adviceFilePath=" + adviceFilePath + "."; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
 			LogHelper.log(status);
-			return Collections.EMPTY_MAP;
+			return CollectionUtils.emptyMap();
 		} finally {
 			if (stream != null)
 				try {
@@ -152,49 +149,18 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	 * @see org.eclipse.equinox.p2.publisher.eclipse.ITouchpointAdvice#getTouchpointData()
 	 */
 	public ITouchpointData getTouchpointData(ITouchpointData existing) {
-		if (touchpointInstructions == null)
-			return existing;
-
-		Map resultInstructions = new HashMap(existing.getInstructions());
-		for (Iterator iterator = touchpointInstructions.keySet().iterator(); iterator.hasNext();) {
-			String key = (String) iterator.next();
-			ITouchpointInstruction instruction = (ITouchpointInstruction) touchpointInstructions.get(key);
-			ITouchpointInstruction existingInstruction = (ITouchpointInstruction) resultInstructions.get(key);
-
-			if (existingInstruction != null) {
-				String body = existingInstruction.getBody();
-				if (body == null || body.length() == 0)
-					body = instruction.getBody();
-				else if (instruction.getBody() != null) {
-					if (!body.endsWith(";")) //$NON-NLS-1$
-						body += ';';
-					body += instruction.getBody();
-				}
-
-				String importAttribute = existingInstruction.getImportAttribute();
-				if (importAttribute == null || importAttribute.length() == 0)
-					importAttribute = instruction.getImportAttribute();
-				else if (instruction.getImportAttribute() != null) {
-					if (!importAttribute.endsWith(",")) //$NON-NLS-1$
-						importAttribute += ',';
-					importAttribute += instruction.getBody();
-				}
-				instruction = MetadataFactory.createTouchpointInstruction(body, importAttribute);
-			}
-			resultInstructions.put(key, instruction);
-		}
-		return MetadataFactory.createTouchpointData(resultInstructions);
+		return MetadataFactory.mergeTouchpointData(existing, touchpointInstructions);
 	}
 
 	public IProvidedCapability[] getProvidedCapabilities(InstallableUnitDescription iu) {
 		return providedCapabilities;
 	}
 
-	public IRequiredCapability[] getRequiredCapabilities(InstallableUnitDescription iu) {
+	public IRequirement[] getRequiredCapabilities(InstallableUnitDescription iu) {
 		return requiredCapabilities;
 	}
 
-	public IRequiredCapability[] getMetaRequiredCapabilities(InstallableUnitDescription iu) {
+	public IRequirement[] getMetaRequiredCapabilities(InstallableUnitDescription iu) {
 		return metaRequiredCapabilities;
 	}
 
@@ -202,11 +168,11 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		return additionalIUs;
 	}
 
-	public Properties getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
+	public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {
 		return null;
 	}
 
-	public Properties getInstallableUnitProperties(InstallableUnitDescription iu) {
+	public Map<String, String> getInstallableUnitProperties(InstallableUnitDescription iu) {
 		return iuProperties;
 	}
 }

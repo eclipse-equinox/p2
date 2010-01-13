@@ -16,6 +16,7 @@ import java.net.URLConnection;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 
 /**
  * 	Helper functions supporting the processing of localized
@@ -56,23 +57,23 @@ public final class LocalizationHelper {
 
 	// For the given root directory and path to localization files within that directory
 	// get a map from locale to property set for the localization property files.
-	public static Map getDirPropertyLocalizations(File root, String localizationPath, Locale defaultLocale, String[] propertyKeys) {
+	public static Map<Locale, Map<String, String>> getDirPropertyLocalizations(File root, String localizationPath, Locale defaultLocale, String[] propertyKeys) {
 		File fullPath = new File(root, localizationPath);
 		File localizationDir = fullPath.getParentFile();
 		final String localizationFile = fullPath.getName();
 		String[] localizationFiles = LocalizationHelper.getLocalizationFiles(localizationDir, localizationFile);
 
-		HashMap localizations = null;
+		HashMap<Locale, Map<String, String>> localizations = null;
 
 		if (localizationFiles != null) {
-			localizations = new HashMap(localizationFiles.length);
+			localizations = new HashMap<Locale, Map<String, String>>(localizationFiles.length);
 			for (int i = 0; i < localizationFiles.length; i++) {
 				String nextFile = localizationFiles[i];
 				Locale nextLocale = getLocale(LocalizationHelper.getLocaleString(nextFile, localizationFile));
 
 				try {
-					Properties properties = loadProperties(root, nextFile);
-					Properties localizedStrings = getLocalizedProperties(propertyKeys, properties);
+					Map<String, String> properties = loadProperties(root, nextFile);
+					Map<String, String> localizedStrings = getLocalizedProperties(propertyKeys, properties);
 					if (localizedStrings.size() > 0) {
 						localizations.put(nextLocale, localizedStrings);
 						if (DEFAULT_LOCALE.equals(nextLocale) && defaultLocale != null) {
@@ -88,13 +89,13 @@ public final class LocalizationHelper {
 		return localizations;
 	}
 
-	public static Map getJarPropertyLocalizations(File root, String localizationPath, Locale defaultLocale, String[] propertyKeys) {
+	public static Map<Locale, Map<String, String>> getJarPropertyLocalizations(File root, String localizationPath, Locale defaultLocale, String[] propertyKeys) {
 		ZipFile jarFile = null;
-		Map localizations = new HashMap(4);
+		Map<Locale, Map<String, String>> localizations = new HashMap<Locale, Map<String, String>>(4);
 		try {
 			jarFile = new ZipFile(root, ZipFile.OPEN_READ);
-			for (Enumeration entries = jarFile.entries(); entries.hasMoreElements();) {
-				ZipEntry nextEntry = (ZipEntry) entries.nextElement();
+			for (Enumeration<? extends ZipEntry> entries = jarFile.entries(); entries.hasMoreElements();) {
+				ZipEntry nextEntry = entries.nextElement();
 				String nextName = nextEntry.getName();
 				String localeString = LocalizationHelper.getLocaleString(nextName, localizationPath);
 
@@ -103,9 +104,8 @@ public final class LocalizationHelper {
 					InputStream stream = null;
 					try {
 						stream = jarFile.getInputStream(nextEntry);
-						Properties properties = new Properties();
-						properties.load(stream);
-						Properties localizedStrings = LocalizationHelper.getLocalizedProperties(propertyKeys, properties);
+						Map<String, String> properties = CollectionUtils.loadProperties(stream);
+						Map<String, String> localizedStrings = LocalizationHelper.getLocalizedProperties(propertyKeys, properties);
 						if (localizedStrings.size() > 0) {
 							localizations.put(nextLocale, localizedStrings);
 							if (DEFAULT_LOCALE.equals(nextLocale) && defaultLocale != null) {
@@ -134,8 +134,7 @@ public final class LocalizationHelper {
 	}
 
 	// Load a property set from given root and file with the given name
-	private static Properties loadProperties(File root, String propertyFilename) throws IOException {
-		Properties result = new Properties();
+	private static Map<String, String> loadProperties(File root, String propertyFilename) throws IOException {
 		InputStream propertyStream = null;
 		try {
 			try {
@@ -148,24 +147,23 @@ public final class LocalizationHelper {
 				}
 			} catch (FileNotFoundException e) {
 				// if there is no messages file then just return;
-				return result;
+				return CollectionUtils.emptyMap();
 			}
-			result.load(propertyStream);
+			return CollectionUtils.loadProperties(propertyStream);
 		} finally {
 			if (propertyStream != null)
 				propertyStream.close();
 		}
-		return result;
 	}
 
 	// Given a list of keys and the corresponding localized property set,
 	// return a new property set with those keys and the localized values. 
-	static public Properties getLocalizedProperties(String[] propertyKeys, Properties properties) {
-		Properties localizedProperties = new Properties();
+	static public Map<String, String> getLocalizedProperties(String[] propertyKeys, Map<String, String> properties) {
+		Map<String, String> localizedProperties = new HashMap<String, String>();
 		for (int i = 0; i < propertyKeys.length; i++) {
 			String key = propertyKeys[i];
 			if (key != null) {
-				String localizedValue = properties.getProperty(key);
+				String localizedValue = properties.get(key);
 				if (localizedValue != null)
 					localizedProperties.put(key, localizedValue);
 			}

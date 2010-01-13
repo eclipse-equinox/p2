@@ -9,20 +9,21 @@
 package org.eclipse.equinox.internal.p2.publisher.ant;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.types.FileSet;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
 import org.eclipse.equinox.p2.publisher.Publisher;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 
 public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
-	private ArrayList features = new ArrayList();
-	private ArrayList bundles = new ArrayList();
+	private ArrayList<Object> features = new ArrayList<Object>();
+	private ArrayList<Object> bundles = new ArrayList<Object>();
 
 	public void execute() throws BuildException {
 		try {
@@ -34,20 +35,19 @@ public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 		File[] f = getLocations(features);
 		File[] b = getLocations(bundles);
 
-		ArrayList actions = new ArrayList();
+		ArrayList<IPublisherAction> actions = new ArrayList<IPublisherAction>();
 		if (f.length > 0)
 			actions.add(new FeaturesAction(f));
 		if (b.length > 0)
 			actions.add(new BundlesAction(b));
 
 		if (actions.size() > 0)
-			new Publisher(getInfo()).publish((IPublisherAction[]) actions.toArray(new IPublisherAction[actions.size()]), new NullProgressMonitor());
+			new Publisher(getInfo()).publish(actions.toArray(new IPublisherAction[actions.size()]), new NullProgressMonitor());
 	}
 
-	private File[] getLocations(List collection) {
-		ArrayList results = new ArrayList();
-		for (Iterator iterator = collection.iterator(); iterator.hasNext();) {
-			Object obj = iterator.next();
+	private File[] getLocations(List<Object> collection) {
+		ArrayList<Object> results = new ArrayList<Object>();
+		for (Object obj : collection) {
 			if (obj instanceof FileSet) {
 				FileSet set = (FileSet) obj;
 
@@ -62,7 +62,7 @@ public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 				results.add(obj);
 			}
 		}
-		return (File[]) results.toArray(new File[results.size()]);
+		return results.toArray(new File[results.size()]);
 	}
 
 	public FileSet createFeatures() {

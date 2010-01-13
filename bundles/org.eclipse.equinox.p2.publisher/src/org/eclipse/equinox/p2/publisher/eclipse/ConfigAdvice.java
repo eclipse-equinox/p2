@@ -9,7 +9,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import java.util.Properties;
+import java.util.Map;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
@@ -32,10 +33,8 @@ public class ConfigAdvice extends AbstractAdvice implements IConfigAdvice {
 		return configSpec;
 	}
 
-	public Properties getProperties() {
-		Properties result = new Properties();
-		result.putAll(data.getProperties());
-		return result;
+	public Map<String, String> getProperties() {
+		return CollectionUtils.toMap(data.getProperties());
 	}
 
 }

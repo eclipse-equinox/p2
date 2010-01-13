@@ -13,17 +13,17 @@ package org.eclipse.equinox.p2.publisher;
 import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
 public class Publisher {
 	static final public String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
@@ -42,9 +42,9 @@ public class Publisher {
 	 * @return the discovered or created repository
 	 * @throws ProvisionException
 	 */
-	public static IMetadataRepository createMetadataRepository(URI location, String name, boolean append, boolean compress) throws ProvisionException {
+	public static IMetadataRepository createMetadataRepository(IProvisioningAgent agent, URI location, String name, boolean append, boolean compress) throws ProvisionException {
 		try {
-			IMetadataRepository result = loadMetadataRepository(location, true, true);
+			IMetadataRepository result = loadMetadataRepository(agent, location, true, true);
 			if (result != null && result.isModifiable()) {
 				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
 				if (!append)
@@ -56,7 +56,7 @@ public class Publisher {
 		}
 
 		// 	the given repo location is not an existing repo so we have to create something
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		String repositoryName = name == null ? location + " - metadata" : name; //$NON-NLS-1$
 		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		if (result != null) {
@@ -77,8 +77,8 @@ public class Publisher {
 	 * @return the loaded repository
 	 * @throws ProvisionException
 	 */
-	public static IMetadataRepository loadMetadataRepository(URI location, boolean modifiable, boolean removeFromManager) throws ProvisionException {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
+	public static IMetadataRepository loadMetadataRepository(IProvisioningAgent agent, URI location, boolean modifiable, boolean removeFromManager) throws ProvisionException {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		boolean existing = manager.contains(location);
 
 		IMetadataRepository result = manager.loadRepository(location, modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
@@ -99,9 +99,9 @@ public class Publisher {
 	 * @return the discovered or created repository
 	 * @throws ProvisionException
 	 */
-	public static IArtifactRepository createArtifactRepository(URI location, String name, boolean append, boolean compress, boolean reusePackedFiles) throws ProvisionException {
+	public static IArtifactRepository createArtifactRepository(IProvisioningAgent agent, URI location, String name, boolean append, boolean compress, boolean reusePackedFiles) throws ProvisionException {
 		try {
-			IArtifactRepository result = loadArtifactRepository(location, true, true);
+			IArtifactRepository result = loadArtifactRepository(agent, location, true, true);
 			if (result != null && result.isModifiable()) {
 				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
 				if (reusePackedFiles)
@@ -114,7 +114,7 @@ public class Publisher {
 			//fall through and create a new repository
 		}
 
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		String repositoryName = name != null ? name : location + " - artifacts"; //$NON-NLS-1$
 		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		if (result != null) {
@@ -137,8 +137,8 @@ public class Publisher {
 	 * @return the loaded repository
 	 * @throws ProvisionException
 	 */
-	public static IArtifactRepository loadArtifactRepository(URI location, boolean modifiable, boolean removeFromManager) throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
+	public static IArtifactRepository loadArtifactRepository(IProvisioningAgent agent, URI location, boolean modifiable, boolean removeFromManager) throws ProvisionException {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		boolean existing = manager.contains(location);
 
 		IArtifactRepository result = manager.loadRepository(location, modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
@@ -183,8 +183,8 @@ public class Publisher {
 		// if there were no errors, publish all the ius.
 		IMetadataRepository metadataRepository = info.getMetadataRepository();
 		if (metadataRepository != null) {
-			Collection ius = results.getIUs(null, null);
-			metadataRepository.addInstallableUnits((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
+			Collection<IInstallableUnit> ius = results.getIUs(null, null);
+			metadataRepository.addInstallableUnits(ius.toArray(new IInstallableUnit[ius.size()]));
 		}
 		return Status.OK_STATUS;
 	}

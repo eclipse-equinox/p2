@@ -12,7 +12,9 @@ package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
 import java.io.File;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
 
 /**
  * Represents a product file.  
@@ -33,17 +35,17 @@ public interface IProductDescriptor {
 	 * @param includeFragments whether or not to include the fragments in the return value
 	 * @return the list of bundles in this product
 	 */
-	public List getBundles(boolean includeFragments);
+	public List<IVersionedId> getBundles(boolean includeFragments);
 
 	/**
 	 * Returns a list<VersionedName> of fragments that constitute this product.
 	 */
-	public List getFragments();
+	public List<IVersionedId> getFragments();
 
 	/**
 	 * Returns a List<VersionedName> of features that constitute this product.
 	 */
-	public List getFeatures();
+	public List<IVersionedId> getFeatures();
 
 	/**
 	 * Returns the path to the config.ini file as specified in the .product file.
@@ -98,7 +100,7 @@ public interface IProductDescriptor {
 	/**
 	 * Returns the properties for a product file.
 	 */
-	public Properties getConfigurationProperties();
+	public Map<String, String> getConfigurationProperties();
 
 	/**
 	 * Returns a list of icons for this product for a given OS.
@@ -109,7 +111,7 @@ public interface IProductDescriptor {
 	 * Returns a List<BundleInfo> for each bundle that has custom configuration data.
 	 * @return A List<BundleInfo>
 	 */
-	public List getBundleInfos();
+	public List<BundleInfo> getBundleInfos();
 
 	/**
 	 * This is needed for config.ini files and p2 advice

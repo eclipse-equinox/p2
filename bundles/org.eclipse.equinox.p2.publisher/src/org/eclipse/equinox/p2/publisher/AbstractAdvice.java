@@ -9,8 +9,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 public class AbstractAdvice implements IPublisherAdvice {
 

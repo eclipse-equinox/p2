@@ -11,9 +11,10 @@
 package org.eclipse.equinox.p2.publisher.actions;
 
 import java.util.Collection;
+import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 
-public interface IRootIUAdvice {
+public interface IRootIUAdvice extends IPublisherAdvice {
 
 	/**
 	 * Returns the list of children of the root for this publishing operation.
@@ -22,5 +23,5 @@ public interface IRootIUAdvice {
 	 * @param result 
 	 * @return the collection of children
 	 */
-	public Collection getChildren(IPublisherResult result);
+	public Collection<? extends Object> getChildren(IPublisherResult result);
 }

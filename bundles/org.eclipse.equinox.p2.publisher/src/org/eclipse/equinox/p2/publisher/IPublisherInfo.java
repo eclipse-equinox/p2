@@ -10,11 +10,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.util.Collection;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 public interface IPublisherInfo {
 
@@ -66,7 +65,7 @@ public interface IPublisherInfo {
 	 * @param includeDefault whether or not to merge in the advice common to all configurations
 	 * @return the set of advice of the given type for the given configuration
 	 */
-	public Collection getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class type);
+	public <T extends IPublisherAdvice> Collection<T> getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class<T> type);
 
 	/**
 	 * Add the given advice to the set of publishing advices.  

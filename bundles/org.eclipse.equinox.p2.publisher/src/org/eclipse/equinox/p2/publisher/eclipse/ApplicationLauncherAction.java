@@ -10,15 +10,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
 
@@ -57,14 +56,14 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		// Create the basic actions and run them putting the IUs in a temporary result
-		Collection actions = createActions(publisherInfo);
+		Collection<IPublisherAction> actions = createActions(publisherInfo);
 		createAdvice(publisherInfo, results);
 		IPublisherResult innerResult = new PublisherResult();
 		MultiStatus finalStatus = new MultiStatus(ApplicationLauncherAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
-		for (Iterator i = actions.iterator(); i.hasNext();) {
+		for (IPublisherAction action : actions) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			finalStatus.merge(((IPublisherAction) i.next()).perform(publisherInfo, innerResult, monitor));
+			finalStatus.merge(action.perform(publisherInfo, innerResult, monitor));
 		}
 		if (!finalStatus.isOK())
 			return finalStatus;
@@ -86,14 +85,13 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 	 * fragments are in use in this particular result.
 	 */
 	private void createLauncherAdvice(IPublisherInfo publisherInfo, IPublisherResult results) {
-		Collection ius = getIUs(results.getIUs(null, null), EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER);
+		Collection<IInstallableUnit> ius = getIUs(results.getIUs(null, null), EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER);
 		VersionAdvice advice = new VersionAdvice();
 		boolean found = false;
-		for (Iterator i = ius.iterator(); i.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) i.next();
+		for (IInstallableUnit iu : ius) {
 			// skip over source bundles and fragments
 			// TODO should we use the source property here rather than magic name matching?
-			if (iu.getId().endsWith(".source") || iu.isFragment()) //$NON-NLS-1$
+			if (iu.getId().endsWith(".source") || FragmentQuery.isFragment(iu)) //$NON-NLS-1$
 				continue;
 			advice.setVersion(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), iu.getVersion());
 			found = true;
@@ -102,17 +100,16 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 			publisherInfo.addAdvice(advice);
 	}
 
-	private Collection getIUs(Collection ius, String prefix) {
-		Set result = new HashSet();
-		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
-			IInstallableUnit tmp = (IInstallableUnit) iterator.next();
+	private Collection<IInstallableUnit> getIUs(Collection<IInstallableUnit> ius, String prefix) {
+		Set<IInstallableUnit> result = new HashSet<IInstallableUnit>();
+		for (IInstallableUnit tmp : ius) {
 			if (tmp.getId().startsWith(prefix))
 				result.add(tmp);
 		}
 		return result;
 	}
 
-	private void publishApplicationLauncherIU(Collection children, IPublisherResult result) {
+	private void publishApplicationLauncherIU(Collection<? extends IVersionedId> children, IPublisherResult result) {
 		InstallableUnitDescription descriptor = createParentIU(children, computeIUId(id, flavor), version);
 		descriptor.setSingleton(true);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
@@ -121,15 +118,15 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 		result.addIU(rootIU, IPublisherResult.ROOT);
 	}
 
-	private Collection createActions(IPublisherInfo publisherInfo) {
-		Collection actions = new ArrayList();
+	private Collection<IPublisherAction> createActions(IPublisherInfo publisherInfo) {
+		Collection<IPublisherAction> actions = new ArrayList<IPublisherAction>();
 		actions.add(new EquinoxLauncherCUAction(flavor, configSpecs));
 		actions.addAll(createExecutablesActions(configSpecs));
 		return actions;
 	}
 
-	protected Collection createExecutablesActions(String[] configs) {
-		Collection actions = new ArrayList(configs.length);
+	protected Collection<IPublisherAction> createExecutablesActions(String[] configs) {
+		Collection<IPublisherAction> actions = new ArrayList<IPublisherAction>(configs.length);
 		for (int i = 0; i < configs.length; i++) {
 			ExecutablesDescriptor executables = computeExecutables(configs[i]);
 			IPublisherAction action = new EquinoxExecutableAction(executables, configs[i], id, version, flavor);

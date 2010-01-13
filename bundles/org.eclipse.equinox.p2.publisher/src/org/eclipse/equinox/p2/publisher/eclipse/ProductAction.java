@@ -10,16 +10,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.metadata.VersionedId;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedId;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 
@@ -50,7 +46,7 @@ public class ProductAction extends AbstractPublisherAction {
 		createAdvice();
 
 		// create all the actions needed to publish a product
-		ArrayList actions = new ArrayList();
+		ArrayList<IPublisherAction> actions = new ArrayList<IPublisherAction>();
 		// products include the executable so add actions to publish them
 		if (getExecutablesLocation() != null)
 			actions.add(createApplicationExecutableAction(info.getConfigurations()));
@@ -59,7 +55,7 @@ public class ProductAction extends AbstractPublisherAction {
 		actions.add(createJREAction());
 		actions.add(createDefaultCUsAction());
 		actions.add(createRootIUAction());
-		return (IPublisherAction[]) actions.toArray(new IPublisherAction[actions.size()]);
+		return actions.toArray(new IPublisherAction[actions.size()]);
 	}
 
 	protected IPublisherAction createApplicationExecutableAction(String[] configSpecs) {
@@ -122,7 +118,7 @@ public class ProductAction extends AbstractPublisherAction {
 	}
 
 	private void createRootAdvice() {
-		Collection list;
+		Collection<IVersionedId> list;
 		if (product.useFeatures())
 			// TODO: We need a real namespace here
 			list = versionElements(listElements(product.getFeatures(), ".feature.group"), IInstallableUnit.NAMESPACE_IU_ID); //$NON-NLS-1$ 
@@ -144,16 +140,15 @@ public class ProductAction extends AbstractPublisherAction {
 			info.addAdvice(new ProductFileAdvice(product, configSpecs[i]));
 	}
 
-	private Collection versionElements(Collection elements, String namespace) {
-		Collection versionAdvice = info.getAdvice(null, true, null, null, IVersionAdvice.class);
-		List result = new ArrayList();
-		for (Iterator i = elements.iterator(); i.hasNext();) {
-			IVersionedId element = (IVersionedId) i.next();
+	private Collection<IVersionedId> versionElements(Collection<IVersionedId> elements, String namespace) {
+		Collection<IVersionAdvice> versionAdvice = info.getAdvice(null, true, null, null, IVersionAdvice.class);
+		List<IVersionedId> result = new ArrayList<IVersionedId>();
+		for (IVersionedId element : elements) {
 			Version elementVersion = element.getVersion();
 			if (elementVersion == null || Version.emptyVersion.equals(elementVersion)) {
-				Iterator advice = versionAdvice.iterator();
+				Iterator<IVersionAdvice> advice = versionAdvice.iterator();
 				while (advice.hasNext()) {
-					elementVersion = ((IVersionAdvice) advice.next()).getVersion(namespace, element.getId());
+					elementVersion = advice.next().getVersion(namespace, element.getId());
 					break;
 				}
 			}
@@ -172,12 +167,11 @@ public class ProductAction extends AbstractPublisherAction {
 		return result;
 	}
 
-	private Collection listElements(List elements, String suffix) {
+	private Collection<IVersionedId> listElements(List<IVersionedId> elements, String suffix) {
 		if (suffix == null || suffix.length() == 0)
 			return elements;
-		ArrayList result = new ArrayList(elements.size());
-		for (Iterator i = elements.iterator(); i.hasNext();) {
-			IVersionedId elementName = (IVersionedId) i.next();
+		ArrayList<IVersionedId> result = new ArrayList<IVersionedId>(elements.size());
+		for (IVersionedId elementName : elements) {
 			result.add(new VersionedId(elementName.getId() + suffix, elementName.getVersion()));
 		}
 		return result;

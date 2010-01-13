@@ -14,8 +14,8 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 
@@ -63,7 +63,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 
 	protected IPublisherAction[] createActions() {
 		createAdvice();
-		ArrayList actions = new ArrayList();
+		ArrayList<IPublisherAction> actions = new ArrayList<IPublisherAction>();
 		// create an action that just publishes the raw bundles and features
 		IPublisherAction action = new MergeResultsAction(new IPublisherAction[] {createFeaturesAction(), createBundlesAction()}, IPublisherResult.MERGE_ALL_NON_ROOT);
 		actions.add(action);
@@ -74,7 +74,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 		actions.add(createConfigCUsAction());
 		actions.add(createDefaultCUsAction());
 		actions.add(createRootIUAction());
-		return (IPublisherAction[]) actions.toArray(new IPublisherAction[actions.size()]);
+		return actions.toArray(new IPublisherAction[actions.size()]);
 	}
 
 	private void createAdvice() {
@@ -96,7 +96,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 		return new RootIUAction(id, version, name);
 	}
 
-	protected Collection getTopLevel() {
+	protected Collection<IVersionedId> getTopLevel() {
 		return Arrays.asList(topLevel);
 	}
 
@@ -108,8 +108,8 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 		return new ApplicationLauncherAction(id, version, flavor, executableName, getExecutablesLocation(), configSpecs);
 	}
 
-	protected Collection createAccumulateConfigDataActions(String[] configs) {
-		Collection result = new ArrayList(configs.length);
+	protected Collection<IPublisherAction> createAccumulateConfigDataActions(String[] configs) {
+		Collection<IPublisherAction> result = new ArrayList<IPublisherAction>(configs.length);
 		for (int i = 0; i < configs.length; i++) {
 			String configSpec = configs[i];
 			File configuration = computeConfigurationLocation(configSpec);
@@ -133,8 +133,8 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 		return new FeaturesAction(new File[] {new File(source, "features")}); //$NON-NLS-1$
 	}
 
-	protected Collection createExecutablesActions(String[] configSpecs) {
-		Collection result = new ArrayList(configSpecs.length);
+	protected Collection<IPublisherAction> createExecutablesActions(String[] configSpecs) {
+		Collection<IPublisherAction> result = new ArrayList<IPublisherAction>(configSpecs.length);
 		for (int i = 0; i < configSpecs.length; i++) {
 			ExecutablesDescriptor executables = computeExecutables(configSpecs[i]);
 			IPublisherAction action = new EquinoxExecutableAction(executables, configSpecs[i], id, version, flavor);
@@ -175,7 +175,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 	protected File[] computeRootFileExclusions() {
 		if (nonRootFiles == null || nonRootFiles.length == 0)
 			return null;
-		ArrayList result = new ArrayList();
+		ArrayList<File> result = new ArrayList<File>();
 		for (int i = 0; i < nonRootFiles.length; i++) {
 			String filename = nonRootFiles[i];
 			File file = new File(filename);
@@ -184,7 +184,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 			else
 				result.add(new File(source, filename));
 		}
-		return (File[]) result.toArray(new File[result.size()]);
+		return result.toArray(new File[result.size()]);
 	}
 
 	protected ExecutablesDescriptor computeExecutables(String configSpec) {

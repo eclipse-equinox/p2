@@ -21,8 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
-import org.osgi.framework.*;
-import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.framework.Constants;
 
 public class DataLoader {
 
@@ -34,8 +33,6 @@ public class DataLoader {
 	private final static String frameworkAdminFillter = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
-	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
-	private static final String ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
 
 	private Manipulator manipulator;
 	private File configurationLocation;
@@ -124,33 +121,6 @@ public class DataLoader {
 	}
 
 	private FrameworkAdmin getFrameworkAdmin() {
-		FrameworkAdmin frameworkAdmin = (FrameworkAdmin) ServiceHelper.getService(Activator.getContext(), FrameworkAdmin.class.getName(), frameworkAdminFillter);
-		if (frameworkAdmin == null) {
-			startBundle(ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX);
-			startBundle(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR);
-			frameworkAdmin = (FrameworkAdmin) ServiceHelper.getService(Activator.getContext(), FrameworkAdmin.class.getName(), frameworkAdminFillter);
-		}
-		return frameworkAdmin;
-	}
-
-	private boolean startBundle(String bundleId) {
-		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(Activator.getContext(), PackageAdmin.class.getName());
-		if (packageAdmin == null)
-			return false;
-
-		Bundle[] bundles = packageAdmin.getBundles(bundleId, null);
-		if (bundles != null && bundles.length > 0) {
-			for (int i = 0; i < bundles.length; i++) {
-				try {
-					if ((bundles[0].getState() & Bundle.RESOLVED) > 0) {
-						bundles[0].start();
-						return true;
-					}
-				} catch (BundleException e) {
-					// failed, try next bundle
-				}
-			}
-		}
-		return false;
+		return (FrameworkAdmin) ServiceHelper.getService(Activator.getContext(), FrameworkAdmin.class.getName(), frameworkAdminFillter);
 	}
 }

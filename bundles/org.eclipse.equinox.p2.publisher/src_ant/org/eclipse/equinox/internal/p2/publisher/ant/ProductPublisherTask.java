@@ -9,13 +9,14 @@
 package org.eclipse.equinox.internal.p2.publisher.ant;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
@@ -61,8 +62,8 @@ public class ProductPublisherTask extends AbstractPublishTask {
 	private String productFile;
 	private String executables;
 	private String source;
-	private List configurations = new ArrayList(3);
-	private List advice = new ArrayList(3);
+	private List<ConfigElement> configurations = new ArrayList<ConfigElement>(3);
+	private List<AdviceElement> advice = new ArrayList<AdviceElement>(3);
 
 	public void execute() throws BuildException {
 		try {
@@ -99,8 +100,7 @@ public class ProductPublisherTask extends AbstractPublishTask {
 	}
 
 	protected void processAdvice(PublisherInfo info) {
-		for (Iterator iterator = advice.iterator(); iterator.hasNext();) {
-			AdviceElement element = (AdviceElement) iterator.next();
+		for (AdviceElement element : advice) {
 			if (element.kind == null || element.file == null)
 				continue;
 

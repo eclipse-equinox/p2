@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -23,14 +24,17 @@ import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
@@ -63,7 +67,6 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing and OSGi bundle resource
-	 * @see IRequiredCapability#getName()
 	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_BUNDLE = "bundle"; //$NON-NLS-1$
@@ -71,7 +74,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing a source bundle
-	 * @see IRequiredCapability#getName()
+	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_SOURCE = "source"; //$NON-NLS-1$
 
@@ -100,7 +103,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, Version.parseVersion(version));
 	}
 
-	public static IInstallableUnit createBundleConfigurationUnit(String hostId, Version cuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
+	public static IInstallableUnit createBundleConfigurationUnit(String hostId, Version cuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, Filter filter) {
 		if (configInfo == null)
 			return null;
 
@@ -111,15 +114,16 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		//Indicate the IU to which this CU apply
 		Version hostVersion = Version.parseVersion(configInfo.getVersion());
-		cu.setHost(new IRequiredCapability[] { //
-				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, hostId, new VersionRange(hostVersion, true, PublisherHelper.versionMax, true), null, false, false, true), //
+		VersionRange range = hostVersion == Version.emptyVersion ? VersionRange.emptyRange : new VersionRange(hostVersion, true, Version.MAX_VERSION, true);
+		cu.setHost(new IRequirement[] { //
+				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, hostId, range, null, false, false, true), //
 						MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, cuVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, cuVersion), MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("configure", createConfigScript(configInfo, isBundleFragment)); //$NON-NLS-1$
@@ -130,8 +134,9 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	public static IInstallableUnit createBundleIU(BundleDescription bd, IArtifactKey key, IPublisherInfo info) {
-		Map manifest = (Map) bd.getUserObject();
-		Map manifestLocalizations = null;
+		@SuppressWarnings("unchecked")
+		Map<String, String> manifest = (Map<String, String>) bd.getUserObject();
+		Map<Locale, Map<String, String>> manifestLocalizations = null;
 		if (manifest != null && bd.getLocation() != null)
 			manifestLocalizations = getManifestLocalizations(manifest, new File(bd.getLocation()));
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
@@ -148,7 +153,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		//Process the required bundles
 		BundleSpecification requiredBundles[] = bd.getRequiredBundles();
-		ArrayList reqsDeps = new ArrayList();
+		ArrayList<IRequirement> reqsDeps = new ArrayList<IRequirement>();
 		//		if (requiresAFragment)
 		//			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
 		if (isFragment)
@@ -168,10 +173,10 @@ public class BundlesAction extends AbstractPublisherAction {
 			//TODO this needs to be refined to take into account all the attribute handled by imports
 			reqsDeps.add(MetadataFactory.createRequiredCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
 		}
-		iu.setRequiredCapabilities((IRequiredCapability[]) reqsDeps.toArray(new IRequiredCapability[reqsDeps.size()]));
+		iu.setRequiredCapabilities(reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
 
 		// Create set of provided capabilities
-		ArrayList providedCapabilities = new ArrayList();
+		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();
 		providedCapabilities.add(PublisherHelper.createSelfCapability(bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion())));
 		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion())));
 
@@ -190,18 +195,16 @@ public class BundlesAction extends AbstractPublisherAction {
 			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), Version.fromOSGiVersion(bd.getVersion())));
 
 		if (manifestLocalizations != null) {
-			for (Iterator iter = manifestLocalizations.keySet().iterator(); iter.hasNext();) {
-				Locale locale = (Locale) iter.next();
-				Properties translatedStrings = (Properties) manifestLocalizations.get(locale);
-				Enumeration propertyKeys = translatedStrings.propertyNames();
-				while (propertyKeys.hasMoreElements()) {
-					String nextKey = (String) propertyKeys.nextElement();
-					iu.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
+			for (Entry<Locale, Map<String, String>> locEntry : manifestLocalizations.entrySet()) {
+				Locale locale = locEntry.getKey();
+				Map<String, String> translatedStrings = locEntry.getValue();
+				for (Entry<String, String> entry : translatedStrings.entrySet()) {
+					iu.setProperty(locale.toString() + '.' + entry.getKey(), entry.getValue());
 				}
 				providedCapabilities.add(PublisherHelper.makeTranslationCapability(bd.getSymbolicName(), locale));
 			}
 		}
-		iu.setCapabilities((IProvidedCapability[]) providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
+		iu.setCapabilities(providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
 		processCapabilityAdvice(iu, info);
 
 		// Set certain properties from the manifest header attributes as IU properties.
@@ -212,7 +215,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			int i = 0;
 			while (i < BUNDLE_IU_PROPERTY_MAP.length) {
 				if (manifest.containsKey(BUNDLE_IU_PROPERTY_MAP[i])) {
-					String value = (String) manifest.get(BUNDLE_IU_PROPERTY_MAP[i]);
+					String value = manifest.get(BUNDLE_IU_PROPERTY_MAP[i]);
 					if (value != null && value.length() > 0) {
 						iu.setProperty(BUNDLE_IU_PROPERTY_MAP[i + 1], value);
 					}
@@ -223,7 +226,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// Define the immutable metadata for this IU. In this case immutable means
 		// that this is something that will not impact the configuration.
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
 		if (isDir(bd, info))
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -238,13 +241,13 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (!base.equals(org.osgi.framework.Version.emptyVersion)) {
 			updateRange = new VersionRange(Version.emptyVersion, true, Version.fromOSGiVersion(base), false);
 		} else {
-			updateRange = new VersionRange("0.0.0"); //$NON-NLS-1$
+			updateRange = VersionRange.emptyRange;
 		}
 		return updateRange;
 	}
 
 	private IInstallableUnitFragment createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues) {
-		Map hostLocalizations = getHostLocalizations(new File(bd.getLocation()), hostBundleManifestValues);
+		Map<Locale, Map<String, String>> hostLocalizations = getHostLocalizations(new File(bd.getLocation()), hostBundleManifestValues);
 		if (hostLocalizations != null) {
 			return createLocalizationFragmentOfHost(bd, hostId, hostBundleManifestValues, hostLocalizations);
 		}
@@ -258,33 +261,30 @@ public class BundlesAction extends AbstractPublisherAction {
 	 * @param localizedStrings
 	 * @return installableUnitFragment
 	 */
-	private static IInstallableUnitFragment createLocalizationFragmentOfHost(BundleDescription bd, String hostId, String[] hostManifestValues, Map hostLocalizations) {
+	private static IInstallableUnitFragment createLocalizationFragmentOfHost(BundleDescription bd, String hostId, String[] hostManifestValues, Map<Locale, Map<String, String>> hostLocalizations) {
 		InstallableUnitFragmentDescription fragment = new MetadataFactory.InstallableUnitFragmentDescription();
 		String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
 		fragment.setId(fragmentId);
 		fragment.setVersion(Version.fromOSGiVersion(bd.getVersion())); // TODO: is this a meaningful version?
 
 		HostSpecification hostSpec = bd.getHost();
-		IRequiredCapability[] hostReqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), VersionRange.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
+		IRequirement[] hostReqs = new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), VersionRange.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
 		fragment.setHost(hostReqs);
 
 		fragment.setSingleton(true);
-		fragment.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		fragment.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 
 		// Create a provided capability for each locale and add the translated properties.
-		ArrayList providedCapabilities = new ArrayList(hostLocalizations.keySet().size());
-		for (Iterator iter = hostLocalizations.keySet().iterator(); iter.hasNext();) {
-			Locale locale = (Locale) iter.next();
-			Properties translatedStrings = (Properties) hostLocalizations.get(locale);
-
-			Enumeration propertyKeys = translatedStrings.propertyNames();
-			while (propertyKeys.hasMoreElements()) {
-				String nextKey = (String) propertyKeys.nextElement();
-				fragment.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
+		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>(hostLocalizations.keySet().size());
+		for (Entry<Locale, Map<String, String>> localeEntry : hostLocalizations.entrySet()) {
+			Locale locale = localeEntry.getKey();
+			Map<String, String> translatedStrings = localeEntry.getValue();
+			for (Entry<String, String> entry : translatedStrings.entrySet()) {
+				fragment.setProperty(locale.toString() + '.' + entry.getKey(), entry.getValue());
 			}
 			providedCapabilities.add(PublisherHelper.makeTranslationCapability(hostId, locale));
 		}
-		fragment.setCapabilities((IProvidedCapability[]) providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
+		fragment.setCapabilities(providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
 
 		return MetadataFactory.createInstallableUnitFragment(fragment);
 	}
@@ -329,13 +329,13 @@ public class BundlesAction extends AbstractPublisherAction {
 		cu.setVersion(configUnitVersion);
 
 		// Add capabilities for fragment, self, and describing the flavor supported
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		// Create a required capability on bundles
-		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
+		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
 		cu.setHost(reqs);
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 
 		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -373,13 +373,11 @@ public class BundlesAction extends AbstractPublisherAction {
 		return false;
 	}
 
-	private static String toManifestString(Map p) {
+	private static String toManifestString(Map<String, String> p) {
 		if (p == null)
 			return null;
-		Collection properties = p.entrySet();
 		StringBuffer result = new StringBuffer();
-		for (Iterator iterator = properties.iterator(); iterator.hasNext();) {
-			Map.Entry aProperty = (Map.Entry) iterator.next();
+		for (Entry<String, String> aProperty : p.entrySet()) {
 			if (aProperty.getKey().equals(BUNDLE_SHAPE))
 				continue;
 			result.append(aProperty.getKey()).append(": ").append(aProperty.getValue()).append('\n'); //$NON-NLS-1$
@@ -390,8 +388,8 @@ public class BundlesAction extends AbstractPublisherAction {
 	// Return a map from locale to property set for the manifest localizations
 	// from the given bundle directory and given bundle localization path/name
 	// manifest property value.
-	private static Map getManifestLocalizations(Map manifest, File bundleLocation) {
-		Map localizations;
+	private static Map<Locale, Map<String, String>> getManifestLocalizations(Map<String, String> manifest, File bundleLocation) {
+		Map<Locale, Map<String, String>> localizations;
 		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo
 		String[] bundleManifestValues = getManifestCachedValues(manifest);
 		String bundleLocalization = bundleManifestValues[BUNDLE_LOCALIZATION_INDEX]; // Bundle localization is the last one in the list
@@ -423,10 +421,10 @@ public class BundlesAction extends AbstractPublisherAction {
 		return result;
 	}
 
-	public static String[] getManifestCachedValues(Map manifest) {
+	public static String[] getManifestCachedValues(Map<String, String> manifest) {
 		String[] cachedValues = new String[PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES.length];
 		for (int j = 0; j < PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES.length; j++) {
-			String value = (String) manifest.get(PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES[j]);
+			String value = manifest.get(PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES[j]);
 			if (PublisherHelper.BUNDLE_LOCALIZED_PROPERTIES[j].equals(Constants.BUNDLE_LOCALIZATION)) {
 				if (value == null)
 					value = DEFAULT_BUNDLE_LOCALIZATION;
@@ -441,8 +439,8 @@ public class BundlesAction extends AbstractPublisherAction {
 	// Return a map from locale to property set for the manifest localizations
 	// from the given bundle directory and given bundle localization path/name
 	// manifest property value.
-	public static Map getHostLocalizations(File bundleLocation, String[] hostBundleManifestValues) {
-		Map localizations;
+	public static Map<Locale, Map<String, String>> getHostLocalizations(File bundleLocation, String[] hostBundleManifestValues) {
+		Map<Locale, Map<String, String>> localizations;
 		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo
 		String hostBundleLocalization = hostBundleManifestValues[BUNDLE_LOCALIZATION_INDEX];
 		if (hostBundleLocalization == null)
@@ -464,7 +462,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		return (PluginConverter) ServiceHelper.getService(Activator.getContext(), PluginConverter.class.getName());
 	}
 
-	private static Dictionary convertPluginManifest(File bundleLocation, boolean logConversionException) {
+	private static Dictionary<String, String> convertPluginManifest(File bundleLocation, boolean logConversionException) {
 		PluginConverter converter;
 		try {
 			converter = acquirePluginConverter();
@@ -488,7 +486,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 	}
 
-	public static BundleDescription createBundleDescription(Dictionary enhancedManifest, File bundleLocation) {
+	public static BundleDescription createBundleDescription(Dictionary<String, String> enhancedManifest, File bundleLocation) {
 		try {
 			BundleDescription descriptor = StateObjectFactory.defaultFactory.createBundleDescription(null, enhancedManifest, bundleLocation == null ? null : bundleLocation.getAbsolutePath(), 1); //TODO Do we need to have a real bundle id
 			descriptor.setUserObject(enhancedManifest);
@@ -502,14 +500,14 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	public static BundleDescription createBundleDescription(File bundleLocation) {
-		Dictionary manifest = loadManifest(bundleLocation);
+		Dictionary<String, String> manifest = loadManifest(bundleLocation);
 		if (manifest == null)
 			return null;
 		return createBundleDescription(manifest, bundleLocation);
 	}
 
-	public static Dictionary loadManifest(File bundleLocation) {
-		Dictionary manifest = basicLoadManifest(bundleLocation);
+	public static Dictionary<String, String> loadManifest(File bundleLocation) {
+		Dictionary<String, String> manifest = basicLoadManifest(bundleLocation);
 		if (manifest == null)
 			return null;
 		// if the bundle itself does not define its shape, infer the shape from the current form
@@ -518,7 +516,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		return manifest;
 	}
 
-	public static Dictionary basicLoadManifest(File bundleLocation) {
+	public static Dictionary<String, String> basicLoadManifest(File bundleLocation) {
 		InputStream manifestStream = null;
 		ZipFile jarFile = null;
 		try {
@@ -537,32 +535,34 @@ public class BundlesAction extends AbstractPublisherAction {
 			String message = NLS.bind(Messages.exception_errorLoadingManifest, bundleLocation);
 			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, message, e));
 		}
-
-		Dictionary manifest = null;
-		if (manifestStream != null) {
-			try {
-				Map manifestMap = ManifestElement.parseBundleManifest(manifestStream, null);
-				// TODO temporary hack.  We are reading a Map but everyone wants a Dictionary so convert.
-				// real answer is to have people expect a Map but that is a wider change.
-				manifest = new Hashtable(manifestMap);
-			} catch (IOException e) {
-				String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
-				return null;
-			} catch (BundleException e) {
-				String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
-				return null;
-			} finally {
+		Dictionary<String, String> manifest = null;
+		try {
+			if (manifestStream != null) {
 				try {
-					if (jarFile != null)
-						jarFile.close();
-				} catch (IOException e2) {
-					//Ignore
+					@SuppressWarnings("unchecked")
+					Map<String, String> manifestMap = ManifestElement.parseBundleManifest(manifestStream, null);
+					// TODO temporary hack.  We are reading a Map but everyone wants a Dictionary so convert.
+					// real answer is to have people expect a Map but that is a wider change.
+					manifest = new Hashtable<String, String>(manifestMap);
+				} catch (IOException e) {
+					String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
+					return null;
+				} catch (BundleException e) {
+					String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
+					return null;
 				}
+			} else {
+				manifest = convertPluginManifest(bundleLocation, true);
 			}
-		} else {
-			manifest = convertPluginManifest(bundleLocation, true);
+		} finally {
+			try {
+				if (jarFile != null)
+					jarFile.close();
+			} catch (IOException e2) {
+				//Ignore
+			}
 		}
 
 		if (manifest == null)
@@ -634,12 +634,12 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	private File[] expandLocations(File[] list) {
-		ArrayList result = new ArrayList();
+		ArrayList<File> result = new ArrayList<File>();
 		expandLocations(list, result);
-		return (File[]) result.toArray(new File[result.size()]);
+		return result.toArray(new File[result.size()]);
 	}
 
-	private void expandLocations(File[] list, ArrayList result) {
+	private void expandLocations(File[] list, ArrayList<File> result) {
 		if (list == null)
 			return;
 		for (int i = 0; i < list.length; i++) {
@@ -678,8 +678,8 @@ public class BundlesAction extends AbstractPublisherAction {
 				}
 
 				File location = new File(bd.getLocation());
-				IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(key, location);
-				processArtifactPropertiesAdvice(bundleIU, (ArtifactDescriptor) ad, info);
+				IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(info.getArtifactRepository(), key, location);
+				processArtifactPropertiesAdvice(bundleIU, ad, info);
 
 				// Publish according to the shape on disk
 				File bundleLocation = new File(bd.getLocation());
@@ -693,13 +693,13 @@ public class BundlesAction extends AbstractPublisherAction {
 					// TODO: Need a test case for multiple hosts
 					String hostId = bd.getHost().getName();
 					VersionRange hostVersionRange = VersionRange.fromOSGiVersionRange(bd.getHost().getVersionRange());
-					IInstallableUnit[] hosts = queryForIUs(result, hostId, hostVersionRange);
+					IQueryResult<IInstallableUnit> hosts = queryForIUs(result, hostId, hostVersionRange);
 
-					for (int j = 0; j < hosts.length; j++) {
+					for (Iterator<IInstallableUnit> itor = hosts.iterator(); itor.hasNext();) {
 						String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
 						fragment = queryForIU(result, fragmentId, Version.fromOSGiVersion(bd.getVersion()));
 						if (fragment == null) {
-							String[] externalizedStrings = getExternalizedStrings(hosts[j]);
+							String[] externalizedStrings = getExternalizedStrings(itor.next());
 							fragment = createHostLocalizationFragment(bundleIU, bd, hostId, externalizedStrings);
 						}
 					}
@@ -733,17 +733,18 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	private static boolean isDir(BundleDescription bundle, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, true, bundle.getSymbolicName(), Version.fromOSGiVersion(bundle.getVersion()), IBundleShapeAdvice.class);
+		Collection<IBundleShapeAdvice> advice = info.getAdvice(null, true, bundle.getSymbolicName(), Version.fromOSGiVersion(bundle.getVersion()), IBundleShapeAdvice.class);
 		// if the advice has a shape, use it
 		if (advice != null && !advice.isEmpty()) {
 			// we know there is some advice but if there is more than one, take the first.
-			String shape = ((IBundleShapeAdvice) advice.iterator().next()).getShape();
+			String shape = advice.iterator().next().getShape();
 			if (shape != null)
 				return shape.equals(IBundleShapeAdvice.DIR);
 		}
 		// otherwise go with whatever we figured out from the manifest or the shape on disk
-		Map manifest = (Map) bundle.getUserObject();
-		String format = (String) manifest.get(BUNDLE_SHAPE);
+		@SuppressWarnings("unchecked")
+		Map<String, String> manifest = (Map<String, String>) bundle.getUserObject();
+		String format = manifest.get(BUNDLE_SHAPE);
 		return DIR.equals(format);
 	}
 

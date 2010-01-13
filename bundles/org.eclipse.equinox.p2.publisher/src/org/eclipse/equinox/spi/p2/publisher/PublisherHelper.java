@@ -16,15 +16,19 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.osgi.framework.Constants;
 
@@ -36,29 +40,28 @@ import org.osgi.framework.Constants;
 public class PublisherHelper {
 	/**
 	 * A capability namespace representing the type of Eclipse resource (bundle, feature, source bundle, etc)
-	 * @see IRequiredCapability#getNamespace()
 	 * @see IProvidedCapability#getNamespace()
 	 */
 	public static final String NAMESPACE_ECLIPSE_TYPE = "org.eclipse.equinox.p2.eclipse.type"; //$NON-NLS-1$
 
+	public static final String NAMESPACE_FLAVOR = "org.eclipse.equinox.p2.flavor"; //$NON-NLS-1$"
 	/**
 	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
 	 * representing a feature
-	 * @see IRequiredCapability#getName()
+	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_FEATURE = "feature"; //$NON-NLS-1$
 
 	/**
 	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
 	 * representing a source bundle
-	 * @see IRequiredCapability#getName()
+	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_SOURCE = "source"; //$NON-NLS-1$
 
 	/**
 	 * A capability namespace representing the localization (translation)
 	 * of strings from a specified IU in a specified locale
-	 * @see IRequiredCapability#getNamespace()
 	 * @see IProvidedCapability#getNamespace()
 	 * TODO: this should be in API, probably in IInstallableUnit
 	 */
@@ -81,24 +84,27 @@ public class PublisherHelper {
 
 	public static final String ECLIPSE_INSTALL_HANDLER_PROP = "org.eclipse.update.installHandler"; //$NON-NLS-1$
 
-	public static final Version versionMax = Version.createOSGi(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
-
 	public static final ITouchpointType TOUCHPOINT_NATIVE = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.native", Version.createOSGi(1, 0, 0)); //$NON-NLS-1$
 	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", Version.createOSGi(1, 0, 0)); //$NON-NLS-1$
 
 	public static final IProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, Version.createOSGi(1, 0, 0));
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk) {
-		//TODO this size calculation is bogus
-		ArtifactDescriptor result = new ArtifactDescriptor(key);
-		if (pathOnDisk != null) {
-			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, Long.toString(pathOnDisk.length()));
-			// TODO - this is wrong but I'm testing a work-around for bug 205842
-			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
+		return createArtifactDescriptor(null, key, pathOnDisk);
+	}
+
+	public static IArtifactDescriptor createArtifactDescriptor(IArtifactRepository artifactRepo, IArtifactKey key, File pathOnDisk) {
+		IArtifactDescriptor result = artifactRepo != null ? artifactRepo.createArtifactDescriptor(key) : new ArtifactDescriptor(key);
+		if (result instanceof ArtifactDescriptor) {
+			ArtifactDescriptor descriptor = (ArtifactDescriptor) result;
+			if (pathOnDisk != null) {
+				descriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, Long.toString(pathOnDisk.length()));
+				descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
+			}
+			String md5 = computeMD5(pathOnDisk);
+			if (md5 != null)
+				descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
 		}
-		String md5 = computeMD5(pathOnDisk);
-		if (md5 != null)
-			result.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
 		return result;
 	}
 
@@ -156,15 +162,15 @@ public class PublisherHelper {
 		cu.setVersion(configUnitVersion);
 
 		// Add capabilities for fragment, self, and describing the flavor supported
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		// Create a required capability on features
-		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, true, true, false)};
+		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, true, true, false)};
 		cu.setHost(reqs);
 
 		cu.setFilter(INSTALL_FEATURES_FILTER);
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 		touchpointData.put("install", "installFeature(feature:${artifact},featureId:default,featureVersion:default)"); //$NON-NLS-1$//$NON-NLS-2$
 		touchpointData.put("uninstall", "uninstallFeature(feature:${artifact},featureId:default,featureVersion:default)"); //$NON-NLS-1$//$NON-NLS-2$
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
@@ -180,13 +186,13 @@ public class PublisherHelper {
 		cu.setVersion(configUnitVersion);
 
 		// Add capabilities for fragment, self, and describing the flavor supported
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		// Create a required capability on source providers
-		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, true, true, false)};
+		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, true, true, false)};
 		cu.setHost(reqs);
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 
 		touchpointData.put("install", "addSourceBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("uninstall", "removeSourceBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -194,26 +200,25 @@ public class PublisherHelper {
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
-	private static void addExtraProperties(IInstallableUnit iiu, Properties extraProperties) {
+	private static void addExtraProperties(IInstallableUnit iiu, Map<String, String> extraProperties) {
 		if (iiu instanceof InstallableUnit) {
 			InstallableUnit iu = (InstallableUnit) iiu;
 
-			for (Enumeration e = extraProperties.propertyNames(); e.hasMoreElements();) {
-				String name = (String) e.nextElement();
-				iu.setProperty(name, extraProperties.getProperty(name));
+			for (Entry<String, String> entry : extraProperties.entrySet()) {
+				iu.setProperty(entry.getKey(), entry.getValue());
 			}
 		}
 	}
 
-	public static IInstallableUnit[] createEclipseIU(BundleDescription bd, boolean isFolderPlugin, IArtifactKey key, Properties extraProperties) {
-		ArrayList iusCreated = new ArrayList(1);
+	public static IInstallableUnit[] createEclipseIU(BundleDescription bd, boolean isFolderPlugin, IArtifactKey key, Map<String, String> extraProperties) {
+		ArrayList<IInstallableUnit> iusCreated = new ArrayList<IInstallableUnit>(1);
 		IPublisherInfo info = new PublisherInfo();
 		String shape = isFolderPlugin ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
 		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion()), shape));
 		IInstallableUnit iu = BundlesAction.createBundleIU(bd, key, info);
 		addExtraProperties(iu, extraProperties);
 		iusCreated.add(iu);
-		return (IInstallableUnit[]) (iusCreated.toArray(new IInstallableUnit[iusCreated.size()]));
+		return (iusCreated.toArray(new IInstallableUnit[iusCreated.size()]));
 	}
 
 	public static ArtifactKey createBinaryArtifactKey(String id, Version version) {

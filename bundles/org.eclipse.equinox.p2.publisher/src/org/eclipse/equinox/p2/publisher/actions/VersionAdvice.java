@@ -11,14 +11,17 @@
 package org.eclipse.equinox.p2.publisher.actions;
 
 import java.io.*;
-import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 
 public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 
-	Map versions = new HashMap(11);
+	Map<String, Map<String, Version>> versions = new HashMap<String, Map<String, Version>>(11);
 
 	/**
 	 * Load the given namespace with version mappings from the properties file at 
@@ -33,35 +36,30 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 	}
 
 	public void load(String namespace, String location, String idSuffix) {
+		File file = new File(location);
 		if (namespace == null)
 			namespace = "null"; //$NON-NLS-1$
-		Properties properties = new Properties();
-		File file = new File(location);
-		if (file.exists()) {
-			InputStream stream = null;
-			try {
-				stream = new BufferedInputStream(new FileInputStream(file));
-				properties.load(stream);
-			} catch (IOException e) {
-				// nothing
-			} finally {
-				if (stream != null)
-					try {
-						stream.close();
-					} catch (IOException e) {
-						//nothing
-					}
-			}
+
+		Map<String, String> properties;
+		InputStream stream = null;
+		try {
+			stream = new BufferedInputStream(new FileInputStream(file));
+			properties = CollectionUtils.loadProperties(stream);
+		} catch (IOException e) {
+			return;
+		} finally {
+			if (stream != null)
+				try {
+					stream.close();
+				} catch (IOException e) {
+					//nothing
+				}
 		}
-		if (properties.size() > 0) {
-			Enumeration enumeration = properties.keys();
-			while (enumeration.hasMoreElements()) {
-				String key = (String) enumeration.nextElement();
-				if (idSuffix != null)
-					key += idSuffix;
-				String value = properties.getProperty(key);
-				setVersion(namespace, key, Version.parseVersion(value));
-			}
+		for (Entry<String, String> entry : properties.entrySet()) {
+			String key = entry.getKey();
+			if (idSuffix != null)
+				key += idSuffix;
+			setVersion(namespace, key, Version.parseVersion(entry.getValue()));
 		}
 	}
 
@@ -72,18 +70,18 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 	 * @return the version advice found or <code>null</code> if none
 	 */
 	public Version getVersion(String namespace, String id) {
-		Map values = (Map) versions.get(namespace);
+		Map<String, Version> values = versions.get(namespace);
 		// if no one says anything then don't say anything.  someone else might have an opinion
 		if (values != null) {
-			Version result = (Version) values.get(id);
+			Version result = values.get(id);
 			if (result != null)
 				return result;
 		}
 
-		values = (Map) versions.get("null"); //$NON-NLS-1$
+		values = versions.get("null"); //$NON-NLS-1$
 		if (values == null)
 			return null;
-		return (Version) values.get(id);
+		return values.get(id);
 	}
 
 	/**
@@ -93,12 +91,12 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 	 * @param version the version advice for the given id or <code>null</code> to remove advice
 	 */
 	public void setVersion(String namespace, String id, Version version) {
-		Map values = (Map) versions.get(namespace);
+		Map<String, Version> values = versions.get(namespace);
 		if (values == null) {
 			// if we are clearing values then there is nothing to do
 			if (version == null)
 				return;
-			values = new HashMap();
+			values = new HashMap<String, Version>();
 			versions.put(namespace, values);
 		}
 		if (version == null)
@@ -111,10 +109,9 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 		if (!(advice instanceof VersionAdvice))
 			return this;
 		VersionAdvice source = (VersionAdvice) advice;
-		for (Iterator i = source.versions.keySet().iterator(); i.hasNext();) {
-			String namespace = (String) i.next();
-			Map myValues = (Map) versions.get(namespace);
-			Map sourceValues = (Map) source.versions.get(namespace);
+		for (String namespace : source.versions.keySet()) {
+			Map<String, Version> myValues = versions.get(namespace);
+			Map<String, Version> sourceValues = source.versions.get(namespace);
 			if (myValues == null)
 				versions.put(namespace, sourceValues);
 			else if (sourceValues != null)
@@ -123,10 +120,9 @@ public class VersionAdvice extends AbstractAdvice implements IVersionAdvice {
 		return this;
 	}
 
-	private Map merge(Map myValues, Map sourceValues) {
-		Map result = new HashMap(myValues);
-		for (Iterator i = sourceValues.keySet().iterator(); i.hasNext();) {
-			String key = (String) i.next();
+	private Map<String, Version> merge(Map<String, Version> myValues, Map<String, Version> sourceValues) {
+		Map<String, Version> result = new HashMap<String, Version>(myValues);
+		for (String key : sourceValues.keySet()) {
 			if (result.get(key) == null)
 				result.put(key, sourceValues.get(key));
 		}

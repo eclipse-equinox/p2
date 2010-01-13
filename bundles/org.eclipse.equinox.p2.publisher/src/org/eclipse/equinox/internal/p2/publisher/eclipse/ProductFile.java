@@ -13,14 +13,16 @@
 
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
-
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.metadata.VersionedId;
+import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
@@ -119,25 +121,25 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private SAXParser parser;
 	private String launcherName = null;
 	//	private boolean useIco = false;
-	private Map icons = new HashMap(6);
+	private Map<String, Collection<String>> icons = new HashMap<String, Collection<String>>(6);
 	private String configPath = null;
-	private final Map platformSpecificConfigPaths = new HashMap();
+	private final Map<String, String> platformSpecificConfigPaths = new HashMap<String, String>();
 	private String configPlatform = null;
 	private String platformConfigPath = null;
 	private String id = null;
 	private String uid = null;
 	private boolean useFeatures = false;
-	private List plugins = null;
-	private List fragments = null;
-	private List features = null;
+	private List<IVersionedId> plugins = null;
+	private List<IVersionedId> fragments = null;
+	private List<IVersionedId> features = null;
 	private String splashLocation = null;
 	private String productName = null;
 	private String application = null;
 	private String version = null;
 	private Properties launcherArgs = new Properties();
 	private File location;
-	private List bundleInfos;
-	private Properties properties;
+	private List<BundleInfo> bundleInfos;
+	private Map<String, String> properties;
 	private String licenseURL;
 	private String licenseText = null;
 
@@ -199,11 +201,11 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * Returns the properties found in .product file.  Properties
 	 * are located in the <configurations> block of the file
 	 */
-	public Properties getConfigurationProperties() {
-		Properties result = properties != null ? properties : new Properties();
-		if (application != null && !result.contains(PROPERTY_ECLIPSE_APPLICATION))
+	public Map<String, String> getConfigurationProperties() {
+		Map<String, String> result = properties != null ? properties : new HashMap<String, String>();
+		if (application != null && !result.containsKey(PROPERTY_ECLIPSE_APPLICATION))
 			result.put(PROPERTY_ECLIPSE_APPLICATION, application);
-		if (id != null && !result.contains(PROPERTY_ECLIPSE_PRODUCT))
+		if (id != null && !result.containsKey(PROPERTY_ECLIPSE_PRODUCT))
 			result.put(PROPERTY_ECLIPSE_PRODUCT, id);
 
 		return result;
@@ -214,17 +216,17 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * @param includeFragments Indicates whether or not fragments should
 	 * be included in the list
 	 */
-	public List getBundles(boolean includeFragments) {
-		List p = plugins != null ? plugins : Collections.EMPTY_LIST;
+	public List<IVersionedId> getBundles(boolean includeFragments) {
+		List<IVersionedId> p = plugins != null ? plugins : CollectionUtils.<IVersionedId> emptyList();
 		if (!includeFragments)
 			return p;
 
-		List f = fragments != null ? fragments : Collections.EMPTY_LIST;
+		List<IVersionedId> f = fragments != null ? fragments : CollectionUtils.<IVersionedId> emptyList();
 		int size = p.size() + f.size();
 		if (size == 0)
-			return Collections.EMPTY_LIST;
+			return CollectionUtils.emptyList();
 
-		List both = new ArrayList(size);
+		List<IVersionedId> both = new ArrayList<IVersionedId>(size);
 		both.addAll(p);
 		both.addAll(f);
 		return both;
@@ -235,37 +237,33 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * in the product file.
 	 * @return A List<BundleInfo>
 	 */
-	public List getBundleInfos() {
-		return bundleInfos != null ? bundleInfos : Collections.EMPTY_LIST;
+	public List<BundleInfo> getBundleInfos() {
+		return bundleInfos != null ? bundleInfos : CollectionUtils.<BundleInfo> emptyList();
 	}
 
 	/**
 	 * Returns a list<VersionedName> of fragments that constitute this product.
 	 */
-	public List getFragments() {
-		if (fragments == null)
-			return Collections.EMPTY_LIST;
-		return fragments;
+	public List<IVersionedId> getFragments() {
+		return fragments != null ? fragments : CollectionUtils.<IVersionedId> emptyList();
 	}
 
 	/**
 	 * Returns a List<VersionedName> of features that constitute this product.
 	 */
-	public List getFeatures() {
-		if (features == null)
-			return Collections.EMPTY_LIST;
-		return features;
+	public List<IVersionedId> getFeatures() {
+		return features != null ? features : CollectionUtils.<IVersionedId> emptyList();
 	}
 
 	public String[] getIcons(String os) {
-		Collection result = (Collection) icons.get(os);
+		Collection<String> result = icons.get(os);
 		if (result == null)
 			return null;
-		return (String[]) result.toArray(new String[result.size()]);
+		return result.toArray(new String[result.size()]);
 	}
 
 	public String getConfigIniPath(String os) {
-		String specific = (String) platformSpecificConfigPaths.get(os);
+		String specific = platformSpecificConfigPaths.get(os);
 		return specific == null ? configPath : specific;
 	}
 
@@ -507,7 +505,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		if (value == null)
 			value = ""; //$NON-NLS-1$
 		if (properties == null)
-			properties = new Properties();
+			properties = new HashMap<String, String>();
 		properties.put(name, value);
 	}
 
@@ -525,7 +523,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		if (value != null)
 			info.setMarkedAsStarted(Boolean.valueOf(value).booleanValue());
 		if (bundleInfos == null)
-			bundleInfos = new ArrayList();
+			bundleInfos = new ArrayList<BundleInfo>();
 		bundleInfos.add(info);
 	}
 
@@ -645,11 +643,11 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		IVersionedId name = new VersionedId(attributes.getValue(ATTRIBUTE_ID), attributes.getValue(ATTRIBUTE_VERSION));
 		if (fragment != null && new Boolean(fragment).booleanValue()) {
 			if (fragments == null)
-				fragments = new ArrayList();
+				fragments = new ArrayList<IVersionedId>();
 			fragments.add(name);
 		} else {
 			if (plugins == null)
-				plugins = new ArrayList();
+				plugins = new ArrayList<IVersionedId>();
 			plugins.add(name);
 		}
 	}
@@ -657,7 +655,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private void processFeature(Attributes attributes) {
 		IVersionedId name = new VersionedId(attributes.getValue(ATTRIBUTE_ID), attributes.getValue(ATTRIBUTE_VERSION));
 		if (features == null)
-			features = new ArrayList();
+			features = new ArrayList<IVersionedId>();
 		features.add(name);
 	}
 
@@ -704,14 +702,26 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private void addIcon(String os, String value) {
 		if (value == null)
 			return;
-		Collection list = (Collection) icons.get(os);
+
+		File iconFile = new File(value);
+		if (!iconFile.isFile()) {
+			//workspace
+			Location instanceLocation = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.INSTANCE_FILTER);
+			if (instanceLocation != null && instanceLocation.getURL() != null) {
+				File workspace = URLUtil.toFile(instanceLocation.getURL());
+				if (workspace != null)
+					iconFile = new File(workspace, value);
+			}
+		}
+		if (!iconFile.isFile())
+			iconFile = new File(location.getParentFile(), value);
+
+		Collection<String> list = icons.get(os);
 		if (list == null) {
-			list = new ArrayList(6);
+			list = new ArrayList<String>(6);
 			icons.put(os, list);
 		}
-		if (!new File(value).isAbsolute())
-			value = new File(location.getParentFile(), value).getAbsolutePath();
-		list.add(value);
+		list.add(iconFile.getAbsolutePath());
 	}
 
 	private void processSolaris(Attributes attributes) {

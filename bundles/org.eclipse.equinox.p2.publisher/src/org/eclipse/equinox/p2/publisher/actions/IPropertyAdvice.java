@@ -10,22 +10,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
-import java.util.Properties;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import java.util.Map;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public interface IPropertyAdvice extends IPublisherAdvice {
 
 	/**
 	 * Returns the set of extra properties to be associated with the IU
 	 */
-	public Properties getInstallableUnitProperties(InstallableUnitDescription iu);
+	public Map<String, String> getInstallableUnitProperties(InstallableUnitDescription iu);
 
 	/**
 	 * Returns the set of extra properties to be associated with the artifact descriptor
 	 * being published
 	 */
-	public Properties getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor);
+	public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor);
 }

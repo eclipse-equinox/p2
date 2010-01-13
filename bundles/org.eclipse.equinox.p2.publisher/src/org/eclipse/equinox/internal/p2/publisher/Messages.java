@@ -18,10 +18,8 @@ public class Messages extends NLS {
 	public static String exception_errorReadingManifest;
 	public static String exception_errorLoadingManifest;
 	public static String exception_noPluginConverter;
-	public static String exception_errorPublishingArtifacts;
 	public static String exception_noArtifactRepo;
 	public static String exception_noMetadataRepo;
-	public static String exception_errorLoadingProperties;
 	public static String exception_noBundlesOrLocations;
 	public static String exception_noFeaturesOrLocations;
 	public static String exception_invalidSiteReference;

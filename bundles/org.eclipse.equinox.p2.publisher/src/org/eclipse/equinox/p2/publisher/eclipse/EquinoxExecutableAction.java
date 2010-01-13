@@ -16,13 +16,15 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.BrandingIron;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.environment.Constants;
+import org.osgi.framework.Filter;
 
 /**
  * Given the description of an executable, this action publishes optionally 
@@ -84,11 +86,8 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		iud.setVersion(version);
 		iud.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
 		iud.setCapabilities(new IProvidedCapability[] {createSelfCapability(id, version)});
-
-		String filter = createFilterSpec(configSpec);
-		if (filter.length() > 0)
-			iud.setFilter(filter);
-		Map touchpointData = new HashMap();
+		iud.setFilter(createFilterSpec(configSpec));
+		Map<String, String> touchpointData = new HashMap<String, String>();
 		touchpointData.put("configure", "setLauncherName(name:" + executableName + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		touchpointData.put("unconfigure", "setLauncherName()"); //$NON-NLS-1$ //$NON-NLS-2$
 		iud.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
@@ -105,7 +104,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		String id = getExecutableId();
 		iu.setId(id);
 		iu.setVersion(version);
-		String filter = createFilterSpec(configSpec);
+		Filter filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);
 		iu.setSingleton(true);
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
@@ -118,7 +117,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		//Create the artifact descriptor.  we have several files so no path on disk
 		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(id, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
-		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
+		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(info.getArtifactRepository(), key, null);
 		publishArtifact(descriptor, execDescriptor.getFiles(), null, info, createRootPrefixComputer(execDescriptor.getLocation()));
 		if (execDescriptor.isTemporary())
 			FileUtils.deleteAll(execDescriptor.getLocation());
@@ -131,7 +130,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		String launcherFragment = EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
 		if (!(Constants.OS_MACOSX.equals(os) && !Constants.ARCH_X86_64.equals(arch)))
 			launcherFragment += '.' + arch;
-		iu.setRequiredCapabilities(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
+		iu.setRequiredCapabilities(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
 		result.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 	}
 
@@ -147,21 +146,21 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		cu.setVersion(version);
 		cu.setFilter(createFilterSpec(configSpec));
 		String executableId = getExecutableId();
-		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, executableId, new VersionRange(version, true, version, true), null, false, false)});
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setHost(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, executableId, new VersionRange(version, true, version, true), null, false, false)});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		//TODO bug 218890, would like the fragment to provide the launcher capability as well, but can't right now.
 		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(id, version)});
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		String[] config = parseConfigSpec(configSpec);
 		String os = config[1];
-		Map touchpointData = computeInstallActions(execDescriptor, os);
+		Map<String, String> touchpointData = computeInstallActions(execDescriptor, os);
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
 		result.addIU(unit, IPublisherResult.ROOT);
 	}
 
-	private Map computeInstallActions(ExecutablesDescriptor execDescriptor, String os) {
-		Map touchpointData = new HashMap();
+	private Map<String, String> computeInstallActions(ExecutablesDescriptor execDescriptor, String os) {
+		Map<String, String> touchpointData = new HashMap<String, String>();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		if (Constants.OS_MACOSX.equals(os)) {
 			String execName = execDescriptor.getExecutableName();
@@ -200,9 +199,9 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	private IBrandingAdvice getBrandingAdvice() {
 		// there is expected to only be one branding advice for a given configspec so
 		// just return the first one we find.
-		Collection advice = info.getAdvice(configSpec, true, null, null, IBrandingAdvice.class);
-		for (Iterator i = advice.iterator(); i.hasNext();)
-			return (IBrandingAdvice) i.next();
+		Collection<IBrandingAdvice> advice = info.getAdvice(configSpec, true, null, null, IBrandingAdvice.class);
+		for (Iterator<IBrandingAdvice> i = advice.iterator(); i.hasNext();)
+			return i.next();
 		return null;
 	}
 

@@ -12,12 +12,14 @@ package org.eclipse.equinox.p2.publisher.actions;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.NLS;
@@ -31,7 +33,7 @@ public class RootIUAction extends AbstractPublisherAction {
 	private Version version;
 	private String id;
 	private String name;
-	private Collection versionAdvice;
+	private Collection<IVersionAdvice> versionAdvice;
 
 	public RootIUAction(String id, Version version, String name) {
 		this.id = id;
@@ -45,7 +47,7 @@ public class RootIUAction extends AbstractPublisherAction {
 	}
 
 	protected IStatus generateRootIU(IPublisherResult result) {
-		Collection children = getChildren(result);
+		Collection<? extends IVersionedId> children = getChildren(result);
 		InstallableUnitDescription descriptor = createTopLevelIUDescription(children, null, false);
 		processCapabilityAdvice(descriptor, info);
 		processTouchpointAdvice(descriptor, null, info);
@@ -67,14 +69,14 @@ public class RootIUAction extends AbstractPublisherAction {
 	}
 
 	protected static void processLicense(InstallableUnitDescription iu, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, true, iu.getId(), iu.getVersion(), ILicenseAdvice.class);
+		Collection<ILicenseAdvice> advice = info.getAdvice(null, true, iu.getId(), iu.getVersion(), ILicenseAdvice.class);
 		if (advice.size() > 0) {
 			// Only process the first license we find for this IU.
-			ILicenseAdvice entry = (ILicenseAdvice) advice.iterator().next();
+			ILicenseAdvice entry = advice.iterator().next();
 			String licenseText = entry.getLicenseText() == null ? "" : entry.getLicenseText(); //$NON-NLS-1$
 			String licenseUrl = entry.getLicenseURL() == null ? "" : entry.getLicenseURL(); //$NON-NLS-1$
 			if (licenseText.length() > 0 || licenseUrl.length() > 0)
-				iu.setLicense(MetadataFactory.createLicense(toURIOrNull(licenseUrl), licenseText));
+				iu.setLicenses(new ILicense[] {MetadataFactory.createLicense(toURIOrNull(licenseUrl), licenseText)});
 		}
 	}
 
@@ -116,19 +118,17 @@ public class RootIUAction extends AbstractPublisherAction {
 	//		cat.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
 	//		return MetadataFactory.createInstallableUnit(cat);
 	//	}
-	private Collection getChildren(IPublisherResult result) {
+	private Collection<? extends IVersionedId> getChildren(IPublisherResult result) {
 		// get any roots that we have accummulated so far and search for
 		// children from the advice.
-		HashSet children = new HashSet();
-		Collection rootAdvice = info.getAdvice(null, true, null, null, IRootIUAdvice.class);
+		HashSet<IVersionedId> children = new HashSet<IVersionedId>();
+		Collection<IRootIUAdvice> rootAdvice = info.getAdvice(null, true, null, null, IRootIUAdvice.class);
 		if (rootAdvice == null)
 			return children;
-		for (Iterator i = rootAdvice.iterator(); i.hasNext();) {
-			IRootIUAdvice advice = (IRootIUAdvice) i.next();
-			Collection list = advice.getChildren(result);
+		for (IRootIUAdvice advice : rootAdvice) {
+			Collection<? extends Object> list = advice.getChildren(result);
 			if (list != null)
-				for (Iterator j = list.iterator(); j.hasNext();) {
-					Object object = j.next();
+				for (Object object : list) {
 					// if the advice is a string, look it up in the result.  if not there then 
 					// query the known metadata repos
 					if (object instanceof String) {
@@ -137,29 +137,29 @@ public class RootIUAction extends AbstractPublisherAction {
 						if (iu != null)
 							children.add(iu);
 					} else if (object instanceof IVersionedId) {
-						children.add(object);
+						children.add((IVersionedId) object);
 					}
 				}
 		}
 		return children;
 	}
 
-	private InstallableUnitDescription createTopLevelIUDescription(Collection children, Collection requires, boolean configureLauncherData) {
+	private InstallableUnitDescription createTopLevelIUDescription(Collection<? extends IVersionedId> children, Collection<IRequirement> requires, boolean configureLauncherData) {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
 		root.setId(id);
 		root.setVersion(version);
 		root.setProperty(IInstallableUnit.PROP_NAME, name);
 
-		Collection requiredCapabilities = createIURequirements(children);
+		Collection<IRequirement> requiredCapabilities = createIURequirements(children);
 		if (requires != null)
 			requiredCapabilities.addAll(requires);
-		root.setRequiredCapabilities((IRequiredCapability[]) requiredCapabilities.toArray(new IRequiredCapability[requiredCapabilities.size()]));
+		root.setRequiredCapabilities(requiredCapabilities.toArray(new IRequirement[requiredCapabilities.size()]));
 		root.setArtifacts(new IArtifactKey[0]);
 
 		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null));
-		root.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
+		root.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		root.setCapabilities(new IProvidedCapability[] {createSelfCapability(id, version)});
 		// TODO why is the type OSGI?
 		root.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
@@ -172,8 +172,7 @@ public class RootIUAction extends AbstractPublisherAction {
 			if (versionAdvice == null)
 				return null;
 		}
-		for (Iterator i = versionAdvice.iterator(); i.hasNext();) {
-			IVersionAdvice advice = (IVersionAdvice) i.next();
+		for (IVersionAdvice advice : versionAdvice) {
 			// TODO have to figure a way to know the namespace here.  for now just look everywhere
 			Version result = advice.getVersion(IInstallableUnit.NAMESPACE_IU_ID, iuID);
 			if (result == null)

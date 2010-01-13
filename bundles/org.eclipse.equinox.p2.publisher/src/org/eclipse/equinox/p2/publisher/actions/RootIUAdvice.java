@@ -20,13 +20,13 @@ import org.eclipse.equinox.p2.publisher.IPublisherResult;
  */
 public class RootIUAdvice extends AbstractAdvice implements IRootIUAdvice {
 
-	private Collection children;
+	private Collection<? extends Object> children;
 
-	public RootIUAdvice(Collection children) {
+	public RootIUAdvice(Collection<? extends Object> children) {
 		this.children = children;
 	}
 
-	public Collection getChildren(IPublisherResult result) {
+	public Collection<? extends Object> getChildren(IPublisherResult result) {
 		return children;
 	}
 

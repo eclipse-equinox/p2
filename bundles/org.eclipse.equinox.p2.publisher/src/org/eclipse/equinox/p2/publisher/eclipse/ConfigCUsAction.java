@@ -16,13 +16,14 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.ManifestElement;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
+import org.osgi.framework.*;
 
 /**
  * Publish CUs for all the configuration data in the current result.
@@ -32,8 +33,9 @@ import org.osgi.framework.Constants;
 public class ConfigCUsAction extends AbstractPublisherAction {
 
 	protected static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
-	private static Collection PROPERTIES_TO_SKIP;
-	private static HashSet PROGRAM_ARGS_TO_SKIP;
+	protected static final String DEFAULT_START_LEVEL = "osgi.bundles.defaultStartLevel"; //$NON-NLS-1$
+	private static Collection<String> PROPERTIES_TO_SKIP;
+	private static HashSet<String> PROGRAM_ARGS_TO_SKIP;
 	protected Version version;
 	protected String id;
 	protected String flavor;
@@ -42,7 +44,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	// TODO consider moving this filtering to the LaunchingAdvice and ConfigAdvice so 
 	// it is not hardcoded in the action.
 	static {
-		PROPERTIES_TO_SKIP = new HashSet();
+		PROPERTIES_TO_SKIP = new HashSet<String>();
 		PROPERTIES_TO_SKIP.add("osgi.frameworkClassPath"); //$NON-NLS-1$
 		PROPERTIES_TO_SKIP.add("osgi.framework"); //$NON-NLS-1$
 		PROPERTIES_TO_SKIP.add("osgi.bundles"); //$NON-NLS-1$
@@ -53,7 +55,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		PROPERTIES_TO_SKIP.add("org.eclipse.update.reconcile"); //$NON-NLS-1$
 		PROPERTIES_TO_SKIP.add("org.eclipse.equinox.simpleconfigurator.configUrl"); //$NON-NLS-1$
 
-		PROGRAM_ARGS_TO_SKIP = new HashSet();
+		PROGRAM_ARGS_TO_SKIP = new HashSet<String>();
 		PROGRAM_ARGS_TO_SKIP.add("--launcher.library"); //$NON-NLS-1$
 		PROGRAM_ARGS_TO_SKIP.add("-startup"); //$NON-NLS-1$
 		PROGRAM_ARGS_TO_SKIP.add("-configuration"); //$NON-NLS-1$
@@ -94,11 +96,11 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
 			String configSpec = configSpecs[i];
-			Collection configAdvice = publisherInfo.getAdvice(configSpec, false, id, version, IConfigAdvice.class);
+			Collection<IConfigAdvice> configAdvice = publisherInfo.getAdvice(configSpec, false, id, version, IConfigAdvice.class);
 			BundleInfo[] bundles = fillInBundles(configAdvice, results);
 			publishBundleCUs(publisherInfo, bundles, configSpec, innerResult);
 			publishConfigIUs(configAdvice, innerResult, configSpec);
-			Collection launchingAdvice = publisherInfo.getAdvice(configSpec, false, id, version, IExecutableAdvice.class);
+			Collection<IExecutableAdvice> launchingAdvice = publisherInfo.getAdvice(configSpec, false, id, version, IExecutableAdvice.class);
 			publishIniIUs(launchingAdvice, innerResult, configSpec);
 		}
 		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
@@ -107,7 +109,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		return Status.OK_STATUS;
 	}
 
-	private void publishTopLevelConfigurationIU(Collection children, IPublisherResult result) {
+	private void publishTopLevelConfigurationIU(Collection<? extends IVersionedId> children, IPublisherResult result) {
 		InstallableUnitDescription descriptor = createParentIU(children, computeIUId(id, flavor), version);
 		descriptor.setSingleton(true);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
@@ -118,26 +120,41 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 
 	// there seem to be cases where the bundle infos are not filled in with symbolic name and version.
 	// fill in the missing data.
-	private BundleInfo[] fillInBundles(Collection configAdvice, IPublisherResult results) {
-		ArrayList result = new ArrayList();
-		for (Iterator j = configAdvice.iterator(); j.hasNext();) {
-			IConfigAdvice advice = (IConfigAdvice) j.next();
+	private BundleInfo[] fillInBundles(Collection<IConfigAdvice> configAdvice, IPublisherResult results) {
+		ArrayList<BundleInfo> result = new ArrayList<BundleInfo>();
+		for (IConfigAdvice advice : configAdvice) {
+
+			int defaultStart = BundleInfo.NO_LEVEL;
+			Map<String, String> adviceProperties = advice.getProperties();
+			if (adviceProperties.containsKey(DEFAULT_START_LEVEL)) {
+				try {
+					defaultStart = Integer.parseInt(adviceProperties.get(DEFAULT_START_LEVEL));
+				} catch (NumberFormatException e) {
+					//don't know default
+				}
+			}
+
 			BundleInfo[] bundles = advice.getBundles();
 			for (int i = 0; i < bundles.length; i++) {
 				BundleInfo bundleInfo = bundles[i];
+
+				if (bundleInfo.getStartLevel() != BundleInfo.NO_LEVEL && bundleInfo.getStartLevel() == defaultStart) {
+					bundleInfo.setStartLevel(BundleInfo.NO_LEVEL);
+				}
+
 				// prime the result with the current info.  This will be replaced if there is more info...
 				if ((bundleInfo.getSymbolicName() != null && bundleInfo.getVersion() != null) || bundleInfo.getLocation() == null)
 					result.add(bundles[i]);
 				else {
 					try {
 						File location = new File(bundleInfo.getLocation());
-						Dictionary manifest = BundlesAction.loadManifest(location);
+						Dictionary<String, String> manifest = BundlesAction.loadManifest(location);
 						if (manifest == null)
 							continue;
 						GeneratorBundleInfo newInfo = new GeneratorBundleInfo(bundleInfo);
-						ManifestElement[] element = ManifestElement.parseHeader("dummy-bsn", (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
+						ManifestElement[] element = ManifestElement.parseHeader("dummy-bsn", manifest.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
 						newInfo.setSymbolicName(element[0].getValue());
-						newInfo.setVersion((String) manifest.get(Constants.BUNDLE_VERSION));
+						newInfo.setVersion(manifest.get(Constants.BUNDLE_VERSION));
 						result.add(newInfo);
 					} catch (BundleException e) {
 						// TODO Auto-generated catch block
@@ -146,13 +163,13 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 				}
 			}
 		}
-		return (BundleInfo[]) result.toArray(new BundleInfo[result.size()]);
+		return result.toArray(new BundleInfo[result.size()]);
 	}
 
 	/**
 	 * Publish the IUs that capture the eclipse.ini information such as vmargs and program args, etc
 	 */
-	private void publishIniIUs(Collection launchingAdvice, IPublisherResult results, String configSpec) {
+	private void publishIniIUs(Collection<IExecutableAdvice> launchingAdvice, IPublisherResult results, String configSpec) {
 		if (launchingAdvice.isEmpty())
 			return;
 
@@ -167,7 +184,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		if (configureData.length() == 0 && unconfigureData.length() == 0)
 			return;
 
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 		touchpointData.put("configure", configureData); //$NON-NLS-1$
 		touchpointData.put("unconfigure", unconfigureData); //$NON-NLS-1$
 		IInstallableUnit cu = createCU(id, version, "ini", flavor, configSpec, touchpointData); //$NON-NLS-1$
@@ -177,7 +194,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	/**
 	 * Publish the IUs that capture the config.ini information such as properties etc
 	 */
-	private void publishConfigIUs(Collection configAdvice, IPublisherResult results, String configSpec) {
+	private void publishConfigIUs(Collection<IConfigAdvice> configAdvice, IPublisherResult results, String configSpec) {
 		if (configAdvice.isEmpty())
 			return;
 
@@ -192,7 +209,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		if (configureData.length() == 0 && unconfigureData.length() == 0)
 			return;
 
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 		touchpointData.put("configure", configureData); //$NON-NLS-1$
 		touchpointData.put("unconfigure", unconfigureData); //$NON-NLS-1$
 		IInstallableUnit cu = createCU(id, version, "config", flavor, configSpec, touchpointData); //$NON-NLS-1$
@@ -205,13 +222,12 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	 * with the name id.type and the given version.  This allows others to create an abstract
 	 * dependency on having one of these things around but not having to list out the configs.
 	 */
-	private IInstallableUnit createCU(String id, Version version, String type, String flavor, String configSpec, Map touchpointData) {
+	private IInstallableUnit createCU(String id, Version version, String type, String flavor, String configSpec, Map<String, String> touchpointData) {
 		InstallableUnitDescription cu = new InstallableUnitDescription();
 		String resultId = createCUIdString(id, type, flavor, configSpec);
 		cu.setId(resultId);
 		cu.setVersion(version);
 		cu.setFilter(createFilterSpec(configSpec));
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		IProvidedCapability selfCapability = PublisherHelper.createSelfCapability(resultId, version);
 		String namespace = getAbstractCUCapabilityNamespace(id, type, flavor, configSpec);
 		String abstractId = getAbstractCUCapabilityId(id, type, flavor, configSpec);
@@ -222,18 +238,16 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
-	protected String[] getConfigurationStrings(Collection configAdvice) {
+	protected String[] getConfigurationStrings(Collection<IConfigAdvice> configAdvice) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
-		Set properties = new HashSet();
-		for (Iterator i = configAdvice.iterator(); i.hasNext();) {
-			IConfigAdvice advice = (IConfigAdvice) i.next();
-			for (Iterator iterator = advice.getProperties().entrySet().iterator(); iterator.hasNext();) {
-				Entry aProperty = (Entry) iterator.next();
-				String key = ((String) aProperty.getKey());
+		Set<String> properties = new HashSet<String>();
+		for (IConfigAdvice advice : configAdvice) {
+			for (Entry<String, String> aProperty : advice.getProperties().entrySet()) {
+				String key = aProperty.getKey();
 				if (shouldPublishProperty(key) && !properties.contains(key)) {
 					properties.add(key);
-					configurationData += "setProgramProperty(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					configurationData += "setProgramProperty(propName:" + key + ", propValue:" + aProperty.getValue() + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					unconfigurationData += "setProgramProperty(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
@@ -253,14 +267,13 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		return !PROGRAM_ARGS_TO_SKIP.contains(key);
 	}
 
-	protected String[] getLauncherConfigStrings(Collection launchingAdvice) {
+	protected String[] getLauncherConfigStrings(Collection<IExecutableAdvice> launchingAdvice) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
 
-		Set jvmSet = new HashSet();
-		Set programSet = new HashSet();
-		for (Iterator j = launchingAdvice.iterator(); j.hasNext();) {
-			IExecutableAdvice advice = (IExecutableAdvice) j.next();
+		Set<String> jvmSet = new HashSet<String>();
+		Set<String> programSet = new HashSet<String>();
+		for (IExecutableAdvice advice : launchingAdvice) {
 			String[] jvmArgs = advice.getVMArguments();
 			for (int i = 0; i < jvmArgs.length; i++)
 				if (shouldPublishJvmArg(jvmArgs[i]) && !jvmSet.contains(jvmArgs[i])) {
@@ -293,7 +306,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			return;
 
 		String cuIdPrefix = ""; //$NON-NLS-1$
-		String filter = null;
+		Filter filter = null;
 		if (configSpec != null) {
 			cuIdPrefix = createIdString(configSpec);
 			filter = createFilterSpec(configSpec);
@@ -307,7 +320,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			IInstallableUnit iu = bundle.getIU();
 
 			// If there is no host, or the filters don't match, skip this one.
-			if (iu == null || !filterMatches(iu.getFilter(), configSpec))
+			if (iu == null || !filterMatches(iu.getFilter() == null ? null : iu.getFilter(), configSpec))
 				continue;
 
 			// TODO need to factor this out into its own action

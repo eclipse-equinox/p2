@@ -12,15 +12,15 @@ package org.eclipse.equinox.p2.publisher;
 
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.*;
 
 public class PublisherResult implements IPublisherResult {
 
-	private static final Collection EMPTY_COLLECTION = new ArrayList(0);
-	final Map rootIUs = new HashMap();
-	final Map nonRootIUs = new HashMap();
+	final Map<String, Set<IInstallableUnit>> rootIUs = new HashMap<String, Set<IInstallableUnit>>();
+	final Map<String, Set<IInstallableUnit>> nonRootIUs = new HashMap<String, Set<IInstallableUnit>>();
 
 	public void addIU(IInstallableUnit iu, String type) {
 		if (type == ROOT)
@@ -29,15 +29,15 @@ public class PublisherResult implements IPublisherResult {
 			addIU(nonRootIUs, iu.getId(), iu);
 	}
 
-	public void addIUs(Collection ius, String type) {
-		for (Iterator i = ius.iterator(); i.hasNext();)
-			addIU((IInstallableUnit) i.next(), type);
+	public void addIUs(Collection<IInstallableUnit> ius, String type) {
+		for (IInstallableUnit iu : ius)
+			addIU(iu, type);
 	}
 
-	private void addIU(Map map, String id, IInstallableUnit iu) {
-		Set ius = (Set) map.get(id);
+	private void addIU(Map<String, Set<IInstallableUnit>> map, String id, IInstallableUnit iu) {
+		Set<IInstallableUnit> ius = map.get(id);
 		if (ius == null) {
-			ius = new HashSet(11);
+			ius = new HashSet<IInstallableUnit>(11);
 			map.put(id, ius);
 		}
 		ius.add(iu);
@@ -45,17 +45,15 @@ public class PublisherResult implements IPublisherResult {
 
 	public IInstallableUnit getIU(String id, Version version, String type) {
 		if (type == null || type == ROOT) {
-			Collection ius = (Collection) rootIUs.get(id);
-			for (Iterator i = ius.iterator(); i.hasNext();) {
-				IInstallableUnit iu = (IInstallableUnit) i.next();
+			Collection<IInstallableUnit> ius = rootIUs.get(id);
+			for (IInstallableUnit iu : ius) {
 				if (iu.getVersion().equals(version))
 					return iu;
 			}
 		}
 		if (type == null || type == NON_ROOT) {
-			Collection ius = (Collection) nonRootIUs.get(id);
-			for (Iterator i = ius.iterator(); i.hasNext();) {
-				IInstallableUnit iu = (IInstallableUnit) i.next();
+			Collection<IInstallableUnit> ius = nonRootIUs.get(id);
+			for (IInstallableUnit iu : ius) {
 				if (iu.getVersion().equals(version))
 					return iu;
 			}
@@ -67,14 +65,14 @@ public class PublisherResult implements IPublisherResult {
 	// matching IU non-deterministically.
 	public IInstallableUnit getIU(String id, String type) {
 		if (type == null || type == ROOT) {
-			Collection ius = (Collection) rootIUs.get(id);
+			Collection<IInstallableUnit> ius = rootIUs.get(id);
 			if (ius != null && ius.size() > 0)
-				return (IInstallableUnit) ius.iterator().next();
+				return ius.iterator().next();
 		}
 		if (type == null || type == NON_ROOT) {
-			Collection ius = (Collection) nonRootIUs.get(id);
+			Collection<IInstallableUnit> ius = nonRootIUs.get(id);
 			if (ius != null && ius.size() > 0)
-				return (IInstallableUnit) ius.iterator().next();
+				return ius.iterator().next();
 		}
 		return null;
 	}
@@ -82,30 +80,30 @@ public class PublisherResult implements IPublisherResult {
 	/**
 	 * Returns the IUs in this result with the given id.
 	 */
-	public Collection getIUs(String id, String type) {
+	public Collection<IInstallableUnit> getIUs(String id, String type) {
 		if (type == null) {
-			ArrayList result = new ArrayList();
+			ArrayList<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
 			result.addAll(id == null ? flatten(rootIUs.values()) : getIUs(rootIUs, id));
 			result.addAll(id == null ? flatten(nonRootIUs.values()) : getIUs(nonRootIUs, id));
 			return result;
 		}
 		if (type == ROOT)
-			return id == null ? flatten(rootIUs.values()) : (Collection) rootIUs.get(id);
+			return id == null ? flatten(rootIUs.values()) : rootIUs.get(id);
 		if (type == NON_ROOT)
-			return id == null ? flatten(nonRootIUs.values()) : (Collection) nonRootIUs.get(id);
+			return id == null ? flatten(nonRootIUs.values()) : nonRootIUs.get(id);
 		return null;
 	}
 
-	private Collection getIUs(Map ius, String id) {
-		Collection result = (Collection) ius.get(id);
-		return result == null ? EMPTY_COLLECTION : result;
+	private Collection<IInstallableUnit> getIUs(Map<String, Set<IInstallableUnit>> ius, String id) {
+		Collection<IInstallableUnit> result = ius.get(id);
+		return result == null ? CollectionUtils.<IInstallableUnit> emptyList() : result;
 	}
 
-	protected List flatten(Collection values) {
-		ArrayList result = new ArrayList();
-		for (Iterator i = values.iterator(); i.hasNext();)
-			for (Iterator j = ((HashSet) i.next()).iterator(); j.hasNext();)
-				result.add(j.next());
+	protected List<IInstallableUnit> flatten(Collection<Set<IInstallableUnit>> values) {
+		ArrayList<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+		for (Set<IInstallableUnit> iuSet : values)
+			for (IInstallableUnit iu : iuSet)
+				result.add(iu);
 		return result;
 	}
 
@@ -122,24 +120,39 @@ public class PublisherResult implements IPublisherResult {
 		}
 	}
 
-	class QueryableMap implements IQueryable {
-		private Map map;
+	class QueryableMap implements IQueryable<IInstallableUnit> {
+		private Map<String, Set<IInstallableUnit>> map;
 
-		public QueryableMap(Map map) {
+		public QueryableMap(Map<String, Set<IInstallableUnit>> map) {
 			this.map = map;
 		}
 
-		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-			return query.perform(flatten(this.map.values()).iterator(), collector);
+		public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+			return query.perform(flatten(this.map.values()).iterator());
 		}
 	}
 
 	/**
 	 * Queries both the root and non root IUs
 	 */
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-		IQueryable nonRootQueryable = new QueryableMap(nonRootIUs);
-		IQueryable rootQueryable = new QueryableMap(rootIUs);
-		return new CompoundQueryable(new IQueryable[] {nonRootQueryable, rootQueryable}).query(query, collector, monitor);
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+		//optimize for installable unit query
+		if (query instanceof InstallableUnitQuery)
+			return queryIU((InstallableUnitQuery) query, monitor);
+		IQueryable<IInstallableUnit> nonRootQueryable = new QueryableMap(nonRootIUs);
+		IQueryable<IInstallableUnit> rootQueryable = new QueryableMap(rootIUs);
+		return new CompoundQueryable<IInstallableUnit>(nonRootQueryable, rootQueryable).query(query, monitor);
+	}
+
+	private IQueryResult<IInstallableUnit> queryIU(InstallableUnitQuery query, IProgressMonitor monitor) {
+		Collector<IInstallableUnit> result = new Collector<IInstallableUnit>();
+		Collection<IInstallableUnit> matches = getIUs(query.getId(), null);
+		VersionRange queryRange = query.getRange();
+		for (IInstallableUnit match : matches) {
+			if (queryRange == null || queryRange.isIncluded(match.getVersion()))
+				if (!result.accept(match))
+					break;
+		}
+		return result;
 	}
 }

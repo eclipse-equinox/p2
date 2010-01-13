@@ -11,13 +11,13 @@
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.util.Collection;
-import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.IVersionAdvice;
+import org.osgi.framework.Filter;
 
 /**
  * Create CUs for all Equinox launcher related IUs for the given set of configurations
@@ -65,9 +65,8 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 	 * configure it in as the launcher.library for this configuration.
 	 */
 	private void publishCU(String id, String configSpec, IPublisherResult results) {
-		Collection advice = info.getAdvice(configSpec, true, id, null, IVersionAdvice.class);
-		for (Iterator j = advice.iterator(); j.hasNext();) {
-			IVersionAdvice versionSpec = (IVersionAdvice) j.next();
+		Collection<IVersionAdvice> advice = info.getAdvice(configSpec, true, id, null, IVersionAdvice.class);
+		for (IVersionAdvice versionSpec : advice) {
 			Version version = versionSpec.getVersion(IInstallableUnit.NAMESPACE_IU_ID, id);
 			if (version == null)
 				continue;
@@ -81,7 +80,7 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 				bundle.setSpecialConfigCommands("addProgramArg(programArg:--launcher.library);addProgramArg(programArg:@artifact);"); //$NON-NLS-1$
 				bundle.setSpecialUnconfigCommands("removeProgramArg(programArg:--launcher.library);removeProgramArg(programArg:@artifact);"); //$NON-NLS-1$
 			}
-			String filter = configSpec == null ? null : createFilterSpec(configSpec);
+			Filter filter = configSpec == null ? null : createFilterSpec(configSpec);
 			IInstallableUnit cu = BundlesAction.createBundleConfigurationUnit(id, version, false, bundle, flavor, filter);
 			if (cu != null)
 				results.addIU(cu, IPublisherResult.ROOT);

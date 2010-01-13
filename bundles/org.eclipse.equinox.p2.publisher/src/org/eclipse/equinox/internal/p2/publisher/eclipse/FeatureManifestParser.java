@@ -33,7 +33,7 @@ public class FeatureManifestParser extends DefaultHandler {
 	private URL url;
 	private StringBuffer characters = null;
 
-	private List messageKeys = new ArrayList();
+	private List<String> messageKeys = new ArrayList<String>();
 
 	public FeatureManifestParser() {
 		this(true);
@@ -104,7 +104,7 @@ public class FeatureManifestParser extends DefaultHandler {
 		return result;
 	}
 
-	public List getMessageKeys() {
+	public List<String> getMessageKeys() {
 		return messageKeys;
 	}
 

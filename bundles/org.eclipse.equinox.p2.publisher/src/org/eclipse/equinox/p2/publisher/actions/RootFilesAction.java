@@ -14,18 +14,20 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.osgi.framework.Filter;
 
-// TODO need to merge this functionality with the FeaturesAction work on root files
 public class RootFilesAction extends AbstractPublisherAction {
 	private String idBase;
 	private Version version;
 	private String flavor;
+	private boolean createParent = true;
 
 	/**
 	 * Returns the id of the top level IU published by this action for the given id and flavor.
@@ -43,6 +45,10 @@ public class RootFilesAction extends AbstractPublisherAction {
 		this.flavor = flavor;
 	}
 
+	public void setCreateParent(boolean createParent) {
+		this.createParent = createParent;
+	}
+
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		setPublisherInfo(publisherInfo);
 		IPublisherResult innerResult = new PublisherResult();
@@ -56,13 +62,14 @@ public class RootFilesAction extends AbstractPublisherAction {
 		}
 		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
 		results.merge(innerResult, IPublisherResult.MERGE_ALL_NON_ROOT);
-		publishTopLevelRootFilesIU(innerResult.getIUs(null, IPublisherResult.ROOT), results);
+		if (createParent)
+			publishTopLevelRootFilesIU(innerResult.getIUs(null, IPublisherResult.ROOT), results);
 		if (monitor.isCanceled())
 			return Status.CANCEL_STATUS;
 		return Status.OK_STATUS;
 	}
 
-	private void publishTopLevelRootFilesIU(Collection children, IPublisherResult result) {
+	private void publishTopLevelRootFilesIU(Collection<? extends IVersionedId> children, IPublisherResult result) {
 		InstallableUnitDescription descriptor = createParentIU(children, computeIUId(idBase, flavor), version);
 		descriptor.setSingleton(true);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
@@ -83,7 +90,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 		String iuId = idPrefix + '.' + createIdString(configSpec);
 		iu.setId(iuId);
 		iu.setVersion(version);
-		String filter = createFilterSpec(configSpec);
+		Filter filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);
 		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(iuId, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
@@ -98,25 +105,25 @@ public class RootFilesAction extends AbstractPublisherAction {
 		cu.setId(configUnitId);
 		cu.setVersion(version);
 		cu.setFilter(filter);
-		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iuId, new VersionRange(version, true, version, true), null, false, false)});
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setHost(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iuId, new VersionRange(version, true, version, true), null, false, false)});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 
 		//TODO bug 218890, would like the fragment to provide the launcher capability as well, but can't right now.
 		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, version)});
 
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
-		Map touchpointData = new HashMap();
+		Map<String, String> touchpointData = new HashMap<String, String>();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
-		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		processTouchpointAdvice(cu, touchpointData, info, configSpec);
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
 		result.addIU(unit, IPublisherResult.ROOT);
 
 		if ((info.getArtifactOptions() & (IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH)) > 0) {
 			// Create the artifact descriptor.  we have several files so no path on disk
-			IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
+			IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(info.getArtifactRepository(), key, null);
 			IRootFilesAdvice advice = getAdvice(configSpec);
 			publishArtifact(descriptor, advice.getIncludedFiles(), advice.getExcludedFiles(), info, createPrefixComputer(advice.getRoot()));
 		}
@@ -135,12 +142,11 @@ public class RootFilesAction extends AbstractPublisherAction {
 	 * @return a compilation of <class>IRootfilesAdvice</class> from the <code>info</code>.
 	 */
 	private IRootFilesAdvice getAdvice(String configSpec) {
-		Collection advice = info.getAdvice(configSpec, true, null, null, IRootFilesAdvice.class);
-		ArrayList inclusions = new ArrayList();
-		ArrayList exclusions = new ArrayList();
+		Collection<IRootFilesAdvice> advice = info.getAdvice(configSpec, true, null, null, IRootFilesAdvice.class);
+		ArrayList<File> inclusions = new ArrayList<File>();
+		ArrayList<File> exclusions = new ArrayList<File>();
 		File root = null;
-		for (Iterator i = advice.iterator(); i.hasNext();) {
-			IRootFilesAdvice entry = (IRootFilesAdvice) i.next();
+		for (IRootFilesAdvice entry : advice) {
 			// TODO for now we simply get root from the first advice that has one
 			if (root == null)
 				root = entry.getRoot();
@@ -151,8 +157,8 @@ public class RootFilesAction extends AbstractPublisherAction {
 			if (list != null)
 				exclusions.addAll(Arrays.asList(list));
 		}
-		File[] includeList = (File[]) inclusions.toArray(new File[inclusions.size()]);
-		File[] excludeList = (File[]) exclusions.toArray(new File[exclusions.size()]);
+		File[] includeList = inclusions.toArray(new File[inclusions.size()]);
+		File[] excludeList = exclusions.toArray(new File[exclusions.size()]);
 		return new RootFilesAdvice(root, includeList, excludeList, configSpec);
 	}
 

@@ -9,10 +9,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
+
 /**
  * Advice for branding executables and other element while publishing.
  */
-public interface IBrandingAdvice {
+public interface IBrandingAdvice extends IPublisherAdvice {
 
 	/**
 	 * Returns the OS that this branding advice is relevant for.
