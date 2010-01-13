@@ -16,7 +16,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.query.IQuery;
+import org.osgi.framework.Filter;
 
 public class ResolvedInstallableUnit implements IInstallableUnit {
 	private static IInstallableUnitFragment[] NO_IU = new IInstallableUnitFragment[0];
@@ -52,7 +52,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getArtifacts();
 	}
 
-	public IQuery<Boolean> getFilter() {
+	public Filter getFilter() {
 		return original.getFilter();
 	}
 
@@ -187,12 +187,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 	}
 
 	public boolean satisfies(IRequirement candidate) {
-		Collection<IProvidedCapability> provides = getProvidedCapabilities();
-		for (IProvidedCapability capability : provides) {
-			if (capability.satisfies(candidate))
-				return true;
-		}
-		return false;
+		return candidate.isMatch(this);
 	}
 
 }

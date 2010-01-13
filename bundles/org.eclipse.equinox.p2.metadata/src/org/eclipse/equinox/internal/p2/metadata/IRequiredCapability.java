@@ -9,10 +9,7 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.query.IMatchQuery;
 
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.
@@ -30,7 +27,7 @@ import org.eclipse.equinox.p2.query.IMatchQuery;
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  */
-public interface IRequiredCapability extends IMatchQuery<IInstallableUnit>, IRequirement {
+public interface IRequiredCapability extends IRequirement {
 
 	//	public String getFilter();
 
@@ -45,9 +42,4 @@ public interface IRequiredCapability extends IMatchQuery<IInstallableUnit>, IReq
 	 * @return the range of versions that satisfy this required capability.
 	 */
 	public VersionRange getRange();
-
-	public boolean equals(Object other);
-
-	public boolean satisfiedBy(IProvidedCapability cap);
-
 }

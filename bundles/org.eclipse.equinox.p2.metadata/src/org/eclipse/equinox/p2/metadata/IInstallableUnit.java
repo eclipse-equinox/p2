@@ -12,7 +12,7 @@
 package org.eclipse.equinox.p2.metadata;
 
 import java.util.*;
-import org.eclipse.equinox.p2.query.IQuery;
+import org.osgi.framework.Filter;
 
 /**
  * An installable unit represents an atomic, indivisible unit of installable functionality
@@ -128,7 +128,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 * 
 	 * @return The installation filter for this unit, or <code>null</code>
 	 */
-	public IQuery<Boolean> getFilter();
+	public Filter getFilter();
 
 	/**
 	 * Returns the fragments that have been bound to this installable unit, or

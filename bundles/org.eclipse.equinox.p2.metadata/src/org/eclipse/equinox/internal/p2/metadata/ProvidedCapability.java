@@ -11,11 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.Version;
 
 /**
  * Describes a capability as exposed or required by an installable unit
@@ -62,22 +60,7 @@ public class ProvidedCapability implements IProvidedCapability {
 		return namespace.hashCode() * name.hashCode() * version.hashCode();
 	}
 
-	/**
-	 * Returns whether this provided capability satisfies the given required capability.
-	 * @return <code>true</code> if this capability satisfies the given required
-	 * capability, and <code>false</code> otherwise.
-	 */
-	public boolean satisfies(IRequiredCapability candidate) {
-		return candidate.satisfiedBy(this);
-	}
-
 	public String toString() {
 		return namespace + '/' + name + '/' + version;
 	}
-
-	public boolean satisfies(IRequirement candidate) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 }

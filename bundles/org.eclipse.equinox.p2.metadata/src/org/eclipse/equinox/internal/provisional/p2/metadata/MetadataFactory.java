@@ -12,9 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
@@ -22,7 +19,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.query.IQuery;
+import org.osgi.framework.Filter;
 
 /**
  * A factory class for instantiating various p2 metadata objects.
@@ -130,6 +127,10 @@ public class MetadataFactory {
 
 		public void setCopyright(ICopyright copyright) {
 			unit().setCopyright(copyright);
+		}
+
+		public void setFilter(Filter filter) {
+			unit().setFilter(filter);
 		}
 
 		public void setFilter(String filter) {
@@ -306,11 +307,11 @@ public class MetadataFactory {
 	 * and <code>false</code> otherwise.
 	 * @param multiple <code>true</code> if this capability can be satisfied by multiple provided capabilities, or it requires exactly one match
 	 */
-	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
-		return new RequiredCapability(namespace, name, range, filter, optional, multiple);
+	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, Filter filter, boolean optional, boolean multiple) {
+		return new RequiredCapability(namespace, name, range, filter, optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, true);
 	}
 
-	public static IRequirement createRequiredCapability(String namespace, String name, VersionRange range, IQuery<Boolean> filter, int minCard, int maxCard, boolean greedy) {
+	public static IRequirement createRequiredCapability(String namespace, String name, VersionRange range, Filter filter, int minCard, int maxCard, boolean greedy) {
 		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy);
 	}
 

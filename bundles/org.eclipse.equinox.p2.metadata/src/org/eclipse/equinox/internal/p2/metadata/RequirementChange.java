@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import org.eclipse.equinox.p2.metadata.IRequirementChange;
 
 public class RequirementChange implements IRequirementChange {
@@ -42,46 +39,7 @@ public class RequirementChange implements IRequirementChange {
 		if (toMatch.getRange().equals(applyOn.getRange()))
 			return true;
 
-		return intersect(toMatch.getRange(), applyOn.getRange()) == null ? false : true;
-	}
-
-	private VersionRange intersect(VersionRange r1, VersionRange r2) {
-		Version resultMin = null;
-		boolean resultMinIncluded = false;
-		Version resultMax = null;
-		boolean resultMaxIncluded = false;
-
-		int minCompare = r1.getMinimum().compareTo(r2.getMinimum());
-		if (minCompare < 0) {
-			resultMin = r2.getMinimum();
-			resultMinIncluded = r2.getIncludeMinimum();
-		} else if (minCompare > 0) {
-			resultMin = r1.getMinimum();
-			resultMinIncluded = r1.getIncludeMinimum();
-		} else if (minCompare == 0) {
-			resultMin = r1.getMinimum();
-			resultMinIncluded = r1.getIncludeMinimum() && r2.getIncludeMinimum();
-		}
-
-		int maxCompare = r1.getMaximum().compareTo(r2.getMaximum());
-		if (maxCompare > 0) {
-			resultMax = r2.getMaximum();
-			resultMaxIncluded = r2.getIncludeMaximum();
-		} else if (maxCompare < 0) {
-			resultMax = r1.getMaximum();
-			resultMaxIncluded = r1.getIncludeMaximum();
-		} else if (maxCompare == 0) {
-			resultMax = r1.getMaximum();
-			resultMaxIncluded = r1.getIncludeMaximum() && r2.getIncludeMaximum();
-		}
-
-		int resultRangeComparison = resultMin.compareTo(resultMax);
-		if (resultRangeComparison < 0)
-			return new VersionRange(resultMin, resultMinIncluded, resultMax, resultMaxIncluded);
-		else if (resultRangeComparison == 0 && resultMinIncluded == resultMaxIncluded)
-			return new VersionRange(resultMin, resultMinIncluded, resultMax, resultMaxIncluded);
-		else
-			return null;
+		return toMatch.getRange().intersect(applyOn.getRange()) != null;
 	}
 
 	public int hashCode() {

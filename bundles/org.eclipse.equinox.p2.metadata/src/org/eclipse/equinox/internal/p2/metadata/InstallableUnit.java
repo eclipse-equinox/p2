@@ -17,7 +17,8 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.osgi.framework.Filter;
 
 public class InstallableUnit implements IInstallableUnit {
 
@@ -29,7 +30,7 @@ public class InstallableUnit implements IInstallableUnit {
 	private static final ILicense[] NO_LICENSE = new ILicense[0];
 
 	private IArtifactKey[] artifacts = NO_ARTIFACTS;
-	private LDAPQuery filter;
+	private Filter filter;
 
 	private String id;
 
@@ -99,7 +100,7 @@ public class InstallableUnit implements IInstallableUnit {
 		return CollectionUtils.unmodifiableList(artifacts);
 	}
 
-	public IQuery<Boolean> getFilter() {
+	public Filter getFilter() {
 		return filter;
 	}
 
@@ -194,8 +195,12 @@ public class InstallableUnit implements IInstallableUnit {
 			providedCapabilities = newCapabilities;
 	}
 
+	public void setFilter(Filter filter) {
+		this.filter = filter;
+	}
+
 	public void setFilter(String filter) {
-		this.filter = filter == null ? null : new LDAPQuery(filter);
+		setFilter(filter == null ? null : ExpressionUtil.parseLDAP(filter));
 	}
 
 	public void setId(String id) {
@@ -281,15 +286,7 @@ public class InstallableUnit implements IInstallableUnit {
 	}
 
 	public boolean satisfies(IRequirement candidate) {
-		if (candidate.getMatches() instanceof RequiredCapability) {
-			for (int i = 0; i < providedCapabilities.length; i++) {
-				if (((IRequiredCapability) candidate).satisfiedBy(providedCapabilities[i]))
-					return true;
-			}
-		} else {
-			throw new IllegalArgumentException();
-		}
-		return false;
+		return candidate.isMatch(this);
 	}
 
 	public Collection<IRequirement> getMetaRequiredCapabilities() {

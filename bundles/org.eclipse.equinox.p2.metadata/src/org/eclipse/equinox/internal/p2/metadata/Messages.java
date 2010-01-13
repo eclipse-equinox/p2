@@ -51,6 +51,22 @@ public class Messages extends NLS {
 
 	public static String expected_slash_after_raw_vector_0;
 
+	public static String filter_trailing_characters;
+
+	public static String filter_missing_leftparen;
+
+	public static String filter_missing_rightparen;
+
+	public static String filter_invalid_operator;
+
+	public static String filter_missing_attr;
+
+	public static String filter_invalid_value;
+
+	public static String filter_missing_value;
+
+	public static String filter_premature_end;
+
 	public static String format_0_unable_to_parse_1;
 
 	public static String format_0_unable_to_parse_empty_version;

@@ -11,12 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.expression.*;
+import org.osgi.framework.Filter;
 
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.
@@ -31,80 +29,125 @@ import org.eclipse.equinox.p2.query.MatchQuery;
  * 
  * @see IInstallableUnit#NAMESPACE_IU_ID
  */
-public class RequiredCapability extends MatchQuery<IInstallableUnit> implements IRequiredCapability, IRequirement {
-	private LDAPQuery filter;
-	private final String name;//never null
-	private final String namespace;//never null
-	private boolean greedy = true;
-	private final VersionRange range;//never null
-	private int min;
-	private int max;
+public class RequiredCapability implements IRequiredCapability {
+	private final Filter filter;
+	private final boolean greedy;
+	private final IMatchExpression<IInstallableUnit> matchExpression;
+	private final int min;
+	private final int max;
+
+	private static final String MEMBER_NAME = "name"; //$NON-NLS-1$
+	private static final String MEMBER_NAMESPACE = "namespace"; //$NON-NLS-1$
+	private static final String MEMBER_VERSION = "version"; //$NON-NLS-1$
+	private static final String MEMBER_PROVIDED_CAPABILITIES = "providedCapabilities"; //$NON-NLS-1$
+
+	private static final IExpression allVersionsExpression;
+	private static final IExpression range_II_Expression;
+	private static final IExpression range_IN_Expression;
+	private static final IExpression range_NI_Expression;
+	private static final IExpression range_NN_Expression;
+	private static final IExpression strictVersionExpression;
+	private static final IExpression openEndedExpression;
+	private static final IExpression openEndedNonInclusiveExpression;
+
+	static {
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		IExpression xVar = factory.variable("x"); //$NON-NLS-1$
+		IExpression nameEqual = factory.equals(factory.member(xVar, MEMBER_NAME), factory.indexedParameter(0));
+		IExpression namespaceEqual = factory.equals(factory.member(xVar, MEMBER_NAMESPACE), factory.indexedParameter(1));
+
+		IExpression versionMember = factory.member(xVar, MEMBER_VERSION);
+
+		IExpression versionCmpLow = factory.indexedParameter(2);
+		IExpression versionEqual = factory.equals(versionMember, versionCmpLow);
+		IExpression versionGt = factory.greater(versionMember, versionCmpLow);
+		IExpression versionGtEqual = factory.greaterEqual(versionMember, versionCmpLow);
+
+		IExpression versionCmpHigh = factory.indexedParameter(3);
+		IExpression versionLt = factory.less(versionMember, versionCmpHigh);
+		IExpression versionLtEqual = factory.lessEqual(versionMember, versionCmpHigh);
+
+		IExpression pvMember = factory.member(factory.thisVariable(), MEMBER_PROVIDED_CAPABILITIES);
+		allVersionsExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual)));
+		strictVersionExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionEqual)));
+		openEndedExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual)));
+		openEndedNonInclusiveExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGt)));
+		range_II_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual, versionLtEqual)));
+		range_IN_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual, versionLt)));
+		range_NI_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGt, versionLtEqual)));
+		range_NN_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGt, versionLt)));
+	}
 
 	/**
 	 * TODO replace booleans with int options flag.
 	 */
 	public RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
-		Assert.isNotNull(namespace);
-		Assert.isNotNull(name);
-		this.namespace = namespace;
-		this.name = name;
-		this.range = range == null ? VersionRange.emptyRange : range;
-		min = optional ? 0 : 1;
-		max = 1;
-		setFilter(filter);
-	}
-
-	public RequiredCapability(String namespace, String name, VersionRange range, IQuery<Boolean> filter, int min, int max, boolean greedy) {
-		Assert.isNotNull(namespace);
-		Assert.isNotNull(name);
-		this.namespace = namespace;
-		this.name = name;
-		this.range = range == null ? VersionRange.emptyRange : range;
-		this.min = min;
-		this.max = max;
-		this.greedy = greedy;
-		if (filter != null) {
-			if (filter instanceof LDAPQuery) {
-				this.filter = (LDAPQuery) filter;
-			} else {
-				throw new IllegalArgumentException();
-			}
-		}
+		this(namespace, name, range, filter, optional, multiple, true);
 	}
 
 	public RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
-		this(namespace, name, range, filter, optional, multiple);
+		this(namespace, name, range, filter == null ? (Filter) null : ExpressionUtil.parseLDAP(filter), optional ? 0 : 1, multiple ? 1 : Integer.MAX_VALUE, greedy);
+	}
+
+	public RequiredCapability(String namespace, String name, VersionRange range, Filter filter, int min, int max, boolean greedy) {
+		Assert.isNotNull(namespace);
+		Assert.isNotNull(name);
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		if (range == null || range.equals(VersionRange.emptyRange)) {
+			matchExpression = factory.matchExpression(allVersionsExpression, name, namespace);
+		} else {
+			if (range.getMinimum().equals(range.getMaximum())) {
+				// Explicit version appointed
+				matchExpression = factory.matchExpression(strictVersionExpression, name, namespace, range.getMinimum());
+			} else {
+				if (range.getMaximum().equals(Version.MAX_VERSION)) {
+					// Open ended
+					matchExpression = factory.matchExpression(range.getIncludeMinimum() ? openEndedExpression : openEndedNonInclusiveExpression, name, namespace, range.getMinimum());
+				} else {
+					matchExpression = factory.matchExpression(//
+							range.getIncludeMinimum() ? (range.getIncludeMaximum() ? range_II_Expression : range_IN_Expression) //
+									: (range.getIncludeMaximum() ? range_NI_Expression : range_NN_Expression), //
+							name, namespace, range.getMinimum(), range.getMaximum());
+				}
+			}
+		}
+		this.min = min;
+		this.max = max;
 		this.greedy = greedy;
+		this.filter = filter;
 	}
 
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof IRequiredCapability))
-			return false;
-		final IRequiredCapability other = (IRequiredCapability) obj;
-		if (filter == null) {
-			if (other.getFilter() != null)
+		if (obj instanceof RequiredCapability) {
+			RequiredCapability other = (RequiredCapability) obj;
+			if (filter == null) {
+				if (other.getFilter() != null)
+					return false;
+			} else if (!filter.equals(other.getFilter()))
 				return false;
-		} else if (!filter.equals(other.getFilter()))
-			return false;
-		if (!name.equals(other.getName()))
-			return false;
-		if (!namespace.equals(other.getNamespace()))
-			return false;
-		if (!range.equals(other.getRange()))
-			return false;
-		return true;
+			return min == other.min && max == other.max && greedy == other.greedy && matchExpression.equals(other.matchExpression);
+		}
+		if (obj instanceof IRequiredCapability) {
+			// Some other type of RequiredCapability
+			IRequiredCapability other = (IRequiredCapability) obj;
+			if (filter == null) {
+				if (other.getFilter() != null)
+					return false;
+			} else if (!filter.equals(other.getFilter()))
+				return false;
+			return min == other.getMin() && max == other.getMax() && greedy == other.isGreedy() && getName().equals(other.getName()) && getNamespace().equals(other.getNamespace()) && getRange().equals(other.getRange());
+		}
+		return false;
 	}
 
 	public String getName() {
-		return name;
+		return (String) matchExpression.getParameters()[0];
 	}
 
 	public String getNamespace() {
-		return namespace;
+		return (String) matchExpression.getParameters()[1];
 	}
 
 	/**
@@ -114,26 +157,15 @@ public class RequiredCapability extends MatchQuery<IInstallableUnit> implements 
 	 * @return the range of versions that satisfy this required capability.
 	 */
 	public VersionRange getRange() {
-		return range;
+		return extractRange(matchExpression);
 	}
 
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((filter == null) ? 0 : filter.hashCode());
-		result = prime * result + name.hashCode();
-		result = prime * result + namespace.hashCode();
-		result = prime * result + range.hashCode();
+		result = prime * result + matchExpression.hashCode();
 		return result;
-	}
-
-	/**
-	 * TODO This object shouldn't be mutable since it makes equality unstable, and
-	 * introduces lifecycle issues (how are the changes persisted, etc)
-	 */
-	public void setFilter(String filter) {
-		if (filter != null)
-			this.filter = new LDAPQuery(filter);
 	}
 
 	public boolean isGreedy() {
@@ -157,24 +189,13 @@ public class RequiredCapability extends MatchQuery<IInstallableUnit> implements 
 			result.append(' ');
 		result.append(getName());
 		result.append(' ');
+		VersionRange range = getRange();
 		//for an exact version match, print a simpler expression
 		if (range.getMinimum().equals(range.getMaximum()))
 			result.append('[').append(range.getMinimum()).append(']');
 		else
 			result.append(range);
 		return result.toString();
-	}
-
-	public boolean isNegation() {
-		return false;
-	}
-
-	public boolean satisfiedBy(IProvidedCapability cap) {
-		if (getName() == null || !getName().equals(cap.getName()))
-			return false;
-		if (getNamespace() == null || !getNamespace().equals(cap.getNamespace()))
-			return false;
-		return getRange().isIncluded(cap.getVersion());
 	}
 
 	public int getMin() {
@@ -185,17 +206,51 @@ public class RequiredCapability extends MatchQuery<IInstallableUnit> implements 
 		return max;
 	}
 
-	public IQuery<IInstallableUnit> getMatches() {
-		return this;
+	public IMatchExpression<IInstallableUnit> getMatches() {
+		return matchExpression;
 	}
 
-	public IQuery<Boolean> getFilter() {
+	public Filter getFilter() {
 		return filter;
 	}
 
 	public boolean isMatch(IInstallableUnit candidate) {
-		if (!candidate.satisfies(this))
-			return false;
-		return true;
+		return matchExpression.isMatch(candidate);
+	}
+
+	public static boolean isVersionStrict(IMatchExpression<IInstallableUnit> matchExpression) {
+		return ExpressionUtil.getOperand(matchExpression) == strictVersionExpression;
+	}
+
+	public static String extractName(IMatchExpression<IInstallableUnit> matchExpression) {
+		assertValid(matchExpression);
+		return (String) matchExpression.getParameters()[0];
+	}
+
+	public static String extractNamespace(IMatchExpression<IInstallableUnit> matchExpression) {
+		assertValid(matchExpression);
+		return (String) matchExpression.getParameters()[1];
+	}
+
+	public static VersionRange extractRange(IMatchExpression<IInstallableUnit> matchExpression) {
+		IExpression expr = assertValid(matchExpression);
+		Object[] params = matchExpression.getParameters();
+		if (params.length < 3)
+			return VersionRange.emptyRange;
+		Version v = (Version) params[2];
+		if (params.length < 4) {
+			if (expr == strictVersionExpression)
+				return new VersionRange(v, true, v, true);
+			return new VersionRange(v, expr == openEndedExpression, Version.MAX_VERSION, true);
+		}
+		Version h = (Version) params[3];
+		return new VersionRange(v, expr == range_II_Expression || expr == range_IN_Expression, h, expr == range_II_Expression || expr == range_NI_Expression);
+	}
+
+	private static IExpression assertValid(IMatchExpression<IInstallableUnit> matchExpression) {
+		IExpression expr = ExpressionUtil.getOperand(matchExpression);
+		if (!(expr == allVersionsExpression || expr == range_II_Expression || expr == range_IN_Expression || expr == range_NI_Expression || expr == range_NN_Expression || expr == strictVersionExpression || expr == openEndedExpression || expr == openEndedNonInclusiveExpression))
+			throw new IllegalArgumentException();
+		return expr;
 	}
 }

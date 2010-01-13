@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.lang.ref.SoftReference;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
@@ -20,6 +18,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.service.localization.LocaleProvider;
@@ -39,6 +40,8 @@ public class TranslationSupport {
 
 	static final String NAMESPACE_IU_LOCALIZATION = "org.eclipse.equinox.p2.localization"; //$NON-NLS-1$
 	private IQueryable<IInstallableUnit> fragmentSource;
+
+	private static IExpression capabilityMatch = ExpressionUtil.parse("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1)"); //$NON-NLS-1$
 
 	// Cache the IU fragments that provide localizations for a given locale.
 	// Map<String,SoftReference<IQueryResult>>: locale => soft reference to a queryResult
@@ -200,7 +203,7 @@ public class TranslationSupport {
 		@SuppressWarnings("unchecked")
 		IQuery<IInstallableUnit>[] localeQuery = new IQuery[locales.size()];
 		for (int j = 0; j < locales.size(); j++) {
-			localeQuery[j] = new RequiredCapability(NAMESPACE_IU_LOCALIZATION, locales.get(j), VersionRange.emptyRange, null, false, false);
+			localeQuery[j] = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, capabilityMatch, locales.get(j), NAMESPACE_IU_LOCALIZATION);
 		}
 
 		IQuery<IInstallableUnit> iuQuery = new PipedQuery<IInstallableUnit>(new FragmentQuery(), CompoundQuery.createCompoundQuery(localeQuery, false));

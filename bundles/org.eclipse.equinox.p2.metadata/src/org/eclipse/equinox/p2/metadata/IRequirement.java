@@ -9,7 +9,8 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
-import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.osgi.framework.Filter;
 
 /**
  * @noimplement This interface is not intended to be implemented by clients.
@@ -18,13 +19,20 @@ import org.eclipse.equinox.p2.query.IQuery;
  */
 public interface IRequirement {
 
-	public int getMin();
+	int getMin();
 
-	public int getMax();
+	int getMax();
 
-	public IQuery<IInstallableUnit> getMatches();
+	Filter getFilter();
 
-	public IQuery<Boolean> getFilter();
+	/**
+	 * Returns a boolean match expression that will return true for any
+	 * {@link IInstallableUnit} that matches the requirement.
+	 * @return A boolean match expression for installable unit matching.
+	 */
+	IMatchExpression<IInstallableUnit> getMatches();
 
-	public boolean isGreedy();
+	boolean isMatch(IInstallableUnit iu);
+
+	boolean isGreedy();
 }
