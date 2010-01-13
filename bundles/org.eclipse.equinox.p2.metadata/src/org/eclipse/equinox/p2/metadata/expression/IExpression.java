@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.metadata.expression;
 
 /**
  * A node in the expression tree
+ * @since 2.0
  */
 public interface IExpression {
 	int TYPE_ALL = 1;

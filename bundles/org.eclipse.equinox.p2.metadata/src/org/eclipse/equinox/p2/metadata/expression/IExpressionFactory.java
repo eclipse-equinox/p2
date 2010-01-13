@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * This inteface provides all the factory methods needed to create the
  * nodes of the expression tree.
+ * @since 2.0
  */
 public interface IExpressionFactory {
 	String FUNC_BOOLEAN = "boolean"; //$NON-NLS-1$

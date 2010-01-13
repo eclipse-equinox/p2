@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.metadata.expression.parser.LDAPFilterPars
 
 /**
  * Global access to factory, parser, and methods for introspection
+ * @since 2.0
  */
 public abstract class ExpressionUtil {
 	private static final LDAPFilterParser ldapFilterParser = new LDAPFilterParser(ExpressionFactory.INSTANCE);

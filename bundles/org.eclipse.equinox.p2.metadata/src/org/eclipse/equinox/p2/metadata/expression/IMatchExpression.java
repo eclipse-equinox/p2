@@ -18,6 +18,7 @@ package org.eclipse.equinox.p2.metadata.expression;
  * {@link #isMatch(IEvaluationContext, Object)} or, if no repeated calls are
  * expected, the {@link #isMatch(Object)} method can be used. It will then
  * create a context on each call.
+ * @since 2.0
  */
 public interface IMatchExpression<T> extends IExpression {
 	/**
