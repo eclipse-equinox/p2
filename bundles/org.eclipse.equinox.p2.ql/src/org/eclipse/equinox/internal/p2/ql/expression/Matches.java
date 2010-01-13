@@ -14,6 +14,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
 import org.eclipse.equinox.internal.p2.metadata.expression.LDAPApproximation;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.SimplePattern;
 import org.osgi.framework.Filter;
 
 /**
