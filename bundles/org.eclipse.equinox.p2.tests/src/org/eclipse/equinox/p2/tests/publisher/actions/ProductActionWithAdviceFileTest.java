@@ -17,7 +17,6 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -95,7 +94,7 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 			}
 		}
 		assertTrue("1.1", capability != null);
-		assertEquals("1.2", "(org.eclipse.update.install.features=true)", ((LDAPQuery) capability.getFilter()).getFilter());
+		assertEquals("1.2", "(org.eclipse.update.install.features=true)", capability.getFilter().toString());
 	}
 
 	/**

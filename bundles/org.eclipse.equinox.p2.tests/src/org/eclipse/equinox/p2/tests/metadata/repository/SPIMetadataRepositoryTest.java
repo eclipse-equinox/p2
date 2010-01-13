@@ -9,9 +9,6 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -23,16 +20,20 @@ import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.osgi.framework.Filter;
 
 /**
  * Test API of the metadata interfaces with an SPI implementation.
@@ -55,7 +56,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	class SPIRequiredCapability extends MatchQuery<IInstallableUnit> implements IRequiredCapability {
-		LDAPQuery filter;
+		Filter filter;
 		String name;
 		String namespace;
 		VersionRange versionRange;
@@ -79,7 +80,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.versionRange = versionRange;
 		}
 
-		public IQuery getFilter() {
+		public Filter getFilter() {
 			return this.filter;
 		}
 
@@ -100,9 +101,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		public void setFilter(String filter) {
-			if (filter != null) {
-				this.filter = new LDAPQuery(filter);
-			}
+			this.filter = filter == null ? null : ExpressionUtil.parseLDAP(filter);
 		}
 
 		public boolean equals(Object obj) {
@@ -151,14 +150,19 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return max;
 		}
 
-		public IQuery getMatches() {
-			return this;
-		}
-
 		public boolean isMatch(IInstallableUnit candidate) {
 			if (!candidate.satisfies(this))
 				return false;
 			return true;
+		}
+
+		public boolean isVersionStrict() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public IMatchExpression<IInstallableUnit> getMatches() {
+			return ExpressionUtil.getFactory().matchExpression(ExpressionUtil.parse("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version ~= $2"), name, namespace, versionRange);
 		}
 	}
 
@@ -213,7 +217,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		List providedCapabilities = new ArrayList();
 		List touchpointData = new ArrayList();
 		ICopyright copyright = null;
-		LDAPQuery filter = null;
+		Filter filter = null;
 		String id = null;
 		ILicense[] license = null;
 		Map properties = new HashMap();
@@ -241,7 +245,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.copyright;
 		}
 
-		public IQuery getFilter() {
+		public Filter getFilter() {
 			return this.filter;
 		}
 
@@ -304,11 +308,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		public boolean satisfies(IRequirement candidate) {
-			List<IProvidedCapability> provides = getProvidedCapabilities();
-			for (int i = 0; i < provides.size(); i++)
-				if (provides.get(i).satisfies(candidate))
-					return true;
-			return false;
+			return candidate.isMatch(this);
 		}
 
 		public IInstallableUnit unresolved() {
@@ -753,13 +753,13 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		iuDescription.setId("foo");
 		iuDescription.setVersion(Version.createOSGi(1, 1, 1));
 
-		SPIRequiredCapability spiRequiredCapability1 = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "bar", true, true, true);
-		IRequiredCapability requiredCapability1 = MetadataFactory.createRequiredCapability("com.example2", "foo", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "bar", false, false, false);
+		SPIRequiredCapability spiRequiredCapability1 = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "(bar=foo)", true, true, true);
+		IRequiredCapability requiredCapability1 = MetadataFactory.createRequiredCapability("com.example2", "foo", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "(bar=foo)", false, false, false);
 
 		SPIRequirementChange spiRequirementChange = new SPIRequirementChange(spiRequiredCapability1, requiredCapability1);
 		iuPatchDescription.setRequirementChanges(new IRequirementChange[] {spiRequirementChange});
 
-		IRequiredCapability spiRequiredCapability = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "bar", true, true, true);
+		IRequiredCapability spiRequiredCapability = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "(bar=foo)", true, true, true);
 		IProvidedCapability spiProvidedCapability = new SPIProvidedCapability("bar", "foo", Version.createOSGi(1, 1, 1));
 
 		ITouchpointData spiTouchpointData = new SPITouchpointData();

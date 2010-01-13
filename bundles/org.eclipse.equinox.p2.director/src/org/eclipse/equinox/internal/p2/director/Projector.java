@@ -19,13 +19,12 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.metadata.query.PatchQuery;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.query.*;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.Filter;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.pb.tools.DependencyHelper;
@@ -249,7 +248,7 @@ public class Projector {
 		for (IRequirement req : reqs) {
 			if (req.getMin() > 0)
 				continue;
-			IQueryResult<IInstallableUnit> matches = picker.query(req.getMatches(), null);
+			IQueryResult<IInstallableUnit> matches = picker.query(new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, req.getMatches()), null);
 			for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
 				IInstallableUnit match = iterator.next();
 				if (match instanceof IInstallableUnitPatch) {
@@ -305,27 +304,13 @@ public class Projector {
 
 	// Check whether the requirement is applicable
 	private boolean isApplicable(IRequirement req) {
-		IQuery<Boolean> filter = req.getFilter();
-		if (filter == null)
-			return true;
-		if (filter instanceof LDAPQuery)
-			try {
-				return DirectorActivator.context.createFilter(((LDAPQuery) filter).getFilter()).match(selectionContext);
-			} catch (InvalidSyntaxException e) {
-				return false;
-			}
-		throw new IllegalArgumentException();
+		Filter filter = req.getFilter();
+		return filter == null || filter.match(selectionContext);
 	}
 
 	private boolean isApplicable(IInstallableUnit iu) {
-		LDAPQuery enablementFilter = (LDAPQuery) iu.getFilter();
-		if (enablementFilter == null)
-			return true;
-		try {
-			return DirectorActivator.context.createFilter(enablementFilter.getFilter()).match(selectionContext);
-		} catch (InvalidSyntaxException e) {
-			return false;
-		}
+		Filter filter = iu.getFilter();
+		return filter == null || filter.match(selectionContext);
 	}
 
 	private void expandNegatedRequirement(IRequirement req, IInstallableUnit iu, List<AbstractVariable> optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
@@ -646,7 +631,7 @@ public class Projector {
 	 */
 	private List<IInstallableUnit> getApplicableMatches(IRequirement req) {
 		List<IInstallableUnit> target = new ArrayList<IInstallableUnit>();
-		IQueryResult<IInstallableUnit> matches = picker.query(req.getMatches(), null);
+		IQueryResult<IInstallableUnit> matches = picker.query(new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, req.getMatches()), null);
 		for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = iterator.next();
 			if (isApplicable(match)) {

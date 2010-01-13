@@ -9,7 +9,7 @@
 package org.eclipse.equinox.internal.p2.director;
 
 import java.util.Dictionary;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -47,11 +47,8 @@ public class PermissiveSlicer extends Slicer {
 				return false;
 
 		if (considerOnlyStrictDependency) {
-			if (req instanceof IRequiredCapability) {
-				IRequiredCapability reqCap = (IRequiredCapability) req;
-				if (!reqCap.getRange().getMinimum().equals(reqCap.getRange().getMaximum()))
-					return false;
-			}
+			if (!RequiredCapability.isVersionStrict(req.getMatches()))
+				return false;
 		}
 
 		//deal with filters

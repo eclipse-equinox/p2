@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.environment.Constants;
+import org.osgi.framework.Filter;
 
 /**
  * Given the description of an executable, this action publishes optionally 
@@ -85,10 +86,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		iud.setVersion(version);
 		iud.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
 		iud.setCapabilities(new IProvidedCapability[] {createSelfCapability(id, version)});
-
-		String filter = createFilterSpec(configSpec);
-		if (filter.length() > 0)
-			iud.setFilter(filter);
+		iud.setFilter(createFilterSpec(configSpec));
 		Map<String, String> touchpointData = new HashMap<String, String>();
 		touchpointData.put("configure", "setLauncherName(name:" + executableName + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		touchpointData.put("unconfigure", "setLauncherName()"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -106,7 +104,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		String id = getExecutableId();
 		iu.setId(id);
 		iu.setVersion(version);
-		String filter = createFilterSpec(configSpec);
+		Filter filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);
 		iu.setSingleton(true);
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);

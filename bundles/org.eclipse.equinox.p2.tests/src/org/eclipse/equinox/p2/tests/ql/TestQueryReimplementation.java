@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ql;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionParser;
 import org.eclipse.equinox.p2.ql.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -23,34 +22,34 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 public class TestQueryReimplementation extends AbstractProvisioningTest {
 
 	public static class UpdateQuery extends QLMatchQuery {
-		private static final IMatchExpression expr1;
-		private static final IMatchExpression expr2;
+		private static final IExpression expr1;
+		private static final IExpression expr2;
 
 		static {
-			IExpressionParser parser = QL.newParser();
+			IQLParser parser = QL.newParser();
 
 			// This expression is used in case the updateFrom is an IInstallableUnitPatch
 			//
-			expr1 = parser.parsePredicate("$0 ~= updateDescriptor && ($0.id != id || $0.version < version)");
+			expr1 = parser.parse("$0 ~= updateDescriptor && ($0.id != id || $0.version < version)");
 
 			// When updateFrom is not an IInstallableUnitPatch, we need to do one of two things depending
 			// on if the current item is an InstallableUnitPatch or not.
 			//
-			expr2 = parser.parsePredicate("item ~= class('org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitPatch')" + //
+			expr2 = parser.parse("this ~= class('org.eclipse.equinox.p2.metadata.IInstallableUnitPatch')" + //
 					"? $0 ~= lifeCycle" + //
 					": $0 ~= updateDescriptor && ($0.id != id || $0.version < version)");
 		}
 
 		public UpdateQuery(IInstallableUnit updateFrom) {
-			super(IInstallableUnit.class, updateFrom instanceof IInstallableUnitPatch ? expr1 : expr2, new Object[] {updateFrom, IInstallableUnitPatch.class});
+			super(IInstallableUnit.class, QL.getFactory().matchExpression(updateFrom instanceof IInstallableUnitPatch ? expr1 : expr2, updateFrom, IInstallableUnitPatch.class));
 		}
 	}
 
 	public static class IUPropertyQuery extends QLMatchQuery {
-		private static final IMatchExpression expr = QL.newParser().parsePredicate("properties[$0] == $1");
+		private static final IExpression expr = QL.newParser().parse("properties[$0] == $1");
 
 		public IUPropertyQuery(String propertyName, String propertyValue) {
-			super(IInstallableUnit.class, expr, new Object[] {propertyName, propertyValue});
+			super(IInstallableUnit.class, QL.getFactory().matchExpression(expr, propertyName, propertyValue));
 		}
 	}
 
@@ -61,13 +60,13 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		 */
 		public static final QLMatchQuery ANY = new QLMatchQuery(IInstallableUnit.class, "");
 
-		private static final IMatchExpression idVersionQuery;
-		private static final IMatchExpression idRangeQuery;
+		private static final IExpression idVersionQuery;
+		private static final IExpression idRangeQuery;
 
 		static {
 			IExpressionParser parser = QL.newParser();
-			idVersionQuery = parser.parsePredicate("($0 == null || $0 == id) && ($1 == null || $1 == version)");
-			idRangeQuery = parser.parsePredicate("($0 == null || $0 == id) && ($1 == null || version ~= $1)");
+			idVersionQuery = parser.parse("($0 == null || $0 == id) && ($1 == null || $1 == version)");
+			idRangeQuery = parser.parse("($0 == null || $0 == id) && ($1 == null || version ~= $1)");
 		}
 
 		/**
@@ -88,7 +87,7 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		 * @param range The version range to match
 		 */
 		public InstallableUnitQuery(String id, VersionRange range) {
-			super(IInstallableUnit.class, idRangeQuery, new Object[] {id, range});
+			super(IInstallableUnit.class, QL.getFactory().matchExpression(idRangeQuery, id, range));
 		}
 
 		/**
@@ -99,7 +98,7 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		 * @param version The precise version that a matching unit must have
 		 */
 		public InstallableUnitQuery(String id, Version version) {
-			super(IInstallableUnit.class, idVersionQuery, new Object[] {id, version});
+			super(IInstallableUnit.class, QL.getFactory().matchExpression(idVersionQuery, id, version));
 		}
 
 		/**

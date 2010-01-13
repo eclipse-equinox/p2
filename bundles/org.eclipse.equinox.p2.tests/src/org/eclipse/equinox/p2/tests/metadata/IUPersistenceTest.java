@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.net.URI;
 import java.util.*;
@@ -21,12 +18,14 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
 import org.xml.sax.*;
 
 public class IUPersistenceTest extends AbstractProvisioningTest {
@@ -136,7 +135,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		}
 	}
 
-	private static String filter = "(& (osgi.ws=win32) (osgi.os=win32) (osgi.arch=x86))"; // not really
+	private static Filter filter = ExpressionUtil.parseLDAP("(& (osgi.ws=win32) (osgi.os=win32) (osgi.arch=x86))"); // not really
 	private static String id = "org.eclipse.osgi.services";
 
 	private static String[][] instructions = new String[][] {new String[] {"manifest", "Manifest-Version: 1.0\\Bundle-Vendor: Eclipse.org\\Bundle-ContactAddress: www.eclipse.org\\...a whole bunch of other manifest content..."}, new String[] {"zipped", "true"}, //
@@ -411,7 +410,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	private void validateIU(IInstallableUnit iu) {
 		assertTrue("Installable unit id is not correct", id.equals(iu.getId()));
 		assertTrue("Installable unit version is not correct", version.equals(iu.getVersion()));
-		assertTrue("Installable unit filter is not correct", filter.equals(iu.getFilter() == null ? null : ((LDAPQuery) iu.getFilter()).getFilter()));
+		assertTrue("Installable unit filter is not correct", filter.equals(iu.getFilter() == null ? null : iu.getFilter()));
 		assertEquals("Installable unit properties are not correct", propertyMap, iu.getProperties());
 		assertTrue("Installable unit provided capabilities are not correct", equal(addSelfCapability(iu, provides), extractProvides(iu)));
 		assertTrue("Installable unit required capabilities are not correct", equal(requires, extractRequires(iu)));

@@ -49,9 +49,9 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		frag1_4 = createIUFragment(f1, "frag1", f1_4.getVersion());
 
 		//IUs that require base IU
-		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.3.0)"), null);
+		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.3.0)"));
 		fa = createIU("fa", requires, false);
-		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.4.0)"), null);
+		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.4.0)"));
 		fap = createIU("fa", Version.createOSGi(1, 1, 0), requires, NO_PROPERTIES, false);
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1, fa, frag1});

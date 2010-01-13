@@ -14,11 +14,12 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
-import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.Filter;
 
 public class Slicer {
 	private static boolean DEBUG = false;
@@ -87,27 +88,13 @@ public class Slicer {
 
 	// Check whether the requirement is applicable
 	protected boolean isApplicable(IRequirement req) {
-		IQuery<Boolean> filter = req.getFilter();
-		if (filter == null)
-			return true;
-		if (filter instanceof LDAPQuery)
-			try {
-				return DirectorActivator.context.createFilter(((LDAPQuery) filter).getFilter()).match(selectionContext);
-			} catch (InvalidSyntaxException e) {
-				return false;
-			}
-		throw new IllegalArgumentException();
+		Filter filter = req.getFilter();
+		return filter == null || filter.match(selectionContext);
 	}
 
 	protected boolean isApplicable(IInstallableUnit iu) {
-		LDAPQuery enablementFilter = (LDAPQuery) iu.getFilter();
-		if (enablementFilter == null)
-			return true;
-		try {
-			return DirectorActivator.context.createFilter(enablementFilter.getFilter()).match(selectionContext);
-		} catch (InvalidSyntaxException e) {
-			return false;
-		}
+		Filter filter = iu.getFilter();
+		return filter == null || filter.match(selectionContext);
 	}
 
 	protected void processIU(IInstallableUnit iu) {
@@ -172,7 +159,7 @@ public class Slicer {
 	private void expandRequirement(IInstallableUnit iu, IRequirement req) {
 		if (req.getMax() == 0)
 			return;
-		IQueryResult<IInstallableUnit> matches = possibilites.query(req.getMatches(), null);
+		IQueryResult<IInstallableUnit> matches = possibilites.query(new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, req.getMatches()), null);
 		int validMatches = 0;
 		for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = iterator.next();

@@ -36,11 +36,11 @@ public class UpdateTest extends AbstractProvisioningTest {
 		f1_1 = createIU(f1Id, Version.createOSGi(1, 1, 0), true);
 		f1_4 = createIU(f1Id, Version.createOSGi(1, 4, 0), true);
 
-		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, f1Id, new VersionRange("[1.0.0, 1.3.0)"), null);
+		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, f1Id, new VersionRange("[1.0.0, 1.3.0)"));
 		String faId = getName() + ".fa";
 		fa = createIU(faId, requires, false);
 
-		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, f1Id, new VersionRange("[1.0.0, 1.4.0)"), null);
+		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, f1Id, new VersionRange("[1.0.0, 1.4.0)"));
 		fap = createIU(faId, Version.createOSGi(1, 1, 0), requires, NO_PROPERTIES, false);
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1, fa});

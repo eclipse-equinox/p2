@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -97,7 +98,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 	}
 
 	private boolean expandRequirement(IInstallableUnit iu, IRequirement req) {
-		IQueryResult matches = profile.query(req.getMatches(), null);
+		IQueryResult matches = profile.query(new ExpressionQuery(IInstallableUnit.class, req.getMatches()), null);
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (match.getId().equals(searchedId))

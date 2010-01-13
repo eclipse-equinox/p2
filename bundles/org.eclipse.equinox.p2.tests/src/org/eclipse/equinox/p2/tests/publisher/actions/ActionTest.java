@@ -11,9 +11,6 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.util.*;
 import junit.framework.Assert;
@@ -21,10 +18,11 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.osgi.framework.Filter;
 
 @SuppressWarnings({"cast", "restriction", "unchecked"})
 public abstract class ActionTest extends AbstractProvisioningTest {
@@ -118,13 +116,14 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		fail();
 	}
 
-	protected void contains(Collection<IRequirement> capabilities, String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
+	protected void contains(Collection<IRequirement> capabilities, String namespace, String name, VersionRange range, String filterStr, boolean optional, boolean multiple) {
+		Filter filter = ExpressionUtil.parseLDAP(filterStr);
 		for (Iterator iterator = capabilities.iterator(); iterator.hasNext();) {
 			IRequiredCapability capability = (IRequiredCapability) iterator.next();
 			if (filter == null) {
 				if (capability.getFilter() != null)
 					continue;
-			} else if (!new LDAPQuery(filter).equals(capability.getFilter()))
+			} else if (!filter.equals(capability.getFilter()))
 				continue;
 			if (!name.equals(capability.getName()))
 				continue;

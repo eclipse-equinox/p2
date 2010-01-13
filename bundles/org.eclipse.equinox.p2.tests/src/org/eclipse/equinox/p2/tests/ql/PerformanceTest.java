@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ql;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -20,10 +17,10 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.director.app.Activator;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.ql.*;
 import org.eclipse.equinox.p2.query.*;
@@ -36,8 +33,9 @@ public class PerformanceTest extends AbstractProvisioningTest {
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
-		IRequiredCapability capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
-		QLMatchQuery predicateQuery = new QLMatchQuery(IInstallableUnit.class, "item ~= $0", capability);
+		IRequirement capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
+		QLMatchQuery predicateQuery = new QLMatchQuery(IInstallableUnit.class, "this ~= $0", capability);
+		IQuery capabilityQuery = new ExpressionQuery(IInstallableUnit.class, capability.getMatches());
 		IQueryResult result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
@@ -45,7 +43,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		for (int i = 0; i < 5; ++i) {
 			long start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
-				result = repo.query(capability, new NullProgressMonitor());
+				result = repo.query(capabilityQuery, new NullProgressMonitor());
 				assertEquals(queryResultSize(result), 487);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
@@ -67,8 +65,9 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 		IQueryable qaRepo = new QueryableArray(gatherAvailableInstallableUnits(repo));
 
-		IRequiredCapability capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
+		IRequirement capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
 		QLContextQuery exprQuery = new QLContextQuery(IInstallableUnit.class, "capabilityIndex(everything)");
+		IQuery capabilityQuery = new ExpressionQuery(IInstallableUnit.class, capability.getMatches());
 		exprQuery = new QLContextQuery(IInstallableUnit.class, "$0.satisfiesAny([$1])", exprQuery.query(QL.newQueryContext(qaRepo)), capability);
 		IQueryResult result;
 		long tradQueryMS = 0;
@@ -77,7 +76,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		for (int i = 0; i < 5; ++i) {
 			long start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
-				result = qaRepo.query(capability, new NullProgressMonitor());
+				result = qaRepo.query(capabilityQuery, new NullProgressMonitor());
 				assertEquals(queryResultSize(result), 487);
 			}
 			tradQueryMS += (System.currentTimeMillis() - start);
@@ -138,7 +137,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 
 		IQuery query = new QLContextQuery(IInstallableUnit.class, "" + //
 				"$0.traverse(set(), capabilityIndex(everything), _, {rqCache, index, parent | " + //
-				"index.satisfiesAny(parent.requiredCapabilities.unique(rqCache).select(rc | rc.filter == null || $1 ~= filter(rc.filter)))})", roots, env);
+				"index.satisfiesAny(parent.requiredCapabilities.unique(rqCache).select(rc | rc.filter == null || $1 ~= rc.filter))})", roots, env);
 
 		long sliceTime = 0;
 		long traverseTime = 0;

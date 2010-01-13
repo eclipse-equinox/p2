@@ -19,7 +19,6 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.metadata.*;
@@ -74,7 +73,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeMetaRequiredCapabilities(iu.getMetaRequiredCapabilities());
 		writeProvidedCapabilities(iu.getProvidedCapabilities());
 		writeRequiredCapabilities(iu.getRequiredCapabilities());
-		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter() == null ? null : ((LDAPQuery) iu.getFilter()).getFilter());
+		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter() == null ? null : iu.getFilter().toString());
 
 		writeArtifactKeys(iu.getArtifacts());
 		writeTouchpointType(iu.getTouchpointType());
@@ -194,9 +193,10 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 			attribute(NAME_ATTRIBUTE, reqCapability.getName());
 			attribute(VERSION_RANGE_ATTRIBUTE, reqCapability.getRange());
 			attribute(CAPABILITY_OPTIONAL_ATTRIBUTE, requirement.getMin() == 0, false);
+			attribute(CAPABILITY_MULTIPLE_ATTRIBUTE, requirement.getMax() > 1, false);
 			attribute(CAPABILITY_GREED_ATTRIBUTE, requirement.isGreedy(), true);
 			if (requirement.getFilter() != null)
-				writeTrimmedCdata(CAPABILITY_FILTER_ELEMENT, ((LDAPQuery) requirement.getFilter()).getFilter());
+				writeTrimmedCdata(CAPABILITY_FILTER_ELEMENT, requirement.getFilter().toString());
 			end(REQUIRED_CAPABILITY_ELEMENT);
 		} else {
 			throw new IllegalStateException();

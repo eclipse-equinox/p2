@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.QuotedTokenizer;
@@ -26,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.query.*;
@@ -34,7 +34,6 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
 	public static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
@@ -104,7 +103,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @return the LDAP filter for the given spec.  <code>null</code> if the given spec does not 
 	 * parse into a filter.
 	 */
-	protected String createFilterSpec(String configSpec) {
+	protected Filter createFilterSpec(String configSpec) {
 		String[] config = parseConfigSpec(configSpec);
 		if (config[0] != null || config[1] != null || config[2] != null) {
 			String filterWs = config[0] != null && config[0] != CONFIG_ANY ? "(osgi.ws=" + config[0] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -112,29 +111,21 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			String filterArch = config[2] != null && config[2] != CONFIG_ANY ? "(osgi.arch=" + config[2] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (filterWs.length() == 0 && filterOs.length() == 0 && filterArch.length() == 0)
 				return null;
-			return "(& " + filterWs + filterOs + filterArch + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+			return ExpressionUtil.parseLDAP("(& " + filterWs + filterOs + filterArch + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
 	}
 
-	protected boolean filterMatches(String filter, String configSpec) {
+	protected boolean filterMatches(Filter filter, String configSpec) {
 		if (filter == null)
 			return true;
-
-		Filter ldapFilter = null;
-		try {
-			ldapFilter = Activator.context.createFilter(filter);
-		} catch (InvalidSyntaxException e) {
-			// TODO true or false on error?
-			return true;
-		}
 
 		String[] config = parseConfigSpec(configSpec);
 		Dictionary<String, String> environment = new Hashtable<String, String>(3);
 		environment.put("osgi.ws", config[0]); //$NON-NLS-1$
 		environment.put("osgi.os", config[1]); //$NON-NLS-1$
 		environment.put("osgi.arch", config[2]); //$NON-NLS-1$
-		return ldapFilter.match(environment);
+		return filter.match(environment);
 	}
 
 	/**
@@ -166,23 +157,23 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			if (next instanceof IInstallableUnit) {
 				IInstallableUnit iu = (IInstallableUnit) next;
 				VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter() == null ? null : ((LDAPQuery) iu.getFilter()).getFilter(), false, false));
+				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter() == null ? null : iu.getFilter(), false, false));
 			} else {
 				Version version = next.getVersion();
 				VersionRange range = (version == null || Version.emptyVersion.equals(version)) ? VersionRange.emptyRange : new VersionRange(version, true, version, true);
-				String filter = getFilterAdvice(next);
+				Filter filter = getFilterAdvice(next);
 				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, next.getId(), range, filter, false, false));
 			}
 		}
 		return result;
 	}
 
-	private String getFilterAdvice(IVersionedId name) {
+	private Filter getFilterAdvice(IVersionedId name) {
 		if (info == null)
 			return null;
 		Collection<IFilterAdvice> filterAdvice = info.getAdvice(CONFIG_ANY, true, name.getId(), name.getVersion(), IFilterAdvice.class);
 		for (IFilterAdvice advice : filterAdvice) {
-			String result = advice.getFilter(name.getId(), name.getVersion(), false);
+			Filter result = advice.getFilter(name.getId(), name.getVersion(), false);
 			if (result != null)
 				return result;
 		}

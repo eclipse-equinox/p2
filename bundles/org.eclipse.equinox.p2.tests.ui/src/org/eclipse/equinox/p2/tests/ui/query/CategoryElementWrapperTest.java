@@ -86,7 +86,7 @@ public class CategoryElementWrapperTest extends AbstractQueryTest {
 		assertEquals("1.6", 1, results.size());
 
 		//adding a nested category shouldn't affected size
-		IRequiredCapability[] required = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "category1", null);
+		IRequiredCapability[] required = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "category1");
 		IInstallableUnit nested = createIU("Nested", required);
 		collector.accept(nested);
 		results = wrapper.getElements(collector);

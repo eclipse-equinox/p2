@@ -44,7 +44,8 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.extensionlocation,
    org.eclipse.equinox.p2.publisher,
    org.eclipse.equinox.p2.repository.tools,
-   org.eclipse.equinox.p2.repository",
+   org.eclipse.equinox.p2.repository,
+   org.eclipse.equinox.p2.ql",
  org.eclipse.equinox.internal.provisional.p2.core;
   x-friends:="org.eclipse.equinox.p2.artifact.optimizers,
    org.eclipse.equinox.p2.artifact.processors,

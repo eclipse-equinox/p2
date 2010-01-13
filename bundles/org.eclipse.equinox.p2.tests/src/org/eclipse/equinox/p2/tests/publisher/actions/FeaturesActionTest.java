@@ -12,9 +12,6 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -24,9 +21,9 @@ import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
@@ -90,7 +87,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(foo.getProperty("key1").equals("value1")); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(foo.getProperty("key2").equals("value2")); //$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(foo.getArtifacts().iterator().next().equals(FOO_KEY));
-		assertTrue(((LDAPQuery) foo.getFilter()).getFilter().equalsIgnoreCase("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
+		assertTrue(foo.getFilter().equals(ExpressionUtil.parseLDAP("(org.eclipse.update.install.features=true)"))); //$NON-NLS-1$
 
 		//check touchpointType
 		assertTrue(foo.getTouchpointType().getId().equalsIgnoreCase("org.eclipse.equinox.p2.osgi")); //$NON-NLS-1$
@@ -133,7 +130,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(bar.getProperties().containsKey("org.eclipse.update.installHandler")); //$NON-NLS-1$
 		assertTrue(bar.getProperties().containsValue("handler=bar handler")); //$NON-NLS-1$
 		assertTrue(bar.getArtifacts().iterator().next().equals(BAR_KEY));
-		assertTrue(((LDAPQuery) bar.getFilter()).getFilter().equalsIgnoreCase("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
+		assertTrue(bar.getFilter().equals(ExpressionUtil.parseLDAP("(org.eclipse.update.install.features=true)"))); //$NON-NLS-1$
 		assertTrue(bar.isSingleton());
 
 		barIUs = new ArrayList(publisherResult.getIUs("bar.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
@@ -143,7 +140,7 @@ public class FeaturesActionTest extends ActionTest {
 		//contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), null, false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "org.bar.feature.feature.group", VersionRange.emptyRange, "(&(|(osgi.nl=de)(osgi.nl=en)(osgi.nl=fr)))", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(((LDAPQuery) barGroup.getFilter()).getFilter().equalsIgnoreCase("(&(|(osgi.os=macosx)(osgi.os=win32))(|(osgi.ws=carbon)(osgi.ws=win32))(|(osgi.arch=ppc)(osgi.arch=x86))(osgi.nl=en))"));
+		assertTrue(barGroup.getFilter().equals(ExpressionUtil.parseLDAP("(&(|(osgi.os=macosx)(osgi.os=win32))(|(osgi.ws=carbon)(osgi.ws=win32))(|(osgi.arch=ppc)(osgi.arch=x86))(osgi.nl=en))")));
 
 		//check zipped=true in touchpointData
 		String barValue = ((ITouchpointInstruction) bar.getTouchpointData().get(0).getInstructions().get("zipped")).getBody(); //$NON-NLS-1$

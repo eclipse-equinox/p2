@@ -15,8 +15,7 @@ import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.util.*;
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.*;
@@ -106,9 +105,9 @@ public class AdviceFileParserTest extends TestCase {
 		parser.parse();
 		IRequirement[] reqs = parser.getRequiredCapabilities();
 		assertEquals(1, reqs.length);
-		assertEquals("testNamespace1", ((IRequiredCapability) reqs[0].getMatches()).getNamespace());
-		assertEquals("testName1", ((IRequiredCapability) reqs[0].getMatches()).getName());
-		assertEquals(new VersionRange("[1.2.3.v20090909, 2)"), ((IRequiredCapability) reqs[0].getMatches()).getRange());
+		assertEquals("testNamespace1", RequiredCapability.extractNamespace(reqs[0].getMatches()));
+		assertEquals("testName1", RequiredCapability.extractName(reqs[0].getMatches()));
+		assertEquals(new VersionRange("[1.2.3.v20090909, 2)"), RequiredCapability.extractRange(reqs[0].getMatches()));
 
 		map.put("requires.1.namespace", "testNamespace2");
 		map.put("requires.1.name", "testName2");
@@ -122,14 +121,14 @@ public class AdviceFileParserTest extends TestCase {
 		parser.parse();
 		reqs = parser.getRequiredCapabilities();
 		assertEquals(2, reqs.length);
-		assertEquals("testNamespace1", ((IRequiredCapability) reqs[0].getMatches()).getNamespace());
-		assertEquals("testName1", ((IRequiredCapability) reqs[0].getMatches()).getName());
-		assertEquals(new VersionRange("[1.2.3, 2)"), ((IRequiredCapability) reqs[0].getMatches()).getRange());
-		assertEquals(true, ((IRequiredCapability) reqs[0].getMatches()).isGreedy());
+		assertEquals("testNamespace1", RequiredCapability.extractNamespace(reqs[0].getMatches()));
+		assertEquals("testName1", RequiredCapability.extractName(reqs[0].getMatches()));
+		assertEquals(new VersionRange("[1.2.3, 2)"), RequiredCapability.extractRange(reqs[0].getMatches()));
+		assertEquals(true, reqs[0].isGreedy());
 		assertEquals(0, reqs[0].getMin());
-		assertEquals("testNamespace2", ((IRequiredCapability) reqs[1].getMatches()).getNamespace());
-		assertEquals("testName2", ((IRequiredCapability) reqs[1].getMatches()).getName());
-		assertEquals(new VersionRange(Version.emptyVersion.toString()), ((IRequiredCapability) reqs[1].getMatches()).getRange());
+		assertEquals("testNamespace2", RequiredCapability.extractNamespace(reqs[1].getMatches()));
+		assertEquals("testName2", RequiredCapability.extractName(reqs[1].getMatches()));
+		assertEquals(new VersionRange(Version.emptyVersion.toString()), RequiredCapability.extractRange(reqs[1].getMatches()));
 		assertEquals(false, reqs[1].isGreedy());
 		assertEquals(1, reqs[1].getMin());
 	}
@@ -147,9 +146,9 @@ public class AdviceFileParserTest extends TestCase {
 		parser.parse();
 		IRequirement[] reqs = parser.getMetaRequiredCapabilities();
 		assertEquals(1, reqs.length);
-		assertEquals("testNamespace1", ((IRequiredCapability) reqs[0].getMatches()).getNamespace());
-		assertEquals("testName1", ((IRequiredCapability) reqs[0].getMatches()).getName());
-		assertEquals(new VersionRange("[1.2.3.v20090909, 2)"), ((IRequiredCapability) reqs[0].getMatches()).getRange());
+		assertEquals("testNamespace1", RequiredCapability.extractNamespace(reqs[0].getMatches()));
+		assertEquals("testName1", RequiredCapability.extractName(reqs[0].getMatches()));
+		assertEquals(new VersionRange("[1.2.3.v20090909, 2)"), RequiredCapability.extractRange(reqs[0].getMatches()));
 
 		map.put("metaRequirements.1.namespace", "testNamespace2");
 		map.put("metaRequirements.1.name", "testName2");
@@ -163,14 +162,14 @@ public class AdviceFileParserTest extends TestCase {
 		parser.parse();
 		reqs = parser.getMetaRequiredCapabilities();
 		assertEquals(2, reqs.length);
-		assertEquals("testNamespace1", ((IRequiredCapability) reqs[0].getMatches()).getNamespace());
-		assertEquals("testName1", ((IRequiredCapability) reqs[0].getMatches()).getName());
-		assertEquals(new VersionRange("[1.2.3, 2)"), ((IRequiredCapability) reqs[0].getMatches()).getRange());
-		assertEquals(true, ((IRequiredCapability) reqs[0].getMatches()).isGreedy());
+		assertEquals("testNamespace1", RequiredCapability.extractNamespace(reqs[0].getMatches()));
+		assertEquals("testName1", RequiredCapability.extractName(reqs[0].getMatches()));
+		assertEquals(new VersionRange("[1.2.3, 2)"), RequiredCapability.extractRange(reqs[0].getMatches()));
+		assertEquals(true, reqs[0].isGreedy());
 		assertEquals(0, reqs[0].getMin());
-		assertEquals("testNamespace2", ((IRequiredCapability) reqs[1].getMatches()).getNamespace());
-		assertEquals("testName2", ((IRequiredCapability) reqs[1].getMatches()).getName());
-		assertEquals(new VersionRange(Version.emptyVersion.toString()), ((IRequiredCapability) reqs[1].getMatches()).getRange());
+		assertEquals("testNamespace2", RequiredCapability.extractNamespace(reqs[1].getMatches()));
+		assertEquals("testName2", RequiredCapability.extractName(reqs[1].getMatches()));
+		assertEquals(new VersionRange(Version.emptyVersion.toString()), RequiredCapability.extractRange(reqs[1].getMatches()));
 		assertEquals(false, reqs[1].isGreedy());
 		assertEquals(1, reqs[1].getMin());
 	}
@@ -203,7 +202,7 @@ public class AdviceFileParserTest extends TestCase {
 		map.put("units.1.singleton", "true");
 		map.put("units.1.copyright", "testCopyright");
 		map.put("units.1.copyright.location", "http://localhost/test");
-		map.put("units.1.filter", "test=testFilter");
+		map.put("units.1.filter", "(test=testFilter)");
 		map.put("units.1.touchpoint.id", "testTouchpointId");
 		map.put("units.1.touchpoint.version", "1.2.5");
 		map.put("units.1.update.id", "testid1");
@@ -302,7 +301,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testClassifier2", key1.getClassifier());
 		assertEquals("testCopyright", iu1.getCopyright().getBody());
 		assertEquals("http://localhost/test", iu1.getCopyright().getLocation().toString());
-		assertEquals("test=testFilter", ((LDAPQuery) iu1.getFilter()).getFilter());
+		assertEquals("(test=testFilter)", iu1.getFilter().toString());
 		assertEquals("testLicense", iu1.getLicenses().iterator().next().getBody());
 		assertEquals("http://localhost/license", iu1.getLicenses().iterator().next().getLocation().toString());
 		assertEquals("testValue1", iu1.getProperty("testName1"));
@@ -313,14 +312,14 @@ public class AdviceFileParserTest extends TestCase {
 		IRequirement req0 = (IRequirement) it2.next();
 		IRequirement req1 = (IRequirement) it2.next();
 		assertEquals(2, reqs.size());
-		assertEquals("testNamespace1", ((IRequiredCapability) req0.getMatches()).getNamespace());
-		assertEquals("testName1", ((IRequiredCapability) req0.getMatches()).getName());
-		assertEquals(new VersionRange("[1.2.3, 2)"), ((IRequiredCapability) req0.getMatches()).getRange());
-		assertEquals(true, ((IRequiredCapability) req0.getMatches()).isGreedy());
+		assertEquals("testNamespace1", RequiredCapability.extractNamespace(req0.getMatches()));
+		assertEquals("testName1", RequiredCapability.extractName(req0.getMatches()));
+		assertEquals(new VersionRange("[1.2.3, 2)"), RequiredCapability.extractRange(req0.getMatches()));
+		assertEquals(true, req0.isGreedy());
 		assertEquals(0, req0.getMin());
-		assertEquals("testNamespace2", ((IRequiredCapability) req1.getMatches()).getNamespace());
-		assertEquals("testName2", ((IRequiredCapability) req1.getMatches()).getName());
-		assertEquals(new VersionRange(Version.emptyVersion.toString()), ((IRequiredCapability) req1.getMatches()).getRange());
+		assertEquals("testNamespace2", RequiredCapability.extractNamespace(req1.getMatches()));
+		assertEquals("testName2", RequiredCapability.extractName(req1.getMatches()));
+		assertEquals(new VersionRange(Version.emptyVersion.toString()), RequiredCapability.extractRange(req1.getMatches()));
 		assertEquals(false, req1.isGreedy());
 		assertEquals(1, req1.getMin());
 
@@ -341,14 +340,15 @@ public class AdviceFileParserTest extends TestCase {
 		Iterator it3 = metarequirements.iterator();
 		IRequirement metaReq0 = (IRequirement) it3.next();
 		IRequirement metaReq1 = (IRequirement) it3.next();
-		assertEquals("testNamespace1", ((IRequiredCapability) metaReq0.getMatches()).getNamespace());
-		assertEquals("testName1", ((IRequiredCapability) metaReq0.getMatches()).getName());
-		assertEquals(new VersionRange("[1.2.3, 2)"), ((IRequiredCapability) metaReq0.getMatches()).getRange());
+
+		assertEquals("testNamespace1", RequiredCapability.extractNamespace(metaReq0.getMatches()));
+		assertEquals("testName1", RequiredCapability.extractName(metaReq0.getMatches()));
+		assertEquals(new VersionRange("[1.2.3, 2)"), RequiredCapability.extractRange(metaReq0.getMatches()));
 		assertEquals(true, metaReq0.isGreedy());
 		assertEquals(0, metaReq0.getMin());
-		assertEquals("testNamespace2", ((IRequiredCapability) metaReq1.getMatches()).getNamespace());
-		assertEquals("testName2", ((IRequiredCapability) metaReq1.getMatches()).getName());
-		assertEquals(new VersionRange(Version.emptyVersion.toString()), ((IRequiredCapability) metaReq1.getMatches()).getRange());
+		assertEquals("testNamespace2", RequiredCapability.extractNamespace(metaReq1.getMatches()));
+		assertEquals("testName2", RequiredCapability.extractName(metaReq1.getMatches()));
+		assertEquals(new VersionRange(Version.emptyVersion.toString()), RequiredCapability.extractRange(metaReq1.getMatches()));
 		assertEquals(false, metaReq1.isGreedy());
 		assertEquals(1, metaReq1.getMin());
 
@@ -370,14 +370,14 @@ public class AdviceFileParserTest extends TestCase {
 		assertTrue(FragmentQuery.isFragment(iu1));
 		IRequirement[] hostRequired = ((IInstallableUnitFragment) iu1).getHost();
 		assertEquals(2, hostRequired.length);
-		assertEquals("testNamespace1", ((IRequiredCapability) hostRequired[0].getMatches()).getNamespace());
-		assertEquals("testName1", ((IRequiredCapability) hostRequired[0].getMatches()).getName());
-		assertEquals(new VersionRange("[1.2.3, 2)"), ((IRequiredCapability) hostRequired[0].getMatches()).getRange());
+		assertEquals("testNamespace1", RequiredCapability.extractNamespace(hostRequired[0].getMatches()));
+		assertEquals("testName1", RequiredCapability.extractName(hostRequired[0].getMatches()));
+		assertEquals(new VersionRange("[1.2.3, 2)"), RequiredCapability.extractRange(hostRequired[0].getMatches()));
 		assertEquals(true, hostRequired[0].isGreedy());
 		assertEquals(0, hostRequired[0].getMin());
-		assertEquals("testNamespace2", ((IRequiredCapability) hostRequired[1].getMatches()).getNamespace());
-		assertEquals("testName2", ((IRequiredCapability) hostRequired[1].getMatches()).getName());
-		assertEquals(new VersionRange(Version.emptyVersion.toString()), ((IRequiredCapability) hostRequired[1].getMatches()).getRange());
+		assertEquals("testNamespace2", RequiredCapability.extractNamespace(hostRequired[1].getMatches()));
+		assertEquals("testName2", RequiredCapability.extractName(hostRequired[1].getMatches()));
+		assertEquals(new VersionRange(Version.emptyVersion.toString()), RequiredCapability.extractRange(hostRequired[1].getMatches()));
 		assertEquals(false, hostRequired[1].isGreedy());
 		assertEquals(1, hostRequired[1].getMin());
 	}

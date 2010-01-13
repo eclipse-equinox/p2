@@ -19,8 +19,8 @@ import org.eclipse.equinox.internal.p2.ui.query.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.query.CategoryMemberQuery;
-import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
+import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.query.*;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
@@ -153,15 +153,16 @@ public class QueryProvider {
 				// Querying of IU's.  We are drilling down into the requirements.
 				if (element instanceof IIUElement && context.getShowInstallChildren()) {
 					Collection<IRequirement> reqs = ((IIUElement) element).getRequirements();
-					@SuppressWarnings("unchecked")
-					IQuery<IInstallableUnit>[] meetsAnyRequirementQuery = new IQuery[reqs.size()];
+					IExpression[] requirementExpressions = new IExpression[reqs.size()];
 					int i = 0;
 					for (IRequirement req : reqs) {
-						meetsAnyRequirementQuery[i++] = req.getMatches();
+						requirementExpressions[i++] = req.getMatches();
 					}
+					IExpressionFactory factory = ExpressionUtil.getFactory();
+					IQuery<IInstallableUnit> meetsAnyRequirementQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, factory.or(requirementExpressions));
 					IQuery<IInstallableUnit> visibleAsAvailableQuery = policy.getVisibleAvailableIUQuery();
 					@SuppressWarnings("unchecked")
-					CompoundQuery<IInstallableUnit> createCompoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, CompoundQuery.createCompoundQuery(meetsAnyRequirementQuery, false)}, true);
+					CompoundQuery<IInstallableUnit> createCompoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true);
 					return new ElementQueryDescriptor(queryable, createCompoundQuery, new Collector<IInstallableUnit>(), new InstalledIUElementWrapper(queryable, element));
 				}
 				profile = ProvUI.getAdapter(element, IProfile.class);

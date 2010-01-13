@@ -9,12 +9,10 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
-
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -33,13 +31,14 @@ public class HostCheckAnalyzer extends IUAnalyzer {
 			IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
 			IRequirement[] hosts = fragment.getHost();
 			for (int i = 0; i < hosts.length; i++) {
-				IRequiredCapability theHost = null;
-				if (hosts[i] instanceof IRequiredCapability)
-					theHost = (IRequiredCapability) hosts[i];
-				if (theHost.getNamespace().equals("osgi.bundle")) {
-					IQueryResult<IInstallableUnit> results = repository.query(new InstallableUnitQuery(theHost.getName(), theHost.getRange()), new NullProgressMonitor());
+				IMatchExpression<IInstallableUnit> hostMatch = hosts[i].getMatches();
+				String namespace = RequiredCapability.extractNamespace(hostMatch);
+				if ("osgi.bundle".equals(namespace)) {
+					String name = RequiredCapability.extractName(hostMatch);
+					VersionRange range = RequiredCapability.extractRange(hostMatch);
+					IQueryResult<IInstallableUnit> results = repository.query(new InstallableUnitQuery(name, range), new NullProgressMonitor());
 					if (results.isEmpty()) {
-						error(iu, "IU Fragment: " + iu.getId() + " cannot find host" + theHost.getName() + " : " + theHost.getRange());
+						error(iu, "IU Fragment: " + iu.getId() + " cannot find host" + name + " : " + range);
 						return;
 					}
 				}

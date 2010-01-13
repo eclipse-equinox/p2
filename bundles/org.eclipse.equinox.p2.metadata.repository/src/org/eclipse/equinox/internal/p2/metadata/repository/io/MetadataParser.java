@@ -12,21 +12,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 
@@ -568,20 +566,29 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class RequiredCapabilityHandler extends AbstractHandler {
+		private List<IRequirement> capabilities;
 
-		private IRequirement currentCapability = null;
+		private String namespace;
+		private String name;
+		private VersionRange range;
+		private int min;
+		private int max;
+		private boolean greedy;
 
 		private TextHandler filterHandler = null;
 
 		public RequiredCapabilityHandler(AbstractHandler parentHandler, Attributes attributes, List<IRequirement> capabilities) {
 			super(parentHandler, REQUIRED_CAPABILITY_ELEMENT);
+			this.capabilities = capabilities;
 			String[] values = parseAttributes(attributes, REQIURED_CAPABILITY_ATTRIBUTES, OPTIONAL_CAPABILITY_ATTRIBUTES);
-			VersionRange range = checkVersionRange(REQUIRED_CAPABILITY_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[2]);
+			namespace = values[0];
+			name = values[1];
+			range = checkVersionRange(REQUIRED_CAPABILITY_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[2]);
 			boolean isOptional = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_OPTIONAL_ATTRIBUTE, values[3], false).booleanValue();
+			min = isOptional ? 0 : 1;
 			boolean isMultiple = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_MULTIPLE_ATTRIBUTE, values[4], false).booleanValue();
-			boolean isGreedy = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_GREED_ATTRIBUTE, values[5], true).booleanValue();
-			currentCapability = MetadataFactory.createRequiredCapability(values[0], values[1], range, null, isOptional, isMultiple, isGreedy);
-			capabilities.add(currentCapability);
+			max = isMultiple ? Integer.MAX_VALUE : 1;
+			greedy = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_GREED_ATTRIBUTE, values[5], true).booleanValue();
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -594,11 +601,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		protected void finished() {
 			if (isValidXML()) {
-				if (currentCapability != null) {
-					if (filterHandler != null) {
-						((RequiredCapability) currentCapability).setFilter(filterHandler.getText());
-					}
-				}
+				Filter filter = null;
+				if (filterHandler != null)
+					filter = ExpressionUtil.parseLDAP(filterHandler.getText());
+				capabilities.add(MetadataFactory.createRequiredCapability(namespace, name, range, filter, min, max, greedy));
 			}
 		}
 	}

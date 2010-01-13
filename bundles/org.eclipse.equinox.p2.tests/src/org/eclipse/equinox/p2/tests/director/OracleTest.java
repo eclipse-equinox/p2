@@ -31,15 +31,15 @@ public class OracleTest extends AbstractProvisioningTest {
 	IProfile profile;
 
 	protected void setUp() throws Exception {
-		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"), null);
+		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"));
 		a1 = createIU("A", requires, true);
 
-		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[1.0.0, 3.0.0)"), null);
+		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[1.0.0, 3.0.0)"));
 		c1 = createIU("C", requires, true);
 
 		d1 = createIU("D", DEFAULT_VERSION, true);
 
-		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[2.0.0, 3.0.0)"), null);
+		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[2.0.0, 3.0.0)"));
 		b1 = createIU("B", requires, true);
 
 		d2 = createIU("D", Version.createOSGi(2, 0, 0), true);

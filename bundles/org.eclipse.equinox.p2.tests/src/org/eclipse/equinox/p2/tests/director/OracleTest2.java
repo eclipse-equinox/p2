@@ -33,12 +33,12 @@ public class OracleTest2 extends AbstractProvisioningTest {
 	IProfile profile;
 
 	protected void setUp() throws Exception {
-		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"), null);
+		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"));
 		a1 = createIU("A", requires, true);
 
 		c1 = createIU("C", DEFAULT_VERSION, true);
 
-		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[2.0.0, 3.0.0)"), null);
+		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[2.0.0, 3.0.0)"));
 		InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
 		desc.setRequiredCapabilities(requires);
 		desc.setId("A");

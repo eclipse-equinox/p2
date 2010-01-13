@@ -25,6 +25,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -389,7 +390,7 @@ public class SimplePlanner implements IPlanner {
 	private Collection<IRequirement> areMetaRequirementsSatisfied(IProfile oldProfile, Collection<IInstallableUnit> newProfile, IProvisioningPlan initialPlan) {
 		Collection<IRequirement> allMetaRequirements = extractMetaRequirements(newProfile, initialPlan);
 		for (IRequirement requirement : allMetaRequirements) {
-			if (oldProfile.query(new LimitQuery<IInstallableUnit>(requirement.getMatches(), 1), null).isEmpty())
+			if (oldProfile.query(new LimitQuery<IInstallableUnit>(new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, requirement.getMatches()), 1), null).isEmpty())
 				return allMetaRequirements;
 		}
 		return null;

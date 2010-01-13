@@ -19,14 +19,14 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
-import org.eclipse.equinox.internal.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.*;
-import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -35,6 +35,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.Filter;
 
 /**
  * Publish IUs for all of the features in the given set of locations.  The locations can
@@ -237,7 +238,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, BundlesAction.computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
-		List<IRequiredCapability> required = new ArrayList<IRequiredCapability>(entries.length + (childIUs == null ? 0 : childIUs.size()));
+		List<IRequirement> required = new ArrayList<IRequirement>(entries.length + (childIUs == null ? 0 : childIUs.size()));
 		for (int i = 0; i < entries.length; i++) {
 			VersionRange range = getVersionRange(entries[i]);
 			String requiredId = getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true);
@@ -249,7 +250,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (childIUs != null) {
 			for (int i = 0; i < childIUs.size(); i++) {
 				IInstallableUnit child = childIUs.get(i);
-				String filter = (child.getFilter() instanceof LDAPQuery) ? ((LDAPQuery) child.getFilter()).getFilter() : null;
+				Filter filter = child.getFilter();
 				required.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), filter, false, false));
 			}
 		}
@@ -262,9 +263,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		//Create a fake entry to reuse the logic to create the filters
 		FeatureEntry entry = new FeatureEntry("fake", "0.0.0", false); //$NON-NLS-1$ //$NON-NLS-2$
 		entry.setEnvironment(feature.getOS(), feature.getWS(), feature.getArch(), feature.getNL());
-		String filter = getFilter(entry);
-		if (filter != null)
-			iu.setFilter(filter);
+		iu.setFilter(getFilter(entry));
 
 		// Create set of provided capabilities
 		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();
@@ -336,7 +335,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (childIUs != null) {
 			for (int i = 0; i < childIUs.size(); i++) {
 				IInstallableUnit child = childIUs.get(i);
-				patchRequirements.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter() == null ? null : ((LDAPQuery) child.getFilter()).getFilter(), false, false));
+				patchRequirements.add(MetadataFactory.createRequiredCapability(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter(), false, false));
 			}
 		}
 		iu.setRequiredCapabilities(patchRequirements.toArray(new IRequirement[patchRequirements.size()]));
@@ -516,7 +515,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return result.toArray(new Feature[result.size()]);
 	}
 
-	private String getFilter(FeatureEntry entry) {
+	private Filter getFilter(FeatureEntry entry) {
 		StringBuffer result = new StringBuffer();
 		result.append("(&"); //$NON-NLS-1$
 		if (entry.getFilter() != null)
@@ -528,7 +527,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (result.length() == 2)
 			return null;
 		result.append(')');
-		return result.toString();
+		return ExpressionUtil.parseLDAP(result.toString());
 	}
 
 	private void expandFilter(String filter, String osgiFilterValue, StringBuffer result) {

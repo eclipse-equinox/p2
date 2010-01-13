@@ -12,8 +12,6 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -21,13 +19,12 @@ import java.util.Collections;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.RootIUAdvice;
@@ -309,8 +306,8 @@ public class ProductActionTest extends ActionTest {
 		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(queryResult));
 		IInstallableUnitFragment fragment = (IInstallableUnitFragment) queryResult.iterator().next();
-		assertEquals("1.1", "org.eclipse.core.runtime", ((IRequiredCapability) fragment.getHost()[0].getMatches()).getName());
-		assertEquals("1.2", Version.create("4.0.0"), ((IRequiredCapability) fragment.getHost()[0].getMatches()).getRange().getMinimum());
+		assertEquals("1.1", "org.eclipse.core.runtime", RequiredCapability.extractName(fragment.getHost()[0].getMatches()));
+		assertEquals("1.2", Version.create("4.0.0"), RequiredCapability.extractRange(fragment.getHost()[0].getMatches()).getMinimum());
 		assertEquals("1.3", Version.create("1.0.0"), fragment.getVersion());
 
 	}

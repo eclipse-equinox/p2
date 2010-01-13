@@ -8,9 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -23,15 +20,16 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
@@ -43,8 +41,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
+import org.osgi.framework.*;
 
 /**
  * Base class for provisioning tests with convenience methods used by multiple tests.
@@ -273,8 +270,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/**
 	 * Creates and returns a correctly formatted LDAP filter with the given key and value.
 	 */
-	protected static String createFilter(String filterKey, String filterValue) {
-		return "(" + filterKey + '=' + filterValue + ')';
+	protected static Filter createFilter(String filterKey, String filterValue) {
+		return ExpressionUtil.parseLDAP("(" + filterKey + '=' + filterValue + ')');
 	}
 
 	/**
@@ -314,6 +311,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
 	public static IInstallableUnit createIU(String name, String filter, IProvidedCapability[] additionalProvides) {
+		return createIU(name, ExpressionUtil.parseLDAP(filter), additionalProvides);
+	}
+
+	public static IInstallableUnit createIU(String name, Filter filter, IProvidedCapability[] additionalProvides) {
 		return createIU(name, DEFAULT_VERSION, filter, NO_REQUIRES, additionalProvides, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
@@ -366,6 +367,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
 	public static IInstallableUnit createIU(String name, Version version, String filter, IProvidedCapability[] additionalProvides) {
+		return createIU(name, version, ExpressionUtil.parseLDAP(filter), additionalProvides);
+	}
+
+	public static IInstallableUnit createIU(String name, Version version, Filter filter, IProvidedCapability[] additionalProvides) {
 		return createIU(name, version, filter, NO_REQUIRES, additionalProvides, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
@@ -373,7 +378,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, String filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton) {
+	public static IInstallableUnit createIU(String name, Version version, Filter filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton) {
 		return createIU(name, version, filter, required, additionalProvides, properties, tpType, tpData, singleton, null, null);
 	}
 
@@ -381,7 +386,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return createIUPatch(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, singleton, null, changes, scope, lifeCycle, NO_REQUIRES);
 	}
 
-	public static IInstallableUnitPatch createIUPatch(String name, Version version, String filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirementChange[] reqChanges, IRequiredCapability[][] scope, IRequiredCapability lifeCycle, IRequiredCapability[] metaRequirements) {
+	public static IInstallableUnitPatch createIUPatch(String name, Version version, Filter filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirementChange[] reqChanges, IRequiredCapability[][] scope, IRequiredCapability lifeCycle, IRequiredCapability[] metaRequirements) {
 		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
 		iu.setId(name);
 		iu.setVersion(version);
@@ -410,7 +415,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return MetadataFactory.createInstallableUnitPatch(iu);
 	}
 
-	public static IInstallableUnit createIU(String name, Version version, String filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequiredCapability[] metaRequirements) {
+	public static IInstallableUnit createIU(String name, Version version, Filter filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequiredCapability[] metaRequirements) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(name);
 		iu.setVersion(version);
@@ -485,7 +490,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		Collection<IProvidedCapability> originalCapabilities = prototype.getProvidedCapabilities();
 		desc.setCapabilities(originalCapabilities.toArray(new IProvidedCapability[originalCapabilities.size()]));
 		desc.setCopyright(prototype.getCopyright());
-		desc.setFilter(prototype.getFilter() == null ? null : ((LDAPQuery) prototype.getFilter()).getFilter());
+		desc.setFilter(prototype.getFilter());
 		desc.setId(prototype.getId());
 		Collection<ILicense> originalLicenses = prototype.getLicenses();
 		desc.setLicenses(originalLicenses.toArray(new ILicense[originalLicenses.size()]));
@@ -513,14 +518,23 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/**
 	 * Creates and returns a required capability with the provided attributes.
 	 */
+	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name) {
+		return createRequiredCapabilities(namespace, name, ANY_VERSION, (Filter) null);
+	}
+
 	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, String filter) {
 		return createRequiredCapabilities(namespace, name, ANY_VERSION, filter);
 	}
 
-	/**
-	 * Creates and returns a required capability with the provided attributes.
-	 */
+	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range) {
+		return createRequiredCapabilities(namespace, name, range, (Filter) null);
+	}
+
 	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
+		return createRequiredCapabilities(namespace, name, range, ExpressionUtil.parseLDAP(filter));
+	}
+
+	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, Filter filter) {
 		return new IRequiredCapability[] {MetadataFactory.createRequiredCapability(namespace, name, range, filter, false, false)};
 	}
 
