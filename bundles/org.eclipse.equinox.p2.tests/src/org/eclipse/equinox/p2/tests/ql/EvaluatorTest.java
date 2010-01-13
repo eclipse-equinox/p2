@@ -278,6 +278,52 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		assertEquals(queryResultSize(result), 497);
 	}
 
+	static class MyObject {
+		String id;
+		Map properties = new HashMap();
+
+		public MyObject(String id, String key, String value) {
+			this.id = id;
+			this.properties.put(key, value);
+		}
+
+		public String getId() {
+			return this.id;
+		}
+
+		public Map getProperties() {
+			return this.properties;
+		}
+	}
+
+	public void testRootVariableSerialization() throws Exception {
+		List items = new ArrayList();
+
+		items.add(new MyObject("ian bull", "foo", "true"));
+
+		// Create some expressions. Note the use of identifiers instead of
+		// indexes for the parameters
+		IExpression item = factory.variable("item");
+
+		IExpression cmp1 = factory.equals(factory.member(item, "id"), factory.indexedParameter(0));
+
+		IExpression everything = factory.variable("everything");
+		IExpression lambda = factory.lambda(item, cmp1);
+
+		IContextExpression e3 = factory.contextExpression(Object.class, factory.select(everything, lambda));
+
+		IContextExpression<Object> contextExpression = factory.contextExpression(Object.class, parser.parseQuery(e3.toString()), "ian bull");
+		QLContextQuery qlContextQuery = new QLContextQuery(contextExpression);
+		System.out.println(e3);
+
+		IQueryResult queryResult = qlContextQuery.perform(items.iterator());
+		Iterator iterator = queryResult.iterator();
+		while (iterator.hasNext()) {
+			System.out.println(iterator.next());
+		}
+
+	}
+
 	public void testMatchQueryInjectionInContext() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 		IContextExpression expr = factory.contextExpression(IInstallableUnit.class, parser.parseQuery("select(x | iquery($0, x) || iquery($1, x)).latest()"), new MatchQuery() {
