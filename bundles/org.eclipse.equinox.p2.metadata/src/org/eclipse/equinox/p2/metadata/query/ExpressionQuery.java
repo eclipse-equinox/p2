@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import org.eclipse.equinox.p2.query.MatchQuery;
 
 /**
  * A query that matches candidates against an expression.
+ * @since 2.0
  */
 public class ExpressionQuery<T> extends MatchQuery<T> {
 	private final IMatchExpression<T> expression;
