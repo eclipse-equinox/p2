@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 - 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.metadata.expression;
 import java.util.List;
 
 /**
- * This inteface provides all the factory methods needed to create the
+ * This interface provides all the factory methods needed to create the
  * nodes of the expression tree.
  * @since 2.0
  */
@@ -146,7 +146,7 @@ public interface IExpressionFactory {
 	IExpression lessEqual(IExpression lhs, IExpression rhs);
 
 	/**
-	 * Performs boolean normalizations on the expression to create a canonical form.
+	 * Performs boolean normalization on the expression to create a canonical form.
 	 * @param operands The operands to normalize
 	 * @param expressionType The type (must be either {@link IExpression#TYPE_AND}
 	 * or {@link IExpression#TYPE_OR}.
