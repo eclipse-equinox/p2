@@ -11,39 +11,40 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.Iterator;
+import java.util.Set;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
- * An expression representing a variable stack in the current thread.
  */
-class Assignment extends Binary implements IQLConstants, IQLExpression {
-	Assignment(Variable variable, Expression expression) {
-		super(variable, expression);
+final class Union extends Binary implements IQLConstants, IQLExpression {
+	Union(Expression operand, Expression param) {
+		super(operand, param);
 	}
 
-	public final Object evaluate(IEvaluationContext context) {
-		Object value = rhs.evaluate(context);
-		context.setValue(lhs, value);
-		return value;
-	}
-
-	public int getExpressionType() {
-		return TYPE_ASSIGNMENT;
-	}
-
-	public int getPriority() {
-		return IExpressionConstants.PRIORITY_ASSIGNMENT;
-	}
-
-	public String getOperator() {
-		return OPERATOR_ASSIGN;
+	public Object evaluate(IEvaluationContext context) {
+		return evaluateAsIterator(context);
 	}
 
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
-		Iterator<?> value = rhs.evaluateAsIterator(context);
-		context.setValue(lhs, value);
-		return value;
+		@SuppressWarnings("unchecked")
+		Set<Object> resultSet = (Set<Object>) QLUtil.asSet(lhs.evaluate(context), true);
+		Iterator<?> itor = rhs.evaluateAsIterator(context);
+		while (itor.hasNext())
+			resultSet.add(itor.next());
+		return RepeatableIterator.create(resultSet);
+	}
+
+	public int getExpressionType() {
+		return TYPE_UNION;
+	}
+
+	public String getOperator() {
+		return KEYWORD_UNION;
+	}
+
+	public int getPriority() {
+		return PRIORITY_COLLECTION;
 	}
 }

@@ -10,34 +10,26 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql.expression;
 
-import org.eclipse.equinox.internal.p2.metadata.LDAPQuery;
-import org.eclipse.equinox.internal.p2.ql.QLActivator;
-import org.osgi.framework.InvalidSyntaxException;
+import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 
 /**
  * A function that creates an OSGi filter based on a String
  */
-final class FilterFunction extends Function {
+public final class FilterFunction extends Function {
 	public FilterFunction(Expression[] operands) {
 		super(assertLength(operands, 1, 1, KEYWORD_FILTER));
-		assertNotBoolean(operands[0], "parameter"); //$NON-NLS-1$
-		assertNotCollection(operands[0], "parameter"); //$NON-NLS-1$
 	}
 
 	boolean assertSingleArgumentClass(Object v) {
-		return v instanceof LDAPQuery || v instanceof String;
+		return v instanceof String;
 	}
 
 	Object createInstance(Object arg) {
-		String str = (arg instanceof LDAPQuery) ? ((LDAPQuery) arg).getFilter() : (String) arg;
-		try {
-			return QLActivator.context.createFilter(str);
-		} catch (InvalidSyntaxException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}
+		return ExpressionUtil.parseLDAP((String) arg);
 	}
 
-	String getOperator() {
+	public String getOperator() {
 		return KEYWORD_FILTER;
 	}
 }

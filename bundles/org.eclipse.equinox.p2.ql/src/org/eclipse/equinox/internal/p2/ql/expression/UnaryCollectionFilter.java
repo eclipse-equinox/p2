@@ -10,37 +10,35 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql.expression;
 
-import org.eclipse.equinox.p2.ql.IEvaluationContext;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.ql.IQLExpression;
 
-abstract class UnaryCollectionFilter extends Unary {
+abstract class UnaryCollectionFilter extends Unary implements IQLConstants, IQLExpression {
 
 	UnaryCollectionFilter(Expression collection) {
 		super(collection);
+	}
+
+	public int hashCode() {
+		return 5 * operand.hashCode();
 	}
 
 	public Object evaluate(IEvaluationContext context) {
 		return evaluateAsIterator(context);
 	}
 
-	public void toString(StringBuffer bld) {
+	public void toString(StringBuffer bld, Variable rootVariable) {
 		if (operand instanceof Select) {
 			Select select = (Select) operand;
-			CollectionFilter.appendProlog(bld, select.operand, getOperator());
-			appendOperand(bld, select.lambda, getPriority());
+			CollectionFilter.appendProlog(bld, rootVariable, select.operand, getOperator());
+			appendOperand(bld, rootVariable, select.lambda, getPriority());
 		} else
-			CollectionFilter.appendProlog(bld, operand, getOperator());
+			CollectionFilter.appendProlog(bld, rootVariable, operand, getOperator());
 		bld.append(')');
 	}
 
-	int getPriority() {
+	public int getPriority() {
 		return PRIORITY_COLLECTION;
-	}
-
-	boolean isCollection() {
-		return true;
-	}
-
-	boolean isElementBoolean() {
-		return operand.isElementBoolean();
 	}
 }

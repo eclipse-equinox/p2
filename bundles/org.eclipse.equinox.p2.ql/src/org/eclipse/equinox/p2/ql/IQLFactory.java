@@ -12,30 +12,14 @@ package org.eclipse.equinox.p2.ql;
 
 import java.util.Map;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
 
 /**
  * This inteface provides all the factory methods needed to create the all possible
  * nodes of the expression tree.
  */
-public interface IExpressionFactory {
-	IExpression[] NO_ARGS = new IExpression[0];
-
-	/**
-	 * Create a collection filter that yields true if the <code>lambda</code> yields true for
-	 * all of the elements of the <code>collection</code>
-	 * @param collection The collection providing the elements to test
-	 * @param lambda The lambda that performs the test
-	 * @return A boolean expression
-	 */
-	IExpression all(IExpression collection, IExpression lambda);
-
-	/**
-	 * Create a logical <i>and</i> of its <code>operands</code>.
-	 * @param operands The boolean operands
-	 * @return A boolean expression
-	 */
-	IExpression and(IExpression[] operands);
-
+public interface IQLFactory extends IExpressionFactory {
 	/**
 	 * Create an array of elements.
 	 * @param elements The elements of the array
@@ -50,15 +34,6 @@ public interface IExpressionFactory {
 	 * @return An assignment expression
 	 */
 	IExpression assignment(IExpression variable, IExpression expression);
-
-	/**
-	 * Create an lookup of <code>key</code> in the <code>target</code>.
-	 * The key expression should evaluate to a string or an integer.
-	 * @param target The target for the lookup
-	 * @param key The key to use for the lookup
-	 * @return A lookup expression
-	 */
-	IExpression at(IExpression target, IExpression key);
 
 	/**
 	 * Create an expression that collects the result of evaluating each element in a new collection.
@@ -80,35 +55,13 @@ public interface IExpressionFactory {
 	IExpression condition(IExpression test, IExpression ifTrue, IExpression ifFalse);
 
 	/**
-	 * Creates an expression that evaluates to the constant <code>value</code>.
-	 * @param value The constant
-	 * @return A constant expression
-	 */
-	IExpression constant(Object value);
-
-	/**
 	 * Creates a top level expression that represents a full query.
+	 * @param elementClass The element class of the queried material
 	 * @param expr The query
+	 * @param parameters The parameters of the query
 	 * @return A top level query expression
 	 */
-	<T> IContextExpression<T> contextExpression(Class<T> elementClass, IExpression expr);
-
-	/**
-	 * Create an expression that tests if <code>lhs</code> is equal to <code>rhs</code>.
-	 * @param lhs The left hand side value.
-	 * @param rhs The right hand side value.
-	 * @return A boolean expression
-	 */
-	IExpression equals(IExpression lhs, IExpression rhs);
-
-	/**
-	 * Create a collection filter that yields true if the <code>lambda</code> yields true for
-	 * at least one of the elements of the <code>collection</code>
-	 * @param collection The collection providing the elements to test
-	 * @param lambda The lambda that performs the test
-	 * @return A boolean expression
-	 */
-	IExpression exists(IExpression collection, IExpression lambda);
+	<T> IContextExpression<T> contextExpression(Class<T> elementClass, IExpression expr, Object... parameters);
 
 	/**
 	 * Create an expression that yields the first element of the
@@ -128,13 +81,13 @@ public interface IExpressionFactory {
 	IExpression flatten(IExpression collection);
 
 	/**
-	 * Given one of the value in the {@link Map} returned by {@link #getFunctionMap()}, this method
+	 * Given one of the values in the map returned by {@link #getFunctionMap()}, this method
 	 * returns a function expression.
 	 * @param function The value obtained from the map.
 	 * @param args The arguments to evaluate and pass when evaluating the function.
 	 * @return A function expression
 	 */
-	IExpression function(Object function, IExpression[] args);
+	IExpression function(Object function, IExpression... args);
 
 	/**
 	 * Returns a map of functions supported by this factory. The map is keyed by
@@ -145,45 +98,22 @@ public interface IExpressionFactory {
 	Map<String, ? extends Object> getFunctionMap();
 
 	/**
-	 * Create an expression that tests if <code>lhs</code> is greater than <code>rhs</code>.
-	 * @param lhs The left hand side value.
-	 * @param rhs The right hand side value.
-	 * @return A boolean expression
+	 * Create an <i>intersection</i> of <code>c1</code> and <code>c2</code> 
+	 * @param c1 first collection
+	 * @param c2 second collection
+	 * @return An intersect expression
 	 */
-	IExpression greater(IExpression lhs, IExpression rhs);
-
-	/**
-	 * Creates an indexed parameter expression
-	 * @param index The index to use
-	 * @return a parameter expression
-	 */
-	IExpression indexedParameter(int index);
-
-	/**
-	 * Creates an keyed parameter expression
-	 * @param key The key to use
-	 * @return a parameter expression
-	 */
-	IExpression keyedParameter(String key);
-
-	/**
-	 * Creates a lambda expression that takes exactly one variable. Suitable for use
-	 * in most collection expressions.
-	 * @param body The body of the lambda
-	 * @param variable The element variable that the lambda uses
-	 * @return A lambda expression
-	 */
-	IExpression lambda(IExpression body, IExpression variable);
+	IExpression intersect(IExpression c1, IExpression c2);
 
 	/**
 	 * Creates a lambda expression that takes more then one variable (currying). Suitable for use
 	 * in most collection expressions.
-	 * @param body The body of the lambda
 	 * @param variable The element variable that the lambda uses
+	 * @param body The body of the lambda
 	 * @param initialAssignments Assignments to evaluate once before calling the body for each element.
 	 * @return A lambda expression with currying
 	 */
-	IExpression lambda(IExpression body, IExpression variable, IExpression[] initialAssignments);
+	IExpression lambda(IExpression variable, IExpression[] initialAssignments, IExpression body);
 
 	/**
 	 * Create an expression that yields a new collection consisting of the latest version of
@@ -195,14 +125,6 @@ public interface IExpressionFactory {
 	IExpression latest(IExpression collection);
 
 	/**
-	 * Create an expression that tests if <code>lhs</code> is less than <code>rhs</code>.
-	 * @param lhs The left hand side value.
-	 * @param rhs The right hand side value.
-	 * @return A boolean expression
-	 */
-	IExpression less(IExpression lhs, IExpression rhs);
-
-	/**
 	 * Create an expression that yields a new collection consisting of the <i>n</i> first
 	 * elements of the source collection where <i>n</i> is determined by <code>limit</code>.
 	 * @param collection The source collection
@@ -211,50 +133,13 @@ public interface IExpressionFactory {
 	IExpression limit(IExpression collection, IExpression limit);
 
 	/**
-	 * Create an expression that tests if <code>lhs</code> matches <code>rhs</code>.
-	 * @param lhs The left hand side value.
-	 * @param rhs The right hand side value.
-	 * @return A boolean expression
-	 */
-	IExpression matches(IExpression lhs, IExpression rhs);
-
-	/**
-	 * Creates a top level expression suitable for predicate matching
-	 * @param expr The boolean expression
-	 * @return A top level predicate expression
-	 */
-	IMatchExpression matchExpression(IExpression expr);
-
-	/**
-	 * Creates a member accessor expression.
-	 * @param target The target for the member access
-	 * @param name The name of the member
-	 * @return A member expression
-	 */
-	IExpression member(IExpression target, String name);
-
-	/**
 	 * Creates a member call expression.
 	 * @param target The target for the member call
 	 * @param name The name of the member
 	 * @param args The arguments to use for the call
 	 * @return A member expression
 	 */
-	IExpression memberCall(IExpression target, String name, IExpression[] args);
-
-	/**
-	 * Creates an expression that negates the result of evaluating its <code>operand</code>.
-	 * @param operand The boolean expression to negate
-	 * @return A boolean expression
-	 */
-	IExpression not(IExpression operand);
-
-	/**
-	 * Create a logical <i>or</i> of its <code>operands</code>.
-	 * @param operands The boolean operands
-	 * @return A boolean expression
-	 */
-	IExpression or(IExpression[] operands);
+	IExpression memberCall(IExpression target, String name, IExpression... args);
 
 	/**
 	 * Create an expression that yields a new collection consisting of all elements of the
@@ -283,6 +168,14 @@ public interface IExpressionFactory {
 	IExpression traverse(IExpression collection, IExpression lambda);
 
 	/**
+	 * Create a <i>union</i> of <code>c1</code> and <code>c2</code> 
+	 * @param c1 first collection
+	 * @param c2 second collection
+	 * @return A union expression
+	 */
+	IExpression union(IExpression c1, IExpression c2);
+
+	/**
 	 * Create an expression that yields a new collection where each element is unique. An
 	 * optional <code>cache</code> can be provided if the uniqueness should span a larger
 	 * scope then just the source collection.
@@ -291,11 +184,4 @@ public interface IExpressionFactory {
 	 * @return A collection expression
 	 */
 	IExpression unique(IExpression collection, IExpression cache);
-
-	/**
-	 * Creates an expression that represents a variable
-	 * @param name The name of the variable
-	 * @return A variable expression
-	 */
-	IExpression variable(String name);
 }

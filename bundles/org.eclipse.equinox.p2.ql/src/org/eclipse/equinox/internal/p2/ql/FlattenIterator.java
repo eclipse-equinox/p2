@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
+import org.eclipse.equinox.internal.p2.metadata.expression.RepeatableIterator;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

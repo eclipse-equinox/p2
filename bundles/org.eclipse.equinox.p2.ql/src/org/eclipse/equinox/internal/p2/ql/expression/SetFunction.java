@@ -11,9 +11,10 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.HashSet;
-import org.eclipse.equinox.p2.ql.IEvaluationContext;
+import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
-final class SetFunction extends Function {
+public final class SetFunction extends Function implements IQLConstants {
 
 	public SetFunction(Expression[] operands) {
 		super(operands);
@@ -26,7 +27,7 @@ final class SetFunction extends Function {
 		return result;
 	}
 
-	String getOperator() {
+	public String getOperator() {
 		return KEYWORD_SET;
 	}
 

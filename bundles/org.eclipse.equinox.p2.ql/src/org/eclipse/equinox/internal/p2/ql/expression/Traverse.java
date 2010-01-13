@@ -11,9 +11,9 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.ql.SingleVariableContext;
-import org.eclipse.equinox.internal.p2.ql.parser.IParserConstants;
-import org.eclipse.equinox.p2.ql.IEvaluationContext;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * An expression that will collect items recursively based on a <code>rule</code>.
@@ -22,43 +22,39 @@ import org.eclipse.equinox.p2.ql.IEvaluationContext;
  * in the new collection. All items are collected into a set and items that are already
  * in that set will not be perused again. The set becomes the result of the traversal.
  */
-final class Traverse extends CollectionFilter {
+final class Traverse extends CollectionFilter implements IQLExpression {
 
 	Traverse(Expression collection, LambdaExpression lambda) {
 		super(collection, lambda);
 	}
 
-	public int getExpressionType() {
-		return TYPE_TRAVERSE;
-	}
-
-	Object evaluate(IEvaluationContext context, Iterator<?> itor) {
+	public Object evaluate(IEvaluationContext context, Iterator<?> itor) {
 		return evaluateAsIterator(context, itor);
 	}
 
-	Iterator<?> evaluateAsIterator(IEvaluationContext context, Iterator<?> iterator) {
+	public Iterator<?> evaluateAsIterator(IEvaluationContext context, Iterator<?> iterator) {
 		HashSet<Object> collector = new HashSet<Object>();
 		while (iterator.hasNext())
 			traverse(collector, iterator.next(), context);
 		return collector.iterator();
 	}
 
-	String getOperator() {
-		return IParserConstants.KEYWORD_TRAVERSE;
+	public int getExpressionType() {
+		return TYPE_TRAVERSE;
+	}
+
+	public String getOperator() {
+		return IQLConstants.KEYWORD_TRAVERSE;
 	}
 
 	void traverse(Set<Object> collector, Object parent, IEvaluationContext context) {
 		if (collector.add(parent)) {
 			Variable variable = lambda.getItemVariable();
-			context = new SingleVariableContext(context, variable);
+			context = EvaluationContext.create(context, variable);
 			variable.setValue(context, parent);
 			Iterator<?> subIterator = lambda.evaluateAsIterator(context);
 			while (subIterator.hasNext())
 				traverse(collector, subIterator.next(), context);
 		}
-	}
-
-	boolean isCollection() {
-		return true;
 	}
 }

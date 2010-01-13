@@ -12,8 +12,8 @@ package org.eclipse.equinox.p2.ql;
 
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.ql.QueryContext;
-import org.eclipse.equinox.internal.p2.ql.expression.ExpressionFactory;
-import org.eclipse.equinox.internal.p2.ql.parser.ExpressionParser;
+import org.eclipse.equinox.internal.p2.ql.expression.QLFactory;
+import org.eclipse.equinox.internal.p2.ql.parser.QLParser;
 import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
@@ -24,16 +24,16 @@ public abstract class QL {
 	 * Returns the default expression factory.
 	 * @return the default expression factory.
 	 */
-	public static IExpressionFactory getFactory() {
-		return ExpressionFactory.INSTANCE;
+	public static IQLFactory getFactory() {
+		return QLFactory.INSTANCE;
 	}
 
 	/**
 	 * Creates a new instance of the default expression parser.
 	 * @return the new parser.
 	 */
-	public static IExpressionParser newParser() {
-		return new ExpressionParser(getFactory());
+	public static IQLParser newParser() {
+		return new QLParser(getFactory());
 	}
 
 	/**

@@ -12,12 +12,14 @@ package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import org.eclipse.equinox.p2.ql.IEvaluationContext;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * A collection filter that limits the number of entries in the collection
  */
-final class Limit extends Binary {
+final class Limit extends Binary implements IQLConstants, IQLExpression {
 
 	/**
 	 * An iterator that stops iterating after a given number of iterations.
@@ -50,15 +52,17 @@ final class Limit extends Binary {
 
 	Limit(Expression operand, Expression param) {
 		super(operand, param);
-		assertNotBoolean(operand, "operand"); //$NON-NLS-1$
-		assertNotCollection(param, "parameter"); //$NON-NLS-1$
 	}
 
 	Limit(Expression operand, int limit) {
-		this(operand, Constant.create(new Integer(limit)));
+		this(operand, (Expression) QLFactory.INSTANCE.constant(new Integer(limit)));
 	}
 
 	public Object evaluate(IEvaluationContext context) {
+		return evaluateAsIterator(context);
+	}
+
+	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object rval = rhs.evaluate(context);
 		int limit = -1;
 		if (rval instanceof Integer)
@@ -72,25 +76,17 @@ final class Limit extends Binary {
 		return TYPE_LIMIT;
 	}
 
-	public void toString(StringBuffer bld) {
-		CollectionFilter.appendProlog(bld, lhs, getOperator());
-		appendOperand(bld, rhs, PRIORITY_COMMA);
+	public void toString(StringBuffer bld, Variable rootVariable) {
+		CollectionFilter.appendProlog(bld, rootVariable, lhs, getOperator());
+		appendOperand(bld, rootVariable, rhs, IExpressionConstants.PRIORITY_COMMA);
 		bld.append(')');
 	}
 
-	String getOperator() {
+	public String getOperator() {
 		return KEYWORD_LIMIT;
 	}
 
-	int getPriority() {
+	public int getPriority() {
 		return PRIORITY_COLLECTION;
-	}
-
-	boolean isCollection() {
-		return true;
-	}
-
-	boolean isElementBoolean() {
-		return lhs.isElementBoolean();
 	}
 }

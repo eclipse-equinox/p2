@@ -11,8 +11,9 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.Iterator;
+import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
 import org.eclipse.equinox.internal.p2.ql.FlattenIterator;
-import org.eclipse.equinox.p2.ql.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
 /**
  * An expression that yields a new collection consisting of all elements of the
@@ -31,7 +32,7 @@ final class Flatten extends UnaryCollectionFilter {
 		return TYPE_FLATTEN;
 	}
 
-	String getOperator() {
+	public String getOperator() {
 		return KEYWORD_FLATTEN;
 	}
 }

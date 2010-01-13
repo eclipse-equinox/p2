@@ -11,16 +11,16 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.Iterator;
-import org.eclipse.equinox.p2.ql.IEvaluationContext;
+import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
+import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.query.IMatchQuery;
 import org.eclipse.equinox.p2.query.IQuery;
 
-final class WrappedIQuery extends Function {
+public final class WrappedIQuery extends Function implements IQLConstants {
 
 	public WrappedIQuery(Expression[] operands) {
 		super(assertLength(operands, 1, 2, KEYWORD_IQUERY));
-		assertNotBoolean(operands[0], "parameter"); //$NON-NLS-1$
-		assertNotCollection(operands[0], "parameter"); //$NON-NLS-1$
 	}
 
 	@SuppressWarnings("unchecked")
@@ -32,7 +32,7 @@ final class WrappedIQuery extends Function {
 			if (operands.length > 1)
 				value = operands[1].evaluate(context);
 			else
-				value = Variable.ITEM.evaluate(context);
+				value = ExpressionFactory.THIS.evaluate(context);
 			return Boolean.valueOf(((IMatchQuery<Object>) query).isMatch(value));
 		}
 
@@ -43,12 +43,12 @@ final class WrappedIQuery extends Function {
 		if (operands.length > 1)
 			iterator = operands[1].evaluateAsIterator(context);
 		else
-			iterator = Variable.EVERYTHING.evaluateAsIterator(context);
+			iterator = QLFactory.EVERYTHING.evaluateAsIterator(context);
 
 		return ((IQuery<Object>) query).perform((Iterator<Object>) iterator);
 	}
 
-	String getOperator() {
+	public String getOperator() {
 		return KEYWORD_IQUERY;
 	}
 }

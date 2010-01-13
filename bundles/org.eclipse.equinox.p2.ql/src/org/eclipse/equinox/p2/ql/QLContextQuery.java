@@ -11,6 +11,8 @@
 package org.eclipse.equinox.p2.ql;
 
 import java.util.Iterator;
+import org.eclipse.equinox.internal.p2.ql.expression.QLUtil;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
@@ -21,11 +23,10 @@ public class QLContextQuery<T> extends QLQuery<T> {
 
 	/**
 	 * Creates a new query instance with indexed parameters.
-	 * @param expression The expression that represents the query.
 	 * @param parameters Parameters to use for the query.
 	 */
-	public QLContextQuery(IContextExpression<T> expression, Object... parameters) {
-		super(expression.getElementClass(), parameters);
+	public QLContextQuery(IContextExpression<T> expression) {
+		super(expression.getElementClass());
 		this.expression = expression;
 	}
 
@@ -36,7 +37,7 @@ public class QLContextQuery<T> extends QLQuery<T> {
 	 * @param parameters Parameters to use for the query.
 	 */
 	public QLContextQuery(Class<T> elementClass, String expression, Object... parameters) {
-		this(parser.parseQuery(elementClass, expression), parameters);
+		this(QL.getFactory().contextExpression(elementClass, parser.parseQuery(expression), parameters));
 	}
 
 	public IQueryResult<T> perform(Iterator<T> iterator) {
@@ -45,13 +46,12 @@ public class QLContextQuery<T> extends QLQuery<T> {
 
 	public Iterator<T> evaluate(Iterator<T> iterator) {
 		IEvaluationContext ctx;
-		if (expression.needsTranslations()) {
+		if (QLUtil.needsTranslationSupport(expression)) {
 			IQueryContext<T> queryContext = QL.newQueryContext(iterator);
-			ctx = expression.createContext(iterator, parameters, queryContext.getTranslationSupport(getLocale()));
+			ctx = expression.createContext(iterator, queryContext.getTranslationSupport(getLocale()));
 		} else
-			ctx = expression.createContext(iterator, parameters);
-		@SuppressWarnings("unchecked")
-		Iterator<T> result = (Iterator<T>) expression.evaluateAsIterator(ctx);
+			ctx = expression.createContext(iterator);
+		Iterator<T> result = expression.iterator(ctx);
 		return result;
 	}
 
@@ -64,10 +64,10 @@ public class QLContextQuery<T> extends QLQuery<T> {
 		// Check if we need translation support
 		//
 		IEvaluationContext ctx;
-		if (expression.needsTranslations())
-			ctx = expression.createContext(queryContext.iterator(), parameters, queryContext.getTranslationSupport(getLocale()));
+		if (QLUtil.needsTranslationSupport(expression))
+			ctx = expression.createContext(queryContext.iterator(), queryContext.getTranslationSupport(getLocale()));
 		else
-			ctx = expression.createContext(queryContext.iterator(), parameters);
+			ctx = expression.createContext(queryContext.iterator());
 		return expression.evaluate(ctx);
 	}
 }

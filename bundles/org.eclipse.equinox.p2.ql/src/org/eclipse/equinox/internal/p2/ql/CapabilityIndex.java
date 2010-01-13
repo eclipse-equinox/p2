@@ -23,34 +23,24 @@ public class CapabilityIndex implements ICapabilityIndex {
 
 	private final Map<String, Object> capabilityMap;
 
-	private static class IUCapability {
-		final IInstallableUnit iu;
-		final IProvidedCapability capability;
-
-		IUCapability(IInstallableUnit iu, IProvidedCapability capability) {
-			this.iu = iu;
-			this.capability = capability;
-		}
-	}
-
+	@SuppressWarnings("unchecked")
 	public CapabilityIndex(Iterator<IInstallableUnit> itor) {
 		HashMap<String, Object> index = new HashMap<String, Object>();
 		while (itor.hasNext()) {
 			IInstallableUnit iu = itor.next();
 			Collection<IProvidedCapability> pcs = iu.getProvidedCapabilities();
 			for (IProvidedCapability pc : pcs) {
-				IUCapability iuCap = new IUCapability(iu, pc);
 				String name = pc.getName();
-				Object prev = index.put(name, iuCap);
+				Object prev = index.put(name, iu);
 				if (prev != null) {
-					ArrayList<IUCapability> lst;
+					ArrayList<IInstallableUnit> lst;
 					if (prev instanceof ArrayList<?>)
-						lst = (ArrayList<IUCapability>) prev;
+						lst = (ArrayList<IInstallableUnit>) prev;
 					else {
-						lst = new ArrayList<IUCapability>(4);
-						lst.add((IUCapability) prev);
+						lst = new ArrayList<IInstallableUnit>(4);
+						lst.add((IInstallableUnit) prev);
 					}
-					lst.add(iuCap);
+					lst.add(iu);
 					index.put(name, lst);
 				}
 			}
@@ -65,7 +55,7 @@ public class CapabilityIndex implements ICapabilityIndex {
 		List<IInstallableUnit> collector = new ArrayList<IInstallableUnit>();
 		do {
 			IRequirement nxt = requirements.next();
-			collectMatchingIUs((IRequiredCapability) nxt, collector);
+			collectMatchingIUs(nxt, collector);
 		} while (requirements.hasNext());
 		return collector.iterator();
 	}
@@ -85,22 +75,22 @@ public class CapabilityIndex implements ICapabilityIndex {
 	private void collectMatchingIUs(IRequirement requirement, Collection<IInstallableUnit> collector) {
 		if (!(requirement instanceof IRequiredCapability))
 			return;
-		IRequiredCapability rc = (IRequiredCapability) requirement;
-		Object v = capabilityMap.get(rc.getName());
+		Object v = capabilityMap.get(((IRequiredCapability) requirement).getName());
 		if (v == null)
 			return;
 
-		if (v instanceof IUCapability) {
-			IUCapability iuc = (IUCapability) v;
-			if (iuc.capability.satisfies(requirement))
-				collector.add(iuc.iu);
+		if (v instanceof IInstallableUnit) {
+			IInstallableUnit iu = (IInstallableUnit) v;
+			if (iu.satisfies(requirement))
+				collector.add(iu);
 		} else {
-			List<IUCapability> iucs = (List<IUCapability>) v;
-			int idx = iucs.size();
+			@SuppressWarnings("unchecked")
+			List<IInstallableUnit> ius = (List<IInstallableUnit>) v;
+			int idx = ius.size();
 			while (--idx >= 0) {
-				IUCapability iuc = iucs.get(idx);
-				if (iuc.capability.satisfies(requirement))
-					collector.add(iuc.iu);
+				IInstallableUnit iu = ius.get(idx);
+				if (iu.satisfies(requirement))
+					collector.add(iu);
 			}
 		}
 	}
@@ -109,28 +99,28 @@ public class CapabilityIndex implements ICapabilityIndex {
 		if (!(requirement instanceof IRequiredCapability))
 			return CollectionUtils.emptySet();
 
-		IRequiredCapability rc = (IRequiredCapability) requirement;
-		Object v = capabilityMap.get(rc.getName());
+		Object v = capabilityMap.get(((IRequiredCapability) requirement).getName());
 		if (v == null)
 			return CollectionUtils.emptySet();
 
 		Set<IInstallableUnit> retained = null;
-		if (v instanceof IUCapability) {
-			IUCapability iuc = (IUCapability) v;
-			if (iuc.capability.satisfies(requirement) && collector.contains(iuc.iu)) {
+		if (v instanceof IInstallableUnit) {
+			IInstallableUnit iu = (IInstallableUnit) v;
+			if (iu.satisfies(requirement) && collector.contains(iu)) {
 				if (retained == null)
 					retained = new HashSet<IInstallableUnit>();
-				retained.add(iuc.iu);
+				retained.add(iu);
 			}
 		} else {
-			List<IUCapability> iucs = (List<IUCapability>) v;
-			int idx = iucs.size();
+			@SuppressWarnings("unchecked")
+			List<IInstallableUnit> ius = (List<IInstallableUnit>) v;
+			int idx = ius.size();
 			while (--idx >= 0) {
-				IUCapability iuc = iucs.get(idx);
-				if (iuc.capability.satisfies(requirement) && collector.contains(iuc.iu)) {
+				IInstallableUnit iu = ius.get(idx);
+				if (iu.satisfies(requirement) && collector.contains(iu)) {
 					if (retained == null)
 						retained = new HashSet<IInstallableUnit>();
-					retained.add(iuc.iu);
+					retained.add(iu);
 				}
 			}
 		}

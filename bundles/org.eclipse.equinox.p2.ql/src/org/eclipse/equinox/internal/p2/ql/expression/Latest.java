@@ -11,8 +11,9 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.*;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
-import org.eclipse.equinox.p2.ql.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
 /**
  * An expression that is especially targeted towards {@link IVersionedId} instances. It will
@@ -87,7 +88,7 @@ final class Latest extends UnaryCollectionFilter {
 		return TYPE_LATEST;
 	}
 
-	String getOperator() {
+	public String getOperator() {
 		return KEYWORD_LATEST;
 	}
 }

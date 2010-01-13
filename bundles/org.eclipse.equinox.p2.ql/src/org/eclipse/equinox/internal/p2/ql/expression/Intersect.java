@@ -10,44 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql.expression;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
- * An array of expressions
+ * n-ary <code>intersect</code> operator. The result is the set of elements that were found in all operands. 
  */
-final class Array extends NAry implements IQLConstants, IQLExpression {
-	final class ArrayIterator implements Iterator<Object> {
-		private final IEvaluationContext context;
-
-		private int pos = -1;
-
-		public ArrayIterator(IEvaluationContext context) {
-			this.context = context;
-		}
-
-		public boolean hasNext() {
-			return pos + 1 < operands.length;
-		}
-
-		public Object next() {
-			if (++pos >= operands.length) {
-				--pos;
-				throw new NoSuchElementException();
-			}
-			return operands[pos].evaluate(context);
-		}
-
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-	}
-
-	Array(Expression[] operands) {
-		super(assertLength(operands, 0, OPERATOR_ARRAY));
+final class Intersect extends Binary implements IQLConstants, IQLExpression {
+	Intersect(Expression operand, Expression param) {
+		super(operand, param);
 	}
 
 	public Object evaluate(IEvaluationContext context) {
@@ -55,24 +28,26 @@ final class Array extends NAry implements IQLConstants, IQLExpression {
 	}
 
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
-		return new ArrayIterator(context);
+		Set<?> resultSet = QLUtil.asSet(lhs.evaluate(context), false); // Safe since it will not be modified
+		Iterator<?> itor = rhs.evaluateAsIterator(context);
+		Set<Object> retained = new HashSet<Object>();
+		while (itor.hasNext()) {
+			Object value = itor.next();
+			if (resultSet.contains(value))
+				retained.add(value);
+		}
+		return RepeatableIterator.create(retained);
 	}
 
 	public int getExpressionType() {
-		return TYPE_ARRAY;
-	}
-
-	public void toString(StringBuffer bld, Variable rootVariable) {
-		bld.append('[');
-		elementsToString(bld, rootVariable, operands);
-		bld.append(']');
+		return TYPE_INTERSECT;
 	}
 
 	public String getOperator() {
-		return OPERATOR_ARRAY;
+		return KEYWORD_INTERSECT;
 	}
 
 	public int getPriority() {
-		return PRIORITY_FUNCTION;
+		return PRIORITY_COLLECTION;
 	}
 }

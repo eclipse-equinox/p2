@@ -11,22 +11,20 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.Iterator;
-import org.eclipse.equinox.p2.ql.IEvaluationContext;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * A collection filter that yields the first element of the <code>collection</code> for which
  * the <code>filter</code> yields <code>true</code>
  */
-final class First extends CollectionFilter {
+final class First extends CollectionFilter implements IQLExpression {
 	First(Expression collection, LambdaExpression lambda) {
 		super(collection, lambda);
 	}
 
-	public int getExpressionType() {
-		return TYPE_FIRST;
-	}
-
-	Object evaluate(IEvaluationContext context, Iterator<?> itor) {
+	protected Object evaluate(IEvaluationContext context, Iterator<?> itor) {
 		Variable variable = lambda.getItemVariable();
 		while (itor.hasNext()) {
 			Object each = itor.next();
@@ -37,15 +35,11 @@ final class First extends CollectionFilter {
 		return null;
 	}
 
-	String getOperator() {
-		return KEYWORD_FIRST;
+	public int getExpressionType() {
+		return TYPE_FIRST;
 	}
 
-	boolean isBoolean() {
-		return operand.isElementBoolean();
-	}
-
-	boolean isCollection() {
-		return operand.isElementCollection();
+	public String getOperator() {
+		return IQLConstants.KEYWORD_FIRST;
 	}
 }

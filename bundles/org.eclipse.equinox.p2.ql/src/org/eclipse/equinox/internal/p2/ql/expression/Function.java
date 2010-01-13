@@ -10,17 +10,32 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql.expression;
 
-import org.eclipse.equinox.p2.ql.IEvaluationContext;
+import java.util.Iterator;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * An expression that represents a function such as filter(&lt;expr&gt;) or version(&lt;expr&gt;)
  */
-abstract class Function extends NAry {
+public abstract class Function extends NAry implements IQLExpression {
 
 	private Object instance;
 
-	Function(Expression[] operands) {
+	protected Function(Expression[] operands) {
 		super(operands);
+	}
+
+	boolean assertSingleArgumentClass(Object v) {
+		return true;
+	}
+
+	Object createInstance(Object arg) {
+		throw new UnsupportedOperationException();
+	}
+
+	final Object createInstance(String arg) {
+		throw new UnsupportedOperationException();
 	}
 
 	public Object evaluate(IEvaluationContext context) {
@@ -31,7 +46,7 @@ abstract class Function extends NAry {
 		Object arg = operand.evaluate(context);
 		if (assertSingleArgumentClass(arg)) {
 			Object result = createInstance(arg);
-			if (operand instanceof Constant || operand instanceof Parameter)
+			if (operand instanceof Literal || operand instanceof Parameter)
 				// operand won't change over time so we can cache this instance.
 				instance = result;
 			return result;
@@ -40,38 +55,25 @@ abstract class Function extends NAry {
 		throw new IllegalArgumentException("Cannot create a " + getOperator() + " from " + what); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	boolean assertSingleArgumentClass(Object v) {
-		return true;
+	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
+		Object value = evaluate(context);
+		if (!(value instanceof Iterator<?>))
+			value = RepeatableIterator.create(value);
+		return (Iterator<?>) value;
 	}
 
 	public int getExpressionType() {
 		return TYPE_FUNCTION;
 	}
 
-	public void toString(StringBuffer bld) {
+	public int getPriority() {
+		return PRIORITY_FUNCTION;
+	}
+
+	public void toString(StringBuffer bld, Variable rootVariable) {
 		bld.append(getOperator());
 		bld.append('(');
-		Array.elementsToString(bld, operands);
+		elementsToString(bld, rootVariable, operands);
 		bld.append(')');
-	}
-
-	final Object createInstance(String arg) {
-		throw new UnsupportedOperationException();
-	}
-
-	Object createInstance(Object arg) {
-		throw new UnsupportedOperationException();
-	}
-
-	int getPriority() {
-		return PRIORITY_CONSTRUCTOR;
-	}
-
-	boolean isBoolean() {
-		return false;
-	}
-
-	boolean isCollection() {
-		return false;
 	}
 }

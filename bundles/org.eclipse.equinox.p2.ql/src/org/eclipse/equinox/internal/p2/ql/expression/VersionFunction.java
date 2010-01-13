@@ -10,17 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql.expression;
 
+import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
 import org.eclipse.equinox.p2.metadata.Version;
 
 /**
  * A function that creates a {@link Version} from a string
  */
-final class VersionFunction extends Function {
+public final class VersionFunction extends Function {
 
 	public VersionFunction(Expression[] operands) {
 		super(assertLength(operands, 1, 1, KEYWORD_VERSION));
-		assertNotBoolean(operands[0], "parameter"); //$NON-NLS-1$
-		assertNotCollection(operands[0], "parameter"); //$NON-NLS-1$
 	}
 
 	boolean assertSingleArgumentClass(Object v) {
@@ -31,7 +30,7 @@ final class VersionFunction extends Function {
 		return Version.create((String) arg);
 	}
 
-	String getOperator() {
+	public String getOperator() {
 		return KEYWORD_VERSION;
 	}
 }

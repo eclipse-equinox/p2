@@ -11,14 +11,16 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.*;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.internal.p2.ql.MatchIteratorFilter;
-import org.eclipse.equinox.p2.ql.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * An expression that ensures that the elements of its collection is only returned
  * once throughout the whole query.
  */
-final class Unique extends Binary {
+final class Unique extends Binary implements IQLConstants, IQLExpression {
 	static class UniqueIterator<T> extends MatchIteratorFilter<T> {
 		private final Set<T> uniqueSet;
 
@@ -36,12 +38,14 @@ final class Unique extends Binary {
 
 	Unique(Expression collection, Expression explicitCache) {
 		super(collection, explicitCache);
-		assertNotBoolean(collection, "collection"); //$NON-NLS-1$
-		assertNotBoolean(explicitCache, "cache"); //$NON-NLS-1$
+	}
+
+	public Object evaluate(IEvaluationContext context) {
+		return evaluateAsIterator(context);
 	}
 
 	@SuppressWarnings("unchecked")
-	public Object evaluate(IEvaluationContext context) {
+	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		Object explicitCache = rhs.evaluate(context);
 		Set<Object> uniqueSet;
 		if (explicitCache == null)
@@ -59,27 +63,18 @@ final class Unique extends Binary {
 		return TYPE_UNIQUE;
 	}
 
-	public void toString(StringBuffer bld) {
-		CollectionFilter.appendProlog(bld, lhs, getOperator());
-		if (rhs != Constant.NULL_CONSTANT)
-			appendOperand(bld, rhs, PRIORITY_COMMA);
+	public void toString(StringBuffer bld, Variable rootVariable) {
+		CollectionFilter.appendProlog(bld, rootVariable, lhs, getOperator());
+		if (rhs != Literal.NULL_CONSTANT)
+			appendOperand(bld, rootVariable, rhs, IExpressionConstants.PRIORITY_COMMA);
 		bld.append(')');
 	}
 
-	String getOperator() {
+	public String getOperator() {
 		return KEYWORD_UNIQUE;
 	}
 
-	int getPriority() {
+	public int getPriority() {
 		return PRIORITY_COLLECTION;
 	}
-
-	boolean isCollection() {
-		return true;
-	}
-
-	boolean isElementBoolean() {
-		return lhs.isElementBoolean();
-	}
-
 }

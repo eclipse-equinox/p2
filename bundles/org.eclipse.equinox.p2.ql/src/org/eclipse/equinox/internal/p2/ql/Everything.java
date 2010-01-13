@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql;
 
+import org.eclipse.equinox.internal.p2.metadata.expression.IRepeatableIterator;
+
+import org.eclipse.equinox.internal.p2.metadata.expression.RepeatableIterator;
+
 import java.util.Collection;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;

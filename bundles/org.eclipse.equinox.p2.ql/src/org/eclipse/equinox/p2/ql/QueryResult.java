@@ -3,8 +3,8 @@ package org.eclipse.equinox.p2.ql;
 import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.ql.IRepeatableIterator;
-import org.eclipse.equinox.internal.p2.ql.RepeatableIterator;
+import org.eclipse.equinox.internal.p2.metadata.expression.IRepeatableIterator;
+import org.eclipse.equinox.internal.p2.metadata.expression.RepeatableIterator;
 import org.eclipse.equinox.p2.query.*;
 
 class QueryResult<T> implements IQueryResult<T> {

@@ -3,6 +3,8 @@ package org.eclipse.equinox.internal.p2.ql;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.metadata.expression.IRepeatableIterator;
+import org.eclipse.equinox.internal.p2.metadata.expression.RepeatableIterator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ql.IQueryContext;
 import org.eclipse.equinox.p2.ql.ITranslationSupport;

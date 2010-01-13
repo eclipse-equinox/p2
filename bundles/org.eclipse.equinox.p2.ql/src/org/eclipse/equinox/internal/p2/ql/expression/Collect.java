@@ -11,12 +11,14 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.Iterator;
-import org.eclipse.equinox.p2.ql.IEvaluationContext;
-import org.eclipse.equinox.p2.ql.IExpression;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  */
-final class Collect extends CollectionFilter {
+final class Collect extends CollectionFilter implements IQLExpression {
 	final class CollectIterator implements Iterator<Object> {
 		private final IEvaluationContext context;
 
@@ -48,11 +50,11 @@ final class Collect extends CollectionFilter {
 		super(collection, lambda);
 	}
 
-	Object evaluate(IEvaluationContext context, Iterator<?> itor) {
+	public Object evaluate(IEvaluationContext context, Iterator<?> itor) {
 		return evaluateAsIterator(context, itor);
 	}
 
-	Iterator<?> evaluateAsIterator(IEvaluationContext context, Iterator<?> itor) {
+	public Iterator<?> evaluateAsIterator(IEvaluationContext context, Iterator<?> itor) {
 		return new CollectIterator(context, itor);
 	}
 
@@ -60,11 +62,7 @@ final class Collect extends CollectionFilter {
 		return TYPE_COLLECT;
 	}
 
-	String getOperator() {
-		return KEYWORD_COLLECT;
-	}
-
-	boolean isCollection() {
-		return true;
+	public String getOperator() {
+		return IQLConstants.KEYWORD_COLLECT;
 	}
 }

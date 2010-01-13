@@ -12,6 +12,10 @@ package org.eclipse.equinox.p2.ql;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.eclipse.equinox.internal.p2.metadata.expression.EvaluationContext;
+import org.eclipse.equinox.internal.p2.ql.expression.QLFactory;
+import org.eclipse.equinox.internal.p2.ql.expression.QLUtil;
+import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.query.IMatchQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
@@ -19,7 +23,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
  * An IQuery implementation that is based on the p2 query language.
  */
 public class QLMatchQuery<T> extends QLQuery<T> implements IMatchQuery<T> {
-	private final IMatchExpression expression;
+	private final IMatchExpression<T> expression;
 	private IEvaluationContext context;
 
 	/**
@@ -28,8 +32,8 @@ public class QLMatchQuery<T> extends QLQuery<T> implements IMatchQuery<T> {
 	 * @param expression The expression that represents the query.
 	 * @param parameters Parameters to use for the query.
 	 */
-	public QLMatchQuery(Class<T> instanceClass, IMatchExpression expression, Object... parameters) {
-		super(instanceClass, parameters);
+	public QLMatchQuery(Class<T> instanceClass, IMatchExpression<T> expression) {
+		super(instanceClass);
 		this.expression = expression;
 	}
 
@@ -40,7 +44,7 @@ public class QLMatchQuery<T> extends QLQuery<T> implements IMatchQuery<T> {
 	 * @param parameters Parameters to use for the query.
 	 */
 	public QLMatchQuery(Class<T> instanceClass, String expression, Object... parameters) {
-		this(instanceClass, parser.parsePredicate(expression), parameters);
+		this(instanceClass, QL.getFactory().<T> matchExpression(parser.parse(expression), parameters));
 	}
 
 	/**
@@ -64,11 +68,13 @@ public class QLMatchQuery<T> extends QLQuery<T> implements IMatchQuery<T> {
 	}
 
 	public IQueryResult<T> perform(Iterator<T> iterator) {
-		if (expression.needsTranslations()) {
+		if (QLUtil.needsTranslationSupport(expression)) {
 			IQueryContext<T> queryContext = QL.newQueryContext(iterator);
-			context = expression.createContext(parameters, queryContext.getTranslationSupport(getLocale()));
+			IExpression translations = QLFactory.TRANSLATIONS;
+			context = EvaluationContext.create(expression.createContext(), translations);
+			context.setValue(translations, queryContext.getTranslationSupport(getLocale()));
 		} else
-			context = expression.createContext(parameters);
+			context = expression.createContext();
 
 		prePerform();
 		try {

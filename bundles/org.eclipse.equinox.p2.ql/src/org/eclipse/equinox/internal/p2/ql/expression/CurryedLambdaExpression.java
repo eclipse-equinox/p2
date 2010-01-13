@@ -10,29 +10,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql.expression;
 
-import org.eclipse.equinox.internal.p2.ql.MultiVariableContext;
-import org.eclipse.equinox.internal.p2.ql.SingleVariableContext;
-import org.eclipse.equinox.p2.ql.IEvaluationContext;
-import org.eclipse.equinox.p2.ql.IExpressionVisitor;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionVisitor;
+import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * A function that executes some code
  */
-final class LambdaExpression extends Unary {
+final class CurryedLambdaExpression extends LambdaExpression implements IQLConstants, IQLExpression {
 	private static final Assignment[] emptyAssignmentArray = new Assignment[0];
 	private final Assignment[] assignments;
-	private final Variable each;
 
-	LambdaExpression(Variable each, Expression body, Assignment[] assignments) {
-		super(body);
-		this.each = each;
+	CurryedLambdaExpression(Variable each, Assignment[] assignments, Expression body) {
+		super(each, body);
 		if (assignments == null)
 			assignments = emptyAssignmentArray;
 		this.assignments = assignments;
-	}
-
-	LambdaExpression(Variable variable, Expression body) {
-		this(variable, body, null);
 	}
 
 	public boolean accept(IExpressionVisitor visitor) {
@@ -45,73 +39,53 @@ final class LambdaExpression extends Unary {
 		return false;
 	}
 
-	public int getExpressionType() {
-		return TYPE_LAMBDA;
+	public int compareTo(Expression e) {
+		int cmp = super.compareTo(e);
+		if (cmp == 0)
+			cmp = compare(assignments, ((CurryedLambdaExpression) e).assignments);
+		return cmp;
 	}
 
-	public void toString(StringBuffer bld) {
+	public boolean equals(Object o) {
+		return super.equals(o) && equals(assignments, ((CurryedLambdaExpression) o).assignments);
+	}
+
+	public int hashCode() {
+		return 31 * super.hashCode() + hashCode(assignments);
+	}
+
+	public void toString(StringBuffer bld, Variable rootVariable) {
 		int top = assignments.length;
 		if (top > 0) {
 			for (int idx = 0; idx < top; ++idx) {
-				appendOperand(bld, assignments[idx].rhs, PRIORITY_COMMA);
+				appendOperand(bld, rootVariable, assignments[idx].rhs, IExpressionConstants.PRIORITY_COMMA);
 				bld.append(", "); //$NON-NLS-1$
 			}
-			bld.append(OPERATOR_EACH);
+			bld.append(IQLConstants.OPERATOR_EACH);
 			bld.append(", {"); //$NON-NLS-1$
 			for (int idx = 0; idx < top; ++idx) {
-				appendOperand(bld, assignments[idx].lhs, PRIORITY_COMMA);
+				appendOperand(bld, rootVariable, assignments[idx].lhs, IExpressionConstants.PRIORITY_COMMA);
 				bld.append(", "); //$NON-NLS-1$
 			}
 		}
-		each.toString(bld);
-		bld.append(" | "); //$NON-NLS-1$
-		appendOperand(bld, operand, PRIORITY_COMMA);
+		super.toString(bld, rootVariable);
 		if (top > 0)
 			bld.append('}');
 	}
 
-	int countReferenceToEverything() {
-		if (super.countReferenceToEverything() > 0)
-			return 2;
-		for (int idx = 0; idx < assignments.length; ++idx)
-			if (assignments[idx].countReferenceToEverything() > 0)
-				return 2;
-		return 0;
-	}
-
-	Variable getItemVariable() {
-		return each;
-	}
-
-	String getOperator() {
-		return "|"; //$NON-NLS-1$
-	}
-
-	int getPriority() {
-		return PRIORITY_LAMBDA;
-	}
-
-	boolean isBoolean() {
-		return operand.isBoolean();
-	}
-
-	boolean isCollection() {
-		return operand.isCollection();
-	}
-
-	IEvaluationContext prolog(IEvaluationContext context) {
-		IEvaluationContext lambdaContext = new SingleVariableContext(context, each);
+	public IEvaluationContext prolog(IEvaluationContext context) {
+		IEvaluationContext lambdaContext = super.prolog(context);
 		int top = assignments.length;
 		if (top > 0) {
 			if (top == 1) {
 				Assignment v = assignments[0];
-				lambdaContext = new SingleVariableContext(lambdaContext, v.lhs);
+				lambdaContext = EvaluationContext.create(lambdaContext, v.lhs);
 				lambdaContext.setValue(v.lhs, v.rhs.evaluate(context));
 			} else {
 				Variable[] vars = new Variable[top];
 				for (int idx = 0; idx < top; ++idx)
 					vars[idx] = (Variable) assignments[idx].lhs;
-				lambdaContext = new MultiVariableContext(lambdaContext, vars);
+				lambdaContext = EvaluationContext.create(lambdaContext, vars);
 				for (int idx = 0; idx < top; ++idx)
 					lambdaContext.setValue(vars[idx], assignments[idx].rhs.evaluate(context));
 			}

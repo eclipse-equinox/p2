@@ -10,20 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ql;
 
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionParser;
+
 /**
  * A parser that produces an expression tree based on a string representation. An
- * implementation will use the {@link IExpressionFactory} to create the actual expressions
+ * implementation will use the {@link IQLFactory} to create the actual expressions
  */
-public interface IExpressionParser {
-	/**
-	 * Create a new boolean expression. The expression will have access to the global
-	 * variable 'item' and to the context parameters.
-	 * @param exprString The string representing the boolean expression.
-	 * @return The resulting expression tree.
-	 * @throws QLParseException
-	 */
-	IMatchExpression parsePredicate(String exprString);
-
+public interface IQLParser extends IExpressionParser {
 	/**
 	 * Create an arbitrary expression. The expression will have access to the global
 	 * variable 'everything' and to the context parameters.
@@ -31,5 +25,5 @@ public interface IExpressionParser {
 	 * @return The resulting expression tree.
 	 * @throws QLParseException
 	 */
-	<T> IContextExpression<T> parseQuery(Class<T> elementClass, String exprString);
+	IExpression parseQuery(String exprString);
 }
