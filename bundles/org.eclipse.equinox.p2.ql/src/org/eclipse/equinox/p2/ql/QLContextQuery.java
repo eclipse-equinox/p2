@@ -23,7 +23,7 @@ public class QLContextQuery<T> extends QLQuery<T> {
 
 	/**
 	 * Creates a new query instance with indexed parameters.
-	 * @param parameters Parameters to use for the query.
+	 * @param expression The expression to use for the query.
 	 */
 	public QLContextQuery(IContextExpression<T> expression) {
 		super(expression.getElementClass());

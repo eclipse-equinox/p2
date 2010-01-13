@@ -30,7 +30,6 @@ public class QLMatchQuery<T> extends QLQuery<T> implements IMatchQuery<T> {
 	 * Creates a new query instance with indexed parameters.
 	 * @param instanceClass The class used for filtering elements before calling {@link #isMatch(Object)} 
 	 * @param expression The expression that represents the query.
-	 * @param parameters Parameters to use for the query.
 	 */
 	public QLMatchQuery(Class<T> instanceClass, IMatchExpression<T> expression) {
 		super(instanceClass);
