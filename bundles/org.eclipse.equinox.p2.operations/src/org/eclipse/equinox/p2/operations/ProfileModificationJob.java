@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.operations;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.p2.engine.*;
 
 /**
@@ -24,7 +23,7 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 
 	IProvisioningPlan plan;
 	String profileId;
-	PhaseSet phaseSet = new DefaultPhaseSet();
+	IPhaseSet phaseSet = new DefaultPhaseSet();
 	ProvisioningContext provisioningContext;
 	int restartPolicy = ProvisioningJob.RESTART_OR_APPLY;
 	private String taskName;
@@ -52,7 +51,7 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 	 * 
 	 * @param phaseSet the provisioning phases to be run during provisioning.
 	 */
-	public void setPhaseSet(PhaseSet phaseSet) {
+	public void setPhaseSet(IPhaseSet phaseSet) {
 		this.phaseSet = phaseSet;
 	}
 

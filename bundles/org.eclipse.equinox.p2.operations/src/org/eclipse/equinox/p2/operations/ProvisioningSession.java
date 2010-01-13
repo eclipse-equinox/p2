@@ -194,8 +194,8 @@ public class ProvisioningSession {
 	 * @param monitor the progress monitor to use while performing the plan
 	 * @return a status describing the result of performing the plan
 	 */
-	public IStatus performProvisioningPlan(IProvisioningPlan plan, PhaseSet phaseSet, ProvisioningContext context, IProgressMonitor monitor) {
-		PhaseSet set;
+	public IStatus performProvisioningPlan(IProvisioningPlan plan, IPhaseSet phaseSet, ProvisioningContext context, IProgressMonitor monitor) {
+		IPhaseSet set;
 		if (phaseSet == null)
 			set = new DefaultPhaseSet();
 		else
