@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,20 +19,20 @@ import org.eclipse.equinox.internal.p2.query.QueryHelpers;
 /**
  * A query that combines a group of sub-queries.<P>
  * 
- * In a CompoundQuery each sub-query is executed and the results are combined using
- * either logical AND or logical OR operations. <P>
+ * In a CompoundQuery each sub-query is executed over the entire input and the 
+ * results are combined using either logical AND or logical OR operations. <P>
  * 
  * Clients are expected to call {@link CompoundQuery#createCompoundQuery(IQuery[], boolean)}
  * to create a concrete instance of a CompoundQuery.  If all Queries are instances of 
- * {@link IMatchQuery} then the resulting compound query will be a MatchCompoundQuery, otherwise the
- * resulting compound query will be a {@link ContextQuery}.
+ * {@link IMatchQuery} then the resulting compound query will be an {@link IMatchQuery}, otherwise the
+ * resulting query will be a {@link ContextQuery}.
  * 
  * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
 public abstract class CompoundQuery<T> implements ICompositeQuery<T> {
-	protected IQuery<T>[] queries;
-	protected boolean and;
+	IQuery<T>[] queries;
+	boolean and;
 
 	/**
 	 * Creates a compound query that combines the given queries. The queries
@@ -62,6 +62,8 @@ public abstract class CompoundQuery<T> implements ICompositeQuery<T> {
 
 	/**
 	 * Returns the queries that make up this compound query
+	 * 
+	 * @return the queries that make up this compound query
 	 */
 	public List<IQuery<T>> getQueries() {
 		return Arrays.asList(queries);

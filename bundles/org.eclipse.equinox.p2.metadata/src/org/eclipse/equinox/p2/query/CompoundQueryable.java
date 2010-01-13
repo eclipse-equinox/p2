@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -47,6 +47,9 @@ public class CompoundQueryable<T> implements IQueryable<T> {
 		this(new IQueryable[] {q1, q2, q3});
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.IQuery, org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
 		IQueryResult<T> subResults = null;
 		if (monitor == null) {

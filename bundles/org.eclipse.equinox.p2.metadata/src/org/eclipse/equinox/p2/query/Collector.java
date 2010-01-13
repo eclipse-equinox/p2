@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -123,7 +123,7 @@ public class Collector<T> implements IQueryResult<T> {
 	 * @param clazz The type of array to return
 	 * @return The array of results
 	 * @throws ArrayStoreException the runtime type of the specified array is
-	 *         not a supertype of the runtime type of every collected object
+	 *         not a super-type of the runtime type of every collected object
 	 */
 	public T[] toArray(Class<? extends T> clazz) {
 		int size = collected == null ? 0 : collected.size();
