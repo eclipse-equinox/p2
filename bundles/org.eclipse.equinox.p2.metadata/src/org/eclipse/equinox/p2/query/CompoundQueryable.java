@@ -6,6 +6,7 @@
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
+*   IBM Corporation - ongoing development
 ******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
@@ -23,28 +24,18 @@ public class CompoundQueryable<T> implements IQueryable<T> {
 
 	private IQueryable<T>[] queryables;
 
-	private CompoundQueryable(IQueryable<T>[] queryables) {
+	/**
+	 * Creates a queryable that combines the provided input queryables
+	 * 
+	 * @param queryables The queryables that comprise this compound queryable
+	 */
+	public CompoundQueryable(IQueryable<T>... queryables) {
 		this.queryables = queryables;
 	}
 
 	@SuppressWarnings("unchecked")
 	public CompoundQueryable(Collection<? extends IQueryable<T>> queryables) {
 		this(queryables.toArray(new IQueryable[queryables.size()]));
-	}
-
-	@SuppressWarnings("unchecked")
-	public CompoundQueryable(IQueryable<T> q) {
-		this(new IQueryable[] {q});
-	}
-
-	@SuppressWarnings("unchecked")
-	public CompoundQueryable(IQueryable<T> q1, IQueryable<T> q2) {
-		this(new IQueryable[] {q1, q2});
-	}
-
-	@SuppressWarnings("unchecked")
-	public CompoundQueryable(IQueryable<T> q1, IQueryable<T> q2, IQueryable<T> q3) {
-		this(new IQueryable[] {q1, q2, q3});
 	}
 
 	/* (non-Javadoc)
