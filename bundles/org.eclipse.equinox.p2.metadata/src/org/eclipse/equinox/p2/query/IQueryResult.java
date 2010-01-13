@@ -14,8 +14,8 @@ import java.util.Set;
 
 /**
  * An IQueryResult represents the results of a query.  
+ * 
  * @since 2.0
- *
  */
 public interface IQueryResult<T> extends IQueryable<T> {
 	/**
@@ -38,7 +38,7 @@ public interface IQueryResult<T> extends IQueryable<T> {
 	 * @param clazz The type of array to return
 	 * @return The array of results
 	 * @throws ArrayStoreException the runtime type of the specified array is
-	 *         not a supertype of the runtime type of every collected object
+	 *         not a super-type of the runtime type of every collected object
 	 */
 	public T[] toArray(Class<? extends T> clazz);
 
