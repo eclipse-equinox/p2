@@ -25,7 +25,7 @@ public class LauncherConfigLocationTest extends AbstractFwkAdminTest {
 	}	
 	
 	public void testCustomLauncherConfig() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException, URISyntaxException {
-		startSimpleConfiguratormManipulator();
+		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 

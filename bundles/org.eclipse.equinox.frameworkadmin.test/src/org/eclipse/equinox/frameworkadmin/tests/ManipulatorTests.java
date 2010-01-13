@@ -12,10 +12,9 @@
 package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.*;
-import java.util.*;
+import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 
 public class ManipulatorTests extends AbstractFwkAdminTest {
@@ -57,7 +56,7 @@ public class ManipulatorTests extends AbstractFwkAdminTest {
 		File ini = new File(folder, "eclipse.ini");
 		writeEclipseIni(ini, new String[] {"-foo", "bar", "-vmargs", "-Xmx256m"});
 		
-		startSimpleConfiguratormManipulator();
+		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		
 		Manipulator manipulator = fwkAdmin.getManipulator();
@@ -100,50 +99,4 @@ public class ManipulatorTests extends AbstractFwkAdminTest {
 		assertContents(ini, new String[] {"-foo", "bar", "-console", "-vmargs", "-Xmx256m", "-Xms64m"});
 	}
 	
-	public void testParserUtils_removeArgument() throws Exception {
-		String [] args = new String [] { "-bar", "-foo", "-other"};
-		ParserUtils.removeArgument("-foo", Arrays.asList(args));
-		assertEquals(args, new String [] {"-bar", null, "-other"});
-		
-		args = new String [] { "-bar", "-foo", "other"};
-		ParserUtils.removeArgument("-foo", Arrays.asList(args));
-		assertEquals(args, new String [] {"-bar", null, null});
-		
-		args = new String [] { "-bar", "-foo", "s-pecial"};
-		ParserUtils.removeArgument("-foo", Arrays.asList(args));
-		assertEquals(args, new String [] {"-bar", null, null});
-	}
-	
-	public void testParserUtils_setValueForArgument() throws Exception {
-		List args = new ArrayList();
-		ParserUtils.setValueForArgument("-foo", "bar", args);
-		assertTrue(args.size() == 2);
-		assertEquals(args.get(0), "-foo");
-		assertEquals(args.get(1), "bar");
-		
-		args.add("-other");
-		args.set(1, "s-pecial");
-		ParserUtils.setValueForArgument("-foo", "bas", args);
-		assertTrue(args.size() == 3);
-		assertEquals(args.get(0), "-foo");
-		assertEquals(args.get(1), "bas");
-		assertEquals(args.get(2), "-other");
-		
-		args.remove(1);
-		ParserUtils.setValueForArgument("-foo", "bas", args);
-		assertTrue(args.size() == 3);
-		assertEquals(args.get(0), "-foo");
-		assertEquals(args.get(1), "bas");
-		assertEquals(args.get(2), "-other");
-	}
-	
-	public void testParserUtils_getValueForArgument() throws Exception {
-		List args = new ArrayList();
-		args.add("-foo");
-		args.add("bar");
-		assertEquals( "bar", ParserUtils.getValueForArgument("-foo", args));
-		
-		args.set(1, "-bar");
-		assertEquals(null, ParserUtils.getValueForArgument("-foo", args));
-	}
 }

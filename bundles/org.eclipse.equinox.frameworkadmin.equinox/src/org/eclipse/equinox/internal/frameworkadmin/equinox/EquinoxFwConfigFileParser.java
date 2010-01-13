@@ -23,6 +23,7 @@ import org.osgi.framework.Constants;
 import org.osgi.service.log.LogService;
 
 public class EquinoxFwConfigFileParser {
+	private static final Set KNOWN_PROPERTIES = new HashSet(Arrays.asList(new String[] {EquinoxConstants.PROP_BUNDLES, EquinoxConstants.PROP_FW_EXTENSIONS, EquinoxConstants.PROP_INITIAL_STARTLEVEL, EquinoxConstants.PROP_BUNDLES_STARTLEVEL}));
 	private static final String CONFIG_DIR = "@config.dir/"; //$NON-NLS-1$
 	private static final String KEY_ECLIPSE_PROV_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	private static final String KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
@@ -226,19 +227,11 @@ public class EquinoxFwConfigFileParser {
 		readBundlesList(manipulator, ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), props, launcherData).toURI(), props);
 		readInitialStartLeve(configData, props);
 		readDefaultStartLevel(configData, props);
-		//		if (key.equals(EquinoxConstants.PROP_LAUNCHER_NAME))
-		//			if (launcherData.getLauncher() == null)
-		//				launcherName = value;
-		//		if (key.equals(EquinoxConstants.PROP_LAUNCHER_PATH))
-		//			if (launcherData.getLauncher() == null)
-		//				launcherPath = value;
-		String[] KNOWN_PROPERTIES = {EquinoxConstants.PROP_BUNDLES, EquinoxConstants.PROP_FW_EXTENSIONS, EquinoxConstants.PROP_INITIAL_STARTLEVEL, EquinoxConstants.PROP_BUNDLES_STARTLEVEL};
-		top: for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+
+		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
-			for (int i = 0; i < KNOWN_PROPERTIES.length; i++) {
-				if (KNOWN_PROPERTIES[i].equals(key))
-					continue top;
-			}
+			if (KNOWN_PROPERTIES.contains(key))
+				continue;
 			String value = props.getProperty(key);
 			configData.setProperty(key, value);
 		}
@@ -279,11 +272,11 @@ public class EquinoxFwConfigFileParser {
 			if (fwJarString != null) {
 				fwJar = URIUtil.toFile(absoluteFwJar);
 				if (fwJar == null)
-					throw new IllegalStateException("Can't determinate the osgi.framework location");
+					throw new IllegalStateException(Messages.exception_noFrameworkLocation);
 				//Here we overwrite the value read from eclipse.ini, because the value of osgi.framework always takes precedence.
 				launcherData.setFwJar(fwJar);
 			} else {
-				throw new IllegalStateException("Can't determinate the osgi.framework location");
+				throw new IllegalStateException(Messages.exception_noFrameworkLocation);
 			}
 		}
 		if (launcherData.getFwJar() != null)
@@ -458,7 +451,7 @@ public class EquinoxFwConfigFileParser {
 			writeInitialStartLevel(configData, configProps);
 			writeDefaultStartLevel(configData, configProps);
 		} catch (URISyntaxException e) {
-			throw new FrameworkAdminRuntimeException(e, "saving config.ini");
+			throw new FrameworkAdminRuntimeException(e, Messages.exception_errorSavingConfigIni);
 		}
 
 		Properties original = configData.getProperties();

@@ -22,7 +22,7 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 	}
 	
 	public void testDefaultConfiguration() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
-		startSimpleConfiguratormManipulator();
+		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
@@ -48,7 +48,7 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 	}
 
 	public void testSharedConfiguration() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
-		startSimpleConfiguratormManipulator();
+		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
@@ -77,7 +77,7 @@ public class SharedConfigurationTest extends AbstractFwkAdminTest {
 	}
 	
 	public void testNotSharedConfiguration() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
-		startSimpleConfiguratormManipulator();
+		startSimpleConfiguratorManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 

@@ -28,7 +28,7 @@ public class ReaderTest5 extends AbstractFwkAdminTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		startSimpleConfiguratormManipulator();
+		startSimpleConfiguratorManipulator();
 
 		installFolder = Activator.getContext().getDataFile(ReaderTest5.class.getName());
 		configurationFolder = new File(installFolder, "configuration");

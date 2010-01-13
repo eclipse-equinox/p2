@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import org.eclipse.osgi.service.environment.Constants;
-
 import java.io.File;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+import org.eclipse.osgi.service.environment.Constants;
 
 public class UtilsTest extends AbstractFwkAdminTest {
 

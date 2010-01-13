@@ -30,6 +30,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(NoConfigurationValueInEclipseIni.class);
 		suite.addTestSuite(NoRenamingLauncherIni.class);
 		suite.addTestSuite(OSGiVersionChange.class);
+		suite.addTestSuite(ParserUtilsTest.class);
 		suite.addTestSuite(ReaderTest1.class);
 		suite.addTestSuite(ReaderTest2.class);
 		suite.addTestSuite(ReaderTest3.class);

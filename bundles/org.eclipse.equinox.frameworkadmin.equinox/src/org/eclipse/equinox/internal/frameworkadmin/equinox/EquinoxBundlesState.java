@@ -166,7 +166,7 @@ public class EquinoxBundlesState implements BundlesState {
 		String nl = Locale.getDefault().toString();
 		platformProperties.setProperty("osgi.nl", nl); //$NON-NLS-1$
 
-		// TODO remove EclipseEnvironmentInof
+		// TODO remove EclipseEnvironmentInfo
 		String os = EclipseEnvironmentInfo.guessOS(System.getProperty("os.name"));//$NON-NLS-1$);
 		platformProperties.setProperty("osgi.os", os); //$NON-NLS-1$
 
@@ -194,16 +194,11 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	EquinoxFwAdminImpl fwAdmin = null;
-
 	BundleContext context;
-
 	Manipulator manipulator = null;
 	Properties platfromProperties = new Properties();
-
 	long maxId = DEFAULT_TIMESTAMP;
-
 	StateObjectFactory soFactory = null;
-
 	State state = null;
 
 	/**
@@ -216,6 +211,7 @@ public class EquinoxBundlesState implements BundlesState {
 	 * and version as defined by the {@link #getKey(BundleDescription)} method.
 	 */
 	private HashMap nameVersionStateIndex = new HashMap();
+	private final PlatformAdmin platformAdmin;
 
 	/**
 	 * If useFwPersistentData flag equals false, this constructor will not take
@@ -226,9 +222,10 @@ public class EquinoxBundlesState implements BundlesState {
 	 * @param manipulator
 	 * @param useFwPersistentData
 	 */
-	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, boolean useFwPersistentData) {
+	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, PlatformAdmin admin, boolean useFwPersistentData) {
 		this.context = context;
 		this.fwAdmin = fwAdmin;
+		this.platformAdmin = admin;
 		// copy manipulator object for avoiding modifying the parameters of the
 		// manipulator.
 		this.manipulator = fwAdmin.getManipulator();
@@ -246,10 +243,11 @@ public class EquinoxBundlesState implements BundlesState {
 	 * @param manipulator
 	 * @param platformProperties
 	 */
-	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, Properties platformProperties) {
+	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, PlatformAdmin admin, Properties platformProperties) {
 		super();
 		this.context = context;
 		this.fwAdmin = fwAdmin;
+		this.platformAdmin = admin;
 		// copy manipulator object for avoiding modifying the parameters of the
 		// manipulator.
 		this.manipulator = fwAdmin.getManipulator();
@@ -501,7 +499,6 @@ public class EquinoxBundlesState implements BundlesState {
 	public String[] getUnsatisfiedConstraints(BundleInfo bInfo) {
 		URI realLocation = bInfo.getLocation();
 		BundleDescription description = getBundleByLocation(realLocation);
-		PlatformAdmin platformAdmin = (PlatformAdmin) Activator.acquireService(PlatformAdmin.class.getName());
 		StateHelper helper = platformAdmin.getStateHelper();
 		VersionConstraint[] constraints = helper.getUnsatisfiedConstraints(description);
 		String[] ret = new String[constraints.length];
@@ -634,10 +631,8 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	private void setStateObjectFactory() {
-		if (soFactory != null)
-			return;
-		PlatformAdmin platformAdmin = (PlatformAdmin) Activator.acquireService(PlatformAdmin.class.getName());
-		soFactory = platformAdmin.getFactory();
+		if (soFactory == null)
+			soFactory = platformAdmin.getFactory();
 	}
 
 	public String toString() {

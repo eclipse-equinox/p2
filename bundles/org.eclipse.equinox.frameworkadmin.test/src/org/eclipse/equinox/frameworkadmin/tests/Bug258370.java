@@ -10,19 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
-import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
-
-import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-
-import java.net.URISyntaxException;
-
-import org.osgi.framework.BundleException;
-
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.osgi.framework.BundleException;
 
 public class Bug258370 extends FwkAdminAndSimpleConfiguratorTest {
 	public Bug258370(String name) {

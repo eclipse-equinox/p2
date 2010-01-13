@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.frameworkadmin.equinox;singleton:=true
 Bundle-Version: 1.0.200.qualifier
-Bundle-Activator: org.eclipse.equinox.internal.frameworkadmin.equinox.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Import-Package: org.eclipse.core.runtime.internal.adaptor,
@@ -24,3 +23,5 @@ Export-Package: org.eclipse.equinox.internal.frameworkadmin.equinox;x-friends:="
 Require-Bundle: org.eclipse.equinox.common
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
+Service-Component: OSGI-INF/fwadmin.xml
+Bundle-ActivationPolicy: lazy

@@ -111,7 +111,7 @@ public class ParserUtils {
 
 	public static File fromOSGiJarToOSGiInstallArea(String path) {
 		IPath parentFolder = new Path(path).removeLastSegments(1);
-		if (parentFolder.lastSegment().equalsIgnoreCase("plugins")) //$NON-NLS-1$
+		if ("plugins".equalsIgnoreCase(parentFolder.lastSegment())) //$NON-NLS-1$
 			return parentFolder.removeLastSegments(1).toFile();
 		return parentFolder.toFile();
 	}

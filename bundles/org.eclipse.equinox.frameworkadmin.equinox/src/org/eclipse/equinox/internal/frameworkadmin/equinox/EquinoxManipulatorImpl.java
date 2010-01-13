@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.osgi.service.datalocation.Location;
+import org.eclipse.osgi.service.resolver.PlatformAdmin;
 import org.osgi.framework.*;
 import org.osgi.service.log.LogService;
 import org.osgi.service.startlevel.StartLevel;
@@ -100,12 +101,13 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	ConfigData configData = new ConfigData(EquinoxConstants.FW_NAME, EquinoxConstants.FW_VERSION, EquinoxConstants.LAUNCHER_NAME, EquinoxConstants.LAUNCHER_VERSION);
 	EquinoxLauncherData launcherData = new EquinoxLauncherData(EquinoxConstants.FW_NAME, EquinoxConstants.FW_VERSION, EquinoxConstants.LAUNCHER_NAME, EquinoxConstants.LAUNCHER_VERSION);
-
 	BundleContext context = null;
 	private Properties platformProperties = new Properties();
 
 	ServiceTracker cmTracker;
 	int trackingCount = -1;
+	private final PlatformAdmin platformAdmin;
+	private final StartLevel startLevelService;
 
 	//	private final boolean runtime;
 
@@ -113,13 +115,11 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	EquinoxFwAdminImpl fwAdmin = null;
 
-	EquinoxManipulatorImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin) {
-		this(context, fwAdmin, false);
-	}
-
-	EquinoxManipulatorImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin, boolean runtime) {
+	EquinoxManipulatorImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin, PlatformAdmin admin, StartLevel slService, boolean runtime) {
 		this.context = context;
 		this.fwAdmin = fwAdmin;
+		this.platformAdmin = admin;
+		this.startLevelService = slService;
 		if (context != null) {
 			cmTracker = new ServiceTracker(context, ConfiguratorManipulator.class.getName(), null);
 			cmTracker.open();
@@ -142,10 +142,11 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (!EquinoxBundlesState.checkFullySupported())
 			return new SimpleBundlesState(fwAdmin, this, EquinoxConstants.FW_SYMBOLIC_NAME);
 
+		EquinoxBundlesState state;
 		if (platformProperties.isEmpty())
-			return new EquinoxBundlesState(context, fwAdmin, this, false);
+			return new EquinoxBundlesState(context, fwAdmin, this, platformAdmin, false);
 		// XXX checking if fwDependent or fwIndependent platformProperties are updated after the platformProperties was created might be required for better implementation.
-		return new EquinoxBundlesState(context, fwAdmin, this, platformProperties);
+		return new EquinoxBundlesState(context, fwAdmin, this, platformAdmin, platformProperties);
 	}
 
 	public ConfigData getConfigData() throws FrameworkAdminRuntimeException {
@@ -315,10 +316,9 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		}
 
 		// update initialBundleStartLevel
-		StartLevel slAdmin = (StartLevel) Activator.acquireService(StartLevel.class.getName());
 		int initialBSL = configData.getInitialBundleStartLevel();
-		if (initialBSL != slAdmin.getInitialBundleStartLevel())
-			configData.setInitialBundleStartLevel(slAdmin.getInitialBundleStartLevel());
+		if (initialBSL != startLevelService.getInitialBundleStartLevel())
+			configData.setInitialBundleStartLevel(startLevelService.getInitialBundleStartLevel());
 
 		//		for (int j = 0; j < bInfos.length; j++)
 		//			configData.addBundle(bInfos[j]);
@@ -333,7 +333,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 		BundlesState bundlesState = null;
 		if (EquinoxBundlesState.checkFullySupported()) {
-			bundlesState = new EquinoxBundlesState(context, fwAdmin, this, !launcherData.isClean());
+			bundlesState = new EquinoxBundlesState(context, fwAdmin, this, platformAdmin, !launcherData.isClean());
 			platformProperties = ((EquinoxBundlesState) bundlesState).getPlatformProperties();
 		} else {
 			bundlesState = new SimpleBundlesState(fwAdmin, this, EquinoxConstants.FW_SYMBOLIC_NAME);
