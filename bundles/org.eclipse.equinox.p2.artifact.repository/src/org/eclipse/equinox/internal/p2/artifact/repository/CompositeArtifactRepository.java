@@ -337,25 +337,38 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			if (current.isGood() && current.repo.contains(descriptor)) {
 				// Child hasn't failed & contains descriptor
 				IStatus status = raw ? current.repo.getRawArtifact(descriptor, destination, monitor) : current.repo.getArtifact(descriptor, destination, monitor);
-				if (!status.isOK()) {
-					// Download failed
-					if (status.getCode() == CODE_RETRY || status.getCode() == IStatus.CANCEL)
-						// Child has mirrors & wants to be retried, or we were canceled
-						return status;
-					// Child has failed us, mark it bad
-					current.setBad();
-					if (childIterator.hasNext())
-						// More children are available, set retry
-						return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {status}, NLS.bind(Messages.retryRequest, current.repo.getLocation(), descriptor.getArtifactKey()), null);
-					// Nothing that can be done, pass child's failure on
-					return status;
+				if (status.isOK()) {
+					//we are done with this artifact so forgive bad children so they can try again on next artifact
+					resetChildFailures();
+					return Status.OK_STATUS;
 				}
-				return Status.OK_STATUS;
+				// Download failed
+				if (status.getCode() == CODE_RETRY || status.getCode() == IStatus.CANCEL)
+					// Child has mirrors & wants to be retried, or we were canceled
+					return status;
+				// Child has failed us, mark it bad
+				current.setBad(true);
+				// If more children are available, set retry
+				if (childIterator.hasNext())
+					return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {status}, NLS.bind(Messages.retryRequest, current.repo.getLocation(), descriptor.getArtifactKey()), null);
+				// Nothing that can be done, pass child's failure on
+				resetChildFailures();
+				return status;
 			}
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
 		}
 		return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.artifact_not_found, descriptor));
+	}
+
+	/**
+	 * Rests the failure state on all children to 'good'. This is done after a successful
+	 * download to ensure that children who failed to obtain one artifact get a chance
+	 * on the next artifact.
+	 */
+	private void resetChildFailures() {
+		for (ChildInfo current : loadedRepos)
+			current.setBad(false);
 	}
 
 	private IArtifactRequest[] filterUnfetched(IArtifactRequest[] requests) {
@@ -508,8 +521,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			this.repo = IArtifactRepository;
 		}
 
-		void setBad() {
-			good = false;
+		void setBad(boolean bad) {
+			good = !bad;
 		}
 
 		boolean isGood() {
