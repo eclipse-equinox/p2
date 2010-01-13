@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Arrays;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.expression.*;
 
 /**
@@ -60,7 +61,7 @@ class MatchExpression<T> extends Unary implements IMatchExpression<T> {
 	}
 
 	public int hashCode() {
-		return operand.hashCode() * 31 + Arrays.hashCode(parameters);
+		return operand.hashCode() * 31 + CollectionUtils.hashCode(parameters);
 	}
 
 	public boolean isMatch(IEvaluationContext context, T value) {

@@ -148,6 +148,24 @@ public class CollectionUtils {
 	}
 
 	/**
+	 * Creates a combined hash for an array of objects.
+	 * @param objects The objects to hash
+	 * @return The combined hashCode of the objects.
+	 */
+	public static int hashCode(Object objects[]) {
+		if (objects == null)
+			return 0;
+
+		int result = 1;
+		int idx = objects.length;
+		while (--idx >= 0) {
+			Object object = objects[idx];
+			result = 17 * result + (object == null ? 0 : object.hashCode());
+		}
+		return result;
+	}
+
+	/**
 	 * The emptyList() method was introduced in Java 1.5 so we need this here to be able to
 	 * down compile to 1.4.
 	 * @param <T> The type of the elements

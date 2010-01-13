@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 public abstract class CoercingComparator<T> {
 	static class BooleanCoercer extends CoercingComparator<Boolean> {
 		public int compare(Boolean o1, Boolean o2) {
-			return o1.compareTo(o2);
+			return o1.booleanValue() == o2.booleanValue() ? 0 : (o1.booleanValue() ? 1 : -1);
 		}
 
 		@Override
