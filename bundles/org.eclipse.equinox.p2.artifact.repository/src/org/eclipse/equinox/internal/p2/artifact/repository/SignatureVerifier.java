@@ -78,7 +78,7 @@ public class SignatureVerifier extends ProcessingStep {
 		} catch (GeneralSecurityException e) {
 			return new Status(IStatus.ERROR, Activator.ID, Messages.SignatureVerification_failedRead + inputFile, e);
 		}
-		ArrayList allStatus = new ArrayList(0);
+		ArrayList<IStatus> allStatus = new ArrayList<IStatus>(0);
 		SignedContentEntry[] entries = signedContent.getSignedEntries();
 		for (int i = 0; i < entries.length; i++)
 			try {
@@ -90,7 +90,7 @@ public class SignatureVerifier extends ProcessingStep {
 				break;
 			}
 		if (allStatus.size() > 0)
-			return new MultiStatus(Activator.ID, IStatus.ERROR, (IStatus[]) allStatus.toArray(new IStatus[allStatus.size()]), Messages.SignatureVerification_invalidFileContent + inputFile, null);
+			return new MultiStatus(Activator.ID, IStatus.ERROR, allStatus.toArray(new IStatus[allStatus.size()]), Messages.SignatureVerification_invalidFileContent + inputFile, null);
 		return Status.OK_STATUS;
 	}
 

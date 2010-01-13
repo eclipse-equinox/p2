@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,12 +22,11 @@ import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.engine.SurrogateProfileHandler;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -164,7 +165,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		File file = null;
 		if (propertyToPlatformArchive != null) {
 			property = getValueFor(propertyToPlatformArchive);
-			String message = "Need to set the " + "\"" + property + "\" system property with a valid path to the platform binary drop or copy the archive to be a sibling of the install folder.";
+			String message = "Need to set the " + "\"" + propertyToPlatformArchive + "\" system property with a valid path to the platform binary drop or copy the archive to be a sibling of the install folder.";
 			if (property == null) {
 				fail(message);
 			}
@@ -528,8 +529,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(location, new SurrogateProfileHandler(), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
-		Collector collector = profiles[0].query(new InstallableUnitQuery(id, new Version(version)), new Collector(), null);
-		return !collector.isEmpty();
+		IQueryResult queryResult = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);
+		return !queryResult.isEmpty();
 	}
 
 	public IInstallableUnit getRemoteIU(String id, String version) {
@@ -537,9 +538,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(location, new SurrogateProfileHandler(), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
-		Collector collector = profiles[0].query(new InstallableUnitQuery(id, new Version(version)), new Collector(), null);
-		assertEquals("1.1 Should not have more than one IU wth the same ID and version.", 1, collector.size());
-		return (IInstallableUnit) collector.iterator().next();
+		IQueryResult queryResult = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);
+		assertEquals("1.1 Should not have more than one IU wth the same ID and version.", 1, queryResultSize(queryResult));
+		return (IInstallableUnit) queryResult.iterator().next();
 	}
 
 	public int runInitialize(String message) {

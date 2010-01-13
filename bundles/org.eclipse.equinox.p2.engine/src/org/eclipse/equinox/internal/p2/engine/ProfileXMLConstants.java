@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import org.eclipse.equinox.internal.p2.persistence.XMLConstants;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 /**
  *	Constants defining the structure of the XML for a Profile
@@ -21,9 +20,9 @@ import org.eclipse.equinox.internal.p2.persistence.XMLConstants;
 public interface ProfileXMLConstants extends XMLConstants {
 
 	// A format version number for profile XML.
-	public static final Version CURRENT_VERSION = new Version(1, 0, 0);
-	public static final Version COMPATIBLE_VERSION = new Version(0, 0, 1);
-	public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
+	public static final Version CURRENT_VERSION = Version.createOSGi(1, 0, 0);
+	public static final Version COMPATIBLE_VERSION = Version.createOSGi(0, 0, 1);
+	public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
 
 	// Constants for profile elements
 

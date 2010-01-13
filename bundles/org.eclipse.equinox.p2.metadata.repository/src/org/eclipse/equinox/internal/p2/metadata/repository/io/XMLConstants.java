@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistence.XMLConstants {
 
 	// Constants defining the structure of the XML for metadata objects
 
 	// A format version number for metadata XML.
-	public static final Version CURRENT_VERSION = new Version(0, 0, 1);
-	public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, new Version(2, 0, 0), false);
+	public static final Version CURRENT_VERSION = Version.createOSGi(0, 0, 1);
+	public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, Version.createOSGi(2, 0, 0), false);
 
 	// Constants for processing Instructions
 	public static final String PI_METADATA_TARGET = "metadata"; //$NON-NLS-1$
@@ -64,8 +64,6 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 
 	// Constants for sub-elements of a required capability element
 	public static final String CAPABILITY_FILTER_ELEMENT = "filter"; //$NON-NLS-1$
-	public static final String CAPABILITY_SELECTORS_ELEMENT = "selectors"; //$NON-NLS-1$
-	public static final String CAPABILITY_SELECTOR_ELEMENT = "selector"; //$NON-NLS-1$
 
 	// Constants for attributes of a required capability element
 	public static final String CAPABILITY_OPTIONAL_ATTRIBUTE = "optional"; //$NON-NLS-1$

@@ -16,7 +16,7 @@ import java.io.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.AbstractDeltaProcessorStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.sar.DirectByteArrayOutputStream;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 /**
  * The JBPatchStep patches a JBDiff based data.   

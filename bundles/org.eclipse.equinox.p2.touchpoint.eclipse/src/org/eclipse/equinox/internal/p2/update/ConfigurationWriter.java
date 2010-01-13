@@ -13,13 +13,14 @@ package org.eclipse.equinox.internal.p2.update;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -30,12 +31,12 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	/*
 	 * Save the given configuration to the specified location.
 	 */
-	public static void save(Configuration configuration, File location, URL osgiInstallArea) throws ProvisionException {
+	static void save(Configuration configuration, File location, URL osgiInstallArea) throws ProvisionException {
 		XMLWriter writer = null;
 		try {
 			OutputStream output = new BufferedOutputStream(new FileOutputStream(location));
 			writer = new XMLWriter(output);
-			Map args = new HashMap();
+			Map<String, String> args = new HashMap<String, String>();
 
 			String value = configuration.getDate();
 			if (value != null)
@@ -53,8 +54,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 
 			writer.startTag(ELEMENT_CONFIG, args);
 
-			for (Iterator iter = configuration.internalGetSites(false).iterator(); iter.hasNext();) {
-				Site site = (Site) iter.next();
+			for (Site site : configuration.internalGetSites(false)) {
 				write(writer, site, osgiInstallArea);
 			}
 
@@ -69,13 +69,15 @@ public class ConfigurationWriter implements ConfigurationConstants {
 				writer.close();
 			}
 		}
+		// put the config in the cache in case someone in the same session wants to read it
+		ConfigurationCache.put(location, configuration);
 	}
 
 	/*
 	 * Write out the given site.
 	 */
 	private static void write(XMLWriter writer, Site site, URL osgiInstallArea) {
-		Map args = new HashMap();
+		Map<String, String> args = new HashMap<String, String>();
 
 		String value = site.getLinkFile();
 		if (value != null)
@@ -144,7 +146,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 			return;
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
-			Map args = new HashMap();
+			Map<String, String> args = new HashMap<String, String>();
 			String value = feature.getId();
 			if (value != null)
 				args.put(ATTRIBUTE_ID, value);

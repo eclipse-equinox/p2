@@ -69,7 +69,7 @@
                   
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn="org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint:"/>
+                  <meta.attribute kind="java" basedOn="org.eclipse.equinox.p2.engine.spi.Touchpoint:"/>
                </appInfo>
             </annotation>
          </attribute>

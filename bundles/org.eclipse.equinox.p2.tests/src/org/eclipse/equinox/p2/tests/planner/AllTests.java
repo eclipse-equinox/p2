@@ -19,6 +19,7 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
+		suite.addTestSuite(AbsolutePlanTest.class);
 		suite.addTestSuite(ActualChangeRequestTest.class);
 		suite.addTestSuite(ActualChangeRequestTest2.class);
 		suite.addTestSuite(AdditionalConstraints.class);
@@ -93,6 +94,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(PatchTest8.class);
 		suite.addTestSuite(PatchTest9.class);
 		suite.addTestSuite(PatchTestMultiplePatch.class);
+		suite.addTestSuite(PatchTestMultiplePatch2.class);
+		suite.addTestSuite(PatchTestMultiplePatch3.class);
 		suite.addTestSuite(PatchTestOptional.class);
 		suite.addTestSuite(PatchTestOptional2.class);
 		suite.addTestSuite(PatchTestOptional3.class);
@@ -121,6 +124,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SWTFragment.class);
 		suite.addTestSuite(TwoVersionsOfWSDL.class);
 		suite.addTestSuite(UninstallEverything.class);
+		suite.addTestSuite(UpdateQueryTest.class);
 		return suite;
 	}
 }

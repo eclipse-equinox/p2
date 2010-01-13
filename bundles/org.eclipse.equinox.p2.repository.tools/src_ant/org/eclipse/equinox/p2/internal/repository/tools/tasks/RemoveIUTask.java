@@ -14,15 +14,16 @@ import java.util.*;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.AbstractApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
@@ -59,20 +60,18 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 			IMetadataRepository repository = application.getDestinationMetadataRepository();
 			IArtifactRepository artifacts = application.getDestinationArtifactRepository();
 
-			final Set toRemove = new HashSet();
-			for (Iterator iter = iuTasks.iterator(); iter.hasNext();) {
-				IUDescription iu = (IUDescription) iter.next();
-				Query iuQuery = iu.createQuery();
+			final Set<IInstallableUnit> toRemove = new HashSet<IInstallableUnit>();
+			for (IUDescription iu : iuTasks) {
+				IQuery<IInstallableUnit> iuQuery = iu.createQuery();
 
-				Collector collector = new Collector();
-				repository.query(iuQuery, collector, null);
+				IQueryResult<IInstallableUnit> queryResult = repository.query(iuQuery, null);
 
-				if (collector.isEmpty())
+				if (queryResult.isEmpty())
 					getProject().log(NLS.bind(Messages.AbstractRepositoryTask_unableToFind, iu.toString()));
 				else {
-					for (Iterator iterator = collector.iterator(); iterator.hasNext();) {
-						IInstallableUnit unit = (IInstallableUnit) iterator.next();
-						IArtifactKey[] keys = unit.getArtifacts();
+					for (Iterator<IInstallableUnit> iterator = queryResult.iterator(); iterator.hasNext();) {
+						IInstallableUnit unit = iterator.next();
+						Collection<IArtifactKey> keys = unit.getArtifacts();
 						Filter filter = null;
 						try {
 							filter = iu.getArtifactFilter();
@@ -83,11 +82,11 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 
 						//we will only remove the metadata if all artifacts were removed
 						boolean removeMetadata = true;
-						for (int i = 0; i < keys.length; i++) {
+						for (IArtifactKey key : keys) {
 							if (filter == null) {
-								artifacts.removeDescriptor(keys[i]);
+								artifacts.removeDescriptor(key);
 							} else {
-								IArtifactDescriptor[] descriptors = artifacts.getArtifactDescriptors(keys[i]);
+								IArtifactDescriptor[] descriptors = artifacts.getArtifactDescriptors(key);
 								for (int j = 0; j < descriptors.length; j++) {
 									if (filter.match(createDictionary(descriptors[j]))) {
 										artifacts.removeDescriptor(descriptors[j]);
@@ -104,12 +103,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 			}
 
 			if (toRemove.size() > 0) {
-				Query removeQuery = new MatchQuery() {
-					public boolean isMatch(Object candidate) {
-						return toRemove.contains(candidate);
-					}
-				};
-				repository.removeInstallableUnits(removeQuery, null);
+				repository.removeInstallableUnits(toRemove.toArray(new IInstallableUnit[toRemove.size()]), null);
 			}
 		} catch (ProvisionException e) {
 			throw new BuildException(e);
@@ -122,8 +116,8 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 		}
 	}
 
-	private Dictionary createDictionary(IArtifactDescriptor descriptor) {
-		Hashtable result = new Hashtable(5);
+	private Dictionary<String, Object> createDictionary(IArtifactDescriptor descriptor) {
+		Hashtable<String, Object> result = new Hashtable<String, Object>(5);
 		result.putAll(descriptor.getProperties());
 		IArtifactKey key = descriptor.getArtifactKey();
 		result.put(CLASSIFIER, key.getClassifier());

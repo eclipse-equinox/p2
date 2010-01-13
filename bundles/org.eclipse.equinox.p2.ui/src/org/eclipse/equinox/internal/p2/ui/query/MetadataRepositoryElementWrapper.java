@@ -14,8 +14,8 @@ package org.eclipse.equinox.internal.p2.ui.query;
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * ElementWrapper that accepts the matched repo URLs and
@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUti
  */
 public class MetadataRepositoryElementWrapper extends QueriedElementWrapper {
 
-	public MetadataRepositoryElementWrapper(IQueryable queryable, Object parent) {
+	public MetadataRepositoryElementWrapper(IQueryable<URI> queryable, Object parent) {
 		super(queryable, parent);
 	}
 
@@ -46,6 +46,6 @@ public class MetadataRepositoryElementWrapper extends QueriedElementWrapper {
 	 * Transforms the item to a UI element
 	 */
 	protected Object wrap(Object item) {
-		return super.wrap(new MetadataRepositoryElement(parent, (URI) item, ProvisioningUtil.getMetadataRepositoryEnablement((URI) item)));
+		return super.wrap(new MetadataRepositoryElement(parent, (URI) item, ProvisioningUI.getDefaultUI().getSession().getMetadataRepositoryManager().isEnabled((URI) item)));
 	}
 }

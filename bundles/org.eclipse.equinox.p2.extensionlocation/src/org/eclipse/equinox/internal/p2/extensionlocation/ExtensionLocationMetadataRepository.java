@@ -16,12 +16,12 @@ import java.io.FilenameFilter;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 
@@ -96,16 +96,16 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository#removeInstallableUnits(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
+	public boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.query.IQueryable#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		ensureInitialized();
-		return metadataRepository.query(query, collector, monitor);
+		return metadataRepository.query(query, monitor);
 	}
 
 	public static void validate(URI location, IProgressMonitor monitor) throws ProvisionException {
@@ -172,9 +172,9 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository#getProperties()
+	 * @see org.eclipse.equinox.p2.repository.spi.AbstractRepository#getProperties()
 	 */
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		ensureInitialized();
 		return metadataRepository.getProperties();
 	}

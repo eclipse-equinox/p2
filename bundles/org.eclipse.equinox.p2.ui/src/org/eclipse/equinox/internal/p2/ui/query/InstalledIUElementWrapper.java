@@ -11,11 +11,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
+import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
  * ElementWrapper that accepts the matched IU's and
@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
  */
 public class InstalledIUElementWrapper extends QueriedElementWrapper {
 
-	public InstalledIUElementWrapper(IQueryable queryable, Object parent) {
+	public InstalledIUElementWrapper(IQueryable<?> queryable, Object parent) {
 		super(queryable, parent);
 	}
 

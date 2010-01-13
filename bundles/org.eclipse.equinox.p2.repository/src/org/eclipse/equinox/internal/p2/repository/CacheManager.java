@@ -11,21 +11,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.*;
 import java.net.URI;
-import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.p2.repository.Activator;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -37,7 +38,12 @@ import org.eclipse.osgi.util.NLS;
  * was created for the repository.
  */
 public class CacheManager {
-	private final AgentLocation agentLocation;
+	/**
+	 * Service name for the internal cache manager service.
+	 */
+	public static final String SERVICE_NAME = CacheManager.class.getName();
+
+	private final IAgentLocation agentLocation;
 
 	/**
 	 * IStateful implementation of BufferedOutputStream. Class is used to get the status from
@@ -61,7 +67,7 @@ public class CacheManager {
 
 	}
 
-	public CacheManager(AgentLocation agentLocation) {
+	public CacheManager(IAgentLocation agentLocation) {
 		this.agentLocation = agentLocation;
 	}
 
@@ -72,7 +78,7 @@ public class CacheManager {
 	private static final String RESUME_DEFAULT = "true"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
-	private final HashSet knownPrefixes = new HashSet(5);
+	private final HashSet<String> knownPrefixes = new HashSet<String>(5);
 
 	/**
 	 * Returns a hash of the repository location.
@@ -211,8 +217,7 @@ public class CacheManager {
 	 * @param repositoryLocation
 	 */
 	void deleteCache(URI repositoryLocation) {
-		for (Iterator it = knownPrefixes.iterator(); it.hasNext();) {
-			String prefix = (String) it.next();
+		for (String prefix : knownPrefixes) {
 			File[] cacheFiles = getCacheFiles(repositoryLocation, prefix);
 			for (int i = 0; i < cacheFiles.length; i++) {
 				// delete the cache file if it exists
@@ -241,8 +246,7 @@ public class CacheManager {
 	 * Returns the file corresponding to the data area to be used by the cache manager.
 	 */
 	private File getCacheDirectory() {
-		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
-		return URLUtil.toFile(dataArea);
+		return URIUtil.toFile(agentLocation.getDataArea(Activator.ID + "/cache/")); //$NON-NLS-1$
 	}
 
 	/**
@@ -264,7 +268,7 @@ public class CacheManager {
 		return RepositoryTransport.getInstance();
 	}
 
-	public boolean isResumeEnabled() {
+	private boolean isResumeEnabled() {
 		String resumeProp = System.getProperty(PROP_RESUMABLE, RESUME_DEFAULT);
 		return Boolean.valueOf(resumeProp).booleanValue();
 	}
@@ -333,7 +337,7 @@ public class CacheManager {
 	 * Adds a {@link SynchronousProvisioningListener} to the event bus for
 	 * deleting cache files when the corresponding repository is deleted.
 	 */
-	public void registerRepoEventListener(IProvisioningEventBus eventBus) {
+	private void registerRepoEventListener(IProvisioningEventBus eventBus) {
 		if (busListener == null) {
 			busListener = new SynchronousProvisioningListener() {
 				public void notify(EventObject o) {
@@ -372,7 +376,7 @@ public class CacheManager {
 	 * Removes the {@link SynchronousProvisioningListener} that cleans up the
 	 * cache file from the event bus.
 	 */
-	public void unregisterRepoEventListener(IProvisioningEventBus bus) {
+	private void unregisterRepoEventListener(IProvisioningEventBus bus) {
 		if (bus != null && busListener != null)
 			bus.removeListener(busListener);
 	}

@@ -10,31 +10,29 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.TouchpointInstruction;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddRepositoryAction;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.service.prefs.Preferences;
 
 /**
@@ -73,6 +71,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 	public void testInvalidEnablement() {
 		Map args = getValidArguments();
+		addAgent(args);
 		args.put("enabled", "bogus enablement");
 		IStatus result = action.execute(args);
 		//Any value other than "true" for enablement results in a disabled repository
@@ -80,8 +79,13 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		assertTrue("1.1", !getArtifactRepositoryManager().isEnabled(locationURI));
 	}
 
+	private void addAgent(Map args) {
+		args.put(ActionConstants.PARM_AGENT, getAgent());
+	}
+
 	public void testInvalidLocation() {
 		Map args = getValidArguments();
+		addAgent(args);
 		args.put("location", "bogus location");
 		IStatus result = action.execute(args);
 		assertTrue("1.0", !result.isOK());
@@ -89,6 +93,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 	public void testInvalidType() {
 		Map args = getValidArguments();
+		addAgent(args);
 		args.put("type", "bogus type");
 		IStatus result = action.execute(args);
 		assertTrue("1.0", !result.isOK());
@@ -97,6 +102,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	public void testMissingEnablement() {
 		//note enablement is optional, defaults to true
 		Map args = getValidArguments();
+		addAgent(args);
 		args.remove("enabled");
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
@@ -104,6 +110,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 	public void testMissingType() {
 		Map args = getValidArguments();
+		addAgent(args);
 		args.remove("type");
 		IStatus result = action.execute(args);
 		assertTrue("1.0", !result.isOK());
@@ -116,6 +123,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 	public void testUndo() {
 		Map args = getValidArguments();
+		addAgent(args);
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
 
@@ -125,6 +133,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 	public void testMultipleActionAdd() {
 		Map args = getValidArguments();
+		addAgent(args);
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
 
@@ -146,6 +155,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		}
 
 		Map args = getValidArguments();
+		addAgent(args);
 		IStatus result = action.execute(args);
 		assertTrue("1.0", result.isOK());
 
@@ -160,7 +170,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	 */
 	public void testFullInstall() {
 		String id = "AddRepositoryActionTest.testFullInstall";
-		Version version = new Version(1, 0, 0);
+		Version version = Version.createOSGi(1, 0, 0);
 		Map instructions = new HashMap();
 		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
 		ITouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
@@ -177,10 +187,8 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		//check that profile property is set
 		profile = getProfile(id);
 		// Get Preference node associated with the profile
-		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
-		Preferences pref = prefService.getRootNode().node("/profile/" + profile.getProfileId() + "/org.eclipse.equinox.p2.artifact.repository/repositories/" + getKey(TEST_LOCATION)); //$NON-NLS-1$ //$NON-NLS-2$
+		Preferences pref = new ProfileScope(getAgentLocation(), profile.getProfileId()).getNode("org.eclipse.equinox.p2.artifact.repository/repositories/" + getKey(TEST_LOCATION));
 		String value = pref.get(KEY_URI, null);
-
 		assertEquals("2.0", value, TEST_LOCATION);
 	}
 
@@ -195,7 +203,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		//install the old IU
 		String id = "AddRepositoryActionTest.testUpdate";
-		Version version = new Version(1, 0, 0);
+		Version version = Version.createOSGi(1, 0, 0);
 		IInstallableUnit oldIU = createIU(id, version);
 		IProfile profile = createProfile(id);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
@@ -207,7 +215,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		assertTrue("1.1", !getArtifactRepositoryManager().contains(locationURI));
 
 		//define new IU
-		version = new Version(1, 1, 0);
+		version = Version.createOSGi(1, 1, 0);
 		Map instructions = new HashMap();
 		instructions.put("configure", TouchpointInstruction.encodeAction("addRepository", getValidArguments()));
 		ITouchpointData tpData = MetadataFactory.createTouchpointData(instructions);
@@ -215,7 +223,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		//perform the update and install an ordinary bundle
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(site, getMonitor());
-		IInstallableUnit bundle = (IInstallableUnit) repo.query(new InstallableUnitQuery("aBundle"), new Collector(), getMonitor()).iterator().next();
+		IInstallableUnit bundle = (IInstallableUnit) repo.query(new InstallableUnitQuery("aBundle"), getMonitor()).iterator().next();
 		request = new ProfileChangeRequest(profile);
 		final IInstallableUnit[] newIUs = new IInstallableUnit[] {newIU, bundle};
 		request.addInstallableUnits(newIUs);
@@ -227,14 +235,13 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		//check that the artifact is still there
 		profile = getProfile(id);
-		IArtifactRepository artifacts = getArtifactRepositoryManager().loadRepository(Util.getBundlePoolLocation(profile), getMonitor());
-		assertEquals("3.0", 1, artifacts.getArtifactKeys().length);
+		IArtifactRepository artifacts = getArtifactRepositoryManager().loadRepository(Util.getBundlePoolLocation(getAgent(), profile), getMonitor());
+		assertEquals("3.0", 1, getArtifactKeyCount(artifacts));
 
 		//check that profile property is set
 		assertProfileContains("3.1", profile, newIUs);
 		// Get Preference node associated with the profile
-		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
-		Preferences pref = prefService.getRootNode().node("/profile/" + profile.getProfileId() + "/org.eclipse.equinox.p2.artifact.repository/repositories/" + getKey(TEST_LOCATION)); //$NON-NLS-1$ //$NON-NLS-2$
+		Preferences pref = new ProfileScope(getAgentLocation(), profile.getProfileId()).getNode("org.eclipse.equinox.p2.artifact.repository/repositories/" + getKey(TEST_LOCATION));
 		String value = pref.get(KEY_URI, null);
 
 		assertEquals("3.2", value, TEST_LOCATION);
@@ -252,12 +259,8 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 	}
 
 	private boolean locationExists(IProfile profile, String location) {
-		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
-		Preferences pref;
-		if (profile != null)
-			pref = prefService.getRootNode().node("/profile/" + profile.getProfileId() + "/org.eclipse.equinox.p2.artifactRepositories/repositories/" + getKey(location));
-		else
-			pref = prefService.getRootNode().node("/profile/_SELF_/org.eclipse.equinox.p2.artifact.repository/repositories/" + getKey(location));
+		final String profileId = profile != null ? profile.getProfileId() : IProfileRegistry.SELF;
+		Preferences pref = new ProfileScope(getAgentLocation(), profileId).getNode("org.eclipse.equinox.p2.artifact.repository/repositories/" + getKey(location));
 		if (location.equals(pref.get(KEY_URI, null)))
 			return true;
 		return false;

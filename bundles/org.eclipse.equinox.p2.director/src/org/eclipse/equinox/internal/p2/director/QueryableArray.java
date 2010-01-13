@@ -12,70 +12,56 @@ package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.ORRequirement;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
+import org.eclipse.equinox.p2.query.*;
 
-public class QueryableArray implements IQueryable {
-	static class IUCapability {
-		final IInstallableUnit iu;
-		final IProvidedCapability capability;
-
-		public IUCapability(IInstallableUnit iu, IProvidedCapability capability) {
-			this.iu = iu;
-			this.capability = capability;
-		}
-	}
-
-	private final List dataSet;
-	private Map namedCapabilityIndex;
+public class QueryableArray implements IQueryable<IInstallableUnit> {
+	private final List<IInstallableUnit> dataSet;
+	private Map<String, List<IInstallableUnit>> namedCapabilityIndex;
 
 	public QueryableArray(IInstallableUnit[] ius) {
 		dataSet = Arrays.asList(ius);
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-		if (query instanceof CapabilityQuery)
-			return queryCapability((CapabilityQuery) query, collector, monitor);
-		return query.perform(dataSet.iterator(), collector);
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+		if (query instanceof ExpressionQuery)
+			return queryCapability((ExpressionQuery) query, new Collector<IInstallableUnit>(), monitor);
+		return query.perform(dataSet.iterator());
 	}
 
-	private Collector queryCapability(CapabilityQuery query, Collector collector, IProgressMonitor monitor) {
+	private Collector<IInstallableUnit> queryCapability(ExpressionQuery query, Collector<IInstallableUnit> collector, IProgressMonitor monitor) {
 		generateNamedCapabilityIndex();
 
-		IRequiredCapability[] requiredCapabilities = query.getRequiredCapabilities();
-		Collection resultIUs = null;
-		for (int i = 0; i < requiredCapabilities.length; i++) {
-			if (requiredCapabilities[i] instanceof ORRequirement) {
-				query.perform(dataSet.iterator(), collector);
-				continue;
-			}
-			Collection matchingIUs = findMatchingIUs(requiredCapabilities[i]);
-			if (matchingIUs == null)
-				return collector;
-			if (resultIUs == null)
-				resultIUs = matchingIUs;
-			else
-				resultIUs.retainAll(matchingIUs);
-		}
+		Collection<IInstallableUnit> resultIUs = null;
+		Collection<IInstallableUnit> matchingIUs = findMatchingIUs(query.getExpression());
+		if (matchingIUs == null)
+			return collector;
+		if (resultIUs == null)
+			resultIUs = matchingIUs;
+		else
+			resultIUs.retainAll(matchingIUs);
 
 		if (resultIUs != null)
-			for (Iterator iterator = resultIUs.iterator(); iterator.hasNext();)
+			for (Iterator<IInstallableUnit> iterator = resultIUs.iterator(); iterator.hasNext();)
 				collector.accept(iterator.next());
 
 		return collector;
 	}
 
-	private Collection findMatchingIUs(IRequiredCapability requiredCapability) {
-		List iuCapabilities = (List) namedCapabilityIndex.get(requiredCapability.getName());
-		if (iuCapabilities == null)
+	private Collection<IInstallableUnit> findMatchingIUs(IMatchExpression requirementMatch) {
+		// TODO: This is a hack. Should be replaced by use of proper indexes
+		List<IInstallableUnit> ius = namedCapabilityIndex.get(RequiredCapability.extractName(requirementMatch));
+		if (ius == null)
 			return null;
 
-		Set matchingIUs = new HashSet();
-		for (Iterator iterator = iuCapabilities.iterator(); iterator.hasNext();) {
-			IUCapability iuCapability = (IUCapability) iterator.next();
-			if (iuCapability.capability.satisfies(requiredCapability))
-				matchingIUs.add(iuCapability.iu);
+		Set<IInstallableUnit> matchingIUs = new HashSet<IInstallableUnit>();
+		for (IInstallableUnit iu : ius) {
+			if (requirementMatch.isMatch(iu))
+				matchingIUs.add(iu);
 		}
 		return matchingIUs;
 	}
@@ -84,19 +70,18 @@ public class QueryableArray implements IQueryable {
 		if (namedCapabilityIndex != null)
 			return;
 
-		namedCapabilityIndex = new HashMap();
-		for (Iterator iterator = dataSet.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+		namedCapabilityIndex = new HashMap<String, List<IInstallableUnit>>();
+		for (IInstallableUnit iu : dataSet) {
 
-			IProvidedCapability[] providedCapabilities = iu.getProvidedCapabilities();
-			for (int i = 0; i < providedCapabilities.length; i++) {
-				String name = providedCapabilities[i].getName();
-				List iuCapabilities = (List) namedCapabilityIndex.get(name);
-				if (iuCapabilities == null) {
-					iuCapabilities = new ArrayList(5);
-					namedCapabilityIndex.put(name, iuCapabilities);
+			Collection<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
+			for (IProvidedCapability pc : providedCapabilities) {
+				String name = pc.getName();
+				List<IInstallableUnit> ius = namedCapabilityIndex.get(name);
+				if (ius == null) {
+					ius = new ArrayList<IInstallableUnit>(5);
+					namedCapabilityIndex.put(name, ius);
 				}
-				iuCapabilities.add(new IUCapability(iu, providedCapabilities[i]));
+				ius.add(iu);
 			}
 		}
 	}

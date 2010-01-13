@@ -22,7 +22,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.helpers.DebugHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.AuthenticationInfo;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.security.storage.*;
 
 /**
@@ -39,13 +39,13 @@ public class Credentials {
 	/** 
 	 * Cache of auth information that is not persisted, and modified auth info.
 	 */
-	private static final Map savedAuthInfo = Collections.synchronizedMap(new HashMap());
+	private static final Map<String, AuthenticationInfo> savedAuthInfo = Collections.synchronizedMap(new HashMap<String, AuthenticationInfo>());
 
 	/**
 	 * Information about retry counts, and prompts canceled by user. The SoftReference is
 	 * a Map if not null. The keys are also used as serialization per host.
 	 */
-	private static Map remembered;
+	private static Map<String, HostEntry> remembered;
 
 	/** 
 	 * Serializes pop up of login/password prompt 
@@ -118,8 +118,8 @@ public class Credentials {
 		// Start by getting a key to lock on
 		HostEntry hostLock = null;
 		synchronized (Credentials.class) {
-			Map r = getRemembered();
-			hostLock = (HostEntry) r.get(host);
+			Map<String, HostEntry> r = getRemembered();
+			hostLock = r.get(host);
 			if (hostLock == null) {
 				hostLock = new HostEntry(0);
 				r.put(host, hostLock);
@@ -321,7 +321,7 @@ public class Credentials {
 	 * or <code>null</code> if no information is stored.
 	 */
 	private static AuthenticationInfo restoreFromMemory(String nodeName) {
-		return (AuthenticationInfo) savedAuthInfo.get(nodeName);
+		return savedAuthInfo.get(nodeName);
 	}
 
 	/**
@@ -336,7 +336,7 @@ public class Credentials {
 	 * @param host
 	 */
 	private static void rememberCancel(String host) {
-		Map r = getRemembered();
+		Map<String, HostEntry> r = getRemembered();
 		if (r != null)
 			r.put(host, new HostEntry(-1));
 	}
@@ -348,7 +348,7 @@ public class Credentials {
 	 * @throws LoginCanceledException
 	 */
 	private static void checkRememberedCancel(String host) throws LoginCanceledException {
-		Map r = getRemembered();
+		Map<String, HostEntry> r = getRemembered();
 		if (r != null) {
 			Object x = r.get(host);
 			if (x != null && x instanceof HostEntry)
@@ -370,9 +370,9 @@ public class Credentials {
 	 * @param host
 	 */
 	private static void incrementPromptCount(String host) {
-		Map r = getRemembered();
+		Map<String, HostEntry> r = getRemembered();
 		if (r != null) {
-			HostEntry value = (HostEntry) r.get(host);
+			HostEntry value = r.get(host);
 			if (value == null)
 				r.put(host, value = new HostEntry(1));
 			else {
@@ -389,9 +389,9 @@ public class Credentials {
 	 * @return number of time prompt has been performed for a host (or 0 if information is stale)
 	 */
 	private static int getPromptCount(String host) {
-		Map r = getRemembered();
+		Map<String, HostEntry> r = getRemembered();
 		if (r != null) {
-			HostEntry value = (HostEntry) r.get(host);
+			HostEntry value = r.get(host);
 			if (value != null && !value.isStale())
 				return value.getCount();
 		}
@@ -406,14 +406,13 @@ public class Credentials {
 	public static synchronized void clearPromptCache() {
 		if (remembered == null)
 			return;
-		Map r = remembered;
+		Map<String, HostEntry> r = remembered;
 		if (r == null || r.isEmpty())
 			return;
 		// reset entries rather than creating a new empty map since the entries
 		// are also used as locks
-		Iterator itor = r.entrySet().iterator();
-		while (itor.hasNext())
-			((HostEntry) itor.next()).reset();
+		for (HostEntry entry : r.values())
+			entry.reset();
 	}
 
 	/**
@@ -433,17 +432,17 @@ public class Credentials {
 	public static synchronized void clearPromptCache(String host) {
 		if (remembered == null)
 			return;
-		Map r = remembered;
+		Map<String, HostEntry> r = remembered;
 		if (r == null)
 			return;
-		HostEntry value = (HostEntry) r.get(host);
+		HostEntry value = r.get(host);
 		if (value != null)
 			value.reset();
 	}
 
-	private static synchronized Map getRemembered() {
+	private static synchronized Map<String, HostEntry> getRemembered() {
 		if (remembered == null)
-			remembered = Collections.synchronizedMap(new HashMap());
+			remembered = Collections.synchronizedMap(new HashMap<String, HostEntry>());
 		return remembered;
 	}
 

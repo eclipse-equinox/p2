@@ -20,14 +20,13 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
-import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
@@ -45,8 +44,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private final static String frameworkAdminFillter = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
-	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
-	private static final String ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
 
 	private String os;
@@ -353,19 +350,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 				e.printStackTrace();
 			}
 		}
-		//		try {
-		//			frameworkAdminTracker.waitForService(500);
-		//		} catch (InterruptedException e) {
-		//			// ignore
-		//		}
 
-		FrameworkAdmin admin = (FrameworkAdmin) frameworkAdminTracker.getService();
-		if (admin == null) {
-			startBundle(ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX);
-			startBundle(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR);
-			admin = (FrameworkAdmin) frameworkAdminTracker.getService();
-		}
-		return admin;
+		return (FrameworkAdmin) frameworkAdminTracker.getService();
 	}
 
 	private Collection getIUs(Set ius, String prefix) {
@@ -540,27 +526,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	 */
 	public void setSiteLocation(URI location) {
 		this.siteLocation = location;
-	}
-
-	private boolean startBundle(String bundleId) {
-		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(Activator.getContext(), PackageAdmin.class.getName());
-		if (packageAdmin == null)
-			return false;
-
-		Bundle[] bundles = packageAdmin.getBundles(bundleId, null);
-		if (bundles != null && bundles.length > 0) {
-			for (int i = 0; i < bundles.length; i++) {
-				try {
-					if ((bundles[0].getState() & Bundle.RESOLVED) > 0) {
-						bundles[0].start();
-						return true;
-					}
-				} catch (BundleException e) {
-					// failed, try next bundle
-				}
-			}
-		}
-		return false;
 	}
 
 	public String getVersionAdvice() {

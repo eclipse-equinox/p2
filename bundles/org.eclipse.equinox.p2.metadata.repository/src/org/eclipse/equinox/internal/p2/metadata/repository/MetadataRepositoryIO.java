@@ -11,10 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -28,13 +26,13 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository.RepositoryState;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository.RepositoryState;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
@@ -99,9 +97,9 @@ public class MetadataRepositoryIO {
 		// Constants defining the structure of the XML for a MetadataRepository
 
 		// A format version number for metadata repository XML.
-		public static final Version COMPATIBLE_VERSION = new Version(1, 0, 0);
-		public static final Version CURRENT_VERSION = new Version(1, 1, 0);
-		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
+		public static final Version COMPATIBLE_VERSION = Version.createOSGi(1, 0, 0);
+		public static final Version CURRENT_VERSION = Version.createOSGi(1, 1, 0);
+		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
 
 		// Constants for processing Instructions
 		public static final String PI_REPOSITORY_TARGET = "metadataRepository"; //$NON-NLS-1$
@@ -111,7 +109,7 @@ public class MetadataRepositoryIO {
 
 	}
 
-	protected XMLWriter.ProcessingInstruction[] createPI(Class repositoryClass) {
+	protected XMLWriter.ProcessingInstruction[] createPI(Class<?> repositoryClass) {
 		//TODO We should remove this processing instruction, but currently old clients rely on this. See bug 210450.
 		return new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeTargetVersionInstruction(XMLConstants.PI_REPOSITORY_TARGET, XMLConstants.CURRENT_VERSION)};
 	}
@@ -119,7 +117,7 @@ public class MetadataRepositoryIO {
 	// XML writer for a IMetadataRepository
 	protected class Writer extends MetadataWriter implements XMLConstants {
 
-		public Writer(OutputStream output, Class repositoryClass) throws IOException {
+		public Writer(OutputStream output, Class<? extends IMetadataRepository> repositoryClass) throws IOException {
 			super(output, createPI(repositoryClass));
 		}
 
@@ -135,11 +133,12 @@ public class MetadataRepositoryIO {
 			attributeOptional(DESCRIPTION_ATTRIBUTE, repository.getDescription()); // TODO: could be cdata?
 
 			writeProperties(repository.getProperties());
-			Collector units = repository.query(InstallableUnitQuery.ANY, new Collector(), null);
 			if (repository instanceof LocalMetadataRepository) {
-				Set references = ((LocalMetadataRepository) repository).repositories;
+				Set<RepositoryReference> references = ((LocalMetadataRepository) repository).repositories;
 				writeRepositoryReferences(references.iterator(), references.size());
 			}
+			// The size attribute is a problematic since it forces the use of a collection.
+			Set<IInstallableUnit> units = repository.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
 			writeInstallableUnits(units.iterator(), units.size());
 
 			end(REPOSITORY_ELEMENT);
@@ -151,13 +150,13 @@ public class MetadataRepositoryIO {
 		 * @param references An Iterator of {@link RepositoryReference}.
 		 * @param size The number of references  to write
 		 */
-		protected void writeRepositoryReferences(Iterator references, int size) {
+		protected void writeRepositoryReferences(Iterator<RepositoryReference> references, int size) {
 			if (size == 0)
 				return;
 			start(REPOSITORY_REFERENCES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, size);
 			while (references.hasNext())
-				writeRepositoryReference((RepositoryReference) references.next());
+				writeRepositoryReference(references.next());
 			end(REPOSITORY_REFERENCES_ELEMENT);
 		}
 
@@ -309,7 +308,7 @@ public class MetadataRepositoryIO {
 						//can't create repository if missing type - this is already logged when parsing attributes
 						if (state.Type == null)
 							return;
-						Class clazz = Class.forName(state.Type);
+						Class<?> clazz = Class.forName(state.Type);
 						Object repositoryObject = clazz.newInstance();
 						if (repositoryObject instanceof AbstractMetadataRepository) {
 							repository = (AbstractMetadataRepository) repositoryObject;

@@ -10,17 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.generator;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.io.*;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.ProductFile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator.GeneratorResult;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.MatchQuery;
 
 public class ProductQuery extends MatchQuery {
 	private static final String EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher"; //$NON-NLS-1$
@@ -30,34 +29,11 @@ public class ProductQuery extends MatchQuery {
 	private final Map children = new HashMap();
 	private final String versionAdvice;
 
-	// Collector collects the largest version of each IU
-	private final Collector collector = new Collector() {
-		private final HashMap elements = new HashMap();
-
-		public boolean accept(Object object) {
-			if (!(object instanceof IInstallableUnit))
-				return true;
-			IInstallableUnit iu = (IInstallableUnit) object;
-			if (elements.containsKey(iu.getId())) {
-				IInstallableUnit existing = (IInstallableUnit) elements.get(iu.getId());
-				if (existing.getVersion().compareTo(iu.getVersion()) >= 0)
-					return true;
-				getCollection().remove(existing);
-			}
-			elements.put(iu.getId(), iu);
-			return super.accept(object);
-		}
-	};
-
 	public ProductQuery(ProductFile product, String flavor, Map configIUs, String versionAdvice) {
 		this.product = product;
 		this.flavor = flavor;
 		this.versionAdvice = versionAdvice;
 		initialize(configIUs);
-	}
-
-	public Collector getCollector() {
-		return this.collector;
 	}
 
 	private Properties loadVersions(String location) {
@@ -94,7 +70,7 @@ public class ProductQuery extends MatchQuery {
 
 			VersionRange range = VersionRange.emptyRange;
 			if (versions.containsKey(item)) {
-				Version value = new Version(versions.getProperty(item));
+				Version value = Version.create(versions.getProperty(item));
 				range = new VersionRange(value, true, value, true);
 			}
 

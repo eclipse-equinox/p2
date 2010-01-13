@@ -10,17 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IUpdateDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.UpdateOperation;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 public class UpdateWizardPage extends SizeComputingWizardPage {
 
-	public UpdateWizardPage(Policy policy, IUElementListRoot root, String profileId, PlannerResolutionOperation initialResolution) {
-		super(policy, root, profileId, initialResolution);
+	public UpdateWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, UpdateOperation operation) {
+		super(ui, wizard, root, operation);
 		setTitle(ProvUIMessages.UpdateWizardPage_Title);
 		setDescription(ProvUIMessages.UpdateWizardPage_Description);
 	}

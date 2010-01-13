@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
+import java.io.File;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
@@ -17,9 +19,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -33,7 +35,7 @@ import org.eclipse.osgi.util.NLS;
 public class CopyAction extends ProvisioningAction {
 	public static final String ID = "cp"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		return copy(parameters, true);
 	}
 
@@ -43,7 +45,7 @@ public class CopyAction extends ProvisioningAction {
 	 * @param restoreable  flag indicating if the operation should be backed up
 	 * @return status
 	 */
-	public static IStatus copy(Map parameters, boolean restoreable) {
+	public static IStatus copy(Map<String, Object> parameters, boolean restoreable) {
 		String target = (String) parameters.get(ActionConstants.PARM_COPY_TARGET);
 		IBackupStore backupStore = restoreable ? (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP) : null;
 
@@ -86,7 +88,7 @@ public class CopyAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		return CleanupcopyAction.cleanupcopy(parameters, false);
 	}
 
@@ -98,9 +100,9 @@ public class CopyAction extends ProvisioningAction {
 	 * @throws IOException
 	 */
 	private static File[] mergeCopy(File source, File target, boolean overwrite, IBackupStore backupStore) throws IOException {
-		ArrayList copiedFiles = new ArrayList();
+		ArrayList<File> copiedFiles = new ArrayList<File>();
 		xcopy(copiedFiles, source, target, overwrite, backupStore);
-		return (File[]) copiedFiles.toArray(new File[copiedFiles.size()]);
+		return copiedFiles.toArray(new File[copiedFiles.size()]);
 	}
 
 	/**
@@ -111,7 +113,7 @@ public class CopyAction extends ProvisioningAction {
 	 * @param overwrite
 	 * @throws IOException
 	 */
-	private static void xcopy(ArrayList copiedFiles, File source, File target, boolean overwrite, IBackupStore backupStore) throws IOException {
+	private static void xcopy(ArrayList<File> copiedFiles, File source, File target, boolean overwrite, IBackupStore backupStore) throws IOException {
 		if (!source.exists())
 			throw new IOException("Source: " + source + "does not exists"); //$NON-NLS-1$//$NON-NLS-2$
 

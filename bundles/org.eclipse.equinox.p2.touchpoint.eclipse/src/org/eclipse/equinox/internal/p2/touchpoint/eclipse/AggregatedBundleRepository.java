@@ -15,23 +15,23 @@ import java.io.OutputStream;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 
 public class AggregatedBundleRepository extends AbstractArtifactRepository implements IFileArtifactRepository {
 
 	private static final String REPOSITORY_TYPE = AggregatedBundleRepository.class.getName();
-	private final Collection bundleRepositories;
+	private final Collection<IFileArtifactRepository> bundleRepositories;
 
-	public AggregatedBundleRepository(Collection bundleRepositories) {
+	public AggregatedBundleRepository(Collection<IFileArtifactRepository> bundleRepositories) {
 		super(REPOSITORY_TYPE, REPOSITORY_TYPE, "1.0", null, null, null, null); //$NON-NLS-1$
 		this.bundleRepositories = bundleRepositories;
 	}
 
 	public File getArtifactFile(IArtifactKey key) {
-		for (Iterator it = bundleRepositories.iterator(); it.hasNext();) {
-			IFileArtifactRepository repository = (IFileArtifactRepository) it.next();
+		for (IFileArtifactRepository repository : bundleRepositories) {
 			File artifactFile = repository.getArtifactFile(key);
 			if (artifactFile != null)
 				return artifactFile;
@@ -40,8 +40,7 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	}
 
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
-		for (Iterator it = bundleRepositories.iterator(); it.hasNext();) {
-			IFileArtifactRepository repository = (IFileArtifactRepository) it.next();
+		for (IFileArtifactRepository repository : bundleRepositories) {
 			File artifactFile = repository.getArtifactFile(descriptor);
 			if (artifactFile != null)
 				return artifactFile;
@@ -50,8 +49,7 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	}
 
 	public boolean contains(IArtifactDescriptor descriptor) {
-		for (Iterator it = bundleRepositories.iterator(); it.hasNext();) {
-			IFileArtifactRepository repository = (IFileArtifactRepository) it.next();
+		for (IFileArtifactRepository repository : bundleRepositories) {
 			if (repository.contains(descriptor))
 				return true;
 		}
@@ -59,8 +57,7 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	}
 
 	public boolean contains(IArtifactKey key) {
-		for (Iterator it = bundleRepositories.iterator(); it.hasNext();) {
-			IFileArtifactRepository repository = (IFileArtifactRepository) it.next();
+		for (IFileArtifactRepository repository : bundleRepositories) {
 			if (repository.contains(key))
 				return true;
 		}
@@ -68,25 +65,13 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	}
 
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
-		Set artifactDescriptors = new HashSet();
-		for (Iterator it = bundleRepositories.iterator(); it.hasNext();) {
-			IFileArtifactRepository repository = (IFileArtifactRepository) it.next();
+		Set<IArtifactDescriptor> artifactDescriptors = new HashSet<IArtifactDescriptor>();
+		for (IFileArtifactRepository repository : bundleRepositories) {
 			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
 			if (descriptors != null)
 				artifactDescriptors.addAll(Arrays.asList(descriptors));
 		}
-		return (IArtifactDescriptor[]) artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
-	}
-
-	public IArtifactKey[] getArtifactKeys() {
-		Set artifactKeys = new HashSet();
-		for (Iterator it = bundleRepositories.iterator(); it.hasNext();) {
-			IFileArtifactRepository repository = (IFileArtifactRepository) it.next();
-			IArtifactKey[] keys = repository.getArtifactKeys();
-			if (keys != null)
-				artifactKeys.addAll(Arrays.asList(keys));
-		}
-		return (IArtifactKey[]) artifactKeys.toArray(new IArtifactKey[artifactKeys.size()]);
+		return artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
 	}
 
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
@@ -109,7 +94,21 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	 * Exposed for testing and debugging purposes.
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	public Collection testGetBundleRepositories() {
+	public Collection<IFileArtifactRepository> testGetBundleRepositories() {
 		return bundleRepositories;
+	}
+
+	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
+		// Query all the all the repositories
+		CompoundQueryable<IArtifactKey> queryable = new CompoundQueryable<IArtifactKey>(bundleRepositories);
+		return queryable.query(query, monitor);
+	}
+
+	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
+		List<IQueryable<IArtifactDescriptor>> descQueryables = new ArrayList<IQueryable<IArtifactDescriptor>>(bundleRepositories.size());
+		for (IFileArtifactRepository repository : bundleRepositories)
+			descQueryables.add(repository.descriptorQueryable());
+
+		return new CompoundQueryable<IArtifactDescriptor>(descQueryables);
 	}
 }

@@ -15,9 +15,9 @@ import java.io.IOException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 
 public class ByteShifter extends ProcessingStep {
 
@@ -33,7 +33,7 @@ public class ByteShifter extends ProcessingStep {
 		basicInitialize(null);
 	}
 
-	private void basicInitialize(ProcessingStepDescriptor descriptor) {
+	private void basicInitialize(IProcessingStepDescriptor descriptor) {
 		// if the status is already set to something that not ok, we've already found a problem.
 		if (!getStatus().isOK())
 			return;
@@ -51,7 +51,7 @@ public class ByteShifter extends ProcessingStep {
 			setStatus(new Status(code, Activator.ID, "ByteShifter operand invalid: " + operand));
 	}
 
-	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+	public void initialize(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(descriptor, context);
 		try {
 			operand = Integer.valueOf(descriptor.getData()).intValue();

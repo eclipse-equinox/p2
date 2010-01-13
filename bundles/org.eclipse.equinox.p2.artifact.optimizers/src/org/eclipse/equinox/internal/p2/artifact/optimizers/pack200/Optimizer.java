@@ -12,16 +12,20 @@ package org.eclipse.equinox.internal.p2.artifact.optimizers.pack200;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 public class Optimizer {
-	private static final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
 	private IArtifactRepository repository;
 
 	public Optimizer(IArtifactRepository repository) {
@@ -29,9 +33,9 @@ public class Optimizer {
 	}
 
 	public void run() {
-		IArtifactKey[] keys = repository.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactKey key = keys[i];
+		IQueryResult<IArtifactKey> keys = repository.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
 			if (!key.getClassifier().equals("plugin")) //$NON-NLS-1$
 				continue;
 			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
@@ -58,9 +62,9 @@ public class Optimizer {
 
 	private void optimize(IArtifactDescriptor descriptor) {
 		ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
-		ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+		IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 		newDescriptor.setProcessingSteps(steps);
-		newDescriptor.setProperty(IArtifactDescriptor.FORMAT, PACKED_FORMAT);
+		newDescriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 		OutputStream repositoryStream = null;
 		try {
 			repositoryStream = repository.getOutputStream(newDescriptor);
@@ -97,7 +101,7 @@ public class Optimizer {
 	}
 
 	private boolean isOptimized(IArtifactDescriptor descriptor) {
-		return PACKED_FORMAT.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT));
+		return IArtifactDescriptor.FORMAT_PACKED.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT));
 	}
 
 }

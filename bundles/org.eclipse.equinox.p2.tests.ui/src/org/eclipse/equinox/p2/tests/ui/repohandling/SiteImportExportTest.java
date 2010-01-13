@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.tests.ui.repohandling;
 
 import java.io.File;
+import org.eclipse.equinox.internal.p2.ui.UpdateManagerCompatibility;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.UpdateManagerCompatibility;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
 public class SiteImportExportTest extends AbstractProvisioningUITest {

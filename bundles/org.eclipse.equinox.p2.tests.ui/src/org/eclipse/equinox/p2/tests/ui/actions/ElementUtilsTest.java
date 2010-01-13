@@ -13,19 +13,17 @@ package org.eclipse.equinox.p2.tests.ui.actions;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
-import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
@@ -59,34 +57,37 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		assertEquals(getMixedIUsAndElements().length, ElementUtils.elementsToIUs(getMixedIUsAndElements()).length);
 	}
 
-	public void testUpdateUsingElements() throws ProvisionException, URISyntaxException {
+	public void testUpdateUsingElements() throws URISyntaxException {
+		ProvisioningSession session = getSession();
 		// Two visible repos, one is added, the other is not
 		URI known1 = new URI("http://example.com/known1");
 		URI known2 = new URI("http://example.com/known2");
-		ProvisioningUtil.addMetadataRepository(known1, false);
+		IMetadataRepositoryManager manager = session.getMetadataRepositoryManager();
+		manager.addRepository(known1);
 
 		// Add system repos that should not be known or affected by ElementUtils
 		// One is an enabled system repo, one is disabled system repo
 		URI uri = new URI("http://example.com/1");
 		URI uri2 = new URI("http://example.com/2");
-		ProvisioningUtil.addMetadataRepository(uri, false);
-		ProvisioningUtil.setMetadataRepositoryProperty(uri, IRepository.PROP_SYSTEM, Boolean.toString(true));
-		ProvisioningUtil.addMetadataRepository(uri2, false);
-		ProvisioningUtil.addArtifactRepository(uri2, false);
-		ProvisioningUtil.setMetadataRepositoryProperty(uri2, IRepository.PROP_SYSTEM, Boolean.toString(true));
-		ProvisioningUtil.setColocatedRepositoryEnablement(uri2, false);
+		manager.addRepository(uri);
+		manager.setRepositoryProperty(uri, IRepository.PROP_SYSTEM, Boolean.toString(true));
+		manager.addRepository(uri2);
+		session.getArtifactRepositoryManager().addRepository(uri2);
+		manager.setRepositoryProperty(uri2, IRepository.PROP_SYSTEM, Boolean.toString(true));
+		manager.setEnabled(uri2, false);
+		session.getArtifactRepositoryManager().setEnabled(uri2, false);
 
 		// The elements reflect all visible sites, but not system sites
-		MetadataRepositories root = new MetadataRepositories(Policy.getDefault());
+		MetadataRepositories root = new MetadataRepositories(getProvisioningUI());
 		List children = new ArrayList();
-		children.addAll(Arrays.asList(root.getChildren(root)));
+		children.add(new MetadataRepositoryElement(null, known1, true));
 		// Add known2, this is as if a user added it in the pref page
 		children.add(new MetadataRepositoryElement(null, known2, true));
 		MetadataRepositoryElement[] elements = (MetadataRepositoryElement[]) children.toArray(new MetadataRepositoryElement[children.size()]);
 
 		// Add a visible repo not known by the elements
 		URI uri3 = new URI("http://example.com/3");
-		ProvisioningUtil.addMetadataRepository(uri3, false);
+		manager.addRepository(uri3);
 
 		// Now update the repo using the elements.  
 		// We expect known2 to get added because it was in the elements
@@ -140,8 +141,8 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 				display.sleep();
 		}
 
-		URI[] enabled = ProvisioningUtil.getMetadataRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		URI[] disabled = ProvisioningUtil.getMetadataRepositories(IRepositoryManager.REPOSITORIES_DISABLED);
+		URI[] enabled = session.getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		URI[] disabled = session.getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED);
 
 		boolean foundKnown1 = false;
 		boolean foundKnown2 = false;
@@ -180,11 +181,11 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		assertTrue("1.4", foundKnown2); // Enabled visible repo in elements was added
 
 		// cleanup
-		ProvisioningUtil.removeMetadataRepository(known1);
-		ProvisioningUtil.removeMetadataRepository(known2);
-		ProvisioningUtil.removeMetadataRepository(uri);
-		ProvisioningUtil.removeMetadataRepository(uri2);
-		ProvisioningUtil.removeArtifactRepository(uri2);
-		ProvisioningUtil.removeMetadataRepository(uri3);
+		manager.removeRepository(known1);
+		manager.removeRepository(known2);
+		manager.removeRepository(uri);
+		manager.removeRepository(uri2);
+		session.getArtifactRepositoryManager().removeRepository(uri2);
+		manager.removeRepository(uri3);
 	}
 }

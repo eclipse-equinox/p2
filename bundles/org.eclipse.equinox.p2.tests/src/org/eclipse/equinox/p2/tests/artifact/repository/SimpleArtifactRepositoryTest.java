@@ -12,23 +12,28 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -80,7 +85,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(base, SimpleArtifactRepository.getActualLocation(base, true));
 	}
 
-	public void testCompressedRepository() throws URISyntaxException, ProvisionException {
+	public void testCompressedRepository() throws ProvisionException {
 		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 		String tempDir = System.getProperty("java.io.tmpdir");
 		repositoryFile = new File(tempDir, "SimpleArtifactRepositoryTest");
@@ -90,7 +95,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 		IArtifactRepository repo = artifactRepositoryManager.createRepository(repositoryURI, "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
 		repo.addDescriptor(descriptor);
 
@@ -113,7 +118,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 			fail("Repository should not create artifact.xml");
 	}
 
-	public void testUncompressedRepository() throws URISyntaxException, ProvisionException {
+	public void testUncompressedRepository() throws ProvisionException {
 		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 		String tempDir = System.getProperty("java.io.tmpdir");
 		repositoryFile = new File(tempDir, "SimpleArtifactRepositoryTest");
@@ -123,7 +128,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		properties.put(IRepository.PROP_COMPRESSED, "false");
 		IArtifactRepository repo = artifactRepositoryManager.createRepository(repositoryURI, "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
 		repo.addDescriptor(descriptor);
 
@@ -158,6 +163,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 
 	public void test_248772() {
 		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
+		factory.setAgent(getAgent());
 		URI location = null;
 		location = new File(getTempFolder(), getUniqueString()).toURI();
 		factory.create(location, "test type", null, null);
@@ -193,7 +199,7 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Failed to create repository", e);
 		}
-		IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", new Version("1.0.0")));
+		IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", Version.create("1.0.0")));
 
 		OutputStream out = null;
 		try {
@@ -247,8 +253,8 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 
 			// Create a descriptor for a packed repo
 			ArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("org.eclipse.update.feature", "test", Version.parseVersion("1.0.0")));
-			descriptor.setProperty(IArtifactDescriptor.FORMAT, "packed");
-			descriptor.setProcessingSteps(new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)});
+			descriptor.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
+			descriptor.setProcessingSteps(new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)});
 
 			// Create repository
 			Map properties = new HashMap();
@@ -261,5 +267,116 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail("Test failed", e);
 		}
+	}
+
+	private static class TestDescriptor implements IArtifactDescriptor {
+		private static final IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[0];
+		private IArtifactKey artifactKey;
+		private Properties properties = new Properties();
+
+		public TestDescriptor(IArtifactKey key) {
+			this.artifactKey = key;
+		}
+
+		public IArtifactKey getArtifactKey() {
+			return artifactKey;
+		}
+
+		public IProcessingStepDescriptor[] getProcessingSteps() {
+			return steps;
+		}
+
+		public Map getProperties() {
+			return properties;
+		}
+
+		public String getProperty(String key) {
+			return properties.getProperty(key);
+		}
+
+		public IArtifactRepository getRepository() {
+			return null;
+		}
+
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (!(obj instanceof IArtifactDescriptor))
+				return false;
+
+			IArtifactDescriptor other = (IArtifactDescriptor) obj;
+			if (!artifactKey.equals(other.getArtifactKey()))
+				return false;
+
+			if (!Arrays.equals(steps, other.getProcessingSteps()))
+				return false;
+
+			String format = getProperty(FORMAT);
+			String otherFormat = other.getProperty(FORMAT);
+			if (format != null ? !format.equals(otherFormat) : otherFormat != null)
+				return false;
+
+			return true;
+		}
+
+		public int hashCode() {
+			String format = getProperty(FORMAT);
+
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((artifactKey == null) ? 0 : artifactKey.hashCode());
+			result = prime * result + Arrays.asList(steps).hashCode();
+			result = prime * result + (format != null ? format.hashCode() : 0);
+			return result;
+		}
+	}
+
+	public void testAddContains() throws Exception {
+		File folder = getTestFolder("simple_AddContains");
+		repositoryURI = folder.toURI();
+
+		Map properties = new HashMap();
+		SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+
+		TestDescriptor descriptor = new TestDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", Version.create("1.0.0")));
+		OutputStream stream = repo.getOutputStream(descriptor);
+		stream.write("I am an artifact\n".getBytes());
+		stream.close();
+
+		assertTrue(repo.contains(descriptor));
+
+		assertTrue(repo.contains(new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", Version.create("1.0.0")))));
+
+	}
+
+	public void testQuery() throws Exception {
+		File folder = getTestFolder("ArtifactRepository_testQuery");
+		repositoryURI = folder.toURI();
+
+		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+
+		ArtifactDescriptor d1 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("1.0.0")));
+		ArtifactDescriptor d2 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
+		ArtifactDescriptor d3 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a", Version.create("2.0.0")));
+		d3.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
+
+		repo.addDescriptor(d1);
+		repo.addDescriptor(d2);
+		repo.addDescriptor(d3);
+
+		IQueryable<IArtifactDescriptor> descQueryable = repo.descriptorQueryable();
+		IQueryResult<IArtifactDescriptor> result = descQueryable.query(new ArtifactDescriptorQuery("a", null, null), null);
+		assertEquals(3, queryResultSize(result));
+
+		result = descQueryable.query(new ArtifactDescriptorQuery(null, new VersionRange("[2.0.0, 3.0.0)"), null), null);
+		assertEquals(2, queryResultSize(result));
+		assertNotContains(result, d1);
+
+		result = descQueryable.query(new ArtifactDescriptorQuery(null, null, IArtifactDescriptor.FORMAT_PACKED), null);
+		assertEquals(1, queryResultSize(result));
+		IArtifactDescriptor resultDescriptor = result.iterator().next();
+		assertEquals(d3.getArtifactKey(), resultDescriptor.getArtifactKey());
 	}
 }

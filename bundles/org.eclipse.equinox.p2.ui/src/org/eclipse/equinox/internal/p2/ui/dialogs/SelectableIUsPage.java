@@ -11,19 +11,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
-import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
-import org.eclipse.jface.dialogs.*;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.internal.p2.ui.viewers.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.SWT;
@@ -46,7 +44,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 	IUElementListRoot root;
 	Object[] initialSelections;
-	PlannerResolutionOperation resolvedOperation;
+	ProfileChangeOperation resolvedOperation;
 	CheckboxTableViewer tableViewer;
 	IUDetailsGroup iuDetailsGroup;
 	ProvElementContentProvider contentProvider;
@@ -55,12 +53,14 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	protected Policy policy;
 	SashForm sashForm;
 
-	public SelectableIUsPage(Policy policy, IUElementListRoot root, Object[] initialSelections, String profileId) {
-		super("IUSelectionPage", profileId); //$NON-NLS-1$
+	public SelectableIUsPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, Object[] initialSelections) {
+		super("IUSelectionPage", ui, wizard); //$NON-NLS-1$
 		this.root = root;
-		this.policy = policy;
+		if (root == null)
+			root = new IUElementListRoot();
 		this.initialSelections = initialSelections;
-		this.profileId = profileId;
+		if (initialSelections == null)
+			initialSelections = new IInstallableUnit[0];
 	}
 
 	/*
@@ -201,13 +201,14 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	protected IInstallableUnit[] elementsToIUs(Object[] elements) {
 		IInstallableUnit[] theIUs = new IInstallableUnit[elements.length];
 		for (int i = 0; i < elements.length; i++) {
-			theIUs[i] = (IInstallableUnit) ProvUI.getAdapter(elements[i], IInstallableUnit.class);
+			theIUs[i] = ProvUI.getAdapter(elements[i], IInstallableUnit.class);
 		}
 		return theIUs;
 	}
 
 	protected void setInitialCheckState() {
-		tableViewer.setCheckedElements(initialSelections);
+		if (initialSelections != null)
+			tableViewer.setCheckedElements(initialSelections);
 	}
 
 	/*
@@ -252,31 +253,6 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		return units[0];
 	}
 
-	/*
-	 * Overridden to handle conditions where continuing with the operation should not be allowed.
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionStatusPage#updateStatus(org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot, org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation)
-	 */
-	public void updateStatus(IUElementListRoot newRoot, PlannerResolutionOperation op) {
-		IStatus specialStatus = null;
-		if (ProvisioningOperationRunner.hasScheduledOperationsFor(profileId)) {
-			specialStatus = PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null);
-		} else if (op == null) {
-			specialStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
-		}
-		if (specialStatus == null) {
-			super.updateStatus(newRoot, op);
-		} else {
-			updateCaches(newRoot, op);
-			setPageComplete(false);
-			if (!isCreated())
-				return;
-			getDetailsGroup().setDetailText(specialStatus.getMessage());
-			setMessage(getMessageText(specialStatus), IMessageProvider.ERROR);
-
-		}
-	}
-
 	protected IUDetailsGroup getDetailsGroup() {
 		return iuDetailsGroup;
 	}
@@ -285,7 +261,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		return tableViewer != null;
 	}
 
-	protected void updateCaches(IUElementListRoot newRoot, PlannerResolutionOperation op) {
+	protected void updateCaches(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		resolvedOperation = op;
 		if (root != newRoot && tableViewer != null)
 			tableViewer.setInput(newRoot);

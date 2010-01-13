@@ -11,8 +11,8 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 /**
  * Tests ranges using format(xxx) version strings.
@@ -66,7 +66,7 @@ public class FormatRangeTest extends VersionTesting {
 	}
 
 	public void testGreaterThanMinimum() {
-		// any version equal or greater than Version.MIN_VERSION is ok 
+		// any version equal or greater than Version.emptyVersion is ok 
 		VersionRange lowerBound = new VersionRange("raw:-M");
 		assertIncludedInRange("0.1", lowerBound, "raw:-M");
 		assertIncludedInRange("1.0", lowerBound, OSGI_PREFIX + "0.9.0");

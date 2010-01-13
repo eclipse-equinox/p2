@@ -12,14 +12,13 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
 import java.net.*;
-import java.util.Iterator;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
 /**	
@@ -104,8 +103,7 @@ public class PlatformConfigurationWrapper {
 	 * Otherwise the default is USER-EXCLUDE.
 	 */
 	private String getDefaultPolicy() {
-		for (Iterator iter = configuration.getSites().iterator(); iter.hasNext();) {
-			Site site = (Site) iter.next();
+		for (Site site : configuration.getSites()) {
 			if (Site.POLICY_MANAGED_ONLY.equals(site.getPolicy()))
 				return Site.POLICY_MANAGED_ONLY;
 		}
@@ -133,10 +131,9 @@ public class PlatformConfigurationWrapper {
 	 * the given URL. Return null if there is no match.
 	 */
 	private Site getSite(URI url) {
-		List sites = configuration.getSites();
+		List<Site> sites = configuration.getSites();
 		File file = URIUtil.toFile(url);
-		for (Iterator iter = sites.iterator(); iter.hasNext();) {
-			Site nextSite = (Site) iter.next();
+		for (Site nextSite : sites) {
 			try {
 				File nextFile = URLUtil.toFile(new URL(nextSite.getUrl()));
 				if (nextFile == null)
@@ -155,9 +152,8 @@ public class PlatformConfigurationWrapper {
 	 * with the given identifier and version. Return null if there is none.
 	 */
 	private Site getSite(String id, String version) {
-		List sites = configuration.getSites();
-		for (Iterator iter = sites.iterator(); iter.hasNext();) {
-			Site site = (Site) iter.next();
+		List<Site> sites = configuration.getSites();
+		for (Site site : sites) {
 			Feature[] features = site.getFeatures();
 			for (int i = 0; i < features.length; i++) {
 				if (id.equals(features[i].getId()) && version.equals(features[i].getVersion()))

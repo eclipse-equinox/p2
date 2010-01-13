@@ -16,7 +16,7 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ILicense;
+import org.eclipse.equinox.p2.metadata.ILicense;
 
 /**
  * The <code>License</code> class represents a software license.  A license has required body text
@@ -38,7 +38,7 @@ public class License implements ILicense {
 	/**
 	 * The <code>digest</code> is the cached message digest of the normalized body
 	 */
-	private BigInteger digest;
+	private String digest;
 
 	/**
 	 * Creates a new license object which is identified by users using the <code>body</code> field.
@@ -49,11 +49,12 @@ public class License implements ILicense {
 	 * @param body the license body, cannot be <code>null</code>
 	 * @throws IllegalArgumentException when the <code>body</code> is <code>null</code>
 	 */
-	public License(URI location, String body) {
+	public License(URI location, String body, String uuid) {
 		if (body == null)
 			throw new IllegalArgumentException("body cannot be null"); //$NON-NLS-1$
 		this.body = body;
 		this.location = location;
+		this.digest = uuid;
 	}
 
 	/**
@@ -78,9 +79,10 @@ public class License implements ILicense {
 	 * version of the license where all whitespace has been reduced to one space.
 	 * @return the message digest as a <code>BigInteger</code>, never <code>null</code>
 	 */
-	public synchronized BigInteger getDigest() {
+	public synchronized String getUUID() {
 		if (digest == null)
-			digest = calculateLicenseDigest();
+			digest = calculateLicenseDigest().toString(16);
+
 		return digest;
 	}
 
@@ -94,7 +96,7 @@ public class License implements ILicense {
 			return false;
 		if (obj instanceof ILicense) {
 			ILicense other = (ILicense) obj;
-			if (other.getDigest().equals(getDigest()))
+			if (other.getUUID().equals(getUUID()))
 				return true;
 		}
 		return false;
@@ -104,7 +106,7 @@ public class License implements ILicense {
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		return getDigest().hashCode();
+		return getUUID().hashCode();
 	}
 
 	private BigInteger calculateLicenseDigest() {

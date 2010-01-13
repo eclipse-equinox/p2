@@ -12,24 +12,26 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.core.CompoundQueryableTest.CompoundQueryTestProgressMonitor;
@@ -101,7 +103,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		try {
 			InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
 			descriptor.setId("testIuId");
-			descriptor.setVersion(new Version("3.2.1"));
+			descriptor.setVersion(Version.create("3.2.1"));
 			IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
 			compRepo.addInstallableUnits(new IInstallableUnit[] {iu});
 			fail("Should not be able to insert InstallableUnit");
@@ -116,7 +118,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		//Try to remove an InstallableUnit.
 		try {
-			compRepo.removeInstallableUnits(InstallableUnitQuery.ANY, null);
+			IQueryResult queryResult = compRepo.query(InstallableUnitQuery.ANY, null);
+			compRepo.removeInstallableUnits((IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class), null);
 			fail("Should not be able to remove InstallableUnit");
 		} catch (UnsupportedOperationException e) {
 			//expected. fall through
@@ -265,7 +268,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertContains("Assert child1's content is in composite repo", repo1, compRepo);
 		assertContains("Assert child2's content is in composite repo", repo2, compRepo);
 		//checks that the destination has the correct number of keys (no extras)
-		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, new Collector(), null), repo2.query(InstallableUnitQuery.ANY, new Collector(), null)), compRepo.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, null), repo2.query(InstallableUnitQuery.ANY, null)), queryResultSize(compRepo.query(InstallableUnitQuery.ANY, null)));
 	}
 
 	public void testRemoveNonexistantChild() {
@@ -430,7 +433,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		compRepo.addChild(repo2Location.toURI());
 
 		//force composite repository to load all children
-		compRepo.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor());
+		compRepo.query(InstallableUnitQuery.ANY, new NullProgressMonitor());
 
 		assertTrue("Ensuring previously loaded repo is enabled", getMetadataRepositoryManager().isEnabled(repo1Location.toURI()));
 		String repo1System = getMetadataRepositoryManager().getRepositoryProperty(repo1Location.toURI(), IRepository.PROP_SYSTEM);
@@ -456,10 +459,9 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
-		Collector collector = compositeRepo.query(new LatestIUVersionQuery(), new Collector(), monitor);
-		Collection collection = collector.toCollection();
-		assertEquals("1.0", 1, collection.size());
-		assertEquals("1.1", new Version(3, 0, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		IQueryResult queryResult = compositeRepo.query(new LatestIUVersionQuery(), monitor);
+		assertEquals("1.0", 1, queryResultSize(queryResult));
+		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) queryResult.iterator().next()).getVersion());
 		assertTrue("1.2", monitor.isDone());
 		assertTrue("1.3", monitor.isWorkDone());
 	}
@@ -478,20 +480,19 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
-		CompositeQuery cQuery = new CompositeQuery(new Query[] {new MatchQuery() {
+		PipedQuery cQuery = new PipedQuery(new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iInstallableUnit = (IInstallableUnit) candidate;
-					if (iInstallableUnit.getVersion().compareTo(new Version(3, 0, 0)) < 0)
+					if (iInstallableUnit.getVersion().compareTo(Version.createOSGi(3, 0, 0)) < 0)
 						return true;
 				}
 				return false;
 			}
-		}, new LatestIUVersionQuery()});
-		Collector collector = compositeRepo.query(cQuery, new Collector(), monitor);
-		Collection collection = collector.toCollection();
-		assertEquals("1.0", 1, collection.size());
-		assertEquals("1.1", new Version(2, 2, 0), ((IInstallableUnit) collection.iterator().next()).getVersion());
+		}, new LatestIUVersionQuery());
+		IQueryResult queryResult = compositeRepo.query(cQuery, monitor);
+		assertEquals("1.0", 1, queryResultSize(queryResult));
+		assertEquals("1.1", Version.createOSGi(2, 2, 0), ((IInstallableUnit) queryResult.iterator().next()).getVersion());
 		assertTrue("1.2", monitor.isDone());
 		assertTrue("1.3", monitor.isWorkDone());
 	}
@@ -535,7 +536,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertContains("Assert child1's content is in composite repo", repo1, compRepo);
 		assertContains("Assert child2's content is in composite repo", repo2, compRepo);
 		//checks that the destination has the correct number of keys (no extras)
-		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, new Collector(), null), repo2.query(InstallableUnitQuery.ANY, new Collector(), null)), compRepo.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, null), repo2.query(InstallableUnitQuery.ANY, null)), queryResultSize(compRepo.query(InstallableUnitQuery.ANY, null)));
 	}
 
 	private CompositeMetadataRepository createRepo(boolean compressed) {
@@ -560,9 +561,9 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	 * Takes 2 collectors, compares them, and returns the number of unique keys
 	 * Needed to verify that only the appropriate number of files have been transfered by the mirror application
 	 */
-	private int getNumUnique(Collector c1, Collector c2) {
-		Object[] repo1 = c1.toCollection().toArray();
-		Object[] repo2 = c2.toCollection().toArray();
+	private int getNumUnique(IQueryResult c1, IQueryResult c2) {
+		Object[] repo1 = c1.toArray(IInstallableUnit.class);
+		Object[] repo2 = c2.toArray(IInstallableUnit.class);
 
 		//initialize to the size of both collectors
 		int numKeys = repo1.length + repo2.length;
@@ -584,11 +585,11 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	 */
 	public void testNonLocalRepo() {
 		try {
-			URI location = new URI("memory:/in/memory");
-			URI childOne = new URI("memory:/in/memory/one");
-			URI childTwo = new URI("memory:/in/memory/two");
-			URI childThree = new URI("memory:/in/memory/three");
-			CompositeMetadataRepository repository = new CompositeMetadataRepository(location, "in memory test", null);
+			URI location = new URI("http://foo.org/in/memory");
+			URI childOne = new URI("http://foo.org/in/memory/one");
+			URI childTwo = new URI("http://foo.org/in/memory/two");
+			URI childThree = new URI("http://foo.org/in/memory/three");
+			CompositeMetadataRepository repository = createRepository(location, "in memory test");
 			repository.addChild(childOne);
 			repository.addChild(childTwo);
 			repository.addChild(childThree);
@@ -606,6 +607,12 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
+	protected CompositeMetadataRepository createRepository(URI location, String name) {
+		CompositeMetadataRepositoryFactory factory = new CompositeMetadataRepositoryFactory();
+		factory.setAgent(getAgent());
+		return (CompositeMetadataRepository) factory.create(location, name, CompositeMetadataRepository.REPOSITORY_TYPE, null);
+	}
+
 	public void testRelativeChildren() {
 		// setup
 		File one = getTestData("0.0", "testData/testRepos/simple.1");
@@ -616,7 +623,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		// create the composite repository and add the children
 		URI location = new File(temp, "comp").toURI();
-		CompositeMetadataRepository repository = new CompositeMetadataRepository(location, "test", null);
+		CompositeMetadataRepository repository = createRepository(location, "test");
 		try {
 			repository.addChild(new URI("../one"));
 			repository.addChild(new URI("../two"));
@@ -627,8 +634,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		// query the number of IUs
 		List children = repository.getChildren();
 		assertEquals("2.0", 2, children.size());
-		Collector collector = repository.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
-		assertEquals("2.1", 2, collector.size());
+		IQueryResult queryResult = repository.query(InstallableUnitQuery.ANY, getMonitor());
+		assertEquals("2.1", 2, queryResultSize(queryResult));
 
 		// ensure the child URIs are stored as relative
 		CompositeRepositoryState state = repository.toState();
@@ -644,10 +651,10 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	public void testRelativeRemoveChild() {
 		try {
-			URI location = new URI("memory:/in/memory");
+			URI location = new URI("http://foo.org/in/memory");
 			URI one = new URI("one");
 			URI two = new URI("two");
-			CompositeMetadataRepository repository = new CompositeMetadataRepository(location, "in memory test", null);
+			CompositeMetadataRepository repository = createRepository(location, "in memory test");
 			repository.addChild(one);
 			repository.addChild(two);
 			List children = repository.getChildren();

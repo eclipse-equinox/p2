@@ -8,11 +8,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-
 import java.util.Dictionary;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.query.IQueryable;
 
 public class PermissiveSlicer extends Slicer {
 	private boolean includeOptionalDependencies; //Cause optional dependencies not be followed as part of the
@@ -22,7 +22,7 @@ public class PermissiveSlicer extends Slicer {
 	private boolean evalFilterTo;
 	private boolean onlyFilteredRequirements;
 
-	public PermissiveSlicer(IQueryable input, Dictionary context, boolean includeOptionalDependencies, boolean everythingGreedy, boolean evalFilterTo, boolean considerOnlyStrictDependency, boolean onlyFilteredRequirements) {
+	public PermissiveSlicer(IQueryable<IInstallableUnit> input, Dictionary<? extends Object, ? extends Object> context, boolean includeOptionalDependencies, boolean everythingGreedy, boolean evalFilterTo, boolean considerOnlyStrictDependency, boolean onlyFilteredRequirements) {
 		super(input, context, true);
 		this.considerFilter = (context != null && context.size() > 1) ? true : false;
 		this.includeOptionalDependencies = includeOptionalDependencies;
@@ -40,14 +40,14 @@ public class PermissiveSlicer extends Slicer {
 		return evalFilterTo;
 	}
 
-	protected boolean isApplicable(IRequiredCapability req) {
+	protected boolean isApplicable(IRequirement req) {
 		//Every filter in this method needs to continue except when the filter does not pass
 		if (!includeOptionalDependencies)
-			if (req.isOptional())
+			if (req.getMin() == 0)
 				return false;
 
 		if (considerOnlyStrictDependency) {
-			if (!req.getRange().getMinimum().equals(req.getRange().getMaximum()))
+			if (!RequiredCapability.isVersionStrict(req.getMatches()))
 				return false;
 		}
 
@@ -66,7 +66,7 @@ public class PermissiveSlicer extends Slicer {
 		return evalFilterTo;
 	}
 
-	protected boolean isGreedy(IRequiredCapability req) {
+	protected boolean isGreedy(IRequirement req) {
 		if (everythingGreedy) {
 			return true;
 		}

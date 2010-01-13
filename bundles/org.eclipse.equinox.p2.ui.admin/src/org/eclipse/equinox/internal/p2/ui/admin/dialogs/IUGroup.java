@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 
@@ -38,7 +38,7 @@ public abstract class IUGroup {
 	}
 
 	public IInstallableUnit getIU() {
-		return (IInstallableUnit) ProvUI.getAdapter(iuElement, IInstallableUnit.class);
+		return ProvUI.getAdapter(iuElement, IInstallableUnit.class);
 	}
 
 	public void updateIU() {

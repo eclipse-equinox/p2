@@ -15,8 +15,8 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstant
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.SetLauncherNameAction;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SetLauncherNameActionTest extends AbstractProvisioningTest {
@@ -31,10 +31,11 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 
 	public void testExecuteUndo() {
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		Properties profileProperties = new Properties();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
@@ -57,13 +58,14 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 
 	public void testEmptyName() {
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 
 		File tempFolder = getTempFolder();
 		Properties profileProperties = new Properties();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, tempFolder.toString());
 		profileProperties.put(IProfile.PROP_ENVIRONMENTS, "osgi.ws=cocoa,osgi.os=macosx,osgi.arch=x86");
-		IProfile profile = createProfile("launcherNameProfile", null, profileProperties);
+		IProfile profile = createProfile("launcherNameProfile", profileProperties);
 
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		touchpoint.initializePhase(null, profile, "test", parameters);
@@ -87,7 +89,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, tempFolder.toString());
 		profileProperties.put(IProfile.PROP_ENVIRONMENTS, "osgi.ws=win32,osgi.os=win32,osgi.arch=x86");
-		IProfile profile = createProfile("changeNameProfile", null, profileProperties);
+		IProfile profile = createProfile("changeNameProfile", profileProperties);
 
 		//profile will start using "eclipse" by default, give it some content and see if it 
 		//survives a name change.
@@ -98,6 +100,7 @@ public class SetLauncherNameActionTest extends AbstractProvisioningTest {
 		writeBuffer(eclipseIni, ini);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);

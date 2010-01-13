@@ -10,23 +10,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
-import java.util.HashSet;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+
+import org.eclipse.equinox.p2.metadata.ILicense;
+
 import org.eclipse.equinox.internal.p2.metadata.License;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.InstallOperation;
+import org.eclipse.equinox.p2.operations.ProfileModificationJob;
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -40,24 +40,31 @@ public class InstallWizardTest extends WizardTest {
 
 	private static final String SELECTION_PAGE = "IUSelectionPage";
 	private static final String AVAILABLE_SOFTWARE_PAGE = "AvailableSoftwarePage";
-	private static final String BROKEN_IU = "RCP_Browser_Example.feature.group";
 	private static final String MAIN_IU = "MainIU";
 
-	public void testInstallWizardResolved() throws ProvisionException {
+	IInstallableUnit toInstall;
+
+	protected void setUp() throws Exception {
+		super.setUp();
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(MAIN_IU);
-		iu.setVersion(new Version(1, 0, 0));
+		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, "true");
+		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setSingleton(true);
-		iu.setLicense(new License(null, "There is a license to accept!"));
+		iu.setLicenses(new ILicense[] {new License(null, "There is a license to accept!", null)});
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});
-		IInstallableUnit toInstall = MetadataFactory.createInstallableUnit(iu);
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(new IInstallableUnit[] {toInstall});
-		PlannerResolutionOperation op = getResolvedOperation(request);
-		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(Policy.getDefault(), TESTPROFILE, new IInstallableUnit[] {toInstall}, op, null);
+		toInstall = MetadataFactory.createInstallableUnit(iu);
+		createTestMetdataRepository(new IInstallableUnit[] {toInstall});
+	}
+
+	public void testInstallWizardResolved() {
+		InstallOperation op = new InstallOperation(getSession(), new IInstallableUnit[] {toInstall});
+		op.setProfileId(TESTPROFILE);
+		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(getProvisioningUI(), op, new IInstallableUnit[] {toInstall}, null);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
+		ProfileModificationJob longOp = null;
 
 		try {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
@@ -66,16 +73,31 @@ public class InstallWizardTest extends WizardTest {
 			// simulate the next button by getting next page and showing
 			IWizardPage page = page1.getNextPage();
 			dialog.showPage(page);
+			// we should be ok
+			assertTrue("1.1", page.isPageComplete());
+
+			// if another operation is scheduled for this profile, we should not be allowed to proceed
+			longOp = getLongTestOperation();
+			getProvisioningUI().schedule(longOp, StatusManager.LOG);
+			// causes recalculation of plan and status
+			wizard.recomputePlan(dialog);
+			// can't move to next page while op is running
+			assertFalse("1.2", page.isPageComplete());
+			longOp.cancel();
+
+			// op is no longer running, recompute plan
+			wizard.recomputePlan(dialog);
+
 			// license needs approval
-			assertFalse("1.1", wizard.canFinish());
+			assertFalse("1.4", wizard.canFinish());
 			// finish button should be disabled
-			while (dialog.getShell().getDisplay().readAndDispatch()) {
-				// run event loop
-			}
+			dialog.updateButtons();
 			Button finishButton = dialog.testGetButton(IDialogConstants.FINISH_ID);
-			assertFalse("1.2", finishButton.isEnabled());
+			assertFalse("1.5", finishButton.isEnabled());
 		} finally {
 			dialog.getShell().close();
+			if (longOp != null)
+				longOp.cancel();
 		}
 	}
 
@@ -83,66 +105,63 @@ public class InstallWizardTest extends WizardTest {
 	 * Tests the wizard
 	 */
 	public void testInstallWizardUnresolved() {
-		Policy policy = Policy.getDefault();
-		IUViewQueryContext context = policy.getQueryContext();
-		context.setViewType(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
-		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(context, false);
-		manager.loadAll(getMonitor());
-		InstallWizard wizard = new InstallWizard(policy, TESTPROFILE, null, null, manager);
+		LoadMetadataRepositoryJob job = new LoadMetadataRepositoryJob(getProvisioningUI());
+		getPolicy().setGroupByCategory(false);
+		job.runModal(getMonitor());
+		InstallWizard wizard = new InstallWizard(getProvisioningUI(), null, null, job);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 
 		dialog.create();
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 
+		ProfileModificationJob longOp = null;
+
 		try {
 			AvailableIUsPage page1 = (AvailableIUsPage) wizard.getPage(AVAILABLE_SOFTWARE_PAGE);
 
 			// test initial wizard state
-			assertTrue(page1.getSelectedIUs().length == 0);
-			assertFalse(page1.isPageComplete());
+			assertTrue("1.0", page1.getSelectedIUs().length == 0);
+			assertFalse("1.1", page1.isPageComplete());
 
 			// Start reaching in...
 			AvailableIUGroup group = page1.testGetAvailableIUGroup();
 			group.setRepositoryFilter(AvailableIUGroup.AVAILABLE_ALL, null);
 			// Now manipulate the tree itself.  we are reaching way in.
+			// We are trying to select everything in the repo apart from the IU we know is broken
 			DeferredQueryContentProvider provider = (DeferredQueryContentProvider) group.getCheckboxTreeViewer().getContentProvider();
 			provider.setSynchronous(true);
 			group.getCheckboxTreeViewer().refresh();
 			group.getCheckboxTreeViewer().expandAll();
 			Tree tree = (Tree) group.getCheckboxTreeViewer().getControl();
 			TreeItem[] items = tree.getItems();
-			HashSet ids = new HashSet();
-			ids.add(BROKEN_IU);
 			for (int i = 0; i < items.length; i++) {
 				Object element = items[i].getData();
 				if (element != null && element instanceof IIUElement) {
 					IInstallableUnit iu = ((IIUElement) element).getIU();
-					if (iu != null && !ids.contains(iu.getId())) {
-						ids.add(iu.getId());
+					if (iu != null && iu.getId().equals(MAIN_IU)) {
 						group.getCheckboxTreeViewer().setChecked(element, true);
 					}
 				}
 			}
 			// must be done this way to force notification of listeners
 			group.setChecked(group.getCheckboxTreeViewer().getCheckedElements());
+			assertTrue("2.0", group.getCheckedLeafIUs().length > 0);
+			assertTrue("2.1", page1.isPageComplete());
 
+			// simulate the user clicking next
 			IWizardPage page = wizard.getNextPage(page1);
-			assertTrue(page instanceof IResolutionErrorReportingPage);
-			IResolutionErrorReportingPage page2 = (IResolutionErrorReportingPage) page;
-			assertTrue(group.getCheckedLeafIUs().length > 0);
-			dialog.showPage(page2);
+			dialog.showPage(page);
+			assertTrue("3.0", page.isPageComplete());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), StatusManager.LOG);
-			assertTrue(page1.isPageComplete());
-
+			longOp = getLongTestOperation();
+			getProvisioningUI().schedule(longOp, StatusManager.LOG);
 			// causes recalculation of plan and status
-			dialog.showPage(page1);
-			wizard.getNextPage(page1);
-			assertTrue(page1.isPageComplete());
-			assertFalse(page2.isPageComplete());
-			job.cancel();
+			wizard.recomputePlan(dialog);
+			// can't move to next page while op is running
+			assertFalse("3.1", page.isPageComplete());
+			longOp.cancel();
 
 			// this doesn't test much, it's just calling group API to flesh out NPE's, etc.
 			group.getCheckedLeafIUs();
@@ -152,6 +171,8 @@ public class InstallWizardTest extends WizardTest {
 
 		} finally {
 			dialog.close();
+			if (longOp != null)
+				longOp.cancel();
 		}
 	}
 }

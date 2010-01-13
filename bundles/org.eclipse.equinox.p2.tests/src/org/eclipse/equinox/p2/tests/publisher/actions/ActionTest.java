@@ -11,21 +11,20 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
-
 import java.io.*;
 import java.util.*;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.osgi.framework.Filter;
 
-@SuppressWarnings( {"cast", "restriction", "unchecked"})
+@SuppressWarnings({"cast", "restriction", "unchecked"})
 public abstract class ActionTest extends AbstractProvisioningTest {
 	protected static final String COMMA_SEPARATOR = ","; //$NON-NLS-1$
 	protected static final String JAR = "jar";//$NON-NLS-1$
@@ -57,18 +56,21 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 
-	protected void verifyProvidedCapability(IProvidedCapability[] prov, String namespace, String name, Version version) {
-		for (int i = 0; i < prov.length; i++)
-			if (prov[i].getName().equalsIgnoreCase(name) && prov[i].getNamespace().equalsIgnoreCase(namespace) && prov[i].getVersion().equals(version))
+	protected void verifyProvidedCapability(Collection<IProvidedCapability> prov, String namespace, String name, Version version) {
+		for (IProvidedCapability pc : prov) {
+			if (pc.getName().equalsIgnoreCase(name) && pc.getNamespace().equalsIgnoreCase(namespace) && pc.getVersion().equals(version))
 				return; // pass
+		}
 		Assert.fail("Missing ProvidedCapability: " + name + version.toString()); //$NON-NLS-1$
 	}
 
-	protected void verifyRequiredCapability(IRequiredCapability[] required, String namespace, String name, VersionRange range) {
-		for (int i = 0; i < required.length; i++)
-			if (required[i].getName().equalsIgnoreCase(name) && required[i].getNamespace().equalsIgnoreCase(namespace) && required[i].getRange().equals(range))
+	protected void verifyRequiredCapability(Collection<IRequirement> requirement, String namespace, String name, VersionRange range) {
+		for (Iterator iterator = requirement.iterator(); iterator.hasNext();) {
+			IRequiredCapability required = (IRequiredCapability) iterator.next();
+			if (required.getName().equalsIgnoreCase(name) && required.getNamespace().equalsIgnoreCase(namespace) && required.getRange().equals(range))
 				return;
-		Assert.fail("Missing RequiredCapability: " + name + range.toString()); //$NON-NLS-1$
+		}
+		Assert.fail("Missing RequiredCapability: " + name + " " + range.toString()); //$NON-NLS-1$
 	}
 
 	protected IInstallableUnit mockIU(String id, Version version) {
@@ -106,30 +108,28 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 		return map;
 	}
 
-	protected void contains(IProvidedCapability[] capabilities, String namespace, String name, Version version) {
-		for (int i = 0; i < capabilities.length; i++) {
-			IProvidedCapability capability = capabilities[i];
+	protected void contains(Collection<IProvidedCapability> capabilities, String namespace, String name, Version version) {
+		for (IProvidedCapability capability : capabilities) {
 			if (capability.getNamespace().equals(namespace) && capability.getName().equals(name) && capability.getVersion().equals(version))
 				return;
 		}
 		fail();
 	}
 
-	protected void contains(IRequiredCapability[] capabilities, String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
-		for (int i = 0; i < capabilities.length; i++) {
-			IRequiredCapability capability = capabilities[i];
+	protected void contains(Collection<IRequirement> capabilities, String namespace, String name, VersionRange range, String filterStr, boolean optional, boolean multiple) {
+		Filter filter = ExpressionUtil.parseLDAP(filterStr);
+		for (Iterator iterator = capabilities.iterator(); iterator.hasNext();) {
+			IRequiredCapability capability = (IRequiredCapability) iterator.next();
 			if (filter == null) {
 				if (capability.getFilter() != null)
 					continue;
 			} else if (!filter.equals(capability.getFilter()))
 				continue;
-			if (multiple != capability.isMultiple())
-				continue;
 			if (!name.equals(capability.getName()))
 				continue;
 			if (!namespace.equals(capability.getNamespace()))
 				continue;
-			if (optional != capability.isOptional())
+			if (optional != (capability.getMin() == 0))
 				continue;
 			if (!range.equals(capability.getRange()))
 				continue;

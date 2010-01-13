@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ChmodAction;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ChmodActionTest extends AbstractProvisioningTest {
@@ -34,7 +34,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("testExecuteUndo", null, profileProperties);
+		IProfile profile = createProfile("testExecuteUndo", profileProperties);
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		File zipTarget = new File(installFolder, "a.zip");

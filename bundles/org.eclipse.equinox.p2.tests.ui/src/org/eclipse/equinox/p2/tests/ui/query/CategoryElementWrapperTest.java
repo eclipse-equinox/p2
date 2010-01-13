@@ -10,16 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.util.Collection;
 import java.util.Iterator;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.EmptyElementExplanation;
 import org.eclipse.equinox.internal.p2.ui.query.CategoryElementWrapper;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.MockQueryable;
 
 /**
@@ -36,7 +38,7 @@ public class CategoryElementWrapperTest extends AbstractQueryTest {
 		iu.setId(id);
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, name);
-		iu.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
+		iu.setProperty(InstallableUnitDescription.PROP_TYPE_CATEGORY, Boolean.toString(true));
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
@@ -84,7 +86,7 @@ public class CategoryElementWrapperTest extends AbstractQueryTest {
 		assertEquals("1.6", 1, results.size());
 
 		//adding a nested category shouldn't affected size
-		IRequiredCapability[] required = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "category1", null);
+		IRequiredCapability[] required = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "category1");
 		IInstallableUnit nested = createIU("Nested", required);
 		collector.accept(nested);
 		results = wrapper.getElements(collector);

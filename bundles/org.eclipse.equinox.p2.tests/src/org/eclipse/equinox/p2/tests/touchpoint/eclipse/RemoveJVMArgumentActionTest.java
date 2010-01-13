@@ -13,8 +13,8 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.RemoveJVMArgumentAction;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class RemoveJVMArgumentActionTest extends AbstractProvisioningTest {
@@ -29,10 +29,11 @@ public class RemoveJVMArgumentActionTest extends AbstractProvisioningTest {
 
 	public void testExecuteUndo() {
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		Properties profileProperties = new Properties();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, getTempFolder().toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		parameters.put("iu", operand.second());

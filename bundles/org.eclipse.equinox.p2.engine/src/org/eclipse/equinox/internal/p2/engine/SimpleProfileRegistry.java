@@ -8,13 +8,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.lang.ref.SoftReference;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
@@ -22,16 +18,18 @@ import java.util.zip.GZIPOutputStream;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
+import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -47,8 +45,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	/**
 	 * Reference to Map of String(Profile id)->Profile. 
 	 */
-	private SoftReference profiles;
-	private Map profileLocks = new HashMap();
+	private SoftReference<Map<String, Profile>> profiles;
+	private Map<String, ProfileLock> profileLocks = new HashMap<String, ProfileLock>();
 
 	private String self;
 
@@ -68,24 +66,38 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	public SimpleProfileRegistry(File registryDirectory, ISurrogateProfileHandler handler, boolean updateSelfProfile) {
 		store = registryDirectory;
 		surrogateProfileHandler = handler;
-		self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
 		Assert.isNotNull(store, "Profile registry requires a directory"); //$NON-NLS-1$
+		findSelf();
 		this.updateSelfProfile = updateSelfProfile;
 	}
 
-	public static File getDefaultRegistryDirectory(AgentLocation agent) {
+	/**
+	 * Determine the id of the "self" profile. This is only applicable for the registry
+	 * of the currently running system.
+	 */
+	private void findSelf() {
+		//the location for the currently running system is registered as a service
+		ServiceReference ref = EngineActivator.getContext().getServiceReference(IAgentLocation.SERVICE_NAME);
+		if (ref == null)
+			return;
+		IAgentLocation location = (IAgentLocation) EngineActivator.getContext().getService(ref);
+		if (location == null)
+			return;
+		if (store.equals(getDefaultRegistryDirectory(location))) {
+			//we are the registry for the currently running system
+			self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
+		}
+		EngineActivator.getContext().ungetService(ref);
+	}
+
+	public static File getDefaultRegistryDirectory(IAgentLocation agent) {
 		File registryDirectory = null;
 		if (agent == null)
 			throw new IllegalStateException("Profile Registry inialization failed: Agent Location is not available"); //$NON-NLS-1$
-		final URL engineDataArea = agent.getDataArea(EngineActivator.ID);
-		try {
-			URL registryURL = new URL(engineDataArea, DEFAULT_STORAGE_DIR);
-			registryDirectory = new File(registryURL.getPath());
-			registryDirectory.mkdirs();
-		} catch (MalformedURLException e) {
-			//this is not possible because we know the above URL is valid
-			throw new IllegalStateException("Profile Registry inialization failed. Agent Location is invalid:" + engineDataArea); //$NON-NLS-1$
-		}
+		final URI engineDataArea = agent.getDataArea(EngineActivator.ID);
+		URI registryURL = URIUtil.append(engineDataArea, DEFAULT_STORAGE_DIR);
+		registryDirectory = new File(registryURL);
+		registryDirectory.mkdirs();
 		return registryDirectory;
 	}
 
@@ -93,12 +105,16 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 * If the current profile for self is marked as a roaming profile, we need
 	 * to update its install and bundle pool locations.
 	 */
-	private void updateSelfProfile(Map profileMap) {
+	private void updateSelfProfile(Map<String, Profile> profileMap) {
 		if (profileMap == null)
 			return;
-		Profile selfProfile = (Profile) profileMap.get(self);
+		Profile selfProfile = profileMap.get(self);
 		if (selfProfile == null)
 			return;
+
+		//register default locale provider where metadata translations are found
+		//TODO ideally this should not be hard-coded to the current profile
+		TranslationSupport.getInstance().setTranslationSource(selfProfile);
 
 		if (DebugHelper.DEBUG_PROFILE_REGISTRY)
 			DebugHelper.debug(PROFILE_REGISTRY, "SimpleProfileRegistry.updateSelfProfile"); //$NON-NLS-1$
@@ -172,7 +188,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.error_parsing_profile, profileFile), e));
 		}
-		return (IProfile) parser.getProfileMap().get(id);
+		return parser.getProfileMap().get(id);
 	}
 
 	public synchronized long[] listProfileTimestamps(String id) {
@@ -209,7 +225,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	private Profile internalGetProfile(String id) {
 		if (SELF.equals(id))
 			id = self;
-		Profile profile = (Profile) getProfileMap().get(id);
+		Profile profile = getProfileMap().get(id);
 		if (profile == null && self != null && self.equals(id))
 			profile = createSurrogateProfile(id);
 
@@ -226,16 +242,15 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		saveProfile(profile);
 		resetProfiles();
-		return (Profile) getProfileMap().get(id);
+		return getProfileMap().get(id);
 	}
 
 	public synchronized IProfile[] getProfiles() {
-		Map profileMap = getProfileMap();
+		Map<String, Profile> profileMap = getProfileMap();
 		Profile[] result = new Profile[profileMap.size()];
 		int i = 0;
-		for (Iterator it = profileMap.values().iterator(); it.hasNext(); i++) {
-			Profile profile = (Profile) it.next();
-			result[i] = profile.snapshot();
+		for (Profile profile : profileMap.values()) {
+			result[i++] = profile.snapshot();
 		}
 		return result;
 	}
@@ -243,16 +258,16 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	/**
 	 * Returns an initialized map of String(Profile id)->Profile. 
 	 */
-	protected Map getProfileMap() {
+	protected Map<String, Profile> getProfileMap() {
 		if (profiles != null) {
-			Map result = (Map) profiles.get();
+			Map<String, Profile> result = profiles.get();
 			if (result != null)
 				return result;
 		}
-		Map result = restore();
+		Map<String, Profile> result = restore();
 		if (result == null)
-			result = new LinkedHashMap(8);
-		profiles = new SoftReference(result);
+			result = new LinkedHashMap<String, Profile>(8);
+		profiles = new SoftReference<Map<String, Profile>>(result);
 		if (updateSelfProfile) {
 			//update self profile on first load
 			updateSelfProfile(result);
@@ -266,18 +281,18 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (current == null)
 			throw new IllegalArgumentException(NLS.bind(Messages.profile_does_not_exist, id));
 
-		ProfileLock lock = (ProfileLock) profileLocks.get(id);
+		ProfileLock lock = profileLocks.get(id);
 		lock.checkLocked();
 
 		current.clearLocalProperties();
 		current.clearInstallableUnits();
 
 		current.addProperties(profile.getLocalProperties());
-		Collector collector = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
-		for (Iterator collectorIt = collector.iterator(); collectorIt.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) collectorIt.next();
+		IQueryResult<IInstallableUnit> queryResult = profile.query(InstallableUnitQuery.ANY, null);
+		for (Iterator<IInstallableUnit> queryResultIt = queryResult.iterator(); queryResultIt.hasNext();) {
+			IInstallableUnit iu = queryResultIt.next();
 			current.addInstallableUnit(iu);
-			Map iuProperties = profile.getInstallableUnitProperties(iu);
+			Map<String, String> iuProperties = profile.getInstallableUnitProperties(iu);
 			if (iuProperties != null)
 				current.addInstallableUnitProperties(iu, iuProperties);
 		}
@@ -291,14 +306,14 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return addProfile(id, null, null);
 	}
 
-	public IProfile addProfile(String id, Map profileProperties) throws ProvisionException {
+	public IProfile addProfile(String id, Map<String, String> profileProperties) throws ProvisionException {
 		return addProfile(id, profileProperties, null);
 	}
 
-	public synchronized IProfile addProfile(String id, Map profileProperties, String parentId) throws ProvisionException {
+	public synchronized IProfile addProfile(String id, Map<String, String> profileProperties, String parentId) throws ProvisionException {
 		if (SELF.equals(id))
 			id = self;
-		Map profileMap = getProfileMap();
+		Map<String, Profile> profileMap = getProfileMap();
 		if (profileMap.get(id) != null)
 			throw new ProvisionException(NLS.bind(Messages.Profile_Duplicate_Root_Profile_Id, id));
 
@@ -306,7 +321,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (parentId != null) {
 			if (SELF.equals(parentId))
 				parentId = self;
-			parent = (Profile) profileMap.get(parentId);
+			parent = profileMap.get(parentId);
 			if (parent == null)
 				throw new ProvisionException(NLS.bind(Messages.Profile_Parent_Not_Found, parentId));
 		}
@@ -324,14 +339,14 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (SELF.equals(profileId))
 			profileId = self;
 		//note we need to maintain a reference to the profile map until it is persisted to prevent gc
-		Map profileMap = getProfileMap();
-		Profile profile = (Profile) profileMap.get(profileId);
+		Map<String, Profile> profileMap = getProfileMap();
+		Profile profile = profileMap.get(profileId);
 		if (profile == null)
 			return;
 
-		String[] subProfileIds = profile.getSubProfileIds();
-		for (int i = 0; i < subProfileIds.length; i++) {
-			removeProfile(subProfileIds[i]);
+		List<String> subProfileIds = profile.getSubProfileIds();
+		for (int i = 0; i < subProfileIds.size(); i++) {
+			removeProfile(subProfileIds.get(i));
 		}
 		internalLockProfile(profile);
 		// The above call recursively locked the parent(s). So save it away to rewind the locking process.
@@ -383,9 +398,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 * Restores the profile registry from disk, and returns the loaded profile map.
 	 * Returns <code>null</code> if unable to read the registry.
 	 */
-	private Map restore() {
+	private Map<String, Profile> restore() {
 		if (store == null || !store.isDirectory())
-			throw new IllegalStateException(Messages.reg_dir_not_available);
+			throw new IllegalStateException(NLS.bind(Messages.reg_dir_not_available, store));
 
 		Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
 		File[] profileDirectories = store.listFiles(new FileFilter() {
@@ -396,7 +411,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		for (int i = 0; i < profileDirectories.length; i++) {
 			String directoryName = profileDirectories[i].getName();
 			String profileId = unescape(directoryName.substring(0, directoryName.lastIndexOf(PROFILE_EXT)));
-			ProfileLock lock = (ProfileLock) profileLocks.get(profileId);
+			ProfileLock lock = profileLocks.get(profileId);
 			if (lock == null) {
 				lock = new ProfileLock(this, profileDirectories[i]);
 				profileLocks.put(profileId, lock);
@@ -502,7 +517,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			return false;
 
 		//check whether the profile contains the p2 engine from 3.5.0 or earlier
-		return profile.available(new InstallableUnitQuery("org.eclipse.equinox.p2.engine", new VersionRange("[0.0.0, 1.0.101)")), new Collector(), null).isEmpty(); //$NON-NLS-1$//$NON-NLS-2$
+		return profile.available(new InstallableUnitQuery("org.eclipse.equinox.p2.engine", new VersionRange("[0.0.0, 1.0.101)")), null).isEmpty(); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private void deleteProfile(String profileId) {
@@ -570,7 +585,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 * 	as written by the Writer class.
 	 */
 	class Parser extends ProfileParser {
-		private final Map profileHandlers = new HashMap();
+		private final Map<String, ProfileHandler> profileHandlers = new HashMap<String, ProfileHandler>();
 
 		public Parser(BundleContext context, String bundleId) {
 			super(context, bundleId);
@@ -613,26 +628,25 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			return this;
 		}
 
-		public Map getProfileMap() {
-			Map profileMap = new HashMap();
-			for (Iterator it = profileHandlers.keySet().iterator(); it.hasNext();) {
-				String profileId = (String) it.next();
+		public Map<String, Profile> getProfileMap() {
+			Map<String, Profile> profileMap = new HashMap<String, Profile>();
+			for (String profileId : profileHandlers.keySet()) {
 				addProfile(profileId, profileMap);
 			}
 			return profileMap;
 		}
 
-		private void addProfile(String profileId, Map profileMap) {
+		private void addProfile(String profileId, Map<String, Profile> profileMap) {
 			if (profileMap.containsKey(profileId))
 				return;
 
-			ProfileHandler profileHandler = (ProfileHandler) profileHandlers.get(profileId);
+			ProfileHandler profileHandler = profileHandlers.get(profileId);
 			Profile parentProfile = null;
 
 			String parentId = profileHandler.getParentId();
 			if (parentId != null) {
 				addProfile(parentId, profileMap);
-				parentProfile = (Profile) profileMap.get(parentId);
+				parentProfile = profileMap.get(parentId);
 			}
 
 			Profile profile = new Profile(profileId, parentProfile, profileHandler.getProperties());
@@ -646,13 +660,10 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				for (int i = 0; i < ius.length; i++) {
 					IInstallableUnit iu = ius[i];
 					profile.addInstallableUnit(iu);
-					Map iuProperties = profileHandler.getIUProperties(iu);
+					Map<String, String> iuProperties = profileHandler.getIUProperties(iu);
 					if (iuProperties != null) {
-						for (Iterator it = iuProperties.entrySet().iterator(); it.hasNext();) {
-							Entry entry = (Entry) it.next();
-							String key = (String) entry.getKey();
-							String value = (String) entry.getValue();
-							profile.setInstallableUnitProperty(iu, key, value);
+						for (Entry<String, String> entry : iuProperties.entrySet()) {
+							profile.setInstallableUnitProperty(iu, entry.getKey(), entry.getValue());
 						}
 					}
 				}
@@ -732,26 +743,12 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	private boolean internalLockProfile(IProfile profile) {
-		ProfileLock lock = (ProfileLock) profileLocks.get(profile.getProfileId());
+		ProfileLock lock = profileLocks.get(profile.getProfileId());
 		if (lock == null) {
 			lock = new ProfileLock(this, new File(store, escape(profile.getProfileId()) + PROFILE_EXT));
 			profileLocks.put(profile.getProfileId(), lock);
 		}
-		if (!lock.lock())
-			return false;
-
-		if (profile.getParentProfile() == null)
-			return true;
-
-		boolean locked = false;
-		try {
-			locked = internalLockProfile(profile.getParentProfile());
-		} finally {
-			// this check is done here to ensure we unlock even if a runtime exception is thrown
-			if (!locked)
-				lock.unlock();
-		}
-		return locked;
+		return lock.lock();
 	}
 
 	private boolean checkTimestamps(IProfile profile, IProfile internalProfile) {
@@ -771,9 +768,6 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				resetProfiles();
 			return false;
 		}
-
-		if (profile.getParentProfile() != null)
-			return checkTimestamps(profile.getParentProfile(), internalProfile.getParentProfile());
 
 		return true;
 	}
@@ -816,10 +810,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	private void internalUnlockProfile(IProfile profile) {
-		if (profile.getParentProfile() != null)
-			internalUnlockProfile(profile.getParentProfile());
-
-		ProfileLock lock = (ProfileLock) profileLocks.get(profile.getProfileId());
+		ProfileLock lock = profileLocks.get(profile.getProfileId());
 		lock.unlock();
 	}
 

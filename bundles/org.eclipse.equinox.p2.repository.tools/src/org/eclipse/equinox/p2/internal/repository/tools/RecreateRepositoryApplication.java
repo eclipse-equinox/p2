@@ -17,31 +17,32 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
-public class RecreateRepositoryApplication {
+public class RecreateRepositoryApplication extends AbstractApplication {
 	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 	private RepositoryDescriptor descriptor;
 	private String repoName = null;
 	boolean removeArtifactRepo = true;
-	private Map repoProperties = null;
-	private Map repoMap = null;
+	private Map<String, String> repoProperties = null;
+	private Map<IArtifactKey, IArtifactDescriptor[]> repoMap = null;
 
-	public IStatus run(IProgressMonitor monitor) throws ProvisionException, IOException {
-
+	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 		try {
 			IArtifactRepository repository = initialize(monitor);
 			removeRepository(repository, monitor);
 			recreateRepository(monitor);
 		} finally {
 			if (removeArtifactRepo) {
-				IArtifactRepositoryManager repositoryManager = Activator.getArtifactRepositoryManager();
+				IArtifactRepositoryManager repositoryManager = getArtifactRepositoryManager();
 				repositoryManager.removeRepository(descriptor.getRepoLocation());
 			}
 		}
@@ -54,7 +55,7 @@ public class RecreateRepositoryApplication {
 	}
 
 	private IArtifactRepository initialize(IProgressMonitor monitor) throws ProvisionException {
-		IArtifactRepositoryManager repositoryManager = Activator.getArtifactRepositoryManager();
+		IArtifactRepositoryManager repositoryManager = getArtifactRepositoryManager();
 		removeArtifactRepo = !repositoryManager.contains(descriptor.getRepoLocation());
 
 		IArtifactRepository repository = repositoryManager.loadRepository(descriptor.getRepoLocation(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, monitor);
@@ -67,46 +68,49 @@ public class RecreateRepositoryApplication {
 		repoName = repository.getName();
 		repoProperties = repository.getProperties();
 
-		repoMap = new HashMap();
-		IArtifactKey[] keys = repository.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(keys[i]);
-			repoMap.put(keys[i], descriptors);
+		repoMap = new HashMap<IArtifactKey, IArtifactDescriptor[]>();
+		IQueryResult<IArtifactKey> keys = repository.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
+			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
+			repoMap.put(key, descriptors);
 		}
 
 		return repository;
 	}
 
-	private void removeRepository(IArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException, IOException {
-		IArtifactRepositoryManager manager = Activator.getArtifactRepositoryManager();
+	private void removeRepository(IArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		manager.removeRepository(repository.getLocation());
 
-		boolean compressed = Boolean.valueOf((String) repoProperties.get(IRepository.PROP_COMPRESSED)).booleanValue();
-		URI realLocation = SimpleArtifactRepository.getActualLocation(repository.getLocation(), compressed);
-		File realFile = URIUtil.toFile(realLocation);
-
-		if (!realFile.exists() || !realFile.delete())
-			throw new ProvisionException(NLS.bind(Messages.exception_unableToRemoveRepo, realFile.toString()));
+		boolean compressed = Boolean.valueOf(repoProperties.get(IRepository.PROP_COMPRESSED)).booleanValue();
+		try {
+			URI realLocation = SimpleArtifactRepository.getActualLocation(repository.getLocation(), compressed);
+			File realFile = URIUtil.toFile(realLocation);
+			if (!realFile.exists() || !realFile.delete())
+				throw new ProvisionException(NLS.bind(Messages.exception_unableToRemoveRepo, realFile.toString()));
+		} catch (IOException e) {
+			throw new ProvisionException(NLS.bind(Messages.exception_unableToRemoveRepo, repository.getLocation().toString()));
+		}
 	}
 
 	private void recreateRepository(IProgressMonitor monitor) throws ProvisionException {
-		IArtifactRepositoryManager manager = Activator.getArtifactRepositoryManager();
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 
 		//add pack200 mappings, the existing repoProperties is not modifiable 
-		Map newProperties = new HashMap(repoProperties);
+		Map<String, String> newProperties = new HashMap<String, String>(repoProperties);
 		newProperties.put(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
 		IArtifactRepository repository = manager.createRepository(descriptor.getRepoLocation(), repoName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, newProperties);
 		if (!(repository instanceof IFileArtifactRepository))
 			throw new ProvisionException(NLS.bind(Messages.exception_notLocalFileRepo, repository.getLocation()));
 
 		IFileArtifactRepository simple = (IFileArtifactRepository) repository;
-		for (Iterator iterator = repoMap.keySet().iterator(); iterator.hasNext();) {
-			IArtifactKey key = (IArtifactKey) iterator.next();
-			IArtifactDescriptor[] descriptors = (IArtifactDescriptor[]) repoMap.get(key);
+		for (IArtifactKey key : repoMap.keySet()) {
+			IArtifactDescriptor[] descriptors = repoMap.get(key);
 
 			String unpackedSize = null;
 			File packFile = null;
-			Set files = new HashSet();
+			Set<File> files = new HashSet<File>();
 			for (int i = 0; i < descriptors.length; i++) {
 				File artifactFile = simple.getArtifactFile(descriptors[i]);
 				files.add(artifactFile);
@@ -137,15 +141,14 @@ public class RecreateRepositoryApplication {
 	}
 
 	private ArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File packFile, String installSize) {
-		final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
 
 		if (packFile != null && packFile.exists()) {
 			ArtifactDescriptor result = new ArtifactDescriptor(key);
 			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, installSize);
 			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(packFile.length()));
-			ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+			IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 			result.setProcessingSteps(steps);
-			result.setProperty(IArtifactDescriptor.FORMAT, PACKED_FORMAT);
+			result.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 			return result;
 		}
 		return null;

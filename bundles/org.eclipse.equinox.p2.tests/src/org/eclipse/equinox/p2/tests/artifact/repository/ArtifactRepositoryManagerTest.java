@@ -19,11 +19,15 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.security.storage.EncodingUtils;
 import org.osgi.framework.BundleException;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -60,7 +64,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.class.getName());
+		manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
 	/**
@@ -109,7 +113,9 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		//bash the repository preference file (don't try this at home, kids)
 		final String REPO_BUNDLE = "org.eclipse.equinox.p2.artifact.repository";
 		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
-		Preferences prefs = prefService.getRootNode().node("/profile/_SELF_/" + REPO_BUNDLE + "/repositories"); //$NON-NLS-1$ //$NON-NLS-2$
+		IAgentLocation agentLocation = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
+		String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
+		Preferences prefs = prefService.getRootNode().node("/profile/" + locationString + "_SELF_/" + REPO_BUNDLE + "/repositories"); //$NON-NLS-1$ //$NON-NLS-2$
 		try {
 			String[] children = prefs.childrenNames();
 			for (int i = 0; i < children.length; i++)
@@ -121,14 +127,13 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 
 		//stop and restart the artifact repository bundle (kids, if I ever catch you doing this I'm taking PackageAdmin away)
 		try {
-			TestActivator.getBundle(REPO_BUNDLE).stop();
-			TestActivator.getBundle(REPO_BUNDLE).start();
+			restartBundle(TestActivator.getBundle(REPO_BUNDLE));
 		} catch (BundleException e) {
 			fail("1.99", e);
 		}
 
 		//everybody's happy again
-		manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.class.getName());
+		manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.SERVICE_NAME);
 		assertTrue("1.0", manager.contains(location));
 	}
 
@@ -157,12 +162,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	public void testPathWithSpaces() {
 		File site = getTestData("Repository", "/testData/artifactRepo/simple with spaces/");
 		URI location = site.toURI();
-		try {
-			IArtifactRepository repository = manager.loadRepository(location, getMonitor());
-			assertEquals("1.0", 2, repository.getArtifactKeys().length);
-		} catch (ProvisionException e) {
-			fail("=.99", e);
-		}
+		assertEquals("1.0", 2, getArtifactKeyCount(location));
 	}
 
 	/**
@@ -217,12 +217,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	public void testUpdateSitePathWithSpaces() {
 		File site = getTestData("Repository", "/testData/updatesite/site with spaces/");
 		URI location = site.toURI();
-		try {
-			IArtifactRepository repository = manager.loadRepository(location, getMonitor());
-			assertEquals("1.0", 3, repository.getArtifactKeys().length);
-		} catch (ProvisionException e) {
-			fail("=.99", e);
-		}
+		assertEquals("1.0", 3, getArtifactKeyCount(location));
 	}
 
 	/**
@@ -280,13 +275,8 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Tests parsing a repository with a duplicate element. See bug 255401.
 	 */
 	public void testDuplicateElement() {
-		try {
-			File duplicateElementXML = getTestData("testDuplicateElement", "testData/artifactRepo/duplicateElement");
-			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(duplicateElementXML.toURI(), null);
-			assertEquals("Ensure correct number of artifact keys exist", 2, repo.getArtifactKeys().length);
-		} catch (ProvisionException e) {
-			fail("Error occured while loading repository with duplicate elements", e);
-		}
+		File duplicateElementXML = getTestData("testDuplicateElement", "testData/artifactRepo/duplicateElement");
+		assertEquals("Ensure correct number of artifact keys exist", 2, getArtifactKeyCount(duplicateElementXML.toURI()));
 	}
 
 	public void testEnablement() {

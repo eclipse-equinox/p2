@@ -13,12 +13,12 @@ import java.util.LinkedList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 
 public class DownloadJob extends Job {
 	static final Object FAMILY = new Object();
 
-	private LinkedList requestsPending;
+	private LinkedList<IArtifactRequest> requestsPending;
 	private SimpleArtifactRepository repository;
 	private IProgressMonitor masterMonitor;
 	private MultiStatus overallStatus;
@@ -28,7 +28,7 @@ public class DownloadJob extends Job {
 		setSystem(true);
 	}
 
-	void initialize(SimpleArtifactRepository repository, LinkedList requestsPending, IProgressMonitor masterMonitor, MultiStatus overallStatus) {
+	void initialize(SimpleArtifactRepository repository, LinkedList<IArtifactRequest> requestsPending, IProgressMonitor masterMonitor, MultiStatus overallStatus) {
 		this.repository = repository;
 		this.requestsPending = requestsPending;
 		this.masterMonitor = masterMonitor;
@@ -53,7 +53,7 @@ public class DownloadJob extends Job {
 			synchronized (requestsPending) {
 				if (requestsPending.isEmpty())
 					break;
-				request = (IArtifactRequest) requestsPending.removeFirst();
+				request = requestsPending.removeFirst();
 			}
 			if (masterMonitor.isCanceled())
 				return Status.CANCEL_STATUS;

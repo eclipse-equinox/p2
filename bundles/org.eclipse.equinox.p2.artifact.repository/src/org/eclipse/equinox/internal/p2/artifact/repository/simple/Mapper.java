@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,7 +53,7 @@ public class Mapper {
 
 	public URI map(URI repositoryLocation, String classifier, String id, String version, String format) {
 		String locationString = URIUtil.toUnencodedString(repositoryLocation);
-		Dictionary values = new Hashtable(5);
+		Dictionary<String, Object> values = new Hashtable<String, Object>(5);
 		if (repositoryLocation != null)
 			values.put(REPOURL, locationString);
 

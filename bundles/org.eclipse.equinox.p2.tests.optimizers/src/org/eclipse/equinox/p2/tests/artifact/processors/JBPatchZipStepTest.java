@@ -10,7 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
+
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 
 import java.io.*;
 import java.util.Arrays;
@@ -19,11 +23,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.processors.jbdiff.JBPatchZipStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.optimizers.TestData;
 
 /**
@@ -53,8 +56,8 @@ public class JBPatchZipStepTest extends TestCase {
 
 		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/org.eclipse.jdt_3.2.0.v20060605-1400.njar");
 		ProcessingStep patcher = new MockableJBPatchZipStep(repoMock);
-		ProcessingStepDescriptor descriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
-		IArtifactKey key = new ArtifactKey("cl", "id1", new Version("1.1"));
+		IProcessingStepDescriptor descriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
+		IArtifactKey key = new ArtifactKey("cl", "id1", Version.create("1.1"));
 		ArtifactDescriptor context = new ArtifactDescriptor(key);
 		patcher.initialize(descriptor, context);
 

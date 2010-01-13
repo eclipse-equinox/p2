@@ -11,14 +11,12 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.*;
-import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
+import org.eclipse.equinox.internal.p2.ui.model.RootElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IInputChangeListener;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -39,7 +37,6 @@ import org.eclipse.ui.progress.WorkbenchJob;
  */
 public class DelayedFilterCheckboxTree extends FilteredTree {
 
-	private static final String LOAD_JOB_NAME = ProvUIMessages.DeferredFetchFilteredTree_RetrievingList;
 	private static final long FILTER_DELAY = 400;
 
 	ToolBar toolBar;
@@ -51,8 +48,8 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	WorkbenchJob filterJob;
 	boolean ignoreFiltering = true;
 	Object viewerInput;
-	ArrayList checkState = new ArrayList();
-	Set expanded = new HashSet();
+	ArrayList<Object> checkState = new ArrayList<Object>();
+	Set<Object> expanded = new HashSet<Object>();
 	ContainerCheckedTreeViewer checkboxViewer;
 
 	public DelayedFilterCheckboxTree(Composite parent, int treeStyle, PatternFilter filter) {
@@ -69,10 +66,8 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				// We use an additive check state cache so we need to remove
 				// previously checked items if the user unchecked them.
 				if (!event.getChecked() && checkState != null) {
-					Iterator iter = checkState.iterator();
-					ArrayList toRemove = new ArrayList(1);
-					while (iter.hasNext()) {
-						Object element = iter.next();
+					ArrayList<Object> toRemove = new ArrayList<Object>(1);
+					for (Object element : checkState) {
 						if (checkboxViewer.getComparer().equals(element, event.getElement())) {
 							toRemove.add(element);
 							// Do not break out of the loop.  We may have duplicate equal
@@ -122,6 +117,8 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				checkboxViewer.getTree().setRedraw(false);
 				display.asyncExec(new Runnable() {
 					public void run() {
+						if (checkboxViewer.getTree().isDisposed())
+							return;
 						rememberExpansions();
 						restoreLeafCheckState();
 						rememberExpansions();
@@ -195,6 +192,9 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				if (event.getResult().isOK()) {
 					display.asyncExec(new Runnable() {
 						public void run() {
+							if (checkboxViewer.getTree().isDisposed())
+								return;
+
 							checkboxViewer.getTree().setRedraw(false);
 							// remember things expanded by the filter
 							rememberExpansions();
@@ -214,22 +214,12 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	void scheduleLoadJob() {
 		if (loadJob != null)
 			return;
-		loadJob = new Job(LOAD_JOB_NAME) {
-			protected IStatus run(IProgressMonitor monitor) {
-				QueryableMetadataRepositoryManager q = null;
-				if (viewerInput instanceof QueryableMetadataRepositoryManager)
-					q = (QueryableMetadataRepositoryManager) viewerInput;
-				else if (viewerInput instanceof QueriedElement && ((QueriedElement) viewerInput).getQueryable() instanceof QueryableMetadataRepositoryManager)
-					q = (QueryableMetadataRepositoryManager) ((QueriedElement) viewerInput).getQueryable();
-				if (q != null) {
-					q.loadAll(monitor);
-					q.reportAccumulatedStatus();
-				}
-				if (monitor.isCanceled())
-					return Status.CANCEL_STATUS;
-				return Status.OK_STATUS;
-			}
-		};
+		ProvisioningUI ui;
+		if (viewerInput instanceof RootElement)
+			ui = ((RootElement) viewerInput).getProvisioningUI();
+		else
+			ui = ProvisioningUI.getDefaultUI();
+		loadJob = new LoadMetadataRepositoryJob(ui);
 		loadJob.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
 				if (event.getResult().isOK()) {
@@ -243,9 +233,6 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		});
 		loadJob.setSystem(true);
 		loadJob.setUser(false);
-		// Telling the operation runner about it ensures that listeners know we are running
-		// a provisioning-related job.
-		ProvisioningOperationRunner.manageJob(loadJob);
 		loadJob.schedule();
 	}
 
@@ -267,7 +254,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		ContainerCheckedTreeViewer v = (ContainerCheckedTreeViewer) getViewer();
 		Object[] checked = v.getCheckedElements();
 		if (checkState == null)
-			checkState = new ArrayList(checked.length);
+			checkState = new ArrayList<Object>(checked.length);
 		for (int i = 0; i < checked.length; i++)
 			if (!v.getGrayed(checked[i]) && contentProvider.getChildren(checked[i]).length == 0)
 				if (!checkState.contains(checked[i]))
@@ -284,7 +271,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		checkboxViewer.setGrayedElements(new Object[0]);
 		// Now we are only going to set the check state of the leaf nodes
 		// and rely on our container checked code to update the parents properly.
-		Iterator iter = checkState.iterator();
+		Iterator<Object> iter = checkState.iterator();
 		Object element = null;
 		if (iter.hasNext())
 			checkboxViewer.expandAll();

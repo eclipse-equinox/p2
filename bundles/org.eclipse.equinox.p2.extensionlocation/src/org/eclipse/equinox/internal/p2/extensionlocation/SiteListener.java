@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,7 +21,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.update.Site;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -105,16 +106,16 @@ public class SiteListener extends DirectoryChangeListener {
 	/*
 	 * Create a new site listener on the given site.
 	 */
-	public SiteListener(Map properties, String url, DirectoryChangeListener delegate) {
+	public SiteListener(Map<String, String> properties, String url, DirectoryChangeListener delegate) {
 		this.siteLocation = url;
 		this.delegate = delegate;
-		this.policy = (String) properties.get(SITE_POLICY);
-		Collection listCollection = new HashSet();
-		String listString = (String) properties.get(SITE_LIST);
+		this.policy = properties.get(SITE_POLICY);
+		Collection<String> listCollection = new HashSet<String>();
+		String listString = properties.get(SITE_LIST);
 		if (listString != null)
 			for (StringTokenizer tokenizer = new StringTokenizer(listString, ","); tokenizer.hasMoreTokens();) //$NON-NLS-1$
 				listCollection.add(tokenizer.nextToken());
-		this.list = (String[]) listCollection.toArray(new String[listCollection.size()]);
+		this.list = listCollection.toArray(new String[listCollection.size()]);
 	}
 
 	/* (non-Javadoc)
@@ -220,8 +221,8 @@ public class SiteListener extends DirectoryChangeListener {
 		String urlString = siteLocation;
 		if (urlString.endsWith(Constants.EXTENSION_LOCATION))
 			urlString = urlString.substring(0, urlString.length() - Constants.EXTENSION_LOCATION.length());
-		List result = new ArrayList();
-		for (Enumeration e = properties.elements(); e.hasMoreElements();) {
+		List<String> result = new ArrayList<String>();
+		for (Enumeration<Object> e = properties.elements(); e.hasMoreElements();) {
 			String line = (String) e.nextElement();
 			StringTokenizer tokenizer = new StringTokenizer(line, ";"); //$NON-NLS-1$
 			String targetSite = tokenizer.nextToken();
@@ -229,7 +230,7 @@ public class SiteListener extends DirectoryChangeListener {
 				continue;
 			result.add(tokenizer.nextToken());
 		}
-		toBeRemoved = (String[]) result.toArray(new String[result.size()]);
+		toBeRemoved = result.toArray(new String[result.size()]);
 		return toBeRemoved;
 	}
 
@@ -241,7 +242,7 @@ public class SiteListener extends DirectoryChangeListener {
 	private String[] getManagedFiles() {
 		if (managedFiles != null)
 			return managedFiles;
-		List result = new ArrayList();
+		List<String> result = new ArrayList<String>();
 		File siteFile;
 		try {
 			siteFile = URIUtil.toFile(new URI(siteLocation));
@@ -249,24 +250,23 @@ public class SiteListener extends DirectoryChangeListener {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to create a URL from site location: " + siteLocation, e)); //$NON-NLS-1$
 			return new String[0];
 		}
-		Map pluginCache = getPlugins(siteFile);
-		Map featureCache = getFeatures(siteFile);
-		for (Iterator iter = featureCache.keySet().iterator(); iter.hasNext();) {
-			File featureFile = (File) iter.next();
+		Map<String, File> pluginCache = getPlugins(siteFile);
+		Map<File, Feature> featureCache = getFeatures(siteFile);
+		for (File featureFile : featureCache.keySet()) {
 			// add the feature path
 			result.add(featureFile.toString());
-			Feature feature = (Feature) featureCache.get(featureFile);
+			Feature feature = featureCache.get(featureFile);
 			FeatureEntry[] entries = feature.getEntries();
 			for (int inner = 0; inner < entries.length; inner++) {
 				FeatureEntry entry = entries[inner];
 				// grab the right location from the plug-in cache
 				String key = entry.getId() + '/' + entry.getVersion();
-				File pluginLocation = (File) pluginCache.get(key);
+				File pluginLocation = pluginCache.get(key);
 				if (pluginLocation != null)
 					result.add(pluginLocation.toString());
 			}
 		}
-		managedFiles = (String[]) result.toArray(new String[result.size()]);
+		managedFiles = result.toArray(new String[result.size()]);
 		return managedFiles;
 	}
 
@@ -274,8 +274,8 @@ public class SiteListener extends DirectoryChangeListener {
 	 * Iterate over the feature directory and return a map of 
 	 * File to Feature objects (from the generator bundle)
 	 */
-	private Map getFeatures(File location) {
-		Map result = new HashMap();
+	private Map<File, Feature> getFeatures(File location) {
+		Map<File, Feature> result = new HashMap<File, Feature>();
 		File featureDir = new File(location, FEATURES);
 		File[] children = featureDir.listFiles();
 		for (int i = 0; i < children.length; i++) {
@@ -294,9 +294,9 @@ public class SiteListener extends DirectoryChangeListener {
 	 * Iterate over the plugins directory and return a map of
 	 * plug-in id/version to File locations.
 	 */
-	private Map getPlugins(File location) {
+	private Map<String, File> getPlugins(File location) {
 		File[] plugins = new File(location, PLUGINS).listFiles();
-		Map result = new HashMap();
+		Map<String, File> result = new HashMap<String, File>();
 		for (int i = 0; plugins != null && i < plugins.length; i++) {
 			File bundleLocation = plugins[i];
 			if (bundleLocation.isDirectory() || bundleLocation.getName().endsWith(".jar")) { //$NON-NLS-1$

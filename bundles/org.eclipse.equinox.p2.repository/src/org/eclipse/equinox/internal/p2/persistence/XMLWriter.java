@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
 import java.io.*;
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import java.util.Map.Entry;
 
 public class XMLWriter implements XMLConstants {
 
@@ -51,7 +53,7 @@ public class XMLWriter implements XMLConstants {
 		}
 	}
 
-	private Stack elements; // XML elements that have not yet been closed
+	private Stack<String> elements; // XML elements that have not yet been closed
 	private boolean open; // Can attributes be added to the current element?
 	private String indent; // used for each level of indentation
 
@@ -60,7 +62,7 @@ public class XMLWriter implements XMLConstants {
 	public XMLWriter(OutputStream output, ProcessingInstruction[] piElements) throws UnsupportedEncodingException {
 		this.pw = new PrintWriter(new OutputStreamWriter(output, "UTF8"), false); //$NON-NLS-1$
 		println(ProcessingInstruction.XML_UTF8);
-		this.elements = new Stack();
+		this.elements = new Stack<String>();
 		this.open = false;
 		this.indent = "  "; //$NON-NLS-1$
 		if (piElements != null) {
@@ -101,7 +103,7 @@ public class XMLWriter implements XMLConstants {
 		if (this.elements.empty()) {
 			throw new EndWithoutStartError();
 		}
-		String name = (String) this.elements.pop();
+		String name = this.elements.pop();
 		if (this.open) {
 			println("/>"); //$NON-NLS-1$
 		} else {
@@ -217,17 +219,16 @@ public class XMLWriter implements XMLConstants {
 		this.pw.flush();
 	}
 
-	public void writeProperties(Map properties) {
+	public void writeProperties(Map<String, String> properties) {
 		writeProperties(PROPERTIES_ELEMENT, properties);
 	}
 
-	public void writeProperties(String propertiesElement, Map properties) {
+	public void writeProperties(String propertiesElement, Map<String, String> properties) {
 		if (properties != null && properties.size() > 0) {
 			start(propertiesElement);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, properties.size());
-			for (Iterator iter = properties.keySet().iterator(); iter.hasNext();) {
-				String name = (String) iter.next();
-				writeProperty(name, (String) properties.get(name));
+			for (Entry<String, String> entry : properties.entrySet()) {
+				writeProperty(entry.getKey(), entry.getValue());
 			}
 			end(propertiesElement);
 		}

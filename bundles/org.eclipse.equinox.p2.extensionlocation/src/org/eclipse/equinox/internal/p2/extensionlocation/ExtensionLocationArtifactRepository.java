@@ -15,18 +15,19 @@ import java.io.*;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 
-public class ExtensionLocationArtifactRepository extends AbstractRepository implements IFileArtifactRepository, Constants {
+public class ExtensionLocationArtifactRepository extends AbstractRepository<IArtifactKey> implements IFileArtifactRepository, Constants {
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.artifactRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = new Integer(1);
-	public static final List STANDARD_P2_REPOSITORY_FILE_NAMES = Arrays.asList(new Object[] {"artifacts.xml", "content.xml", "compositeArtifacts.xml", "compositeContent.xml"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	public static final List<String> STANDARD_P2_REPOSITORY_FILE_NAMES = Arrays.asList(new String[] {"artifacts.xml", "content.xml", "compositeArtifacts.xml", "compositeContent.xml"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	IFileArtifactRepository artifactRepository;
 	private File base;
@@ -186,11 +187,6 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		return artifactRepository.getArtifactDescriptors(key);
 	}
 
-	public IArtifactKey[] getArtifactKeys() {
-		ensureInitialized();
-		return artifactRepository.getArtifactKeys();
-	}
-
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		ensureInitialized();
 		return artifactRepository.getArtifacts(requests, monitor);
@@ -211,7 +207,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		return artifactRepository.getArtifactFile(descriptor);
 	}
 
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		ensureInitialized();
 		return artifactRepository.getProperties();
 	}
@@ -228,5 +224,19 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		state = SiteListener.UNINITIALIZED;
 		ensureInitialized();
 		return oldValue;
+	}
+
+	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+		return artifactRepository.createArtifactDescriptor(key);
+	}
+
+	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
+		ensureInitialized();
+		return artifactRepository.descriptorQueryable();
+	}
+
+	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
+		ensureInitialized();
+		return artifactRepository.query(query, monitor);
 	}
 }

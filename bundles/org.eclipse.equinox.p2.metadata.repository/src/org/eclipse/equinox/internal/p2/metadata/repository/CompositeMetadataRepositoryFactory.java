@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
+import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
+
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.*;
 import java.net.URI;
 import java.util.Map;
@@ -19,10 +23,9 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactory {
@@ -32,8 +35,14 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 	public static final String CONTENT_FILENAME = "compositeContent"; //$NON-NLS-1$
 
-	public IMetadataRepository create(URI location, String name, String type, Map properties) {
-		return new CompositeMetadataRepository(location, name, properties);
+	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) {
+		return new CompositeMetadataRepository(getManager(), location, name, properties);
+	}
+
+	private IMetadataRepositoryManager getManager() {
+		if (getAgent() != null)
+			return (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		return null;
 	}
 
 	/**
@@ -58,7 +67,10 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		//file is not local, create a cache of the repository metadata
-		localFile = Activator.getCacheManager().createCache(location, CONTENT_FILENAME, monitor);
+		CacheManager cache = (CacheManager) getAgent().getService(CacheManager.SERVICE_NAME);
+		if (cache == null)
+			throw new IllegalArgumentException("Cache manager service not available"); //$NON-NLS-1$
+		localFile = cache.createCache(location, CONTENT_FILENAME, monitor);
 		if (localFile == null) {
 			//there is no remote file in either form
 			String msg = NLS.bind(Messages.io_failedRead, location);
@@ -69,7 +81,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IStatus validate(URI location, IProgressMonitor monitor) {
 		try {
@@ -81,7 +93,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		return validateAndLoad(location, true, flags, monitor);
@@ -124,7 +136,7 @@ public class CompositeMetadataRepositoryFactory extends MetadataRepositoryFactor
 					CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, CompositeMetadataRepository.PI_REPOSITORY_TYPE, sub.newChild(100));
 					if (resultState.getLocation() == null)
 						resultState.setLocation(location);
-					CompositeMetadataRepository result = new CompositeMetadataRepository(resultState);
+					CompositeMetadataRepository result = new CompositeMetadataRepository(getManager(), resultState);
 					if (Tracing.DEBUG_METADATA_PARSING) {
 						time += System.currentTimeMillis();
 						Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 

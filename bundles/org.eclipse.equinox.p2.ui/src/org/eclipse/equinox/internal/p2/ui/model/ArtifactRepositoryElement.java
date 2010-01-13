@@ -12,18 +12,14 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.net.URI;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
-import org.eclipse.ui.progress.IElementCollector;
 
 /**
  * Element wrapper class for a artifact repository that gets its
@@ -31,11 +27,12 @@ import org.eclipse.ui.progress.IElementCollector;
  * 
  * @since 3.4
  */
-public class ArtifactRepositoryElement extends ProvElement implements IDeferredWorkbenchAdapter, IRepositoryElement {
+public class ArtifactRepositoryElement extends RemoteQueriedElement implements IRepositoryElement<IArtifactKey> {
 
 	URI location;
 	IArtifactRepository repo;
 	boolean isEnabled;
+	ProvisioningUI ui;
 
 	public ArtifactRepositoryElement(Object parent, URI location) {
 		this(parent, location, true);
@@ -45,8 +42,10 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 		super(parent);
 		this.location = location;
 		this.isEnabled = isEnabled;
+		ui = ProvUIActivator.getDefault().getProvisioningUI();
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IArtifactRepository.class)
 			return getRepository(null);
@@ -59,18 +58,6 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 		return ProvUIImages.IMG_ARTIFACT_REPOSITORY;
 	}
 
-	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
-		IArtifactRepository repository = (IArtifactRepository) getRepository(monitor);
-		if (repository == null)
-			return new ArtifactElement[0];
-		IArtifactKey[] keys = repository.getArtifactKeys();
-		ArtifactElement[] elements = new ArtifactElement[keys.length];
-		for (int i = 0; i < keys.length; i++) {
-			elements[i] = new ArtifactElement(this, keys[i], repo);
-		}
-		return elements;
-	}
-
 	public String getLabel(Object o) {
 		String name = getName();
 		if (name != null && name.length() > 0) {
@@ -79,32 +66,16 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 		return URIUtil.toUnencodedString(getLocation());
 	}
 
-	public IRepository getRepository(IProgressMonitor monitor) {
+	public IArtifactRepository getRepository(IProgressMonitor monitor) {
 		if (repo == null)
 			try {
-				repo = ProvisioningUtil.loadArtifactRepository(location, monitor);
+				repo = ui.getSession().getArtifactRepositoryManager().loadRepository(location, monitor);
 			} catch (ProvisionException e) {
 				handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, location));
 			} catch (OperationCanceledException e) {
 				// Nothing to report
 			}
 		return repo;
-	}
-
-	public ISchedulingRule getRule(Object object) {
-		return null;
-	}
-
-	public boolean isContainer() {
-		return true;
-	}
-
-	public void fetchDeferredChildren(Object o, IElementCollector collector, IProgressMonitor monitor) {
-		collector.add(fetchChildren(o, monitor), monitor);
-	}
-
-	public Object[] getChildren(Object o) {
-		return fetchChildren(o, null);
 	}
 
 	/* (non-Javadoc)
@@ -119,16 +90,12 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getName()
 	 */
 	public String getName() {
-		try {
-			String name = ProvisioningUtil.getArtifactRepositoryProperty(location, IRepository.PROP_NICKNAME);
-			if (name == null)
-				name = ProvisioningUtil.getArtifactRepositoryProperty(location, IRepository.PROP_NAME);
-			if (name == null)
-				name = ""; //$NON-NLS-1$
-			return name;
-		} catch (ProvisionException e) {
-			return ""; //$NON-NLS-1$
-		}
+		String name = ui.getSession().getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+		if (name == null)
+			name = ui.getSession().getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
+		if (name == null)
+			name = ""; //$NON-NLS-1$
+		return name;
 	}
 
 	/*
@@ -136,14 +103,10 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
 	public String getDescription() {
-		try {
-			String description = ProvisioningUtil.getArtifactRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
-			if (description == null)
-				return ""; //$NON-NLS-1$
-			return description;
-		} catch (ProvisionException e) {
+		String description = ui.getSession().getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
+		if (description == null)
 			return ""; //$NON-NLS-1$
-		}
+		return description;
 	}
 
 	/* (non-Javadoc)
@@ -158,5 +121,23 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	 */
 	public void setEnabled(boolean enabled) {
 		isEnabled = enabled;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.model.QueriedElement#getDefaultQueryType()
+	 */
+	protected int getDefaultQueryType() {
+		return QueryProvider.AVAILABLE_ARTIFACTS;
+	}
+
+	/*
+	 * overridden to lazily fetch repository
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryable()
+	 */
+	public IQueryable<?> getQueryable() {
+		if (queryable == null)
+			queryable = getRepository(new NullProgressMonitor());
+		return queryable;
 	}
 }

@@ -10,13 +10,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.comparator;
 
+import org.eclipse.equinox.p2.internal.repository.comparator.java.*;
+
+import org.eclipse.equinox.p2.repository.tools.comparator.IArtifactComparator;
+
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.jar.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class JarComparator implements IArtifactComparator {
@@ -80,8 +86,8 @@ public class JarComparator implements IArtifactComparator {
 			if (firstFileSize != secondFileSize) {
 				return newErrorStatus(NLS.bind(Messages.differentNumberOfEntries, new String[] {descriptorString, sourceLocation, Integer.toString(firstFileSize), destinationLocation, Integer.toString(secondFileSize)}));
 			}
-			for (Enumeration enumeration = firstFile.entries(); enumeration.hasMoreElements();) {
-				ZipEntry entry = (ZipEntry) enumeration.nextElement();
+			for (Enumeration<? extends ZipEntry> enumeration = firstFile.entries(); enumeration.hasMoreElements();) {
+				ZipEntry entry = enumeration.nextElement();
 				String entryName = entry.getName();
 				final ZipEntry entry2 = secondFile.getEntry(entryName);
 				if (!entry.isDirectory() && entry2 != null) {
@@ -145,8 +151,7 @@ public class JarComparator implements IArtifactComparator {
 		Attributes attributes2 = manifest2.getMainAttributes();
 		if (attributes.size() != attributes2.size())
 			return false;
-		for (Iterator iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
-			Map.Entry entry = (Map.Entry) iterator.next();
+		for (Entry<Object, Object> entry : attributes.entrySet()) {
 			Object value2 = attributes2.get(entry.getKey());
 			if (value2 == null) {
 				return false;
@@ -192,7 +197,7 @@ public class JarComparator implements IArtifactComparator {
 			return false;
 
 		props1.keys();
-		for (Iterator iterator = props1.keySet().iterator(); iterator.hasNext();) {
+		for (Iterator<Object> iterator = props1.keySet().iterator(); iterator.hasNext();) {
 			String key = (String) iterator.next();
 			if (!props2.containsKey(key))
 				return false;

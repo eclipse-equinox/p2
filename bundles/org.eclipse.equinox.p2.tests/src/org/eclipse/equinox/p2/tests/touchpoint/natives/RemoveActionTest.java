@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.p2.touchpoint.natives.IBackupStore;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.RemoveAction;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class RemoveActionTest extends AbstractProvisioningTest {
@@ -34,7 +34,7 @@ public class RemoveActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("testExecuteUndo", null, profileProperties);
+		IProfile profile = createProfile("testExecuteUndo", profileProperties);
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);

@@ -14,11 +14,12 @@ import java.io.File;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug254481dataSet2 extends AbstractProvisioningTest {
@@ -43,16 +44,16 @@ public class Bug254481dataSet2 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallFeaturePatch() {
-		Collector c = repo.query(new InstallableUnitQuery("org.eclipse.jdt.feature.patch.feature.group"), new Collector(), new NullProgressMonitor());
-		assertEquals(1, c.size());
+		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.jdt.feature.patch.feature.group"), new NullProgressMonitor());
+		assertEquals(1, queryResultSize(c));
 		IInstallableUnit patch = (IInstallableUnit) c.iterator().next();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {patch});
 		request.setInstallableUnitInclusionRules(patch, PlannerHelper.createOptionalInclusionRule(patch));
 		IPlanner planner = createPlanner();
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertInstallOperand(plan, patch);
-		assertEquals(1, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.jdt.core"), new Collector(), null).size());
-		assertEquals(1, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.jdt.core.manipulation"), new Collector(), null).size());
+		assertEquals(1, queryResultSize(plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.jdt.core"), null)));
+		assertEquals(1, queryResultSize(plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.jdt.core.manipulation"), null)));
 	}
 }

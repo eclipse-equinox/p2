@@ -17,9 +17,9 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.DownloadManager;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -34,7 +34,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	 * Tests invocation of DownloadManager when there is nothing to download.
 	 */
 	public void testEmpty() {
-		DownloadManager manager = new DownloadManager(null);
+		DownloadManager manager = createDownloadManager(null);
 		IStatus result = manager.start(null);
 		assertTrue("1.0", result.isOK());
 	}
@@ -44,7 +44,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	 */
 	public void testEmptyWithContext() {
 		ProvisioningContext context = new ProvisioningContext();
-		DownloadManager manager = new DownloadManager(context);
+		DownloadManager manager = createDownloadManager(context);
 		IStatus result = manager.start(null);
 		assertTrue("1.0", result.isOK());
 	}
@@ -54,7 +54,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	 */
 	public void testAddNullArtifactRequest() {
 		ProvisioningContext context = new ProvisioningContext();
-		DownloadManager manager = new DownloadManager(context);
+		DownloadManager manager = createDownloadManager(context);
 		try {
 			manager.add((IArtifactRequest) null);
 		} catch (RuntimeException e) {
@@ -65,7 +65,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	public void testAddNullArtifactRequestArray() {
 		ProvisioningContext context = new ProvisioningContext();
-		DownloadManager manager = new DownloadManager(context);
+		DownloadManager manager = createDownloadManager(context);
 		try {
 			manager.add((IArtifactRequest[]) null);
 		} catch (RuntimeException e) {
@@ -76,7 +76,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	public void testAddEmptyArtifactRequestArray() {
 		ProvisioningContext context = new ProvisioningContext();
-		DownloadManager manager = new DownloadManager(context);
+		DownloadManager manager = createDownloadManager(context);
 		manager.add(new IArtifactRequest[0]);
 		IStatus result = manager.start(null);
 		assertTrue("1.0", result.isOK());
@@ -84,7 +84,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	public void testAddArtifactRequestArrayContainingNull() {
 		ProvisioningContext context = new ProvisioningContext();
-		DownloadManager manager = new DownloadManager(context);
+		DownloadManager manager = createDownloadManager(context);
 		try {
 			IArtifactRequest[] requests = new IArtifactRequest[] {null};
 			manager.add(requests);
@@ -96,7 +96,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	public void testAddArtifactRequest() {
 		ProvisioningContext context = new ProvisioningContext();
-		DownloadManager manager = new DownloadManager(context);
+		DownloadManager manager = createDownloadManager(context);
 
 		IArtifactRequest request = createArtifactRequest();
 		manager.add(request);
@@ -108,7 +108,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	public void testContext() {
 		ProvisioningContext context = new ProvisioningContext();
 		context.setArtifactRepositories(new URI[0]);
-		DownloadManager manager = new DownloadManager(context);
+		DownloadManager manager = createDownloadManager(context);
 
 		IArtifactRequest request = createArtifactRequest();
 		manager.add(request);
@@ -119,7 +119,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 
 	public void testAddArtifactRequestArray() {
 		ProvisioningContext context = new ProvisioningContext();
-		DownloadManager manager = new DownloadManager(context);
+		DownloadManager manager = createDownloadManager(context);
 
 		IArtifactRequest[] requests = new IArtifactRequest[] {createArtifactRequest()};
 		manager.add(requests);
@@ -144,7 +144,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	public void testEmptyArtifactRepositoryListContext() {
 		ProvisioningContext context = new ProvisioningContext();
 		context.setArtifactRepositories(new URI[0]);
-		DownloadManager manager = new DownloadManager(context);
+		DownloadManager manager = createDownloadManager(context);
 
 		IArtifactRequest[] requests = new IArtifactRequest[] {createArtifactRequest()};
 		manager.add(requests);
@@ -163,7 +163,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		}
 
 		context.setArtifactRepositories(artifactRepos);
-		DownloadManager manager = new DownloadManager(context);
+		DownloadManager manager = createDownloadManager(context);
 
 		IArtifactRequest[] requests = new IArtifactRequest[] {createArtifactRequest()};
 		manager.add(requests);
@@ -182,7 +182,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		}
 
 		context.setArtifactRepositories(artifactRepos);
-		DownloadManager manager = new DownloadManager(context);
+		DownloadManager manager = createDownloadManager(context);
 
 		IArtifactRequest[] requests = new IArtifactRequest[] {createArtifactRequest()};
 		manager.add(requests);
@@ -201,11 +201,15 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		}
 
 		context.setArtifactRepositories(artifactRepos);
-		DownloadManager manager = new DownloadManager(context);
+		DownloadManager manager = createDownloadManager(context);
 
 		IArtifactRequest[] requests = new IArtifactRequest[] {createArtifactRequest()};
 		manager.add(requests);
 		IStatus result = manager.start(null);
 		assertTrue("1.0", result.isOK());
+	}
+
+	private DownloadManager createDownloadManager(ProvisioningContext context) {
+		return new DownloadManager(context, getArtifactRepositoryManager());
 	}
 }

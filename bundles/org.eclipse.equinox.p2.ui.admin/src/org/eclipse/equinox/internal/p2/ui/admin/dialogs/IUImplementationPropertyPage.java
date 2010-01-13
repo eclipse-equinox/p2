@@ -11,9 +11,9 @@
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -31,7 +31,7 @@ public class IUImplementationPropertyPage extends PropertyPage {
 	private IUImplementationGroup iuGroup;
 
 	protected Control createContents(Composite parent) {
-		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(getElement(), IInstallableUnit.class);
+		IInstallableUnit iu = ProvUI.getAdapter(getElement(), IInstallableUnit.class);
 		if (iu == null) {
 			Label label = new Label(parent, SWT.DEFAULT);
 			label.setText(ProvAdminUIMessages.No_Property_Item_Selected);

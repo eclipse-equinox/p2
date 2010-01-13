@@ -18,12 +18,11 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.ManifestElement;
@@ -53,35 +52,29 @@ public class Util {
 	 */
 	public static final int AGGREGATE_CACHE_EXTENSIONS = 0x04;
 
-	public static AgentLocation getAgentLocation() {
-		return (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
+	public static IAgentLocation getAgentLocation(IProvisioningAgent agent) {
+		return (IAgentLocation) agent.getService(IAgentLocation.class.getName());
 	}
 
-	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+	public static IArtifactRepositoryManager getArtifactRepositoryManager(IProvisioningAgent agent) {
+		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
-	public static URI getBundlePoolLocation(IProfile profile) {
+	public static URI getBundlePoolLocation(IProvisioningAgent agent, IProfile profile) {
 		String path = profile.getProperty(IProfile.PROP_CACHE);
 		if (path != null)
 			return new File(path).toURI();
-		AgentLocation location = getAgentLocation();
+		IAgentLocation location = getAgentLocation(agent);
 		if (location == null)
 			return null;
-		try {
-			return URIUtil.toURI(location.getDataArea(Activator.ID));
-		} catch (URISyntaxException e) {
-			// unexpected, URLs should be pre-checked
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
-			throw new RuntimeException(e);
-		}
+		return location.getDataArea(Activator.ID);
 	}
 
-	public static synchronized IFileArtifactRepository getBundlePoolRepository(IProfile profile) {
-		URI location = getBundlePoolLocation(profile);
+	public static synchronized IFileArtifactRepository getBundlePoolRepository(IProvisioningAgent agent, IProfile profile) {
+		URI location = getBundlePoolLocation(agent, profile);
 		if (location == null)
 			return null;
-		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager(agent);
 		try {
 			return (IFileArtifactRepository) manager.loadRepository(location, null);
 		} catch (ProvisionException e) {
@@ -89,7 +82,7 @@ public class Util {
 		}
 		try {
 			String repositoryName = Messages.BundlePool;
-			Map properties = new HashMap(1);
+			Map<String, String> properties = new HashMap<String, String>(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			return (IFileArtifactRepository) manager.createRepository(location, repositoryName, REPOSITORY_TYPE, properties);
 		} catch (ProvisionException e) {
@@ -98,15 +91,15 @@ public class Util {
 		}
 	}
 
-	public static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile) {
-		return getAggregatedBundleRepository(profile, AGGREGATE_CACHE | AGGREGATE_SHARED_CACHE | AGGREGATE_CACHE_EXTENSIONS);
+	public static IFileArtifactRepository getAggregatedBundleRepository(IProvisioningAgent agent, IProfile profile) {
+		return getAggregatedBundleRepository(agent, profile, AGGREGATE_CACHE | AGGREGATE_SHARED_CACHE | AGGREGATE_CACHE_EXTENSIONS);
 	}
 
-	public static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile, int repoFilter) {
-		List bundleRepositories = new ArrayList();
+	public static IFileArtifactRepository getAggregatedBundleRepository(IProvisioningAgent agent, IProfile profile, int repoFilter) {
+		List<IFileArtifactRepository> bundleRepositories = new ArrayList<IFileArtifactRepository>();
 
 		// we check for a shared bundle pool first as it should be preferred over the user bundle pool in a shared install
-		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager(agent);
 		if ((repoFilter & AGGREGATE_SHARED_CACHE) != 0) {
 			String sharedCache = profile.getProperty(IProfile.PROP_SHARED_CACHE);
 			if (sharedCache != null) {
@@ -114,7 +107,7 @@ public class Util {
 					URI repoLocation = new File(sharedCache).toURI();
 					IArtifactRepository repository = manager.loadRepository(repoLocation, null);
 					if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
-						bundleRepositories.add(repository);
+						bundleRepositories.add((IFileArtifactRepository) repository);
 				} catch (ProvisionException e) {
 					//skip repository if it could not be read
 				}
@@ -122,16 +115,15 @@ public class Util {
 		}
 
 		if ((repoFilter & AGGREGATE_CACHE) != 0) {
-			IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+			IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(agent, profile);
 			if (bundlePool != null)
 				bundleRepositories.add(bundlePool);
 		}
 
 		if ((repoFilter & AGGREGATE_CACHE_EXTENSIONS) != 0) {
-			List repos = getListProfileProperty(profile, CACHE_EXTENSIONS);
-			for (Iterator iterator = repos.iterator(); iterator.hasNext();) {
+			List<String> repos = getListProfileProperty(profile, CACHE_EXTENSIONS);
+			for (String repo : repos) {
 				try {
-					String repo = (String) iterator.next();
 					URI repoLocation;
 					try {
 						repoLocation = new URI(repo);
@@ -141,7 +133,7 @@ public class Util {
 					}
 					IArtifactRepository repository = manager.loadRepository(repoLocation, null);
 					if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
-						bundleRepositories.add(repository);
+						bundleRepositories.add((IFileArtifactRepository) repository);
 				} catch (ProvisionException e) {
 					//skip repositories that could not be read
 				} catch (URISyntaxException e) {
@@ -153,8 +145,8 @@ public class Util {
 		return new AggregatedBundleRepository(bundleRepositories);
 	}
 
-	private static List getListProfileProperty(IProfile profile, String key) {
-		List listProperty = new ArrayList();
+	private static List<String> getListProfileProperty(IProfile profile, String key) {
+		List<String> listProperty = new ArrayList<String>();
 		String dropinRepositories = profile.getProperty(key);
 		if (dropinRepositories != null) {
 			StringTokenizer tokenizer = new StringTokenizer(dropinRepositories, PIPE);
@@ -172,20 +164,21 @@ public class Util {
 
 		bundleInfo.setManifest(manifest);
 		try {
-			Map headers = ManifestElement.parseBundleManifest(new ByteArrayInputStream(manifest.getBytes("UTF-8")), new HashMap()); //$NON-NLS-1$
-			ManifestElement[] element = ManifestElement.parseHeader("bsn", (String) headers.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
+			@SuppressWarnings("unchecked")
+			Map<String, String> headers = ManifestElement.parseBundleManifest(new ByteArrayInputStream(manifest.getBytes("UTF-8")), new HashMap<String, String>()); //$NON-NLS-1$
+			ManifestElement[] element = ManifestElement.parseHeader("bsn", headers.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
 			if (element == null || element.length == 0)
 				return null;
 			bundleInfo.setSymbolicName(element[0].getValue());
 
-			String version = (String) headers.get(Constants.BUNDLE_VERSION);
+			String version = headers.get(Constants.BUNDLE_VERSION);
 			if (version == null)
 				return null;
 			// convert to a Version object first to ensure we are consistent with our version number w.r.t.
 			// padding zeros at the end
 			bundleInfo.setVersion(Version.parseVersion(version).toString());
 
-			String fragmentHost = (String) headers.get(Constants.FRAGMENT_HOST);
+			String fragmentHost = headers.get(Constants.FRAGMENT_HOST);
 			if (fragmentHost != null)
 				bundleInfo.setFragmentHost(fragmentHost.trim());
 
@@ -201,8 +194,8 @@ public class Util {
 		return bundleInfo;
 	}
 
-	public static File getArtifactFile(IArtifactKey artifactKey, IProfile profile) {
-		IFileArtifactRepository aggregatedView = getAggregatedBundleRepository(profile);
+	public static File getArtifactFile(IProvisioningAgent agent, IArtifactKey artifactKey, IProfile profile) {
+		IFileArtifactRepository aggregatedView = getAggregatedBundleRepository(agent, profile);
 		File bundleJar = aggregatedView.getArtifactFile(artifactKey);
 		return bundleJar;
 	}
@@ -303,9 +296,9 @@ public class Util {
 		return null;
 	}
 
-	public static String getManifest(ITouchpointData[] data) {
-		for (int i = 0; i < data.length; i++) {
-			ITouchpointInstruction manifestInstruction = data[i].getInstruction("manifest"); //$NON-NLS-1$
+	public static String getManifest(List<ITouchpointData> data) {
+		for (int i = 0; i < data.size(); i++) {
+			ITouchpointInstruction manifestInstruction = data.get(i).getInstruction("manifest"); //$NON-NLS-1$
 			if (manifestInstruction == null)
 				return null;
 			String manifest = manifestInstruction.getBody();
@@ -328,7 +321,7 @@ public class Util {
 		return launcherConfig == null ? null : new File(launcherConfig);
 	}
 
-	public static String resolveArtifactParam(Map parameters) throws CoreException {
+	public static String resolveArtifactParam(Map<String, Object> parameters) throws CoreException {
 		String artifactLocation = (String) parameters.get(EclipseTouchpoint.PARM_ARTIFACT_LOCATION);
 		if (artifactLocation != null)
 			return artifactLocation;

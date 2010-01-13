@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
@@ -34,7 +34,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", Version.parseVersion("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.0.0]"), null));
+		a1 = createIU("A", Version.parseVersion("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.0.0]")));
 		b1 = createIU("B", Version.parseVersion("1.0.0"));
 		// Note: C has an "optional" dependency on "B"
 		c1 = createIU("C", Version.parseVersion("1.0.0"), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.0.0]"), null, true, false)});
@@ -44,28 +44,44 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 	}
 
 	public void testRemoveUnresolvedIU() {
-		assertEquals(IStatus.OK, engine.perform(profile, new DefaultPhaseSet(), new Operand[] {new InstallableUnitOperand(null, a1), new InstallableUnitPropertyOperand(a1, "org.eclipse.equinox.p2.internal.inclusion.rules", null, "STRICT")}, new ProvisioningContext(new URI[0]), new NullProgressMonitor()).getSeverity());
-		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().contains(a1));
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.setAbsoluteMode(true);
+		request.addInstallableUnits(new IInstallableUnit[] {a1});
+		request.setInstallableUnitInclusionRules(a1, PlannerHelper.createStrictInclusionRule(a1));
+		final ProvisioningContext context = new ProvisioningContext(new URI[0]);
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+		assertEquals(IStatus.OK, engine.perform(plan, new NullProgressMonitor()).getSeverity());
+		assertContains(profile.query(InstallableUnitQuery.ANY, null), a1);
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.removeInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
-		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
-		assertEquals(IStatus.OK, PlanExecutionHelper.executePlan(plan, engine, new ProvisioningContext(new URI[0]), new NullProgressMonitor()).getSeverity());
-		assertFalse(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().contains(a1));
+
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req, null, null);
+		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
+		assertEquals(IStatus.OK, PlanExecutionHelper.executePlan(plan2, engine, context, new NullProgressMonitor()).getSeverity());
+		assertNotContains(profile.query(InstallableUnitQuery.ANY, null), a1);
 	}
 
 	public void testAvailableVsQueryInProfile() {
-		assertEquals(IStatus.OK, engine.perform(profile, new DefaultPhaseSet(), new Operand[] {new InstallableUnitOperand(null, c1), new InstallableUnitPropertyOperand(c1, "org.eclipse.equinox.p2.internal.inclusion.rules", null, "STRICT")}, new ProvisioningContext(new URI[0]), new NullProgressMonitor()).getSeverity());
-		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().contains(c1));
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.setAbsoluteMode(true);
+		request.addInstallableUnits(new IInstallableUnit[] {c1});
+		request.setInstallableUnitInclusionRules(c1, PlannerHelper.createStrictInclusionRule(c1));
+		final ProvisioningContext context = new ProvisioningContext(new URI[0]);
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+		assertEquals(IStatus.OK, engine.perform(plan, new NullProgressMonitor()).getSeverity());
+		assertContains(profile.query(InstallableUnitQuery.ANY, null), c1);
 
 		IProfile availableWrapper = new IProfile() {
-			public Collector available(Query query, Collector collector, IProgressMonitor monitor) {
-				profile.query(query, collector, monitor);
+			public IQueryResult available(IQuery query, IProgressMonitor monitor) {
+				IQueryResult queryResult = profile.query(query, monitor);
+				Collector collector = new Collector();
+				collector.addAll(queryResult);
 
 				Collection ius = new ArrayList();
 				ius.add(b1);
-				return query.perform(ius.iterator(), collector);
+				collector.addAll(query.perform(ius.iterator()));
+				return collector;
 			}
 
 			// everything else is delegated
@@ -75,18 +91,6 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 
 			public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
 				return profile.getInstallableUnitProperty(iu, key);
-			}
-
-			public Map getLocalProperties() {
-				return profile.getLocalProperties();
-			}
-
-			public String getLocalProperty(String key) {
-				return profile.getLocalProperty(key);
-			}
-
-			public IProfile getParentProfile() {
-				return profile.getParentProfile();
 			}
 
 			public String getProfileId() {
@@ -101,33 +105,21 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 				return profile.getProperty(key);
 			}
 
-			public String[] getSubProfileIds() {
-				return profile.getSubProfileIds();
-			}
-
 			public long getTimestamp() {
 				return profile.getTimestamp();
 			}
 
-			public boolean hasSubProfiles() {
-				return profile.hasSubProfiles();
-			}
-
-			public boolean isRootProfile() {
-				return profile.isRootProfile();
-			}
-
-			public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-				return profile.query(query, collector, monitor);
+			public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+				return profile.query(query, monitor);
 			}
 		};
 
 		ProfileChangeRequest req = new ProfileChangeRequest(availableWrapper);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
-		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req, null, null);
+		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 
 		//expect to have both (a1+inclusion rule) and b1 added
-		assertEquals(3, plan.getOperands().length);
+		assertEquals(2, countPlanElements(plan2));
 	}
 }

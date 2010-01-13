@@ -8,13 +8,17 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SimpleOptionalTest3 extends AbstractProvisioningTest {
@@ -33,21 +37,21 @@ public class SimpleOptionalTest3 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		b1 = createIU("B", new Version("1.0.0"), true);
-		b2 = createIU("B", new Version("2.0.0"), true);
-		b3 = createIU("B", new Version("3.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
+		b2 = createIU("B", Version.create("2.0.0"), true);
+		b3 = createIU("B", Version.create("3.0.0"), true);
 
-		c1 = createIU("C", new Version("1.0.0"), true);
-		c2 = createIU("C", new Version("2.0.0"), true);
+		c1 = createIU("C", Version.create("1.0.0"), true);
+		c2 = createIU("C", Version.create("2.0.0"), true);
 
-		d1 = createIU("D", new Version("1.0.0"), true);
-		d2 = createIU("D", new Version("2.0.0"), true);
+		d1 = createIU("D", Version.create("1.0.0"), true);
+		d2 = createIU("D", Version.create("2.0.0"), true);
 
 		IRequiredCapability[] reqA = new IRequiredCapability[3];
 		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
 		reqA[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true);
 		reqA[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, true, false, true);
-		a1 = createIU("A", new Version("1.0.0"), reqA);
+		a1 = createIU("A", Version.create("1.0.0"), reqA);
 
 		IRequiredCapability[] req = new IRequiredCapability[1];
 		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 2.0.0]"), null, false, false, true);
@@ -63,7 +67,7 @@ public class SimpleOptionalTest3 extends AbstractProvisioningTest {
 		//Ensure that A and X1's installation does not fail because of C's absence
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1, x1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
 		assertInstallOperand(plan, c2);

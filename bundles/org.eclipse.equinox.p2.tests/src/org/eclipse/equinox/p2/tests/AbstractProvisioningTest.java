@@ -19,23 +19,29 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.osgi.framework.*;
 
 /**
  * Base class for provisioning tests with convenience methods used by multiple tests.
@@ -71,6 +77,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected List profilesToRemove = new ArrayList();
 
 	private File testFolder = null;
+	protected Object previousSelfValue = null;
 
 	public static void assertEmptyProfile(IProfile profile) {
 		assertNotNull("The profile should not be null", profile);
@@ -199,7 +206,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		InstallableUnitFragmentDescription fragment = new InstallableUnitFragmentDescription();
 		fragment.setId(name);
 		fragment.setVersion(DEFAULT_VERSION);
-		fragment.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		fragment.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		fragment.setTouchpointType(TOUCHPOINT_OSGI);
 		fragment.addTouchpointData(NO_TP_DATA);
 		fragment.setHost(BUNDLE_REQUIREMENT);
@@ -225,7 +232,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static IDirector createDirector() {
-		return (IDirector) ServiceHelper.getService(TestActivator.getContext(), IDirector.class.getName());
+		return (IDirector) ServiceHelper.getService(TestActivator.getContext(), IDirector.SERVICE_NAME);
 	}
 
 	/**
@@ -263,8 +270,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/**
 	 * Creates and returns a correctly formatted LDAP filter with the given key and value.
 	 */
-	protected static String createFilter(String filterKey, String filterValue) {
-		return "(" + filterKey + '=' + filterValue + ')';
+	protected static Filter createFilter(String filterKey, String filterValue) {
+		return ExpressionUtil.parseLDAP("(" + filterKey + '=' + filterValue + ')');
 	}
 
 	/**
@@ -304,6 +311,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
 	public static IInstallableUnit createIU(String name, String filter, IProvidedCapability[] additionalProvides) {
+		return createIU(name, ExpressionUtil.parseLDAP(filter), additionalProvides);
+	}
+
+	public static IInstallableUnit createIU(String name, Filter filter, IProvidedCapability[] additionalProvides) {
 		return createIU(name, DEFAULT_VERSION, filter, NO_REQUIRES, additionalProvides, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
@@ -356,6 +367,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
 	public static IInstallableUnit createIU(String name, Version version, String filter, IProvidedCapability[] additionalProvides) {
+		return createIU(name, version, ExpressionUtil.parseLDAP(filter), additionalProvides);
+	}
+
+	public static IInstallableUnit createIU(String name, Version version, Filter filter, IProvidedCapability[] additionalProvides) {
 		return createIU(name, version, filter, NO_REQUIRES, additionalProvides, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
@@ -363,7 +378,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, String filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton) {
+	public static IInstallableUnit createIU(String name, Version version, Filter filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton) {
 		return createIU(name, version, filter, required, additionalProvides, properties, tpType, tpData, singleton, null, null);
 	}
 
@@ -371,7 +386,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return createIUPatch(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, singleton, null, changes, scope, lifeCycle, NO_REQUIRES);
 	}
 
-	public static IInstallableUnitPatch createIUPatch(String name, Version version, String filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirementChange[] reqChanges, IRequiredCapability[][] scope, IRequiredCapability lifeCycle, IRequiredCapability[] metaRequirements) {
+	public static IInstallableUnitPatch createIUPatch(String name, Version version, Filter filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirementChange[] reqChanges, IRequiredCapability[][] scope, IRequiredCapability lifeCycle, IRequiredCapability[] metaRequirements) {
 		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
 		iu.setId(name);
 		iu.setVersion(version);
@@ -400,7 +415,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return MetadataFactory.createInstallableUnitPatch(iu);
 	}
 
-	public static IInstallableUnit createIU(String name, Version version, String filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequiredCapability[] metaRequirements) {
+	public static IInstallableUnit createIU(String name, Version version, Filter filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequiredCapability[] metaRequirements) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(name);
 		iu.setVersion(version);
@@ -444,47 +459,45 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		InstallableUnitFragmentDescription fragment = new InstallableUnitFragmentDescription();
 		fragment.setId(name);
 		fragment.setVersion(version);
-		fragment.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		fragment.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		fragment.setRequiredCapabilities(required);
 		fragment.setTouchpointType(tpType);
 		if (tpData != null)
 			fragment.addTouchpointData(tpData);
 		if (host != null) {
 			VersionRange hostRange = new VersionRange(host.getVersion(), true, host.getVersion(), true);
-			fragment.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, host.getId(), hostRange, null, false, false)});
+			fragment.setHost(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, host.getId(), hostRange, null, false, false)});
 		}
 		fragment.setCapabilities(new IProvidedCapability[] {getSelfCapability(name, version)});
 		return MetadataFactory.createInstallableUnitFragment(fragment);
 	}
 
 	public static void changeVersion(InstallableUnitDescription desc, Version newVersion) {
-		IProvidedCapability[] capabilities = desc.getProvidedCapabilities();
-		for (int i = 0; i < capabilities.length; i++) {
-			if (desc.getVersion().equals(capabilities[i].getVersion()))
-				capabilities[i] = MetadataFactory.createProvidedCapability(capabilities[i].getNamespace(), capabilities[i].getName(), newVersion);
+		List<IProvidedCapability> capabilities = new ArrayList(desc.getProvidedCapabilities());
+		for (int i = 0; i < capabilities.size(); i++) {
+			IProvidedCapability pc = capabilities.get(i);
+			if (desc.getVersion().equals(pc.getVersion()))
+				capabilities.set(i, MetadataFactory.createProvidedCapability(pc.getNamespace(), pc.getName(), newVersion));
 		}
 		desc.setVersion(newVersion);
+		desc.setCapabilities(capabilities.toArray(new IProvidedCapability[capabilities.size()]));
 	}
 
 	public static MetadataFactory.InstallableUnitDescription createIUDescriptor(IInstallableUnit prototype) {
 		InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
-		desc.setArtifacts(prototype.getArtifacts());
-		IProvidedCapability originalCapabilities[] = prototype.getProvidedCapabilities();
-		IProvidedCapability newCapabilities[] = new IProvidedCapability[originalCapabilities.length];
-		for (int i = 0; i < originalCapabilities.length; i++) {
-			newCapabilities[i] = MetadataFactory.createProvidedCapability(originalCapabilities[i].getNamespace(), originalCapabilities[i].getName(), originalCapabilities[i].getVersion());
-		}
-		desc.setCapabilities(newCapabilities);
+		Collection<IArtifactKey> originalArtifacts = prototype.getArtifacts();
+		desc.setArtifacts(originalArtifacts.toArray(new IArtifactKey[originalArtifacts.size()]));
+		Collection<IProvidedCapability> originalCapabilities = prototype.getProvidedCapabilities();
+		desc.setCapabilities(originalCapabilities.toArray(new IProvidedCapability[originalCapabilities.size()]));
 		desc.setCopyright(prototype.getCopyright());
 		desc.setFilter(prototype.getFilter());
 		desc.setId(prototype.getId());
-		desc.setLicense(prototype.getLicense());
-		IRequiredCapability[] originalRequirements = prototype.getRequiredCapabilities();
-		IRequiredCapability[] newRequirements = new IRequiredCapability[originalRequirements.length];
-		for (int i = 0; i < newRequirements.length; i++) {
-			newRequirements[i] = MetadataFactory.createRequiredCapability(originalRequirements[i].getNamespace(), originalRequirements[i].getName(), originalRequirements[i].getRange(), originalRequirements[i].getFilter(), originalRequirements[i].isOptional(), originalRequirements[i].isMultiple(), originalRequirements[i].isGreedy());
-		}
-		desc.setRequiredCapabilities(prototype.getRequiredCapabilities());
+		Collection<ILicense> originalLicenses = prototype.getLicenses();
+		desc.setLicenses(originalLicenses.toArray(new ILicense[originalLicenses.size()]));
+		Collection<IRequirement> originalRequirements = prototype.getRequiredCapabilities();
+		desc.setRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
+		originalRequirements = prototype.getMetaRequiredCapabilities();
+		desc.setMetaRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
 		desc.setSingleton(prototype.isSingleton());
 		desc.setTouchpointType(MetadataFactory.createTouchpointType(prototype.getTouchpointType().getId(), prototype.getTouchpointType().getVersion()));
 		desc.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(prototype.getUpdateDescriptor().getId(), prototype.getUpdateDescriptor().getRange(), prototype.getUpdateDescriptor().getSeverity(), prototype.getUpdateDescriptor().getDescription()));
@@ -499,20 +512,29 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static IPlanner createPlanner() {
-		return (IPlanner) ServiceHelper.getService(TestActivator.getContext(), IPlanner.class.getName());
+		return (IPlanner) ServiceHelper.getService(TestActivator.getContext(), IPlanner.SERVICE_NAME);
 	}
 
 	/**
 	 * Creates and returns a required capability with the provided attributes.
 	 */
+	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name) {
+		return createRequiredCapabilities(namespace, name, ANY_VERSION, (Filter) null);
+	}
+
 	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, String filter) {
 		return createRequiredCapabilities(namespace, name, ANY_VERSION, filter);
 	}
 
-	/**
-	 * Creates and returns a required capability with the provided attributes.
-	 */
+	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range) {
+		return createRequiredCapabilities(namespace, name, range, (Filter) null);
+	}
+
 	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
+		return createRequiredCapabilities(namespace, name, range, ExpressionUtil.parseLDAP(filter));
+	}
+
+	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, Filter filter) {
 		return new IRequiredCapability[] {MetadataFactory.createRequiredCapability(namespace, name, range, filter, false, false)};
 	}
 
@@ -568,7 +590,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static Iterator getInstallableUnits(IProfile profile2) {
-		return profile2.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		return profile2.query(InstallableUnitQuery.ANY, null).iterator();
 	}
 
 	/**
@@ -581,7 +603,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/**
 	 * 	Get the 'self' capability for an installable unit with the give id and version.
 	 */
-	private static IProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
+	protected static IProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
 		return MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, installableUnitId, installableUnitVersion);
 	}
 
@@ -616,6 +638,41 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			if (stream != null)
 				stream.close();
 		}
+	}
+
+	public static int queryResultSize(IQueryResult queryResult) {
+		if (queryResult instanceof Collector)
+			return ((Collector) queryResult).size();
+
+		int cnt = 0;
+		Iterator itor = queryResult.iterator();
+		while (itor.hasNext()) {
+			itor.next();
+			++cnt;
+		}
+		return cnt;
+	}
+
+	public static int queryResultUniqueSize(IQueryResult queryResult) {
+		int cnt = 0;
+		Iterator itor = queryResult.iterator();
+		HashSet uniqueTracker = new HashSet();
+		while (itor.hasNext()) {
+			if (uniqueTracker.add(itor.next()))
+				++cnt;
+		}
+		return cnt;
+	}
+
+	public static void restartBundle(final Bundle bundle) throws BundleException {
+		bundle.stop(Bundle.STOP_TRANSIENT);
+		startBundle(bundle);
+	}
+
+	public static void startBundle(final Bundle bundle) throws BundleException {
+		//see http://dev.eclipse.org/mhonarc/lists/equinox-dev/msg05917.html
+		bundle.start(Bundle.START_ACTIVATION_POLICY);
+		bundle.start(Bundle.START_TRANSIENT);
 	}
 
 	private static void write(IStatus status, int indent, PrintStream output) {
@@ -684,7 +741,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * in the tearDown method.
 	 */
 	protected IProfile createProfile(String name) {
-		return createProfile(name, null, null);
+		return createProfile(name, null);
 	}
 
 	/**
@@ -692,18 +749,14 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * already exists.  The returned profile will be removed automatically
 	 * in the tearDown method.
 	 */
-	protected IProfile createProfile(String name, String parentId) {
-		return createProfile(name, parentId, null);
-	}
-
-	protected IProfile createProfile(String name, String parentId, Map properties) {
+	protected IProfile createProfile(String name, Map properties) {
 		//remove any existing profile with the same name
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 		profileRegistry.removeProfile(name);
 		profilesToRemove.add(name);
 		//create and return a new profile
 		try {
-			return profileRegistry.addProfile(name, properties, parentId);
+			return profileRegistry.addProfile(name, properties);
 		} catch (ProvisionException e) {
 			throw new IllegalArgumentException(e.getMessage());
 		}
@@ -714,9 +767,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected IProfile getProfile(String profileId) {
-		//remove any existing profile with the same name
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
-		return profileRegistry.getProfile(profileId);
+		return getProfileRegistry().getProfile(profileId);
 	}
 
 	/**
@@ -732,7 +783,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 */
 	protected IMetadataRepository createTestMetdataRepository(IInstallableUnit[] units) {
 		IMetadataRepository repo = new TestMetadataRepository(units);
-		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) getMetadataRepositoryManager();
 		assertNotNull(repoMan);
 		repoMan.addRepository(repo);
 		metadataRepos.add(repo);
@@ -746,8 +797,22 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return repo;
 	}
 
+	protected static IProvisioningAgent getAgent() {
+		//get the global agent for the currently running system
+		return (IProvisioningAgent) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.SERVICE_NAME);
+	}
+
+	protected static IAgentLocation getAgentLocation() {
+		//get the location of the currently running system
+		return (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
+	}
+
 	protected static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		return (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+	}
+
+	protected IProfileRegistry getProfileRegistry() {
+		return (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
 	}
 
 	protected IMetadataRepository createMetadataRepository(URI location, Map properties) throws ProvisionException {
@@ -765,17 +830,17 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected IInstallableUnit getIU(IMetadataRepository repository, String name) {
-		Collector collector = repository.query(new InstallableUnitQuery(name), new Collector(), null);
+		IQueryResult queryResult = repository.query(new InstallableUnitQuery(name), null);
 
 		IInstallableUnit unit = null;
-		if (collector.size() > 0)
-			unit = (IInstallableUnit) collector.iterator().next();
+		if (!queryResult.isEmpty())
+			unit = (IInstallableUnit) queryResult.iterator().next();
 
 		return unit;
 	}
 
 	protected static IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		return (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 	}
 
 	public static String getUniqueString() {
@@ -819,7 +884,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		//remove all metadata repositories created by this test
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = getMetadataRepositoryManager();
 		if (!metadataRepos.isEmpty()) {
 			for (Iterator it = metadataRepos.iterator(); it.hasNext();) {
 				IMetadataRepository repo = (IMetadataRepository) it.next();
@@ -837,7 +902,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 		}
 		//remove all profiles created by this test
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 		for (Iterator it = profilesToRemove.iterator(); it.hasNext();) {
 			String toRemove = (String) it.next();
 			profileRegistry.removeProfile(toRemove);
@@ -867,46 +932,24 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return null;
 	}
 
-	protected static void assertInstallOperand(ProvisioningPlan plan, IInstallableUnit iu) {
-		Operand[] ops = plan.getOperands();
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
-				if (iu.equals(iuOp.second()))
-					return;
-			}
-		}
-		fail("Can't find " + iu + " in the plan");
+	protected static void assertInstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {
+		if (plan.getAdditions().query(new InstallableUnitQuery(iu), null).isEmpty())
+			fail("Can't find " + iu + " in the plan");
 	}
 
-	protected static void assertUninstallOperand(ProvisioningPlan plan, IInstallableUnit iu) {
-		Operand[] ops = plan.getOperands();
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
-				if (iu.equals(iuOp.first()))
-					return;
-			}
-		}
-		fail("Can't find " + iu + " in the plan");
+	protected static void assertUninstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {
+		if (plan.getRemovals().query(new InstallableUnitQuery(iu), null).isEmpty())
+			fail("Can't find " + iu + " in the plan");
 	}
 
-	protected static void assertNoOperand(ProvisioningPlan plan, IInstallableUnit iu) {
-		Operand[] ops = plan.getOperands();
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
-				if (iuOp.second() != null && iuOp.second().equals(iu))
-					fail(iu + " should not be present in this plan.");
-				if (iuOp.first() != null && iuOp.first().equals(iu))
-					fail(iu + " should not be present in this plan.");
-			}
-		}
+	protected static void assertNoOperand(IProvisioningPlan plan, IInstallableUnit iu) {
+		if (!(plan.getRemovals().query(new InstallableUnitQuery(iu), null).isEmpty() && plan.getAdditions().query(new InstallableUnitQuery(iu), null).isEmpty()))
+			fail(iu + " should not be present in this plan.");
 	}
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = getMetadataRepositoryManager();
 		URI[] repos = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < repos.length; i++) {
 			repoMan.removeRepository(repos[i]);
@@ -920,18 +963,18 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			req.setInstallableUnitInclusionRules(ius[i], strict ? PlannerHelper.createStrictInclusionRule(ius[i]) : PlannerHelper.createOptionalInclusionRule(ius[i]));
 		}
 
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
-		return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
+		return engine.perform(plan, null);
 	}
 
 	protected IStatus uninstall(IProfile profile, IInstallableUnit[] ius, IPlanner planner, IEngine engine) {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.removeInstallableUnits(ius);
 
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
-		return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		return engine.perform(plan, null);
 	}
 
 	protected static void assertEquals(String message, Object[] expected, Object[] actual, boolean orderImportant) {
@@ -1002,15 +1045,15 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (!iu1.equals(iu2))
 			fail(message + " " + iu1 + " is not equal to " + iu2);
 
-		if (iu1.isFragment()) {
-			if (!iu2.isFragment())
+		if (FragmentQuery.isFragment(iu1)) {
+			if (!FragmentQuery.isFragment(iu2))
 				fail(message + " " + iu1 + " is not a fragment.");
 			try {
 				assertEquals(message, ((IInstallableUnitFragment) iu1).getHost(), ((IInstallableUnitFragment) iu2).getHost());
 			} catch (AssertionFailedError failure) {
 				fail(message + " Unequal hosts: " + failure.getMessage());
 			}
-		} else if (iu2.isFragment()) {
+		} else if (FragmentQuery.isFragment(iu2)) {
 			fail(message + " " + iu2 + " is a fragment.");
 		}
 
@@ -1027,7 +1070,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		assertEquals(message, iu1.getTouchpointType(), iu2.getTouchpointType());
 		assertEquals(message, iu1.getTouchpointData(), iu2.getTouchpointData());
 		assertEquals(message, iu1.getProperties(), iu2.getProperties());
-		assertEquals(message, iu1.getLicense(), iu2.getLicense());
+		assertEquals(message, iu1.getLicenses(), iu2.getLicenses());
 		assertEquals(message, iu1.getCopyright(), iu2.getCopyright());
 		assertEquals(message, iu1.getUpdateDescriptor(), iu2.getUpdateDescriptor());
 		assertEquals(message, iu1.getFilter(), iu2.getFilter());
@@ -1136,15 +1179,15 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
 	 */
 	protected static void assertContains(String message, IArtifactRepository sourceRepo, IArtifactRepository destinationRepo) {
-		IArtifactKey[] sourceKeys = sourceRepo.getArtifactKeys();
-
-		for (int i = 0; i < sourceKeys.length; i++) {
-			IArtifactDescriptor[] destinationDescriptors = destinationRepo.getArtifactDescriptors(sourceKeys[i]);
+		IQueryResult sourceKeys = sourceRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator iterator = sourceKeys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
+			IArtifactDescriptor[] destinationDescriptors = destinationRepo.getArtifactDescriptors(key);
 			if (destinationDescriptors == null || destinationDescriptors.length == 0)
-				fail(message + ": unmatched key: " + sourceKeys[i].toString());
+				fail(message + ": unmatched key: " + key.toString());
 			//this implicitly verifies the keys are present
 
-			IArtifactDescriptor[] sourceDescriptors = sourceRepo.getArtifactDescriptors(sourceKeys[i]);
+			IArtifactDescriptor[] sourceDescriptors = sourceRepo.getArtifactDescriptors(key);
 
 			assertEquals(message, sourceDescriptors, destinationDescriptors, false); //order doesn't matter
 		}
@@ -1164,13 +1207,13 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
 	 */
 	protected static void assertContains(String message, IMetadataRepository sourceRepo, IMetadataRepository destinationRepo) {
-		Collector sourceCollector = sourceRepo.query(InstallableUnitQuery.ANY, new Collector(), null);
+		IQueryResult sourceCollector = sourceRepo.query(InstallableUnitQuery.ANY, null);
 		Iterator it = sourceCollector.iterator();
 
 		while (it.hasNext()) {
 			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
-			Collector destinationCollector = destinationRepo.query(new InstallableUnitQuery(sourceIU), new Collector(), null);
-			assertEquals(message, 1, destinationCollector.size());
+			IQueryResult destinationCollector = destinationRepo.query(new InstallableUnitQuery(sourceIU), null);
+			assertEquals(message, 1, queryResultSize(destinationCollector));
 			assertEquals(message, sourceIU, (IInstallableUnit) destinationCollector.iterator().next());
 		}
 	}
@@ -1182,6 +1225,61 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected static void assertContentEquals(String message, IMetadataRepository repo1, IMetadataRepository repo2) {
 		assertContains(message, repo1, repo2);
 		assertContains(message, repo2, repo1);
+	}
+
+	public static void assertContains(String message, IQueryable source, IQueryable destination) {
+		IQueryResult sourceCollector = source.query(InstallableUnitQuery.ANY, null);
+		Iterator it = sourceCollector.iterator();
+
+		while (it.hasNext()) {
+			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
+			IQueryResult destinationCollector = destination.query(new InstallableUnitQuery(sourceIU), null);
+			assertEquals(message, 1, queryResultSize(destinationCollector));
+			assertTrue(message, sourceIU.equals(destinationCollector.iterator().next()));
+		}
+	}
+
+	public static void assertContains(String message, IQueryResult result, IQueryResult mustHave) {
+		assertContains(message, result.iterator(), mustHave.iterator());
+	}
+
+	public static void assertContains(String message, Iterator result, Iterator mustHave) {
+		HashSet repoSet = new HashSet();
+		while (mustHave.hasNext())
+			repoSet.add(mustHave.next());
+		assertContains(message, result, repoSet);
+	}
+
+	public static void assertContains(String message, Iterator result, Collection mustHave) {
+		while (result.hasNext())
+			assertTrue(message, mustHave.contains(result.next()));
+	}
+
+	public static void assertContains(IQueryResult result, Object value) {
+		assertContains(null, result, value);
+	}
+
+	public static void assertNotContains(IQueryResult result, Object value) {
+		assertNotContains(null, result, value);
+	}
+
+	public static void assertContains(String message, IQueryResult result, Object value) {
+		Iterator itor = result.iterator();
+		while (itor.hasNext())
+			if (itor.next().equals(value))
+				return;
+		fail(message);
+	}
+
+	public static void assertNotContains(String message, IQueryResult result, Object value) {
+		Iterator itor = result.iterator();
+		while (itor.hasNext())
+			if (itor.next().equals(value))
+				fail(message);
+	}
+
+	public static void assertContains(String message, Collection fromIUs, Iterator fromRepo) {
+		assertContains(message, fromIUs.iterator(), fromRepo);
 	}
 
 	/*
@@ -1325,6 +1423,78 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			profilesMap.set(profileRegistry, null);
 		} catch (Throwable t) {
 			fail();
+		}
+	}
+
+	protected int getArtifactKeyCount(URI location) {
+		try {
+			return getArtifactKeyCount(getArtifactRepositoryManager().loadRepository(location, null));
+		} catch (ProvisionException e) {
+			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");
+			return -1;
+		}
+	}
+
+	protected int getArtifactKeyCount(IArtifactRepository repo) {
+		return queryResultSize(repo.query(ArtifactKeyQuery.ALL_KEYS, null));
+	}
+
+	protected int getArtifactDescriptorCount(URI location) {
+		int count = 0;
+		try {
+			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(location, null);
+			IQueryResult descriptors = repo.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+			return queryResultSize(descriptors);
+		} catch (ProvisionException e) {
+			fail("Failed to load repository " + URIUtil.toUnencodedString(location) + " for ArtifactDescriptor count");
+		}
+		return count;
+	}
+
+	public int countPlanElements(IProvisioningPlan plan) {
+		return queryResultSize(new CompoundQueryable(plan.getAdditions(), plan.getRemovals()).query(InstallableUnitQuery.ANY, null));
+	}
+
+	/**
+	 * This method is used by tests that require access to the "self" profile. It spoofs
+	 * up a fake self profile is none is already available. Tests should invoke this method
+	 * from their {@link #setUp()} method, and invoke {@link #tearDownSelfProfile()}
+	 * from their {@link #tearDown()} method.
+	 */
+	protected void setUpSelfProfile() {
+		if (System.getProperty("eclipse.p2.profile") == null) {
+			SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
+			try {
+				Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
+				selfField.setAccessible(true);
+				previousSelfValue = selfField.get(profileRegistry);
+				if (previousSelfValue == null)
+					selfField.set(profileRegistry, "agent");
+			} catch (Throwable t) {
+				fail();
+			}
+		}
+		createProfile("agent");
+	}
+
+	/**
+	 * This method is used by tests that require access to the "self" profile. It cleans up
+	 * a fake self profile is none is already available. Tests should invoke this method
+	 * from their {@link #tearDown()} method, and invoke {@link #setUpSelfProfile()}
+	 * from their {@link #setUp()} method.
+	 */
+	protected void tearDownSelfProfile() {
+		if (System.getProperty("eclipse.p2.profile") == null) {
+			SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
+			try {
+				Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
+				selfField.setAccessible(true);
+				Object self = selfField.get(profileRegistry);
+				if (self.equals("agent"))
+					selfField.set(profileRegistry, previousSelfValue);
+			} catch (Throwable t) {
+				// ignore as we still want to continue tidying up
+			}
 		}
 	}
 }

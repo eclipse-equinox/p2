@@ -16,13 +16,13 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.LinkAction;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -41,13 +41,14 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		File zipTarget = new File(installFolder, "a.zip");
 		copy("2.0", zipSource, zipTarget);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
@@ -71,9 +72,9 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File dirBundleSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/directoryBased_1.0.0");
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
@@ -88,6 +89,7 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		bundlePool.addDescriptor(descriptor);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
@@ -115,9 +117,9 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File dirBundleSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/directoryBased_1.0.0");
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
@@ -132,6 +134,7 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		bundlePool.addDescriptor(descriptor);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);

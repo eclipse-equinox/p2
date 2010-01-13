@@ -10,14 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.spi.Touchpoint;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.engine.PhaseTest.TestPhaseSet;
@@ -144,7 +146,8 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			testTouchpoint.resetCounters();
 		PhaseSet phaseSet = new TestPhaseSet();
 		IProfile profile = createProfile("testProfile");
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU("operandTest"))}, null, new NullProgressMonitor());
+		final InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU("operandTest"))};
+		engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
 		assertEquals(1, testTouchpoint.initializeOperand);
 		assertEquals(1, testTouchpoint.completeOperand);
 	}
@@ -154,7 +157,8 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			testTouchpoint.resetCounters();
 		PhaseSet phaseSet = new TestPhaseSet();
 		IProfile profile = createProfile("testProfile");
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU("phaseTest"))}, null, new NullProgressMonitor());
+		final InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU("phaseTest"))};
+		engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
 		assertEquals(1, testTouchpoint.initializePhase);
 		assertEquals(1, testTouchpoint.completePhase);
 	}
@@ -162,8 +166,8 @@ public class TouchpointTest extends AbstractProvisioningTest {
 	private IInstallableUnit createTestIU(String touchpointName) {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.test");
-		description.setVersion(new Version("1.0.0"));
-		description.setTouchpointType(MetadataFactory.createTouchpointType(touchpointName, new Version("1.0.0")));
+		description.setVersion(Version.create("1.0.0"));
+		description.setTouchpointType(MetadataFactory.createTouchpointType(touchpointName, Version.create("1.0.0")));
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(description);
 		return createResolvedIU(unit);
 	}

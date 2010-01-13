@@ -10,22 +10,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class Bug271954 extends AbstractProvisioningTest {
 	private static final String profileLoadedId = "SDKProfile";
@@ -39,7 +36,7 @@ public class Bug271954 extends AbstractProvisioningTest {
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
 
-		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 		//Tweak the running profile registry
 		Field profileStore = SimpleProfileRegistry.class.getDeclaredField("store");
 		profileStore.setAccessible(true);
@@ -60,7 +57,7 @@ public class Bug271954 extends AbstractProvisioningTest {
 	}
 
 	protected void tearDown() throws Exception {
-		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 
 		Field profilesMapField = SimpleProfileRegistry.class.getDeclaredField("profiles"); //$NON-NLS-1$
 		profilesMapField.setAccessible(true);
@@ -78,20 +75,20 @@ public class Bug271954 extends AbstractProvisioningTest {
 	}
 
 	public void testUninstallMyBundle() {
-		Collector c = profile.available(new InstallableUnitQuery("A"), new Collector(), new NullProgressMonitor());
-		assertEquals(1, c.size());
+		IQueryResult c = profile.available(new InstallableUnitQuery("A"), new NullProgressMonitor());
+		assertEquals(1, queryResultSize(c));
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.removeInstallableUnits((IInstallableUnit[]) c.toArray(IInstallableUnit.class));
 
 		ProvisioningContext ctx = new ProvisioningContext(new URI[0]);
 		ctx.setArtifactRepositories(new URI[0]);
-		ProvisioningPlan plan = createPlanner().getProvisioningPlan(req, ctx, new NullProgressMonitor());
+		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, ctx, new NullProgressMonitor());
 		assertOK("Uninstall plan for myBundle", plan.getStatus());
-		assertEquals(0, plan.getInstallerPlan().getAdditions().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
-		assertEquals(0, plan.getInstallerPlan().getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
+		assertEquals(0, queryResultSize(plan.getInstallerPlan().getAdditions().query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
+		assertEquals(0, queryResultSize(plan.getInstallerPlan().getRemovals().query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
 		assertUninstallOperand(plan, (IInstallableUnit) c.iterator().next());
-		assertEquals(2, plan.getRemovals().query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor()).size());
-		assertEquals(1, plan.getRemovals().query(new InstallableUnitQuery("A", new Version(1, 0, 0)), new Collector(), new NullProgressMonitor()).size());
-		assertEquals(1, plan.getRemovals().query(new InstallableUnitQuery("Action1", new Version(1, 0, 0)), new Collector(), new NullProgressMonitor()).size());
+		assertEquals(2, queryResultSize(plan.getRemovals().query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
+		assertEquals(1, queryResultSize(plan.getRemovals().query(new InstallableUnitQuery("A", Version.createOSGi(1, 0, 0)), new NullProgressMonitor())));
+		assertEquals(1, queryResultSize(plan.getRemovals().query(new InstallableUnitQuery("Action1", Version.createOSGi(1, 0, 0)), new NullProgressMonitor())));
 	}
 }

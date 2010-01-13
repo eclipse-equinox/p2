@@ -10,25 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.query.MatchQuery;
 
 /**
  * A query that accepts any patch that applies to a given installable unit.
  */
-public class ApplicablePatchQuery extends MatchQuery {
-
-	/**
-	 * A query that matches any patch.
-	 */
-	public static final Query ANY = new MatchQuery() {
-		public boolean isMatch(Object candidate) {
-			return candidate instanceof IInstallableUnitPatch;
-		}
-	};
-
+public class ApplicablePatchQuery extends MatchQuery<IInstallableUnit> {
 	IInstallableUnit iu;
 
 	/**
@@ -40,11 +31,11 @@ public class ApplicablePatchQuery extends MatchQuery {
 		this.iu = iu;
 	}
 
-	public boolean isMatch(Object candidate) {
+	public boolean isMatch(IInstallableUnit candidate) {
 		if (!(candidate instanceof IInstallableUnitPatch))
 			return false;
 		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) candidate;
-		IRequiredCapability[][] scopeDescription = patchIU.getApplicabilityScope();
+		IRequirement[][] scopeDescription = patchIU.getApplicabilityScope();
 		if (scopeDescription.length == 0)
 			return true;
 

@@ -12,34 +12,31 @@
 package org.eclipse.equinox.internal.p2.ui.query;
 
 import java.util.Arrays;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.ui.statushandlers.StatusManager;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * An object that adds queryable support to the profile registry.
  */
-public class QueryableProfileRegistry implements IQueryable {
+public class QueryableProfileRegistry implements IQueryable<IProfile> {
 
-	public Collector query(Query query, Collector result, IProgressMonitor monitor) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
-		if (profileRegistry == null) {
-			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound), StatusManager.SHOW | StatusManager.LOG);
-			return result;
-		}
-		IProfile[] profiles = profileRegistry.getProfiles();
+	private ProvisioningUI ui;
+
+	public QueryableProfileRegistry(ProvisioningUI ui) {
+		this.ui = ui;
+	}
+
+	public IQueryResult<IProfile> query(IQuery<IProfile> query, IProgressMonitor monitor) {
+		IProfile[] profiles = ui.getSession().getProfileRegistry().getProfiles();
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableProfileRegistry_QueryProfileProgress, profiles.length);
 		try {
-			query.perform(Arrays.asList(profiles).iterator(), result);
+			return query.perform(Arrays.asList(profiles).iterator());
 		} finally {
 			sub.done();
 		}
-		return result;
 	}
 }

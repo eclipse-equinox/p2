@@ -11,31 +11,27 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.ServiceReference;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
-public class JarURLMetadataRepositoryTest extends TestCase {
+public class JarURLMetadataRepositoryTest extends AbstractProvisioningTest {
 
-	private ServiceReference managerRef;
 	private IMetadataRepositoryManager manager;
 	private File testRepoJar;
 
@@ -48,8 +44,7 @@ public class JarURLMetadataRepositoryTest extends TestCase {
 	}
 
 	protected void setUp() throws Exception {
-		managerRef = TestActivator.getContext().getServiceReference(IMetadataRepositoryManager.class.getName());
-		manager = (IMetadataRepositoryManager) TestActivator.getContext().getService(managerRef);
+		manager = getMetadataRepositoryManager();
 
 		String tempDir = System.getProperty("java.io.tmpdir");
 		File testRepo = new File(tempDir, "testRepo");
@@ -61,7 +56,7 @@ public class JarURLMetadataRepositoryTest extends TestCase {
 
 		InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
 		descriptor.setId("testIuId");
-		descriptor.setVersion(new Version("3.2.1"));
+		descriptor.setVersion(Version.create("3.2.1"));
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
 		repo.addInstallableUnits(new IInstallableUnit[] {iu});
 
@@ -73,7 +68,6 @@ public class JarURLMetadataRepositoryTest extends TestCase {
 	protected void tearDown() throws Exception {
 		manager = null;
 		FileUtils.deleteAll(testRepoJar.getParentFile());
-		TestActivator.getContext().ungetService(managerRef);
 	}
 
 	public void testJarURLRepository() throws ProvisionException {
@@ -85,7 +79,7 @@ public class JarURLMetadataRepositoryTest extends TestCase {
 		}
 
 		IMetadataRepository repo = manager.loadRepository(jarRepoLocation, null);
-		assertTrue(!repo.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		assertTrue(!repo.query(InstallableUnitQuery.ANY, null).isEmpty());
 
 		URI[] local = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_LOCAL);
 		boolean found = false;

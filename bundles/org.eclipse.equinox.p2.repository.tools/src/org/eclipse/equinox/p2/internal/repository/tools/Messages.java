@@ -18,9 +18,11 @@ public class Messages extends NLS {
 	public static String exception_unableToRemoveRepo;
 	public static String exception_notLocalFileRepo;
 	public static String exception_noEngineService;
+	public static String exception_noPlannerService;
 	public static String exception_needIUsOrNonEmptyRepo;
 	public static String exception_needDestinationRepo;
 	public static String exception_onlyOneComparator;
+	public static String exception_loadingRepository;
 
 	public static String AbstractApplication_no_valid_destinations;
 
@@ -40,11 +42,8 @@ public class Messages extends NLS {
 
 	public static String MirrorApplication_artifactDestinationNoSource;
 	public static String MirrorApplication_metadataDestinationNoSource;
-	public static String MirrorApplication_missingIU;
-	public static String MirrorApplication_missingSourceForIUs;
 	public static String MirrorApplication_no_IUs;
 	public static String MirrorApplication_set_source_repositories;
-	public static String MirrorApplication_validateAndMirrorProblems;
 
 	public static String ProcessRepo_location_not_url;
 	public static String ProcessRepo_must_be_local;
@@ -57,6 +56,19 @@ public class Messages extends NLS {
 	public static String SlicingOption_invalidFilterFormat;
 
 	public static String skippingInvalidFilter;
+
+	public static String message_mirroringStatus;
+	public static String Mirroring_compareAndDownload;
+	public static String mirror_alreadyExists;
+	public static String Mirroring_noMatchingDescriptor;
+	public static String Mirroring_ValidationError;
+	public static String Mirroring_missingDescriptor;
+	public static String Mirroring_differentDescriptorProperty;
+
+	public static String invalidComparatorId;
+	public static String info_noMD5Infomation;
+	public static String info_noMD5InRepository;
+	public static String warning_differentMD5;
 
 	static {
 		// initialize resource bundles

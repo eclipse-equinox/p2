@@ -16,7 +16,10 @@ import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.*;
+import org.osgi.framework.Filter;
 
 /**
  * A factory class for instantiating various p2 metadata objects.
@@ -29,34 +32,53 @@ public class MetadataFactory {
 	 * the resulting immutable unit.
 	 */
 	public static class InstallableUnitDescription {
+		public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
+
 		protected InstallableUnit unit;
+
+		/**
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.patch"</code>) for a 
+		 * boolean property indicating that an installable unit is a group.
+		 * 
+		 */
+		public static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
+
+		/**
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.fragment"</code>) for a 
+		 * boolean property indicating that an installable unit is a fragment.
+		 * 
+		 */
+		public static final String PROP_TYPE_FRAGMENT = "org.eclipse.equinox.p2.type.fragment"; //$NON-NLS-1$
+
+		/**
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.category"</code>) for a 
+		 * boolean property indicating that an installable unit is a category.
+		 * 
+		 */
+		public static final String PROP_TYPE_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
 
 		public InstallableUnitDescription() {
 			super();
 		}
 
-		public void addProvidedCapabilities(Collection additional) {
+		public void addProvidedCapabilities(Collection<IProvidedCapability> additional) {
 			if (additional == null || additional.size() == 0)
 				return;
-			IProvidedCapability[] current = unit().getProvidedCapabilities();
-			IProvidedCapability[] result = new IProvidedCapability[additional.size() + current.length];
-			System.arraycopy(current, 0, result, 0, current.length);
-			int j = current.length;
-			for (Iterator i = additional.iterator(); i.hasNext();)
-				result[j++] = (IProvidedCapability) i.next();
-			unit().setCapabilities(result);
+			Collection<IProvidedCapability> current = unit().getProvidedCapabilities();
+			ArrayList<IProvidedCapability> all = new ArrayList<IProvidedCapability>(additional.size() + current.size());
+			all.addAll(current);
+			all.addAll(additional);
+			unit().setCapabilities(all.toArray(new IProvidedCapability[all.size()]));
 		}
 
-		public void addRequiredCapabilities(Collection additional) {
+		public void addRequiredCapabilities(Collection<IRequirement> additional) {
 			if (additional == null || additional.size() == 0)
 				return;
-			IRequiredCapability[] current = unit().getRequiredCapabilities();
-			IRequiredCapability[] result = new IRequiredCapability[additional.size() + current.length];
-			System.arraycopy(current, 0, result, 0, current.length);
-			int j = current.length;
-			for (Iterator i = additional.iterator(); i.hasNext();)
-				result[j++] = (IRequiredCapability) i.next();
-			unit().setRequiredCapabilities(result);
+			List<IRequirement> current = unit().getRequiredCapabilities();
+			ArrayList<IRequirement> all = new ArrayList<IRequirement>(additional.size() + current.size());
+			all.addAll(current);
+			all.addAll(additional);
+			unit().setRequiredCapabilities(all.toArray(new IRequirement[all.size()]));
 		}
 
 		public void addTouchpointData(ITouchpointData data) {
@@ -68,15 +90,15 @@ public class MetadataFactory {
 			return unit().getId();
 		}
 
-		public IProvidedCapability[] getProvidedCapabilities() {
+		public Collection<IProvidedCapability> getProvidedCapabilities() {
 			return unit().getProvidedCapabilities();
 		}
 
-		public IRequiredCapability[] getRequiredCapabilities() {
+		public List<IRequirement> getRequiredCapabilities() {
 			return unit().getRequiredCapabilities();
 		}
 
-		public IRequiredCapability[] getMetaRequiredCapabilities() {
+		public Collection<IRequirement> getMetaRequiredCapabilities() {
 			return unit().getMetaRequiredCapabilities();
 		}
 
@@ -86,7 +108,7 @@ public class MetadataFactory {
 		 * 
 		 * @return The current touchpoint data on this description
 		 */
-		public ITouchpointData[] getTouchpointData() {
+		public List<ITouchpointData> getTouchpointData() {
 			return unit().getTouchpointData();
 
 		}
@@ -107,6 +129,10 @@ public class MetadataFactory {
 			unit().setCopyright(copyright);
 		}
 
+		public void setFilter(Filter filter) {
+			unit().setFilter(filter);
+		}
+
 		public void setFilter(String filter) {
 			unit().setFilter(filter);
 		}
@@ -115,19 +141,19 @@ public class MetadataFactory {
 			unit().setId(id);
 		}
 
-		public void setLicense(ILicense license) {
-			unit().setLicense(license);
+		public void setLicenses(ILicense[] licenses) {
+			unit().setLicenses(licenses);
 		}
 
 		public void setProperty(String key, String value) {
 			unit().setProperty(key, value);
 		}
 
-		public void setRequiredCapabilities(IRequiredCapability[] requirements) {
+		public void setRequiredCapabilities(IRequirement[] requirements) {
 			unit().setRequiredCapabilities(requirements);
 		}
 
-		public void setMetaRequiredCapabilities(IRequiredCapability[] metaRequirements) {
+		public void setMetaRequiredCapabilities(IRequirement[] metaRequirements) {
 			unit().setMetaRequiredCapabilities(metaRequirements);
 		}
 
@@ -162,17 +188,13 @@ public class MetadataFactory {
 		}
 	}
 
-	/**
-	 * Description of an installable unit patch. The description will automatically have
-	 * the {@link IInstallableUnit#PROP_TYPE_FRAGMENT} set to <code>true</code>.
-	 */
 	public static class InstallableUnitFragmentDescription extends InstallableUnitDescription {
 		public InstallableUnitFragmentDescription() {
 			super();
-			setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+			setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		}
 
-		public void setHost(IRequiredCapability[] hostRequirements) {
+		public void setHost(IRequirement[] hostRequirements) {
 			((InstallableUnitFragment) unit()).setHost(hostRequirements);
 		}
 
@@ -183,24 +205,20 @@ public class MetadataFactory {
 		}
 	}
 
-	/**
-	 * Description of an installable unit patch. The description will automatically have
-	 * the {@link IInstallableUnit#PROP_TYPE_PATCH} set to <code>true</code>.
-	 */
 	public static class InstallableUnitPatchDescription extends InstallableUnitDescription {
 
 		public InstallableUnitPatchDescription() {
 			super();
-			setProperty(IInstallableUnit.PROP_TYPE_PATCH, Boolean.TRUE.toString());
+			setProperty(InstallableUnitDescription.PROP_TYPE_PATCH, Boolean.TRUE.toString());
 		}
 
-		public void setApplicabilityScope(IRequiredCapability[][] applyTo) {
+		public void setApplicabilityScope(IRequirement[][] applyTo) {
 			if (applyTo == null)
 				throw new IllegalArgumentException("A patch scope can not be null"); //$NON-NLS-1$
 			((InstallableUnitPatch) unit()).setApplicabilityScope(applyTo);
 		}
 
-		public void setLifeCycle(IRequiredCapability lifeCycle) {
+		public void setLifeCycle(IRequirement lifeCycle) {
 			((InstallableUnitPatch) unit()).setLifeCycle(lifeCycle);
 		}
 
@@ -211,7 +229,7 @@ public class MetadataFactory {
 		InstallableUnit unit() {
 			if (unit == null) {
 				unit = new InstallableUnitPatch();
-				((InstallableUnitPatch) unit()).setApplicabilityScope(new IRequiredCapability[0][0]);
+				((InstallableUnitPatch) unit()).setApplicabilityScope(new IRequirement[0][0]);
 			}
 			return unit;
 		}
@@ -220,7 +238,7 @@ public class MetadataFactory {
 	/**
 	 * Singleton touchpoint data for a touchpoint with no instructions.
 	 */
-	private static final ITouchpointData EMPTY_TOUCHPOINT_DATA = new TouchpointData(Collections.EMPTY_MAP);
+	private static final ITouchpointData EMPTY_TOUCHPOINT_DATA = new TouchpointData(CollectionUtils.<String, ITouchpointInstruction> emptyMap());
 
 	private static ITouchpointType[] typeCache = new ITouchpointType[5];
 
@@ -277,7 +295,7 @@ public class MetadataFactory {
 	}
 
 	/**
-	 * Returns a {@link IRequiredCapability} with the given values.
+	 * Returns a {@link IRequirement} with the given values.
 	 * 
 	 * @param namespace The capability namespace
 	 * @param name The required capability name
@@ -289,8 +307,12 @@ public class MetadataFactory {
 	 * and <code>false</code> otherwise.
 	 * @param multiple <code>true</code> if this capability can be satisfied by multiple provided capabilities, or it requires exactly one match
 	 */
-	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
-		return new RequiredCapability(namespace, name, range, filter, optional, multiple);
+	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, Filter filter, boolean optional, boolean multiple) {
+		return new RequiredCapability(namespace, name, range, filter, optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, true);
+	}
+
+	public static IRequirement createRequiredCapability(String namespace, String name, VersionRange range, Filter filter, int minCard, int maxCard, boolean greedy) {
+		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy);
 	}
 
 	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
@@ -303,8 +325,10 @@ public class MetadataFactory {
 	 * @param newValue The result of the requirement change - the requirement to replace the source requirement with
 	 * @return a requirement change
 	 */
-	public static IRequirementChange createRequirementChange(IRequiredCapability applyOn, IRequiredCapability newValue) {
-		return new RequirementChange(applyOn, newValue);
+	public static IRequirementChange createRequirementChange(IRequirement applyOn, IRequirement newValue) {
+		if ((applyOn == null || applyOn instanceof IRequiredCapability) && (newValue == null || newValue instanceof IRequiredCapability))
+			return new RequirementChange((IRequiredCapability) applyOn, (IRequiredCapability) newValue);
+		throw new IllegalArgumentException();
 	}
 
 	/**
@@ -327,7 +351,7 @@ public class MetadataFactory {
 	 * @throws IllegalArgumentException when the <code>body</code> is <code>null</code>
 	 */
 	public static ILicense createLicense(URI location, String body) {
-		return new License(location, body);
+		return new License(location, body, null);
 	}
 
 	/**
@@ -354,22 +378,64 @@ public class MetadataFactory {
 	 * @param instructions The instructions for the touchpoint data.
 	 * @return The created touchpoint data
 	 */
-	public static ITouchpointData createTouchpointData(Map instructions) {
+	public static ITouchpointData createTouchpointData(Map<String, ? extends Object> instructions) {
 		Assert.isNotNull(instructions);
 		//copy the map to protect against subsequent change by caller
 		if (instructions.isEmpty())
 			return EMPTY_TOUCHPOINT_DATA;
 
-		Map result = new LinkedHashMap(instructions.size());
-		for (Iterator iterator = instructions.entrySet().iterator(); iterator.hasNext();) {
-			Entry entry = (Entry) iterator.next();
-			Object value = entry.getValue();
-			if (value == null || value instanceof String)
-				value = createTouchpointInstruction((String) value, null);
+		Map<String, ITouchpointInstruction> result = new LinkedHashMap<String, ITouchpointInstruction>(instructions.size());
 
-			result.put(entry.getKey(), value);
+		for (Entry<String, ? extends Object> entry : instructions.entrySet()) {
+			Object value = entry.getValue();
+			ITouchpointInstruction instruction;
+			if (value == null || value instanceof String)
+				instruction = createTouchpointInstruction((String) value, null);
+			else
+				instruction = (ITouchpointInstruction) value;
+			result.put(entry.getKey(), instruction);
 		}
 		return new TouchpointData(result);
+	}
+
+	/**
+	 * Merge the given touchpoint instructions with a pre-existing touchpoint data
+	 * @param initial - the initial ITouchpointData
+	 * @param incomingInstructions - Map of ITouchpointInstructions to merge into the initial touchpoint data
+	 * @return the merged ITouchpointData
+	 */
+	public static ITouchpointData mergeTouchpointData(ITouchpointData initial, Map<String, ITouchpointInstruction> incomingInstructions) {
+		if (incomingInstructions == null || incomingInstructions.size() == 0)
+			return initial;
+
+		Map<String, ITouchpointInstruction> resultInstructions = new HashMap<String, ITouchpointInstruction>(initial.getInstructions());
+		for (String key : incomingInstructions.keySet()) {
+			ITouchpointInstruction instruction = incomingInstructions.get(key);
+			ITouchpointInstruction existingInstruction = resultInstructions.get(key);
+
+			if (existingInstruction != null) {
+				String body = existingInstruction.getBody();
+				if (body == null || body.length() == 0)
+					body = instruction.getBody();
+				else if (instruction.getBody() != null) {
+					if (!body.endsWith(";")) //$NON-NLS-1$
+						body += ';';
+					body += instruction.getBody();
+				}
+
+				String importAttribute = existingInstruction.getImportAttribute();
+				if (importAttribute == null || importAttribute.length() == 0)
+					importAttribute = instruction.getImportAttribute();
+				else if (instruction.getImportAttribute() != null) {
+					if (!importAttribute.endsWith(",")) //$NON-NLS-1$
+						importAttribute += ',';
+					importAttribute += instruction.getBody();
+				}
+				instruction = createTouchpointInstruction(body, importAttribute);
+			}
+			resultInstructions.put(key, instruction);
+		}
+		return createTouchpointData(resultInstructions);
 	}
 
 	public static ITouchpointInstruction createTouchpointInstruction(String body, String importAttribute) {

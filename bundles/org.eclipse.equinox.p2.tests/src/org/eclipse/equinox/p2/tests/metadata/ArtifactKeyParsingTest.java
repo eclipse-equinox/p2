@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
 /**
  * Test <code>ArtifactkeyDeSerializer</code>
@@ -22,12 +22,12 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 public class ArtifactKeyParsingTest extends TestCase {
 
 	public void testSerialize() {
-		IArtifactKey key = new ArtifactKey("classifier", "identifier", new Version("1.0"));
+		IArtifactKey key = new ArtifactKey("classifier", "identifier", Version.create("1.0"));
 		assertEquals("classifier,identifier,1.0.0", key.toExternalForm());
 	}
 
 	public void testSerializeEmptyClassifier() {
-		IArtifactKey key = new ArtifactKey("", "identifier", new Version("1.0"));
+		IArtifactKey key = new ArtifactKey("", "identifier", Version.create("1.0"));
 		assertEquals(",identifier,1.0.0", key.toExternalForm());
 	}
 
@@ -36,7 +36,7 @@ public class ArtifactKeyParsingTest extends TestCase {
 		assertNotNull(key);
 		assertEquals("classifier", key.getClassifier());
 		assertEquals("identifier", key.getId());
-		assertEquals(new Version("1.0"), key.getVersion());
+		assertEquals(Version.create("1.0"), key.getVersion());
 	}
 
 	public void testDeserializeEmptyClassifier() {
@@ -44,7 +44,7 @@ public class ArtifactKeyParsingTest extends TestCase {
 		assertNotNull(key);
 		assertEquals("", key.getClassifier());
 		assertEquals("identifier", key.getId());
-		assertEquals(new Version("1.0"), key.getVersion());
+		assertEquals(Version.create("1.0"), key.getVersion());
 	}
 
 	public void testDeserializeEmptyIdentifier() {
@@ -52,7 +52,7 @@ public class ArtifactKeyParsingTest extends TestCase {
 		assertNotNull(key);
 		assertEquals("classifier", key.getClassifier());
 		assertEquals("", key.getId());
-		assertEquals(new Version("1.0"), key.getVersion());
+		assertEquals(Version.create("1.0"), key.getVersion());
 	}
 
 	public void testDeserializeEmptyVersion() {
@@ -60,7 +60,7 @@ public class ArtifactKeyParsingTest extends TestCase {
 		assertNotNull(key);
 		assertEquals("classifier", key.getClassifier());
 		assertEquals("identifier", key.getId());
-		assertEquals(new Version("0.0"), key.getVersion());
+		assertEquals(Version.create("0.0"), key.getVersion());
 	}
 
 	public void testDeserializeEmptyEverything() {
@@ -68,7 +68,7 @@ public class ArtifactKeyParsingTest extends TestCase {
 		assertNotNull(key);
 		assertEquals("", key.getClassifier());
 		assertEquals("", key.getId());
-		assertEquals(new Version("0.0"), key.getVersion());
+		assertEquals(Version.create("0.0"), key.getVersion());
 	}
 
 	public void testDeserializeTooFewPartsI() {

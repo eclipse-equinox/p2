@@ -62,14 +62,14 @@ public class DirectoryWatcher {
 	final File[] directories;
 
 	long poll = 2000;
-	private Set listeners = new HashSet();
-	private HashSet scannedFiles = new HashSet();
-	private HashSet removals;
-	private Set pendingDeletions;
+	private Set<DirectoryChangeListener> listeners = new HashSet<DirectoryChangeListener>();
+	private HashSet<File> scannedFiles = new HashSet<File>();
+	private HashSet<File> removals;
+	private Set<File> pendingDeletions;
 	private WatcherThread watcher;
 
-	public DirectoryWatcher(Dictionary properties, BundleContext context) {
-		String dir = (String) properties.get(DIR);
+	public DirectoryWatcher(Map<String, String> properties, BundleContext context) {
+		String dir = properties.get(DIR);
 		if (dir == null)
 			dir = "./load"; //$NON-NLS-1$
 
@@ -131,10 +131,10 @@ public class DirectoryWatcher {
 
 	private void startPoll() {
 		removals = scannedFiles;
-		scannedFiles = new HashSet();
-		pendingDeletions = new HashSet();
-		for (Iterator i = listeners.iterator(); i.hasNext();)
-			((DirectoryChangeListener) i.next()).startPoll();
+		scannedFiles = new HashSet<File>();
+		pendingDeletions = new HashSet<File>();
+		for (DirectoryChangeListener listener : listeners)
+			listener.startPoll();
 	}
 
 	private void scanDirectories() {
@@ -155,8 +155,7 @@ public class DirectoryWatcher {
 					// removed at the end.  Then notify all the listeners as needed.
 					scannedFiles.add(file);
 					removals.remove(file);
-					for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
-						DirectoryChangeListener listener = (DirectoryChangeListener) iterator.next();
+					for (DirectoryChangeListener listener : listeners) {
 						if (isInterested(listener, file))
 							processFile(file, listener);
 					}
@@ -168,8 +167,8 @@ public class DirectoryWatcher {
 	private void stopPoll() {
 		notifyRemovals();
 		removals = scannedFiles;
-		for (Iterator i = listeners.iterator(); i.hasNext();)
-			((DirectoryChangeListener) i.next()).stopPoll();
+		for (DirectoryChangeListener listener : listeners)
+			listener.stopPoll();
 		processPendingDeletions();
 	}
 
@@ -181,11 +180,9 @@ public class DirectoryWatcher {
 	 * Notify the listeners of the files that have been deleted or marked for deletion.
 	 */
 	private void notifyRemovals() {
-		Set removed = removals;
-		for (Iterator i = listeners.iterator(); i.hasNext();) {
-			DirectoryChangeListener listener = (DirectoryChangeListener) i.next();
-			for (Iterator j = removed.iterator(); j.hasNext();) {
-				File file = (File) j.next();
+		Set<File> removed = removals;
+		for (DirectoryChangeListener listener : listeners) {
+			for (File file : removed) {
 				if (isInterested(listener, file))
 					listener.removed(file);
 			}
@@ -213,8 +210,8 @@ public class DirectoryWatcher {
 	 * Try to remove the files that have been marked for deletion.
 	 */
 	private void processPendingDeletions() {
-		for (Iterator iterator = pendingDeletions.iterator(); iterator.hasNext();) {
-			File file = (File) iterator.next();
+		for (Iterator<File> iterator = pendingDeletions.iterator(); iterator.hasNext();) {
+			File file = iterator.next();
 			if (!file.exists() || file.delete())
 				iterator.remove();
 			new File(file.getPath() + DEL_EXT).delete();

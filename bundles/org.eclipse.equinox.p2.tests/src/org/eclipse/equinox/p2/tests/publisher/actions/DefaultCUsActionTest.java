@@ -10,18 +10,19 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.eclipse.DefaultCUsAction;
 
-@SuppressWarnings( {"restriction", "unchecked"})
+@SuppressWarnings({"unchecked"})
 public class DefaultCUsActionTest extends ActionTest {
 
-	private Version version = new Version("1.0.0"); //$NON-NLS-1$
+	private Version version = Version.create("1.0.0"); //$NON-NLS-1$
 
 	public void testAll() throws Exception {
 		testAction = new DefaultCUsAction(publisherInfo, flavorArg, 4 /*start level*/, true /*start*/);
@@ -34,7 +35,7 @@ public class DefaultCUsActionTest extends ActionTest {
 	}
 
 	private void verifyDefaultCUs() {
-		ArrayList<InstallableUnitFragment> ius = (ArrayList<InstallableUnitFragment>) publisherResult.getIUs(null, null);
+		Collection<IInstallableUnit> ius = publisherResult.getIUs(null, null);
 		assertTrue(ius.size() == 3);
 		InstallableUnitFragment iuf1 = new InstallableUnitFragment();
 		iuf1.setId(flavorArg + ".source.default"); //$NON-NLS-1$

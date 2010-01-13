@@ -12,8 +12,8 @@ package org.eclipse.equinox.internal.provisional.p2.director;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 
 /**
  * Directors are responsible for determining what should be done to a given 

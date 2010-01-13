@@ -10,13 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+
 import java.io.*;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
@@ -26,30 +28,24 @@ import org.xml.sax.*;
  */
 public class CompositeParser extends XMLParser implements XMLConstants {
 
-	private static final Version CURRENT_VERSION = new Version(1, 0, 0);
-	static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, new Version(2, 0, 0), false);
+	private static final Version CURRENT_VERSION = Version.createOSGi(1, 0, 0);
+	static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, Version.createOSGi(2, 0, 0), false);
 	private static final String REQUIRED_CAPABILITY_ELEMENT = "required"; //$NON-NLS-1$
 	private static final String REPOSITORY_ELEMENT = "repository"; //$NON-NLS-1$
 	String repositoryType;
 	private CompositeRepositoryState theState;
 
 	protected class ChildrenHandler extends AbstractHandler {
-		private ArrayList children;
+		private ArrayList<URI> children;
 
 		public ChildrenHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, CHILDREN_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			children = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+			children = (size != null ? new ArrayList<URI>(new Integer(size).intValue()) : new ArrayList<URI>(4));
 		}
 
 		public URI[] getChildren() {
-			int size = children.size();
-			URI[] result = new URI[size];
-			int i = 0;
-			for (Iterator it = children.iterator(); it.hasNext(); i++) {
-				result[i] = (URI) it.next();
-			}
-			return result;
+			return children.toArray(new URI[children.size()]);
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -67,9 +63,9 @@ public class CompositeParser extends XMLParser implements XMLConstants {
 
 		URI currentRepo = null;
 
-		private List repos;
+		private List<URI> repos;
 
-		public ChildHandler(AbstractHandler parentHandler, Attributes attributes, List repos) {
+		public ChildHandler(AbstractHandler parentHandler, Attributes attributes, List<URI> repos) {
 			super(parentHandler, CHILD_ELEMENT);
 			String[] values = parseAttributes(attributes, required, optional);
 			this.repos = repos;

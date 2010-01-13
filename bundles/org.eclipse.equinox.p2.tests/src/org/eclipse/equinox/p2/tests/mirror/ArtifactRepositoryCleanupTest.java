@@ -15,9 +15,9 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.artifact.mirror.MirrorApplication;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.Bundle;
 

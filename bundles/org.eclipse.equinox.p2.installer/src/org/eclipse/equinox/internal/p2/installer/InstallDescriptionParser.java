@@ -11,16 +11,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+import org.eclipse.equinox.internal.p2.metadata.VersionedId;
 
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
 
 /**
  * This class is responsible for loading install descriptions from a stream.
@@ -61,12 +62,10 @@ public class InstallDescriptionParser {
 				throw new IllegalStateException("Can't find install description file: " + installerDescription);
 			}
 		}
-		in = propsURI.toURL().openStream();
-
-		Properties properties = new Properties();
+		Map<String, String> properties;
 		try {
-			if (in != null)
-				properties.load(in);
+			in = propsURI.toURL().openStream();
+			properties = CollectionUtils.loadProperties(in);
 		} finally {
 			safeClose(in);
 		}
@@ -77,7 +76,7 @@ public class InstallDescriptionParser {
 		initializeProfileProperties(result, properties);
 
 		// now override the properties from anything interesting in system properties
-		result = initialize(result, System.getProperties(), base);
+		result = initialize(result, CollectionUtils.toMap(System.getProperties()), base);
 		return result;
 	}
 
@@ -93,43 +92,43 @@ public class InstallDescriptionParser {
 		return URI.create(uriString.substring(0, slashIndex + 1));
 	}
 
-	private static InstallDescription initialize(InstallDescription description, Properties properties, URI base) {
-		String property = properties.getProperty(PROP_ARTIFACT_REPOSITORY);
+	private static InstallDescription initialize(InstallDescription description, Map<String, String> properties, URI base) {
+		String property = properties.get(PROP_ARTIFACT_REPOSITORY);
 		if (property != null)
 			description.setArtifactRepositories(getURIs(property, base));
 
-		property = properties.getProperty(PROP_METADATA_REPOSITORY);
+		property = properties.get(PROP_METADATA_REPOSITORY);
 		if (property != null)
 			description.setMetadataRepositories(getURIs(property, base));
 
-		property = properties.getProperty(PROP_IS_AUTO_START);
+		property = properties.get(PROP_IS_AUTO_START);
 		if (property != null)
 			description.setAutoStart(Boolean.TRUE.toString().equalsIgnoreCase(property));
 
-		property = properties.getProperty(PROP_LAUNCHER_NAME);
+		property = properties.get(PROP_LAUNCHER_NAME);
 		if (property != null)
 			description.setLauncherName(property);
 
-		property = properties.getProperty(PROP_INSTALL_LOCATION);
+		property = properties.get(PROP_INSTALL_LOCATION);
 		if (property != null)
 			description.setInstallLocation(new Path(property));
 
-		property = properties.getProperty(PROP_AGENT_LOCATION);
+		property = properties.get(PROP_AGENT_LOCATION);
 		if (property != null)
 			description.setAgentLocation(new Path(property));
 
-		property = properties.getProperty(PROP_BUNDLE_LOCATION);
+		property = properties.get(PROP_BUNDLE_LOCATION);
 		if (property != null)
 			description.setBundleLocation(new Path(property));
 
-		property = properties.getProperty(PROP_PROFILE_NAME);
+		property = properties.get(PROP_PROFILE_NAME);
 		if (property != null)
 			description.setProductName(property);
 
 		// Process the retro root id and rootVersion properties
-		String id = properties.getProperty(PROP_ROOT_ID);
+		String id = properties.get(PROP_ROOT_ID);
 		if (id != null) {
-			String version = properties.getProperty(PROP_ROOT_VERSION);
+			String version = properties.get(PROP_ROOT_VERSION);
 			try {
 				description.setRoots(new IVersionedId[] {new VersionedId(id, version)});
 			} catch (IllegalArgumentException e) {
@@ -137,10 +136,10 @@ public class InstallDescriptionParser {
 			}
 		}
 
-		String rootSpec = properties.getProperty(PROP_ROOTS);
+		String rootSpec = properties.get(PROP_ROOTS);
 		if (rootSpec != null) {
 			String[] rootList = getArrayFromString(rootSpec, ","); //$NON-NLS-1$
-			ArrayList roots = new ArrayList(rootList.length);
+			ArrayList<IVersionedId> roots = new ArrayList<IVersionedId>(rootList.length);
 			for (int i = 0; i < rootList.length; i++) {
 				try {
 					roots.add(VersionedId.parse(rootList[i]));
@@ -149,7 +148,7 @@ public class InstallDescriptionParser {
 				}
 			}
 			if (!roots.isEmpty())
-				description.setRoots((IVersionedId[]) roots.toArray(new IVersionedId[roots.size()]));
+				description.setRoots(roots.toArray(new IVersionedId[roots.size()]));
 		}
 		return description;
 	}
@@ -161,9 +160,9 @@ public class InstallDescriptionParser {
 	 * @param description
 	 * @param properties
 	 */
-	private static void initializeProfileProperties(InstallDescription description, Properties properties) {
+	private static void initializeProfileProperties(InstallDescription description, Map<String, String> properties) {
 		//any remaining properties are profile properties
-		Map profileProperties = new HashMap(properties);
+		Map<String, String> profileProperties = new HashMap<String, String>(properties);
 		profileProperties.remove(PROP_PROFILE_NAME);
 		profileProperties.remove(PROP_ARTIFACT_REPOSITORY);
 		profileProperties.remove(PROP_METADATA_REPOSITORY);
@@ -185,7 +184,7 @@ public class InstallDescriptionParser {
 	 */
 	private static URI[] getURIs(String spec, URI base) {
 		String[] urlSpecs = getArrayFromString(spec, ","); //$NON-NLS-1$
-		ArrayList result = new ArrayList(urlSpecs.length);
+		ArrayList<URI> result = new ArrayList<URI>(urlSpecs.length);
 		for (int i = 0; i < urlSpecs.length; i++) {
 			try {
 				URI uri = URIUtil.fromString(urlSpecs[i]);
@@ -197,7 +196,7 @@ public class InstallDescriptionParser {
 		}
 		if (result.isEmpty())
 			return null;
-		return (URI[]) result.toArray(new URI[result.size()]);
+		return result.toArray(new URI[result.size()]);
 	}
 
 	private static void safeClose(InputStream in) {
@@ -216,13 +215,13 @@ public class InstallDescriptionParser {
 	public static String[] getArrayFromString(String list, String separator) {
 		if (list == null || list.trim().equals("")) //$NON-NLS-1$
 			return new String[0];
-		List result = new ArrayList();
+		List<String> result = new ArrayList<String>();
 		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
 			if (!token.equals("")) //$NON-NLS-1$
 				result.add(token);
 		}
-		return (String[]) result.toArray(new String[result.size()]);
+		return result.toArray(new String[result.size()]);
 	}
 
 }

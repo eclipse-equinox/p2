@@ -14,15 +14,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
@@ -30,7 +32,7 @@ import org.osgi.framework.ServiceReference;
 public class RepoValidator extends AbstractProvisioningTest {
 	public void testValidate() throws ProvisionException, URISyntaxException {
 		URI repoLoc = new URI("http://fullmoon.ottawa.ibm.com/eclipse/updates/3.5-I-builds/");
-		ServiceReference sr = TestActivator.context.getServiceReference(IPlanner.class.getName());
+		ServiceReference sr = TestActivator.context.getServiceReference(IPlanner.SERVICE_NAME);
 		if (sr == null) {
 			throw new RuntimeException("Planner service not available");
 		}
@@ -39,7 +41,7 @@ public class RepoValidator extends AbstractProvisioningTest {
 			throw new RuntimeException("Planner could not be loaded");
 		}
 
-		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
+		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
 		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");
@@ -47,18 +49,17 @@ public class RepoValidator extends AbstractProvisioningTest {
 		IMetadataRepository validatedRepo = mgr.loadRepository(repoLoc, null);
 
 		Map properties = new HashMap();
-		properties.put(IInstallableUnit.NAMESPACE_FLAVOR, "tooling");
 		properties.put("osgi.os", "win32");
 		properties.put("osgi.ws", "win32");
 		properties.put("osgi.arch", "x86");
-		IProfile p = createProfile("repoValidator", null, properties);
+		IProfile p = createProfile("repoValidator", properties);
 
-		Query q;
+		IQuery q;
 
 		q = new InstallableUnitQuery("org.eclipse.rcp.feature.group");
 
 		//		q = InstallableUnitQuery.ANY;
-		Collector iusToTest = validatedRepo.query(q, new Collector(), null);
+		IQueryResult iusToTest = validatedRepo.query(q, null);
 
 		ProvisioningContext pc = new ProvisioningContext(new URI[] {repoLoc});
 		for (Iterator iterator = iusToTest.iterator(); iterator.hasNext();) {

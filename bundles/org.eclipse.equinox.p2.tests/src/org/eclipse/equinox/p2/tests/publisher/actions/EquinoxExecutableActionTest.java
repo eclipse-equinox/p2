@@ -12,23 +12,22 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxExecutableAction;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
-@SuppressWarnings( {"restriction", "unchecked"})
+@SuppressWarnings({"restriction", "unchecked"})
 public class EquinoxExecutableActionTest extends ActionTest {
 
 	private static final File MAC_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/macosx/"); //$NON-NLS-1$
@@ -41,7 +40,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private String linuxConfig = "linux.gtk.x86"; //$NON-NLS-1$
 	private ExecutablesDescriptor executablesDescriptor;
 	private IArtifactRepository artifactRepository;
-	private Version version = new Version("1.2.3"); //$NON-NLS-1$
+	private Version version = Version.create("1.2.3"); //$NON-NLS-1$
 
 	public void setUp() throws Exception {
 		setupPublisherInfo();
@@ -95,13 +94,13 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			IInstallableUnit possibleEclipse = (IInstallableUnit) iuList.get(i);
 			if (possibleEclipse.getId().equals(flavorArg + idBase + ".executable." + configSpec)) {//$NON-NLS-1$ 
 				IInstallableUnitFragment fragment = (IInstallableUnitFragment) iuList.get(i);
-				IProvidedCapability[] providedCapability = fragment.getProvidedCapabilities();
+				Collection<IProvidedCapability> providedCapability = fragment.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + idBase + ".executable." + configSpec, version); //$NON-NLS-1$ 
-				assertTrue(providedCapability.length == 1);
-				IRequiredCapability[] requiredCapability = fragment.getRequiredCapabilities();
+				assertTrue(providedCapability.size() == 1);
+				Collection<IRequirement> requiredCapability = fragment.getRequiredCapabilities();
 				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$ 
-				assertTrue(requiredCapability.length == 1);
-				assertTrue(fragment.getFilter().equals("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+				assertTrue(requiredCapability.size() == 1);
+				assertTrue(fragment.getFilter().equals(ExpressionUtil.parseLDAP("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 				assertTrue(fragment.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$ //$NON-NLS-2$
 				return;//pass
 			}
@@ -115,11 +114,11 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			IInstallableUnit possibleEclipse = (IInstallableUnit) iuList.get(i);
 			if (possibleEclipse.getId().equals((idBase + ".executable." + configSpec + ".eclipse"))) { //$NON-NLS-1$//$NON-NLS-2$
 				assertTrue(possibleEclipse.getVersion().equals(version));
-				IProvidedCapability[] providedCapability = possibleEclipse.getProvidedCapabilities();
+				Collection<IProvidedCapability> providedCapability = possibleEclipse.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec + ".eclipse", version); //$NON-NLS-1$ //$NON-NLS-2$ 
-				assertTrue(providedCapability.length == 1);
-				IRequiredCapability[] req = possibleEclipse.getRequiredCapabilities();
-				assertTrue(req.length == 0);
+				assertTrue(providedCapability.size() == 1);
+				Collection<IRequirement> req = possibleEclipse.getRequiredCapabilities();
+				assertTrue(req.size() == 0);
 				return;//pass
 			}
 		}
@@ -136,19 +135,19 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			IInstallableUnit possibleExec = (IInstallableUnit) iuList.get(i);
 			if (possibleExec.getId().equals(idBase + ".executable." + configSpec)) { //$NON-NLS-1$
 				//keep checking
-				assertTrue(possibleExec.getFilter().equals("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-				IArtifactKey eKey = possibleExec.getArtifacts()[0];
+				assertTrue(possibleExec.getFilter().equals(ExpressionUtil.parseLDAP("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+				IArtifactKey eKey = possibleExec.getArtifacts().iterator().next();
 				assertTrue(eKey.getClassifier().equals("binary")); //$NON-NLS-1$
 				assertTrue(eKey.getId().equals(idBase + ".executable." + configSpec)); //$NON-NLS-1$
 				assertTrue(eKey.getVersion().equals(version));
-				IProvidedCapability[] providedCapabilities = possibleExec.getProvidedCapabilities();
+				Collection<IProvidedCapability> providedCapabilities = possibleExec.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec, version); //$NON-NLS-1$ 
 				verifyProvidedCapability(providedCapabilities, flavorArg + idBase, idBase + ".executable", version); //$NON-NLS-1$
-				assertTrue(providedCapabilities.length == 2);
+				assertTrue(providedCapabilities.size() == 2);
 
-				IRequiredCapability[] requiredCapability = possibleExec.getRequiredCapabilities();
+				Collection<IRequirement> requiredCapability = possibleExec.getRequiredCapabilities();
 				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher." + (idBase.equals("mac") || idBase.equals("macCocoa") ? configSpec.substring(0, configSpec.lastIndexOf(".")) : configSpec), VersionRange.emptyRange); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-				assertTrue(requiredCapability.length == 1);
+				assertTrue(requiredCapability.size() == 1);
 				return;//pass
 			}
 		}
@@ -157,8 +156,8 @@ public class EquinoxExecutableActionTest extends ActionTest {
 
 	protected void insertPublisherInfoBehavior() {
 		setupArtifactRepository();
-		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository);
-		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_PUBLISH);
+		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
+		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_PUBLISH).anyTimes();
 		expect(publisherInfo.getAdvice((String) anyObject(), anyBoolean(), (String) anyObject(), (Version) anyObject(), (Class) anyObject())).andReturn(Collections.emptyList());
 	}
 }

@@ -11,8 +11,9 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 /**
  * Simple performance comparison between OSGi version implementation and Omni Version.
@@ -30,7 +31,7 @@ public class PerformanceTest extends TestCase {
 
 	public void testStringCreationPerformance() {
 		// Ensure that classes are loaded etc.
-		Version.MAX_VERSION.compareTo(Version.MIN_VERSION);
+		Version.MAX_VERSION.compareTo(Version.emptyVersion);
 		org.osgi.framework.Version.emptyVersion.compareTo(org.osgi.framework.Version.emptyVersion);
 
 		// Create all versions in string format
@@ -51,7 +52,7 @@ public class PerformanceTest extends TestCase {
 
 	public void testCreationPerformance() {
 		// Ensure that classes are loaded etc.
-		Version.MAX_VERSION.compareTo(Version.MIN_VERSION);
+		Version.MAX_VERSION.compareTo(Version.emptyVersion);
 		org.osgi.framework.Version.emptyVersion.compareTo(org.osgi.framework.Version.emptyVersion);
 
 		long start = System.currentTimeMillis();
@@ -137,7 +138,7 @@ public class PerformanceTest extends TestCase {
 		for (int i = 0; i < MUL; i++)
 			for (int j = 0; j < MUL; j++)
 				for (int k = 0; k < MUL; k++)
-					new Version(i, j, k, qualifierTemplate);
+					Version.createOSGi(i, j, k, qualifierTemplate);
 	}
 
 	public static void omniVersionCompare(Version versions[]) {
@@ -159,7 +160,7 @@ public class PerformanceTest extends TestCase {
 		for (int i = 0; i < MUL; i++)
 			for (int j = 0; j < MUL; j++)
 				for (int k = 0; k < MUL; k++)
-					Version.parseVersion(strings[x++]);
+					Version.create(strings[x++]);
 	}
 
 	public static void osgiVersionCompare(org.osgi.framework.Version versions[]) {
@@ -201,7 +202,7 @@ public class PerformanceTest extends TestCase {
 		for (int i = 0; i < MUL; i++)
 			for (int j = 0; j < MUL; j++)
 				for (int k = 0; k < MUL; k++)
-					versions[x++] = new Version(i, j, k, qualifierTemplate.substring(0, k + 1));
+					versions[x++] = Version.createOSGi(i, j, k, qualifierTemplate.substring(0, k + 1));
 		return versions;
 	}
 

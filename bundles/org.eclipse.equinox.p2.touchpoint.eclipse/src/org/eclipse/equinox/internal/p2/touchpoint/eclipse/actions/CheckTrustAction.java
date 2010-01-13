@@ -17,12 +17,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 
 /**
  * This action collects the set of bundle files on which the signature trust check
@@ -35,20 +35,22 @@ public class CheckTrustAction extends ProvisioningAction {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction#execute(java.util.Map)
 	 */
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
 		if (iu == null)
 			return null;
+		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		//if the IU is already in the profile there is nothing to do
-		if (!profile.available(new InstallableUnitQuery(iu), new Collector(), null).isEmpty())
+		if (!profile.available(new InstallableUnitQuery(iu), null).isEmpty())
 			return null;
-		Collection bundleFiles = (Collection) parameters.get(ActionConstants.PARM_ARTIFACT_FILES);
-		IArtifactKey[] artifacts = iu.getArtifacts();
+		@SuppressWarnings("unchecked")
+		Collection<File> bundleFiles = (Collection<File>) parameters.get(ActionConstants.PARM_ARTIFACT_FILES);
+		Collection<IArtifactKey> artifacts = iu.getArtifacts();
 		if (artifacts == null)
 			return null;
-		for (int i = 0; i < artifacts.length; i++) {
-			File bundleFile = Util.getArtifactFile(artifacts[i], profile);
+		for (IArtifactKey key : artifacts) {
+			File bundleFile = Util.getArtifactFile(agent, key, profile);
 			if (!bundleFiles.contains(bundleFile))
 				bundleFiles.add(bundleFile);
 		}
@@ -58,7 +60,7 @@ public class CheckTrustAction extends ProvisioningAction {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction#undo(java.util.Map)
 	 */
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		return Status.OK_STATUS;
 	}
 }

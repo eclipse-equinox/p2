@@ -8,20 +8,18 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -34,10 +32,10 @@ public class TwoVersionsOfWSDL extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		IMetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		IMetadataRepository repo = repoMan.loadRepository(getTestData("repository for wsdl test", "testData/metadataRepo/wsdlTestRepo/").toURI(), new NullProgressMonitor());
-		wsdl15 = (IInstallableUnit) repo.query(new InstallableUnitQuery("javax.wsdl", new VersionRange("[1.5, 1.6)")), new Collector(), null).iterator().next();
-		wsdl14 = (IInstallableUnit) repo.query(new InstallableUnitQuery("javax.wsdl", new VersionRange("[1.4, 1.5)")), new Collector(), null).iterator().next();
+		wsdl15 = (IInstallableUnit) repo.query(new InstallableUnitQuery("javax.wsdl", new VersionRange("[1.5, 1.6)")), null).iterator().next();
+		wsdl14 = (IInstallableUnit) repo.query(new InstallableUnitQuery("javax.wsdl", new VersionRange("[1.4, 1.5)")), null).iterator().next();
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();
@@ -50,7 +48,7 @@ public class TwoVersionsOfWSDL extends AbstractProvisioningTest {
 		req1.addInstallableUnits(new IInstallableUnit[] {wsdl15, wsdl14});
 		req1.setInstallableUnitInclusionRules(wsdl15, PlannerHelper.createStrictInclusionRule(wsdl15));
 		req1.setInstallableUnitInclusionRules(wsdl14, PlannerHelper.createStrictInclusionRule(wsdl14));
-		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
+		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 		assertInstallOperand(plan1, wsdl15);
 		assertInstallOperand(plan1, wsdl14);

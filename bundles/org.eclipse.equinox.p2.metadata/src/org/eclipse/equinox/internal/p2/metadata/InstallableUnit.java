@@ -11,40 +11,45 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import java.util.ArrayList;
-import java.util.Map;
+import org.eclipse.equinox.p2.metadata.Version;
+
+import java.util.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.osgi.framework.Filter;
 
 public class InstallableUnit implements IInstallableUnit {
 
 	private static final OrderedProperties NO_PROPERTIES = new OrderedProperties();
 	private static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
-	private static final IRequiredCapability[] NO_REQUIRES = new IRequiredCapability[0];
+	private static final IRequirement[] NO_REQUIRES = new IRequirement[0];
 	private static final IArtifactKey[] NO_ARTIFACTS = new IArtifactKey[0];
 	private static final ITouchpointData[] NO_TOUCHPOINT_DATA = new ITouchpointData[0];
+	private static final ILicense[] NO_LICENSE = new ILicense[0];
 
 	private IArtifactKey[] artifacts = NO_ARTIFACTS;
-	private String filter;
+	private Filter filter;
 
 	private String id;
 
 	private OrderedProperties properties;
 	private OrderedProperties localizedProperties;
 	IProvidedCapability[] providedCapabilities = NO_PROVIDES;
-	private IRequiredCapability[] requires = NO_REQUIRES;
-	private IRequiredCapability[] metaRequires = NO_REQUIRES;
+	private IRequirement[] requires = NO_REQUIRES;
+	private IRequirement[] metaRequires = NO_REQUIRES;
 
 	private boolean singleton;
 
-	private ArrayList touchpointData = null;
+	private ITouchpointData[] touchpointData = NO_TOUCHPOINT_DATA;
 
 	private ITouchpointType touchpointType;
 
-	private Version version;
+	private Version version = Version.emptyVersion;
 
 	private IUpdateDescriptor updateInfo;
-	private ILicense license;
+	private ILicense[] licenses = NO_LICENSE;
 	private ICopyright copyright;
 
 	public InstallableUnit() {
@@ -52,26 +57,22 @@ public class InstallableUnit implements IInstallableUnit {
 	}
 
 	public void addTouchpointData(ITouchpointData newData) {
-		ensureTouchpointDataCapacity(1);
-		touchpointData.add(newData);
+		int tl = touchpointData.length;
+		if (tl == 0)
+			touchpointData = new ITouchpointData[] {newData};
+		else {
+			ITouchpointData[] newDatas = new ITouchpointData[tl + 1];
+			System.arraycopy(touchpointData, 0, newDatas, 0, tl);
+			newDatas[tl] = newData;
+			touchpointData = newDatas;
+		}
 	}
 
-	public int compareTo(Object toCompareTo) {
-		if (!(toCompareTo instanceof IInstallableUnit)) {
-			return -1;
-		}
-		IInstallableUnit other = (IInstallableUnit) toCompareTo;
-		if (getId().compareTo(other.getId()) == 0)
-			return (getVersion().compareTo(other.getVersion()));
-		return getId().compareTo(other.getId());
-	}
-
-	private void ensureTouchpointDataCapacity(int size) {
-		if (touchpointData != null) {
-			touchpointData.ensureCapacity(size);
-		} else {
-			touchpointData = new ArrayList(size);
-		}
+	public int compareTo(IInstallableUnit other) {
+		int cmp = getId().compareTo(other.getId());
+		if (cmp == 0)
+			cmp = getVersion().compareTo(other.getVersion());
+		return cmp;
 	}
 
 	public boolean equals(Object obj) {
@@ -95,16 +96,16 @@ public class InstallableUnit implements IInstallableUnit {
 		return true;
 	}
 
-	public IArtifactKey[] getArtifacts() {
-		return artifacts;
+	public Collection<IArtifactKey> getArtifacts() {
+		return CollectionUtils.unmodifiableList(artifacts);
 	}
 
-	public String getFilter() {
+	public Filter getFilter() {
 		return filter;
 	}
 
-	public IInstallableUnitFragment[] getFragments() {
-		return null;
+	public List<IInstallableUnitFragment> getFragments() {
+		return CollectionUtils.emptyList();
 	}
 
 	public String getId() {
@@ -117,7 +118,7 @@ public class InstallableUnit implements IInstallableUnit {
 	 * 
 	 * @return an <i>unmodifiable copy</i> of the IU properties.
 	 */
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		return OrderedProperties.unmodifiableProperties(properties());
 	}
 
@@ -135,18 +136,21 @@ public class InstallableUnit implements IInstallableUnit {
 		return properties().getProperty(key);
 	}
 
-	public IProvidedCapability[] getProvidedCapabilities() {
-		return providedCapabilities;
+	public Collection<IProvidedCapability> getProvidedCapabilities() {
+		return CollectionUtils.unmodifiableList(providedCapabilities);
 	}
 
-	public IRequiredCapability[] getRequiredCapabilities() {
-		return requires;
+	public String getProperty(String key, String locale) {
+		return TranslationSupport.getInstance().getIUProperty(this, key, locale);
+	}
+
+	public List<IRequirement> getRequiredCapabilities() {
+		return CollectionUtils.unmodifiableList(requires);
 
 	}
 
-	public ITouchpointData[] getTouchpointData() {
-		return (touchpointData == null ? NO_TOUCHPOINT_DATA //
-				: (ITouchpointData[]) touchpointData.toArray(new ITouchpointData[touchpointData.size()]));
+	public List<ITouchpointData> getTouchpointData() {
+		return CollectionUtils.unmodifiableList(touchpointData);
 	}
 
 	public ITouchpointType getTouchpointType() {
@@ -163,10 +167,6 @@ public class InstallableUnit implements IInstallableUnit {
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((getVersion() == null) ? 0 : getVersion().hashCode());
 		return result;
-	}
-
-	public boolean isFragment() {
-		return false;
 	}
 
 	public boolean isResolved() {
@@ -195,8 +195,12 @@ public class InstallableUnit implements IInstallableUnit {
 			providedCapabilities = newCapabilities;
 	}
 
-	public void setFilter(String filter) {
+	public void setFilter(Filter filter) {
 		this.filter = filter;
+	}
+
+	public void setFilter(String filter) {
+		setFilter(filter == null ? null : ExpressionUtil.parseLDAP(filter));
 	}
 
 	public void setId(String id) {
@@ -209,7 +213,7 @@ public class InstallableUnit implements IInstallableUnit {
 	public String setLocalizedProperty(String key, String value) {
 		if (localizedProperties == null)
 			localizedProperties = new OrderedProperties();
-		return (String) localizedProperties.put(key, value);
+		return localizedProperties.put(key, value);
 	}
 
 	public String setProperty(String key, String value) {
@@ -220,12 +224,12 @@ public class InstallableUnit implements IInstallableUnit {
 		return (String) properties.setProperty(key, value);
 	}
 
-	public void setRequiredCapabilities(IRequiredCapability[] capabilities) {
+	public void setRequiredCapabilities(IRequirement[] capabilities) {
 		if (capabilities.length == 0) {
 			this.requires = NO_REQUIRES;
 		} else {
 			//copy array for safety
-			this.requires = (IRequiredCapability[]) capabilities.clone();
+			this.requires = capabilities.clone();
 		}
 	}
 
@@ -257,12 +261,16 @@ public class InstallableUnit implements IInstallableUnit {
 		this.updateInfo = updateInfo;
 	}
 
-	public void setLicense(ILicense license) {
-		this.license = license;
+	public void setLicenses(ILicense[] license) {
+		this.licenses = license == null ? NO_LICENSE : license;
 	}
 
-	public ILicense getLicense() {
-		return license;
+	public Collection<ILicense> getLicenses() {
+		return CollectionUtils.unmodifiableList(licenses);
+	}
+
+	public ILicense[] getLicenses(String locale) {
+		return TranslationSupport.getInstance().getLicenses(this, locale);
 	}
 
 	public void setCopyright(ICopyright copyright) {
@@ -273,24 +281,24 @@ public class InstallableUnit implements IInstallableUnit {
 		return copyright;
 	}
 
-	public boolean satisfies(IRequiredCapability candidate) {
-		IProvidedCapability[] provides = getProvidedCapabilities();
-		for (int i = 0; i < provides.length; i++)
-			if (provides[i].satisfies(candidate))
-				return true;
-		return false;
+	public ICopyright getCopyright(String locale) {
+		return TranslationSupport.getInstance().getCopyright(this, locale);
 	}
 
-	public IRequiredCapability[] getMetaRequiredCapabilities() {
-		return metaRequires;
+	public boolean satisfies(IRequirement candidate) {
+		return candidate.isMatch(this);
 	}
 
-	public void setMetaRequiredCapabilities(IRequiredCapability[] metaReqs) {
+	public Collection<IRequirement> getMetaRequiredCapabilities() {
+		return CollectionUtils.unmodifiableList(metaRequires);
+	}
+
+	public void setMetaRequiredCapabilities(IRequirement[] metaReqs) {
 		if (metaReqs.length == 0) {
 			this.metaRequires = NO_REQUIRES;
 		} else {
 			//copy array for safety
-			this.metaRequires = (IRequiredCapability[]) metaReqs.clone();
+			this.metaRequires = metaReqs.clone();
 		}
 	}
 }

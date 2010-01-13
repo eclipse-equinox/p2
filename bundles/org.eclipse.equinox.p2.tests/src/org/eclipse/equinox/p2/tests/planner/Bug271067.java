@@ -10,21 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class Bug271067 extends AbstractProvisioningTest {
 	private IProfile profile;
@@ -37,7 +36,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 		File reporegistry1 = getTestData("test data bug 271067", "testData/bug271067/profileRegistry");
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
-		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 		//Tweak the running profile registry
 		Field profileStore = SimpleProfileRegistry.class.getDeclaredField("store");
 		profileStore.setAccessible(true);
@@ -56,7 +55,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 
 	@Override
 	protected void tearDown() throws Exception {
-		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		SimpleProfileRegistry realProfileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 
 		Field profilesMapField = SimpleProfileRegistry.class.getDeclaredField("profiles"); //$NON-NLS-1$
 		profilesMapField.setAccessible(true);
@@ -69,8 +68,8 @@ public class Bug271067 extends AbstractProvisioningTest {
 	}
 
 	IInstallableUnit getIU(IMetadataRepository source, String id, String version) {
-		Collector c = repo.query(new InstallableUnitQuery(id, new Version(version)), new Collector(), new NullProgressMonitor());
-		assertEquals(1, c.size());
+		IQueryResult c = repo.query(new InstallableUnitQuery(id, Version.create(version)), new NullProgressMonitor());
+		assertEquals(1, queryResultSize(c));
 		return (IInstallableUnit) c.iterator().next();
 	}
 
@@ -93,9 +92,9 @@ public class Bug271067 extends AbstractProvisioningTest {
 		installFeature1.setInstallableUnitInclusionRules(helloPatch, PlannerHelper.createOptionalInclusionRule(helloPatch));
 		installFeature1.setInstallableUnitInclusionRules(patchJar, PlannerHelper.createOptionalInclusionRule(patchJar));
 
-		ProvisioningPlan feature1Plan = createPlanner().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
-		assertOK("installation of feature1 and patch", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature1Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
-		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
+		IProvisioningPlan feature1Plan = createPlanner().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
+		assertOK("installation of feature1 and patch", createEngine().perform(feature1Plan, new NullProgressMonitor()));
+		assertEquals(1, queryResultSize(getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.0.1")), new NullProgressMonitor())));
 
 		IInstallableUnit featureGroup2 = getIU(repo, "hello.feature.2.feature.group", "1.0.0");
 		IInstallableUnit helloIU2 = getIU(repo, "hello", "1.0.2");
@@ -107,9 +106,9 @@ public class Bug271067 extends AbstractProvisioningTest {
 		installFeature2.setInstallableUnitInclusionRules(helloIU2, PlannerHelper.createOptionalInclusionRule(helloIU2));
 		installFeature2.setInstallableUnitInclusionRules(featureJar2, PlannerHelper.createOptionalInclusionRule(featureJar2));
 
-		ProvisioningPlan feature2Plan = createPlanner().getProvisioningPlan(installFeature2, new ProvisioningContext(), null);
-		assertOK("installation of feature2", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature2Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
-		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
+		IProvisioningPlan feature2Plan = createPlanner().getProvisioningPlan(installFeature2, new ProvisioningContext(), null);
+		assertOK("installation of feature2", createEngine().perform(feature2Plan, new NullProgressMonitor()));
+		assertEquals(1, queryResultSize(getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.0.1")), new NullProgressMonitor())));
 	}
 
 	public void testInstallFeaturePatchReverseOrder() {
@@ -123,9 +122,9 @@ public class Bug271067 extends AbstractProvisioningTest {
 		installFeature2.setInstallableUnitInclusionRules(helloIU2, PlannerHelper.createOptionalInclusionRule(helloIU2));
 		installFeature2.setInstallableUnitInclusionRules(featureJar2, PlannerHelper.createOptionalInclusionRule(featureJar2));
 
-		ProvisioningPlan feature2Plan = createPlanner().getProvisioningPlan(installFeature2, new ProvisioningContext(), null);
-		assertOK("installation of feature2", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature2Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
-		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.2")), new Collector(), new NullProgressMonitor()).size());
+		IProvisioningPlan feature2Plan = createPlanner().getProvisioningPlan(installFeature2, new ProvisioningContext(), null);
+		assertOK("installation of feature2", createEngine().perform(feature2Plan, new NullProgressMonitor()));
+		assertEquals(1, queryResultSize(getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.2")), new NullProgressMonitor())));
 
 		ProfileChangeRequest installFeature1 = new ProfileChangeRequest(getProfile(profileLoadedId));
 		IInstallableUnit featureGroup = getIU(repo, "hello.feature.1.feature.group", "1.0.0");
@@ -144,9 +143,9 @@ public class Bug271067 extends AbstractProvisioningTest {
 		installFeature1.setInstallableUnitInclusionRules(helloPatch, PlannerHelper.createOptionalInclusionRule(helloPatch));
 		installFeature1.setInstallableUnitInclusionRules(patchJar, PlannerHelper.createOptionalInclusionRule(patchJar));
 
-		ProvisioningPlan feature1Plan = createPlanner().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
-		assertOK("installation of feature1 and patch", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), feature1Plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
-		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
+		IProvisioningPlan feature1Plan = createPlanner().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
+		assertOK("installation of feature1 and patch", createEngine().perform(feature1Plan, new NullProgressMonitor()));
+		assertEquals(1, queryResultSize(getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.0.1")), new NullProgressMonitor())));
 	}
 
 	public void installTogether() {
@@ -174,8 +173,8 @@ public class Bug271067 extends AbstractProvisioningTest {
 		installEverything.setInstallableUnitInclusionRules(helloPatch, PlannerHelper.createOptionalInclusionRule(helloPatch));
 		installEverything.setInstallableUnitInclusionRules(patchJar, PlannerHelper.createOptionalInclusionRule(patchJar));
 
-		ProvisioningPlan plan = createPlanner().getProvisioningPlan(installEverything, new ProvisioningContext(), null);
-		assertOK("installation of feature1 and patch", createEngine().perform(getProfile(profileLoadedId), new DefaultPhaseSet(), plan.getOperands(), new ProvisioningContext(), new NullProgressMonitor()));
-		assertEquals(1, getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", new Version("1.0.0.1")), new Collector(), new NullProgressMonitor()).size());
+		IProvisioningPlan plan = createPlanner().getProvisioningPlan(installEverything, new ProvisioningContext(), null);
+		assertOK("installation of feature1 and patch", createEngine().perform(plan, new NullProgressMonitor()));
+		assertEquals(1, queryResultSize(getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.0.1")), new NullProgressMonitor())));
 	}
 }

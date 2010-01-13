@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.ant;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,9 +22,9 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
 /**
  * Ant task for creating a new composite metadata repository.
@@ -35,13 +35,13 @@ public class CreateCompositeMetadataRepositoryTask extends Task {
 	String name = "Composite Metadata Repository";
 	boolean compressed = true; // compress by default
 	boolean failOnExists = false; // should we fail if one already exists?
-	Map properties = new HashMap();
+	Map<String, String> properties = new HashMap<String, String>();
 
 	/* (non-Javadoc)
 	 * @see org.apache.tools.ant.Task#execute()
 	 */
 	public void execute() {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new BuildException("Unable to aquire metadata repository manager service.");
 

@@ -8,13 +8,17 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class MissingDependency3 extends AbstractProvisioningTest {
@@ -28,12 +32,12 @@ public class MissingDependency3 extends AbstractProvisioningTest {
 		super.setUp();
 		IRequiredCapability[] reqA = new IRequiredCapability[1];
 		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
-		a1 = createIU("A", new Version("1.0.0"), reqA);
+		a1 = createIU("A", Version.create("1.0.0"), reqA);
 
 		//Missing dependency
 		IRequiredCapability[] req = new IRequiredCapability[1];
 		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true);
-		b1 = createIU("B", new Version("1.0.0"), req);
+		b1 = createIU("B", Version.create("1.0.0"), req);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1});
 
@@ -44,7 +48,7 @@ public class MissingDependency3 extends AbstractProvisioningTest {
 	public void testContradiction() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
 	}

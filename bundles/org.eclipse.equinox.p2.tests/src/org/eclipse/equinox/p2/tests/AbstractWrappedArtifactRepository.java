@@ -15,9 +15,10 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.artifact.*;
 
 public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 
@@ -49,10 +50,6 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		return delegate.getArtifactDescriptors(key);
-	}
-
-	public IArtifactKey[] getArtifactKeys() {
-		return delegate.getArtifactKeys();
 	}
 
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
@@ -129,5 +126,17 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 
 	public Object getAdapter(Class adapter) {
 		return delegate.getAdapter(adapter);
+	}
+
+	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+		return delegate.createArtifactDescriptor(key);
+	}
+
+	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
+		return delegate.descriptorQueryable();
+	}
+
+	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
+		return delegate.query(query, monitor);
 	}
 }

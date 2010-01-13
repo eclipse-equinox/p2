@@ -11,13 +11,14 @@
 
 package org.eclipse.equinox.internal.p2.repository;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.FileNotFoundException;
 import java.net.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
 import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
 /**

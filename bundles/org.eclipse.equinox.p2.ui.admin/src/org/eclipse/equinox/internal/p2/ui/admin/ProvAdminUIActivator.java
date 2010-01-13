@@ -10,26 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-
-import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.ValidationDialogServiceUI;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.ValidationDialogServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.Profiles;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.ProvElementContentProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.ProvElementLabelProvider;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
+import org.eclipse.equinox.p2.metadata.query.GroupQuery;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.jface.window.Window;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -105,79 +100,52 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 		if (preferenceListener == null) {
 			preferenceListener = new IPropertyChangeListener() {
 				public void propertyChange(PropertyChangeEvent event) {
-					updateForPreferences(getPolicy().getQueryContext());
+					updateForPreferences();
 				}
 			};
 		}
 		return preferenceListener;
 	}
 
-	void updateForPreferences(IUViewQueryContext queryContext) {
-		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY))
-			queryContext.setVisibleAvailableIUProperty(IInstallableUnit.PROP_TYPE_GROUP);
-		else
-			queryContext.setVisibleAvailableIUProperty(null);
-		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY))
-			queryContext.setVisibleInstalledIUProperty(IInstallableUnit.PROP_PROFILE_ROOT_IU);
-		else
-			queryContext.setVisibleInstalledIUProperty(null);
+	void updateForPreferences() {
 
+		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY))
+			policy.setVisibleAvailableIUQuery(new GroupQuery());
+		else
+			policy.setVisibleAvailableIUQuery(InstallableUnitQuery.ANY);
+		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY))
+			policy.setVisibleInstalledIUQuery(new UserVisibleRootQuery());
+		else
+			policy.setVisibleInstalledIUQuery(InstallableUnitQuery.ANY);
+
+		RepositoryTracker tracker = getRepositoryTracker();
 		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS)) {
-			queryContext.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
-			queryContext.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+			tracker.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
+			tracker.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_NON_SYSTEM);
 		} else {
-			queryContext.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
-			queryContext.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
+			tracker.setArtifactRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
+			tracker.setMetadataRepositoryFlags(IRepositoryManager.REPOSITORIES_ALL);
 		}
-		queryContext.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS));
-		queryContext.setUseCategories(getPreferenceStore().getBoolean(PreferenceConstants.PREF_USE_CATEGORIES));
+		// store in ui prefs
+		policy.setShowLatestVersionsOnly(getPreferenceStore().getBoolean(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS));
+		policy.setGroupByCategory(getPreferenceStore().getBoolean(PreferenceConstants.PREF_USE_CATEGORIES));
+	}
+
+	private RepositoryTracker getRepositoryTracker() {
+		return (RepositoryTracker) ServiceHelper.getService(ProvUIActivator.getContext(), RepositoryTracker.class.getName());
 	}
 
 	void initializePolicy() {
 		policy = new Policy();
 		// Manipulate the default query context according to our preferences
-		IUViewQueryContext queryContext = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_BY_REPO);
-		policy.setQueryContext(queryContext);
-		updateForPreferences(queryContext);
-		policy.setPlanValidator(new PlanValidator() {
-			public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
-				if (plan == null)
-					return false;
-				return true;
-			}
-		});
-		policy.setProfileChooser(new IProfileChooser() {
-			public String getProfileId(Shell shell) {
-				// TODO would be nice if the profile chooser dialog let you
-				// create a new profile
-				ProvElementContentProvider provider = new ProvElementContentProvider();
-				if (provider.getElements(new Profiles(getPolicy())).length == 0) {
-					AddProfileDialog dialog = new AddProfileDialog(shell, new String[0]);
-					if (dialog.open() == Window.OK) {
-						return dialog.getAddedProfileId();
-					}
-					return null;
-				}
-
-				ListDialog dialog = new ListDialog(shell);
-				dialog.setTitle(ProvAdminUIMessages.MetadataRepositoriesView_ChooseProfileDialogTitle);
-				dialog.setLabelProvider(new ProvElementLabelProvider());
-				dialog.setInput(new Profiles(getPolicy()));
-				dialog.setContentProvider(provider);
-				dialog.open();
-				Object[] result = dialog.getResult();
-				if (result != null && result.length > 0) {
-					IProfile profile = (IProfile) ProvUI.getAdapter(result[0], IProfile.class);
-					if (profile != null)
-						return profile.getProfileId();
-				}
-				return null;
-			}
-		});
-		policy.setRepositoryManipulator(new ColocatedRepositoryManipulator(policy, null));
+		updateForPreferences();
 	}
 
 	public Policy getPolicy() {
 		return policy;
+	}
+
+	public ProvisioningUI getProvisioningUI(String profileId) {
+		return new ProvisioningUI(ProvisioningUI.getDefaultUI().getSession(), profileId, policy);
 	}
 }

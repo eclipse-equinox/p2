@@ -10,23 +10,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
 import java.io.File;
 import java.util.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.garbagecollector.MarkSet;
 import org.eclipse.equinox.internal.p2.garbagecollector.MarkSetProvider;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.osgi.framework.ServiceReference;
 
 /**
@@ -36,11 +35,11 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	private static final String ARTIFACT_CLASSIFIER_OSGI_BUNDLE = "osgi.bundle"; //$NON-NLS-1$
 	private static final String ARTIFACT_CLASSIFIER_FEATURE = "org.eclipse.update.feature"; //$NON-NLS-1$
 
-	private Collection artifactKeyList = null;
+	private Collection<IArtifactKey> artifactKeyList = null;
 
-	public MarkSet[] getMarkSets(IProfile inProfile) {
-		artifactKeyList = new HashSet();
-		IArtifactRepository repositoryToGC = Util.getBundlePoolRepository(inProfile);
+	public MarkSet[] getMarkSets(IProvisioningAgent agent, IProfile inProfile) {
+		artifactKeyList = new HashSet<IArtifactKey>();
+		IArtifactRepository repositoryToGC = Util.getBundlePoolRepository(agent, inProfile);
 		if (repositoryToGC == null)
 			return new MarkSet[0];
 		addArtifactKeys(inProfile);
@@ -49,15 +48,14 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 			addRunningBundles(repositoryToGC);
 			addRunningFeatures(inProfile, repositoryToGC);
 		}
-		return new MarkSet[] {new MarkSet((IArtifactKey[]) artifactKeyList.toArray(new IArtifactKey[0]), repositoryToGC)};
+		return new MarkSet[] {new MarkSet(artifactKeyList.toArray(new IArtifactKey[artifactKeyList.size()]), repositoryToGC)};
 	}
 
 	private void addRunningFeatures(IProfile profile, IArtifactRepository repositoryToGC) {
 		try {
-			List allFeatures = getAllFeatures(Configuration.load(new File(Util.getConfigurationFolder(profile), "org.eclipse.update/platform.xml"), null)); //$NON-NLS-1$
-			for (Iterator iterator = allFeatures.iterator(); iterator.hasNext();) {
-				Feature f = (Feature) iterator.next();
-				IArtifactKey match = searchArtifact(f.getId(), new Version(f.getVersion()), ARTIFACT_CLASSIFIER_FEATURE, repositoryToGC);
+			List<Feature> allFeatures = getAllFeatures(Configuration.load(new File(Util.getConfigurationFolder(profile), "org.eclipse.update/platform.xml"), null)); //$NON-NLS-1$
+			for (Feature f : allFeatures) {
+				IArtifactKey match = searchArtifact(f.getId(), Version.create(f.getVersion()), ARTIFACT_CLASSIFIER_FEATURE, repositoryToGC);
 				if (match != null)
 					artifactKeyList.add(match);
 			}
@@ -66,13 +64,12 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		}
 	}
 
-	private List getAllFeatures(Configuration cfg) {
+	private List<Feature> getAllFeatures(Configuration cfg) {
 		if (cfg == null)
-			return Collections.EMPTY_LIST;
-		List sites = cfg.getSites();
-		ArrayList result = new ArrayList();
-		for (Iterator iterator = sites.iterator(); iterator.hasNext();) {
-			Site object = (Site) iterator.next();
+			return CollectionUtils.emptyList();
+		List<Site> sites = cfg.getSites();
+		ArrayList<Feature> result = new ArrayList<Feature>();
+		for (Site object : sites) {
 			Feature[] features = object.getFeatures();
 			for (int i = 0; i < features.length; i++) {
 				result.add(features[i]);
@@ -82,7 +79,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	}
 
 	private IProfile getCurrentProfile() {
-		ServiceReference sr = Activator.getContext().getServiceReference(IProfileRegistry.class.getName());
+		ServiceReference sr = Activator.getContext().getServiceReference(IProfileRegistry.SERVICE_NAME);
 		if (sr == null)
 			return null;
 		IProfileRegistry pr = (IProfileRegistry) Activator.getContext().getService(sr);
@@ -93,19 +90,17 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	}
 
 	private void addArtifactKeys(IProfile aProfile) {
-		Iterator installableUnits = aProfile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		Iterator<IInstallableUnit> installableUnits = aProfile.query(InstallableUnitQuery.ANY, null).iterator();
 		while (installableUnits.hasNext()) {
-			IArtifactKey[] keys = ((IInstallableUnit) installableUnits.next()).getArtifacts();
+			Collection<IArtifactKey> keys = installableUnits.next().getArtifacts();
 			if (keys == null)
 				continue;
-			for (int i = 0; i < keys.length; i++) {
-				artifactKeyList.add(keys[i]);
-			}
+			artifactKeyList.addAll(keys);
 		}
 	}
 
-	public IArtifactRepository getRepository(IProfile aProfile) {
-		return Util.getBundlePoolRepository(aProfile);
+	public IArtifactRepository getRepository(IProvisioningAgent agent, IProfile aProfile) {
+		return Util.getBundlePoolRepository(agent, aProfile);
 	}
 
 	private void addRunningBundles(IArtifactRepository repo) {
@@ -114,23 +109,20 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 
 	private IArtifactKey searchArtifact(String searchedId, Version searchedVersion, String classifier, IArtifactRepository repo) {
 		//This is somewhat cheating since normally we should get the artifact key from the IUs that were representing the running system (e.g. we could get that info from the rollback repo)
-		IArtifactKey[] keys = repo.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			if (keys[i].getClassifier().equals(classifier)) {
-				String id = keys[i].getId();
-				Version v = keys[i].getVersion();
-				if (id != null && id.equals(searchedId) && v != null && v.equals(searchedVersion))
-					return keys[i];
-			}
-		}
+		VersionRange range = searchedVersion != null ? new VersionRange(searchedVersion, true, searchedVersion, true) : null;
+		ArtifactKeyQuery query = new ArtifactKeyQuery(classifier, searchedId, range);
+		//TODO short-circuit the query when we find one?
+		IQueryResult<IArtifactKey> keys = repo.query(query, null);
+		if (!keys.isEmpty())
+			return keys.iterator().next();
 		return null;
 	}
 
 	//Find for each bundle info a corresponding artifact in repo 
-	private ArrayList findCorrespondinArtifacts(BundleInfo[] bis, IArtifactRepository repo) {
-		ArrayList toRetain = new ArrayList();
+	private List<IArtifactKey> findCorrespondinArtifacts(BundleInfo[] bis, IArtifactRepository repo) {
+		ArrayList<IArtifactKey> toRetain = new ArrayList<IArtifactKey>();
 		for (int i = 0; i < bis.length; i++) {
-			IArtifactKey match = searchArtifact(bis[i].getSymbolicName(), new Version(bis[i].getVersion()), ARTIFACT_CLASSIFIER_OSGI_BUNDLE, repo);
+			IArtifactKey match = searchArtifact(bis[i].getSymbolicName(), Version.create(bis[i].getVersion()), ARTIFACT_CLASSIFIER_OSGI_BUNDLE, repo);
 			if (match != null)
 				toRetain.add(match);
 		}

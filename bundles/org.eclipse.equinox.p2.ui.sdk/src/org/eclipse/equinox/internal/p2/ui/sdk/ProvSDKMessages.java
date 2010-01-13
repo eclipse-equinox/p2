@@ -24,9 +24,6 @@ public class ProvSDKMessages extends NLS {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, ProvSDKMessages.class);
 	}
-	public static String Handler_CannotLaunchUI;
-	public static String Handler_SDKUpdateUIMessageTitle;
-	public static String InstallNewSoftwareHandler_LoadRepositoryJobLabel;
 	public static String PreferenceInitializer_Error;
 	public static String ProvisioningPreferencePage_AlwaysOpenWizard;
 	public static String ProvisioningPreferencePage_BrowsingPrefsGroup;
@@ -41,7 +38,7 @@ public class ProvSDKMessages extends NLS {
 	public static String ProvSDKUIActivator_NoSelfProfile;
 	public static String ProvSDKUIActivator_OpenWizardAnyway;
 	public static String ProvSDKUIActivator_Question;
-	public static String ProvSDKUIActivator_SitePrefLink;
+	public static String ProvUILicenseManager_ParsingError;
 	public static String UpdateHandler_NoSitesMessage;
 	public static String UpdateHandler_NoSitesTitle;
 }

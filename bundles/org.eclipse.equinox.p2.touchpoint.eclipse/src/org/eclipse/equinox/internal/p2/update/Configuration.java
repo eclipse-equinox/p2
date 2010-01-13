@@ -21,21 +21,21 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.ProvisionException;
 
 /**
  * @since 1.0
  */
 public class Configuration {
 
-	private List sites = new ArrayList();
+	private List<Site> sites = new ArrayList<Site>();
 	String date;
 	boolean transientProperty;
 	String version;
 	String shared_ur;
 
 	public static Configuration load(File location, URL osgiInstallArea) throws ProvisionException {
-		return ConfigurationParser.parse(location, osgiInstallArea);
+		return ConfigurationIO.read(location, osgiInstallArea);
 	}
 
 	public Configuration() {
@@ -43,7 +43,7 @@ public class Configuration {
 	}
 
 	public void save(File location, URL osgiInstallArea) throws ProvisionException {
-		ConfigurationWriter.save(this, location, osgiInstallArea);
+		ConfigurationIO.write(location, this, osgiInstallArea);
 	}
 
 	public String getSharedUR() {
@@ -54,17 +54,17 @@ public class Configuration {
 		shared_ur = value;
 	}
 
-	public List getSites() {
+	public List<Site> getSites() {
 		return internalGetSites(true);
 	}
 
-	List internalGetSites(boolean includeParent) {
+	List<Site> internalGetSites(boolean includeParent) {
 		if (!includeParent)
 			return sites;
 		String shared = getSharedUR();
 		if (shared == null)
 			return sites;
-		List result = new ArrayList(sites);
+		List<Site> result = new ArrayList<Site>(sites);
 		try {
 			URL url = new URL(shared);
 			File location = URLUtil.toFile(url);

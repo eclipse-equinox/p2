@@ -11,10 +11,10 @@
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
 /**
  * Service factory for creating {@link IMetadataRepositoryManager} instances.
@@ -25,8 +25,11 @@ public class MetadataRepositoryComponent implements IAgentServiceFactory {
 		MetadataRepositoryManager manager = new MetadataRepositoryManager();
 		final IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 		manager.setEventBus(eventBus);
-		CacheManager cache = new CacheManager((AgentLocation) agent.getService(AgentLocation.SERVICE_NAME));
+		manager.setAgentLocation((IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME));
+		manager.setAgent(agent);
+		CacheManager cache = new CacheManager((IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME));
 		cache.setEventBus(eventBus);
+		agent.registerService(CacheManager.SERVICE_NAME, cache);
 		return manager;
 	}
 

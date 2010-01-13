@@ -11,27 +11,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-
 import java.io.*;
 import java.net.URI;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
 /**
  * A metadata repository that resides in the local file system.  If the repository
@@ -46,8 +43,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	static final private String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	static final private String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
-	protected HashSet units = new LinkedHashSet();
-	protected HashSet repositories = new HashSet();
+	protected IUMap units = new IUMap();
+	protected HashSet<RepositoryReference> repositories = new HashSet<RepositoryReference>();
 
 	private static File getActualLocation(URI location, String extension) {
 		File spec = URIUtil.toFile(location);
@@ -80,7 +77,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	 * @param location The location of the repository
 	 * @param name The name of the repository
 	 */
-	public LocalMetadataRepository(URI location, String name, Map properties) {
+	public LocalMetadataRepository(URI location, String name, Map<String, String> properties) {
 		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
 		if (!location.getScheme().equals("file")) //$NON-NLS-1$
 			throw new IllegalArgumentException("Invalid local repository location: " + location); //$NON-NLS-1$
@@ -91,7 +88,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	public synchronized void addInstallableUnits(IInstallableUnit[] installableUnits) {
 		if (installableUnits == null || installableUnits.length == 0)
 			return;
-		units.addAll(Arrays.asList(installableUnits));
+		units.addAll(installableUnits);
 		save();
 	}
 
@@ -109,7 +106,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 			this.description = state.Description;
 			this.location = state.Location;
 			this.properties = state.Properties;
-			this.units.addAll(Arrays.asList(state.Units));
+			this.units.addAll(state.Units);
 			this.repositories.addAll(Arrays.asList(state.Repositories));
 		}
 		publishRepositoryReferences();
@@ -123,18 +120,17 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		if (bus == null)
 			return;
 
-		List repositoriesSnapshot = createRepositoriesSnapshot();
-		for (Iterator it = repositoriesSnapshot.iterator(); it.hasNext();) {
-			RepositoryReference reference = (RepositoryReference) it.next();
+		List<RepositoryReference> repositoriesSnapshot = createRepositoriesSnapshot();
+		for (RepositoryReference reference : repositoriesSnapshot) {
 			boolean isEnabled = (reference.Options & IRepository.ENABLED) != 0;
 			bus.publishEvent(new RepositoryEvent(reference.Location, reference.Type, RepositoryEvent.DISCOVERED, isEnabled));
 		}
 	}
 
-	private synchronized List createRepositoriesSnapshot() {
+	private synchronized List<RepositoryReference> createRepositoriesSnapshot() {
 		if (repositories.isEmpty())
-			return Collections.EMPTY_LIST;
-		return new ArrayList(repositories);
+			return CollectionUtils.emptyList();
+		return new ArrayList<RepositoryReference>(repositories);
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
@@ -146,8 +142,10 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		return true;
 	}
 
-	public synchronized Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-		return query.perform(units.iterator(), collector);
+	public synchronized IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+		if (query instanceof InstallableUnitQuery)
+			return units.query((InstallableUnitQuery) query);
+		return query.perform(units.iterator());
 	}
 
 	public synchronized void removeAll() {
@@ -155,12 +153,11 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		save();
 	}
 
-	public synchronized boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
+	public synchronized boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
 		boolean changed = false;
-		Collector results = query.perform(units.iterator(), new Collector());
-		if (results.size() > 0) {
+		if (installableUnits != null && installableUnits.length > 0) {
 			changed = true;
-			units.removeAll(results.toCollection());
+			units.removeAll(Arrays.asList(installableUnits));
 		}
 		if (changed)
 			save();
@@ -171,7 +168,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	private void save() {
 		File file = getActualLocation(location);
 		File jarFile = getActualLocation(location, JAR_EXTENSION);
-		boolean compress = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		boolean compress = "true".equalsIgnoreCase(properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
 		try {
 			OutputStream output = null;
 			if (!compress) {
@@ -214,7 +211,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 			save();
 		}
 		//force repository manager to reload this repository because it caches properties
-		MetadataRepositoryManager manager = (MetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		MetadataRepositoryManager manager = (MetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager.removeRepository(getLocation()))
 			manager.addRepository(this);
 		return oldValue;

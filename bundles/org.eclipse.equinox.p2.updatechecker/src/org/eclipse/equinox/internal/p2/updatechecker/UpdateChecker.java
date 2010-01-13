@@ -10,24 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
 /**
  * Default implementation of {@link IUpdateChecker}.
@@ -42,7 +39,7 @@ public class UpdateChecker implements IUpdateChecker {
 	/**
 	 * Map of IUpdateListener->UpdateCheckThread.
 	 */
-	private HashMap checkers = new HashMap();
+	private HashMap<IUpdateListener, UpdateCheckThread> checkers = new HashMap<IUpdateListener, UpdateCheckThread>();
 
 	IProfileRegistry profileRegistry;
 	IPlanner planner;
@@ -52,9 +49,9 @@ public class UpdateChecker implements IUpdateChecker {
 		long poll, delay;
 		IUpdateListener listener;
 		String profileId;
-		Query query;
+		IQuery<IInstallableUnit> query;
 
-		UpdateCheckThread(String profileId, Query query, long delay, long poll, IUpdateListener listener) {
+		UpdateCheckThread(String profileId, IQuery<IInstallableUnit> query, long delay, long poll, IUpdateListener listener) {
 			this.poll = poll;
 			this.delay = delay;
 			this.profileId = profileId;
@@ -96,7 +93,7 @@ public class UpdateChecker implements IUpdateChecker {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker#addUpdateCheck(java.lang.String, long, long, org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener)
 	 */
-	public void addUpdateCheck(String profileId, Query query, long delay, long poll, IUpdateListener listener) {
+	public void addUpdateCheck(String profileId, IQuery<IInstallableUnit> query, long delay, long poll, IUpdateListener listener) {
 		if (checkers.containsKey(listener))
 			return;
 		trace("Adding update checker for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -116,31 +113,31 @@ public class UpdateChecker implements IUpdateChecker {
 	 * Return the array of ius in the profile that have updates
 	 * available.
 	 */
-	IInstallableUnit[] checkForUpdates(String profileId, Query query) {
+	IInstallableUnit[] checkForUpdates(String profileId, IQuery<IInstallableUnit> query) {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
-		ArrayList iusWithUpdates = new ArrayList();
+		ArrayList<IInstallableUnit> iusWithUpdates = new ArrayList<IInstallableUnit>();
 		if (profile == null)
 			return new IInstallableUnit[0];
 		ProvisioningContext context = new ProvisioningContext(getAvailableRepositories());
 		if (query == null)
 			query = InstallableUnitQuery.ANY;
-		Iterator iter = profile.query(query, new Collector(), null).iterator();
+		Iterator<IInstallableUnit> iter = profile.query(query, null).iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iu = (IInstallableUnit) iter.next();
+			IInstallableUnit iu = iter.next();
 			IInstallableUnit[] replacements = getPlanner().updatesFor(iu, context, null);
 			if (replacements.length > 0)
 				iusWithUpdates.add(iu);
 		}
-		return (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]);
+		return iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]);
 	}
 
 	/**
 	 * Returns the list of metadata repositories that are currently available.
 	 */
 	private URI[] getAvailableRepositories() {
-		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		URI[] repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		ArrayList available = new ArrayList();
+		ArrayList<URI> available = new ArrayList<URI>();
 		for (int i = 0; i < repositories.length; i++) {
 			try {
 				repoMgr.loadRepository(repositories[i], null);
@@ -149,7 +146,7 @@ public class UpdateChecker implements IUpdateChecker {
 				LogHelper.log(e.getStatus());
 			}
 		}
-		return (URI[]) available.toArray(new URI[available.size()]);
+		return available.toArray(new URI[available.size()]);
 	}
 
 	void trace(String message) {
@@ -165,7 +162,7 @@ public class UpdateChecker implements IUpdateChecker {
 
 	IPlanner getPlanner() {
 		if (planner == null) {
-			planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
+			planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.SERVICE_NAME);
 			if (planner == null) {
 				throw new IllegalStateException("Provisioning system has not been initialized"); //$NON-NLS-1$
 			}
@@ -175,7 +172,7 @@ public class UpdateChecker implements IUpdateChecker {
 
 	IProfileRegistry getProfileRegistry() {
 		if (profileRegistry == null) {
-			profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
+			profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.SERVICE_NAME);
 			if (profileRegistry == null) {
 				throw new IllegalStateException("Provisioning system has not been initialized"); //$NON-NLS-1$
 			}

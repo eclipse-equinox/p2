@@ -12,15 +12,17 @@ package org.eclipse.equinox.p2.tests.touchpoint.natives;
 
 import java.io.File;
 import java.util.*;
+import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.CollectAction;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.provisional.p2.engine.phases.Collect;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -38,7 +40,7 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
 		//		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		//		File zipTarget = new File(installFolder, "a.zip");
@@ -53,8 +55,9 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDesc);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
-		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList());
+		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList<IArtifactRequest[]>());
 		NativeTouchpoint touchpoint = new NativeTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
@@ -63,7 +66,7 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		parameters.put(ActionConstants.PARM_OPERAND, operand);
 		parameters = Collections.unmodifiableMap(parameters);
 
-		List requests = (List) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);
+		List<IArtifactRequest[]> requests = (List<IArtifactRequest[]>) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);
 		assertFalse(hasRequest(requests, key));
 		CollectAction action = new CollectAction();
 		action.execute(parameters);
@@ -73,9 +76,8 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		assertTrue(hasRequest(requests, key));
 	}
 
-	private boolean hasRequest(List requests, IArtifactKey key) {
-		for (Iterator iterator = requests.iterator(); iterator.hasNext();) {
-			IArtifactRequest[] request = (IArtifactRequest[]) iterator.next();
+	private boolean hasRequest(List<IArtifactRequest[]> requests, IArtifactKey key) {
+		for (IArtifactRequest[] request : requests) {
 			for (int i = 0; i < request.length; i++) {
 				if (key.equals(request[i].getArtifactKey()))
 					return true;

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.*;
 import java.net.URI;
 import java.util.*;
@@ -17,12 +19,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.osgi.util.NLS;
 
 public class Util {
@@ -39,19 +40,19 @@ public class Util {
 		return profile.getProperty(IProfile.PROP_INSTALL_FOLDER);
 	}
 
-	private static AgentLocation getAgentLocation() {
-		return (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
+	private static IAgentLocation getAgentLocation(IProvisioningAgent agent) {
+		return (IAgentLocation) agent.getService(IAgentLocation.class.getName());
 	}
 
-	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+	public static IArtifactRepositoryManager getArtifactRepositoryManager(IProvisioningAgent agent) {
+		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
-	public static IFileArtifactRepository getDownloadCacheRepo() throws ProvisionException {
-		URI location = getDownloadCacheLocation();
+	public static IFileArtifactRepository getDownloadCacheRepo(IProvisioningAgent agent) throws ProvisionException {
+		URI location = getDownloadCacheLocation(agent);
 		if (location == null)
 			throw new IllegalStateException(Messages.could_not_obtain_download_cache);
-		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager(agent);
 		if (manager == null)
 			throw new IllegalStateException(Messages.artifact_repo_not_found);
 		IArtifactRepository repository;
@@ -60,7 +61,7 @@ public class Util {
 		} catch (ProvisionException e) {
 			// the download cache doesn't exist or couldn't be read. Create new cache.
 			String repositoryName = location + " - Agent download cache"; //$NON-NLS-1$
-			Map properties = new HashMap(1);
+			Map<String, String> properties = new HashMap<String, String>(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			repository = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		}
@@ -71,9 +72,11 @@ public class Util {
 		return downloadCache;
 	}
 
-	static private URI getDownloadCacheLocation() {
-		AgentLocation location = getAgentLocation();
-		return (location != null ? location.getArtifactRepositoryURI() : null);
+	static private URI getDownloadCacheLocation(IProvisioningAgent agent) {
+		IAgentLocation location = getAgentLocation(agent);
+		if (location == null)
+			return null;
+		return URIUtil.append(location.getDataArea("org.eclipse.equinox.p2.core"), "cache/"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -106,7 +109,7 @@ public class Util {
 			in.close();
 			throw new IOException(Messages.Util_Invalid_Zip_File_Format);
 		}
-		ArrayList unzippedFiles = new ArrayList();
+		ArrayList<File> unzippedFiles = new ArrayList<File>();
 		do {
 			File outFile = new File(outputDir, ze.getName());
 			unzippedFiles.add(outFile);
@@ -133,7 +136,7 @@ public class Util {
 		} while ((ze = in.getNextEntry()) != null);
 		in.close();
 
-		return (File[]) unzippedFiles.toArray(new File[unzippedFiles.size()]);
+		return unzippedFiles.toArray(new File[unzippedFiles.size()]);
 	}
 
 	/**

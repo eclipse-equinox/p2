@@ -12,9 +12,9 @@ package org.eclipse.equinox.p2.tests.ui.query;
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.ElementQueryDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.ui.ElementWrapper;
+import org.eclipse.equinox.internal.p2.ui.ElementQueryDescriptor;
+import org.eclipse.equinox.internal.p2.ui.ElementWrapper;
+import org.eclipse.equinox.p2.query.*;
 
 /**
  * Tests the Query Descriptor
@@ -24,8 +24,9 @@ public class QueryDescriptorTest extends TestCase {
 	class SimpleQueryable implements IQueryable {
 		List elements = Arrays.asList(new String[] {"a", "b", "c", "d", "e"});
 
-		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-			return query.perform(elements.iterator(), collector);
+		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+			Collector collector = new Collector();
+			return query.perform(elements.iterator());
 		}
 	}
 
@@ -98,7 +99,7 @@ public class QueryDescriptorTest extends TestCase {
 	}
 
 	public void testCompoundDescriptorAND() {
-		Query query = CompoundQuery.createCompoundQuery(new Query[] {new SimpleMatchQuery(), new SimpleMatchQuery2()}, true);
+		IQuery query = CompoundQuery.createCompoundQuery(new IQuery[] {new SimpleMatchQuery(), new SimpleMatchQuery2()}, true);
 		ElementQueryDescriptor eqDescriptor = new ElementQueryDescriptor(new SimpleQueryable(), query, new Collector(), new StringWrapper());
 		Collection collection = eqDescriptor.performQuery(null);
 		assertEquals("1.0", 1, collection.size());
@@ -106,7 +107,7 @@ public class QueryDescriptorTest extends TestCase {
 	}
 
 	public void testCompoundDescriptorOR() {
-		Query query = CompoundQuery.createCompoundQuery(new Query[] {new SimpleMatchQuery(), new SimpleMatchQuery2()}, false);
+		IQuery query = CompoundQuery.createCompoundQuery(new IQuery[] {new SimpleMatchQuery(), new SimpleMatchQuery2()}, false);
 		ElementQueryDescriptor eqDescriptor = new ElementQueryDescriptor(new SimpleQueryable(), query, new Collector(), new StringWrapper());
 		Collection collection = eqDescriptor.performQuery(null);
 		assertEquals("1.0", 3, collection.size());

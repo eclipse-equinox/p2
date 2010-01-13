@@ -96,6 +96,7 @@ public class Verifier extends JarProcessorExecutor {
 				return super.processJar(inputFile);
 			}
 		};
+		verifier.setWorkingDirectory(workingDirectory.getAbsolutePath());
 
 		for (int i = 0; i < input.length; i++) {
 			File inputFile = new File(input[i]);

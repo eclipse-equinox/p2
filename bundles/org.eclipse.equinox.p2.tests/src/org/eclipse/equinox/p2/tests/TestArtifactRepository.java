@@ -20,12 +20,14 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryCreationException;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
+import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 /**
  * A simple artifact repository implementation used for testing purposes.
@@ -107,10 +109,6 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		return keysToLocations.get(key);
 	}
 
-	public IArtifactKey[] getArtifactKeys() {
-		return keysToLocations.keySet().toArray(new IArtifactKey[keysToLocations.keySet().size()]);
-	}
-
 	private IStatus getArtifact(ArtifactRequest request, IProgressMonitor monitor) {
 		request.setSourceRepository(this);
 		request.perform(monitor);
@@ -130,7 +128,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		}
 	}
 
-	public void initialize(URI repoURL, InputStream descriptorFile) throws RepositoryCreationException {
+	public void initialize(URI repoURL, InputStream descriptorFile) {
 		location = repoURL;
 	}
 
@@ -193,5 +191,15 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException("Method is not implemented by this repository");
+	}
+
+	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

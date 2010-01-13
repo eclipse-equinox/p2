@@ -12,8 +12,8 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 /**
  * Tests ranges of versions specified with osgi (default) version format.
@@ -50,8 +50,8 @@ public class OSGiRangeTest extends VersionTesting {
 		assertTrue("1.1", lowerBound.isIncluded(Version.parseVersion("1.0")));
 		assertTrue("1.2", lowerBound.isIncluded(Version.parseVersion("1.9.9.x")));
 		assertTrue("1.3", lowerBound.isIncluded(Version.parseVersion("999.999.999.foo")));
-		assertTrue("2.0", !lowerBound.isIncluded(Version.parseVersion("raw:M")));
-		assertTrue("2.1", !lowerBound.isIncluded(Version.parseVersion("raw:2147483647.2147483647.2147483647.0")));
+		assertTrue("2.0", lowerBound.isIncluded(Version.parseVersion("raw:M")));
+		assertTrue("2.1", lowerBound.isIncluded(Version.parseVersion("raw:2147483647.2147483647.2147483647.0")));
 
 	}
 
@@ -94,16 +94,16 @@ public class OSGiRangeTest extends VersionTesting {
 
 	/**
 	 * Tests that null values passed to the {@link VersionRange} constructor
-	 * are interpreted as OSGi ranges.
+	 * are not interpreted as MIN/MAX versions.
 	 */
 	public void testNullConstructor() {
 		VersionRange range = new VersionRange(null);
-		assertEquals("1.0", range.getMinimum(), new Version(0, 0, 0));
-		assertEquals("1.1", range.getMaximum(), new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE));
+		assertEquals("1.0", range.getMinimum(), Version.emptyVersion);
+		assertEquals("1.1", range.getMaximum(), Version.MAX_VERSION);
 
 		range = new VersionRange(null, true, null, true);
-		assertEquals("2.0", range.getMinimum(), new Version(0, 0, 0));
-		assertEquals("2.1", range.getMaximum(), new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE));
+		assertEquals("2.0", range.getMinimum(), Version.emptyVersion);
+		assertEquals("2.1", range.getMaximum(), Version.MAX_VERSION);
 	}
 
 	public void testSerialize() {

@@ -12,6 +12,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
+import org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory;
+
+import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
+
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
@@ -21,12 +27,9 @@ import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.p2.updatesite.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFactory {
@@ -40,9 +43,9 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
-	public IMetadataRepository create(URI location, String name, String type, Map properties) {
+	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) {
 		return null;
 	}
 
@@ -91,6 +94,7 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) {
 		URI localRepositoryURL = getLocalRepositoryLocation(location);
 		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
+		factory.setAgent(getAgent());
 		try {
 			return factory.load(localRepositoryURL, 0, monitor);
 		} catch (ProvisionException e) {
@@ -102,7 +106,7 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 
 	public void initializeRepository(IMetadataRepository repository, URI location, IProgressMonitor monitor) throws ProvisionException {
 		UpdateSite updateSite = UpdateSite.load(location, monitor);
-		String savedChecksum = (String) repository.getProperties().get(PROP_SITE_CHECKSUM);
+		String savedChecksum = repository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
 			return;
 		repository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());

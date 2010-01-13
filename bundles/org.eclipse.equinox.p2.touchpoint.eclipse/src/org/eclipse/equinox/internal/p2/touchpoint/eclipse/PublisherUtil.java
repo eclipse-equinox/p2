@@ -11,12 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -32,7 +29,7 @@ public class PublisherUtil {
 		if (bundleDescription == null)
 			return null;
 		PublisherInfo info = new PublisherInfo();
-		Version version = new Version(bundleDescription.getVersion().toString());
+		Version version = Version.create(bundleDescription.getVersion().toString());
 		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(), version, new Path(bundleFile.getAbsolutePath()), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
 		if (advice.containsAdvice())
 			info.addAdvice(advice);

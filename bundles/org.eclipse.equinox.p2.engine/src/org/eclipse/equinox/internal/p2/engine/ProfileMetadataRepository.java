@@ -18,14 +18,15 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class ProfileMetadataRepository extends AbstractMetadataRepository {
@@ -50,19 +51,18 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	private void publishArtifactRepos() {
-		List artifactRepos = findArtifactRepos();
+		List<URI> artifactRepos = findArtifactRepos();
 
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
 		if (bus == null)
 			return;
-		for (Iterator it = artifactRepos.iterator(); it.hasNext();) {
-			URI repo = (URI) it.next();
+		for (URI repo : artifactRepos) {
 			bus.publishEvent(new RepositoryEvent(repo, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, true));
 		}
 	}
 
-	private List findArtifactRepos() {
-		List artifactRepos = new ArrayList();
+	private List<URI> findArtifactRepos() {
+		List<URI> artifactRepos = new ArrayList<URI>();
 		File p2Directory = findP2Directory();
 
 		// Add the profile registry's default agent artifact repository.
@@ -155,8 +155,8 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		// nothing to do
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-		return profile.query(query, collector, monitor);
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+		return profile.query(query, monitor);
 	}
 
 	public static void validate(URI location, IProgressMonitor monitor) throws ProvisionException {

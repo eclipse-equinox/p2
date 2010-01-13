@@ -14,17 +14,20 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.p2.artifact.repository.FlatteningIterator;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 public class CachingArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
 
 	private static final String NULL = ""; //$NON-NLS-1$
 	private IArtifactRepository innerRepo;
-	private Set descriptorsToAdd = new HashSet();
-	private Map artifactMap = new HashMap();
-	private Set descriptorsToRemove = new HashSet();
-	private Map propertyChanges = new HashMap();
+	private Set<IArtifactDescriptor> descriptorsToAdd = new HashSet<IArtifactDescriptor>();
+	private Map<IArtifactKey, List<IArtifactDescriptor>> artifactMap = new HashMap<IArtifactKey, List<IArtifactDescriptor>>();
+	private Set<IArtifactDescriptor> descriptorsToRemove = new HashSet<IArtifactDescriptor>();
+	private Map<String, String> propertyChanges = new HashMap<String, String>();
 
 	protected CachingArtifactRepository(IArtifactRepository innerRepo) {
 		this.innerRepo = innerRepo;
@@ -37,23 +40,22 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 	}
 
 	private void saveRemovals() {
-		for (Iterator i = descriptorsToRemove.iterator(); i.hasNext();)
-			innerRepo.removeDescriptor((IArtifactDescriptor) i.next());
+		for (IArtifactDescriptor desc : descriptorsToRemove)
+			innerRepo.removeDescriptor(desc);
 		descriptorsToRemove.clear();
 	}
 
 	private void saveAdditions() {
 		if (descriptorsToAdd.isEmpty())
 			return;
-		innerRepo.addDescriptors((IArtifactDescriptor[]) descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]));
+		innerRepo.addDescriptors(descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]));
 		descriptorsToAdd.clear();
 		artifactMap.clear();
 	}
 
 	private void savePropertyChanges() {
-		for (Iterator i = propertyChanges.keySet().iterator(); i.hasNext();) {
-			String key = (String) i.next();
-			String value = (String) propertyChanges.get(key);
+		for (String key : propertyChanges.keySet()) {
+			String value = propertyChanges.get(key);
 			innerRepo.setProperty(key, value == NULL ? null : value);
 		}
 		propertyChanges.clear();
@@ -61,9 +63,9 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 
 	private void mapDescriptor(IArtifactDescriptor descriptor) {
 		IArtifactKey key = descriptor.getArtifactKey();
-		Collection descriptors = (Collection) artifactMap.get(key);
+		List<IArtifactDescriptor> descriptors = artifactMap.get(key);
 		if (descriptors == null) {
-			descriptors = new ArrayList();
+			descriptors = new ArrayList<IArtifactDescriptor>();
 			artifactMap.put(key, descriptors);
 		}
 		descriptors.add(descriptor);
@@ -71,7 +73,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 
 	private void unmapDescriptor(IArtifactDescriptor descriptor) {
 		IArtifactKey key = descriptor.getArtifactKey();
-		Collection descriptors = (Collection) artifactMap.get(key);
+		List<IArtifactDescriptor> descriptors = artifactMap.get(key);
 		if (descriptors == null) {
 			// we do not have the descriptor locally so remember it to be removed from
 			// the inner repo on save.
@@ -99,19 +101,12 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 	}
 
 	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
-		Collection result = (Collection) artifactMap.get(key);
+		List<IArtifactDescriptor> result = artifactMap.get(key);
 		if (result == null)
 			return innerRepo.getArtifactDescriptors(key);
+		result = new ArrayList<IArtifactDescriptor>(result);
 		result.addAll(Arrays.asList(innerRepo.getArtifactDescriptors(key)));
-		return (IArtifactDescriptor[]) result.toArray(new IArtifactDescriptor[result.size()]);
-	}
-
-	public synchronized IArtifactKey[] getArtifactKeys() {
-		// there may be more descriptors than keys to collect up the unique keys
-		HashSet result = new HashSet();
-		result.addAll(artifactMap.keySet());
-		result.addAll(Arrays.asList(innerRepo.getArtifactKeys()));
-		return (IArtifactKey[]) result.toArray(new IArtifactKey[result.size()]);
+		return result.toArray(new IArtifactDescriptor[result.size()]);
 	}
 
 	public synchronized boolean contains(IArtifactDescriptor descriptor) {
@@ -139,7 +134,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 	}
 
 	public synchronized void removeAll() {
-		IArtifactDescriptor[] toRemove = (IArtifactDescriptor[]) descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]);
+		IArtifactDescriptor[] toRemove = descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]);
 		for (int i = 0; i < toRemove.length; i++)
 			doRemoveArtifact(toRemove[i]);
 	}
@@ -180,7 +175,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return innerRepo.getName();
 	}
 
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		// TODO need to combine the local and inner properties
 		return innerRepo.getProperties();
 	}
@@ -210,7 +205,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 	}
 
 	public String setProperty(String key, String value) {
-		String result = (String) getProperties().get(key);
+		String result = getProperties().get(key);
 		propertyChanges.put(key, value == null ? NULL : value);
 		return result;
 	}
@@ -219,6 +214,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		innerRepo.setProvider(provider);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		return innerRepo.getAdapter(adapter);
 	}
@@ -233,5 +229,32 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		if (innerRepo instanceof IFileArtifactRepository)
 			return ((IFileArtifactRepository) innerRepo).getArtifactFile(descriptor);
 		return null;
+	}
+
+	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+		return innerRepo.createArtifactDescriptor(key);
+	}
+
+	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
+		final Collection<List<IArtifactDescriptor>> descs = artifactMap.values();
+		IQueryable<IArtifactDescriptor> cached = new IQueryable<IArtifactDescriptor>() {
+			public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
+				return query.perform(new FlatteningIterator<IArtifactDescriptor>(descs.iterator()));
+			}
+		};
+
+		return new CompoundQueryable<IArtifactDescriptor>(cached, innerRepo.descriptorQueryable());
+	}
+
+	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
+		final Iterator<IArtifactKey> keyIterator = artifactMap.keySet().iterator();
+		IQueryable<IArtifactKey> cached = new IQueryable<IArtifactKey>() {
+			public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> q, IProgressMonitor mon) {
+				return q.perform(keyIterator);
+			}
+		};
+
+		CompoundQueryable<IArtifactKey> compound = new CompoundQueryable<IArtifactKey>(cached, innerRepo);
+		return compound.query(query, monitor);
 	}
 }

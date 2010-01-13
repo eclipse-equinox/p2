@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProfileScope;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.service.prefs.BackingStoreException;
@@ -39,7 +40,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 				pref.flush();
 			}
 		} catch (BackingStoreException e) {
-			ProvUI.handleException(e, ProvSDKMessages.PreferenceInitializer_Error, StatusManager.LOG);
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, ProvSDKUIActivator.PLUGIN_ID, 0, ProvSDKMessages.PreferenceInitializer_Error, e), StatusManager.LOG);
 		}
 	}
 

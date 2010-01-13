@@ -12,10 +12,6 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -25,13 +21,14 @@ import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -45,8 +42,8 @@ public class FeaturesActionTest extends ActionTest {
 	private static File root = new File(TestActivator.getTestDataFolder().toString(), "FeaturesActionTest"); //$NON-NLS-1$
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository();
 	protected TestMetadataRepository metadataRepository;
-	private Version fooVersion = new Version("1.0.0"); //$NON-NLS-1$
-	private Version barVersion = new Version("1.1.1"); //$NON-NLS-1$
+	private Version fooVersion = Version.create("1.0.0"); //$NON-NLS-1$
+	private Version barVersion = Version.create("1.1.1"); //$NON-NLS-1$
 	private String BAR = "bar"; //$NON-NLS-1$
 	private String FOO = "foo"; //$NON-NLS-1$
 	private Capture<ITouchpointAdvice> tpAdvice;
@@ -85,38 +82,38 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(foo.getVersion().equals(fooVersion));
 		assertEquals("Foo Feature", foo.getProperty(IInstallableUnit.PROP_NAME));
 		assertEquals("Foo Description", foo.getProperty(IInstallableUnit.PROP_DESCRIPTION));
-		assertEquals("Foo License", foo.getLicense().getBody());
+		assertEquals("Foo License", foo.getLicenses().iterator().next().getBody());
 		assertEquals("Foo Copyright", foo.getCopyright().getBody());
 		assertTrue(foo.getProperty("key1").equals("value1")); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(foo.getProperty("key2").equals("value2")); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(foo.getArtifacts()[0].equals(FOO_KEY));
-		assertTrue(foo.getFilter().equalsIgnoreCase("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
+		assertTrue(foo.getArtifacts().iterator().next().equals(FOO_KEY));
+		assertTrue(foo.getFilter().equals(ExpressionUtil.parseLDAP("(org.eclipse.update.install.features=true)"))); //$NON-NLS-1$
 
 		//check touchpointType
 		assertTrue(foo.getTouchpointType().getId().equalsIgnoreCase("org.eclipse.equinox.p2.osgi")); //$NON-NLS-1$
 		assertTrue(foo.getTouchpointType().getVersion().equals(fooVersion));
 
 		//zipped=true
-		ITouchpointData[] tpData = foo.getTouchpointData();
-		String fooValue = ((ITouchpointInstruction) tpData[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
+		List<ITouchpointData> tpData = foo.getTouchpointData();
+		String fooValue = ((ITouchpointInstruction) tpData.get(0).getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
 		assertTrue(fooValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
-		IRequiredCapability[] fooRequiredCapabilities = foo.getRequiredCapabilities();
-		assertTrue(fooRequiredCapabilities.length == 0);
+		Collection<IRequirement> fooRequiredCapabilities = foo.getRequiredCapabilities();
+		assertTrue(fooRequiredCapabilities.size() == 0);
 
-		IProvidedCapability[] fooProvidedCapabilities = foo.getProvidedCapabilities();
+		Collection<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
 		contains(fooProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "foo.feature.jar", fooVersion); //$NON-NLS-1$
 		contains(fooProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$ 
 		contains(fooProvidedCapabilities, "org.eclipse.update.feature", FOO, fooVersion); //$NON-NLS-1$
-		assertTrue(fooProvidedCapabilities.length == 3);
+		assertTrue(fooProvidedCapabilities.size() == 3);
 
 		//feature group IU for foo
 		fooIUs = new ArrayList(publisherResult.getIUs("foo.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
 		assertTrue(fooIUs.size() == 1);
 		IInstallableUnit fooGroup = (IInstallableUnit) fooIUs.get(0);
 		tpData = fooGroup.getTouchpointData();
-		assertEquals(1, tpData.length);
-		ITouchpointInstruction instruction = tpData[0].getInstruction("install");
+		assertEquals(1, tpData.size());
+		ITouchpointInstruction instruction = tpData.get(0).getInstruction("install");
 		assertNotNull(instruction);
 		assertEquals("ln(targetDir:@artifact,linkTarget:foo/lib.1.so,linkName:lib.so);chmod(targetDir:@artifact,targetFile:lib/lib.so,permissions:755);", instruction.getBody());
 		System.out.println(fooGroup.getFilter());
@@ -132,21 +129,21 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(bar.getProperty("key2").equals("value2")); //$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(bar.getProperties().containsKey("org.eclipse.update.installHandler")); //$NON-NLS-1$
 		assertTrue(bar.getProperties().containsValue("handler=bar handler")); //$NON-NLS-1$
-		assertTrue(bar.getArtifacts()[0].equals(BAR_KEY));
-		assertTrue(bar.getFilter().equalsIgnoreCase("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
+		assertTrue(bar.getArtifacts().iterator().next().equals(BAR_KEY));
+		assertTrue(bar.getFilter().equals(ExpressionUtil.parseLDAP("(org.eclipse.update.install.features=true)"))); //$NON-NLS-1$
 		assertTrue(bar.isSingleton());
 
 		barIUs = new ArrayList(publisherResult.getIUs("bar.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
 		assertTrue(fooIUs.size() == 1);
 		IInstallableUnit barGroup = (IInstallableUnit) barIUs.get(0);
-		IRequiredCapability[] barRequiredCapabilities = barGroup.getRequiredCapabilities();
+		Collection<IRequirement> barRequiredCapabilities = barGroup.getRequiredCapabilities();
 		//contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), null, false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "org.bar.feature.feature.group", VersionRange.emptyRange, "(&(|(osgi.nl=de)(osgi.nl=en)(osgi.nl=fr)))", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(barGroup.getFilter().equalsIgnoreCase("(&(|(osgi.os=macosx)(osgi.os=win32))(|(osgi.ws=carbon)(osgi.ws=win32))(|(osgi.arch=ppc)(osgi.arch=x86))(osgi.nl=en))"));
+		assertTrue(barGroup.getFilter().equals(ExpressionUtil.parseLDAP("(&(|(osgi.os=macosx)(osgi.os=win32))(|(osgi.ws=carbon)(osgi.ws=win32))(|(osgi.arch=ppc)(osgi.arch=x86))(osgi.nl=en))")));
 
 		//check zipped=true in touchpointData
-		String barValue = ((ITouchpointInstruction) bar.getTouchpointData()[0].getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
+		String barValue = ((ITouchpointInstruction) bar.getTouchpointData().get(0).getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
 		assertTrue(barValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
 		//check touchpointType
@@ -155,13 +152,13 @@ public class FeaturesActionTest extends ActionTest {
 		//String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy)
 		barRequiredCapabilities = bar.getRequiredCapabilities();
 
-		assertTrue(barRequiredCapabilities.length == 0);
+		assertTrue(barRequiredCapabilities.size() == 0);
 
-		IProvidedCapability[] barProvidedCapabilities = bar.getProvidedCapabilities();
+		Collection<IProvidedCapability> barProvidedCapabilities = bar.getProvidedCapabilities();
 		contains(barProvidedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", barVersion); //$NON-NLS-1$ 
 		contains(barProvidedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "feature", fooVersion); //$NON-NLS-1$ 
 		contains(barProvidedCapabilities, "org.eclipse.update.feature", BAR, barVersion); //$NON-NLS-1$
-		assertTrue(barProvidedCapabilities.length == 3);
+		assertTrue(barProvidedCapabilities.size() == 3);
 	}
 
 	private void verifyArtifacts() throws IOException {
@@ -204,9 +201,9 @@ public class FeaturesActionTest extends ActionTest {
 	}
 
 	private ArrayList fillAdvice(ArrayList adviceCollection) {
-		Properties prop = new Properties();
-		prop.setProperty("key1", "value1"); //$NON-NLS-1$//$NON-NLS-2$
-		prop.setProperty("key2", "value2"); //$NON-NLS-1$//$NON-NLS-2$
+		Map<String, String> prop = new HashMap<String, String>();
+		prop.put("key1", "value1"); //$NON-NLS-1$//$NON-NLS-2$
+		prop.put("key2", "value2"); //$NON-NLS-1$//$NON-NLS-2$
 		IPropertyAdvice propertyAdvice = EasyMock.createMock(IPropertyAdvice.class);
 		expect(propertyAdvice.getInstallableUnitProperties((InstallableUnitDescription) EasyMock.anyObject())).andReturn(prop).anyTimes();
 		expect(propertyAdvice.getArtifactProperties((IInstallableUnit) EasyMock.anyObject(), (IArtifactDescriptor) EasyMock.anyObject())).andReturn(null).anyTimes();

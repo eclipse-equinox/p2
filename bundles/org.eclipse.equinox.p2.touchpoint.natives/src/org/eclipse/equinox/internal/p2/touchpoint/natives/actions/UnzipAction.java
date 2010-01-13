@@ -16,20 +16,20 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 public class UnzipAction extends ProvisioningAction {
 
 	public static final String ACTION_UNZIP = "unzip"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		return unzip(parameters, true);
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		return CleanupzipAction.cleanupzip(parameters, false);
 	}
 
@@ -40,7 +40,7 @@ public class UnzipAction extends ProvisioningAction {
 	 * @param restoreable - if the unzip should be backed up
 	 * @return status
 	 */
-	public static IStatus unzip(Map parameters, boolean restoreable) {
+	public static IStatus unzip(Map<String, Object> parameters, boolean restoreable) {
 		String source = (String) parameters.get(ActionConstants.PARM_SOURCE);
 		if (source == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_SOURCE, ACTION_UNZIP));

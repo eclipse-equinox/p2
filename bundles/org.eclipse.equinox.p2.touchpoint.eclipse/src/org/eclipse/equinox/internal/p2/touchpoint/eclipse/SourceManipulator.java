@@ -8,19 +8,18 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.simpleconfigurator.manipulator.SimpleConfiguratorManipulatorImpl;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.Version;
 
 //This class deals with source bundles and how their addition to the source.info
 public class SourceManipulator {
-	private List sourceBundles;
+	private List<BundleInfo> sourceBundles;
 	private IProfile profile;
 	boolean changed = false;
 	private SimpleConfiguratorManipulatorImpl manipulator;
@@ -33,7 +32,7 @@ public class SourceManipulator {
 	public BundleInfo[] getBundles() throws IOException {
 		if (sourceBundles == null)
 			load();
-		return (BundleInfo[]) sourceBundles.toArray(new BundleInfo[sourceBundles.size()]);
+		return sourceBundles.toArray(new BundleInfo[sourceBundles.size()]);
 	}
 
 	public void addBundle(File bundleFile, String bundleId, Version bundleVersion) throws IOException {
@@ -59,14 +58,14 @@ public class SourceManipulator {
 
 	public void save() throws IOException {
 		if (sourceBundles != null)
-			manipulator.saveConfiguration((BundleInfo[]) sourceBundles.toArray(new BundleInfo[sourceBundles.size()]), getFileLocation(), getLauncherLocation());
+			manipulator.saveConfiguration(sourceBundles.toArray(new BundleInfo[sourceBundles.size()]), getFileLocation(), getLauncherLocation());
 	}
 
 	private void load() throws MalformedURLException, IOException {
 		if (getFileLocation().exists())
-			sourceBundles = new ArrayList(Arrays.asList(manipulator.loadConfiguration(getFileLocation().toURL(), getLauncherLocation())));
+			sourceBundles = new ArrayList<BundleInfo>(Arrays.asList(manipulator.loadConfiguration(getFileLocation().toURL(), getLauncherLocation())));
 		else
-			sourceBundles = new ArrayList();
+			sourceBundles = new ArrayList<BundleInfo>();
 	}
 
 	private File getFileLocation() {

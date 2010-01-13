@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,17 +18,18 @@ import org.apache.tools.ant.*;
 import org.apache.tools.ant.types.FileSet;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.artifact.repository.ant.AntMirrorLog;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.internal.repository.tools.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class AbstractRepositoryTask extends Task {
 	protected static final String ANT_PREFIX = "${"; //$NON-NLS-1$
 	protected AbstractApplication application;
-	protected List iuTasks = new ArrayList();
-	protected List sourceRepos = new ArrayList();
-	protected List destinations = new ArrayList();
+	protected List<IUDescription> iuTasks = new ArrayList<IUDescription>();
+	protected List<FileSet> sourceRepos = new ArrayList<FileSet>();
+	protected List<DestinationRepository> destinations = new ArrayList<DestinationRepository>();
 
 	protected void addMetadataSourceRepository(URI repoLocation) {
 		RepositoryDescriptor source = new RepositoryDescriptor();
@@ -105,13 +102,11 @@ public abstract class AbstractRepositoryTask extends Task {
 	 * Add source repositories to mirror from
 	 */
 	public void addConfiguredSource(RepositoryList sourceList) {
-		for (Iterator iter = sourceList.getRepositoryList().iterator(); iter.hasNext();) {
-			DestinationRepository repo = (DestinationRepository) iter.next();
+		for (DestinationRepository repo : sourceList.getRepositoryList()) {
 			application.addSource(repo.getDescriptor());
 		}
 
-		for (Iterator iter = sourceList.getFileSetList().iterator(); iter.hasNext();) {
-			FileSet fileSet = (FileSet) iter.next();
+		for (FileSet fileSet : sourceList.getFileSetList()) {
 			sourceRepos.add(fileSet);
 			// Added to the application later through prepareSourceRepos
 		}
@@ -124,14 +119,15 @@ public abstract class AbstractRepositoryTask extends Task {
 	protected void prepareSourceRepos() {
 		if (sourceRepos == null || sourceRepos.isEmpty())
 			return;
-		for (Iterator iter = sourceRepos.iterator(); iter.hasNext();) {
+		for (Iterator<FileSet> iter = sourceRepos.iterator(); iter.hasNext();) {
 			RepositoryFileSet fileset = (RepositoryFileSet) iter.next();
 
 			if (fileset.getRepoLocation() != null) {
-				//TODO depreciate
 				if (!fileset.getRepoLocation().startsWith(ANT_PREFIX)) {
-					addArtifactSourceRepository(fileset.getRepoLocationURI());
-					addMetadataSourceRepository(fileset.getRepoLocationURI());
+					if (fileset.isArtifact())
+						addArtifactSourceRepository(fileset.getRepoLocationURI());
+					if (fileset.isMetadata())
+						addMetadataSourceRepository(fileset.getRepoLocationURI());
 				}
 			} else if (fileset.getDir() != null) {
 				DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
@@ -160,22 +156,21 @@ public abstract class AbstractRepositoryTask extends Task {
 		sourceRepos.clear();
 	}
 
-	protected List prepareIUs() {
+	protected List<IInstallableUnit> prepareIUs() {
 		if (iuTasks == null || iuTasks.isEmpty())
 			return null;
 
 		IMetadataRepository repository = application.getCompositeMetadataRepository();
-		List result = new ArrayList();
-		for (Iterator iter = iuTasks.iterator(); iter.hasNext();) {
-			IUDescription iu = (IUDescription) iter.next();
-			Query iuQuery = iu.createQuery();
-			Collector collector = new Collector();
+		List<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
+		for (IUDescription iu : iuTasks) {
+			IQuery<IInstallableUnit> iuQuery = iu.createQuery();
 
-			repository.query(iuQuery, collector, null);
+			Iterator<IInstallableUnit> queryResult = repository.query(iuQuery, null).iterator();
 
-			if (iu.isRequired() && collector.isEmpty())
+			if (iu.isRequired() && !queryResult.hasNext())
 				throw new BuildException(NLS.bind(Messages.AbstractRepositoryTask_unableToFind, iu.toString()));
-			result.addAll(collector.toCollection());
+			while (queryResult.hasNext())
+				result.add(queryResult.next());
 		}
 		return result;
 	}

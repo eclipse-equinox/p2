@@ -11,15 +11,14 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.updatesite.LocalUpdateSiteAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointData;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
@@ -60,9 +59,9 @@ public class LocalUpdateSiteActionTest extends ActionTest {
 		Collection ius = publisherResult.getIUs("test.feature.feature.jar", null);
 		assertEquals("1.0", 1, ius.size());
 		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
-		ITouchpointData[] touchpointData = iu.getTouchpointData();
-		assertEquals("1.1", 1, touchpointData.length);
-		Map instructions = touchpointData[0].getInstructions();
+		List<ITouchpointData> touchpointData = iu.getTouchpointData();
+		assertEquals("1.1", 1, touchpointData.size());
+		Map instructions = touchpointData.get(0).getInstructions();
 		Set keys = instructions.keySet();
 		assertEquals("1.2", 1, keys.size());
 		String unzip = (String) keys.iterator().next();

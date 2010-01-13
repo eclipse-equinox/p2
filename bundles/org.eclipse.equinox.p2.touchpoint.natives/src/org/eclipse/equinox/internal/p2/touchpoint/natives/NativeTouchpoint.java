@@ -10,15 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.WeakHashMap;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.Operand;
+import org.eclipse.equinox.p2.engine.spi.Touchpoint;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class NativeTouchpoint extends Touchpoint {
@@ -29,13 +34,14 @@ public class NativeTouchpoint extends Touchpoint {
 
 	public static final String PARM_ARTIFACT_LOCATION = "artifact.location"; //$NON-NLS-1$
 
-	private static Map backups = new WeakHashMap();
+	private static Map<IProfile, IBackupStore> backups = new WeakHashMap<IProfile, IBackupStore>();
 
-	public IStatus initializeOperand(IProfile profile, Operand operand, Map parameters) {
+	public IStatus initializeOperand(IProfile profile, Operand operand, Map<String, Object> parameters) {
+		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IArtifactKey artifactKey = (IArtifactKey) parameters.get(PARM_ARTIFACT);
 		if (!parameters.containsKey(PARM_ARTIFACT_LOCATION) && artifactKey != null) {
 			try {
-				IFileArtifactRepository downloadCache = Util.getDownloadCacheRepo();
+				IFileArtifactRepository downloadCache = Util.getDownloadCacheRepo(agent);
 				File fileLocation = downloadCache.getArtifactFile(artifactKey);
 				if (fileLocation != null && fileLocation.exists())
 					parameters.put(PARM_ARTIFACT_LOCATION, fileLocation.getAbsolutePath());
@@ -46,7 +52,7 @@ public class NativeTouchpoint extends Touchpoint {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
+	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map<String, Object> touchpointParameters) {
 		touchpointParameters.put(PARM_BACKUP, getBackupStore(profile));
 		return null;
 	}
@@ -124,7 +130,7 @@ public class NativeTouchpoint extends Touchpoint {
 	 * @return a lazily initialized backup store
 	 */
 	private static synchronized IBackupStore getBackupStore(IProfile profile) {
-		IBackupStore store = (IBackupStore) backups.get(profile);
+		IBackupStore store = backups.get(profile);
 		if (store == null) {
 			store = new LazyBackupStore(escape(profile.getProfileId()));
 			backups.put(profile, store);

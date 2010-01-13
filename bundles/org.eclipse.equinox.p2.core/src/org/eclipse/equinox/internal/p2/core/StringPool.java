@@ -23,7 +23,7 @@ import java.util.HashMap;
  */
 public final class StringPool {
 	private int savings;
-	private final HashMap map = new HashMap();
+	private final HashMap<String, String> map = new HashMap<String, String>();
 
 	/**
 	 * Creates a new string pool.
@@ -41,11 +41,11 @@ public final class StringPool {
 	public String add(String string) {
 		if (string == null)
 			return string;
-		Object result = map.get(string);
+		String result = map.get(string);
 		if (result != null) {
 			if (result != string)
 				savings += 44 + 2 * string.length();
-			return (String) result;
+			return result;
 		}
 		//explicitly copy the string to trim excess baggage
 		String trim = new String(string.toCharArray());

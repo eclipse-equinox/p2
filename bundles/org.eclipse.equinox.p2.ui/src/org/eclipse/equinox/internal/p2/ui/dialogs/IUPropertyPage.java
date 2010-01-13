@@ -11,9 +11,9 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.net.URL;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontMetrics;
@@ -35,7 +35,7 @@ public abstract class IUPropertyPage extends PropertyPage {
 
 	protected Control createContents(Composite parent) {
 		noDefaultAndApplyButton();
-		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(getElement(), IInstallableUnit.class);
+		IInstallableUnit iu = ProvUI.getAdapter(getElement(), IInstallableUnit.class);
 		Control control;
 		if (iu == null) {
 			Label label = new Label(parent, SWT.DEFAULT);

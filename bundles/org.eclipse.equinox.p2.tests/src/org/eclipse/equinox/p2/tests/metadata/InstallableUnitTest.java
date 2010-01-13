@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -24,7 +27,7 @@ public class InstallableUnitTest extends AbstractProvisioningTest {
 	 * Tests for {@link org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit#satisfies(org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability)}.
 	 */
 	public void testSatisfies() {
-		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("testNamespace", "name", new Version(1, 0, 0))};
+		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("testNamespace", "name", Version.createOSGi(1, 0, 0))};
 		IInstallableUnit iu = createIU("iu", provides);
 
 		IRequiredCapability wrongNamespace = MetadataFactory.createRequiredCapability("wrongNamespace", "name", VersionRange.emptyRange, null, false, false);

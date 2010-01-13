@@ -12,12 +12,13 @@
 package org.eclipse.equinox.internal.p2.ui.query;
 
 import java.util.*;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
  * A collector that converts IU's to category elements as it accepts them.
@@ -28,23 +29,25 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
 public class CategoryElementWrapper extends QueriedElementWrapper {
 
 	// Used to track nested categories
-	private Set referredIUs = new HashSet();
+	private Set<String> referredIUs = new HashSet<String>();
 
-	public CategoryElementWrapper(IQueryable queryable, Object parent) {
+	public CategoryElementWrapper(IQueryable<?> queryable, Object parent) {
 		super(queryable, parent);
 	}
 
 	protected boolean shouldWrap(Object match) {
 		if (match instanceof IInstallableUnit) {
 			IInstallableUnit iu = (IInstallableUnit) match;
-			IRequiredCapability[] requirements = iu.getRequiredCapabilities();
-			for (int i = 0; i < requirements.length; i++) {
-				if (requirements[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
-					referredIUs.add(requirements[i].getName());
+			Collection<IRequirement> requirements = iu.getRequiredCapabilities();
+			for (IRequirement requirement : requirements) {
+				if (requirement instanceof IRequiredCapability) {
+					if (((IRequiredCapability) requirement).getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
+						referredIUs.add(((IRequiredCapability) requirement).getName());
+					}
 				}
 			}
 
-			Iterator iter = super.getCollection().iterator();
+			Iterator<?> iter = super.getCollection().iterator();
 			// Don't add the same category IU twice.  
 			while (iter.hasNext()) {
 				CategoryElement element = (CategoryElement) iter.next();
@@ -59,10 +62,10 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 		return false;
 	}
 
-	public Collection getElements(Collector collector) {
+	public Collection<?> getElements(Collector<?> collector) {
 		if (collector.isEmpty())
 			return super.getElements(collector);
-		Collection results = super.getElements(collector);
+		Collection<?> results = super.getElements(collector);
 		cleanList();
 		return results;
 	}
@@ -77,7 +80,7 @@ public class CategoryElementWrapper extends QueriedElementWrapper {
 	}
 
 	private void removeNestedCategories() {
-		CategoryElement[] categoryIUs = (CategoryElement[]) getCollection().toArray(new CategoryElement[getCollection().size()]);
+		CategoryElement[] categoryIUs = getCollection().toArray(new CategoryElement[getCollection().size()]);
 		// If any other element refers to a category element, remove it from the list
 		for (int i = 0; i < categoryIUs.length; i++) {
 			if (referredIUs.contains(categoryIUs[i].getIU().getId())) {

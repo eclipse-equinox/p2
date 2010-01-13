@@ -12,7 +12,8 @@ package org.eclipse.equinox.p2.tests.engine;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -53,7 +54,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {op};
 
 		ProvisioningContext context = new ProvisioningContext();
-		IStatus result = phaseSet.perform(null, new EngineSession(profile, null, context), profile, operands, context, new NullProgressMonitor());
+		IStatus result = phaseSet.perform(new EngineSession(null, profile, context), operands, new NullProgressMonitor());
 		assertTrue(result.isOK());
 	}
 }

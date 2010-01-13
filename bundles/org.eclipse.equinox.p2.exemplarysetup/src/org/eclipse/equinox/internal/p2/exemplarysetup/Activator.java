@@ -10,52 +10,96 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.exemplarysetup;
 
-import org.eclipse.equinox.internal.p2.core.ProvisioningEventBus;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.director.SimpleDirector;
-import org.eclipse.equinox.internal.p2.director.SimplePlanner;
-import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
-import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.osgi.framework.*;
 
 public class Activator implements BundleActivator {
 	public static BundleContext context;
+	public static final String ID = "org.eclipse.equinox.p2.exemplarysetup"; //$NON-NLS-1$
 
+	private IProvisioningAgent agent;
 	private IProvisioningEventBus bus;
+
 	private ServiceRegistration registrationBus;
-
 	private ServiceRegistration registrationDefaultManager;
-
-	//	private ArtifactRepositoryManager artifactRepoManager;
-	//	private ServiceRegistration registrationArtifactRepoManager;
-
-	private SimpleProfileRegistry profileRegistry;
+	private ServiceRegistration registrationDirector;
+	private ServiceRegistration registrationPlanner;
 	private ServiceRegistration registrationProfileRegistry;
 
-	private IDirector director;
-	private ServiceRegistration registrationDirector;
+	/**
+	 * Register the agent instance representing the currently running system.
+	 * This will be the "default" agent for anyone not specifically trying to manipulate
+	 * a different p2 agent location
+	 */
+	private void registerAgent() {
+		//currently location is defined by p2.core but will be defined by the agent in the future
+		//for now continue to treat it as a singleton
+		ServiceReference locationRef = context.getServiceReference(IAgentLocation.SERVICE_NAME);
+		if (locationRef == null)
+			throw new RuntimeException("Unable to instantiate p2 agent because agent location is not available"); //$NON-NLS-1$
+		IAgentLocation location = (IAgentLocation) context.getService(locationRef);
+		if (location == null)
+			throw new RuntimeException("Unable to instantiate p2 agent because agent location is not available"); //$NON-NLS-1$
 
-	private IPlanner planner;
-	private ServiceRegistration registrationPlanner;
+		ServiceReference agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) context.getService(agentProviderRef);
+		try {
+			agent = provider.createAgent(null);
+		} catch (Exception e) {
+			//we can't proceed without an agent, so fail early
+			final String msg = "Unable to instantiate p2 agent at location " + location.getRootLocation(); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, ID, msg, e));
+			throw new RuntimeException(msg);
+		}
 
-	private AgentLocation agentLocation;
+	}
 
-	private ServiceReference metadataRepositoryReference;
+	private void registerDirector() {
+		IDirector director = (IDirector) agent.getService(IDirector.SERVICE_NAME);
+		registrationDirector = context.registerService(IDirector.SERVICE_NAME, director, null);
+	}
 
-	private MetadataRepositoryManager metadataRepositoryManager;
+	private void registerEventBus() {
+		bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		registrationBus = context.registerService(IProvisioningEventBus.SERVICE_NAME, bus, null);
+	}
+
+	/**
+	 * Returns a metadata repository manager, registering a service if there isn't
+	 * one registered already.
+	 */
+	private void registerMetadataRepositoryManager() {
+		//make sure there isn't a repository manager already registered
+		if (context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME) == null) {
+			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+			registrationDefaultManager = context.registerService(IMetadataRepositoryManager.SERVICE_NAME, manager, null);
+		}
+	}
+
+	private void registerPlanner() {
+		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		registrationPlanner = context.registerService(IPlanner.SERVICE_NAME, planner, null);
+	}
+
+	private void registerProfileRegistry() {
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		registrationProfileRegistry = context.registerService(IProfileRegistry.SERVICE_NAME, profileRegistry, null);
+	}
 
 	public void start(BundleContext aContext) throws Exception {
 		//Need to do the configuration of all the bits and pieces:
 		Activator.context = aContext;
 
-		registerAgentLocation();
+		registerAgent();
 		registerEventBus();
 		//create the profile registry
 		registerProfileRegistry();
@@ -71,12 +115,6 @@ public class Activator implements BundleActivator {
 		//		registerDefaultArtifactRepoManager();
 	}
 
-	private void registerAgentLocation() {
-		//currently this is defined by p2.core but will be defined by the agent in the future
-		//for now continue to treat it as a singleton
-		agentLocation = (AgentLocation) ServiceHelper.getService(context, AgentLocation.SERVICE_NAME);
-	}
-
 	private void startGarbageCollector() {
 		new GarbageCollector();
 	}
@@ -88,72 +126,19 @@ public class Activator implements BundleActivator {
 		unregisterDefaultMetadataRepoManager();
 		unregisterProfileRegistry();
 		unregisterEventBus();
+		unregisterAgent();
 		Activator.context = null;
 
 	}
 
-	private void registerDirector() {
-		IEngine engine = (IEngine) ServiceHelper.getService(context, IEngine.SERVICE_NAME);
-		director = new SimpleDirector(engine, planner);
-		registrationDirector = context.registerService(IDirector.SERVICE_NAME, director, null);
-	}
-
-	private void unregisterDirector() {
-		registrationDirector.unregister();
-		registrationDirector = null;
-		director = null;
-	}
-
-	private void registerPlanner() {
-		planner = new SimplePlanner(profileRegistry, metadataRepositoryManager);
-		registrationPlanner = context.registerService(IPlanner.SERVICE_NAME, planner, null);
-	}
-
-	private void unregisterPlanner() {
-		registrationPlanner.unregister();
-		registrationPlanner = null;
-		planner = null;
-	}
-
-	private void registerProfileRegistry() {
-		profileRegistry = new SimpleProfileRegistry(SimpleProfileRegistry.getDefaultRegistryDirectory(agentLocation));
-		profileRegistry.setEventBus(bus);
-		registrationProfileRegistry = context.registerService(IProfileRegistry.class.getName(), profileRegistry, null);
-		Engine engine = (Engine) ServiceHelper.getService(context, IEngine.SERVICE_NAME);
-		if (engine != null)
-			engine.setProfileRegistry(profileRegistry);
-	}
-
-	private void unregisterProfileRegistry() {
-		registrationProfileRegistry.unregister();
-		registrationProfileRegistry = null;
-		profileRegistry = null;
-	}
-
-	/**
-	 * Returns a metadata repository manager, registering a service if there isn't
-	 * one registered already.
-	 */
-	private void registerMetadataRepositoryManager() {
-		//register a metadata repository manager if there isn't one already registered
-		metadataRepositoryReference = context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
-		if (metadataRepositoryReference == null) {
-			metadataRepositoryManager = new MetadataRepositoryManager();
-			metadataRepositoryManager.setEventBus(bus);
-			registrationDefaultManager = context.registerService(IMetadataRepositoryManager.SERVICE_NAME, metadataRepositoryManager, null);
-			metadataRepositoryReference = registrationDefaultManager.getReference();
-		} else {
-			metadataRepositoryManager = (MetadataRepositoryManager) context.getService(metadataRepositoryReference);
+	private void unregisterAgent() {
+		if (agent != null) {
+			agent.stop();
+			agent = null;
 		}
 	}
 
 	private void unregisterDefaultMetadataRepoManager() {
-		//unget the service obtained for the metadata cache
-		if (metadataRepositoryReference != null) {
-			context.ungetService(metadataRepositoryReference);
-			metadataRepositoryReference = null;
-		}
-
 		//unregister the service if we registered it
 		if (registrationDefaultManager != null) {
 			registrationDefaultManager.unregister();
@@ -161,14 +146,29 @@ public class Activator implements BundleActivator {
 		}
 	}
 
-	private void registerEventBus() {
-		bus = new ProvisioningEventBus();
-		registrationBus = context.registerService(IProvisioningEventBus.SERVICE_NAME, bus, null);
+	private void unregisterDirector() {
+		registrationDirector.unregister();
+		registrationDirector = null;
 	}
 
 	private void unregisterEventBus() {
-		registrationBus.unregister();
-		registrationBus = null;
-		bus.close();
+		if (registrationBus != null) {
+			registrationBus.unregister();
+			registrationBus = null;
+		}
+		if (bus != null) {
+			bus.close();
+			bus = null;
+		}
+	}
+
+	private void unregisterPlanner() {
+		registrationPlanner.unregister();
+		registrationPlanner = null;
+	}
+
+	private void unregisterProfileRegistry() {
+		registrationProfileRegistry.unregister();
+		registrationProfileRegistry = null;
 	}
 }

@@ -15,11 +15,15 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class NonMinimalState extends AbstractProvisioningTest {
@@ -42,9 +46,9 @@ public class NonMinimalState extends AbstractProvisioningTest {
 	public void testValidateProfileWithRepository() {
 		IPlanner planner = createPlanner();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
-		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), new Collector(), null).size());
+		assertTrue(plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), null).isEmpty());
 		why("slf4j.api");
 		why("slf4j.jcl");
 		why("org.eclipse.tptp.platform.iac.administrator");
@@ -55,15 +59,15 @@ public class NonMinimalState extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		ProvisioningContext ctx = new ProvisioningContext(new URI[0]);
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
-		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), new Collector(), null).size());
+		assertTrue(plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), null).isEmpty());
 	}
 
 	private void why(String id) {
 		System.out.println("=-=-=" + id + "=-=-=");
 		visited = new HashSet();
-		Collector roots = profile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", "true"), new Collector(), null);
+		IQueryResult roots = profile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", "true"), null);
 		searchedId = id;
 		for (Iterator iterator = roots.iterator(); iterator.hasNext();) {
 			IInstallableUnit type = (IInstallableUnit) iterator.next();
@@ -82,19 +86,19 @@ public class NonMinimalState extends AbstractProvisioningTest {
 			visited.add(iu);
 			return false;
 		}
-		IRequiredCapability[] caps = iu.getRequiredCapabilities();
-		for (int i = 0; i < caps.length; i++) {
-			boolean result = expandRequirement(iu, caps[i]);
+		Collection<IRequirement> reqs = iu.getRequiredCapabilities();
+		for (IRequirement req : reqs) {
+			boolean result = expandRequirement(iu, req);
 			if (result) {
-				System.out.println(iu + " because " + caps[i].toString());
+				System.out.println(iu + " because " + req.toString());
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private boolean expandRequirement(IInstallableUnit iu, IRequiredCapability req) {
-		Collector matches = profile.query(new CapabilityQuery(req), new Collector(), null);
+	private boolean expandRequirement(IInstallableUnit iu, IRequirement req) {
+		IQueryResult matches = profile.query(new ExpressionQuery(IInstallableUnit.class, req.getMatches()), null);
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (match.getId().equals(searchedId))

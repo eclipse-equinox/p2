@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer.ui;
 
-import org.eclipse.equinox.internal.p2.installer.Messages;
-
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.installer.*;

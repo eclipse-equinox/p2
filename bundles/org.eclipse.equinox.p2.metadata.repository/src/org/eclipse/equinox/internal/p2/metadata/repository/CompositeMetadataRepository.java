@@ -19,20 +19,20 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.ICompositeRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.ICompositeRepository;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
-public class CompositeMetadataRepository extends AbstractMetadataRepository implements IMetadataRepository, ICompositeRepository {
+public class CompositeMetadataRepository extends AbstractMetadataRepository implements IMetadataRepository, ICompositeRepository<IInstallableUnit> {
 
 	static final public String REPOSITORY_TYPE = CompositeMetadataRepository.class.getName();
 	public static final String PI_REPOSITORY_TYPE = "compositeMetadataRepository"; //$NON-NLS-1$
@@ -42,27 +42,30 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 
 	// keep a list of the child URIs. they can be absolute or relative. they may or may not point
 	// to a valid reachable repo
-	private List childrenURIs = new ArrayList();
+	private List<URI> childrenURIs = new ArrayList<URI>();
 	// keep a list of the repositories that we have successfully loaded
-	private List loadedRepos = new ArrayList();
+	private List<IMetadataRepository> loadedRepos = new ArrayList<IMetadataRepository>();
+	private IMetadataRepositoryManager manager;
 
 	/**
 	 * Create a Composite repository in memory.
 	 * @return the repository or null if unable to create one
 	 */
-	public static CompositeMetadataRepository createMemoryComposite() {
-		IMetadataRepositoryManager manager = getManager();
-		if (manager == null)
+	public static CompositeMetadataRepository createMemoryComposite(IProvisioningAgent agent) {
+		if (agent == null)
+			return null;
+		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		if (repoManager == null)
 			return null;
 		try {
 			//create a unique opaque URI 
 			long time = System.currentTimeMillis();
 			URI repositoryURI = new URI("memory:" + String.valueOf(time)); //$NON-NLS-1$
-			while (manager.contains(repositoryURI))
+			while (repoManager.contains(repositoryURI))
 				repositoryURI = new URI("memory:" + String.valueOf(++time)); //$NON-NLS-1$
 
-			CompositeMetadataRepository result = (CompositeMetadataRepository) manager.createRepository(repositoryURI, repositoryURI.toString(), IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
-			manager.removeRepository(repositoryURI);
+			CompositeMetadataRepository result = (CompositeMetadataRepository) repoManager.createRepository(repositoryURI, repositoryURI.toString(), IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, null);
+			repoManager.removeRepository(repositoryURI);
 			return result;
 		} catch (ProvisionException e) {
 			// just return null
@@ -73,8 +76,8 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return null;
 	}
 
-	static private IMetadataRepositoryManager getManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+	private IMetadataRepositoryManager getManager() {
+		return manager;
 	}
 
 	private boolean isLocal() {
@@ -85,8 +88,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return isLocal();
 	}
 
-	public CompositeMetadataRepository(URI location, String name, Map properties) {
+	CompositeMetadataRepository(IMetadataRepositoryManager manager, URI location, String name, Map<String, String> properties) {
 		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
+		this.manager = manager;
 		//when creating a repository, we must ensure it exists on disk so a subsequent load will succeed
 		save();
 	}
@@ -94,8 +98,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	/*
 	 * This is only called by the parser when loading a repository.
 	 */
-	public CompositeMetadataRepository(CompositeRepositoryState state) {
+	CompositeMetadataRepository(IMetadataRepositoryManager manager, CompositeRepositoryState state) {
 		super(state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
+		this.manager = manager;
 		for (int i = 0; i < state.getChildren().length; i++)
 			addChild(state.getChildren()[i], false);
 	}
@@ -114,22 +119,21 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		result.setProvider(getProvider());
 		result.setProperties(getProperties());
 		// it is important to directly access the field so we have the relative URIs
-		result.setChildren((URI[]) childrenURIs.toArray(new URI[childrenURIs.size()]));
+		result.setChildren(childrenURIs.toArray(new URI[childrenURIs.size()]));
 		return result;
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		try {
 			// Query all the all the repositories this composite repo contains
-			CompoundQueryable queryable = new CompoundQueryable((IQueryable[]) loadedRepos.toArray(new IQueryable[loadedRepos.size()]));
-			collector = queryable.query(query, collector, monitor);
+			CompoundQueryable<IInstallableUnit> queryable = new CompoundQueryable<IInstallableUnit>(loadedRepos);
+			return queryable.query(query, monitor);
 		} finally {
 			if (monitor != null)
 				monitor.done();
 		}
-		return collector;
 	}
 
 	private void addChild(URI childURI, boolean save) {
@@ -172,13 +176,12 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		if (removed) {
 			// we removed the child from the list so remove the associated repo object as well
 			IMetadataRepository found = null;
-			for (Iterator iter = loadedRepos.iterator(); found == null && iter.hasNext();) {
-				IMetadataRepository current = (IMetadataRepository) iter.next();
+			for (IMetadataRepository current : loadedRepos) {
 				URI repoLocation = current.getLocation();
-				if (URIUtil.sameURI(childURI, repoLocation))
+				if (URIUtil.sameURI(childURI, repoLocation) || URIUtil.sameURI(other, repoLocation)) {
 					found = current;
-				else if (URIUtil.sameURI(other, repoLocation))
-					found = current;
+					break;
+				}
 			}
 			if (found != null)
 				loadedRepos.remove(found);
@@ -200,7 +203,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		throw new UnsupportedOperationException("Cannot remove IUs to a composite repository");
 	}
 
-	public synchronized boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
+	public synchronized boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException("Cannot remove IUs to a composite repository");
 	}
 
@@ -233,7 +236,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 			return;
 		File file = getActualLocation(location);
 		File jarFile = getActualLocation(location, JAR_EXTENSION);
-		boolean compress = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		boolean compress = "true".equalsIgnoreCase(properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
 		try {
 			OutputStream output = null;
 			if (!compress) {
@@ -267,10 +270,10 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		}
 	}
 
-	public List getChildren() {
-		List result = new ArrayList();
-		for (Iterator iter = childrenURIs.iterator(); iter.hasNext();)
-			result.add(URIUtil.makeAbsolute((URI) iter.next(), location));
+	public List<URI> getChildren() {
+		List<URI> result = new ArrayList<URI>();
+		for (URI childURI : childrenURIs)
+			result.add(URIUtil.makeAbsolute(childURI, location));
 		return result;
 	}
 

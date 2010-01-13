@@ -18,13 +18,13 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ChmodAction;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -43,7 +43,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("testExecuteUndo", null, profileProperties);
+		IProfile profile = createProfile("testExecuteUndo", profileProperties);
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		File zipTarget = new File(installFolder, "a.zip");
@@ -54,6 +54,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		copy("3.0", zipSource, zipTarget2);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "testExecuteUndo", parameters);
@@ -108,9 +109,9 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File dirBundleSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/directoryBased_1.0.0");
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
@@ -124,6 +125,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		bundlePool.addDescriptor(descriptor);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
@@ -185,9 +187,9 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File dirBundleSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/directoryBased_1.0.0");
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
@@ -201,6 +203,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		bundlePool.addDescriptor(descriptor);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);

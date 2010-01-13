@@ -25,9 +25,30 @@ import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
  * </p>
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
- * @since 1.1
+ * @since 2.0
  */
 public interface IProvisioningAgent {
+	/**
+	 * Service name constant for the agent service. Note that an agent obtained directly
+	 * as a service typically represents the agent of the currently running system. To
+	 * obtain an agent for a different system the {@link IProvisioningAgentProvider} 
+	 * service must be used.
+	 */
+	public static final String SERVICE_NAME = IProvisioningAgent.class.getName();
+
+	/**
+	 * Service property identifying whether an agent is the default agent.
+	 * 
+	 * <p>
+	 * This property may be used by clients wishing to obtain or track the
+	 * provisioning agent for the currently running system. When the value of
+	 * this property is <code>"true"</code> then the corresponding service is
+	 * the agent for the currently running system. If the property is undefined or
+	 * has any other value, then the service is not the agent for the currently running system.
+	 * </p>
+	 */
+	public static final String SERVICE_CURRENT = "agent.current"; //$NON-NLS-1$
+
 	/**
 	 * Returns the service with the given service name, or <code>null</code>
 	 * if no such service is available in this agent.
@@ -41,6 +62,18 @@ public interface IProvisioningAgent {
 	 * @param service The service implementation
 	 */
 	public void registerService(String serviceName, Object service);
+
+	/**
+	 * Stops the provisioning agent. This causes services provided by this 
+	 * agent to be cleaned up and discarded. No services provided by the agent
+	 * should be referenced after the agent has been stopped, and subsequent
+	 * attempts to obtain services after the agent has stopped will fail.
+	 * <p>
+	 * An agent should only be stopped by the client who first created the agent
+	 * by invoking {@link IProvisioningAgentProvider#createAgent(java.net.URI)}.
+	 * </p>
+	 */
+	public void stop();
 
 	/**
 	 * Unregisters a service that has previously been registered with this

@@ -11,8 +11,8 @@
 package org.eclipse.equinox.internal.p2.garbagecollector;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
  * Wrapper class used to store an IArtifactRepository and its root set of IArtifactKeys.

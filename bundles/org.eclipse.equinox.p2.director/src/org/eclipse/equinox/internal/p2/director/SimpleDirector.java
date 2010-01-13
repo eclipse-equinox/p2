@@ -10,8 +10,8 @@ package org.eclipse.equinox.internal.p2.director;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleDirector implements IDirector {
@@ -32,7 +32,7 @@ public class SimpleDirector implements IDirector {
 	public IStatus revert(IProfile currentProfile, IProfile revertProfile, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
 		try {
-			ProvisioningPlan plan = planner.getDiffPlan(currentProfile, revertProfile, sub.newChild(PlanWork));
+			IProvisioningPlan plan = planner.getDiffPlan(currentProfile, revertProfile, sub.newChild(PlanWork));
 			return PlanExecutionHelper.executePlan(plan, engine, context, sub.newChild(EngineWork));
 		} finally {
 			sub.done();
@@ -46,9 +46,9 @@ public class SimpleDirector implements IDirector {
 			IInstallableUnit[] installRoots = request.getAddedInstallableUnits();
 			// mark the roots as such
 			for (int i = 0; i < installRoots.length; i++) {
-				request.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+				request.setInstallableUnitProfileProperty(installRoots[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			}
-			ProvisioningPlan plan = planner.getProvisioningPlan(request, context, sub.newChild(PlanWork));
+			IProvisioningPlan plan = planner.getProvisioningPlan(request, context, sub.newChild(PlanWork));
 			return PlanExecutionHelper.executePlan(plan, engine, context, sub.newChild(EngineWork));
 		} finally {
 			sub.done();

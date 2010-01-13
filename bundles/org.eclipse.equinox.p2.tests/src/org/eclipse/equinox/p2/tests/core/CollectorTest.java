@@ -12,7 +12,7 @@
 package org.eclipse.equinox.p2.tests.core;
 
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -47,7 +47,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 	public void testCompositeCollectors() {
 		String[] s = new String[] {"A", "B", "C", "D", "E", "F", "G", "1", "2", "3", "4", "5", "6", "7"};
 		List list = Arrays.asList(s);
-		Query numeric = new MatchQuery() {
+		IQuery numeric = new MatchQuery() {
 
 			public boolean isMatch(Object candidate) {
 				if (((String) candidate).compareTo("0") > 0 && ((String) candidate).compareTo("8") < 0) {
@@ -57,7 +57,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 			}
 		};
 
-		Query fourOrFiveOrABC = new MatchQuery() {
+		IQuery fourOrFiveOrABC = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (((String) candidate).equals("4") || ((String) candidate).equals("5") || ((String) candidate).equals("A") || ((String) candidate).equals("B") || ((String) candidate).equals("C")) {
 					return true;
@@ -65,20 +65,19 @@ public class CollectorTest extends AbstractProvisioningTest {
 				return false;
 			}
 		};
-		Collector collector = numeric.perform(list.iterator(), new Collector());
-		assertEquals("1.0", 7, collector.toCollection().size());
+		IQueryResult queryResult = numeric.perform(list.iterator());
+		assertEquals("1.0", 7, queryResultSize(queryResult));
 
-		collector = collector.query(fourOrFiveOrABC, new Collector(), null);
-		Collection collection = collector.toCollection();
-		assertEquals("2.0", 2, collection.size());
-		assertTrue("2.1", collection.contains("4"));
-		assertTrue("2.2", collection.contains("5"));
+		queryResult = queryResult.query(fourOrFiveOrABC, null);
+		assertEquals("2.0", 2, queryResultSize(queryResult));
+		assertContains("2.1", queryResult, "4");
+		assertContains("2.2", queryResult, "5");
 	}
 
 	public void testSameCollector() {
 		String[] s = new String[] {"A", "B", "C", "D", "E", "F", "G", "1", "2", "3", "4", "5", "6", "7"};
 		List list = Arrays.asList(s);
-		Query numeric = new MatchQuery() {
+		IQuery numeric = new MatchQuery() {
 
 			public boolean isMatch(Object candidate) {
 				if (((String) candidate).compareTo("0") > 0 && ((String) candidate).compareTo("8") < 0) {
@@ -88,7 +87,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 			}
 		};
 
-		Query fourOrFiveOrABC = new MatchQuery() {
+		IQuery fourOrFiveOrABC = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (((String) candidate).equals("4") || ((String) candidate).equals("5") || ((String) candidate).equals("A") || ((String) candidate).equals("B") || ((String) candidate).equals("C")) {
 					return true;
@@ -96,11 +95,12 @@ public class CollectorTest extends AbstractProvisioningTest {
 				return false;
 			}
 		};
-		Collector collector = numeric.perform(list.iterator(), new Collector());
-		assertEquals("1.0", 7, collector.toCollection().size());
+		Collector collector = new Collector();
+		collector.addAll(numeric.perform(list.iterator()));
+		assertEquals("1.0", 7, collector.unmodifiableSet().size());
 
-		collector = collector.query(fourOrFiveOrABC, collector, null);
-		Collection collection = collector.toCollection();
+		collector.addAll(collector.query(fourOrFiveOrABC, null));
+		Collection collection = collector.unmodifiableSet();
 		assertEquals("2.0", 7, collection.size());
 	}
 
@@ -110,7 +110,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 	public void testEmptyCompositeCollectors() {
 		String[] s = new String[] {"A", "B", "C", "D", "E", "F", "G", "1", "2", "3", "4", "5", "6", "7"};
 		List list = Arrays.asList(s);
-		Query eightOrNine = new MatchQuery() {
+		IQuery eightOrNine = new MatchQuery() {
 
 			public boolean isMatch(Object candidate) {
 				if (((String) candidate).compareTo("8") > 0 && ((String) candidate).compareTo("9") < 0) {
@@ -120,7 +120,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 			}
 		};
 
-		Query fourOrFiveOrABC = new MatchQuery() {
+		IQuery fourOrFiveOrABC = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (((String) candidate).equals("4") || ((String) candidate).equals("5") || ((String) candidate).equals("A") || ((String) candidate).equals("B") || ((String) candidate).equals("C")) {
 					return true;
@@ -128,17 +128,16 @@ public class CollectorTest extends AbstractProvisioningTest {
 				return false;
 			}
 		};
-		Collector collector = eightOrNine.perform(list.iterator(), new Collector());
-		assertEquals("1.0", 0, collector.toCollection().size());
+		IQueryResult queryResult = eightOrNine.perform(list.iterator());
+		assertTrue("1.0", queryResult.isEmpty());
 
-		collector = collector.query(fourOrFiveOrABC, new Collector(), null);
-		Collection collection = collector.toCollection();
-		assertEquals("2.0", 0, collection.size());
+		queryResult = queryResult.query(fourOrFiveOrABC, null);
+		assertTrue("2.0", queryResult.isEmpty());
 	}
 
 	public void testToCollection() {
 		Collector collector = new Collector();
-		Collection result = collector.toCollection();
+		Collection result = collector.unmodifiableSet();
 		assertEquals("1.0", 0, result.size());
 		//collection should be immutable
 		try {
@@ -150,7 +149,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 
 		String value = "value";
 		collector.accept(value);
-		result = collector.toCollection();
+		result = collector.unmodifiableSet();
 		assertEquals("2.0", 1, result.size());
 		assertEquals("2.1", value, result.iterator().next());
 		//collection should be immutable

@@ -14,7 +14,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Properties;
+import java.util.Map;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -24,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
-@SuppressWarnings( {"restriction", "unchecked"})
+@SuppressWarnings({"restriction", "unchecked"})
 public class AccumulateConfigDataActionTest extends ActionTest {
 
 	private static String EXECUTABLE_NAME = "run.exe"; //$NON-NLS-1$
@@ -75,11 +75,11 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 
 	private void verifyConfigAdvice() throws Exception {
 		ConfigAdvice captured = configAdviceCapture.getValue();
-		Properties prop = captured.getProperties();
-		assertTrue(prop.getProperty("eclipse.buildId").equalsIgnoreCase("TEST-ID")); //$NON-NLS-1$ //$NON-NLS-2$
-		assertTrue(prop.getProperty("eclipse.p2.profile").equalsIgnoreCase("PlatformProfile")); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(prop.getProperty("org.eclipse.update.reconcile").equalsIgnoreCase("false")); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(prop.getProperty("eclipse.product").equalsIgnoreCase("org.eclipse.platform.ide")); //$NON-NLS-1$//$NON-NLS-2$
+		Map<String, String> prop = captured.getProperties();
+		assertTrue(prop.get("eclipse.buildId").equalsIgnoreCase("TEST-ID")); //$NON-NLS-1$ //$NON-NLS-2$
+		assertTrue(prop.get("eclipse.p2.profile").equalsIgnoreCase("PlatformProfile")); //$NON-NLS-1$//$NON-NLS-2$
+		assertTrue(prop.get("org.eclipse.update.reconcile").equalsIgnoreCase("false")); //$NON-NLS-1$//$NON-NLS-2$
+		assertTrue(prop.get("eclipse.product").equalsIgnoreCase("org.eclipse.platform.ide")); //$NON-NLS-1$//$NON-NLS-2$
 
 		assertContainsSymbolicName(captured.getBundles(), "org.eclipse.swt"); //$NON-NLS-1$
 		assertContainsSymbolicName(captured.getBundles(), "org.eclipse.swt.win32.win32.x86"); //$NON-NLS-1$

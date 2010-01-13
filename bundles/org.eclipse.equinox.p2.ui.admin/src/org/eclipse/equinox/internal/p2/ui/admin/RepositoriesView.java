@@ -10,22 +10,29 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveRepositoryOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.RepositoryContentProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
+import org.eclipse.equinox.internal.p2.ui.model.IRepositoryElement;
+import org.eclipse.equinox.internal.p2.ui.viewers.RepositoryContentProvider;
+import org.eclipse.equinox.internal.p2.ui.viewers.StructuredViewerProvisioningListener;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.jface.action.*;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
+import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -46,7 +53,14 @@ abstract class RepositoriesView extends ProvView {
 		}
 
 		public void run() {
-			ProvisioningOperationRunner.run(getRemoveOperation(getSelection().toArray()), StatusManager.SHOW | StatusManager.LOG);
+			RepositoryTracker tracker = RepositoriesView.this.getRepositoryTracker();
+			Object[] elements = getSelection().toArray();
+			ArrayList<URI> uris = new ArrayList<URI>(elements.length);
+			for (int i = 0; i < elements.length; i++) {
+				if (elements[i] instanceof IRepositoryElement<?>)
+					uris.add(((IRepositoryElement<?>) elements[i]).getLocation());
+			}
+			tracker.removeRepositories(uris.toArray(new URI[uris.size()]), RepositoriesView.this.getProvisioningUI().getSession());
 		}
 	}
 
@@ -60,10 +74,10 @@ abstract class RepositoriesView extends ProvView {
 
 		public void run() {
 			Object[] elements = ((ITreeContentProvider) viewer.getContentProvider()).getElements(getInput());
-			ArrayList urls = new ArrayList();
+			ArrayList<URI> urls = new ArrayList<URI>();
 			for (int i = 0; i < elements.length; i++)
-				if (elements[i] instanceof IRepositoryElement)
-					urls.add(((IRepositoryElement) elements[i]).getLocation());
+				if (elements[i] instanceof IRepositoryElement<?>)
+					urls.add(((IRepositoryElement<?>) elements[i]).getLocation());
 			openAddRepositoryDialog(getShell());
 		}
 	}
@@ -164,9 +178,9 @@ abstract class RepositoriesView extends ProvView {
 
 	}
 
-	protected abstract int openAddRepositoryDialog(Shell shell);
+	protected abstract RepositoryTracker getRepositoryTracker();
 
-	protected abstract RemoveRepositoryOperation getRemoveOperation(Object[] elements);
+	protected abstract int openAddRepositoryDialog(Shell shell);
 
 	protected abstract String getAddCommandLabel();
 
@@ -179,14 +193,32 @@ abstract class RepositoriesView extends ProvView {
 	protected abstract String getRemoveCommandTooltip();
 
 	protected boolean isRepository(Object element) {
-		return element instanceof IRepositoryElement;
+		return element instanceof IRepositoryElement<?>;
 	}
 
 	protected abstract int getListenerEventTypes();
 
-	protected List getVisualProperties() {
-		List list = super.getVisualProperties();
+	protected List<String> getVisualProperties() {
+		List<String> list = super.getVisualProperties();
 		list.add(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS);
 		return list;
+	}
+
+	protected void refreshUnderlyingModel() {
+		IWorkbenchSiteProgressService service = (IWorkbenchSiteProgressService) getSite().getAdapter(IWorkbenchSiteProgressService.class);
+		if (service != null) {
+			try {
+				service.run(true, false, new IRunnableWithProgress() {
+					public void run(IProgressMonitor monitor) {
+						getRepositoryTracker().refreshRepositories(getRepositoryTracker().getKnownRepositories(getProvisioningUI().getSession()), getProvisioningUI().getSession(), monitor);
+					}
+				});
+			} catch (InvocationTargetException e) {
+				ProvUI.handleException(e, null, StatusManager.SHOW);
+			} catch (InterruptedException e) {
+				// ignore
+			}
+		} else
+			getRepositoryTracker().refreshRepositories(getRepositoryTracker().getKnownRepositories(getProvisioningUI().getSession()), getProvisioningUI().getSession(), new NullProgressMonitor());
 	}
 }

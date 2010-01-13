@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class IUWithFilter extends AbstractProvisioningTest {
@@ -31,8 +31,8 @@ public class IUWithFilter extends AbstractProvisioningTest {
 		super.setUp();
 		MetadataFactory.InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		iud.setId("A");
-		iud.setVersion(new Version("1.0.0"));
-		iud.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null));
+		iud.setVersion(Version.create("1.0.0"));
+		iud.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]")));
 		iud.setFilter("(invalid=true)");
 		a1 = MetadataFactory.createInstallableUnit(iud);
 		createTestMetdataRepository(new IInstallableUnit[] {a1});

@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
  * Interface for elements that represent IU's.
@@ -20,24 +21,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
  * @since 3.4
  */
 public interface IIUElement {
-
-	/**
-	 * Indicates that the size is currently unknown
-	 */
-	public static final long SIZE_UNKNOWN = -1L;
-
-	/**
-	 * Indicates that the size is unavailable (an
-	 * attempt was made to compute size but it failed)
-	 */
-	public static final long SIZE_UNAVAILABLE = -2L;
-
-	/**
-	 * Indicates that there was nothing to size (there
-	 * was no valid plan that could be used to compute
-	 * size).
-	 */
-	public static final long SIZE_NOTAPPLICABLE = -3L;
 
 	public IInstallableUnit getIU();
 
@@ -49,7 +32,7 @@ public interface IIUElement {
 
 	public void computeSize(IProgressMonitor monitor);
 
-	public IRequiredCapability[] getRequirements();
+	public Collection<IRequirement> getRequirements();
 
 	public Object getParent(Object obj);
 

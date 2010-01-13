@@ -17,9 +17,10 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.*;
 
@@ -63,7 +64,7 @@ public class Activator implements BundleActivator {
 	}
 
 	public static IProfile getCurrentProfile() {
-		ServiceReference reference = bundleContext.getServiceReference(IProfileRegistry.class.getName());
+		ServiceReference reference = bundleContext.getServiceReference(IProfileRegistry.SERVICE_NAME);
 		if (reference == null)
 			return null;
 		IProfileRegistry profileRegistry = (IProfileRegistry) bundleContext.getService(reference);
@@ -74,21 +75,20 @@ public class Activator implements BundleActivator {
 		}
 	}
 
-	public static IFileArtifactRepository getBundlePoolRepository() {
-		ServiceReference reference = bundleContext.getServiceReference(IProfileRegistry.class.getName());
+	public static IProvisioningAgent getCurrentAgent() {
+		ServiceReference reference = bundleContext.getServiceReference(IProvisioningAgent.class.getName());
 		if (reference == null)
 			return null;
-		IProfileRegistry profileRegistry = (IProfileRegistry) bundleContext.getService(reference);
-		IProfile profile = null;
-		try {
-			profile = profileRegistry.getProfile(IProfileRegistry.SELF);
-		} finally {
-			bundleContext.ungetService(reference);
-		}
-		if (profile == null)
+		return (IProvisioningAgent) bundleContext.getService(reference);
+	}
+
+	public static IFileArtifactRepository getBundlePoolRepository() {
+		IProfile profile = getCurrentProfile();
+		IProvisioningAgent agent = getCurrentAgent();
+		if (profile == null || agent == null)
 			return null;
 
-		return Util.getAggregatedBundleRepository(profile, Util.AGGREGATE_CACHE | Util.AGGREGATE_SHARED_CACHE);
+		return Util.getAggregatedBundleRepository(agent, profile, Util.AGGREGATE_CACHE | Util.AGGREGATE_SHARED_CACHE);
 	}
 
 	/**

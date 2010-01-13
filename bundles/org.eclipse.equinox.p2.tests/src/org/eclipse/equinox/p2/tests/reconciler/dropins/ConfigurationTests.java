@@ -15,7 +15,7 @@ import java.util.Iterator;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.update.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /*
  * Tests related to the platform configuration before and after reconciliation.

@@ -13,15 +13,13 @@ package org.eclipse.equinox.internal.p2.ui.viewers;
 
 import java.text.NumberFormat;
 import java.util.HashMap;
-import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Font;
@@ -45,7 +43,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 
 	private IUColumnConfig[] columnConfig;
 	Shell shell;
-	HashMap jobs = new HashMap();
+	HashMap<IIUElement, Job> jobs = new HashMap<IIUElement, Job>();
 
 	public IUDetailsLabelProvider() {
 		this(null, null, null);
@@ -79,7 +77,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			columnContent = columnConfig[columnIndex].getColumnType();
 		}
 
-		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+		IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null) {
 			if (columnIndex == 0) {
 				if (element instanceof ProvElement)
@@ -94,7 +92,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 				return iu.getId();
 			case IUColumnConfig.COLUMN_NAME :
 				// Get the iu name in the current locale
-				String name = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
+				String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
 				if (name != null)
 					return name;
 				// If the iu name is not available, we return blank if we know know we are
@@ -135,7 +133,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		long size = element.getSize();
 		// If size is already known, or we already tried
 		// to get it, don't try again
-		if (size != IIUElement.SIZE_UNKNOWN)
+		if (size != ProvisioningSession.SIZE_UNKNOWN)
 			return getFormattedSize(size);
 		if (!jobs.containsKey(element)) {
 			Job resolveJob = new Job(element.getIU().getId()) {
@@ -153,7 +151,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 						return Status.CANCEL_STATUS;
 
 					// If we still could not compute size, give up
-					if (element.getSize() == IIUElement.SIZE_UNKNOWN)
+					if (element.getSize() == ProvisioningSession.SIZE_UNKNOWN)
 						return Status.OK_STATUS;
 
 					if (shell == null || shell.isDisposed())
@@ -183,7 +181,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	private String getFormattedSize(long size) {
-		if (size == IIUElement.SIZE_UNKNOWN || size == IIUElement.SIZE_UNAVAILABLE)
+		if (size == ProvisioningSession.SIZE_UNKNOWN || size == ProvisioningSession.SIZE_UNAVAILABLE)
 			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 		if (size > 1000L) {
 			long kb = size / 1000L;
@@ -211,10 +209,10 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	public String getToolTipText(Object element) {
-		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+		IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null || toolTipProperty == null)
 			return null;
-		return IUPropertyUtils.getIUProperty(iu, toolTipProperty);
+		return iu.getProperty(toolTipProperty, null);
 	}
 
 	/* (non-Javadoc)
@@ -229,11 +227,8 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 
 	public void dispose() {
 		super.dispose();
-		Iterator iter = jobs.values().iterator();
-		while (iter.hasNext()) {
-			Job job = (Job) iter.next();
+		for (Job job : jobs.values())
 			job.cancel();
-		}
 	}
 
 }

@@ -11,13 +11,15 @@
 *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing;
 
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+
 import java.io.OutputStream;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository.ArtifactOutputStream;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -42,7 +44,7 @@ public class ProcessingStepHandler {
 		IExtensionPoint point = registry.getExtensionPoint(PROCESSING_STEPS_EXTENSION_ID);
 		if (point == null)
 			return false;
-		ProcessingStepDescriptor[] steps = descriptor.getProcessingSteps();
+		IProcessingStepDescriptor[] steps = descriptor.getProcessingSteps();
 		for (int i = 0; i < steps.length; i++) {
 			if (point.getExtension(steps[i].getProcessorId()) == null)
 				return false;
@@ -60,11 +62,11 @@ public class ProcessingStepHandler {
 	public static IStatus getStatus(OutputStream stream, boolean deep) {
 		if (!deep)
 			return getStatus(stream);
-		ArrayList list = new ArrayList();
+		ArrayList<IStatus> list = new ArrayList<IStatus>();
 		int severity = collectStatus(stream, list);
 		if (severity == IStatus.OK)
 			return Status.OK_STATUS;
-		IStatus[] result = (IStatus[]) list.toArray(new IStatus[list.size()]);
+		IStatus[] result = list.toArray(new IStatus[list.size()]);
 		return new MultiStatus(Activator.ID, severity, result, Messages.processing_step_results, null);
 	}
 
@@ -74,15 +76,15 @@ public class ProcessingStepHandler {
 	 * @return the requested status
 	 */
 	public static IStatus getErrorStatus(OutputStream stream) {
-		ArrayList list = new ArrayList();
+		ArrayList<IStatus> list = new ArrayList<IStatus>();
 		int severity = collectErrorStatus(stream, list);
 		if (severity == IStatus.OK)
 			return Status.OK_STATUS;
-		IStatus[] result = (IStatus[]) list.toArray(new IStatus[list.size()]);
+		IStatus[] result = list.toArray(new IStatus[list.size()]);
 		return new MultiStatus(Activator.ID, 0, result, Messages.processing_step_results, null);
 	}
 
-	private static int collectErrorStatus(OutputStream stream, ArrayList list) {
+	private static int collectErrorStatus(OutputStream stream, ArrayList<IStatus> list) {
 		IStatus status = getStatus(stream);
 		if (!status.isOK())
 			list.add(status);
@@ -105,7 +107,7 @@ public class ProcessingStepHandler {
 		return Status.OK_STATUS;
 	}
 
-	private static int collectStatus(OutputStream stream, ArrayList list) {
+	private static int collectStatus(OutputStream stream, ArrayList<IStatus> list) {
 		IStatus status = getStatus(stream);
 		list.add(status);
 		OutputStream destination = getDestination(stream);
@@ -125,14 +127,14 @@ public class ProcessingStepHandler {
 		return null;
 	}
 
-	public ProcessingStep[] create(ProcessingStepDescriptor[] descriptors, IArtifactDescriptor context) {
+	public ProcessingStep[] create(IProcessingStepDescriptor[] descriptors, IArtifactDescriptor context) {
 		ProcessingStep[] result = new ProcessingStep[descriptors.length];
 		for (int i = 0; i < descriptors.length; i++)
 			result[i] = create(descriptors[i], context);
 		return result;
 	}
 
-	public ProcessingStep create(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+	public ProcessingStep create(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		IExtensionRegistry registry = RegistryFactory.getRegistry();
 		IExtension extension = registry.getExtension(PROCESSING_STEPS_EXTENSION_ID, descriptor.getProcessorId());
 		Exception error;
@@ -155,7 +157,7 @@ public class ProcessingStepHandler {
 		return result;
 	}
 
-	public OutputStream createAndLink(ProcessingStepDescriptor[] descriptors, IArtifactDescriptor context, OutputStream output, IProgressMonitor monitor) {
+	public OutputStream createAndLink(IProcessingStepDescriptor[] descriptors, IArtifactDescriptor context, OutputStream output, IProgressMonitor monitor) {
 		if (descriptors == null)
 			return output;
 		ProcessingStep[] steps = create(descriptors, context);

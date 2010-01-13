@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -12,17 +12,18 @@
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 
 /**
  * Default implementation of {@link IArtifactRepositoryManager}.
@@ -30,7 +31,7 @@ import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.Artif
  * TODO the current assumption that the "location" is the dir/root limits us to 
  * having just one repository in a given URL..  
  */
-public class ArtifactRepositoryManager extends AbstractRepositoryManager implements IArtifactRepositoryManager {
+public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifactKey> implements IArtifactRepositoryManager {
 
 	public ArtifactRepositoryManager() {
 		super();
@@ -40,25 +41,31 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		super.addRepository(repository, true, null);
 	}
 
-	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Properties destinationDescriptorProperties, Properties destinationRepositoryProperties) {
+	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties) {
 		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties);
 	}
 
-	public IArtifactRepository createRepository(URI location, String name, String type, Map properties) throws ProvisionException {
+	public IArtifactRepository createRepository(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
 		return (IArtifactRepository) doCreateRepository(location, name, type, properties);
 	}
 
-	protected IRepository factoryCreate(URI location, String name, String type, Map properties, IExtension extension) throws ProvisionException {
+	public IArtifactRepository getRepository(URI location) {
+		return (IArtifactRepository) basicGetRepository(location);
+	}
+
+	protected IRepository<IArtifactKey> factoryCreate(URI location, String name, String type, Map<String, String> properties, IExtension extension) throws ProvisionException {
 		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
+		factory.setAgent(agent);
 		return factory.create(location, name, type, properties);
 	}
 
-	protected IRepository factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor) throws ProvisionException {
+	protected IRepository<IArtifactKey> factoryLoad(URI location, IExtension extension, int flags, SubMonitor monitor) throws ProvisionException {
 		ArtifactRepositoryFactory factory = (ArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			return null;
+		factory.setAgent(agent);
 		return factory.load(location, flags, monitor.newChild(10));
 	}
 
@@ -102,12 +109,14 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	 */
 	protected void restoreSpecialRepositories() {
 		// TODO while recreating, we may want to have proxies on repo instead of the real repo object to limit what is activated.
-		AgentLocation location = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
+		IAgentLocation location = (IAgentLocation) ServiceHelper.getService(Activator.getContext(), IAgentLocation.class.getName());
 		if (location == null)
 			// TODO should do something here since we are failing to restore.
 			return;
+		URI cacheLocation = URIUtil.append(location.getDataArea("org.eclipse.equinox.p2.core"), "cache/"); //$NON-NLS-1$ //$NON-NLS-2$
+
 		try {
-			loadRepository(location.getArtifactRepositoryURI(), null);
+			loadRepository(cacheLocation, null);
 			return;
 		} catch (ProvisionException e) {
 			// log but still continue and try to create a new one
@@ -115,9 +124,9 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading download cache.", e)); //$NON-NLS-1$
 		}
 		try {
-			Map properties = new HashMap(1);
+			Map<String, String> properties = new HashMap<String, String>(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			createRepository(location.getArtifactRepositoryURI(), "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
+			createRepository(cacheLocation, "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		}

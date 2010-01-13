@@ -11,9 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.director;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * Planners are responsible for determining what should be done to a given 
@@ -28,10 +27,10 @@ public interface IPlanner {
 	 */
 	public static final String SERVICE_NAME = IPlanner.class.getName();
 
-	public ProvisioningPlan getProvisioningPlan(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor);
+	public IProvisioningPlan getProvisioningPlan(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor);
 
 	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor);
 
-	public ProvisioningPlan getDiffPlan(IProfile currentProfile, IProfile targetProfile, IProgressMonitor monitor);
+	public IProvisioningPlan getDiffPlan(IProfile currentProfile, IProfile targetProfile, IProgressMonitor monitor);
 
 }

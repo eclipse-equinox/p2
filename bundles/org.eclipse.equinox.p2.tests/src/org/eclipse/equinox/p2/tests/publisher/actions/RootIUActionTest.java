@@ -12,23 +12,22 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
-
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 
-@SuppressWarnings( {"restriction", "unchecked"})
+@SuppressWarnings({"restriction", "unchecked"})
 public class RootIUActionTest extends ActionTest {
 	private static final int CONTAINS_A = 1;
 	private static final int CONTAINS_B = 2;
@@ -42,7 +41,7 @@ public class RootIUActionTest extends ActionTest {
 
 	private IMetadataRepository metadataRepository;
 	private String rootIU = "sdk"; //$NON-NLS-1$
-	private Version versionArg = new Version("3.4.0.i0305"); //$NON-NLS-1$
+	private Version versionArg = Version.create("3.4.0.i0305"); //$NON-NLS-1$
 	private Collection<IRootIUAdvice> rootIUAdviceCollection;
 
 	public void testNullAdvice() throws Exception {
@@ -230,7 +229,7 @@ public class RootIUActionTest extends ActionTest {
 	}
 
 	private void setupFilterAdvice(int testSpec) {
-		Query query = null;
+		IQuery query = null;
 		rootIUAdviceCollection = new ArrayList();
 		if ((testSpec & CONTAINS_A) > 0) {
 			query = new MatchQuery() {
@@ -272,9 +271,9 @@ public class RootIUActionTest extends ActionTest {
 		IInstallableUnit iu = (IInstallableUnit) ius.get(0);
 		assertTrue(iu != null);
 		assertTrue(iu.getVersion().equals(versionArg));
-		IRequiredCapability[] required = iu.getRequiredCapabilities();
+		Collection<IRequirement> required = iu.getRequiredCapabilities();
 		if ((testSpec & EMPTY) > 0)
-			assertEquals(required.length, 0);
+			assertEquals(required.size(), 0);
 		String confirmedIUs = ""; //$NON-NLS-1$
 		int numConfirmed = 0;
 
@@ -288,7 +287,7 @@ public class RootIUActionTest extends ActionTest {
 			confirmedIUs += iu_B;
 			numConfirmed++;
 		}
-		if (numConfirmed != required.length) {
+		if (numConfirmed != required.size()) {
 			debug("Not all required ius present / accounted for."); //$NON-NLS-1$
 			fail();
 		}
@@ -298,10 +297,12 @@ public class RootIUActionTest extends ActionTest {
 			debug("Confirmed \t\t  Empty"); //$NON-NLS-1$
 	}
 
-	private boolean contains(IRequiredCapability[] required, String iu) {
-		for (int i = 0; i < required.length; i++)
-			if (required[i].getName().equalsIgnoreCase(iu))
+	private boolean contains(Collection<IRequirement> required, String iu) {
+		for (Iterator iterator = required.iterator(); iterator.hasNext();) {
+			IRequiredCapability req = (IRequiredCapability) iterator.next();
+			if (req.getName().equalsIgnoreCase(iu))
 				return true;
+		}
 		return false;
 	}
 

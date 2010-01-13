@@ -11,23 +11,27 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
@@ -47,7 +51,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	private IProfileRegistry profileRegistry;
 	private IStatus result;
 
-	private ArrayList serviceReferences = new ArrayList();
+	private ArrayList<ServiceReference> serviceReferences = new ArrayList<ServiceReference>();
 
 	public InstallUpdateProductOperation(BundleContext context, InstallDescription description) {
 		this.bundleContext = context;
@@ -58,22 +62,22 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * Determine what top level installable units should be installed by the director
 	 */
 	private IInstallableUnit[] computeUnitsToInstall() throws CoreException {
-		ArrayList result = new ArrayList();
+		ArrayList<IInstallableUnit> units = new ArrayList<IInstallableUnit>();
 		IVersionedId roots[] = installDescription.getRoots();
 		for (int i = 0; i < roots.length; i++) {
 			IVersionedId root = roots[i];
 			IInstallableUnit iu = findUnit(root);
 			if (iu != null)
-				result.add(iu);
+				units.add(iu);
 		}
-		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
+		return units.toArray(new IInstallableUnit[units.size()]);
 	}
 
 	/**
 	 * This profile is being updated; return the units to uninstall from the profile.
 	 */
-	private IInstallableUnit[] computeUnitsToUninstall(IProfile p) {
-		return (IInstallableUnit[]) p.query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
+	private IQueryResult<IInstallableUnit> computeUnitsToUninstall(IProfile p) {
+		return p.query(InstallableUnitQuery.ANY, null);
 	}
 
 	/**
@@ -82,7 +86,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	private IProfile createProfile() throws ProvisionException {
 		IProfile profile = getProfile();
 		if (profile == null) {
-			Map properties = new HashMap();
+			Map<String, String> properties = new HashMap<String, String>();
 			properties.put(IProfile.PROP_INSTALL_FOLDER, installDescription.getInstallLocation().toString());
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(InstallerActivator.getDefault().getContext(), EnvironmentInfo.class.getName());
 			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -115,7 +119,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			s = director.provision(request, null, monitor.newChild(90));
 		} else {
 			monitor.setTaskName(NLS.bind(Messages.Op_Updating, installDescription.getProductName()));
-			IInstallableUnit[] toUninstall = computeUnitsToUninstall(p);
+			IQueryResult<IInstallableUnit> toUninstall = computeUnitsToUninstall(p);
 			request.removeInstallableUnits(toUninstall);
 			request.addInstallableUnits(toInstall);
 			s = director.provision(request, null, monitor.newChild(90));
@@ -150,13 +154,12 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		VersionRange range = VersionRange.emptyRange;
 		if (version != null && !version.equals(Version.emptyVersion))
 			range = new VersionRange(version, true, version, true);
-		Query query = new InstallableUnitQuery(id, range);
-		Collector collector = new Collector();
-		Iterator matches = metadataRepoMan.query(query, collector, null).iterator();
+		IQuery<IInstallableUnit> query = new InstallableUnitQuery(id, range);
+		Iterator<IInstallableUnit> matches = metadataRepoMan.query(query, null).iterator();
 		// pick the newest match
 		IInstallableUnit newest = null;
 		while (matches.hasNext()) {
-			IInstallableUnit candidate = (IInstallableUnit) matches.next();
+			IInstallableUnit candidate = matches.next();
 			if (newest == null || (newest.getVersion().compareTo(candidate.getVersion()) < 0))
 				newest = candidate;
 		}
@@ -233,20 +236,18 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	private void postInstall() {
-		for (Iterator it = serviceReferences.iterator(); it.hasNext();) {
-			ServiceReference sr = (ServiceReference) it.next();
+		for (ServiceReference sr : serviceReferences)
 			bundleContext.ungetService(sr);
-		}
 		serviceReferences.clear();
 	}
 
 	private void preInstall() throws CoreException {
 		//obtain required services
 		serviceReferences.clear();
-		director = (IDirector) getService(IDirector.class.getName());
-		metadataRepoMan = (IMetadataRepositoryManager) getService(IMetadataRepositoryManager.class.getName());
-		artifactRepoMan = (IArtifactRepositoryManager) getService(IArtifactRepositoryManager.class.getName());
-		profileRegistry = (IProfileRegistry) getService(IProfileRegistry.class.getName());
+		director = (IDirector) getService(IDirector.SERVICE_NAME);
+		metadataRepoMan = (IMetadataRepositoryManager) getService(IMetadataRepositoryManager.SERVICE_NAME);
+		artifactRepoMan = (IArtifactRepositoryManager) getService(IArtifactRepositoryManager.SERVICE_NAME);
+		profileRegistry = (IProfileRegistry) getService(IProfileRegistry.SERVICE_NAME);
 	}
 
 	private void prepareArtifactRepositories() throws ProvisionException {

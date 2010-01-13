@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Element class that represents the root of a viewer.  It can be configured
- * with its own policy and query context.
+ * with its own ui and query context.
  * 
  * @since 3.5
  *
@@ -23,23 +25,23 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 public abstract class RootElement extends RemoteQueriedElement {
 
 	private IUViewQueryContext queryContext;
-	private Policy policy;
+	private ProvisioningUI ui;
 
-	public RootElement(Policy policy) {
-		this(null, policy.getQueryContext(), policy);
+	public RootElement(ProvisioningUI ui) {
+		this(null, ProvUI.getQueryContext(ui.getPolicy()), ui);
 	}
 
-	public RootElement(IUViewQueryContext queryContext, Policy policy) {
-		this(null, queryContext, policy);
+	public RootElement(IUViewQueryContext queryContext, ProvisioningUI ui) {
+		this(null, queryContext, ui);
 	}
 
 	/*
 	 * Special method for subclasses that can sometimes be a root, and sometimes not.
 	 */
-	protected RootElement(Object parent, IUViewQueryContext queryContext, Policy policy) {
+	protected RootElement(Object parent, IUViewQueryContext queryContext, ProvisioningUI ui) {
 		super(parent);
 		this.queryContext = queryContext;
-		this.policy = policy;
+		this.ui = ui;
 	}
 
 	/**
@@ -56,6 +58,10 @@ public abstract class RootElement extends RemoteQueriedElement {
 	}
 
 	public Policy getPolicy() {
-		return policy;
+		return ui.getPolicy();
+	}
+
+	public ProvisioningUI getProvisioningUI() {
+		return ui;
 	}
 }

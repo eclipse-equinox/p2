@@ -8,42 +8,46 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import java.util.List;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.p2.metadata.*;
 
 public class InstallableUnitPatch extends InstallableUnit implements IInstallableUnitPatch {
 	private IRequirementChange[] changes;
-	private IRequiredCapability lifeCycle;
-	private IRequiredCapability[][] scope;
+	private IRequirement lifeCycle;
+	private IRequirement[][] scope;
 
-	private void addRequiredCapability(IRequiredCapability[] toAdd) {
-		IRequiredCapability[] current = super.getRequiredCapabilities();
-		IRequiredCapability[] result = new IRequiredCapability[current.length + toAdd.length];
-		System.arraycopy(current, 0, result, 0, current.length);
-		System.arraycopy(toAdd, 0, result, current.length, toAdd.length);
+	private void addRequiredCapability(IRequirement[] toAdd) {
+		List<IRequirement> current = super.getRequiredCapabilities();
+		int currSize = current.size();
+		IRequirement[] result = new IRequirement[currSize + toAdd.length];
+		for (int i = 0; i < currSize; ++i)
+			result[i] = current.get(i);
+		System.arraycopy(toAdd, 0, result, current.size(), toAdd.length);
 		setRequiredCapabilities(result);
 	}
 
-	public IRequiredCapability[][] getApplicabilityScope() {
+	public IRequirement[][] getApplicabilityScope() {
 		return scope;
 	}
 
-	public IRequiredCapability getLifeCycle() {
+	public IRequirement getLifeCycle() {
 		return lifeCycle;
 	}
 
-	public IRequirementChange[] getRequirementsChange() {
-		return changes;
+	public List<IRequirementChange> getRequirementsChange() {
+		return CollectionUtils.unmodifiableList(changes);
 	}
 
-	public void setApplicabilityScope(IRequiredCapability[][] applyTo) {
+	public void setApplicabilityScope(IRequirement[][] applyTo) {
 		scope = applyTo;
 	}
 
-	public void setLifeCycle(IRequiredCapability lifeCycle) {
+	public void setLifeCycle(IRequirement lifeCycle) {
 		if (lifeCycle == null)
 			return;
 		this.lifeCycle = lifeCycle;
-		addRequiredCapability(new IRequiredCapability[] {lifeCycle});
+		addRequiredCapability(new IRequirement[] {lifeCycle});
 	}
 
 	public void setRequirementsChange(IRequirementChange[] changes) {

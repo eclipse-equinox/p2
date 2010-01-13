@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
@@ -20,15 +22,15 @@ import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.update.Configuration;
 import org.eclipse.equinox.internal.p2.update.PathUtil;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -50,9 +52,9 @@ public class Activator implements BundleActivator {
 	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
 	private ServiceReference packageAdminRef;
-	private List watchers = new ArrayList();
-	private final static Set repositories = new HashSet();
-	private Collection filesToCheck = null;
+	private List<DirectoryWatcher> watchers = new ArrayList<DirectoryWatcher>();
+	private final static Set<IMetadataRepository> repositories = new HashSet<IMetadataRepository>();
+	private Collection<File> filesToCheck = null;
 
 	/**
 	 * Helper method to create an extension location metadata repository at the given URI. 
@@ -63,11 +65,9 @@ public class Activator implements BundleActivator {
 	 * @throws IllegalStateException
 	 * @throws ProvisionException 
 	 */
-	public static IMetadataRepository createExtensionLocationMetadataRepository(URI location, String name, Map properties) throws ProvisionException {
-		BundleContext context = getContext();
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
-		if (manager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
+	public static IMetadataRepository createExtensionLocationMetadataRepository(URI location, String name, Map<String, String> properties) throws ProvisionException {
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
 		IMetadataRepository repository = factory.create(location, name, ExtensionLocationMetadataRepository.TYPE, properties);
 		//we need to add the concrete repository to the repository manager, or its properties will not be correct
@@ -83,8 +83,8 @@ public class Activator implements BundleActivator {
 	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		BundleContext context = getContext();
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
 		IMetadataRepository repository = manager.loadRepository(location, monitor);
@@ -101,9 +101,9 @@ public class Activator implements BundleActivator {
 	 * @throws IllegalStateException
 	 * @throws ProvisionException 
 	 */
-	public static IArtifactRepository createExtensionLocationArtifactRepository(URI location, String name, Map properties) throws ProvisionException {
-		BundleContext context = getContext();
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
+	public static IArtifactRepository createExtensionLocationArtifactRepository(URI location, String name, Map<String, String> properties) throws ProvisionException {
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 		ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
@@ -121,8 +121,8 @@ public class Activator implements BundleActivator {
 	 * @throws ProvisionException
 	 */
 	public static IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		BundleContext context = getContext();
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 		IArtifactRepository repository = manager.loadRepository(location, monitor);
@@ -134,7 +134,7 @@ public class Activator implements BundleActivator {
 	 * Return the set of metadata repositories known to this bundle. It is constructed from the repos
 	 * for the drop-ins as well as the ones in the configuration.
 	 */
-	public static Set getRepositories() {
+	public static Set<IMetadataRepository> getRepositories() {
 		return repositories;
 	}
 
@@ -155,10 +155,6 @@ public class Activator implements BundleActivator {
 		}
 
 		if (!startEarly("org.eclipse.equinox.p2.exemplarysetup")) //$NON-NLS-1$
-			return;
-		if (!startEarly("org.eclipse.equinox.simpleconfigurator.manipulator")) //$NON-NLS-1$
-			return;
-		if (!startEarly("org.eclipse.equinox.frameworkadmin.equinox")) //$NON-NLS-1$
 			return;
 
 		checkConfigIni();
@@ -225,9 +221,9 @@ public class Activator implements BundleActivator {
 			return false;
 
 		// gather the list of files/folders that we need to check
-		Collection files = getFilesToCheck();
-		for (Iterator iter = files.iterator(); iter.hasNext();) {
-			File file = (File) iter.next();
+		Collection<File> files = getFilesToCheck();
+		for (Iterator<File> iter = files.iterator(); iter.hasNext();) {
+			File file = iter.next();
 			String key = file.getAbsolutePath();
 			String timestamp = timestamps.getProperty(key);
 			if (timestamp == null)
@@ -271,11 +267,11 @@ public class Activator implements BundleActivator {
 	 * Return a collection of files which are interesting to us when we want to record timestamps
 	 * to figure out if something has changed and perhaps avoid an unnecessary reconcilation.
 	 */
-	private Collection getFilesToCheck() {
+	private Collection<File> getFilesToCheck() {
 		if (filesToCheck != null)
 			return filesToCheck;
 
-		Set result = new HashSet();
+		Set<File> result = new HashSet<File>();
 
 		// configuration/org.eclipse.update/platform.xml, configuration/../plugins, configuration/../features
 		File configuration = getConfigurationLocation();
@@ -319,8 +315,8 @@ public class Activator implements BundleActivator {
 	 * Iterate over the given collection of files (could be dropins or links folders) and 
 	 * return a collection of files that might be interesting to check the timestamps of.
 	 */
-	private Collection getDropinsToCheck(File[] files) {
-		Collection result = new HashSet();
+	private Collection<File> getDropinsToCheck(File[] files) {
+		Collection<File> result = new HashSet<File>();
 		for (int outer = 0; outer < files.length; outer++) {
 			// add top-level file/folder
 			result.add(files[outer]);
@@ -377,9 +373,9 @@ public class Activator implements BundleActivator {
 	 */
 	private void writeTimestamps() {
 		Properties timestamps = new Properties();
-		Collection files = getFilesToCheck();
-		for (Iterator iter = files.iterator(); iter.hasNext();) {
-			File file = (File) iter.next();
+		Collection<File> files = getFilesToCheck();
+		for (Iterator<File> iter = files.iterator(); iter.hasNext();) {
+			File file = iter.next();
 			timestamps.put(file.getAbsolutePath(), Long.toString(file.lastModified()));
 		}
 
@@ -470,6 +466,7 @@ public class Activator implements BundleActivator {
 		PlatformXmlListener listener = new PlatformXmlListener(configFile);
 		watcher.addListener(listener);
 		watcher.poll();
+		watchers.add(watcher);
 		repositories.addAll(listener.getMetadataRepositories());
 	}
 
@@ -477,7 +474,7 @@ public class Activator implements BundleActivator {
 	 * Create a new directory watcher with a repository listener on the drop-ins folder. 
 	 */
 	private void watchDropins() {
-		List directories = new ArrayList();
+		List<File> directories = new ArrayList<File>();
 		File[] dropinsDirectories = getDropinsDirectories();
 		directories.addAll(Arrays.asList(dropinsDirectories));
 		File[] linksDirectories = getLinksDirectories();
@@ -486,9 +483,10 @@ public class Activator implements BundleActivator {
 			return;
 
 		DropinsRepositoryListener listener = new DropinsRepositoryListener(DROPINS);
-		DirectoryWatcher watcher = new DirectoryWatcher((File[]) directories.toArray(new File[directories.size()]));
+		DirectoryWatcher watcher = new DirectoryWatcher(directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();
+		watchers.add(watcher);
 		repositories.addAll(listener.getMetadataRepositories());
 	}
 
@@ -496,10 +494,8 @@ public class Activator implements BundleActivator {
 	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext context) throws Exception {
-		for (Iterator iter = watchers.iterator(); iter.hasNext();) {
-			DirectoryWatcher watcher = (DirectoryWatcher) iter.next();
+		for (DirectoryWatcher watcher : watchers)
 			watcher.stop();
-		}
 		bundleContext = null;
 		setPackageAdmin(null);
 		context.ungetService(packageAdminRef);
@@ -576,7 +572,7 @@ public class Activator implements BundleActivator {
 	 * more than one to be returned here if we are running in shared mode.
 	 */
 	private static File[] getLinksDirectories() {
-		List linksDirectories = new ArrayList();
+		List<File> linksDirectories = new ArrayList<File>();
 		File root = getEclipseHome();
 		if (root != null)
 			linksDirectories.add(new File(root, LINKS));
@@ -589,7 +585,7 @@ public class Activator implements BundleActivator {
 			if (configuration != null && configuration.getParentFile() != null)
 				linksDirectories.add(new File(configuration.getParentFile(), LINKS));
 		}
-		return (File[]) linksDirectories.toArray(new File[linksDirectories.size()]);
+		return linksDirectories.toArray(new File[linksDirectories.size()]);
 	}
 
 	/*
@@ -599,7 +595,7 @@ public class Activator implements BundleActivator {
 	 * local dropins directory.
 	 */
 	private static File[] getDropinsDirectories() {
-		List dropinsDirectories = new ArrayList();
+		List<File> dropinsDirectories = new ArrayList<File>();
 		// did the user specify one via System properties?
 		String watchedDirectoryProperty = bundleContext.getProperty(DROPINS_DIRECTORY);
 		if (watchedDirectoryProperty != null)
@@ -618,14 +614,14 @@ public class Activator implements BundleActivator {
 			if (configuration != null && configuration.getParentFile() != null)
 				dropinsDirectories.add(new File(configuration.getParentFile(), DROPINS));
 		}
-		return (File[]) dropinsDirectories.toArray(new File[dropinsDirectories.size()]);
+		return dropinsDirectories.toArray(new File[dropinsDirectories.size()]);
 	}
 
 	/*
 	 * Return the current profile or null if it cannot be retrieved.
 	 */
 	public static IProfile getCurrentProfile(BundleContext context) {
-		ServiceReference reference = context.getServiceReference(IProfileRegistry.class.getName());
+		ServiceReference reference = context.getServiceReference(IProfileRegistry.SERVICE_NAME);
 		if (reference == null)
 			return null;
 		IProfileRegistry profileRegistry = (IProfileRegistry) context.getService(reference);
@@ -660,12 +656,12 @@ public class Activator implements BundleActivator {
 
 	// TODO Fix this up to get the services in a better way
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(bundleContext, IArtifactRepositoryManager.class.getName());
+		return (IArtifactRepositoryManager) ServiceHelper.getService(bundleContext, IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
 	// TODO Fix this up to get the services in a better way
 	public static IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(bundleContext, IMetadataRepositoryManager.class.getName());
+		return (IMetadataRepositoryManager) ServiceHelper.getService(bundleContext, IMetadataRepositoryManager.SERVICE_NAME);
 	}
 
 }

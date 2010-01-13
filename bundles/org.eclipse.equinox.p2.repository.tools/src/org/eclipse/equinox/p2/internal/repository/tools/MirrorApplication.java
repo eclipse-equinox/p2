@@ -10,30 +10,33 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.net.URISyntaxException;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.artifact.mirror.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.LatestIUVersionQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
+import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.internal.repository.mirroring.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.osgi.util.NLS;
 
-public class MirrorApplication extends AbstractApplication {
+public class MirrorApplication extends AbstractApplication implements IApplication, IExecutableExtension {
 	private static final String LOG_ROOT = "p2.mirror"; //$NON-NLS-1$
+	private static final String MIRROR_MODE = "metadataOrArtifacts"; //$NON-NLS-1$
 
 	protected SlicingOptions slicingOptions = new SlicingOptions();
 
@@ -44,15 +47,130 @@ public class MirrorApplication extends AbstractApplication {
 	private boolean raw = true;
 	private boolean verbose = false;
 	private boolean validate = false;
+	private String metadataOrArtifacts = null;
+	private String[] rootIUs = null;
 
 	private File mirrorLogFile; // file to log mirror output to (optional)
 	private File comparatorLogFile; // file to comparator output to (optional)
 	private IArtifactMirrorLog mirrorLog;
 	private IArtifactMirrorLog comparatorLog;
 
+	/**
+	 * Convert a list of tokens into an array. The list separator has to be
+	 * specified.
+	 */
+	public static String[] getArrayArgsFromString(String list, String separator) {
+		if (list == null || list.trim().equals("")) //$NON-NLS-1$
+			return new String[0];
+		List<String> result = new ArrayList<String>();
+		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
+			String token = tokens.nextToken().trim();
+			if (!token.equals("")) { //$NON-NLS-1$
+				if ((token.indexOf('[') >= 0 || token.indexOf('(') >= 0) && tokens.hasMoreTokens())
+					result.add(token + separator + tokens.nextToken());
+				else
+					result.add(token);
+			}
+		}
+		return result.toArray(new String[result.size()]);
+	}
+
 	public Object start(IApplicationContext context) throws Exception {
+		Map<?, ?> args = context.getArguments();
+		initializeFromArguments((String[]) args.get(IApplicationContext.APPLICATION_ARGS));
 		run(null);
 		return IApplication.EXIT_OK;
+	}
+
+	public void stop() {
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * The old "org.eclipse.equinox.p2.artifact.repository.mirrorApplication" application only does artifacts
+	 * Similary, "org.eclipse.equinox.p2.metadata.repository.mirrorApplication" only does metadata
+	 */
+	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) {
+		if (data instanceof Map<?, ?> && ((Map<?, ?>) data).containsKey(MIRROR_MODE)) {
+			metadataOrArtifacts = (String) ((Map<?, ?>) data).get(MIRROR_MODE);
+		}
+	}
+
+	public void initializeFromArguments(String[] args) throws Exception {
+		if (args == null)
+			return;
+
+		File comparatorLogLocation = null;
+		File mirrorLogLocation = null;
+
+		RepositoryDescriptor destination = new RepositoryDescriptor();
+		RepositoryDescriptor sourceRepo = new RepositoryDescriptor();
+		if (metadataOrArtifacts != null) {
+			destination.setKind(metadataOrArtifacts);
+			sourceRepo.setKind(metadataOrArtifacts);
+		}
+
+		addDestination(destination);
+		addSource(sourceRepo);
+
+		for (int i = 0; i < args.length; i++) {
+			// check for args without parameters (i.e., a flag arg)
+			if (args[i].equalsIgnoreCase("-raw")) //$NON-NLS-1$
+				raw = true;
+			else if (args[i].equalsIgnoreCase("-ignoreErrors")) //$NON-NLS-1$
+				failOnError = false;
+			else if (args[i].equalsIgnoreCase("-verbose")) //$NON-NLS-1$
+				verbose = true;
+			else if (args[i].equalsIgnoreCase("-compare")) //$NON-NLS-1$
+				compare = true;
+			else if (args[i].equalsIgnoreCase("-validate")) //$NON-NLS-1$
+				validate = true;
+
+			// check for args with parameters. If we are at the last argument or 
+			// if the next one has a '-' as the first character, then we can't have 
+			// an arg with a param so continue.
+			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
+				continue;
+
+			String arg = args[++i];
+
+			if (args[i - 1].equalsIgnoreCase("-comparator")) //$NON-NLS-1$
+				comparatorID = arg;
+			else if (args[i - 1].equalsIgnoreCase("-comparatorLog")) //$NON-NLS-1$
+				comparatorLogLocation = new File(arg);
+			else if (args[i - 1].equalsIgnoreCase("-destinationName")) //$NON-NLS-1$	
+				destination.setName(arg);
+			else if (args[i - 1].equalsIgnoreCase("-writeMode")) { //$NON-NLS-1$
+				if (args[i].equalsIgnoreCase("clean")) //$NON-NLS-1$
+					destination.setAppend(false);
+			} else if (args[i - 1].equalsIgnoreCase("-log")) { //$NON-NLS-1$
+				mirrorLogLocation = new File(arg);
+			} else if (args[i - 1].equalsIgnoreCase("-roots")) { //$NON-NLS-1$
+				rootIUs = getArrayArgsFromString(arg, ","); //$NON-NLS-1$
+			} else {
+				try {
+					if (args[i - 1].equalsIgnoreCase("-source")) { //$NON-NLS-1$
+						URI uri = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg));
+						sourceRepo.setLocation(uri);
+						destination.setFormat(uri);
+					} else if (args[i - 1].equalsIgnoreCase("-destination")) //$NON-NLS-1$
+						destination.setLocation(RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg)));
+					else if (args[i - 1].equalsIgnoreCase("-compareAgainst")) { //$NON-NLS-1$
+						baseline = RepositoryHelper.localRepoURIHelper(URIUtil.fromString(arg));
+						compare = true;
+					}
+				} catch (URISyntaxException e) {
+					throw new IllegalArgumentException(NLS.bind(Messages.ProcessRepo_location_not_url, arg));
+				}
+			}
+		}
+
+		// Create logs
+		if (mirrorLogLocation != null)
+			mirrorLog = getLog(mirrorLogLocation, "p2.artifact.mirror"); //$NON-NLS-1$
+		if (comparatorLogLocation != null && comparatorID != null)
+			comparatorLog = getLog(comparatorLogLocation, comparatorID);
 	}
 
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
@@ -62,7 +180,7 @@ public class MirrorApplication extends AbstractApplication {
 			initializeLogs();
 			validate();
 			initializeIUs();
-			IQueryable slice = slice(new NullProgressMonitor());
+			IQueryable<IInstallableUnit> slice = slice(new NullProgressMonitor());
 			if (destinationArtifactRepository != null) {
 				mirrorStatus = mirrorArtifacts(slice, new NullProgressMonitor());
 				if (mirrorStatus.getSeverity() == IStatus.ERROR)
@@ -79,19 +197,16 @@ public class MirrorApplication extends AbstractApplication {
 		return mirrorStatus;
 	}
 
-	private IStatus mirrorArtifacts(IQueryable slice, IProgressMonitor monitor) throws ProvisionException {
+	private IStatus mirrorArtifacts(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) throws ProvisionException {
 		// Obtain ArtifactKeys from IUs
-		Collector ius = slice.query(InstallableUnitQuery.ANY, new Collector(), monitor);
-		ArrayList keys = new ArrayList(ius.size());
-		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			IArtifactKey[] iuKeys = iu.getArtifacts();
-			for (int i = 0; i < iuKeys.length; i++) {
-				keys.add(iuKeys[i]);
-			}
+		IQueryResult<IInstallableUnit> ius = slice.query(InstallableUnitQuery.ANY, monitor);
+		ArrayList<IArtifactKey> keys = new ArrayList<IArtifactKey>();
+		for (Iterator<IInstallableUnit> iterator = ius.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
+			keys.addAll(iu.getArtifacts());
 		}
-		Mirroring mirror = new Mirroring(getCompositeArtifactRepository(), destinationArtifactRepository, raw);
 
+		Mirroring mirror = new Mirroring(getCompositeArtifactRepository(), destinationArtifactRepository, raw);
 		mirror.setCompare(compare);
 		mirror.setComparatorId(comparatorID);
 		mirror.setBaseline(initializeBaseline());
@@ -99,7 +214,7 @@ public class MirrorApplication extends AbstractApplication {
 
 		// If IUs have been specified then only they should be mirrored, otherwise mirror everything.
 		if (keys.size() > 0)
-			mirror.setArtifactKeys((IArtifactKey[]) keys.toArray(new IArtifactKey[keys.size()]));
+			mirror.setArtifactKeys(keys.toArray(new IArtifactKey[keys.size()]));
 
 		if (comparatorLog != null)
 			mirror.setComparatorLog(comparatorLog);
@@ -116,12 +231,12 @@ public class MirrorApplication extends AbstractApplication {
 	private IArtifactRepository initializeBaseline() throws ProvisionException {
 		if (baseline == null)
 			return null;
-		return addRepository(Activator.getArtifactRepositoryManager(), baseline, 0, null);
+		return addRepository(getArtifactRepositoryManager(), baseline, 0, null);
 	}
 
-	private void mirrorMetadata(IQueryable slice, IProgressMonitor monitor) {
-		Collector allIUs = slice.query(InstallableUnitQuery.ANY, new Collector(), monitor);
-		destinationMetadataRepository.addInstallableUnits((IInstallableUnit[]) allIUs.toArray(IInstallableUnit.class));
+	private void mirrorMetadata(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {
+		IQueryResult<IInstallableUnit> allIUs = slice.query(InstallableUnitQuery.ANY, monitor);
+		destinationMetadataRepository.addInstallableUnits(allIUs.toArray(IInstallableUnit.class));
 	}
 
 	/*
@@ -143,17 +258,24 @@ public class MirrorApplication extends AbstractApplication {
 	 * If no IUs have been specified we want to mirror them all
 	 */
 	private void initializeIUs() throws ProvisionException {
-		if (sourceIUs == null || sourceIUs.isEmpty()) {
-			sourceIUs = new ArrayList();
-			IMetadataRepository metadataRepo = getCompositeMetadataRepository();
-			Collector collector = metadataRepo.query(InstallableUnitQuery.ANY, new Collector(), null);
+		IMetadataRepository metadataRepo = getCompositeMetadataRepository();
 
-			for (Iterator iter = collector.iterator(); iter.hasNext();) {
-				IInstallableUnit iu = (IInstallableUnit) iter.next();
-				sourceIUs.add(iu);
+		if (rootIUs != null) {
+			sourceIUs = new ArrayList<IInstallableUnit>();
+			for (int i = 0; i < rootIUs.length; i++) {
+				String[] segments = getArrayArgsFromString(rootIUs[i], "/"); //$NON-NLS-1$
+				VersionRange range = segments.length > 1 ? new VersionRange(segments[i]) : null;
+				Iterator<IInstallableUnit> queryResult = metadataRepo.query(new InstallableUnitQuery(segments[i], range), null).iterator();
+				while (queryResult.hasNext())
+					sourceIUs.add(queryResult.next());
 			}
-
-			if (collector.size() == 0 && destinationMetadataRepository != null)
+		} else if (sourceIUs == null || sourceIUs.isEmpty()) {
+			sourceIUs = new ArrayList<IInstallableUnit>();
+			Iterator<IInstallableUnit> queryResult = metadataRepo.query(InstallableUnitQuery.ANY, null).iterator();
+			while (queryResult.hasNext())
+				sourceIUs.add(queryResult.next());
+			/* old metadata mirroring app did not throw an exception here */
+			if (sourceIUs.size() == 0 && destinationMetadataRepository != null && metadataOrArtifacts == null)
 				throw new ProvisionException(Messages.MirrorApplication_no_IUs);
 		}
 	}
@@ -188,16 +310,15 @@ public class MirrorApplication extends AbstractApplication {
 		return new FileMirrorLog(absolutePath, 0, root);
 	}
 
-	private IQueryable slice(IProgressMonitor monitor) throws ProvisionException {
+	private IQueryable<IInstallableUnit> slice(IProgressMonitor monitor) throws ProvisionException {
 		if (slicingOptions == null)
 			slicingOptions = new SlicingOptions();
 		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), slicingOptions.getFilter(), slicingOptions.includeOptionalDependencies(), slicingOptions.isEverythingGreedy(), slicingOptions.forceFilterTo(), slicingOptions.considerStrictDependencyOnly(), slicingOptions.followOnlyFilteredRequirements());
-		IQueryable slice = slicer.slice((IInstallableUnit[]) sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]), monitor);
+		IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]), monitor);
 
 		if (slice != null && slicingOptions.latestVersionOnly()) {
-			Collector collector = new Collector();
-			collector = slice.query(new LatestIUVersionQuery(), collector, monitor);
-			slice = collector;
+			IQueryResult<IInstallableUnit> queryResult = slice.query(new LatestIUVersionQuery<IInstallableUnit>(), monitor);
+			slice = queryResult;
 		}
 		if (slicer.getStatus().getSeverity() != IStatus.OK && mirrorLog != null) {
 			mirrorLog.log(slicer.getStatus());

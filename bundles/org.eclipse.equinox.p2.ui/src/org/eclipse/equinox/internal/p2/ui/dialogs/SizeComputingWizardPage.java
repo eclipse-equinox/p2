@@ -14,16 +14,15 @@ import java.text.NumberFormat;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.ui.ValidationDialogServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -38,34 +37,30 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 	protected Label sizeInfo;
 	protected long size;
 	Job sizingJob;
-	private ProvisioningPlan lastComputedPlan = null;
+	private IProvisioningPlan lastComputedPlan = null;
 
-	protected SizeComputingWizardPage(Policy policy, IUElementListRoot root, String profileID, PlannerResolutionOperation initialResolution) {
-		super(policy, root, profileID, initialResolution);
+	protected SizeComputingWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, ProfileChangeOperation initialResolution) {
+		super(ui, wizard, root, initialResolution);
 		// Compute size immediately if a plan is available.  This may or may not finish before
 		// the widgetry is created.
-		if (initialResolution != null)
-			computeSizing(initialResolution.getProvisioningPlan(), profileID, initialResolution.getProvisioningContext());
+		if (initialResolution != null && initialResolution.hasResolved())
+			computeSizing(initialResolution.getProvisioningPlan(), initialResolution.getProvisioningContext());
 		else
 			// Set the size to indicate there is no size yet.
-			size = IIUElement.SIZE_NOTAPPLICABLE;
+			size = ProvisioningSession.SIZE_NOTAPPLICABLE;
 	}
 
-	protected void computeSizing(final ProvisioningPlan plan, final String id, final ProvisioningContext provisioningContext) {
+	protected void computeSizing(final IProvisioningPlan plan, final ProvisioningContext provisioningContext) {
 		if (plan == lastComputedPlan)
 			return;
 		lastComputedPlan = plan;
-		size = IIUElement.SIZE_UNKNOWN;
+		size = ProvisioningSession.SIZE_UNKNOWN;
 		updateSizingInfo();
 		if (sizingJob != null)
 			sizingJob.cancel();
 		sizingJob = new Job(ProvUIMessages.SizeComputingWizardPage_SizeJobTitle) {
 			protected IStatus run(IProgressMonitor monitor) {
-				try {
-					size = ProvisioningUtil.getSize(plan, id, provisioningContext, monitor);
-				} catch (ProvisionException e) {
-					return e.getStatus();
-				}
+				size = getProvisioningUI().getSession().getSize(plan, provisioningContext, monitor);
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
 				if (display != null) {
@@ -81,13 +76,13 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		};
 		sizingJob.setUser(false);
 		sizingJob.setSystem(true);
-		sizingJob.setProperty(ValidationDialogServiceUI.SUPPRESS_AUTHENTICATION_JOB_MARKER, Boolean.toString(true));
-		sizingJob.schedule();
+		sizingJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_AUTHENTICATION_JOB_MARKER, Boolean.toString(true));
 		sizingJob.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
 				sizingJob = null;
 			}
 		});
+		sizingJob.schedule();
 	}
 
 	protected void createSizingInfo(Composite parent) {
@@ -99,7 +94,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 
 	protected void updateSizingInfo() {
 		if (sizeInfo != null && !sizeInfo.isDisposed()) {
-			if (size == IIUElement.SIZE_NOTAPPLICABLE)
+			if (size == ProvisioningSession.SIZE_NOTAPPLICABLE)
 				sizeInfo.setVisible(false);
 			else {
 				sizeInfo.setText(NLS.bind(ProvUIMessages.UpdateOrInstallWizardPage_Size, getFormattedSize()));
@@ -109,7 +104,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 	}
 
 	protected String getFormattedSize() {
-		if (size == IIUElement.SIZE_UNKNOWN || size == IIUElement.SIZE_UNAVAILABLE)
+		if (size == ProvisioningSession.SIZE_UNKNOWN || size == ProvisioningSession.SIZE_UNAVAILABLE)
 			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 		if (size > 1000L) {
 			long kb = size / 1000L;
@@ -125,13 +120,13 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		}
 	}
 
-	public void updateStatus(IUElementListRoot root, PlannerResolutionOperation op) {
+	public void updateStatus(IUElementListRoot root, ProfileChangeOperation op) {
 		super.updateStatus(root, op);
-		if (op.getProvisioningPlan() != null)
-			computeSizing(op.getProvisioningPlan(), getProfileId(), op.getProvisioningContext());
+		if (op != null && op.getProvisioningPlan() != null)
+			computeSizing(op.getProvisioningPlan(), op.getProvisioningContext());
 	}
 
-	protected IQueryable getQueryable(ProvisioningPlan plan) {
+	protected IQueryable<IInstallableUnit> getQueryable(IProvisioningPlan plan) {
 		return plan.getAdditions();
 	}
 }

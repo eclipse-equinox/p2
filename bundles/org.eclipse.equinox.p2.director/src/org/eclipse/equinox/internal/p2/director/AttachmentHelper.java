@@ -10,47 +10,46 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+
 import java.util.*;
 import java.util.Map.Entry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 
 public class AttachmentHelper {
 	private static final IInstallableUnitFragment[] NO_FRAGMENTS = new IInstallableUnitFragment[0];
 
-	public static Collection attachFragments(Collection toAttach, Map fragmentsToIUs) {
-		Map fragmentBindings = new HashMap();
+	public static Collection<IInstallableUnit> attachFragments(Iterator<IInstallableUnit> toAttach, Map<IInstallableUnitFragment, List<IInstallableUnit>> fragmentsToIUs) {
+		Map<IInstallableUnit, IInstallableUnitFragment> fragmentBindings = new HashMap<IInstallableUnit, IInstallableUnitFragment>();
 		//Build a map inverse of the one provided in input (host --> List of fragments)
-		Map iusToFragment = new HashMap(fragmentsToIUs.size());
-		for (Iterator iterator = fragmentsToIUs.entrySet().iterator(); iterator.hasNext();) {
-			Entry mapping = (Entry) iterator.next();
-			IInstallableUnitFragment fragment = (IInstallableUnitFragment) mapping.getKey();
-			List existingMatches = (List) mapping.getValue();
+		Map<IInstallableUnit, List<IInstallableUnitFragment>> iusToFragment = new HashMap<IInstallableUnit, List<IInstallableUnitFragment>>(fragmentsToIUs.size());
+		for (Entry<IInstallableUnitFragment, List<IInstallableUnit>> mapping : fragmentsToIUs.entrySet()) {
+			IInstallableUnitFragment fragment = mapping.getKey();
+			List<IInstallableUnit> existingMatches = mapping.getValue();
 
-			for (Iterator iterator2 = existingMatches.iterator(); iterator2.hasNext();) {
-				Object host = iterator2.next();
-				List potentialFragments = (List) iusToFragment.get(host);
+			for (IInstallableUnit host : existingMatches) {
+				List<IInstallableUnitFragment> potentialFragments = iusToFragment.get(host);
 				if (potentialFragments == null) {
-					potentialFragments = new ArrayList();
+					potentialFragments = new ArrayList<IInstallableUnitFragment>();
 					iusToFragment.put(host, potentialFragments);
 				}
 				potentialFragments.add(fragment);
 			}
 		}
 
-		for (Iterator iterator = iusToFragment.entrySet().iterator(); iterator.hasNext();) {
-			Entry entry = (Entry) iterator.next();
-			IInstallableUnit hostIU = (IInstallableUnit) entry.getKey();
-			List potentialIUFragments = (List) entry.getValue();
-			ArrayList applicableFragments = new ArrayList();
-			for (Iterator iterator2 = potentialIUFragments.iterator(); iterator2.hasNext();) {
-				IInstallableUnit dependentIU = (IInstallableUnitFragment) iterator2.next();
-				if (hostIU.equals(dependentIU) || !dependentIU.isFragment())
+		for (Entry<IInstallableUnit, List<IInstallableUnitFragment>> entry : iusToFragment.entrySet()) {
+			IInstallableUnit hostIU = entry.getKey();
+			List<IInstallableUnitFragment> potentialIUFragments = entry.getValue();
+			ArrayList<IInstallableUnitFragment> applicableFragments = new ArrayList<IInstallableUnitFragment>();
+			for (IInstallableUnitFragment potentialFragment : potentialIUFragments) {
+				if (hostIU.equals(potentialFragment))
 					continue;
 
-				IInstallableUnitFragment potentialFragment = (IInstallableUnitFragment) dependentIU;
-
 				// Check to make sure the host meets the requirements of the fragment
-				IRequiredCapability reqsFromFragment[] = potentialFragment.getHost();
+				IRequirement reqsFromFragment[] = potentialFragment.getHost();
 				boolean match = true;
 				boolean requirementMatched = false;
 				for (int l = 0; l < reqsFromFragment.length && match == true; l++) {
@@ -70,8 +69,7 @@ public class AttachmentHelper {
 
 			IInstallableUnitFragment theFragment = null;
 			int specificityLevel = 0;
-			for (Iterator iterator4 = applicableFragments.iterator(); iterator4.hasNext();) {
-				IInstallableUnitFragment fragment = (IInstallableUnitFragment) iterator4.next();
+			for (IInstallableUnitFragment fragment : applicableFragments) {
 				if (fragment.getHost().length > specificityLevel) {
 					theFragment = fragment;
 					specificityLevel = fragment.getHost().length;
@@ -81,18 +79,18 @@ public class AttachmentHelper {
 				fragmentBindings.put(hostIU, theFragment);
 		}
 		//build the collection of resolved IUs
-		Collection result = new HashSet(toAttach.size());
-		for (Iterator iterator = toAttach.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+		Collection<IInstallableUnit> result = new HashSet<IInstallableUnit>();
+		while (toAttach.hasNext()) {
+			IInstallableUnit iu = toAttach.next();
 			if (iu == null)
 				continue;
 			//just return fragments as they are
-			if (iu.isFragment()) {
+			if (FragmentQuery.isFragment(iu)) {
 				result.add(iu);
 				continue;
 			}
 			//return a new IU that combines the IU with its bound fragments
-			IInstallableUnitFragment fragment = (IInstallableUnitFragment) fragmentBindings.get(iu);
+			IInstallableUnitFragment fragment = fragmentBindings.get(iu);
 			IInstallableUnitFragment[] fragments;
 			if (fragment == null)
 				fragments = NO_FRAGMENTS;

@@ -10,15 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class MissingNonGreedyRequirement extends AbstractProvisioningTest {
@@ -30,14 +32,14 @@ public class MissingNonGreedyRequirement extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		b1 = createIU("B", new Version("1.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
 
-		c1 = createIU("C", new Version("1.0.0"), true);
+		c1 = createIU("C", Version.create("1.0.0"), true);
 
 		IRequiredCapability[] reqB = new IRequiredCapability[2];
 		reqB[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false);
 		reqB[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
-		a1 = createIU("A", new Version("1.0.0"), reqB);
+		a1 = createIU("A", Version.create("1.0.0"), reqB);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1});
 
@@ -49,18 +51,19 @@ public class MissingNonGreedyRequirement extends AbstractProvisioningTest {
 		//The planner returns an error because the requirement from A on B is non greedy and no one brings in B
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 	}
 
 	public void testExplanation() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		Set explanation = plan.getRequestStatus().getExplanations();
+		RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		Set explanation = requestStatus.getExplanations();
 		assertFalse(explanation.isEmpty());
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(a1));
-		assertEquals(Explanation.MISSING_REQUIREMENT, plan.getRequestStatus().getShortExplanation());
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(a1));
+		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());
 	}
 }

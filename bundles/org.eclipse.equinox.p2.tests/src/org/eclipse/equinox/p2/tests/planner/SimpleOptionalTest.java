@@ -8,13 +8,17 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SimpleOptionalTest extends AbstractProvisioningTest {
@@ -29,12 +33,12 @@ public class SimpleOptionalTest extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		b1 = createIU("B", new Version("1.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
 
 		//B's dependency is missing
 		IRequiredCapability[] reqA = new IRequiredCapability[1];
 		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
-		a1 = createIU("A", new Version("1.0.0"), reqA);
+		a1 = createIU("A", Version.create("1.0.0"), reqA);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1});
 
@@ -46,7 +50,7 @@ public class SimpleOptionalTest extends AbstractProvisioningTest {
 		//Ensure that D's installation does not fail because of C's absence
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
 		assertInstallOperand(plan, b1);

@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.garbagecollector;
 
+import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
  * Given a MarkSet, the CoreGarbageCollector removes any IArtifactDescriptors which
@@ -30,20 +33,18 @@ public class CoreGarbageCollector {
 	 * in aRepository that are not mapped to by an IArtifactKey in markSet
 	 */
 	public synchronized void clean(IArtifactKey[] markSet, IArtifactRepository aRepository) {
-		IArtifactKey[] repositoryKeys = aRepository.getArtifactKeys();
-		for (int j = 0; j < repositoryKeys.length; j++) {
-			boolean artifactIsActive = false;
-			for (int k = 0; k < markSet.length; k++) {
-				if (repositoryKeys[j].equals(markSet[k])) {
-					artifactIsActive = true;
-					break;
-				}
+		final Set<IArtifactKey> set = new HashSet<IArtifactKey>(Arrays.asList(markSet));
+		ArtifactKeyQuery query = new ArtifactKeyQuery() {
+			public boolean isMatch(IArtifactKey candidate) {
+				return !set.contains(candidate);
 			}
-			if (!artifactIsActive) {
-				aRepository.removeDescriptor(repositoryKeys[j]);
-				if (debugMode) {
-					Tracing.debug("Key removed:" + repositoryKeys[j]); //$NON-NLS-1$
-				}
+		};
+		IQueryResult<IArtifactKey> inactive = aRepository.query(query, null);
+		for (Iterator<IArtifactKey> iterator = inactive.iterator(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
+			aRepository.removeDescriptor(key);
+			if (debugMode) {
+				Tracing.debug("Key removed:" + key); //$NON-NLS-1$
 			}
 		}
 	}

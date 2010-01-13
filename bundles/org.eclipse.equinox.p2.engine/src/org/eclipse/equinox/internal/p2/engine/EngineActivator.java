@@ -11,9 +11,8 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.engine.Engine;
-import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IEngine;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -67,9 +66,11 @@ public class EngineActivator implements BundleActivator, ServiceTrackerCustomize
 
 	public Object addingService(ServiceReference reference) {
 		if (registration == null) {
-			IProvisioningEventBus eventBus = (IProvisioningEventBus) context.getService(reference);
-			registration = context.registerService(IEngine.SERVICE_NAME, new Engine(eventBus), null);
-			return eventBus;
+			//TODO: eventually we shouldn't register a singleton engine automatically
+			IProvisioningAgent agent = (IProvisioningAgent) context.getService(reference);
+			IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
+			registration = context.registerService(IEngine.SERVICE_NAME, engine, null);
+			return agent;
 		}
 		return null;
 	}
@@ -87,7 +88,9 @@ public class EngineActivator implements BundleActivator, ServiceTrackerCustomize
 
 	public void start(BundleContext aContext) throws Exception {
 		EngineActivator.context = aContext;
-		tracker = new ServiceTracker(aContext, IProvisioningEventBus.SERVICE_NAME, this);
+		//only want to register a service for the agent of the currently running system
+		String filter = "(&(objectClass=" + IProvisioningAgent.SERVICE_NAME + ")(agent.current=true))"; //$NON-NLS-1$ //$NON-NLS-2$
+		tracker = new ServiceTracker(context, aContext.createFilter(filter), this);
 		tracker.open();
 	}
 

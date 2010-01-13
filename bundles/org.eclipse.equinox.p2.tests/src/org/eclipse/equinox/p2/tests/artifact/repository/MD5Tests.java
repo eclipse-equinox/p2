@@ -10,16 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class MD5Tests extends AbstractProvisioningTest {
@@ -34,25 +36,23 @@ public class MD5Tests extends AbstractProvisioningTest {
 	}
 
 	public void testCheckMD5() {
-		IArtifactKey[] keys = repo.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactDescriptor[] desc = repo.getArtifactDescriptors(keys[i]);
-			for (int j = 0; j < desc.length; j++) {
-				IStatus status = repo.getArtifact(desc[j], new ByteArrayOutputStream(500), new NullProgressMonitor());
-				//All artifacts that are expected to fail MD5 check are those whose id starts with bogus
-				if (desc[j].getArtifactKey().getId().startsWith("bogus")) {
-					assertNotOK(status);
-					continue;
-				}
-				assertOK("2.1 " + desc[j], status);
+		IQueryResult<IArtifactDescriptor> descriptors = repo.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+		for (Iterator<IArtifactDescriptor> iterator = descriptors.iterator(); iterator.hasNext();) {
+			IArtifactDescriptor desc = iterator.next();
+			IStatus status = repo.getArtifact(desc, new ByteArrayOutputStream(500), new NullProgressMonitor());
+			//All artifacts that are expected to fail MD5 check are those whose id starts with bogus
+			if (desc.getArtifactKey().getId().startsWith("bogus")) {
+				assertNotOK(status);
+				continue;
 			}
+			assertOK("2.1 " + desc, status);
 		}
 	}
 
 	public void testBug249035_ArtifactIdentity() {
 		//MD5 sum should not affect the identity of the artifact
 
-		ArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", new Version("1.0.0")));
+		ArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", Version.create("1.0.0")));
 		descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, "42");
 
 		try {

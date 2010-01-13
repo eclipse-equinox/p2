@@ -10,17 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.ULocale;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
+import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -88,7 +87,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 		private IProfile getProfile() {
 			if (cachedProfile == null) {
-				IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProfileRegistry.class.getName());
+				IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProfileRegistry.SERVICE_NAME);
 				if (profileRegistry != null)
 					cachedProfile = profileRegistry.getProfile(profileId);
 			}
@@ -166,10 +165,10 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	}
 
-	private Query getProfileQuery() {
-		// We specifically avoid going through the default policy's query provider or
-		// through the sdk ui bundle, so that we don't load all the p2 UI classes in doing so.  
-		return new IUProfilePropertyByIdQuery(IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+	private IQuery getProfileQuery() {
+		// We specifically avoid using the default policy's root property so that we don't load all the
+		// p2 UI classes in doing so.  
+		return new IUProfilePropertyByIdQuery(IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 	}
 
 	private int getDay(IPreferenceStore pref) {

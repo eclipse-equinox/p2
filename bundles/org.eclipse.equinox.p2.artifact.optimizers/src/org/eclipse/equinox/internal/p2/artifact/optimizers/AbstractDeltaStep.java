@@ -11,14 +11,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers;
 
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+
 import java.io.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.processing.AbstractBufferingStep;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 /**
  * The <code>AbstractDeltaDiffStep</code> is an abstract processing step that
@@ -40,12 +42,12 @@ public abstract class AbstractDeltaStep extends AbstractBufferingStep {
 		this.repository = repository;
 	}
 
-	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+	public void initialize(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(descriptor, context);
 		readArtifactKey(descriptor);
 	}
 
-	protected void readArtifactKey(ProcessingStepDescriptor descriptor) {
+	protected void readArtifactKey(IProcessingStepDescriptor descriptor) {
 		try {
 			key = ArtifactKey.parse(descriptor.getData());
 		} catch (IllegalArgumentException e) {

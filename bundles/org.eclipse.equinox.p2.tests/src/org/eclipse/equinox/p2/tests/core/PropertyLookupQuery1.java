@@ -9,7 +9,7 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
+import org.eclipse.equinox.p2.query.MatchQuery;
 
 public class PropertyLookupQuery1 extends MatchQuery {
 

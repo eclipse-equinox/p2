@@ -16,17 +16,18 @@ import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -48,6 +49,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 
 		Map parameters = new HashMap();
 		IProfile profile = createProfile("test");
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		Object manipulator = parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
@@ -58,6 +60,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 
 		// checking that the manipulator is carried from phases to phase
 		parameters.clear();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		touchpoint.initializePhase(null, profile, "test2", parameters);
 		Object testManipulator = parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		assertEquals(manipulator, testManipulator);
@@ -66,6 +69,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		// re: "uninstall" this is necessary for now for coverage until we have formal commit and rollback events
 		// this test should be revisited then
 		parameters.clear();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		touchpoint.initializePhase(null, profile, "uninstall", parameters);
 		testManipulator = parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		assertEquals(manipulator, testManipulator);
@@ -96,8 +100,8 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		URL location = site.toURL();
 
 		properties.put("org.eclipse.equinox.p2.cache.extensions", location.toString() + "|" + spacesLocation.toString());
-		IProfile profile = createProfile("testBug262073", null, properties);
-		AggregatedBundleRepository repo = (AggregatedBundleRepository) Util.getAggregatedBundleRepository(profile);
+		IProfile profile = createProfile("testBug262073", properties);
+		AggregatedBundleRepository repo = (AggregatedBundleRepository) Util.getAggregatedBundleRepository(getAgent(), profile);
 		Collection repos = repo.testGetBundleRepositories();
 		assertEquals("1.0", 3, repos.size());
 	}
@@ -118,9 +122,9 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File osgiSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
@@ -132,7 +136,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, osgiTarget);
 		bundlePool.addDescriptor(descriptor);
 
-		Properties extraProperties = new Properties();
+		Map<String, String> extraProperties = new HashMap<String, String>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 
 		Dictionary mockManifest = new Properties();
@@ -147,7 +151,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = bundleIUs[0];
 		assertTrue(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
-		IInstallableUnit fullIU = touchpoint.prepareIU(iu, key, profile);
+		IInstallableUnit fullIU = touchpoint.prepareIU(getAgent(), profile, iu, key);
 		assertFalse(Boolean.valueOf(fullIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
 	}
 
@@ -156,9 +160,9 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File osgiSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
@@ -170,7 +174,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, osgiTarget);
 		bundlePool.addDescriptor(descriptor);
 
-		Properties extraProperties = new Properties();
+		Map<String, String> extraProperties = new HashMap<String, String>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 
 		Dictionary mockManifest = new Properties();
@@ -185,22 +189,20 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = bundleIUs[0];
 		assertTrue(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
 
-		Iterator iterator = profile.query(new InstallableUnitQuery(iu.getId()), new Collector(), null).iterator();
+		Iterator iterator = profile.query(new InstallableUnitQuery(iu.getId()), null).iterator();
 		assertFalse(iterator.hasNext());
-
-		PhaseSet phaseSet = new DefaultPhaseSet();
 
 		InstallableUnitOperand op = new InstallableUnitOperand(null, iu);
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {op};
 		ServiceReference engineRef = TestActivator.getContext().getServiceReference(IEngine.SERVICE_NAME);
 		IEngine engine = (IEngine) TestActivator.getContext().getService(engineRef);
 
-		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
 		assertTrue(result.isOK());
 		engine = null;
 		TestActivator.getContext().ungetService(engineRef);
 
-		iterator = profile.query(new InstallableUnitQuery(iu.getId()), new Collector(), null).iterator();
+		iterator = profile.query(new InstallableUnitQuery(iu.getId()), null).iterator();
 		assertTrue(iterator.hasNext());
 		IInstallableUnit installedIU = (IInstallableUnit) iterator.next();
 		assertTrue(installedIU.getId().equals(iu.getId()));
@@ -213,25 +215,25 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
 		URI site = getTestData("0.1", "/testData/updatesite/site").toURI();
 		getMetadataRepositoryManager().addRepository(site);
 		getArtifactRepositoryManager().addRepository(site);
 
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(site, getMonitor());
-		IInstallableUnit iu = (IInstallableUnit) repo.query(new InstallableUnitQuery("test.bundle"), new Collector(), getMonitor()).iterator().next();
+		IInstallableUnit iu = (IInstallableUnit) repo.query(new InstallableUnitQuery("test.bundle"), getMonitor()).iterator().next();
 		assertNotNull(iu);
-		profile = createProfile("test", null, profileProperties);
+		profile = createProfile("test", profileProperties);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 
 		final IInstallableUnit[] newIUs = new IInstallableUnit[] {iu};
 		request.addInstallableUnits(newIUs);
 
 		IPlanner planner = createPlanner();
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), new NullProgressMonitor());
 		assertTrue("1.0", plan.getStatus().isOK());
-		IStatus result = createEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), new ProvisioningContext(), getMonitor());
+		IStatus result = createEngine().perform(plan, getMonitor());
 		assertFalse("2.0", result.isOK());
 	}
 

@@ -8,13 +8,17 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class DropinsScenario extends AbstractProvisioningTest {
@@ -29,18 +33,18 @@ public class DropinsScenario extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version("1.0.0"), true);
+		a1 = createIU("A", Version.create("1.0.0"), true);
 
-		b1 = createIU("B", new Version("1.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
 
-		a0 = createIU("A", new Version("0.0.0"), true);
-		b0 = createIU("B", new Version("0.0.0"), true);
+		a0 = createIU("A", Version.create("0.0.0"), true);
+		b0 = createIU("B", Version.create("0.0.0"), true);
 
 		IRequiredCapability[] reqAs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[0.0.0, 1.0.0]"), null, false, false, true)};
-		as = createIU("AS", new Version("0.0.0"), reqAs);
+		as = createIU("AS", Version.create("0.0.0"), reqAs);
 
 		IRequiredCapability[] reqBs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[0.0.0, 1.0.0]"), null, false, false, true)};
-		bs = createIU("BS", new Version("0.0.0"), reqBs);
+		bs = createIU("BS", Version.create("0.0.0"), reqBs);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, a0, b0, as, bs});
 
@@ -51,7 +55,7 @@ public class DropinsScenario extends AbstractProvisioningTest {
 	public void testInstallation() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {as, bs});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 	}

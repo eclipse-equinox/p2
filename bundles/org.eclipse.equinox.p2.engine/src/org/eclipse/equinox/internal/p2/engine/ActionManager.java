@@ -10,15 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
-import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.Touchpoint;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
 public class ActionManager implements IRegistryChangeListener {
@@ -29,8 +28,13 @@ public class ActionManager implements IRegistryChangeListener {
 	private static final String ATTRIBUTE_NAME = "name"; //$NON-NLS-1$
 	private static final String TOUCHPOINT_TYPE = "touchpointType"; //$NON-NLS-1$
 	private static final String TOUCHPOINT_VERSION = "touchpointVersion"; //$NON-NLS-1$
+	/**
+	 * Service name constant for the action manager service. This service is used internally
+	 * by the engine implementation and should not be referenced directly by clients.
+	 */
+	public static final String SERVICE_NAME = ActionManager.class.getName();
 
-	private HashMap actionMap;
+	private HashMap<String, IConfigurationElement> actionMap;
 	private TouchpointManager touchpointManager;
 
 	public ActionManager() {
@@ -58,7 +62,7 @@ public class ActionManager implements IRegistryChangeListener {
 	}
 
 	public ProvisioningAction getAction(String actionId, VersionRange versionRange) {
-		IConfigurationElement actionElement = (IConfigurationElement) getActionMap().get(actionId);
+		IConfigurationElement actionElement = getActionMap().get(actionId);
 		if (actionElement != null && actionElement.isValid()) {
 			try {
 				ProvisioningAction action = (ProvisioningAction) actionElement.createExecutableExtension(ATTRIBUTE_CLASS);
@@ -81,12 +85,12 @@ public class ActionManager implements IRegistryChangeListener {
 		return null;
 	}
 
-	private synchronized Map getActionMap() {
+	private synchronized Map<String, IConfigurationElement> getActionMap() {
 		if (actionMap != null)
 			return actionMap;
 		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_ACTIONS);
 		IExtension[] extensions = point.getExtensions();
-		actionMap = new HashMap(extensions.length);
+		actionMap = new HashMap<String, IConfigurationElement>(extensions.length);
 		for (int i = 0; i < extensions.length; i++) {
 			try {
 				IConfigurationElement[] elements = extensions[i].getConfigurationElements();

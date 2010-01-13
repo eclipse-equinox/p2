@@ -12,14 +12,12 @@
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
-import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
+import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.osgi.util.TextProcessor;
@@ -60,25 +58,25 @@ public class RepositoryDetailsLabelProvider extends LabelProvider implements ITa
 
 		switch (columnIndex) {
 			case COL_NAME :
-				if (element instanceof IRepositoryElement) {
-					String name = ((IRepositoryElement) element).getName();
+				if (element instanceof IRepositoryElement<?>) {
+					String name = ((IRepositoryElement<?>) element).getName();
 					if (name != null) {
 						return name;
 					}
 				}
-				if (element instanceof IRepository) {
-					String name = ((IRepository) element).getName();
+				if (element instanceof IRepository<?>) {
+					String name = ((IRepository<?>) element).getName();
 					if (name != null) {
 						return name;
 					}
 				}
 				return ""; //$NON-NLS-1$
 			case COL_LOCATION :
-				if (element instanceof IRepository) {
-					return TextProcessor.process(URIUtil.toUnencodedString(((IRepository) element).getLocation()));
+				if (element instanceof IRepository<?>) {
+					return TextProcessor.process(URIUtil.toUnencodedString(((IRepository<?>) element).getLocation()));
 				}
-				if (element instanceof IRepositoryElement) {
-					return TextProcessor.process(URIUtil.toUnencodedString(((IRepositoryElement) element).getLocation()));
+				if (element instanceof IRepositoryElement<?>) {
+					return TextProcessor.process(URIUtil.toUnencodedString(((IRepositoryElement<?>) element).getLocation()));
 				}
 				break;
 			case COL_ENABLEMENT :

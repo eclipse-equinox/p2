@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,24 +15,29 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
+import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
+import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.*;
+import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.repository.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.ServiceReference;
 
 public abstract class AbstractApplication {
 	protected boolean removeAddedRepositories = true;
 
-	protected List sourceRepositories = new ArrayList(); //List of repository descriptors
-	protected List artifactReposToRemove = new ArrayList();
-	protected List metadataReposToRemove = new ArrayList();
-	protected List sourceIUs = new ArrayList();
-	private List destinationRepos = new ArrayList();
+	protected List<RepositoryDescriptor> sourceRepositories = new ArrayList<RepositoryDescriptor>(); //List of repository descriptors
+	protected List<URI> artifactReposToRemove = new ArrayList<URI>();
+	protected List<URI> metadataReposToRemove = new ArrayList<URI>();
+	protected List<IInstallableUnit> sourceIUs = new ArrayList<IInstallableUnit>();
+	private List<RepositoryDescriptor> destinationRepos = new ArrayList<RepositoryDescriptor>();
 
 	protected IArtifactRepository destinationArtifactRepository = null;
 	protected IMetadataRepository destinationMetadataRepository = null;
@@ -40,18 +45,50 @@ public abstract class AbstractApplication {
 	private CompositeMetadataRepository compositeMetadataRepository = null;
 	private CompositeArtifactRepository compositeArtifactRepository = null;
 
-	public void setSourceIUs(List ius) {
+	protected IProvisioningAgent agent;
+
+	public AbstractApplication() {
+		super();
+		try {
+			setupAgent();
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+		}
+	}
+
+	private void setupAgent() throws ProvisionException {
+		//note if we ever wanted these applications to act on a different agent than
+		//the currently running system we would need to set it here
+		ServiceReference agentRef = Activator.getBundleContext().getServiceReference(IProvisioningAgent.SERVICE_NAME);
+		if (agentRef != null) {
+			agent = (IProvisioningAgent) Activator.getBundleContext().getService(agentRef);
+			if (agent != null)
+				return;
+		}
+		//there is no agent around so we need to create one
+		ServiceReference providerRef = Activator.getBundleContext().getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		if (providerRef == null)
+			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) Activator.getBundleContext().getService(providerRef);
+		if (provider == null)
+			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
+		//obtain agent for currently running system
+		agent = provider.createAgent(null);
+		Activator.getBundleContext().ungetService(providerRef);
+	}
+
+	public void setSourceIUs(List<IInstallableUnit> ius) {
 		sourceIUs = ius;
 	}
 
-	protected void finalizeRepositories() throws ProvisionException {
+	protected void finalizeRepositories() {
 		if (removeAddedRepositories) {
-			IArtifactRepositoryManager artifactRepositoryManager = Activator.getArtifactRepositoryManager();
-			for (Iterator iter = artifactReposToRemove.iterator(); iter.hasNext();)
-				artifactRepositoryManager.removeRepository((URI) iter.next());
-			IMetadataRepositoryManager metadataRepositoryManager = Activator.getMetadataRepositoryManager();
-			for (Iterator iter = metadataReposToRemove.iterator(); iter.hasNext();)
-				metadataRepositoryManager.removeRepository((URI) iter.next());
+			IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
+			for (URI uri : artifactReposToRemove)
+				artifactRepositoryManager.removeRepository(uri);
+			IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+			for (URI uri : metadataReposToRemove)
+				metadataRepositoryManager.removeRepository(uri);
 		}
 		metadataReposToRemove = null;
 		artifactReposToRemove = null;
@@ -61,13 +98,20 @@ public abstract class AbstractApplication {
 		destinationMetadataRepository = null;
 	}
 
+	protected IMetadataRepositoryManager getMetadataRepositoryManager() {
+		return (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+	}
+
+	protected IArtifactRepositoryManager getArtifactRepositoryManager() {
+		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+	}
+
 	public void initializeRepos(IProgressMonitor progress) throws ProvisionException {
-		IArtifactRepositoryManager artifactRepositoryManager = Activator.getArtifactRepositoryManager();
-		IMetadataRepositoryManager metadataRepositoryManager = Activator.getMetadataRepositoryManager();
+		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		URI curLocation = null;
 		try {
-			for (Iterator iter = sourceRepositories.iterator(); iter.hasNext();) {
-				RepositoryDescriptor repo = (RepositoryDescriptor) iter.next();
+			for (RepositoryDescriptor repo : sourceRepositories) {
 				curLocation = repo.getRepoLocation();
 				if (repo.isBoth()) {
 					addRepository(artifactRepositoryManager, curLocation, 0, progress);
@@ -106,9 +150,9 @@ public abstract class AbstractApplication {
 		RepositoryDescriptor artifactRepoDescriptor = null;
 		RepositoryDescriptor metadataRepoDescriptor = null;
 
-		Iterator iter = destinationRepos.iterator();
+		Iterator<RepositoryDescriptor> iter = destinationRepos.iterator();
 		while (iter.hasNext() && (artifactRepoDescriptor == null || metadataRepoDescriptor == null)) {
-			RepositoryDescriptor repo = (RepositoryDescriptor) iter.next();
+			RepositoryDescriptor repo = iter.next();
 			if (repo.isArtifact() && artifactRepoDescriptor == null)
 				artifactRepoDescriptor = repo;
 			if (repo.isMetadata() && metadataRepoDescriptor == null)
@@ -188,12 +232,12 @@ public abstract class AbstractApplication {
 		}
 	}
 
-	protected boolean initDestinationRepository(IRepository repository, RepositoryDescriptor descriptor) {
+	protected boolean initDestinationRepository(IRepository<?> repository, RepositoryDescriptor descriptor) {
 		if (repository != null && repository.isModifiable()) {
 			if (descriptor.getName() != null)
 				repository.setName(descriptor.getName());
-			if (repository instanceof ICompositeRepository && !descriptor.isAppend())
-				((ICompositeRepository) repository).removeAllChildren();
+			if (repository instanceof ICompositeRepository<?> && !descriptor.isAppend())
+				((ICompositeRepository<?>) repository).removeAllChildren();
 			else if (repository instanceof IMetadataRepository && !descriptor.isAppend())
 				((IMetadataRepository) repository).removeAll();
 			else if (repository instanceof IArtifactRepository && !descriptor.isAppend())
@@ -206,12 +250,13 @@ public abstract class AbstractApplication {
 	public IMetadataRepository getCompositeMetadataRepository() {
 		if (compositeMetadataRepository == null) {
 			try {
-				compositeMetadataRepository = new CompositeMetadataRepository(new URI("memory:/composite"), "parent metadata repo", null);//$NON-NLS-1$ //$NON-NLS-2$
+				CompositeMetadataRepositoryFactory factory = new CompositeMetadataRepositoryFactory();
+				factory.setAgent(agent);
+				compositeMetadataRepository = (CompositeMetadataRepository) factory.create(new URI("memory:/composite"), "parent metadata repo", CompositeMetadataRepository.REPOSITORY_TYPE, null);//$NON-NLS-1$ //$NON-NLS-2$
 			} catch (URISyntaxException e) {
 				//Can't happen
 			}
-			for (Iterator iter = sourceRepositories.iterator(); iter.hasNext();) {
-				RepositoryDescriptor repo = (RepositoryDescriptor) iter.next();
+			for (RepositoryDescriptor repo : sourceRepositories) {
 				if (repo.isMetadata())
 					compositeMetadataRepository.addChild(repo.getRepoLocation());
 			}
@@ -222,12 +267,13 @@ public abstract class AbstractApplication {
 	public IArtifactRepository getCompositeArtifactRepository() {
 		if (compositeArtifactRepository == null) {
 			try {
-				compositeArtifactRepository = new CompositeArtifactRepository(new URI("memory:/composite"), "parent artifact repo", null);//$NON-NLS-1$ //$NON-NLS-2$
+				CompositeArtifactRepositoryFactory factory = new CompositeArtifactRepositoryFactory();
+				factory.setAgent(agent);
+				compositeArtifactRepository = (CompositeArtifactRepository) factory.create(new URI("memory:/composite"), "parent artifact repo", CompositeArtifactRepository.REPOSITORY_TYPE, null);//$NON-NLS-1$ //$NON-NLS-2$
 			} catch (URISyntaxException e) {
 				//Can't happen
 			}
-			for (Iterator iter = sourceRepositories.iterator(); iter.hasNext();) {
-				RepositoryDescriptor repo = (RepositoryDescriptor) iter.next();
+			for (RepositoryDescriptor repo : sourceRepositories) {
 				if (repo.isArtifact())
 					compositeArtifactRepository.addChild(repo.getRepoLocation());
 			}

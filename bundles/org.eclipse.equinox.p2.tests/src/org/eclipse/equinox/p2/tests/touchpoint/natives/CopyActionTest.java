@@ -15,10 +15,12 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.CopyAction;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -204,7 +206,7 @@ public class CopyActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
 		File source = getTestData("1.0", sourceName);
 		File target = new File(installFolder, targetName);

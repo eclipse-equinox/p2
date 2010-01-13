@@ -17,13 +17,14 @@ import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.equinox.p2.tests.*;
 
 /**
@@ -50,8 +51,7 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testQualifier() {
-		Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
-		Collector results = actionResult.query(categoryQuery, new Collector(), new NullProgressMonitor());
+		IQueryResult results = actionResult.query(new CategoryQuery(), new NullProgressMonitor());
 		Iterator iter = results.iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit unit = (IInstallableUnit) iter.next();
@@ -59,10 +59,10 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 			assertTrue("1.0", unit.getId().startsWith(sitelocation));
 			assertEquals("2.0", "Test Category Label", unit.getProperty(IInstallableUnit.PROP_NAME));
 
-			IProvidedCapability[] provided = unit.getProvidedCapabilities();
-			assertEquals(1, provided.length);
-			assertTrue(provided[0].getName().startsWith(sitelocation));
-			assertEquals(provided[0].getVersion(), unit.getVersion());
+			Collection<IProvidedCapability> provided = unit.getProvidedCapabilities();
+			assertEquals(1, provided.size());
+			assertTrue(provided.iterator().next().getName().startsWith(sitelocation));
+			assertEquals(provided.iterator().next().getVersion(), unit.getVersion());
 		}
 	}
 

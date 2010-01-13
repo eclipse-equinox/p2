@@ -14,6 +14,9 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
 
 /**
  * An action that adds a repository to the list of known repositories.
@@ -21,15 +24,18 @@ import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 public class AddRepositoryAction extends RepositoryAction {
 	public static final String ID = "addRepository"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		try {
+			IProvisioningAgent agent = getAgent(parameters);
+			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			IAgentLocation agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 			final RepositoryEvent event = createEvent(parameters);
 			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)
-				addRepositoryToProfile(profile, event.getRepositoryLocation(), event.getRepositoryNickname(), event.getRepositoryType(), event.isRepositoryEnabled());
+				addRepositoryToProfile(agentLocation, profile, event.getRepositoryLocation(), event.getRepositoryNickname(), event.getRepositoryType(), event.isRepositoryEnabled());
 			//if provisioning into the current profile, broadcast an event to add this repository directly to the current repository managers.
-			if (isSelfProfile(profile))
-				addToSelf(event);
+			if (isSelfProfile(registry, profile))
+				addToSelf(agentLocation, event);
 			return Status.OK_STATUS;
 		} catch (CoreException e) {
 			return e.getStatus();
@@ -40,15 +46,18 @@ public class AddRepositoryAction extends RepositoryAction {
 		return ID;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		try {
+			IProvisioningAgent agent = getAgent(parameters);
+			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			IAgentLocation agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 			final RepositoryEvent event = createEvent(parameters);
 			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)
-				removeRepositoryFromProfile(profile, event.getRepositoryLocation(), event.getRepositoryType());
+				removeRepositoryFromProfile(agentLocation, profile, event.getRepositoryLocation(), event.getRepositoryType());
 			//if provisioning into the current profile, broadcast an event to add this repository directly to the current repository managers.
-			if (isSelfProfile(profile))
-				removeFromSelf(event);
+			if (isSelfProfile(registry, profile))
+				removeFromSelf(agentLocation, event);
 			return Status.OK_STATUS;
 		} catch (CoreException e) {
 			return e.getStatus();

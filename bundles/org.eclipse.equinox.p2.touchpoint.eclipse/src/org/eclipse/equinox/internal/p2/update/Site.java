@@ -27,8 +27,8 @@ public class Site {
 	private boolean updateable = true;
 	private String url;
 	private String linkFile;
-	private Collection features = new HashSet();
-	private List list = new ArrayList();
+	private Collection<Feature> features = new HashSet<Feature>();
+	private List<String> list = new ArrayList<String>();
 
 	public void addFeature(Feature feature) {
 		this.features.add(feature);
@@ -39,7 +39,7 @@ public class Site {
 	}
 
 	public Feature[] getFeatures() {
-		return (Feature[]) features.toArray(new Feature[features.size()]);
+		return features.toArray(new Feature[features.size()]);
 	}
 
 	/*
@@ -50,8 +50,7 @@ public class Site {
 	public Feature getFeature(String id, String version) {
 		if (id == null)
 			return null;
-		for (Iterator iter = features.iterator(); iter.hasNext();) {
-			Feature feature = (Feature) iter.next();
+		for (Feature feature : features) {
 			if (id.equals(feature.getId())) {
 				if (version == null || version.equals(feature.getVersion()))
 					return feature;
@@ -61,8 +60,7 @@ public class Site {
 	}
 
 	public Feature removeFeature(String featureURL) {
-		for (Iterator iter = features.iterator(); iter.hasNext();) {
-			Feature feature = (Feature) iter.next();
+		for (Feature feature : features) {
 			String nextURL = feature.getUrl();
 			if (nextURL != null && nextURL.equals(featureURL))
 				return features.remove(feature) ? feature : null;
@@ -75,7 +73,7 @@ public class Site {
 	}
 
 	public String[] getList() {
-		return (String[]) list.toArray(new String[list.size()]);
+		return list.toArray(new String[list.size()]);
 	}
 
 	public String getPolicy() {

@@ -10,13 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.internal.repository.tools.Repo2Runnable;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * Ant task which calls the "repo to runnable" application. This application takes an
@@ -47,7 +50,7 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 		try {
 			prepareSourceRepos();
 			application.initializeRepos(null);
-			List ius = prepareIUs();
+			List<IInstallableUnit> ius = prepareIUs();
 			if ((ius == null || ius.size() == 0) && !(application.hasArtifactSources() || application.hasMetadataSources()))
 				throw new BuildException(Messages.exception_needIUsOrNonEmptyRepo);
 			application.setSourceIUs(ius);
@@ -56,9 +59,9 @@ public class Repo2RunnableTask extends AbstractRepositoryTask {
 				throw new ProvisionException(result);
 		} catch (ProvisionException e) {
 			if (failOnError)
-				throw new BuildException(Messages.Repo2RunnableTask_errorTransforming, e);
+				throw new BuildException(NLS.bind(Messages.Repo2RunnableTask_errorTransforming, null != e.getMessage() ? e.getMessage() : e.toString()), e);
 			/* else */
-			getProject().log(Messages.Repo2RunnableTask_errorTransforming, Project.MSG_WARN);
+			getProject().log(NLS.bind(Messages.Repo2RunnableTask_errorTransforming, null != e.getMessage() ? e.getMessage() : e.toString()), Project.MSG_WARN);
 			getProject().log(e.getMessage(), Project.MSG_WARN);
 		}
 	}

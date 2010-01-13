@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
 public class AddJVMArgumentAction extends ProvisioningAction {
@@ -27,14 +27,14 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 	protected static final String XX_MAX_PERM_SIZE = "-XX:MaxPermSize="; //$NON-NLS-1$
 	protected static final String PREFIX_USER_VALUE = "eclipse.userDefined:"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM_ARG);
 		if (jvmArg == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_JVM_ARG, ID));
 		return addArg(jvmArg, parameters);
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		String jvmArg = (String) parameters.get(ActionConstants.PARM_JVM_ARG);
 		if (jvmArg == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_JVM_ARG, ID));
@@ -45,7 +45,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		return storedValues.getProperty(PREFIX_USER_VALUE + flag);
 	}
 
-	protected static IStatus addArg(String arg, Map parameters) {
+	protected static IStatus addArg(String arg, Map<String, Object> parameters) {
 		LauncherData launcherData = ((Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR)).getLauncherData();
 		File storageArea = (File) parameters.get(ActionConstants.PARM_PROFILE_DATA_DIRECTORY);
 		try {
@@ -215,7 +215,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		if (argString == null || argString.length() == 0)
 			return new String[0];
 
-		List list = new ArrayList();
+		List<String> list = new ArrayList<String>();
 		int i = 0;
 		String arg = ""; //$NON-NLS-1$
 
@@ -230,10 +230,7 @@ public class AddJVMArgumentAction extends ProvisioningAction {
 		}
 
 		list.add(arg);
-		String[] argList = new String[list.size()];
-		list.toArray(argList);
-
-		return argList;
+		return list.toArray(new String[list.size()]);
 	}
 
 	// Store a single user argument, null removes stored values

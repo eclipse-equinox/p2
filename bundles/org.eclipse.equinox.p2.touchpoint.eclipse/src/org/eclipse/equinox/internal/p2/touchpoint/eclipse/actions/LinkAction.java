@@ -14,7 +14,7 @@ import java.io.*;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
 //This is basically a copy of the ln action in the native touchpoint only it provides @artifact support and does not support the backup store.
@@ -22,7 +22,7 @@ import org.eclipse.osgi.util.NLS;
 public class LinkAction extends ProvisioningAction {
 	public static final String ID = "ln"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
 		if (targetDir == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_TARGET_DIR, ID));
@@ -53,7 +53,7 @@ public class LinkAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		return null;
 	}
 

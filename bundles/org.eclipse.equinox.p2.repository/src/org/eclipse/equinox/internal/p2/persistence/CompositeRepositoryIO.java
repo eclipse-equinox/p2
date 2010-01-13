@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.*;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
 /**

@@ -11,9 +11,8 @@
 
 package org.eclipse.equinox.p2.tests.ui.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.UninstallAction;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.p2.ui.actions.UninstallAction;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * @since 3.5
@@ -22,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 public class UninstallActionTest extends ProfileModificationActionTest {
 	class TestUninstallAction extends UninstallAction {
 		TestUninstallAction(Object[] sel) {
-			super(Policy.getDefault(), UninstallActionTest.this.getSelectionProvider(sel), profile.getProfileId());
+			super(UninstallActionTest.this.getProvisioningUI(), UninstallActionTest.this.getSelectionProvider(sel), profile.getProfileId());
 		}
 
 		public IInstallableUnit[] getSelectedIUs() {

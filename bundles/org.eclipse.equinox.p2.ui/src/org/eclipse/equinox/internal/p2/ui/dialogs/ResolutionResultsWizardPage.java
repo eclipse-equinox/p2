@@ -11,20 +11,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElement;
-import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
+import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.p2.ui.viewers.*;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.operations.ProvisioningJob;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
@@ -45,8 +40,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	private static final String DIALOG_SETTINGS_SECTION = "ResolutionResultsPage"; //$NON-NLS-1$
 
 	protected IUElementListRoot input;
-	PlannerResolutionOperation resolvedOperation;
-	protected Policy policy;
+	ProfileChangeOperation resolvedOperation;
 	TreeViewer treeViewer;
 	ProvElementContentProvider contentProvider;
 	IUDetailsLabelProvider labelProvider;
@@ -54,15 +48,18 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	private IUDetailsGroup iuDetailsGroup;
 	SashForm sashForm;
 
-	protected ResolutionResultsWizardPage(Policy policy, IUElementListRoot input, String profileID, PlannerResolutionOperation resolvedOperation) {
-		super("ResolutionPage", profileID); //$NON-NLS-1$
-		this.policy = policy;
-		Assert.isNotNull(resolvedOperation);
-		this.resolvedOperation = resolvedOperation;
+	protected ResolutionResultsWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot input, ProfileChangeOperation operation) {
+		super("ResolutionPage", ui, wizard); //$NON-NLS-1$
+		// We can exist as an empty page, but if there is an operation, we need to know that it's resolved.
+		if (operation != null && !operation.hasResolved()) {
+			operation.resolveModal(null);
+		}
+		this.resolvedOperation = operation;
 		if (input == null)
 			this.input = new IUElementListRoot();
 		else
 			this.input = input;
+		updateStatus(input, resolvedOperation);
 	}
 
 	/*
@@ -117,7 +114,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		labelProvider = new IUDetailsLabelProvider(null, getColumnConfig(), getShell());
 		treeViewer.setLabelProvider(labelProvider);
 
-		setDrilldownElements(input, resolvedOperation.getProvisioningPlan());
+		setDrilldownElements(input, resolvedOperation);
 		treeViewer.setInput(input);
 
 		// Optional area to show the size
@@ -137,9 +134,8 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	}
 
 	public boolean performFinish() {
-		if (resolvedOperation.getResolutionResult().getSummaryStatus().getSeverity() != IStatus.ERROR) {
-			ProfileModificationOperation op = createProfileModificationOperation(resolvedOperation);
-			ProvisioningOperationRunner.schedule(op, StatusManager.SHOW | StatusManager.LOG);
+		if (resolvedOperation.getResolutionResult().getSeverity() != IStatus.ERROR) {
+			getProvisioningUI().schedule(resolvedOperation.getProvisioningJob(null), StatusManager.SHOW | StatusManager.LOG);
 			return true;
 		}
 		return false;
@@ -149,8 +145,10 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		return treeViewer;
 	}
 
-	public ProvisioningPlan getCurrentPlan() {
-		return resolvedOperation.getProvisioningPlan();
+	public IProvisioningPlan getCurrentPlan() {
+		if (resolvedOperation != null)
+			return resolvedOperation.getProvisioningPlan();
+		return null;
 	}
 
 	protected Object[] getSelectedElements() {
@@ -164,32 +162,37 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		return units[0];
 	}
 
-	protected String getProfileId() {
-		return profileId;
-	}
-
 	protected IInstallableUnit[] getIUs() {
 		return ElementUtils.elementsToIUs(input.getChildren(input));
 	}
 
-	void setDrilldownElements(IUElementListRoot root, ProvisioningPlan plan) {
-		if (plan == null)
+	void setDrilldownElements(IUElementListRoot root, ProfileChangeOperation operation) {
+		if (operation == null || operation.getProvisioningPlan() == null)
 			return;
 		Object[] elements = root.getChildren(root);
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof QueriedElement) {
-				((QueriedElement) elements[i]).setQueryable(getQueryable(plan));
+				((QueriedElement) elements[i]).setQueryable(getQueryable(operation.getProvisioningPlan()));
 			}
 		}
 	}
 
-	private ProfileModificationOperation createProfileModificationOperation(PlannerResolutionOperation op) {
-		ProfileModificationOperation pmo = new ProfileModificationOperation(getOperationLabel(), profileId, op.getProvisioningPlan(), op.getProvisioningContext());
-		pmo.setTaskName(getOperationTaskName());
-		return pmo;
-	}
-
 	protected abstract String getOperationLabel();
+
+	/**
+	 * Returns the restart policy for this operation.
+	 * 
+	 * @return an integer constant describing whether the running profile
+	 * needs to be restarted. 
+	 * 
+	 * @see ProvisioningJob#RESTART_NONE
+	 * @see ProvisioningJob#RESTART_ONLY
+	 * @see ProvisioningJob#RESTART_OR_APPLY
+	 *
+	 */
+	protected int getRestartPolicy() {
+		return ProvisioningJob.RESTART_OR_APPLY;
+	}
 
 	/**
 	 * Returns the task name for this operation, or <code>null</code> to display
@@ -203,7 +206,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		return new TreeViewer(parent, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
 	}
 
-	protected abstract IQueryable getQueryable(ProvisioningPlan plan);
+	protected abstract IQueryable<IInstallableUnit> getQueryable(IProvisioningPlan plan);
 
 	protected String getClipboardText(Control control) {
 		return CopyUtils.getIndentedClipboardText(getSelectedElements(), labelProvider);
@@ -217,9 +220,9 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		return treeViewer != null;
 	}
 
-	protected void updateCaches(IUElementListRoot newRoot, PlannerResolutionOperation op) {
+	protected void updateCaches(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		resolvedOperation = op;
-		setDrilldownElements(newRoot, resolvedOperation.getProvisioningPlan());
+		setDrilldownElements(newRoot, resolvedOperation);
 		if (treeViewer != null) {
 			if (input != newRoot)
 				treeViewer.setInput(newRoot);

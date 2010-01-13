@@ -10,19 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
 /**
  * A simple metadata repository used for testing purposes.  All metadata
@@ -58,7 +60,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public IInstallableUnit find(String id, String versionString) {
-		Iterator result = query(new InstallableUnitQuery(id, new Version(versionString)), new Collector(), null).iterator();
+		Iterator result = query(new InstallableUnitQuery(id, Version.create(versionString)), null).iterator();
 		return (IInstallableUnit) (result.hasNext() ? result.next() : null);
 	}
 
@@ -69,8 +71,8 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		return null;
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-		return query.perform(units.iterator(), collector);
+	public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+		return query.perform(units.iterator());
 	}
 
 	public void removeAll() {

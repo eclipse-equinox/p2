@@ -14,8 +14,9 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.RemoveRepositoryAction;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -31,6 +32,7 @@ public class RemoveRepositoryActionTest extends AbstractProvisioningTest {
 	 */
 	private Map getValidArguments() {
 		Map args = new HashMap();
+		args.put(ActionConstants.PARM_AGENT, getAgent());
 		args.put("location", TEST_LOCATION);
 		args.put("type", Integer.toString(IRepository.TYPE_ARTIFACT));
 		args.put("enabled", "true");

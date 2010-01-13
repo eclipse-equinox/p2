@@ -12,9 +12,13 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.ui.actions.RefreshAction;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.RefreshAction;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
+import org.eclipse.equinox.internal.p2.ui.viewers.*;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.operations.ProvisioningJob;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -25,6 +29,7 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 /**
  * This class supports the common characteristics for views that manipulate
@@ -33,10 +38,11 @@ import org.eclipse.ui.part.ViewPart;
  * @since 3.4
  */
 abstract class ProvView extends ViewPart {
-	TreeViewer viewer;
+	protected TreeViewer viewer;
 	RefreshAction refreshAction;
 	private IPropertyChangeListener preferenceListener;
 	protected Display display;
+	private ProvisioningUI ui;
 
 	/**
 	 * The constructor.
@@ -118,7 +124,7 @@ abstract class ProvView extends ViewPart {
 	protected abstract IAction getDoubleClickAction();
 
 	protected void makeActions() {
-		refreshAction = new RefreshAction(viewer, viewer.getControl()) {
+		refreshAction = new RefreshAction(ProvisioningUI.getDefaultUI(), viewer, viewer.getControl()) {
 			protected void refresh() {
 				refreshAll(true);
 			}
@@ -172,8 +178,16 @@ abstract class ProvView extends ViewPart {
 		return viewer.getControl();
 	}
 
-	IStructuredSelection getSelection() {
+	protected IStructuredSelection getSelection() {
 		return (IStructuredSelection) viewer.getSelection();
+	}
+
+	protected void run(ProvisioningJob job) {
+		IWorkbenchSiteProgressService service = (IWorkbenchSiteProgressService) getSite().getService(IWorkbenchSiteProgressService.class);
+		if (service != null)
+			service.schedule(job);
+		else
+			job.runModal(new NullProgressMonitor());
 	}
 
 	protected void configureViewer(final TreeViewer treeViewer) {
@@ -206,11 +220,11 @@ abstract class ProvView extends ViewPart {
 	}
 
 	protected void refreshUnderlyingModel() {
-		// Default is to do nothing
+		// do nothing by default
 	}
 
-	protected List getVisualProperties() {
-		ArrayList list = new ArrayList(1);
+	protected List<String> getVisualProperties() {
+		ArrayList<String> list = new ArrayList<String>(1);
 		list.add(PreferenceConstants.PREF_SHOW_GROUPS_ONLY);
 		return list;
 	}
@@ -223,5 +237,15 @@ abstract class ProvView extends ViewPart {
 		// are caching gets reset also.  The net effect is that everything 
 		// will get queried again.
 		viewer.setInput(getInput());
+	}
+
+	protected String getProfileId() {
+		return IProfileRegistry.SELF;
+	}
+
+	protected ProvisioningUI getProvisioningUI() {
+		if (ui == null)
+			ui = ProvAdminUIActivator.getDefault().getProvisioningUI(getProfileId());
+		return ui;
 	}
 }

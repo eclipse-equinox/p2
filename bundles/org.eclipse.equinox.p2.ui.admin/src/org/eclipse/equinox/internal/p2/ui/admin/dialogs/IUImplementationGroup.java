@@ -10,14 +10,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
+import org.eclipse.equinox.p2.metadata.*;
+
+import java.util.Collection;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
@@ -154,23 +159,25 @@ public class IUImplementationGroup extends IUGroup {
 		if (type != null) {
 			touchpointType.setText(type.getId());
 		}
-		ITouchpointData[] data = iu.getTouchpointData();
-		String[] items = new String[data.length];
-		for (int i = 0; i < data.length; i++) {
-			items[i] = data[i].toString();
+		java.util.List<ITouchpointData> data = iu.getTouchpointData();
+		String[] items = new String[data.size()];
+		for (int i = 0; i < data.size(); i++) {
+			items[i] = data.get(i).toString();
 		}
 		touchpointData.setItems(items);
 
-		IRequiredCapability[] req = iu.getRequiredCapabilities();
-		items = new String[req.length];
-		for (int i = 0; i < req.length; i++) {
-			items[i] = req[i].toString();
+		Collection<IRequirement> reqs = iu.getRequiredCapabilities();
+		items = new String[reqs.size()];
+		int j = 0;
+		for (IRequirement req : reqs) {
+			items[j++] = req.toString();
 		}
 		requiredCapabilities.setItems(items);
-		IProvidedCapability[] prov = iu.getProvidedCapabilities();
-		items = new String[prov.length];
-		for (int i = 0; i < prov.length; i++) {
-			items[i] = prov[i].toString();
+		Collection<IProvidedCapability> prov = iu.getProvidedCapabilities();
+		items = new String[prov.size()];
+		int i = 0;
+		for (IProvidedCapability capability : prov) {
+			items[i++] = capability.toString();
 		}
 		providedCapabilities.setItems(items);
 	}
@@ -180,10 +187,10 @@ public class IUImplementationGroup extends IUGroup {
 		if (iuElement == null || iuElement instanceof IInstallableUnit) {
 			InstallableUnitDescription unit = new InstallableUnitDescription();
 			unit.setId(id.getText().trim());
-			unit.setVersion(new Version(version.getText().trim()));
+			unit.setVersion(Version.create(version.getText().trim()));
 			unit.setProperty(IInstallableUnit.NAMESPACE_IU_ID, namespace.getText().trim());
 			// TODO this is bogus because we don't let user provide a touchpoint type version
-			unit.setTouchpointType(MetadataFactory.createTouchpointType(touchpointType.getText().trim(), new Version("1.0.0"))); //$NON-NLS-1$
+			unit.setTouchpointType(MetadataFactory.createTouchpointType(touchpointType.getText().trim(), Version.create("1.0.0"))); //$NON-NLS-1$
 			iuElement = MetadataFactory.createInstallableUnit(unit);
 		}
 	}

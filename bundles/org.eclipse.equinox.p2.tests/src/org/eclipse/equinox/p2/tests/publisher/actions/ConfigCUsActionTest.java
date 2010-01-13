@@ -12,30 +12,27 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
-
 import java.io.File;
-import java.util.ArrayList;
+import java.util.*;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.DataLoader;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 
-@SuppressWarnings( {"unchecked", "restriction"})
+@SuppressWarnings({"unchecked", "restriction"})
 public class ConfigCUsActionTest extends ActionTest {
 	private static File configLocation = new File(TestActivator.getTestDataFolder(), "ConfigCUsActionTest/level1/level2/config.ini"); //$NON-NLS-1$
 	private static File executableLocation = new File(TestActivator.getTestDataFolder(), "ConfigCUsActionTest/level1/run.exe"); //$NON-NLS-1$
-	private static Version version = new Version("1.0.0"); //$NON-NLS-1$
+	private static Version version = Version.create("1.0.0"); //$NON-NLS-1$
 	private static String id = "id"; //$NON-NLS-1$
 	private static String flavor = "tooling"; //$NON-NLS-1$
 	private IMetadataRepository metadataRepo;
@@ -60,16 +57,16 @@ public class ConfigCUsActionTest extends ActionTest {
 		assertTrue(iu.getId().equalsIgnoreCase(flavor + id + ".configuration")); //$NON-NLS-1$
 
 		//verify ProvidedCapabilities
-		IProvidedCapability[] providedCapabilities = iu.getProvidedCapabilities();
+		Collection<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, "org.eclipse.equinox.p2.iu", iu.getId(), version); //$NON-NLS-1$
 		//		verifyProvidedCapability(providedCapabilities, flavor + id, id + ".config", version); //$NON-NLS-1$
-		assertTrue(providedCapabilities.length == 1);
+		assertTrue(providedCapabilities.size() == 1);
 
 		//verify RequiredCapabilities
-		IRequiredCapability[] requiredCapability = iu.getRequiredCapabilities();
+		List<IRequirement> requiredCapability = iu.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".config." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
 		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".ini." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
-		assertTrue(requiredCapability.length == 2);
+		assertTrue(requiredCapability.size() == 2);
 
 		//verify non root IUs
 		verifyFragment("ini"); //$NON-NLS-1$
@@ -82,16 +79,14 @@ public class ConfigCUsActionTest extends ActionTest {
 		for (int i = 0; i < IUs.size(); i++) {
 			InstallableUnit iu = (InstallableUnit) IUs.get(i);
 			if (iu.getId().equals(flavor + id + "." + cuType + "." + configSpec)) { //$NON-NLS-1$ //$NON-NLS-2$
-				assertTrue(iu.getFilter().equals("(& (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))")); //$NON-NLS-1$
+				assertTrue(iu.getFilter().equals(ExpressionUtil.parseLDAP("(& (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))"))); //$NON-NLS-1$
 				assertTrue(iu.getVersion().equals(version));
-				assertTrue(iu.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$//$NON-NLS-2$
 				assertFalse(iu.isSingleton());
-				IProvidedCapability[] providedCapabilities = iu.getProvidedCapabilities();
+				Collection<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + "." + cuType + "." + configSpec, version); //$NON-NLS-1$//$NON-NLS-2$
 				verifyProvidedCapability(providedCapabilities, flavor + id, id + "." + cuType, version); //$NON-NLS-1$
-				assertTrue(providedCapabilities.length == 2);
-				assertTrue(iu.getRequiredCapabilities().length == 0);
-				assertFalse(iu.isFragment());
+				assertTrue(providedCapabilities.size() == 2);
+				assertTrue(iu.getRequiredCapabilities().size() == 0);
 				return; //pass
 			}
 		}

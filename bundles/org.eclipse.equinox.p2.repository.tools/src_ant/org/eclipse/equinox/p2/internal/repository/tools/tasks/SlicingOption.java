@@ -56,7 +56,7 @@ public class SlicingOption extends Task {
 		StringTokenizer tok = new StringTokenizer(platformFilter, ","); //$NON-NLS-1$
 		if (tok.countTokens() != 3)
 			throw new BuildException(NLS.bind(Messages.SlicingOption_invalid_platform, platformFilter));
-		Dictionary filter = options.getFilter();
+		Dictionary<String, Object> filter = options.getFilter();
 		filter.put("osgi.os", tok.nextToken().trim()); //$NON-NLS-1$
 		filter.put("osgi.ws", tok.nextToken().trim()); //$NON-NLS-1$
 		filter.put("osgi.arch", tok.nextToken().trim()); //$NON-NLS-1$
@@ -68,7 +68,7 @@ public class SlicingOption extends Task {
 	}
 
 	public void setIncludeFeatures(boolean includeFeatures) {
-		Dictionary filter = options.getFilter();
+		Dictionary<String, Object> filter = options.getFilter();
 		filter.put("org.eclipse.update.install.features", String.valueOf(includeFeatures)); //$NON-NLS-1$
 		options.setFilter(filter);
 	}
@@ -76,7 +76,7 @@ public class SlicingOption extends Task {
 	public void setFilter(String filterString) {
 		if (filterString == null || filterString.trim().equals("")) //$NON-NLS-1$
 			return;
-		Dictionary filter = options.getFilter();
+		Dictionary<String, Object> filter = options.getFilter();
 		StringTokenizer tok = new StringTokenizer(filterString, ","); //$NON-NLS-1$
 		while (tok.hasMoreTokens()) {
 			String rule = tok.nextToken().trim();

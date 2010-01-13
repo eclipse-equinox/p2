@@ -8,13 +8,17 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SeveralOptionalDependencies5 extends AbstractProvisioningTest {
@@ -30,15 +34,15 @@ public class SeveralOptionalDependencies5 extends AbstractProvisioningTest {
 		IRequiredCapability reqA = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, true, false, true); //optional dependency, will be satisfied
 		IRequiredCapability reqC = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"), null, true, false, true); //optional dependency, will be satisfied because it is the highest version
 		IRequiredCapability reqE = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "E", new VersionRange("[1.0.0, 2.0.0)"), null, true, false, true); //optional dependency, will be satisfied because it is the highest version
-		x1 = createIU("X", new Version("1.0.0"), new IRequiredCapability[] {reqA, reqC, reqE});
+		x1 = createIU("X", Version.create("1.0.0"), new IRequiredCapability[] {reqA, reqC, reqE});
 
 		IRequiredCapability reqB = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true); //optional dependency, will be satisfied
-		a1 = createIU("A", new Version("1.0.0"), new IRequiredCapability[] {reqB});
+		a1 = createIU("A", Version.create("1.0.0"), new IRequiredCapability[] {reqB});
 
 		IRequiredCapability reqD = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, false, false, true); //optional dependency, will be satisfied
-		c1 = createIU("C", new Version("1.0.0"), new IRequiredCapability[] {reqD});
+		c1 = createIU("C", Version.create("1.0.0"), new IRequiredCapability[] {reqD});
 
-		b1 = createIU("B", new Version("1.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
 		createTestMetdataRepository(new IInstallableUnit[] {x1, a1, b1, c1});
 
 		profile = createProfile("TestProfile." + getName());
@@ -48,7 +52,7 @@ public class SeveralOptionalDependencies5 extends AbstractProvisioningTest {
 	public void testInstallation() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {x1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, x1);
 		assertInstallOperand(plan, a1);

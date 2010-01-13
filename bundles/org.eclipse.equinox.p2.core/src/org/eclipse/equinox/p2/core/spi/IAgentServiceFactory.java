@@ -16,7 +16,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
  * A factory for creating a service that forms part of a provisioning agent instance.
  * Factories themselves are registered in the OSGi service registry so that they
  * can be obtained by a provisioning agent.
- * @since 1.1
+ * @since 2.0
  */
 public interface IAgentServiceFactory {
 	/**

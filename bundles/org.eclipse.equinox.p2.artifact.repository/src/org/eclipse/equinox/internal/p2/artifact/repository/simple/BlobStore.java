@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
 import java.io.*;
 import java.net.URI;
-import java.util.Iterator;
 import java.util.Set;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.URIUtil;
@@ -93,9 +92,9 @@ public class BlobStore {
 	/**
 	 * Delete all of the blobs in the given set.
 	 */
-	public void deleteBlobs(Set set) {
-		for (Iterator i = set.iterator(); i.hasNext();)
-			deleteBlob((byte[]) i.next());
+	public void deleteBlobs(Set<byte[]> set) {
+		for (byte[] blob : set)
+			deleteBlob(blob);
 	}
 
 	public URI fileFor(byte[] uuid) {

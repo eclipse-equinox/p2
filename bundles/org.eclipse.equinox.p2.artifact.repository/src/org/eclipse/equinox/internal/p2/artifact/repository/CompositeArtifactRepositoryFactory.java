@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,10 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
+
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
+
+import org.eclipse.equinox.p2.core.ProvisionException;
 
 import java.io.*;
 import java.net.URI;
@@ -21,13 +25,18 @@ import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.p2.repository.Transport;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.ArtifactRepositoryFactory;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactory {
+
+	private IArtifactRepositoryManager getManager() {
+		if (getAgent() != null)
+			return (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		return null;
+	}
 
 	public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
 		final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
@@ -95,7 +104,7 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 				CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, CompositeArtifactRepository.PI_REPOSITORY_TYPE, sub.newChild(100));
 				if (resultState.getLocation() == null)
 					resultState.setLocation(location);
-				CompositeArtifactRepository result = new CompositeArtifactRepository(resultState);
+				CompositeArtifactRepository result = new CompositeArtifactRepository(getManager(), resultState);
 				if (Tracing.DEBUG_METADATA_PARSING) {
 					time += System.currentTimeMillis();
 					Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 
@@ -117,8 +126,8 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 		}
 	}
 
-	public IArtifactRepository create(URI location, String name, String type, Map properties) {
-		return new CompositeArtifactRepository(location, name, properties);
+	public IArtifactRepository create(URI location, String name, String type, Map<String, String> properties) {
+		return new CompositeArtifactRepository(getManager(), location, name, properties);
 	}
 
 	private Transport getTransport() {

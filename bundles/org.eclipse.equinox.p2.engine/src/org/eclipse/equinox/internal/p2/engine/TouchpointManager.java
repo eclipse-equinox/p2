@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.engine.spi.Touchpoint;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
 //TODO This needs to support multiple version of each touchpoint and have a lookup that supports version semantics
@@ -65,7 +62,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 
 		public Version getVersion() {
 			try {
-				return new Version(element.getAttribute(ATTRIBUTE_VERSION));
+				return Version.create(element.getAttribute(ATTRIBUTE_VERSION));
 			} catch (InvalidRegistryObjectException e) {
 				return null;
 			}
@@ -92,7 +89,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 	// TODO: Do we really want to store the touchpoints? The danger is 
 	//	     that if two installations are performed simultaneously, then...
 	// TODO: Figure out locking, concurrency requirements for touchpoints.
-	private Map touchpointEntries;
+	private Map<String, TouchpointEntry> touchpointEntries;
 
 	public TouchpointManager() {
 		RegistryFactory.getRegistry().addRegistryChangeListener(this, EngineActivator.ID);
@@ -116,7 +113,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 		if (typeId == null || typeId.length() == 0)
 			throw new IllegalArgumentException(Messages.TouchpointManager_Null_Touchpoint_Type_Argument);
 
-		TouchpointEntry entry = (TouchpointEntry) getTouchpointEntries().get(typeId);
+		TouchpointEntry entry = getTouchpointEntries().get(typeId);
 		if (entry == null)
 			return null;
 		if (versionRange != null) {
@@ -131,13 +128,13 @@ public class TouchpointManager implements IRegistryChangeListener {
 	/*
 	 * Construct a map of the extensions that implement the touchpoints extension point.
 	 */
-	private synchronized Map getTouchpointEntries() {
+	private synchronized Map<String, TouchpointEntry> getTouchpointEntries() {
 		if (touchpointEntries != null)
 			return touchpointEntries;
 
 		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_TOUCHPOINTS);
 		IExtension[] extensions = point.getExtensions();
-		touchpointEntries = new HashMap(extensions.length);
+		touchpointEntries = new HashMap<String, TouchpointEntry>(extensions.length);
 		for (int i = 0; i < extensions.length; i++) {
 			try {
 				IConfigurationElement[] elements = extensions[i].getConfigurationElements();
@@ -155,7 +152,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 					if (touchpointEntries.get(id) == null) {
 						touchpointEntries.put(id, new TouchpointEntry(elements[j]));
 					} else {
-						reportError(NLS.bind(Messages.TouchpointManager_Conflicting_Touchpoint_Types, ATTRIBUTE_TYPE, id));
+						reportError(NLS.bind(Messages.TouchpointManager_Conflicting_Touchpoint_Types, id));
 					}
 				}
 			} catch (InvalidRegistryObjectException e) {

@@ -10,16 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class FragmentMethodTest extends TestCase {
@@ -28,10 +30,8 @@ public class FragmentMethodTest extends TestCase {
 	private static final String TEST_REQUIRED = "testRequired";
 	IInstallableUnit iu1;
 	IInstallableUnit iu3;
-	IRequiredCapability[] iu1Deps;
-	IRequiredCapability[] iu3Deps;
-	IProvidedCapability[] iu1Caps;
-	IProvidedCapability[] iu3Caps;
+	Collection<IProvidedCapability> iu1Caps;
+	Collection<IProvidedCapability> iu3Caps;
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -39,8 +39,6 @@ public class FragmentMethodTest extends TestCase {
 		iu3 = createIUFragment("iu.fragment");
 		iu1Caps = iu1.getProvidedCapabilities();
 		iu3Caps = iu3.getProvidedCapabilities();
-		iu1Deps = iu1.getRequiredCapabilities();
-		iu3Deps = iu3.getRequiredCapabilities();
 		HashSet hash = new HashSet();
 		hash.add(iu1);
 		hash.add(iu3);
@@ -57,34 +55,30 @@ public class FragmentMethodTest extends TestCase {
 	protected void tearDown() throws Exception {
 		iu1 = null;
 		iu3 = null;
-		iu1Deps = null;
-		iu3Deps = null;
 		iu1Caps = null;
 		iu3Caps = null;
 		super.tearDown();
 	}
 
 	public void testCapabilities() {
-		IProvidedCapability[] iuCapabilities = iu1Caps;
-		IProvidedCapability[] initialFragmentCapabilities = iu3Caps;
-
-		IProvidedCapability[] mergedCapabilities = iu1.getProvidedCapabilities();
-		for (int i = 0; i < iuCapabilities.length; i++) {
-			FragmentTest.assertContainsWithEquals(mergedCapabilities, iuCapabilities[i]);
+		Collection<IProvidedCapability> mergedCapabilities = iu1.getProvidedCapabilities();
+		for (IProvidedCapability capability : mergedCapabilities) {
+			FragmentTest.assertContainsWithEquals(mergedCapabilities, capability);
 		}
 
 		//The fragment property is not set
-		assertNull(iu1.getProperty(IInstallableUnit.PROP_TYPE_FRAGMENT));
+		assertNull(iu1.getProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT));
 
 		//The fragment does not contain iu namespace
-		for (int i = 0; i < initialFragmentCapabilities.length; i++) {
-			if (initialFragmentCapabilities[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
-				assertDoesNotContain(mergedCapabilities, initialFragmentCapabilities[i]);
+		Collection<IProvidedCapability> initialFragmentCapabilities = iu3Caps;
+		for (IProvidedCapability capability : initialFragmentCapabilities) {
+			if (capability.getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
+				assertDoesNotContain(mergedCapabilities, capability);
 				break;
 			}
 		}
 
-		assertEquals("The fragment capabilities should not change", initialFragmentCapabilities, iu3.getProvidedCapabilities(), false);
+		assertEquals("The fragment capabilities should not change", initialFragmentCapabilities, iu3.getProvidedCapabilities());
 	}
 
 	protected void assertEquals(String message, Object[] expected, Object[] actual) {
@@ -98,38 +92,22 @@ public class FragmentMethodTest extends TestCase {
 			assertEquals(message, expected[i], actual[i]);
 	}
 
-	protected void assertEquals(String message, Object[] expected, Object[] actual, boolean orderImportant) {
-		// if the order in the array must match exactly, then call the other method
-		if (orderImportant) {
-			assertEquals(message, expected, actual);
-			return;
-		}
-		// otherwise use this method and check that the arrays are equal in any order
+	protected void assertEquals(String message, Collection<? extends Object> expected, Collection<? extends Object> actual) {
 		if (expected == null && actual == null)
 			return;
 		if (expected == actual)
 			return;
 		if (expected == null || actual == null)
 			assertTrue(message + ".1", false);
-		if (expected.length != actual.length)
+		if (expected.size() != actual.size())
 			assertTrue(message + ".2", false);
-		boolean[] found = new boolean[expected.length];
-		for (int i = 0; i < expected.length; i++) {
-			for (int j = 0; j < expected.length; j++) {
-				if (!found[j] && expected[i].equals(actual[j]))
-					found[j] = true;
-			}
-		}
-		for (int i = 0; i < found.length; i++)
-			if (!found[i])
-				assertTrue(message + ".3." + i, false);
+		if (!expected.containsAll(actual))
+			fail(message + ".3");
 	}
 
-	public static void assertDoesNotContain(Object[] objects, Object searched) {
-		for (int i = 0; i < objects.length; i++) {
-			if (objects[i].equals(searched))
-				throw new AssertionFailedError("The array should not contain the searched element");
-		}
+	public static void assertDoesNotContain(Collection<? extends Object> objects, Object searched) {
+		if (objects.contains(searched))
+			throw new AssertionFailedError("The array should not contain the searched element");
 	}
 
 	public void testProperties() {
@@ -141,12 +119,12 @@ public class FragmentMethodTest extends TestCase {
 	public IInstallableUnit createIUFragment(String name) {
 		InstallableUnitFragmentDescription iu = new InstallableUnitFragmentDescription();
 		iu.setId(name);
-		iu.setVersion(new Version(1, 0, 0));
+		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		iu.setProperty(PROP_FRAG, "value");
 		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true), MetadataFactory.createRequiredCapability(TEST_REQUIRED, TEST_REQUIRED, VersionRange.emptyRange, null, true, false)};
 		iu.setHost(reqs);
-		IProvidedCapability[] cap = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("testCapabilityInFragment", "testCapabilityInFragment", new Version(1, 0, 0))};
+		IProvidedCapability[] cap = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("testCapabilityInFragment", "testCapabilityInFragment", Version.createOSGi(1, 0, 0))};
 		iu.setCapabilities(cap);
 		return MetadataFactory.createInstallableUnitFragment(iu);
 	}
@@ -154,10 +132,10 @@ public class FragmentMethodTest extends TestCase {
 	public IInstallableUnit createIU(String name) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(name);
-		iu.setVersion(new Version(1, 0, 0));
+		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		iu.setProperty(PROP_IU, "valueIU");
-		IProvidedCapability[] cap = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0)), MetadataFactory.createProvidedCapability("testCapability", "testCapability", new Version(1, 0, 0))};
+		IProvidedCapability[] cap = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", Version.createOSGi(1, 0, 0)), MetadataFactory.createProvidedCapability("testCapability", "testCapability", Version.createOSGi(1, 0, 0))};
 		iu.setCapabilities(cap);
 		return MetadataFactory.createInstallableUnit(iu);
 	}

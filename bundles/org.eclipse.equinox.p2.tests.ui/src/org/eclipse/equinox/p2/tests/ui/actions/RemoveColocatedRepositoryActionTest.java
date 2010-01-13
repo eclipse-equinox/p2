@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.RemoveColocatedRepositoryAction;
+import org.eclipse.equinox.internal.p2.ui.actions.RemoveColocatedRepositoryAction;
 
 public class RemoveColocatedRepositoryActionTest extends ColocatedRepositoryActionTest {
 	public void testEmptySelection() {
-		RemoveColocatedRepositoryAction action = new RemoveColocatedRepositoryAction(getSelectionProvider(getEmptySelection()));
+		RemoveColocatedRepositoryAction action = new RemoveColocatedRepositoryAction(getProvisioningUI(), getSelectionProvider(getEmptySelection()));
 		assertFalse("Should not be enabled with empty selection", action.isEnabled());
 	}
 
 	public void testInvalidSelection() {
-		RemoveColocatedRepositoryAction action = new RemoveColocatedRepositoryAction(getSelectionProvider(getInvalidSelection()));
+		RemoveColocatedRepositoryAction action = new RemoveColocatedRepositoryAction(getProvisioningUI(), getSelectionProvider(getInvalidSelection()));
 		assertFalse("Should not be enabled with invalid selection", action.isEnabled());
 	}
 
@@ -27,7 +27,7 @@ public class RemoveColocatedRepositoryActionTest extends ColocatedRepositoryActi
 		assertTrue(managerContains(metaManager, testRepoLocation));
 		assertTrue(managerContains(artifactManager, testRepoLocation));
 
-		RemoveColocatedRepositoryAction action = new RemoveColocatedRepositoryAction(getSelectionProvider(getValidRepoSelection()));
+		RemoveColocatedRepositoryAction action = new RemoveColocatedRepositoryAction(getProvisioningUI(), getSelectionProvider(getValidRepoSelection()));
 		assertTrue("Should be enabled", action.isEnabled());
 		action.run();
 

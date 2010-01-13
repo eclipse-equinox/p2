@@ -46,7 +46,7 @@ public final class ProxiesDialog {
 	private Button cancelButton;
 	private final IProxyService service;
 	private Shell shell;
-	private List types;
+	private List<String> types;
 	private Label statuslabel;
 
 	public ProxiesDialog(IProxyService service) {
@@ -103,7 +103,7 @@ public final class ProxiesDialog {
 		typeCombo.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 3, 1));
 		//Currently only these three proxy types are supported.
 		for (int i = 0; i < types.size(); i++) {
-			typeCombo.add((String) types.get(i));
+			typeCombo.add(types.get(i));
 		}
 
 		typeCombo.addSelectionListener(new SelectionAdapter() {
@@ -244,7 +244,7 @@ public final class ProxiesDialog {
 				openMessage(Messages.ProxiesDialog_ServiceNotAvailableMessage, SWT.ICON_ERROR | SWT.OK);
 			}
 		} catch (Exception e) {
-			openMessage(Messages.ProxiesDialog_FailedTorSetProxySettings + e.getLocalizedMessage(), SWT.ICON_ERROR | SWT.OK);
+			openMessage(Messages.ProxiesDialog_FailedToSetProxyMessage + e.getLocalizedMessage(), SWT.ICON_ERROR | SWT.OK);
 		}
 	}
 
@@ -304,7 +304,7 @@ public final class ProxiesDialog {
 	}
 
 	private void initTypes() {
-		types = new ArrayList();
+		types = new ArrayList<String>();
 		types.add(IProxyData.HTTP_PROXY_TYPE);
 		types.add(IProxyData.HTTPS_PROXY_TYPE);
 		types.add(IProxyData.SOCKS_PROXY_TYPE);

@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.repository;
 
 import java.net.URI;
 import java.util.EventObject;
+import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
  * An event indicating a repository was added, removed, changed,

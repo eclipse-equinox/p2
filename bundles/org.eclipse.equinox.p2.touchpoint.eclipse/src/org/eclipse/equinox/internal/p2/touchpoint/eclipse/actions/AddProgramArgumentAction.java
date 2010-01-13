@@ -15,13 +15,13 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
 public class AddProgramArgumentAction extends ProvisioningAction {
 	public static final String ID = "addProgramArg"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String programArg = (String) parameters.get(ActionConstants.PARM_PROGRAM_ARG);
 		if (programArg == null)
@@ -54,7 +54,7 @@ public class AddProgramArgumentAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		String programArg = (String) parameters.get(ActionConstants.PARM_PROGRAM_ARG);
 		if (programArg == null)

@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProfileScope;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -44,7 +43,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 					pref.flush();
 			}
 		} catch (BackingStoreException e) {
-			ProvUI.handleException(e, AutomaticUpdateMessages.ErrorLoadingPreferenceKeys, StatusManager.LOG);
+			handleException(e, AutomaticUpdateMessages.ErrorLoadingPreferenceKeys);
 		}
 
 		// Have we migrated from 3.4 pref values?
@@ -90,7 +89,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 			try {
 				pref.flush();
 			} catch (BackingStoreException e) {
-				ProvUI.handleException(e, AutomaticUpdateMessages.ErrorSavingPreferences, StatusManager.LOG);
+				handleException(e, AutomaticUpdateMessages.ErrorSavingPreferences);
 			}
 		}
 		// pref used to track 3.3 migration
@@ -122,9 +121,13 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 				pref.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_INIT, true);
 				pref.flush();
 			} catch (BackingStoreException e) {
-				ProvUI.handleException(e, AutomaticUpdateMessages.ErrorSavingClassicPreferences, StatusManager.LOG);
+				handleException(e, AutomaticUpdateMessages.ErrorSavingClassicPreferences);
 			}
 		}
+	}
+
+	private static void handleException(Exception e, String message) {
+		StatusManager.getManager().handle(new Status(IStatus.ERROR, AutomaticUpdatePlugin.PLUGIN_ID, 0, message, e), StatusManager.LOG);
 	}
 
 	public void initializeDefaultPreferences() {

@@ -10,37 +10,36 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
+import java.util.List;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 public class InstallableUnitFragment extends InstallableUnit implements IInstallableUnitFragment {
 
-	private IRequiredCapability[] hostRequirements;
+	private IRequirement[] hostRequirements;
 
 	public InstallableUnitFragment() {
 		super();
 	}
 
-	public void setHost(IRequiredCapability[] hostRequirements) {
+	public void setHost(IRequirement[] hostRequirements) {
 		if (hostRequirements == null)
 			return;
 		this.hostRequirements = hostRequirements;
 		addRequiredCapability(hostRequirements);
 	}
 
-	private void addRequiredCapability(IRequiredCapability[] toAdd) {
-		IRequiredCapability[] current = super.getRequiredCapabilities();
-		IRequiredCapability[] result = new IRequiredCapability[current.length + toAdd.length];
-		System.arraycopy(current, 0, result, 0, current.length);
-		System.arraycopy(toAdd, 0, result, current.length, toAdd.length);
+	private void addRequiredCapability(IRequirement[] toAdd) {
+		List<IRequirement> current = super.getRequiredCapabilities();
+		int currSize = current.size();
+		IRequirement[] result = new IRequirement[currSize + toAdd.length];
+		for (int i = 0; i < currSize; ++i)
+			result[i] = current.get(i);
+		System.arraycopy(toAdd, 0, result, current.size(), toAdd.length);
 		setRequiredCapabilities(result);
 	}
 
-	public boolean isFragment() {
-		return true;
-	}
-
-	public IRequiredCapability[] getHost() {
+	public IRequirement[] getHost() {
 		return hostRequirements;
 	}
 }

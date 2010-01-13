@@ -17,22 +17,23 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.util.NLS;
 
-@SuppressWarnings( {"restriction", "unchecked"})
 public class TestArtifactRepository implements IArtifactRepository {
 	private static String provider = null;
-	private HashMap/*<IArtifactDescriptor, byte[]>*/repo;
+	private HashMap<IArtifactDescriptor, byte[]> repo;
 	private String name;
 	private String description;
 	private String version = "1.0.0"; //$NON-NLS-1$
-	protected Map properties = new OrderedProperties();
+	protected Map<String, String> properties = new OrderedProperties();
 
 	public class ArtifactOutputStream extends OutputStream implements IStateful {
 		private boolean closed;
@@ -137,8 +138,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 	}
 
 	public synchronized boolean contains(IArtifactKey key) {
-		for (Iterator/*<IArtifactDescriptor>*/iterator = repo.keySet().iterator(); iterator.hasNext();) {
-			IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
+		for (IArtifactDescriptor descriptor : repo.keySet()) {
 			if (descriptor.getArtifactKey().equals(key))
 				return true;
 		}
@@ -147,7 +147,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		try {
-			byte[] repoContents = (byte[]) repo.get(descriptor);
+			byte[] repoContents = repo.get(descriptor);
 			if (repoContents == null)
 				return null;
 			destination.write(repoContents);
@@ -159,22 +159,12 @@ public class TestArtifactRepository implements IArtifactRepository {
 	}
 
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
-		Set/*<IArtifactDescriptor>*/result = new HashSet/*<IArtifactDescriptor>*/();
-		for (Iterator/*<IArtifactDescriptor>*/iterator = repo.keySet().iterator(); iterator.hasNext();) {
-			IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
+		Set<IArtifactDescriptor> result = new HashSet<IArtifactDescriptor>();
+		for (IArtifactDescriptor descriptor : repo.keySet()) {
 			if (descriptor.getArtifactKey().equals(key))
 				result.add(descriptor);
 		}
-		return (IArtifactDescriptor[]) result.toArray(new IArtifactDescriptor[0]);
-	}
-
-	public IArtifactKey[] getArtifactKeys() {
-		Set/*<IArtifactKey>*/result = new HashSet/*<IArtifactKey>*/();
-		for (Iterator/*<IArtifactDescriptor>*/iterator = repo.keySet().iterator(); iterator.hasNext();) {
-			IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
-			result.add(descriptor.getArtifactKey());
-		}
-		return (IArtifactKey[]) result.toArray(new IArtifactKey[0]);
+		return result.toArray(new IArtifactDescriptor[0]);
 	}
 
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
@@ -254,7 +244,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 	}
 
 	public String setProperty(String key, String value) {
-		return (String) (value == null ? properties.remove(key) : properties.put(key, value));
+		return (value == null ? properties.remove(key) : properties.put(key, value));
 	}
 
 	public void setProvider(String value) {
@@ -278,7 +268,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 	}
 
 	public InputStream getRawInputStream(IArtifactDescriptor descriptor) {
-		return new ByteArrayInputStream((byte[]) repo.get(descriptor), 0, ((byte[]) repo.get(descriptor)).length);
+		return new ByteArrayInputStream(repo.get(descriptor), 0, repo.get(descriptor).length);
 	}
 
 	public ZipInputStream getZipInputStream(IArtifactDescriptor descriptor) {
@@ -286,10 +276,35 @@ public class TestArtifactRepository implements IArtifactRepository {
 	}
 
 	public byte[] getBytes(IArtifactDescriptor artifactDescriptor) {
-		return (byte[]) repo.get(artifactDescriptor);
+		return repo.get(artifactDescriptor);
 	}
 
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		return getArtifact(descriptor, destination, monitor);
+	}
+
+	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
+		return new ArtifactDescriptor(key);
+	}
+
+	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
+		if (monitor != null && monitor.isCanceled())
+			return Collector.emptyCollector();
+
+		Collector<IArtifactKey> collector = new Collector<IArtifactKey>();
+		for (IArtifactDescriptor descriptor : repo.keySet()) {
+			collector.accept(descriptor.getArtifactKey());
+		}
+		return collector;
+	}
+
+	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
+		final Collection<IArtifactDescriptor> descs = repo.keySet();
+		return new IQueryable<IArtifactDescriptor>() {
+
+			public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
+				return query.perform(descs.iterator());
+			}
+		};
 	}
 }

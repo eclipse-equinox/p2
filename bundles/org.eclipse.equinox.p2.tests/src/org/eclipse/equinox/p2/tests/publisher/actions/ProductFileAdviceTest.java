@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Properties;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
@@ -149,7 +150,7 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 	 * Test method for {@link org.eclipse.equinox.p2.publisher.eclipse.ProductFileAdvice#getProperties()}.
 	 */
 	public void testGetProperties() {
-		Properties properties = productFileAdviceWin32.getProperties();
+		Map<String, String> properties = productFileAdviceWin32.getProperties();
 		assertEquals("1.0", 7, properties.size());
 		assertEquals("1.2", "bar", properties.get("foo"));
 		assertEquals("1.3", "", properties.get("foo1"));
@@ -253,7 +254,7 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 		BundleInfo[] bundles = advice.getBundles();
 		assertEquals("bundlers length", 2, bundles.length);
 
-		Properties adviceProperties = advice.getProperties();
+		Map<String, String> adviceProperties = advice.getProperties();
 		assertEquals("instance.area.default", "@user.home/workspace", adviceProperties.get("osgi.instance.area.default"));
 		assertEquals("eclipse.application", "test.application", adviceProperties.get("eclipse.application"));
 		assertEquals("eclipse.product", "test.product", adviceProperties.get("eclipse.product"));

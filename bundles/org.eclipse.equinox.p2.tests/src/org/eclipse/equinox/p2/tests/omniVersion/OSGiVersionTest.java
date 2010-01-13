@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 /**
  * Tests versions specified with default OSGi version strings and tests OSGi compatibility
@@ -33,7 +33,7 @@ public class OSGiVersionTest extends VersionTesting {
 
 	public void testOSGiStrings() {
 
-		Version v = new Version("");
+		Version v = Version.parseVersion(null);
 		assertEquals("0.0.0", v.toString());
 		assertNotNull(v = Version.parseVersion(""));
 		assertEquals("0.0.0", v.toString());

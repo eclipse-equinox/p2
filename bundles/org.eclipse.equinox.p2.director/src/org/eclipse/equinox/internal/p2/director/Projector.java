@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -16,12 +16,15 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
-import org.eclipse.equinox.internal.p2.metadata.NotRequirement;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.*;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.Filter;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.pb.tools.DependencyHelper;
@@ -36,26 +39,28 @@ import org.sat4j.specs.*;
 public class Projector {
 	static boolean DEBUG = Tracing.DEBUG_PLANNER_PROJECTOR;
 	private static boolean DEBUG_ENCODING = false;
-	private IQueryable picker;
+	private IQueryable<IInstallableUnit> picker;
 	private QueryableArray patches;
 
-	private Map noopVariables; //key IU, value AbstractVariable
-	private List abstractVariables;
+	private Map<IInstallableUnit, AbstractVariable> noopVariables; //key IU, value AbstractVariable
+	private List<AbstractVariable> abstractVariables;
 
-	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
+	private Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
 
-	private Dictionary selectionContext;
+	private Dictionary<String, String> selectionContext;
 
-	DependencyHelper dependencyHelper;
-	private Collection solution;
-	private Collection assumptions;
+	DependencyHelper<Object, Explanation> dependencyHelper;
+	private Collection<IInstallableUnit> solution;
+	private Collection<Object> assumptions;
 
 	private MultiStatus result;
 
-	private Collection alreadyInstalledIUs;
+	private Collection<IInstallableUnit> alreadyInstalledIUs;
+	private IQueryable<IInstallableUnit> lastState;
+
 	private boolean considerMetaRequirements;
 	private IInstallableUnit entryPoint;
-	private Map fragments = new HashMap();
+	private Map<IInstallableUnitFragment, Set<IInstallableUnit>> fragments = new HashMap<IInstallableUnitFragment, Set<IInstallableUnit>>();
 
 	static class AbstractVariable {
 		public String toString() {
@@ -67,7 +72,7 @@ public class Projector {
 	 * Job for computing SAT failure explanation in the background.
 	 */
 	class ExplanationJob extends Job {
-		private Set explanation;
+		private Set<Explanation> explanation;
 
 		public ExplanationJob() {
 			super(Messages.Planner_NoSolution);
@@ -84,7 +89,7 @@ public class Projector {
 			dependencyHelper.stopExplanation();
 		}
 
-		public Set getExplanationResult() {
+		public Set<Explanation> getExplanationResult() {
 			return explanation;
 		}
 
@@ -100,8 +105,8 @@ public class Projector {
 					long stop = System.currentTimeMillis();
 					Tracing.debug("Explanation found: " + (stop - start)); //$NON-NLS-1$
 					Tracing.debug("Explanation:"); //$NON-NLS-1$
-					for (Iterator i = explanation.iterator(); i.hasNext();) {
-						Tracing.debug(i.next().toString());
+					for (Explanation ex : explanation) {
+						Tracing.debug(ex.toString());
 					}
 				}
 			} catch (TimeoutException e) {
@@ -110,7 +115,7 @@ public class Projector {
 			} finally {
 				//must never have a null result, because caller is waiting on result to be non-null
 				if (explanation == null)
-					explanation = Collections.EMPTY_SET;
+					explanation = CollectionUtils.emptySet();
 			}
 			synchronized (this) {
 				ExplanationJob.this.notify();
@@ -120,19 +125,24 @@ public class Projector {
 
 	}
 
-	public Projector(IQueryable q, Dictionary context, boolean considerMetaRequirements) {
+	public Projector(IQueryable<IInstallableUnit> q, Dictionary<String, String> context, boolean considerMetaRequirements) {
 		picker = q;
-		noopVariables = new HashMap();
-		slice = new TwoTierMap();
+		noopVariables = new HashMap<IInstallableUnit, AbstractVariable>();
+		slice = new HashMap<String, Map<Version, IInstallableUnit>>();
 		selectionContext = context;
-		abstractVariables = new ArrayList();
+		abstractVariables = new ArrayList<AbstractVariable>();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
-		assumptions = new ArrayList();
+		assumptions = new ArrayList<Object>();
 		this.considerMetaRequirements = considerMetaRequirements;
 	}
 
-	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
+	protected boolean isInstalled(IInstallableUnit iu) {
+		return !lastState.query(new InstallableUnitQuery(iu), null).isEmpty();
+	}
+
+	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IQueryable<IInstallableUnit> installedIUs, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
 		alreadyInstalledIUs = Arrays.asList(alreadyExistingRoots);
+		lastState = installedIUs;
 		this.entryPoint = entryPointIU;
 		try {
 			long start = 0;
@@ -147,12 +157,12 @@ public class Projector {
 				solver = SolverFactory.newEclipseP2();
 			}
 			solver.setTimeoutOnConflicts(1000);
-			Collector collector = picker.query(InstallableUnitQuery.ANY, new Collector(), null);
-			dependencyHelper = new DependencyHelper(solver);
+			IQueryResult<IInstallableUnit> queryResult = picker.query(InstallableUnitQuery.ANY, null);
+			dependencyHelper = new DependencyHelper<Object, Explanation>(solver);
 
-			Iterator iusToEncode = collector.iterator();
+			Iterator<IInstallableUnit> iusToEncode = queryResult.iterator();
 			if (DEBUG) {
-				List iusToOrder = new ArrayList();
+				List<IInstallableUnit> iusToOrder = new ArrayList<IInstallableUnit>();
 				while (iusToEncode.hasNext()) {
 					iusToOrder.add(iusToEncode.next());
 				}
@@ -164,7 +174,7 @@ public class Projector {
 					result.merge(Status.CANCEL_STATUS);
 					throw new OperationCanceledException();
 				}
-				IInstallableUnit iuToEncode = (IInstallableUnit) iusToEncode.next();
+				IInstallableUnit iuToEncode = iusToEncode.next();
 				if (iuToEncode != entryPointIU) {
 					processIU(iuToEncode, false);
 				}
@@ -191,24 +201,24 @@ public class Projector {
 	//Create an optimization function favoring the highest version of each IU
 	private void createOptimizationFunction(IInstallableUnit metaIu) {
 
-		List weightedObjects = new ArrayList();
+		List<WeightedObject<? extends Object>> weightedObjects = new ArrayList<WeightedObject<? extends Object>>();
 
-		Set s = slice.entrySet();
+		Set<Entry<String, Map<Version, IInstallableUnit>>> s = slice.entrySet();
 		final BigInteger POWER = BigInteger.valueOf(2);
 
 		BigInteger maxWeight = POWER;
-		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
-			Map.Entry entry = (Map.Entry) iterator.next();
-			HashMap conflictingEntries = (HashMap) entry.getValue();
+		for (Entry<String, Map<Version, IInstallableUnit>> entry : s) {
+			Map<Version, IInstallableUnit> conflictingEntries = entry.getValue();
 			if (conflictingEntries.size() == 1) {
 				continue;
 			}
-			List toSort = new ArrayList(conflictingEntries.values());
+			List<IInstallableUnit> toSort = new ArrayList<IInstallableUnit>(conflictingEntries.values());
 			Collections.sort(toSort, Collections.reverseOrder());
-			BigInteger weight = BigInteger.ONE;
+			BigInteger weight = POWER;
 			int count = toSort.size();
 			for (int i = 0; i < count; i++) {
-				weightedObjects.add(WeightedObject.newWO(toSort.get(i), weight));
+				IInstallableUnit iu = toSort.get(i);
+				weightedObjects.add(WeightedObject.newWO(iu, isInstalled(iu) ? BigInteger.ONE : weight));
 				weight = weight.multiply(POWER);
 			}
 			if (weight.compareTo(maxWeight) > 0)
@@ -218,40 +228,40 @@ public class Projector {
 		maxWeight = maxWeight.multiply(POWER);
 
 		// Weight the no-op variables beneath the abstract variables
-		for (Iterator iterator = noopVariables.values().iterator(); iterator.hasNext();) {
-			weightedObjects.add(WeightedObject.newWO(iterator.next(), maxWeight));
-		}
+		for (AbstractVariable var : noopVariables.values())
+			weightedObjects.add(WeightedObject.newWO(var, maxWeight));
 
 		maxWeight = maxWeight.multiply(POWER);
 
 		// Add the abstract variables
 		BigInteger abstractWeight = maxWeight.negate();
-		for (Iterator iterator = abstractVariables.iterator(); iterator.hasNext();) {
-			weightedObjects.add(WeightedObject.newWO(iterator.next(), abstractWeight));
+		for (AbstractVariable var : abstractVariables) {
+			weightedObjects.add(WeightedObject.newWO(var, abstractWeight));
 		}
 
 		maxWeight = maxWeight.multiply(POWER);
 
 		BigInteger optionalWeight = maxWeight.negate();
 		long countOptional = 1;
-		List requestedPatches = new ArrayList();
-		IRequiredCapability[] reqs = metaIu.getRequiredCapabilities();
-		for (int j = 0; j < reqs.length; j++) {
-			if (!reqs[j].isOptional())
+		List<IInstallableUnit> requestedPatches = new ArrayList<IInstallableUnit>();
+		Collection<IRequirement> reqs = metaIu.getRequiredCapabilities();
+		for (IRequirement req : reqs) {
+			if (req.getMin() > 0)
 				continue;
-			Collector matches = picker.query(new CapabilityQuery(reqs[j]), new Collector(), null);
-			for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-				IInstallableUnit match = (IInstallableUnit) iterator.next();
+			IQueryResult<IInstallableUnit> matches = picker.query(new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, req.getMatches()), null);
+			for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
+				IInstallableUnit match = iterator.next();
 				if (match instanceof IInstallableUnitPatch) {
 					requestedPatches.add(match);
 					countOptional = countOptional + 1;
-				} else
-					weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
+				} else {
+					weightedObjects.add(WeightedObject.newWO(match, isInstalled(match) ? BigInteger.ONE : optionalWeight));
+				}
 			}
 		}
 
 		BigInteger patchWeight = maxWeight.multiply(POWER).multiply(BigInteger.valueOf(countOptional)).negate();
-		for (Iterator iterator = requestedPatches.iterator(); iterator.hasNext();) {
+		for (Iterator<IInstallableUnit> iterator = requestedPatches.iterator(); iterator.hasNext();) {
 			weightedObjects.add(WeightedObject.newWO(iterator.next(), patchWeight));
 		}
 		if (!weightedObjects.isEmpty()) {
@@ -259,11 +269,10 @@ public class Projector {
 		}
 	}
 
-	private void createObjectiveFunction(List weightedObjects) {
+	private void createObjectiveFunction(List<WeightedObject<? extends Object>> weightedObjects) {
 		if (DEBUG) {
 			StringBuffer b = new StringBuffer();
-			for (Iterator i = weightedObjects.iterator(); i.hasNext();) {
-				WeightedObject object = (WeightedObject) i.next();
+			for (WeightedObject<? extends Object> object : weightedObjects) {
 				if (b.length() > 0)
 					b.append(", "); //$NON-NLS-1$
 				b.append(object.getWeight());
@@ -272,7 +281,9 @@ public class Projector {
 			}
 			Tracing.debug("objective function: " + b); //$NON-NLS-1$
 		}
-		dependencyHelper.setObjectiveFunction((WeightedObject[]) weightedObjects.toArray(new WeightedObject[weightedObjects.size()]));
+		@SuppressWarnings("unchecked")
+		WeightedObject<Object>[] array = (WeightedObject<Object>[]) weightedObjects.toArray(new WeightedObject<?>[weightedObjects.size()]);
+		dependencyHelper.setObjectiveFunction(array);
 	}
 
 	private void createMustHave(IInstallableUnit iu, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots) throws ContradictionException {
@@ -284,7 +295,7 @@ public class Projector {
 		assumptions.add(iu);
 	}
 
-	private void createNegation(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
+	private void createNegation(IInstallableUnit iu, IRequirement req) throws ContradictionException {
 		if (DEBUG) {
 			Tracing.debug(iu + "=0"); //$NON-NLS-1$
 		}
@@ -292,39 +303,26 @@ public class Projector {
 	}
 
 	// Check whether the requirement is applicable
-	private boolean isApplicable(IRequiredCapability req) {
-		String filter = req.getFilter();
-		if (filter == null)
-			return true;
-		try {
-			return DirectorActivator.context.createFilter(filter).match(selectionContext);
-		} catch (InvalidSyntaxException e) {
-			return false;
-		}
+	private boolean isApplicable(IRequirement req) {
+		Filter filter = req.getFilter();
+		return filter == null || filter.match(selectionContext);
 	}
 
 	private boolean isApplicable(IInstallableUnit iu) {
-		String enablementFilter = iu.getFilter();
-		if (enablementFilter == null)
-			return true;
-		try {
-			return DirectorActivator.context.createFilter(enablementFilter).match(selectionContext);
-		} catch (InvalidSyntaxException e) {
-			return false;
-		}
+		Filter filter = iu.getFilter();
+		return filter == null || filter.match(selectionContext);
 	}
 
-	private void expandNegatedRequirement(IRequiredCapability req, IInstallableUnit iu, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
-		IRequiredCapability negatedReq = ((NotRequirement) req).getRequirement();
-		if (!isApplicable(negatedReq))
+	private void expandNegatedRequirement(IRequirement req, IInstallableUnit iu, List<AbstractVariable> optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
+		if (!isApplicable(req))
 			return;
-		List matches = getApplicableMatches(negatedReq);
+		List<IInstallableUnit> matches = getApplicableMatches(req);
 		if (matches.isEmpty()) {
 			return;
 		}
 		Explanation explanation;
 		if (isRootIu) {
-			IInstallableUnit reqIu = (IInstallableUnit) matches.iterator().next();
+			IInstallableUnit reqIu = matches.get(0);
 			if (alreadyInstalledIUs.contains(reqIu)) {
 				explanation = new Explanation.IUInstalled(reqIu);
 			} else {
@@ -336,22 +334,22 @@ public class Projector {
 		createNegationImplication(iu, matches, explanation);
 	}
 
-	private void expandRequirement(IRequiredCapability req, IInstallableUnit iu, List optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
-		if (req.isNegation()) {
+	private void expandRequirement(IRequirement req, IInstallableUnit iu, List<AbstractVariable> optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {
+		if (req.getMax() == 0) {
 			expandNegatedRequirement(req, iu, optionalAbstractRequirements, isRootIu);
 			return;
 		}
 		if (!isApplicable(req))
 			return;
-		List matches = getApplicableMatches(req);
+		List<IInstallableUnit> matches = getApplicableMatches(req);
 		if (isHostRequirement(iu, req)) {
-			rememberHostMatches(iu, matches);
+			rememberHostMatches((IInstallableUnitFragment) iu, matches);
 		}
-		if (!req.isOptional()) {
+		if (req.getMin() > 0) {
 			if (matches.isEmpty()) {
 				missingRequirement(iu, req);
 			} else {
-				IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
+				IInstallableUnit reqIu = matches.get(0);
 				Explanation explanation;
 				if (isRootIu) {
 					if (alreadyInstalledIUs.contains(reqIu)) {
@@ -373,13 +371,12 @@ public class Projector {
 		}
 	}
 
-	private void expandRequirements(IRequiredCapability[] reqs, IInstallableUnit iu, boolean isRootIu) throws ContradictionException {
-		if (reqs.length == 0) {
+	private void expandRequirements(Collection<IRequirement> reqs, IInstallableUnit iu, boolean isRootIu) throws ContradictionException {
+		if (reqs.isEmpty())
 			return;
-		}
-		List optionalAbstractRequirements = new ArrayList();
-		for (int i = 0; i < reqs.length; i++) {
-			expandRequirement(reqs[i], iu, optionalAbstractRequirements, isRootIu);
+		List<AbstractVariable> optionalAbstractRequirements = new ArrayList<AbstractVariable>();
+		for (IRequirement req : reqs) {
+			expandRequirement(req, iu, optionalAbstractRequirements, isRootIu);
 		}
 		createOptionalityExpression(iu, optionalAbstractRequirements);
 	}
@@ -387,16 +384,21 @@ public class Projector {
 	public void processIU(IInstallableUnit iu, boolean isRootIU) throws ContradictionException {
 		iu = iu.unresolved();
 
-		slice.put(iu.getId(), iu.getVersion(), iu);
+		Map<Version, IInstallableUnit> iuSlice = slice.get(iu.getId());
+		if (iuSlice == null) {
+			iuSlice = new HashMap<Version, IInstallableUnit>();
+			slice.put(iu.getId(), iuSlice);
+		}
+		iuSlice.put(iu.getVersion(), iu);
 		if (!isApplicable(iu)) {
 			createNegation(iu, null);
 			return;
 		}
 
-		Collector applicablePatches = getApplicablePatches(iu);
+		IQueryResult<IInstallableUnit> applicablePatches = getApplicablePatches(iu);
 		expandLifeCycle(iu, isRootIU);
 		//No patches apply, normal code path
-		if (applicablePatches.size() == 0) {
+		if (applicablePatches.isEmpty()) {
 			expandRequirements(getRequiredCapabilities(iu), iu, isRootIU);
 		} else {
 			//Patches are applicable to the IU
@@ -404,21 +406,35 @@ public class Projector {
 		}
 	}
 
-	private IRequiredCapability[] getRequiredCapabilities(IInstallableUnit iu) {
-		if (considerMetaRequirements == false || iu.getMetaRequiredCapabilities().length == 0)
-			return iu.getRequiredCapabilities();
-		IRequiredCapability[] aggregatedCapabilities = new IRequiredCapability[iu.getRequiredCapabilities().length + iu.getMetaRequiredCapabilities().length];
-		System.arraycopy(iu.getRequiredCapabilities(), 0, aggregatedCapabilities, 0, iu.getRequiredCapabilities().length);
-		System.arraycopy(iu.getMetaRequiredCapabilities(), 0, aggregatedCapabilities, iu.getRequiredCapabilities().length, iu.getMetaRequiredCapabilities().length);
-		return aggregatedCapabilities;
+	private Collection<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
+		Collection<IRequirement> rqs = iu.getRequiredCapabilities();
+		if (!considerMetaRequirements)
+			return rqs;
+
+		Collection<IRequirement> metaRqs = iu.getMetaRequiredCapabilities();
+		if (metaRqs.isEmpty())
+			return rqs;
+
+		ArrayList<IRequirement> aggregatedRqs = new ArrayList<IRequirement>(rqs.size() + metaRqs.size());
+		aggregatedRqs.addAll(rqs);
+		aggregatedRqs.addAll(metaRqs);
+		return aggregatedRqs;
 	}
 
-	private void expandRequirementsWithPatches(IInstallableUnit iu, Collector applicablePatches, boolean isRootIu) throws ContradictionException {
+	static final class Pending {
+		List<IInstallableUnit> matches;
+		Explanation explanation;
+		Object left;
+	}
+
+	private void expandRequirementsWithPatches(IInstallableUnit iu, IQueryResult<IInstallableUnit> applicablePatches, boolean isRootIu) throws ContradictionException {
 		//Unmodified dependencies
-		Map unchangedRequirements = new HashMap(getRequiredCapabilities(iu).length);
-		for (Iterator iterator = applicablePatches.iterator(); iterator.hasNext();) {
+		Collection<IRequirement> iuRequirements = getRequiredCapabilities(iu);
+		Map<IRequirement, List<IInstallableUnitPatch>> unchangedRequirements = new HashMap<IRequirement, List<IInstallableUnitPatch>>(iuRequirements.size());
+		Map<IRequirement, Pending> nonPatchedRequirements = new HashMap<IRequirement, Pending>(iuRequirements.size());
+		for (Iterator<IInstallableUnit> iterator = applicablePatches.iterator(); iterator.hasNext();) {
 			IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator.next();
-			IRequiredCapability[][] reqs = mergeRequirements(iu, patch);
+			IRequirement[][] reqs = mergeRequirements(iu, patch);
 			if (reqs.length == 0)
 				return;
 
@@ -427,16 +443,16 @@ public class Projector {
 			// noop(IU)-> ~ABS
 			// IU -> (noop(IU) or ABS)
 			// Therefore we only need one optional requirement statement per IU
-			List optionalAbstractRequirements = new ArrayList();
+			List<AbstractVariable> optionalAbstractRequirements = new ArrayList<AbstractVariable>();
 			for (int i = 0; i < reqs.length; i++) {
 				//The requirement is unchanged
 				if (reqs[i][0] == reqs[i][1]) {
 					if (!isApplicable(reqs[i][0]))
 						continue;
 
-					List patchesAppliedElseWhere = (List) unchangedRequirements.get(reqs[i][0]);
+					List<IInstallableUnitPatch> patchesAppliedElseWhere = unchangedRequirements.get(reqs[i][0]);
 					if (patchesAppliedElseWhere == null) {
-						patchesAppliedElseWhere = new ArrayList();
+						patchesAppliedElseWhere = new ArrayList<IInstallableUnitPatch>();
 						unchangedRequirements.put(reqs[i][0], patchesAppliedElseWhere);
 					}
 					patchesAppliedElseWhere.add(patch);
@@ -446,16 +462,16 @@ public class Projector {
 				//Generate dependency when the patch is applied
 				//P1 -> (A -> D) equiv. (P1 & A) -> D
 				if (isApplicable(reqs[i][1])) {
-					IRequiredCapability req = reqs[i][1];
-					List matches = getApplicableMatches(req);
+					IRequirement req = reqs[i][1];
+					List<IInstallableUnit> matches = getApplicableMatches(req);
 					if (isHostRequirement(iu, req)) {
-						rememberHostMatches(iu, matches);
+						rememberHostMatches((IInstallableUnitFragment) iu, matches);
 					}
-					if (!req.isOptional()) {
+					if (req.getMin() > 0) {
 						if (matches.isEmpty()) {
 							missingRequirement(patch, req);
 						} else {
-							IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
+							IInstallableUnit reqIu = matches.get(0);
 							Explanation explanation;
 							if (isRootIu) {
 								if (alreadyInstalledIUs.contains(reqIu)) {
@@ -479,17 +495,26 @@ public class Projector {
 				//Generate dependency when the patch is not applied
 				//-P1 -> (A -> B) ( equiv. A -> (P1 or B) )
 				if (isApplicable(reqs[i][0])) {
-					IRequiredCapability req = reqs[i][0];
-					List matches = getApplicableMatches(req);
-					if (isHostRequirement(iu, req)) {
-						rememberHostMatches(iu, matches);
+					IRequirement req = reqs[i][0];
+
+					// Fix: if multiple patches apply to the same IU-req, we need to make sure we list each
+					// patch as an optional match
+					Pending pending = nonPatchedRequirements.get(req);
+					if (pending != null) {
+						pending.matches.add(patch);
+						continue;
 					}
-					if (!req.isOptional()) {
+
+					List<IInstallableUnit> matches = getApplicableMatches(req);
+					if (isHostRequirement(iu, req)) {
+						rememberHostMatches((IInstallableUnitFragment) iu, matches);
+					}
+					if (req.getMin() > 0) {
 						if (matches.isEmpty()) {
 							dependencyHelper.implication(new Object[] {iu}).implies(patch).named(new Explanation.HardRequirement(iu, null));
 						} else {
 							matches.add(patch);
-							IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
+							IInstallableUnit reqIu = matches.get(0);///(IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
 
 							Explanation explanation;
 							if (isRootIu) {
@@ -501,13 +526,26 @@ public class Projector {
 							} else {
 								explanation = new Explanation.HardRequirement(iu, req);
 							}
-							createImplication(iu, matches, explanation);
+
+							// Fix: make sure we collect all patches that will impact this IU-req, not just one
+							pending = new Pending();
+							pending.left = iu;
+							pending.explanation = explanation;
+							pending.matches = matches;
+							nonPatchedRequirements.put(req, pending);
 						}
 					} else {
 						if (!matches.isEmpty()) {
 							AbstractVariable abs = getAbstractVariable();
 							matches.add(patch);
-							createImplication(new Object[] {abs, iu}, matches, Explanation.OPTIONAL_REQUIREMENT);
+
+							// Fix: make sure we collect all patches that will impact this IU-req, not just one
+							pending = new Pending();
+							pending.left = new Object[] {abs, iu};
+							pending.explanation = Explanation.OPTIONAL_REQUIREMENT;
+							pending.matches = matches;
+							nonPatchedRequirements.put(req, pending);
+
 							optionalAbstractRequirements.add(abs);
 						}
 					}
@@ -515,23 +553,28 @@ public class Projector {
 			}
 			createOptionalityExpression(iu, optionalAbstractRequirements);
 		}
-		List optionalAbstractRequirements = new ArrayList();
-		for (Iterator iterator = unchangedRequirements.entrySet().iterator(); iterator.hasNext();) {
-			Entry entry = (Entry) iterator.next();
-			List patchesApplied = (List) entry.getValue();
-			List allPatches = new ArrayList(applicablePatches.toCollection());
-			allPatches.removeAll(patchesApplied);
-			List requiredPatches = new ArrayList();
-			for (Iterator iterator2 = allPatches.iterator(); iterator2.hasNext();) {
-				IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator2.next();
-				requiredPatches.add(patch);
+
+		// Fix: now create the pending non-patch requirements based on the full set of patches
+		for (Pending pending : nonPatchedRequirements.values()) {
+			createImplication(pending.left, pending.matches, pending.explanation);
+		}
+
+		List<AbstractVariable> optionalAbstractRequirements = new ArrayList<AbstractVariable>();
+		for (Entry<IRequirement, List<IInstallableUnitPatch>> entry : unchangedRequirements.entrySet()) {
+			List<IInstallableUnitPatch> patchesApplied = entry.getValue();
+			Iterator<IInstallableUnit> allPatches = applicablePatches.iterator();
+			List<IInstallableUnitPatch> requiredPatches = new ArrayList<IInstallableUnitPatch>();
+			while (allPatches.hasNext()) {
+				IInstallableUnitPatch patch = (IInstallableUnitPatch) allPatches.next();
+				if (!patchesApplied.contains(patch))
+					requiredPatches.add(patch);
 			}
-			IRequiredCapability req = (IRequiredCapability) entry.getKey();
-			List matches = getApplicableMatches(req);
+			IRequirement req = entry.getKey();
+			List<IInstallableUnit> matches = getApplicableMatches(req);
 			if (isHostRequirement(iu, req)) {
-				rememberHostMatches(iu, matches);
+				rememberHostMatches((IInstallableUnitFragment) iu, matches);
 			}
-			if (!req.isOptional()) {
+			if (req.getMin() > 0) {
 				if (matches.isEmpty()) {
 					if (requiredPatches.isEmpty()) {
 						missingRequirement(iu, req);
@@ -541,7 +584,7 @@ public class Projector {
 				} else {
 					if (!requiredPatches.isEmpty())
 						matches.addAll(requiredPatches);
-					IInstallableUnit reqIu = (IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
+					IInstallableUnit reqIu = matches.get(0);//(IInstallableUnit) picker.query(new CapabilityQuery(req), new Collector(), null).iterator().next();
 					Explanation explanation;
 					if (isRootIu) {
 						if (alreadyInstalledIUs.contains(reqIu)) {
@@ -571,13 +614,13 @@ public class Projector {
 		if (!(iu instanceof IInstallableUnitPatch))
 			return;
 		IInstallableUnitPatch patch = (IInstallableUnitPatch) iu;
-		IRequiredCapability req = patch.getLifeCycle();
+		IRequirement req = patch.getLifeCycle();
 		if (req == null)
 			return;
-		expandRequirement(req, iu, Collections.EMPTY_LIST, isRootIu);
+		expandRequirement(req, iu, CollectionUtils.<AbstractVariable> emptyList(), isRootIu);
 	}
 
-	private void missingRequirement(IInstallableUnit iu, IRequiredCapability req) throws ContradictionException {
+	private void missingRequirement(IInstallableUnit iu, IRequirement req) throws ContradictionException {
 		result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
 		createNegation(iu, req);
 	}
@@ -586,11 +629,11 @@ public class Projector {
 	 * @param req
 	 * @return a list of mandatory requirements if any, an empty list if req.isOptional().
 	 */
-	private List getApplicableMatches(IRequiredCapability req) {
-		List target = new ArrayList();
-		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
-		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
-			IInstallableUnit match = (IInstallableUnit) iterator.next();
+	private List<IInstallableUnit> getApplicableMatches(IRequirement req) {
+		List<IInstallableUnit> target = new ArrayList<IInstallableUnit>();
+		IQueryResult<IInstallableUnit> matches = picker.query(new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, req.getMatches()), null);
+		for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
+			IInstallableUnit match = iterator.next();
 			if (isApplicable(match)) {
 				target.add(match);
 			}
@@ -599,36 +642,37 @@ public class Projector {
 	}
 
 	//Return a new array of requirements representing the application of the patch
-	private IRequiredCapability[][] mergeRequirements(IInstallableUnit iu, IInstallableUnitPatch patch) {
+	private IRequirement[][] mergeRequirements(IInstallableUnit iu, IInstallableUnitPatch patch) {
 		if (patch == null)
 			return null;
-		IRequirementChange[] changes = patch.getRequirementsChange();
-		IRequiredCapability[] originalRequirements = new IRequiredCapability[iu.getRequiredCapabilities().length];
-		System.arraycopy(iu.getRequiredCapabilities(), 0, originalRequirements, 0, originalRequirements.length);
-		List rrr = new ArrayList();
+		List<IRequirementChange> changes = patch.getRequirementsChange();
+		Collection<IRequirement> iuRequirements = iu.getRequiredCapabilities();
+		IRequirement[] originalRequirements = iuRequirements.toArray(new IRequirement[iuRequirements.size()]);
+		List<IRequirement[]> rrr = new ArrayList<IRequirement[]>();
 		boolean found = false;
-		for (int i = 0; i < changes.length; i++) {
+		for (int i = 0; i < changes.size(); i++) {
+			IRequirementChange change = changes.get(i);
 			for (int j = 0; j < originalRequirements.length; j++) {
-				if (originalRequirements[j] != null && changes[i].matches(originalRequirements[j])) {
+				if (originalRequirements[j] != null && change.matches((IRequiredCapability) originalRequirements[j])) {
 					found = true;
-					if (changes[i].newValue() != null)
-						rrr.add(new IRequiredCapability[] {originalRequirements[j], changes[i].newValue()});
+					if (change.newValue() != null)
+						rrr.add(new IRequirement[] {originalRequirements[j], change.newValue()});
 					else
 						// case where a requirement is removed
-						rrr.add(new IRequiredCapability[] {originalRequirements[j], null});
+						rrr.add(new IRequirement[] {originalRequirements[j], null});
 					originalRequirements[j] = null;
 				}
 				//				break;
 			}
-			if (!found && changes[i].applyOn() == null && changes[i].newValue() != null) //Case where a new requirement is added
-				rrr.add(new IRequiredCapability[] {null, changes[i].newValue()});
+			if (!found && change.applyOn() == null && change.newValue() != null) //Case where a new requirement is added
+				rrr.add(new IRequirement[] {null, change.newValue()});
 		}
 		//Add all the unmodified requirements to the result
 		for (int i = 0; i < originalRequirements.length; i++) {
 			if (originalRequirements[i] != null)
-				rrr.add(new IRequiredCapability[] {originalRequirements[i], originalRequirements[i]});
+				rrr.add(new IRequirement[] {originalRequirements[i], originalRequirements[i]});
 		}
-		return (IRequiredCapability[][]) rrr.toArray(new IRequiredCapability[rrr.size()][]);
+		return rrr.toArray(new IRequirement[rrr.size()][]);
 	}
 
 	/**
@@ -640,12 +684,11 @@ public class Projector {
 	 * @param optionalRequirements
 	 * @throws ContradictionException
 	 */
-	private void createOptionalityExpression(IInstallableUnit iu, List optionalRequirements) throws ContradictionException {
+	private void createOptionalityExpression(IInstallableUnit iu, List<AbstractVariable> optionalRequirements) throws ContradictionException {
 		if (optionalRequirements.isEmpty())
 			return;
 		AbstractVariable noop = getNoOperationVariable(iu);
-		for (Iterator i = optionalRequirements.iterator(); i.hasNext();) {
-			AbstractVariable abs = (AbstractVariable) i.next();
+		for (AbstractVariable abs : optionalRequirements) {
 			createIncompatibleValues(abs, noop);
 		}
 		optionalRequirements.add(noop);
@@ -653,24 +696,22 @@ public class Projector {
 	}
 
 	//This will create as many implication as there is element in the right argument
-	private void createNegationImplication(Object left, List right, Explanation name) throws ContradictionException {
+	private void createNegationImplication(Object left, List<?> right, Explanation name) throws ContradictionException {
 		if (DEBUG) {
 			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		for (Iterator iterator = right.iterator(); iterator.hasNext();) {
-			dependencyHelper.implication(new Object[] {left}).impliesNot(iterator.next()).named(name);
-		}
-
+		for (Object r : right)
+			dependencyHelper.implication(new Object[] {left}).impliesNot(r).named(name);
 	}
 
-	private void createImplication(Object left, List right, Explanation name) throws ContradictionException {
+	private void createImplication(Object left, List<?> right, Explanation name) throws ContradictionException {
 		if (DEBUG) {
 			Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		dependencyHelper.implication(new Object[] {left}).implies(right.toArray()).named(name);
 	}
 
-	private void createImplication(Object[] left, List right, Explanation name) throws ContradictionException {
+	private void createImplication(Object[] left, List<?> right, Explanation name) throws ContradictionException {
 		if (DEBUG) {
 			Tracing.debug(name + ": " + Arrays.asList(left) + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -678,28 +719,26 @@ public class Projector {
 	}
 
 	//Return IUPatches that are applicable for the given iu
-	private Collector getApplicablePatches(IInstallableUnit iu) {
+	private IQueryResult<IInstallableUnit> getApplicablePatches(IInstallableUnit iu) {
 		if (patches == null)
-			patches = new QueryableArray((IInstallableUnit[]) picker.query(ApplicablePatchQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class));
+			patches = new QueryableArray(picker.query(new PatchQuery(), null).toArray(IInstallableUnit.class));
 
-		return patches.query(new ApplicablePatchQuery(iu), new Collector(), null);
+		return patches.query(new ApplicablePatchQuery(iu), null);
 	}
 
 	//Create constraints to deal with singleton
 	//When there is a mix of singleton and non singleton, several constraints are generated
 	private void createConstraintsForSingleton() throws ContradictionException {
-		Set s = slice.entrySet();
-		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
-			Map.Entry entry = (Map.Entry) iterator.next();
-			HashMap conflictingEntries = (HashMap) entry.getValue();
+		Set<Entry<String, Map<Version, IInstallableUnit>>> s = slice.entrySet();
+		for (Entry<String, Map<Version, IInstallableUnit>> entry : s) {
+			Map<Version, IInstallableUnit> conflictingEntries = entry.getValue();
 			if (conflictingEntries.size() < 2)
 				continue;
 
-			Collection conflictingVersions = conflictingEntries.values();
-			List singletons = new ArrayList();
-			List nonSingletons = new ArrayList();
-			for (Iterator conflictIterator = conflictingVersions.iterator(); conflictIterator.hasNext();) {
-				IInstallableUnit iu = (IInstallableUnit) conflictIterator.next();
+			Collection<IInstallableUnit> conflictingVersions = conflictingEntries.values();
+			List<IInstallableUnit> singletons = new ArrayList<IInstallableUnit>();
+			List<IInstallableUnit> nonSingletons = new ArrayList<IInstallableUnit>();
+			for (IInstallableUnit iu : conflictingVersions) {
 				if (iu.isSingleton()) {
 					singletons.add(iu);
 				} else {
@@ -711,12 +750,12 @@ public class Projector {
 
 			IInstallableUnit[] singletonArray;
 			if (nonSingletons.isEmpty()) {
-				singletonArray = (IInstallableUnit[]) singletons.toArray(new IInstallableUnit[singletons.size()]);
+				singletonArray = singletons.toArray(new IInstallableUnit[singletons.size()]);
 				createAtMostOne(singletonArray);
 			} else {
-				singletonArray = (IInstallableUnit[]) singletons.toArray(new IInstallableUnit[singletons.size() + 1]);
-				for (Iterator iterator2 = nonSingletons.iterator(); iterator2.hasNext();) {
-					singletonArray[singletonArray.length - 1] = (IInstallableUnit) iterator2.next();
+				singletonArray = singletons.toArray(new IInstallableUnit[singletons.size() + 1]);
+				for (IInstallableUnit nonSingleton : nonSingletons) {
+					singletonArray[singletonArray.length - 1] = nonSingleton;
 					createAtMostOne(singletonArray);
 				}
 			}
@@ -731,7 +770,7 @@ public class Projector {
 			}
 			Tracing.debug("At most 1 of " + b); //$NON-NLS-1$
 		}
-		dependencyHelper.atMost(1, ius).named(new Explanation.Singleton(ius));
+		dependencyHelper.atMost(1, (Object[]) ius).named(new Explanation.Singleton(ius));
 	}
 
 	private void createIncompatibleValues(AbstractVariable v1, AbstractVariable v2) throws ContradictionException {
@@ -743,7 +782,7 @@ public class Projector {
 			}
 			Tracing.debug("At most 1 of " + b); //$NON-NLS-1$
 		}
-		dependencyHelper.atMost(1, vars).named(Explanation.OPTIONAL_REQUIREMENT);
+		dependencyHelper.atMost(1, (Object[]) vars).named(Explanation.OPTIONAL_REQUIREMENT);
 	}
 
 	private AbstractVariable getAbstractVariable() {
@@ -753,7 +792,7 @@ public class Projector {
 	}
 
 	private AbstractVariable getNoOperationVariable(IInstallableUnit iu) {
-		AbstractVariable v = (AbstractVariable) noopVariables.get(iu);
+		AbstractVariable v = noopVariables.get(iu);
 		if (v == null) {
 			v = new AbstractVariable();
 			noopVariables.put(iu, v);
@@ -798,10 +837,10 @@ public class Projector {
 	}
 
 	private void backToIU() {
-		solution = new ArrayList();
-		IVec sat4jSolution = dependencyHelper.getSolution();
-		for (Iterator i = sat4jSolution.iterator(); i.hasNext();) {
-			Object var = i.next();
+		solution = new ArrayList<IInstallableUnit>();
+		IVec<Object> sat4jSolution = dependencyHelper.getSolution();
+		for (Iterator<Object> iter = sat4jSolution.iterator(); iter.hasNext();) {
+			Object var = iter.next();
 			if (var instanceof IInstallableUnit) {
 				IInstallableUnit iu = (IInstallableUnit) var;
 				if (iu == entryPoint)
@@ -811,23 +850,23 @@ public class Projector {
 		}
 	}
 
-	private void printSolution(Collection state) {
-		ArrayList l = new ArrayList(state);
+	private void printSolution(Collection<IInstallableUnit> state) {
+		ArrayList<IInstallableUnit> l = new ArrayList<IInstallableUnit>(state);
 		Collections.sort(l);
 		Tracing.debug("Solution:"); //$NON-NLS-1$
 		Tracing.debug("Numbers of IUs selected: " + l.size()); //$NON-NLS-1$
-		for (Iterator iterator = l.iterator(); iterator.hasNext();) {
-			Tracing.debug(iterator.next().toString());
+		for (IInstallableUnit s : l) {
+			Tracing.debug(s.toString());
 		}
 	}
 
-	public Collection extractSolution() {
+	public Collection<IInstallableUnit> extractSolution() {
 		if (DEBUG)
 			printSolution(solution);
 		return solution;
 	}
 
-	public Set getExplanation(IProgressMonitor monitor) {
+	public Set<Explanation> getExplanation(IProgressMonitor monitor) {
 		ExplanationJob job = new ExplanationJob();
 		job.schedule();
 		monitor.setTaskName(Messages.Planner_NoSolution);
@@ -855,16 +894,14 @@ public class Projector {
 		return job.getExplanationResult();
 	}
 
-	public Map getFragmentAssociation() {
-		Map resolvedFragments = new HashMap(fragments.size());
-		for (Iterator iterator = fragments.entrySet().iterator(); iterator.hasNext();) {
-			Entry fragment = (Entry) iterator.next();
+	public Map<IInstallableUnitFragment, List<IInstallableUnit>> getFragmentAssociation() {
+		Map<IInstallableUnitFragment, List<IInstallableUnit>> resolvedFragments = new HashMap<IInstallableUnitFragment, List<IInstallableUnit>>(fragments.size());
+		for (Entry<IInstallableUnitFragment, Set<IInstallableUnit>> fragment : fragments.entrySet()) {
 			if (!dependencyHelper.getBooleanValueFor(fragment.getKey()))
 				continue;
-			Set potentialHosts = (Set) fragment.getValue();
-			List resolvedHost = new ArrayList(potentialHosts.size());
-			for (Iterator iterator2 = potentialHosts.iterator(); iterator2.hasNext();) {
-				Object host = iterator2.next();
+			Set<IInstallableUnit> potentialHosts = fragment.getValue();
+			List<IInstallableUnit> resolvedHost = new ArrayList<IInstallableUnit>(potentialHosts.size());
+			for (IInstallableUnit host : potentialHosts) {
 				if (dependencyHelper.getBooleanValueFor(host))
 					resolvedHost.add(host);
 			}
@@ -874,26 +911,26 @@ public class Projector {
 		return resolvedFragments;
 	}
 
-	private void rememberHostMatches(IInstallableUnit fragment, List matches) {
-		Set existingMatches = (Set) fragments.get(fragment);
+	private void rememberHostMatches(IInstallableUnitFragment fragment, List<IInstallableUnit> matches) {
+		Set<IInstallableUnit> existingMatches = fragments.get(fragment);
 		if (existingMatches == null) {
-			existingMatches = new HashSet();
+			existingMatches = new HashSet<IInstallableUnit>();
 			fragments.put(fragment, existingMatches);
 			existingMatches.addAll(matches);
 		}
 		existingMatches.retainAll(matches);
 	}
 
-	private boolean isHostRequirement(IInstallableUnit iu, IRequiredCapability req) {
+	private boolean isHostRequirement(IInstallableUnit iu, IRequirement req) {
 		if (!(iu instanceof IInstallableUnitFragment))
 			return false;
 		IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
-		IRequiredCapability[] reqs = fragment.getHost();
+		IRequirement[] reqs = fragment.getHost();
 		for (int i = 0; i < reqs.length; i++) {
-			if (req == reqs[i])
+			if (req.equals(reqs[i]))
 				return true;
 		}
-		return true;
+		return false;
 	}
 
 }

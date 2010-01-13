@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SingletonTest extends AbstractProvisioningTest {
@@ -34,17 +34,17 @@ public class SingletonTest extends AbstractProvisioningTest {
 	IProfile profile;
 
 	protected void setUp() throws Exception {
-		f1 = createIU("f1", new Version(1, 0, 0), true);
+		f1 = createIU("f1", Version.createOSGi(1, 0, 0), true);
 
-		f1_1 = createIU("f1", new Version(1, 1, 0), true);
+		f1_1 = createIU("f1", Version.createOSGi(1, 1, 0), true);
 
-		f2 = createIU("f2", new Version(1, 0, 0), true);
+		f2 = createIU("f2", Version.createOSGi(1, 0, 0), true);
 
-		f2_1 = createIU("f2", new Version(1, 0, 1));
+		f2_1 = createIU("f2", Version.createOSGi(1, 0, 1));
 
-		junit38 = createIU("junit", new Version(3, 8, 1));
+		junit38 = createIU("junit", Version.createOSGi(3, 8, 1));
 
-		junit40 = createIU("junit", new Version(4, 0, 1));
+		junit40 = createIU("junit", Version.createOSGi(4, 0, 1));
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1, f1_1, junit38, junit40, f2, f2_1});
 

@@ -14,15 +14,19 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -49,11 +53,11 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * Returns the repository manager of the given type, or <code>null</code>
 	 * if not available.
 	 */
-	private static IRepositoryManager getRepositoryManager(int type) {
+	private static IRepositoryManager<?> getRepositoryManager(int type) {
 		if (type == IRepository.TYPE_METADATA) {
-			return (IRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+			return (IRepositoryManager<?>) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		} else if (type == IRepository.TYPE_ARTIFACT) {
-			return (IRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+			return (IRepositoryManager<?>) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		}
 		return null;
 	}
@@ -62,8 +66,8 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * Associates the repository described by the given event with the given profile.
 	 * Has no effect if the repository is already associated with this profile.
 	 */
-	protected void addRepositoryToProfile(Profile profile, URI location, String nickname, int type, boolean enabled) {
-		Preferences node = getRepositoryPreferenceNode(profile, location, type);
+	protected void addRepositoryToProfile(IAgentLocation agentLocation, Profile profile, URI location, String nickname, int type, boolean enabled) {
+		Preferences node = getRepositoryPreferenceNode(agentLocation, profile, location, type);
 		int count = 0;
 
 		if (repositoryExists(node)) {
@@ -88,10 +92,10 @@ abstract class RepositoryAction extends ProvisioningAction {
 	/**
 	 * Adds the repository corresponding to the given event to the currently running instance.
 	 */
-	protected void addToSelf(RepositoryEvent event) {
-		IRepositoryManager manager = getRepositoryManager(event.getRepositoryType());
+	protected void addToSelf(IAgentLocation agentLocation, RepositoryEvent event) {
+		IRepositoryManager<?> manager = getRepositoryManager(event.getRepositoryType());
 		final URI location = event.getRepositoryLocation();
-		Preferences node = getRepositoryPreferenceNode(null, location, event.getRepositoryType());
+		Preferences node = getRepositoryPreferenceNode(agentLocation, null, location, event.getRepositoryType());
 
 		int count = getRepositoryCount(node);
 		if (manager.contains(location)) {
@@ -113,7 +117,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 			manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 	}
 
-	protected RepositoryEvent createEvent(Map parameters) throws CoreException {
+	protected RepositoryEvent createEvent(Map<String, Object> parameters) throws CoreException {
 		String parm = (String) parameters.get(ActionConstants.PARM_REPOSITORY_LOCATION);
 		if (parm == null)
 			throw new CoreException(Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_REPOSITORY_LOCATION, getId())));
@@ -148,11 +152,10 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * Return <code>true</code> if the given profile is the currently running profile,
 	 * and <code>false</code> otherwise.
 	 */
-	protected boolean isSelfProfile(Profile profile) {
+	protected boolean isSelfProfile(IProfileRegistry registry, Profile profile) {
 		//if we can't determine the current profile, assume we are running on self
 		if (profile == null)
 			return true;
-		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
 		if (registry == null)
 			return false;
 		final IProfile selfProfile = registry.getProfile(IProfileRegistry.SELF);
@@ -165,9 +168,9 @@ abstract class RepositoryAction extends ProvisioningAction {
 	/**
 	 * Removes the repository corresponding to the given event from the currently running instance.
 	 */
-	protected void removeFromSelf(RepositoryEvent event) {
-		IRepositoryManager manager = getRepositoryManager(event.getRepositoryType());
-		Preferences node = getRepositoryPreferenceNode(null, event.getRepositoryLocation(), event.getRepositoryType());
+	protected void removeFromSelf(IAgentLocation agentLocation, RepositoryEvent event) {
+		IRepositoryManager<?> manager = getRepositoryManager(event.getRepositoryType());
+		Preferences node = getRepositoryPreferenceNode(agentLocation, null, event.getRepositoryLocation(), event.getRepositoryType());
 		int count = getRepositoryCount(node);
 		if (--count < 1 && manager != null)
 			manager.removeRepository(event.getRepositoryLocation());
@@ -179,8 +182,8 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * and the given profile. Has no effect if the location is not already associated with
 	 * this profile.
 	 */
-	protected void removeRepositoryFromProfile(Profile profile, URI location, int type) {
-		Preferences node = getRepositoryPreferenceNode(profile, location, type);
+	protected void removeRepositoryFromProfile(IAgentLocation agentLocation, Profile profile, URI location, int type) {
+		Preferences node = getRepositoryPreferenceNode(agentLocation, profile, location, type);
 
 		int count = getRepositoryCount(node);
 		if (--count < 1) {
@@ -233,13 +236,10 @@ abstract class RepositoryAction extends ProvisioningAction {
 	/*
 	 * Get the preference node associated with profile & location 
 	 */
-	protected Preferences getRepositoryPreferenceNode(Profile profile, URI location, int type) {
+	protected Preferences getRepositoryPreferenceNode(IAgentLocation agentLocation, Profile profile, URI location, int type) {
 		String key = type == IRepository.TYPE_METADATA ? METADATA_REPOSITORY : ARTIFACT_REPOSITORY;
-		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(Activator.getContext(), IPreferencesService.class.getName());
-
-		if (profile != null)
-			return prefService.getRootNode().node("/profile/" + profile.getProfileId() + "/" + key + "/" + NODE_REPOSITORIES + "/" + getKey(location)); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-		return prefService.getRootNode().node("/profile/_SELF_/" + key + "/" + NODE_REPOSITORIES + "/" + getKey(location)); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+		String profileId = profile == null ? IProfileRegistry.SELF : profile.getProfileId();
+		return new ProfileScope(agentLocation, profileId).getNode(key + '/' + NODE_REPOSITORIES + '/' + getKey(location));
 	}
 
 	/*
@@ -251,5 +251,13 @@ abstract class RepositoryAction extends ProvisioningAction {
 		if (key.endsWith("_")) //$NON-NLS-1$
 			key = key.substring(0, key.length() - 1);
 		return key;
+	}
+
+	protected IProvisioningAgent getAgent(Map<String, Object> parameters) throws CoreException {
+		//We shouldn't really know about the session parameter
+		IProvisioningAgent agent = (IProvisioningAgent) parameters.get("agent"); //$NON-NLS-1$
+		if (agent == null)
+			throw new CoreException(Util.createError(NLS.bind(Messages.parameter_not_set, "agent", getId()))); //$NON-NLS-1$
+		return agent;
 	}
 }

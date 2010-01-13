@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ExplanationForPartialInstallation extends AbstractProvisioningTest {
@@ -27,7 +27,7 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		sdk = createIU("SDK", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[1.0.0, 1.0.0]"), null));
+		sdk = createIU("SDK", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[1.0.0, 1.0.0]")));
 		IInstallableUnit sdkPart = createIU("SDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
 		IInstallableUnit sdkPart2 = createIU("SDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("2.0.0")), true);
 
@@ -39,25 +39,26 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {sdk});
-		engine.perform(profile, new DefaultPhaseSet(), planner.getProvisioningPlan(pcr, null, null).getOperands(), null, null);
+		engine.perform(planner.getProvisioningPlan(pcr, null, null), null);
 
 	}
 
 	public void testPartialProblemSingleton() {
 		//CDT will have a singleton conflict with SDK
 		//EMF will be good
-		IInstallableUnit cdt = createIU("CDT", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[2.0.0, 2.0.0]"), null));
+		IInstallableUnit cdt = createIU("CDT", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[2.0.0, 2.0.0]")));
 
 		IInstallableUnit emf = createIU("EMF", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
-		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
-		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));
-		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(sdk));
+		RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(cdt));
+		assertFalse(requestStatus.getConflictsWithInstalledRoots().contains(emf));
+		assertFalse(requestStatus.getConflictsWithInstalledRoots().contains(sdk));
 
 		//		assertTrue(plan.getRequestStatus(cdt).getSeverity() == IStatus.ERROR);
 		//		assertTrue(plan.getRequestStatus(cdt).getConflictsWithAnyRoots().contains(sdk));
@@ -73,18 +74,19 @@ public class ExplanationForPartialInstallation extends AbstractProvisioningTest 
 	public void testPartialProblemRequirement() {
 		//CDT will be missing a requirement
 		//EMF will be good
-		IInstallableUnit cdt = createIU("CDT", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "MissingPart", new VersionRange("[2.0.0, 2.0.0]"), null));
+		IInstallableUnit cdt = createIU("CDT", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "MissingPart", new VersionRange("[2.0.0, 2.0.0]")));
 
 		IInstallableUnit emf = createIU("EMF", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
-		ProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
-		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));
-		assertFalse(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(sdk));
+		RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(cdt));
+		assertFalse(requestStatus.getConflictsWithInstalledRoots().contains(emf));
+		assertFalse(requestStatus.getConflictsWithInstalledRoots().contains(sdk));
 
 		//		assertTrue(plan.getRequestStatus(cdt).getSeverity() == IStatus.ERROR);
 		//		assertEquals(0, plan.getRequestStatus(cdt).getConflictsWithAnyRoots().size());

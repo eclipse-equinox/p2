@@ -12,79 +12,83 @@ import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.osgi.util.NLS;
 
 public class CollectAction extends ProvisioningAction {
 	public static final String ID = "collect"; //$NON-NLS-1$
 	public static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
+		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(ActionConstants.PARM_OPERAND);
 		IArtifactRequest[] requests;
 		try {
-			requests = CollectAction.collect(operand.second(), profile);
+			requests = CollectAction.collect(agent, profile, operand.second());
 		} catch (ProvisionException e) {
 			return e.getStatus();
 		}
 
-		Collection artifactRequests = (Collection) parameters.get(ActionConstants.PARM_ARTIFACT_REQUESTS);
+		@SuppressWarnings("unchecked")
+		Collection<IArtifactRequest[]> artifactRequests = (Collection<IArtifactRequest[]>) parameters.get(ActionConstants.PARM_ARTIFACT_REQUESTS);
 		artifactRequests.add(requests);
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		// nothing to do for now
 		return Status.OK_STATUS;
 	}
 
-	public static boolean isZipped(ITouchpointData[] data) {
-		if (data == null || data.length == 0)
+	public static boolean isZipped(List<ITouchpointData> data) {
+		if (data == null || data.size() == 0)
 			return false;
-		for (int i = 0; i < data.length; i++) {
-			if (data[i].getInstruction("zipped") != null) //$NON-NLS-1$
+		for (int i = 0; i < data.size(); i++) {
+			if (data.get(i).getInstruction("zipped") != null) //$NON-NLS-1$
 				return true;
 		}
 		return false;
 	}
 
-	public static Properties createArtifactDescriptorProperties(IInstallableUnit installableUnit) {
-		Properties descriptorProperties = null;
+	public static Map<String, String> createArtifactDescriptorProperties(IInstallableUnit installableUnit) {
+		Map<String, String> descriptorProperties = null;
 		if (CollectAction.isZipped(installableUnit.getTouchpointData())) {
-			descriptorProperties = new Properties();
-			descriptorProperties.setProperty(CollectAction.ARTIFACT_FOLDER, Boolean.TRUE.toString());
+			descriptorProperties = new HashMap<String, String>();
+			descriptorProperties.put(CollectAction.ARTIFACT_FOLDER, Boolean.TRUE.toString());
 		}
 		return descriptorProperties;
 	}
 
 	// TODO: Here we may want to consult multiple caches
-	public static IArtifactRequest[] collect(IInstallableUnit installableUnit, IProfile profile) throws ProvisionException {
-		IArtifactKey[] toDownload = installableUnit.getArtifacts();
-		if (toDownload == null || toDownload.length == 0)
+	static IArtifactRequest[] collect(IProvisioningAgent agent, IProfile profile, IInstallableUnit installableUnit) throws ProvisionException {
+		Collection<IArtifactKey> toDownload = installableUnit.getArtifacts();
+		if (toDownload == null || toDownload.size() == 0)
 			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
 
-		IArtifactRepository aggregatedRepositoryView = Util.getAggregatedBundleRepository(profile);
-		IArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IArtifactRepository aggregatedRepositoryView = Util.getAggregatedBundleRepository(agent, profile);
+		IArtifactRepository bundlePool = Util.getBundlePoolRepository(agent, profile);
 		if (bundlePool == null)
 			throw new ProvisionException(Util.createError(NLS.bind(Messages.no_bundle_pool, profile.getProfileId())));
 
-		List requests = new ArrayList();
-		for (int i = 0; i < toDownload.length; i++) {
-			IArtifactKey key = toDownload[i];
+		List<IArtifactRequest> requests = new ArrayList<IArtifactRequest>();
+		for (IArtifactKey key : toDownload) {
 			if (!aggregatedRepositoryView.contains(key)) {
-				Properties repositoryProperties = CollectAction.createArtifactDescriptorProperties(installableUnit);
-				requests.add(Util.getArtifactRepositoryManager().createMirrorRequest(key, bundlePool, null, repositoryProperties));
+				Map<String, String> repositoryProperties = CollectAction.createArtifactDescriptorProperties(installableUnit);
+				requests.add(Util.getArtifactRepositoryManager(agent).createMirrorRequest(key, bundlePool, null, repositoryProperties));
 			}
 		}
 
 		if (requests.isEmpty())
 			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
 
-		IArtifactRequest[] result = (IArtifactRequest[]) requests.toArray(new IArtifactRequest[requests.size()]);
+		IArtifactRequest[] result = requests.toArray(new IArtifactRequest[requests.size()]);
 		return result;
 	}
 }

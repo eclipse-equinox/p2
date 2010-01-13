@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
  * Element wrapper class for an artifact key and its repository
@@ -46,6 +46,7 @@ public class ArtifactElement extends ProvElement {
 		return repo.getArtifactDescriptors(key);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IArtifactRepository.class)
 			return getArtifactRepository();

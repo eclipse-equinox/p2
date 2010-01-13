@@ -10,23 +10,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
+import java.util.List;
 import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.ActionManager;
 import org.eclipse.equinox.internal.p2.engine.InstructionParser;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
-import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
-import org.eclipse.equinox.internal.provisional.p2.metadata.ITouchpointType;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.Touchpoint;
+import org.eclipse.equinox.p2.metadata.ITouchpointType;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class InstructionParserTest extends AbstractProvisioningTest {
 
-	public static final ITouchpointType TOUCHPOINT_TYPE = MetadataFactory.createTouchpointType("InstructionParserTestTouchpoint", new Version("1.0")); //$NON-NLS-1$ //$NON-NLS-2$
+	public static final ITouchpointType TOUCHPOINT_TYPE = MetadataFactory.createTouchpointType("InstructionParserTestTouchpoint", Version.create("1.0")); //$NON-NLS-1$ //$NON-NLS-2$
 
 	public static class InstructionParserTestTouchpoint extends Touchpoint {
 
@@ -65,21 +66,21 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 
 	public void testGoodAction() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction()", null), TOUCHPOINT_TYPE);
-		assertEquals(1, actions.length);
+		List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction()", null), TOUCHPOINT_TYPE);
+		assertEquals(1, actions.size());
 	}
 
 	public void testGoodActionFullyQualified() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("instructionparsertest.goodAction()", null), null);
-		assertEquals(1, actions.length);
+		List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("instructionparsertest.goodAction()", null), null);
+		assertEquals(1, actions.size());
 	}
 
 	public void testBadActionFullyQualified() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
 		try {
-			ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("instructionparsertest.badAction()", null), null);
-			actions[0].execute(null);
+			List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("instructionparsertest.badAction()", null), null);
+			actions.get(0).execute(null);
 		} catch (IllegalArgumentException e) {
 			return;
 		}
@@ -88,21 +89,21 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 
 	public void testGoodActionFromImport() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction()", "instructionparsertest.goodAction"), null);
-		assertEquals(1, actions.length);
+		List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction()", "instructionparsertest.goodAction"), null);
+		assertEquals(1, actions.size());
 	}
 
 	public void testGoodActionFromImportWithVersionRange() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction()", "instructionparsertest.goodAction;version=[1.0,2.0)"), null);
-		assertEquals(1, actions.length);
+		List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction()", "instructionparsertest.goodAction;version=[1.0,2.0)"), null);
+		assertEquals(1, actions.size());
 	}
 
 	public void testBadActionFromImport() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
 		try {
-			ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("badAction()", "instructionparsertest.badAction"), null);
-			actions[0].execute(null);
+			List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("badAction()", "instructionparsertest.badAction"), null);
+			actions.get(0).execute(null);
 		} catch (IllegalArgumentException e) {
 			return;
 		}
@@ -111,20 +112,20 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 
 	public void testGoodActions() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(); goodAction()", null), TOUCHPOINT_TYPE);
-		assertEquals(2, actions.length);
+		List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(); goodAction()", null), TOUCHPOINT_TYPE);
+		assertEquals(2, actions.size());
 	}
 
 	public void testGoodParameter() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(a:1)", null), TOUCHPOINT_TYPE);
-		assertEquals(1, actions.length);
+		List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(a:1)", null), TOUCHPOINT_TYPE);
+		assertEquals(1, actions.size());
 	}
 
 	public void testGoodParameters() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
-		ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(a:1, b:2)", null), TOUCHPOINT_TYPE);
-		assertEquals(1, actions.length);
+		List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(a:1, b:2)", null), TOUCHPOINT_TYPE);
+		assertEquals(1, actions.size());
 	}
 
 	public void testBadParameter() {
@@ -160,8 +161,8 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 	public void testGoodActionBadAction() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
 		try {
-			ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(); badAction()", null), TOUCHPOINT_TYPE);
-			actions[1].execute(null);
+			List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("goodAction(); badAction()", null), TOUCHPOINT_TYPE);
+			actions.get(1).execute(null);
 		} catch (IllegalArgumentException e) {
 			return;
 		}
@@ -171,8 +172,8 @@ public class InstructionParserTest extends AbstractProvisioningTest {
 	public void testNoActionFound() {
 		InstructionParser parser = new InstructionParser(new ActionManager());
 		try {
-			ProvisioningAction[] actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("notfoundaction()", null), TOUCHPOINT_TYPE);
-			actions[0].execute(null);
+			List<ProvisioningAction> actions = parser.parseActions(MetadataFactory.createTouchpointInstruction("notfoundaction()", null), TOUCHPOINT_TYPE);
+			actions.get(0).execute(null);
 		} catch (IllegalArgumentException e) {
 			return;
 		}

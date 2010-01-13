@@ -10,23 +10,24 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -38,7 +39,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	static final private String QUALIFIER = "qualifier"; //$NON-NLS-1$
 	protected UpdateSite updateSite;
 	private SiteCategory defaultCategory;
-	private HashSet defaultCategorySet;
+	private HashSet<SiteCategory> defaultCategorySet;
 	protected URI location;
 	private String categoryQualifier = null;
 
@@ -73,7 +74,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		defaultCategory.setDescription("Default category for otherwise uncategorized features"); //$NON-NLS-1$
 		defaultCategory.setLabel("Uncategorized"); //$NON-NLS-1$
 		defaultCategory.setName("Default"); //$NON-NLS-1$
-		defaultCategorySet = new HashSet(1);
+		defaultCategorySet = new HashSet<SiteCategory>(1);
 		defaultCategorySet.add(defaultCategory);
 	}
 
@@ -92,24 +93,22 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	}
 
 	private IStatus generateCategories(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
-		Map categoriesToFeatureIUs = new HashMap();
-		Map featuresToCategories = getFeatureToCategoryMappings(info);
-		for (Iterator i = featuresToCategories.keySet().iterator(); i.hasNext();) {
+		Map<SiteCategory, Set<IInstallableUnit>> categoriesToFeatureIUs = new HashMap<SiteCategory, Set<IInstallableUnit>>();
+		Map<SiteFeature, Set<SiteCategory>> featuresToCategories = getFeatureToCategoryMappings(info);
+		for (SiteFeature feature : featuresToCategories.keySet()) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			SiteFeature feature = (SiteFeature) i.next();
 			IInstallableUnit iu = getFeatureIU(feature, info, results);
 			if (iu == null)
 				continue;
-			Set categories = (Set) featuresToCategories.get(feature);
+			Set<SiteCategory> categories = featuresToCategories.get(feature);
 			// if there are no categories for this feature then add it to the default category.
 			if (categories == null || categories.isEmpty())
 				categories = defaultCategorySet;
-			for (Iterator it = categories.iterator(); it.hasNext();) {
-				SiteCategory category = (SiteCategory) it.next();
-				Set featureIUs = (Set) categoriesToFeatureIUs.get(category);
+			for (SiteCategory category : categories) {
+				Set<IInstallableUnit> featureIUs = categoriesToFeatureIUs.get(category);
 				if (featureIUs == null) {
-					featureIUs = new HashSet();
+					featureIUs = new HashSet<IInstallableUnit>();
 					categoriesToFeatureIUs.put(category, featureIUs);
 				}
 				featureIUs.add(iu);
@@ -122,45 +121,43 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	private IInstallableUnit getFeatureIU(SiteFeature feature, IPublisherInfo publisherInfo, IPublisherResult results) {
 		String id = feature.getFeatureIdentifier() + ".feature.group"; //$NON-NLS-1$
 		String versionString = feature.getFeatureVersion();
-		Version version = versionString != null && versionString.length() > 0 ? new Version(versionString) : Version.emptyVersion;
-		Query query = null;
-		Collector collector = null;
+		Version version = versionString != null && versionString.length() > 0 ? Version.create(versionString) : Version.emptyVersion;
+		IQuery<IInstallableUnit> query = null;
 		if (version.equals(Version.emptyVersion)) {
-			query = new CompositeQuery(new Query[] {new InstallableUnitQuery(id), new LatestIUVersionQuery()});
-			collector = new Collector();
-		} else if (version.getQualifier() != null && version.getQualifier().endsWith(QUALIFIER)) {
-			final String v = versionString.substring(0, versionString.indexOf(QUALIFIER));
-			Query qualifierQuery = new InstallableUnitQuery(id) {
-				private String qualifierVersion = v.endsWith(".") ? v.substring(0, v.length() - 1) : v; //$NON-NLS-1$
-
-				public boolean isMatch(Object object) {
-					if (super.isMatch(object)) {
-						IInstallableUnit candidate = (IInstallableUnit) object;
-						return candidate.getVersion().toString().startsWith(qualifierVersion);
-					}
-					return false;
-				}
-			};
-			query = new CompositeQuery(new Query[] {qualifierQuery, new LatestIUVersionQuery()});
-			collector = new Collector();
+			query = new PipedQuery<IInstallableUnit>(new InstallableUnitQuery(id), new LatestIUVersionQuery<IInstallableUnit>());
 		} else {
-			query = new InstallableUnitQuery(id, version);
-			collector = new Collector() {
-				public boolean accept(Object object) {
-					super.accept(object);
-					return false; //stop searching once we've found one
-				}
-			};
+			String qualifier;
+			try {
+				qualifier = Version.toOSGiVersion(version).getQualifier();
+			} catch (UnsupportedOperationException e) {
+				qualifier = null;
+			}
+			if (qualifier != null && qualifier.endsWith(QUALIFIER)) {
+				final String v = versionString.substring(0, versionString.indexOf(QUALIFIER));
+				IQuery<IInstallableUnit> qualifierQuery = new InstallableUnitQuery(id) {
+					private String qualifierVersion = v.endsWith(".") ? v.substring(0, v.length() - 1) : v; //$NON-NLS-1$
+
+					public boolean isMatch(IInstallableUnit candidate) {
+						if (super.isMatch(candidate)) {
+							return candidate.getVersion().toString().startsWith(qualifierVersion);
+						}
+						return false;
+					}
+				};
+				query = new PipedQuery<IInstallableUnit>(qualifierQuery, new LatestIUVersionQuery<IInstallableUnit>());
+			} else {
+				query = new LimitQuery<IInstallableUnit>(new InstallableUnitQuery(id, version), 1);
+			}
 		}
 
-		collector = results.query(query, collector, null);
-		if (collector.size() == 0)
-			collector = publisherInfo.getMetadataRepository().query(query, collector, null);
-		if (collector.size() == 0 && publisherInfo.getContextMetadataRepository() != null)
-			collector = publisherInfo.getContextMetadataRepository().query(query, collector, null);
+		IQueryResult<IInstallableUnit> queryResult = results.query(query, null);
+		if (queryResult.isEmpty())
+			queryResult = publisherInfo.getMetadataRepository().query(query, null);
+		if (queryResult.isEmpty() && publisherInfo.getContextMetadataRepository() != null)
+			queryResult = publisherInfo.getContextMetadataRepository().query(query, null);
 
-		if (collector.size() == 1)
-			return (IInstallableUnit) collector.iterator().next();
+		if (!queryResult.isEmpty())
+			return queryResult.iterator().next();
 		return null;
 	}
 
@@ -169,8 +166,8 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 * if available. Returns an empty map if there is not site.xml, or no categories.
 	 * @return A map of SiteFeature -> Set<SiteCategory>.
 	 */
-	protected Map getFeatureToCategoryMappings(IPublisherInfo info) {
-		HashMap mappings = new HashMap();
+	protected Map<SiteFeature, Set<SiteCategory>> getFeatureToCategoryMappings(IPublisherInfo info) {
+		HashMap<SiteFeature, Set<SiteCategory>> mappings = new HashMap<SiteFeature, Set<SiteCategory>>();
 		if (updateSite == null)
 			return mappings;
 		SiteModel site = updateSite.getSite();
@@ -199,12 +196,12 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		File siteFile = URIUtil.toFile(updateSite.getLocation());
 		if (siteFile != null && siteFile.exists()) {
 			File siteParent = siteFile.getParentFile();
-			List messageKeys = site.getMessageKeys();
+			List<String> messageKeys = site.getMessageKeys();
 			if (siteParent.isDirectory()) {
-				String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
+				String[] keyStrings = messageKeys.toArray(new String[messageKeys.size()]);
 				site.setLocalizations(LocalizationHelper.getDirPropertyLocalizations(siteParent, "site", null, keyStrings)); //$NON-NLS-1$
 			} else if (siteFile.getName().endsWith(".jar")) { //$NON-NLS-1$
-				String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
+				String[] keyStrings = messageKeys.toArray(new String[messageKeys.size()]);
 				site.setLocalizations(LocalizationHelper.getJarPropertyLocalizations(siteParent, "site", null, keyStrings)); //$NON-NLS-1$
 			}
 		}
@@ -213,7 +210,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		for (int i = 0; i < features.length; i++) {
 			//add a mapping for each category this feature belongs to
 			String[] categoryNames = features[i].getCategoryNames();
-			Set categories = new HashSet();
+			Set<SiteCategory> categories = new HashSet<SiteCategory>();
 			mappings.put(features[i], categories);
 			for (int j = 0; j < categoryNames.length; j++) {
 				SiteCategory category = site.getCategory(categoryNames[j]);
@@ -251,10 +248,9 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 * @param categoriesToFeatures Map of SiteCategory ->Set (Feature IUs in that category).
 	 * @param result The generator result being built
 	 */
-	protected void generateCategoryIUs(Map categoriesToFeatures, IPublisherResult result) {
-		for (Iterator it = categoriesToFeatures.keySet().iterator(); it.hasNext();) {
-			SiteCategory category = (SiteCategory) it.next();
-			result.addIU(createCategoryIU(category, (Set) categoriesToFeatures.get(category), null), IPublisherResult.NON_ROOT);
+	protected void generateCategoryIUs(Map<SiteCategory, Set<IInstallableUnit>> categoriesToFeatures, IPublisherResult result) {
+		for (SiteCategory category : categoriesToFeatures.keySet()) {
+			result.addIU(createCategoryIU(category, categoriesToFeatures.get(category), null), IPublisherResult.NON_ROOT);
 		}
 	}
 
@@ -265,7 +261,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 * @param parentCategory The parent category, or <code>null</code>
 	 * @return an IU representing the category
 	 */
-	public IInstallableUnit createCategoryIU(SiteCategory category, Set featureIUs, IInstallableUnit parentCategory) {
+	public IInstallableUnit createCategoryIU(SiteCategory category, Set<IInstallableUnit> featureIUs, IInstallableUnit parentCategory) {
 		InstallableUnitDescription cat = new MetadataFactory.InstallableUnitDescription();
 		cat.setSingleton(true);
 		String categoryId = buildCategoryId(category.getName());
@@ -276,9 +272,8 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		cat.setProperty(IInstallableUnit.PROP_NAME, label != null ? label : category.getName());
 		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, category.getDescription());
 
-		ArrayList reqsConfigurationUnits = new ArrayList(featureIUs.size());
-		for (Iterator iterator = featureIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+		ArrayList<IRequirement> reqsConfigurationUnits = new ArrayList<IRequirement>(featureIUs.size());
+		for (IInstallableUnit iu : featureIUs) {
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
 			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
 		}
@@ -286,30 +281,28 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		if (parentCategory != null) {
 			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, parentCategory.getId(), VersionRange.emptyRange, parentCategory.getFilter(), false, false));
 		}
-		cat.setRequiredCapabilities((IRequiredCapability[]) reqsConfigurationUnits.toArray(new IRequiredCapability[reqsConfigurationUnits.size()]));
+		cat.setRequiredCapabilities(reqsConfigurationUnits.toArray(new IRequirement[reqsConfigurationUnits.size()]));
 
 		// Create set of provided capabilities
-		ArrayList providedCapabilities = new ArrayList();
+		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();
 		providedCapabilities.add(PublisherHelper.createSelfCapability(categoryId, cat.getVersion()));
 
-		Map localizations = category.getLocalizations();
+		Map<Locale, Map<String, String>> localizations = category.getLocalizations();
 		if (localizations != null) {
-			for (Iterator iter = localizations.keySet().iterator(); iter.hasNext();) {
-				Locale locale = (Locale) iter.next();
-				Properties translatedStrings = (Properties) localizations.get(locale);
-				Enumeration propertyKeys = translatedStrings.propertyNames();
-				while (propertyKeys.hasMoreElements()) {
-					String nextKey = (String) propertyKeys.nextElement();
-					cat.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
+			for (Entry<Locale, Map<String, String>> locEntry : localizations.entrySet()) {
+				Locale locale = locEntry.getKey();
+				Map<String, String> translatedStrings = locEntry.getValue();
+				for (Entry<String, String> e : translatedStrings.entrySet()) {
+					cat.setProperty(locale.toString() + '.' + e.getKey(), e.getValue());
 				}
 				providedCapabilities.add(PublisherHelper.makeTranslationCapability(categoryId, locale));
 			}
 		}
 
-		cat.setCapabilities((IProvidedCapability[]) providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
+		cat.setCapabilities(providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
 
 		cat.setArtifacts(new IArtifactKey[0]);
-		cat.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
+		cat.setProperty(InstallableUnitDescription.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
 		return MetadataFactory.createInstallableUnit(cat);
 	}
 

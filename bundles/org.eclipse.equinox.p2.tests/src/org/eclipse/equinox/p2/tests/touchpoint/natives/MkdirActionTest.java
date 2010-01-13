@@ -13,7 +13,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.MkdirAction;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class MkdirActionTest extends AbstractProvisioningTest {
@@ -30,7 +30,7 @@ public class MkdirActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
 		Map parameters = new HashMap();
 		parameters.put(ActionConstants.PARM_PROFILE, profile);

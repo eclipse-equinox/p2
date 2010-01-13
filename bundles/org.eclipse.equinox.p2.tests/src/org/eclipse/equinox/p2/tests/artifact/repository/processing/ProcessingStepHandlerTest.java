@@ -18,7 +18,10 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.pack200.Pack200ProcessorStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.jarprocessor.PackStep;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class ProcessingStepHandlerTest extends TestCase {
@@ -29,7 +32,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 	IProgressMonitor monitor = new NullProgressMonitor();
 
 	public void testExecuteNoPSs() throws IOException {
-		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[0];
+		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[0];
 		OutputStream result = new ByteArrayOutputStream(10);
 		OutputStream testStream = handler.createAndLink(descriptors, null, result, monitor);
 		testStream.write("Test".getBytes());
@@ -125,7 +128,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 		//this test is only applicable if pack200 is available
 		if (!PackStep.canPack())
 			return;
-		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
+		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
 		ProcessingStep[] steps = handler.create(descriptors, null);
 		ByteArrayOutputStream result = new ByteArrayOutputStream(100000);
 		OutputStream testStream = handler.link(steps, result, monitor);
@@ -137,7 +140,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 	}
 
 	public void testCreateByteShifterPS() {
-		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ByteShifter", "1", true)};
+		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ByteShifter", "1", true)};
 		ProcessingStep[] steps = handler.create(descriptors, null);
 		assertNotNull(steps);
 		assertEquals(1, steps.length);
@@ -153,7 +156,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 	//	}
 
 	public void testCreateAdderPS() {
-		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true)};
+		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true)};
 		ProcessingStep[] steps = handler.create(descriptors, null);
 		assertNotNull(steps);
 		assertEquals(1, steps.length);
@@ -161,7 +164,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 	}
 
 	public void testCreateMultiplierPS() {
-		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true)};
+		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true)};
 		ProcessingStep[] steps = handler.create(descriptors, null);
 		assertNotNull(steps);
 		assertEquals(1, steps.length);
@@ -169,7 +172,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 	}
 
 	public void testCreatePack200UnpackerPS() {
-		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
+		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
 		ProcessingStep[] steps = handler.create(descriptors, null);
 		assertNotNull(steps);
 		assertEquals(1, steps.length);
@@ -177,9 +180,9 @@ public class ProcessingStepHandlerTest extends TestCase {
 	}
 
 	public void testCreatePSsAndAssureOrderingOfPSs1() throws IOException {
-		ProcessingStepDescriptor adder = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true);
-		ProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
-		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {adder, multiplier};
+		IProcessingStepDescriptor adder = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true);
+		IProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
+		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {adder, multiplier};
 		ProcessingStep[] steps = handler.create(descriptors, null);
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
 		OutputStream testStream = handler.link(steps, result, monitor);
@@ -189,9 +192,9 @@ public class ProcessingStepHandlerTest extends TestCase {
 	}
 
 	public void testCreatePSsAndAssureOrderingOfPSs2() throws IOException {
-		ProcessingStepDescriptor adder = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true);
-		ProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
-		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {multiplier, adder};
+		IProcessingStepDescriptor adder = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true);
+		IProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
+		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {multiplier, adder};
 		ProcessingStep[] steps = handler.create(descriptors, null);
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
 		OutputStream testStream = handler.link(steps, result, monitor);
@@ -201,9 +204,9 @@ public class ProcessingStepHandlerTest extends TestCase {
 	}
 
 	public void testLinkPSs() throws IOException {
-		ProcessingStepDescriptor adder = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true);
-		ProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
-		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {adder, multiplier};
+		IProcessingStepDescriptor adder = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true);
+		IProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
+		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {adder, multiplier};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
 		OutputStream testStream = handler.createAndLink(descriptors, null, result, monitor);
 		testStream.write(new byte[] {1, 2, 3, 4, 5});

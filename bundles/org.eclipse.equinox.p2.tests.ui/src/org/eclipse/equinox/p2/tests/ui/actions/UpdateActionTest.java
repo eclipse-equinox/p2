@@ -11,9 +11,8 @@
 
 package org.eclipse.equinox.p2.tests.ui.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.p2.ui.actions.UpdateAction;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * @since 3.5
@@ -22,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
 public class UpdateActionTest extends ProfileModificationActionTest {
 	class TestUpdateAction extends UpdateAction {
 		TestUpdateAction(Object[] sel) {
-			super(Policy.getDefault(), UpdateActionTest.this.getSelectionProvider(sel), profile.getProfileId(), true);
+			super(UpdateActionTest.this.getProvisioningUI(), UpdateActionTest.this.getSelectionProvider(sel), profile.getProfileId(), true);
 		}
 
 		public IInstallableUnit[] getSelectedIUs() {

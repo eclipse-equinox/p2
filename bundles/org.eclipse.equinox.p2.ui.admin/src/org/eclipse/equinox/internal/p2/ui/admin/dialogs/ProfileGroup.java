@@ -16,10 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
-import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProfileFactory;
+import org.eclipse.equinox.internal.p2.ui.admin.*;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.GridData;
@@ -42,7 +40,6 @@ public class ProfileGroup {
 	Text cache;
 	Text name;
 	Text description;
-	Text flavor;
 	Text environments;
 	Text nl;
 	IProfile profile;
@@ -122,9 +119,6 @@ public class ProfileGroup {
 
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.ProfileGroup_Flavor);
-		flavor = new Text(composite, SWT.BORDER);
-		flavor.setLayoutData(gd);
-		setEditable(flavor, profile == null, listener);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.ProfileGroup_Environments);
@@ -146,7 +140,6 @@ public class ProfileGroup {
 			location.setText(ProfileFactory.getDefaultLocation());
 			environments.setText(ProfileFactory.getDefaultEnvironments());
 			nl.setText(ProfileFactory.getDefaultNL());
-			flavor.setText(ProfileFactory.getDefaultFlavor());
 		} else {
 			String value = profile.getProfileId();
 			// Should not happen, profiles must have an id, but just in case.
@@ -172,8 +165,6 @@ public class ProfileGroup {
 			if (value != null) {
 				description.setText(value);
 			}
-			value = profile.getProperty(IProfile.PROP_FLAVOR);
-			flavor.setText(value != null ? value : ProfileFactory.getDefaultFlavor());
 
 			value = profile.getProperty(IProfile.PROP_ENVIRONMENTS);
 			if (value != null) {
@@ -186,9 +177,9 @@ public class ProfileGroup {
 		}
 	}
 
-	public Map getProfileProperties() {
+	public Map<String, String> getProfileProperties() {
 		if (profile == null) {
-			Map profileProperties = new HashMap();
+			Map<String, String> profileProperties = new HashMap<String, String>();
 
 			String value = location.getText().trim();
 			if (value.length() > 0) {
@@ -206,10 +197,6 @@ public class ProfileGroup {
 			value = description.getText().trim();
 			if (value.length() > 0) {
 				profileProperties.put(IProfile.PROP_DESCRIPTION, value);
-			}
-			value = flavor.getText().trim();
-			if (value.length() > 0) {
-				profileProperties.put(IProfile.PROP_FLAVOR, value);
 			}
 			value = environments.getText().trim();
 			if (value.length() > 0) {

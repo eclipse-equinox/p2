@@ -15,12 +15,12 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -32,7 +32,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		IMetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		repo = repoMan.loadRepository(getTestData("repository for wsdl test", "testData/orbitRepo/").toURI(), new NullProgressMonitor());
 
 		profile1 = createProfile("TestProfile." + getName());
@@ -42,29 +42,22 @@ public class AllOrbit extends AbstractProvisioningTest {
 
 	public void testInstallTwoVersionsOptionaly() {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		Collector allIUs = repo.query(InstallableUnitQuery.ANY, new Collector(), null);
+		IQueryResult allIUs = repo.query(InstallableUnitQuery.ANY, null);
 		req1.addInstallableUnits((IInstallableUnit[]) allIUs.toArray(IInstallableUnit.class));
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (!iu.getId().equals("javax.wsdl"))
 				req1.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
 		}
-		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
-		Operand[] ops = plan1.getOperands();
-		int count = 0;
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				count++;
-			}
-		}
+		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 	}
 
 	public void test2() {
 		//Install everything except com.ibm.icu
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		Collector allIUs = repo.query(InstallableUnitQuery.ANY, new Collector(), null);
-		ArrayList toInstall = new ArrayList(allIUs.size());
+		IQueryResult allIUs = repo.query(InstallableUnitQuery.ANY, null);
+		ArrayList toInstall = new ArrayList();
 		int removed = 0;
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit toAdd = (IInstallableUnit) iterator.next();
@@ -75,23 +68,16 @@ public class AllOrbit extends AbstractProvisioningTest {
 		}
 		req1.addInstallableUnits((IInstallableUnit[]) toInstall.toArray(new IInstallableUnit[toInstall.size()]));
 
-		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
-		Operand[] ops = plan1.getOperands();
-		int count = 0;
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				count++;
-			}
-		}
-		assertEquals(178, count);
+		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
+		assertEquals(178, countPlanElements(plan1));
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 	}
 
 	public void test3() {
 		//Install everything optionaly (except com.ibm.icu that we don't install at all)
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		Collector allIUs = repo.query(InstallableUnitQuery.ANY, new Collector(), null);
-		ArrayList toInstall = new ArrayList(allIUs.size());
+		IQueryResult allIUs = repo.query(InstallableUnitQuery.ANY, null);
+		ArrayList toInstall = new ArrayList();
 		int removed = 0;
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit toAdd = (IInstallableUnit) iterator.next();
@@ -103,15 +89,8 @@ public class AllOrbit extends AbstractProvisioningTest {
 		}
 		req1.addInstallableUnits((IInstallableUnit[]) toInstall.toArray(new IInstallableUnit[toInstall.size()]));
 
-		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
-		Operand[] ops = plan1.getOperands();
-		int count = 0;
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				count++;
-			}
-		}
-		assertEquals(178, count);
+		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
+		assertEquals(178, countPlanElements(plan1));
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 	}
 }

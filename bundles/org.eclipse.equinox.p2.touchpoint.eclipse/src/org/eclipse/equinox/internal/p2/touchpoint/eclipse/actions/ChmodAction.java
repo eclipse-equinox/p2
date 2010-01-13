@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
 // This basically a copy of the chmod action in the native touchpoint only it provides @artifact support.
@@ -25,7 +25,7 @@ import org.eclipse.osgi.util.NLS;
 public class ChmodAction extends ProvisioningAction {
 	private static final String ACTION_CHMOD = "chmod"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
 		if (targetDir == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_TARGET_DIR, ACTION_CHMOD));
@@ -57,7 +57,7 @@ public class ChmodAction extends ProvisioningAction {
 
 		String options[] = null;
 		if (optionsString != null) {
-			ArrayList collect = new ArrayList();
+			ArrayList<String> collect = new ArrayList<String>();
 			String r = optionsString.trim();
 			while (r.length() > 0) {
 				int spaceIdx = r.indexOf(' ');
@@ -71,8 +71,7 @@ public class ChmodAction extends ProvisioningAction {
 				}
 			}
 			if (collect.size() > 0) {
-				options = new String[collect.size()];
-				collect.toArray(options);
+				options = collect.toArray(new String[collect.size()]);
 			}
 		}
 
@@ -80,7 +79,7 @@ public class ChmodAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		//TODO: implement undo ??
 		return Status.OK_STATUS;
 	}

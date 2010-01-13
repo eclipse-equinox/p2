@@ -17,12 +17,14 @@ import java.util.*;
 import org.eclipse.ant.core.AntRunner;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 	protected static final String TYPE_ARTIFACT = "A";
@@ -246,11 +248,11 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 		assertContains(message, destination, source);
 	}
 
-	protected static void assertArtifactKeyContentEquals(String message, Collector ius, URI artifactRepositoryLocation) {
+	protected void assertArtifactKeyContentEquals(String message, IQueryResult ius, URI artifactRepositoryLocation) {
 		try {
 			IArtifactRepository repo = getArtifactRepositoryManager().loadRepository(artifactRepositoryLocation, null);
 			List fromIUs = getArtifactKeys(ius);
-			List fromRepo = Arrays.asList(repo.getArtifactKeys());
+			Iterator fromRepo = repo.query(ArtifactKeyQuery.ALL_KEYS, null).iterator();
 			assertContains(message, fromIUs, fromRepo);
 			assertContains(message, fromRepo, fromIUs);
 		} catch (ProvisionException e) {
@@ -259,28 +261,11 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 
 	}
 
-	protected static void assertContains(String message, IQueryable source, IQueryable destination) {
-		Collector sourceCollector = source.query(InstallableUnitQuery.ANY, new Collector(), null);
-		Iterator it = sourceCollector.iterator();
+	protected static List getArtifactKeys(IQueryResult<IInstallableUnit> ius) {
+		List<IArtifactKey> keys = new ArrayList<IArtifactKey>();
 
-		while (it.hasNext()) {
-			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
-			Collector destinationCollector = destination.query(new InstallableUnitQuery(sourceIU), new Collector(), null);
-			assertEquals(message, 1, destinationCollector.size());
-			assertTrue(message, sourceIU.equals(destinationCollector.iterator().next()));
-		}
-	}
-
-	protected static void assertContains(String message, List fromIUs, List fromRepo) {
-		for (Iterator iter = fromIUs.iterator(); iter.hasNext();)
-			assertTrue(message, fromRepo.contains(iter.next()));
-	}
-
-	protected static List getArtifactKeys(Collector ius) {
-		List keys = new ArrayList(ius.size());
-
-		for (Iterator iter = ius.iterator(); iter.hasNext();)
-			keys.addAll(Arrays.asList(((InstallableUnit) iter.next()).getArtifacts()));
+		for (Iterator<IInstallableUnit> iter = ius.iterator(); iter.hasNext();)
+			keys.addAll(iter.next().getArtifacts());
 		return keys;
 	}
 }

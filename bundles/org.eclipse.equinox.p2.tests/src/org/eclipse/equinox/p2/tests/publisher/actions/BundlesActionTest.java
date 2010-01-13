@@ -12,9 +12,8 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.io.*;
 import java.util.*;
@@ -23,20 +22,22 @@ import org.easymock.EasyMock;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.IBundleShapeAdvice;
-import org.eclipse.equinox.p2.tests.*;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-@SuppressWarnings( {"restriction", "unchecked"})
+@SuppressWarnings({"unchecked"})
 public class BundlesActionTest extends ActionTest {
 	private static final String OSGI = PublisherHelper.OSGI_BUNDLE_CLASSIFIER;
 	private static final String JAVA_PACKAGE = "java.package";//$NON-NLS-1$
@@ -67,16 +68,16 @@ public class BundlesActionTest extends ActionTest {
 	private static final String TEST2_PROVX_NAMESPACE = JAVA_PACKAGE;
 	private static final String TEST1_PROVZ_NAMESPACE = JAVA_PACKAGE;
 
-	private final Version BUNDLE1_VERSION = new Version("0.1.0");//$NON-NLS-1$
-	private final Version BUNDLE2_VERSION = new Version("1.0.0.qualifier");//$NON-NLS-1$
+	private final Version BUNDLE1_VERSION = Version.create("0.1.0");//$NON-NLS-1$
+	private final Version BUNDLE2_VERSION = Version.create("1.0.0.qualifier");//$NON-NLS-1$
 	private final Version PROVBUNDLE2_VERSION = BUNDLE2_VERSION;
 	private final Version TEST2_PROVZ_VERSION = Version.emptyVersion;
 	private final Version TEST2_PROVY_VERSION = Version.emptyVersion;
 	private final Version TEST2_PROVX_VERSION = Version.emptyVersion;
 	private final VersionRange TEST2_IUA_VERSION_RANGE = VersionRange.emptyRange;
 	private final VersionRange TEST2_IUB_VERSION_RANGE = VersionRange.emptyRange;
-	private final VersionRange TEST2_IUC_VERSION_RANGE = new VersionRange(new Version("1.0.0"), true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);//$NON-NLS-1$
-	private final VersionRange TEST1_IUD_VERSION_RANGE = new VersionRange(new Version("1.3.0"), true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);//$NON-NLS-1$
+	private final VersionRange TEST2_IUC_VERSION_RANGE = new VersionRange(Version.create("1.0.0"), true, Version.MAX_VERSION, true);//$NON-NLS-1$
+	private final VersionRange TEST1_IUD_VERSION_RANGE = new VersionRange(Version.create("1.3.0"), true, Version.MAX_VERSION, true);//$NON-NLS-1$
 
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository();
 
@@ -120,22 +121,23 @@ public class BundlesActionTest extends ActionTest {
 		ius = results.getIUs(null, null);
 		assertEquals("2.0", 1, ius.size());
 		QueryableArray queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
-		Collector result = queryableArray.query(new InstallableUnitQuery("foo"), new Collector(), null);
-		assertEquals("3.1", 1, result.size());
+		IQueryResult result = queryableArray.query(new InstallableUnitQuery("foo"), null);
+		assertEquals("3.1", 1, queryResultSize(result));
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
-		IUPropertyUtils iuPropertyUtils = new IUPropertyUtils(queryableArray);
-		assertEquals("3.2", "English Foo", iuPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
+		TranslationSupport utils = new TranslationSupport();
+		utils.setTranslationSource(queryableArray);
+		assertEquals("3.2", "English Foo", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
 
 		bundlesAction = new BundlesAction(new File[] {foo_fragment});
 		bundlesAction.perform(info, results, new NullProgressMonitor());
 		ius = results.getIUs(null, null);
 		assertEquals("2.0", 3, ius.size());
 		queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
-		result = queryableArray.query(new InstallableUnitQuery("foo"), new Collector(), null);
-		assertEquals("2.1", 1, result.size());
+		result = queryableArray.query(new InstallableUnitQuery("foo"), null);
+		assertEquals("2.1", 1, queryResultSize(result));
 		iu = (IInstallableUnit) result.iterator().next();
-		iuPropertyUtils = new IUPropertyUtils(queryableArray);
-		assertEquals("2.2", "German Foo", iuPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN));
+		utils.setTranslationSource(queryableArray);
+		assertEquals("2.2", "German Foo", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
 	}
 
 	private void verifyBundlesAction() throws Exception {
@@ -155,7 +157,7 @@ public class BundlesActionTest extends ActionTest {
 
 		int packedIdx;
 		int canonicalIdx;
-		if ("packed".equals(descriptors[0].getProperty(IArtifactDescriptor.FORMAT))) {
+		if (IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[0].getProperty(IArtifactDescriptor.FORMAT))) {
 			packedIdx = 0;
 			canonicalIdx = 1;
 		} else {
@@ -190,22 +192,22 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals("1.1", bundle1IU.getVersion(), BUNDLE1_VERSION);
 
 		// check required capabilities
-		IRequiredCapability[] requiredCapability = bundle1IU.getRequiredCapabilities();
+		Collection<IRequirement> requiredCapability = bundle1IU.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapability, TEST1_IUD_NAMESPACE, TEST1_IUD_NAME, TEST1_IUD_VERSION_RANGE);
-		assertEquals("2.0", 1, requiredCapability.length);
+		assertEquals("2.0", 1, requiredCapability.size());
 
 		// check provided capabilities
-		IProvidedCapability[] providedCapabilities = bundle1IU.getProvidedCapabilities();
+		Collection<IProvidedCapability> providedCapabilities = bundle1IU.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST1_PROVZ_NAMESPACE, TEST1_PROVZ_NAME, TEST2_PROVZ_VERSION);
-		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "source", new Version("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
-		assertEquals("2.1", 4, providedCapabilities.length);
+		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "source", Version.create("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
+		assertEquals("2.1", 4, providedCapabilities.size());
 
-		ITouchpointData[] data = bundle1IU.getTouchpointData();
+		List<ITouchpointData> data = bundle1IU.getTouchpointData();
 		boolean found = false;
-		for (int i = 0; i < data.length; i++) {
-			ITouchpointInstruction configure = data[i].getInstruction("configure");
+		for (int i = 0; i < data.size(); i++) {
+			ITouchpointInstruction configure = data.get(i).getInstruction("configure");
 			if (configure == null)
 				continue;
 			String body = configure.getBody();
@@ -225,31 +227,31 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals(bundle2IU.getVersion(), BUNDLE2_VERSION);
 
 		// check required capabilities
-		IRequiredCapability[] requiredCapabilities = bundle2IU.getRequiredCapabilities();
+		Collection<IRequirement> requiredCapabilities = bundle2IU.getRequiredCapabilities();
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUA_NAMESPACE, TEST2_REQA_NAME, TEST2_IUA_VERSION_RANGE);
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUB_NAMESPACE, TEST2_REQB_NAME, TEST2_IUB_VERSION_RANGE);
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUC_NAMESPACE, TEST2_REQC_NAME, TEST2_IUC_VERSION_RANGE);
-		assertTrue(requiredCapabilities.length == 3 /*number of tested elements*/);
+		assertTrue(requiredCapabilities.size() == 3 /*number of tested elements*/);
 
 		// check provided capabilities
-		IProvidedCapability[] providedCapabilities = bundle2IU.getProvidedCapabilities();
+		Collection<IProvidedCapability> providedCapabilities = bundle2IU.getProvidedCapabilities();
 		verifyProvidedCapability(providedCapabilities, PROVBUNDLE_NAMESPACE, TEST2_PROVBUNDLE_NAME, PROVBUNDLE2_VERSION);
 		verifyProvidedCapability(providedCapabilities, OSGI, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROVZ_NAMESPACE, TEST2_PROVZ_NAME, TEST2_PROVZ_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROVY_NAMESPACE, TEST2_PROVY_NAME, TEST2_PROVY_VERSION);
 		verifyProvidedCapability(providedCapabilities, TEST2_PROVX_NAMESPACE, TEST2_PROVX_NAME, TEST2_PROVX_VERSION);
-		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new Version("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(providedCapabilities.length == 6 /*number of tested elements*/);
+		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", Version.create("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
+		assertTrue(providedCapabilities.size() == 6 /*number of tested elements*/);
 
 		// check %bundle name is correct
 		Map prop = bundle2IU.getProperties();
 		assertTrue(prop.get("org.eclipse.equinox.p2.name").toString().equalsIgnoreCase("%bundleName"));//$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(prop.get("org.eclipse.equinox.p2.provider").toString().equalsIgnoreCase("%providerName"));//$NON-NLS-1$//$NON-NLS-2$
 
-		ITouchpointData[] data = bundle2IU.getTouchpointData();
+		List<ITouchpointData> data = bundle2IU.getTouchpointData();
 		boolean found = false;
-		for (int i = 0; i < data.length; i++) {
-			ITouchpointInstruction configure = data[i].getInstruction("configure");
+		for (int i = 0; i < data.size(); i++) {
+			ITouchpointInstruction configure = data.get(i).getInstruction("configure");
 			if (configure == null)
 				continue;
 			String body = configure.getBody();
@@ -272,11 +274,11 @@ public class BundlesActionTest extends ActionTest {
 	protected void insertPublisherInfoBehavior() {
 		//super sets publisherInfo.getMetadataRepository and publisherInfo.getContextMetadataRepository
 		super.insertPublisherInfoBehavior();
-		Properties sarProperties = new Properties();
+		Map<String, String> sarProperties = new HashMap<String, String>();
 		sarProperties.put("key1", "value1");//$NON-NLS-1$//$NON-NLS-2$
 		sarProperties.put("key2", "value2");//$NON-NLS-1$//$NON-NLS-2$
 
-		Properties sdkProperties = new Properties();
+		Map<String, String> sdkProperties = new HashMap<String, String>();
 		sdkProperties.put("key1", "value1");//$NON-NLS-1$//$NON-NLS-2$
 		sdkProperties.put("key2", "value2");//$NON-NLS-1$//$NON-NLS-2$
 

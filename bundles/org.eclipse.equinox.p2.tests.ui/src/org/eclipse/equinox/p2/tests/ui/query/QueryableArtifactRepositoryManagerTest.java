@@ -11,11 +11,11 @@
 package org.eclipse.equinox.p2.tests.ui.query;
 
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.ui.QueryableArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.RepositoryLocationQuery;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.p2.ui.QueryableArtifactRepositoryManager;
+import org.eclipse.equinox.internal.p2.ui.RepositoryLocationQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 public class QueryableArtifactRepositoryManagerTest extends AbstractQueryTest {
 	private static final String repositoryOne = "http://one.lan";
@@ -43,12 +43,11 @@ public class QueryableArtifactRepositoryManagerTest extends AbstractQueryTest {
 	public void testQuery() {
 		QueryableArtifactRepositoryManager manager = getQueryableManager();
 
-		Collector result = new Collector();
-		manager.query(new RepositoryLocationQuery(), result, getMonitor());
-		assertTrue(result.size() == repoCount);
+		IQueryResult result = manager.locationsQueriable().query(new RepositoryLocationQuery(), getMonitor());
+		assertTrue(queryResultSize(result) == repoCount);
 	}
 
 	private QueryableArtifactRepositoryManager getQueryableManager() {
-		return new QueryableArtifactRepositoryManager(Policy.getDefault().getQueryContext(), false);
+		return new QueryableArtifactRepositoryManager(ProvisioningUI.getDefaultUI(), false);
 	}
 }

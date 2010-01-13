@@ -10,25 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+
+import org.eclipse.equinox.p2.metadata.ILicense;
+
 import org.eclipse.equinox.internal.p2.metadata.License;
-import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionResultsWizardPage;
-import org.eclipse.equinox.internal.p2.ui.dialogs.SelectableIUsPage;
-import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.ProvisioningWizardDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -49,41 +45,39 @@ public class UpdateWizardTest extends WizardTest {
 		super.setUp();
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(MAIN_IU);
-		iu.setVersion(new Version(1, 0, 0));
+		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setSingleton(true);
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});
 		main = MetadataFactory.createInstallableUnit(iu);
 		install(main, true, false);
 		IUpdateDescriptor update = MetadataFactory.createUpdateDescriptor(MAIN_IU, new VersionRange("[1.0.0, 1.0.0]"), 0, "update description");
-		mainUpgrade1 = createIU(MAIN_IU, new Version(2, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, true, update, NO_REQUIRES);
+		mainUpgrade1 = createIU(MAIN_IU, Version.createOSGi(2, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, true, update, NO_REQUIRES);
 		update = MetadataFactory.createUpdateDescriptor(MAIN_IU, new VersionRange("[1.0.0, 1.0.0]"), 0, "update description");
-		mainUpgrade2 = createIU(MAIN_IU, new Version(3, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, true, update, NO_REQUIRES);
+		mainUpgrade2 = createIU(MAIN_IU, Version.createOSGi(3, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, true, update, NO_REQUIRES);
 		iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(MAIN_IU);
-		iu.setVersion(new Version(4, 0, 0));
+		iu.setVersion(Version.createOSGi(4, 0, 0));
 		iu.setSingleton(true);
 		iu.setUpdateDescriptor(update);
-		iu.setLicense(new License(null, "Update Wizard Test License to Accept"));
+		iu.setLicenses(new ILicense[] {new License(null, "Update Wizard Test License to Accept", null)});
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, MAIN_IU, iu.getVersion())});
 		mainUpgradeWithLicense = MetadataFactory.createInstallableUnit(iu);
+		createTestMetdataRepository(new IInstallableUnit[] {main, mainUpgrade1, mainUpgrade2, mainUpgradeWithLicense});
+
 	}
 
 	/**
 	 * Tests the wizard when a prior resolution has been done.
 	 * This is the SDK 
 	 */
-	public void testUpdateWizardResolved() throws ProvisionException {
-		IUElementListRoot root = new IUElementListRoot();
-		AvailableUpdateElement element = new AvailableUpdateElement(root, upgrade, top1, TESTPROFILE, true);
-		root.setChildren(new Object[] {element});
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeInstallableUnits(new IInstallableUnit[] {top1});
-		request.addInstallableUnits(new IInstallableUnit[] {upgrade});
-		PlannerResolutionOperation op = getResolvedOperation(request);
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element}, op, null);
+	public void testUpdateWizardResolved() {
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		op.resolveModal(getMonitor());
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
+		ProfileModificationJob longOp = null;
 
 		try {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
@@ -94,28 +88,25 @@ public class UpdateWizardTest extends WizardTest {
 			assertTrue(page2.isPageComplete());
 
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), StatusManager.LOG);
-			assertTrue(page1.isPageComplete());
+			longOp = getLongTestOperation();
+			getProvisioningUI().schedule(longOp, StatusManager.LOG);
+			assertTrue(page2.isPageComplete());
 			// causes recalculation of plan and status
-			wizard.getNextPage(page1);
+			wizard.recomputePlan(dialog);
 			// can't move to next page while op is running
-			assertFalse(page1.isPageComplete());
-			job.cancel();
-
+			assertFalse(page2.isPageComplete());
+			longOp.cancel();
 		} finally {
 			dialog.getShell().close();
+			if (longOp != null)
+				longOp.cancel();
 		}
 	}
 
-	public void testUpdateWizardResolvedWithLicense() throws ProvisionException {
-		IUElementListRoot root = new IUElementListRoot();
-		AvailableUpdateElement element = new AvailableUpdateElement(root, mainUpgradeWithLicense, main, TESTPROFILE, true);
-		root.setChildren(new Object[] {element});
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeInstallableUnits(new IInstallableUnit[] {main});
-		request.addInstallableUnits(new IInstallableUnit[] {mainUpgradeWithLicense});
-		PlannerResolutionOperation op = getResolvedOperation(request);
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element}, op, null);
+	public void testUpdateWizardResolvedWithLicense() {
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		op.resolveModal(getMonitor());
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -143,18 +134,12 @@ public class UpdateWizardTest extends WizardTest {
 	/**
 	 * Tests the wizard when a prior resolution has been done, but is in error.
 	 */
-	public void testUpdateWizardResolvedError() throws ProvisionException {
-		IUElementListRoot root = new IUElementListRoot();
-		AvailableUpdateElement element = new AvailableUpdateElement(root, mainUpgrade1, main, TESTPROFILE, true);
-		AvailableUpdateElement element2 = new AvailableUpdateElement(root, mainUpgrade2, main, TESTPROFILE, true);
-		root.setChildren(new Object[] {element, element2});
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeInstallableUnits(new IInstallableUnit[] {main});
-		request.addInstallableUnits(new IInstallableUnit[] {mainUpgrade1, mainUpgrade2});
-		PlannerResolutionOperation op = getResolvedOperation(request);
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element, element2}, op, null);
-		wizard.setSkipSelectionsPage(true);
-		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
+	public void testUpdateWizardResolvedError() {
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		op.resolveModal(getMonitor());
+		op.setSelectedUpdates(op.getPossibleUpdates());
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
+		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 
@@ -169,17 +154,12 @@ public class UpdateWizardTest extends WizardTest {
 	 * Tests the wizard when we have a successful resolution and want to open
 	 * directly on the resolution page
 	 */
-	public void testUpdateWizardResolvedSkipSelections() throws ProvisionException {
-		IUElementListRoot root = new IUElementListRoot();
-		AvailableUpdateElement element = new AvailableUpdateElement(root, mainUpgrade1, main, TESTPROFILE, true);
-		root.setChildren(new Object[] {element});
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeInstallableUnits(new IInstallableUnit[] {main});
-		request.addInstallableUnits(new IInstallableUnit[] {mainUpgrade1});
-		PlannerResolutionOperation op = getResolvedOperation(request);
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element}, op, null);
+	public void testUpdateWizardResolvedSkipSelections() {
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		op.resolveModal(getMonitor());
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		wizard.setSkipSelectionsPage(true);
-		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 
@@ -196,31 +176,21 @@ public class UpdateWizardTest extends WizardTest {
 	 * This is not the SDK workflow, but should be supported.
 	 */
 	public void testUpdateWizardUnresolved() {
-		IUElementListRoot root = new IUElementListRoot();
-		AvailableUpdateElement element = new AvailableUpdateElement(root, upgrade, top1, TESTPROFILE, true);
-		root.setChildren(new Object[] {element});
-
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element}, null, null);
+		Update update = new Update(main, mainUpgrade1);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, new Object[] {update}, null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 
 		try {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
-			assertFalse(page1.isPageComplete());
-			// Will cause computation of a plan.
-			ResolutionResultsWizardPage page2 = (ResolutionResultsWizardPage) wizard.getNextPage(page1);
-			dialog.showPage(page2);
-			assertTrue(page2.isPageComplete());
-
-			// if another operation is scheduled for this profile, we should not be allowed to proceed
-			Job job = ProvisioningOperationRunner.schedule(getLongTestOperation(), StatusManager.LOG);
+			// Page 1 should have selections
 			assertTrue(page1.isPageComplete());
-			// causes recalculation of plan and status
-			wizard.getNextPage(page1);
-			// can't move to next page while op is running
-			assertFalse(page1.isPageComplete());
-			job.cancel();
+			// Should be able to resolve an unresolved operation
+			wizard.recomputePlan(dialog);
+			// Everything is still good
+			assertTrue(page1.isPageComplete());
 
 		} finally {
 			dialog.getShell().close();
@@ -230,17 +200,12 @@ public class UpdateWizardTest extends WizardTest {
 	/**
 	 * Tests the wizard when multiple versions are available.
 	 */
-	public void testBug277554MultipleVersions() throws ProvisionException {
-		IUElementListRoot root = new IUElementListRoot();
-		AvailableUpdateElement element = new AvailableUpdateElement(root, mainUpgrade1, main, TESTPROFILE, true);
-		AvailableUpdateElement element2 = new AvailableUpdateElement(root, mainUpgrade2, main, TESTPROFILE, true);
-		root.setChildren(new Object[] {element, element2});
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeInstallableUnits(new IInstallableUnit[] {main});
-		request.addInstallableUnits(new IInstallableUnit[] {mainUpgrade2});
-		PlannerResolutionOperation op = getResolvedOperation(request);
-		UpdateWizard wizard = new UpdateWizard(Policy.getDefault(), TESTPROFILE, root, new Object[] {element2}, op, null);
-		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
+	public void testBug277554MultipleVersions() {
+
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		op.resolveModal(getMonitor());
+		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
+		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 
@@ -248,7 +213,7 @@ public class UpdateWizardTest extends WizardTest {
 			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
 			// should already have a plan
 			assertTrue("1.0", page1.isPageComplete());
-			assertEquals("1.1", page1.getCheckedIUElements().length, 1);
+			assertEquals("1.1", 1, page1.getCheckedIUElements().length);
 			ResolutionResultsWizardPage page2 = (ResolutionResultsWizardPage) wizard.getNextPage(page1);
 			dialog.showPage(page2);
 			// should only have one root item in the resolution page

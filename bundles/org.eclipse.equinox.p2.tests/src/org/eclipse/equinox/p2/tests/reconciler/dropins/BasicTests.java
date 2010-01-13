@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.reconciler.dropins;
 import java.io.File;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 //- add new
 //- remove only

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,22 +15,26 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationArtifactRepository;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepository;
 import org.eclipse.equinox.internal.p2.update.Site;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class DropinsRepositoryListener extends RepositoryListener {
+	private static final String PREFIX = "[reconciler] [dropins] "; //$NON-NLS-1$
 	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
 	private static final String JAR = ".jar"; //$NON-NLS-1$
@@ -40,8 +44,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private static final String DROPIN_ARTIFACT_REPOSITORIES = "dropin.artifactRepositories"; //$NON-NLS-1$
 	private static final String DROPIN_METADATA_REPOSITORIES = "dropin.metadataRepositories"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
-	private List metadataRepositories = new ArrayList();
-	private List artifactRepositories = new ArrayList();
+	private List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
+	private List<IArtifactRepository> artifactRepositories = new ArrayList<IArtifactRepository>();
 
 	public DropinsRepositoryListener(String repositoryName) {
 		super(repositoryName, true);
@@ -52,22 +56,28 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	public boolean added(File file) {
-		if (super.added(file))
+		if (super.added(file)) {
+			if (Tracing.DEBUG_RECONCILER)
+				Tracing.debug(PREFIX + "Interesting feature or bundle added: " + file); //$NON-NLS-1$
 			return true;
+		}
 		addRepository(file);
 		return true;
 	}
 
 	public boolean changed(File file) {
-		if (super.changed(file))
+		if (super.changed(file)) {
+			if (Tracing.DEBUG_RECONCILER)
+				Tracing.debug(PREFIX + "Interesting feature or bundle changed: " + file); //$NON-NLS-1$			
 			return true;
+		}
 		addRepository(file);
 		return true;
 	}
 
 	private void addRepository(File file) {
 		URI repoLocation = createRepositoryLocation(file);
-		Properties properties = new Properties();
+		Map<String, String> properties = new HashMap<String, String>();
 		// if the file pointed to a link file, keep track of the attribute
 		// so we can add it to the repo later
 		if (file.isFile() && file.getName().endsWith(LINK)) {
@@ -174,7 +184,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		return repo.toURI();
 	}
 
-	public void getMetadataRepository(URI repoURL, Properties properties) {
+	public void getMetadataRepository(URI repoURL, Map<String, String> properties) {
 		try {
 			IMetadataRepository repository = null;
 			try {
@@ -184,12 +194,23 @@ public class DropinsRepositoryListener extends RepositoryListener {
 				repository = Activator.loadMetadataRepository(repoURL, null);
 			}
 			metadataRepositories.add(repository);
+			debugRepository(repository);
 		} catch (ProvisionException ex) {
 			LogHelper.log(ex);
 		}
 	}
 
-	public void getArtifactRepository(URI repoURL, Properties properties) {
+	private void debugRepository(IMetadataRepository repository) {
+		if (!Tracing.DEBUG_RECONCILER)
+			return;
+		Tracing.debug(PREFIX + "Repository created " + repository.getLocation()); //$NON-NLS-1$
+		// Print out a list of all the IUs in the repository
+		IQueryResult<IInstallableUnit> result = repository.query(InstallableUnitQuery.ANY, new NullProgressMonitor());
+		for (Iterator<IInstallableUnit> iter = result.iterator(); iter.hasNext();)
+			Tracing.debug(PREFIX + "\t" + iter.next()); //$NON-NLS-1$
+	}
+
+	public void getArtifactRepository(URI repoURL, Map<String, String> properties) {
 		try {
 			IArtifactRepository repository = null;
 			try {
@@ -212,14 +233,14 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private void synchronizeDropinMetadataRepositories() {
-		List currentRepositories = new ArrayList();
-		for (Iterator it = metadataRepositories.iterator(); it.hasNext();) {
-			IMetadataRepository repository = (IMetadataRepository) it.next();
+		List<String> currentRepositories = new ArrayList<String>();
+		for (Iterator<IMetadataRepository> it = metadataRepositories.iterator(); it.hasNext();) {
+			IMetadataRepository repository = it.next();
 			currentRepositories.add(repository.getLocation().toString());
 		}
-		List previousRepositories = getListRepositoryProperty(getMetadataRepository(), DROPIN_METADATA_REPOSITORIES);
-		for (Iterator iterator = previousRepositories.iterator(); iterator.hasNext();) {
-			String repository = (String) iterator.next();
+		List<String> previousRepositories = getListRepositoryProperty(getMetadataRepository(), DROPIN_METADATA_REPOSITORIES);
+		for (Iterator<String> iterator = previousRepositories.iterator(); iterator.hasNext();) {
+			String repository = iterator.next();
 			if (!currentRepositories.contains(repository))
 				removeMetadataRepository(repository);
 		}
@@ -238,14 +259,14 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private void synchronizeDropinArtifactRepositories() {
-		List currentRepositories = new ArrayList();
-		for (Iterator it = artifactRepositories.iterator(); it.hasNext();) {
-			IArtifactRepository repository = (IArtifactRepository) it.next();
+		List<String> currentRepositories = new ArrayList<String>();
+		for (Iterator<IArtifactRepository> it = artifactRepositories.iterator(); it.hasNext();) {
+			IArtifactRepository repository = it.next();
 			currentRepositories.add(repository.getLocation().toString());
 		}
-		List previousRepositories = getListRepositoryProperty(getArtifactRepository(), DROPIN_ARTIFACT_REPOSITORIES);
-		for (Iterator iterator = previousRepositories.iterator(); iterator.hasNext();) {
-			String repository = (String) iterator.next();
+		List<String> previousRepositories = getListRepositoryProperty(getArtifactRepository(), DROPIN_ARTIFACT_REPOSITORIES);
+		for (Iterator<String> iterator = previousRepositories.iterator(); iterator.hasNext();) {
+			String repository = iterator.next();
 			if (!currentRepositories.contains(repository))
 				removeArtifactRepository(repository);
 		}
@@ -263,9 +284,9 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		}
 	}
 
-	private List getListRepositoryProperty(IRepository repository, String key) {
-		List listProperty = new ArrayList();
-		String dropinRepositories = (String) repository.getProperties().get(key);
+	private List<String> getListRepositoryProperty(IRepository<?> repository, String key) {
+		List<String> listProperty = new ArrayList<String>();
+		String dropinRepositories = repository.getProperties().get(key);
 		if (dropinRepositories != null) {
 			StringTokenizer tokenizer = new StringTokenizer(dropinRepositories, PIPE);
 			while (tokenizer.hasMoreTokens()) {
@@ -275,10 +296,10 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		return listProperty;
 	}
 
-	private void setListRepositoryProperty(IRepository repository, String key, List listProperty) {
+	private void setListRepositoryProperty(IRepository<?> repository, String key, List<String> listProperty) {
 		StringBuffer buffer = new StringBuffer();
-		for (Iterator it = listProperty.iterator(); it.hasNext();) {
-			String repositoryString = (String) it.next();
+		for (Iterator<String> it = listProperty.iterator(); it.hasNext();) {
+			String repositoryString = it.next();
 			buffer.append(repositoryString);
 			if (it.hasNext())
 				buffer.append(PIPE);
@@ -287,8 +308,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		repository.setProperty(key, value);
 	}
 
-	public Collection getMetadataRepositories() {
-		List result = new ArrayList(metadataRepositories);
+	public Collection<IMetadataRepository> getMetadataRepositories() {
+		List<IMetadataRepository> result = new ArrayList<IMetadataRepository>(metadataRepositories);
 		result.add(getMetadataRepository());
 		return result;
 	}

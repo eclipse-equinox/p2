@@ -8,13 +8,17 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class GreedyRequirement extends AbstractProvisioningTest {
@@ -26,15 +30,15 @@ public class GreedyRequirement extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		b1 = createIU("B", new Version("1.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
 
 		IRequiredCapability[] reqB = new IRequiredCapability[1];
 		reqB[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, false);
-		a1 = createIU("A", new Version("1.0.0"), reqB);
+		a1 = createIU("A", Version.create("1.0.0"), reqB);
 
 		IRequiredCapability[] reqC = new IRequiredCapability[1];
 		reqC[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true);
-		c1 = createIU("C", new Version("1.0.0"), reqC);
+		c1 = createIU("C", Version.create("1.0.0"), reqC);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1});
 
@@ -46,7 +50,7 @@ public class GreedyRequirement extends AbstractProvisioningTest {
 		//The plan contains B because the requirement from A on B is non greedy, but we are installing C that has a greedy requirement on the B
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1, c1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
 		assertInstallOperand(plan, b1);

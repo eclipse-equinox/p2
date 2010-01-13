@@ -10,16 +10,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class NonMinimalState2 extends AbstractProvisioningTest {
@@ -35,12 +38,12 @@ public class NonMinimalState2 extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits((IInstallableUnit[]) getMetadataRepositoryManager().query(new InstallableUnitQuery("org.mortbay.jetty.server"), new Collector(), null).toArray(IInstallableUnit.class));
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
+		request.addInstallableUnits((IInstallableUnit[]) getMetadataRepositoryManager().query(new InstallableUnitQuery("org.mortbay.jetty.server"), null).toArray(IInstallableUnit.class));
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
 
-		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), new Collector(), null).size());
-		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.iac.administrator"), new Collector(), null).size());
+		assertTrue(plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), null).isEmpty());
+		assertTrue(plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.iac.administrator"), null).isEmpty());
 	}
 
 	//	public void testp2Source() {
@@ -60,12 +63,12 @@ public class NonMinimalState2 extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits((IInstallableUnit[]) getMetadataRepositoryManager().query(new InstallableUnitQuery("org.mortbay.jetty.server"), new Collector(), null).toArray(IInstallableUnit.class));
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
+		request.addInstallableUnits((IInstallableUnit[]) getMetadataRepositoryManager().query(new InstallableUnitQuery("org.mortbay.jetty.server"), null).toArray(IInstallableUnit.class));
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
 
-		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), new Collector(), null).size());
-		assertEquals(0, plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.iac.administrator"), new Collector(), null).size());
+		assertTrue(plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), null).isEmpty());
+		assertTrue(plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.iac.administrator"), null).isEmpty());
 
 	}
 }

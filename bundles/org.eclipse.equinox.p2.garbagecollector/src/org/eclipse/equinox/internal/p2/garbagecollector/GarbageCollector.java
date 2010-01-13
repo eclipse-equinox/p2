@@ -13,10 +13,11 @@ package org.eclipse.equinox.internal.p2.garbagecollector;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
  * The main control point for the p2 garbage collector.  Takes a Profile and runs the CoreGarbageCollector with the
@@ -36,10 +37,16 @@ public class GarbageCollector {
 	/**
 	 * Maps IArtifactRepository objects to their respective "marked set" of IArtifactKeys
 	 */
-	private Map markSet;
+	private Map<IArtifactRepository, Collection<IArtifactKey>> markSet;
+	final IProvisioningAgent agent;
+
+	public GarbageCollector() {
+		// we need to use DS to create an Agent Listener here
+		agent = (IProvisioningAgent) GCActivator.getContext().getService(GCActivator.getContext().getServiceReference(IProvisioningAgent.class.getName()));
+	}
 
 	public void runGC(IProfile profile) {
-		markSet = new HashMap();
+		markSet = new HashMap<IArtifactRepository, Collection<IArtifactKey>>();
 		if (!traverseMainProfile(profile))
 			return;
 
@@ -70,10 +77,8 @@ public class GarbageCollector {
 	}
 
 	private void invokeCoreGC() {
-		Iterator keyIterator = markSet.keySet().iterator();
-		while (keyIterator.hasNext()) {
-			IArtifactRepository nextRepo = (IArtifactRepository) keyIterator.next();
-			IArtifactKey[] keys = (IArtifactKey[]) ((Collection) markSet.get(nextRepo)).toArray(new IArtifactKey[0]);
+		for (IArtifactRepository nextRepo : markSet.keySet()) {
+			IArtifactKey[] keys = markSet.get(nextRepo).toArray(new IArtifactKey[0]);
 			MarkSet aMarkSet = new MarkSet(keys, nextRepo);
 			new CoreGarbageCollector().clean(aMarkSet.getKeys(), aMarkSet.getRepo());
 		}
@@ -91,7 +96,7 @@ public class GarbageCollector {
 				continue;
 			}
 
-			IProfileRegistry profileRegistry = (IProfileRegistry) GCActivator.getService(GCActivator.getContext(), IProfileRegistry.class.getName());
+			IProfileRegistry profileRegistry = (IProfileRegistry) GCActivator.getService(GCActivator.getContext(), IProfileRegistry.SERVICE_NAME);
 			if (profileRegistry == null)
 				return;
 			IProfile[] registeredProfiles = profileRegistry.getProfiles();
@@ -122,7 +127,7 @@ public class GarbageCollector {
 				aProfileMarkSets = null;
 				return;
 			}
-			aProfileMarkSets = aMarkSetProvider.getMarkSets(aProfile);
+			aProfileMarkSets = aMarkSetProvider.getMarkSets(agent, aProfile);
 		}
 
 		public MarkSet[] getResult() {
@@ -141,10 +146,10 @@ public class GarbageCollector {
 			if (aProfileMarkSets[i] == null) {
 				continue;
 			}
-			Collection keys = (Collection) markSet.get(aProfileMarkSets[i].getRepo());
+			Collection<IArtifactKey> keys = markSet.get(aProfileMarkSets[i].getRepo());
 			if (keys == null) {
 				if (addRepositories) {
-					keys = new HashSet();
+					keys = new HashSet<IArtifactKey>();
 					markSet.put(aProfileMarkSets[i].getRepo(), keys);
 					addKeys(keys, aProfileMarkSets[i].getKeys());
 				}
@@ -154,7 +159,7 @@ public class GarbageCollector {
 		}
 	}
 
-	private void addKeys(Collection keyList, IArtifactKey[] keyArray) {
+	private void addKeys(Collection<IArtifactKey> keyList, IArtifactKey[] keyArray) {
 		for (int i = 0; i < keyArray.length; i++)
 			keyList.add(keyArray[i]);
 	}

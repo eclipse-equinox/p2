@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
 /** 
  * The concrete type for representing IArtifactKey's.
@@ -31,7 +32,7 @@ public class ArtifactKey implements IArtifactKey {
 	private static String[] getArrayFromList(String stringList, String separator) {
 		if (stringList == null || stringList.trim().length() == 0)
 			return new String[0];
-		ArrayList list = new ArrayList();
+		ArrayList<String> list = new ArrayList<String>();
 		boolean separatorSeen = true;
 		StringTokenizer tokens = new StringTokenizer(stringList, separator, true);
 		while (tokens.hasMoreTokens()) {
@@ -48,7 +49,7 @@ public class ArtifactKey implements IArtifactKey {
 		}
 		if (separatorSeen)
 			list.add(""); //$NON-NLS-1$
-		return (String[]) list.toArray(new String[list.size()]);
+		return list.toArray(new String[list.size()]);
 	}
 
 	public static IArtifactKey parse(String specification) {
@@ -77,6 +78,12 @@ public class ArtifactKey implements IArtifactKey {
 		this.classifier = classifier;
 		this.id = id;
 		this.version = version;
+	}
+
+	public ArtifactKey(IArtifactKey artifactKey) {
+		this.classifier = artifactKey.getClassifier();
+		this.id = artifactKey.getId();
+		this.version = artifactKey.getVersion();
 	}
 
 	public String getClassifier() {

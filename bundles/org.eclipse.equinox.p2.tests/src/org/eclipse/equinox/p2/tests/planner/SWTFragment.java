@@ -10,32 +10,33 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SWTFragment extends AbstractProvisioningTest {
 	public void testFragmentPickedByCapability() {
-		IRequiredCapability[] reqs = createRequiredCapabilities("swt.fragment", "swt.fragment", new VersionRange("[1.0.0, 2.0.0)"), null);
+		IRequiredCapability[] reqs = createRequiredCapabilities("swt.fragment", "swt.fragment", new VersionRange("[1.0.0, 2.0.0)"));
 		IInstallableUnit swt = createIU("SWT", reqs);
 
 		MetadataFactory.InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		iud.setId("SWT.WIN32");
-		iud.setVersion(new Version("1.0.0"));
-		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability("swt.fragment", "swt.fragment", new Version(1, 0, 0))});
+		iud.setVersion(Version.create("1.0.0"));
+		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability("swt.fragment", "swt.fragment", Version.createOSGi(1, 0, 0))});
 		iud.setFilter("(os=win32)");
 		IInstallableUnit swtW = MetadataFactory.createInstallableUnit(iud);
 
 		MetadataFactory.InstallableUnitDescription iud2 = new MetadataFactory.InstallableUnitDescription();
 		iud.setId("SWT.LINUX");
-		iud.setVersion(new Version("1.0.0"));
-		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability("swt.fragment", "swt.fragment", new Version(1, 0, 0))});
+		iud.setVersion(Version.create("1.0.0"));
+		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability("swt.fragment", "swt.fragment", Version.createOSGi(1, 0, 0))});
 		iud.setFilter("(os=linux)");
 		IInstallableUnit swtL = MetadataFactory.createInstallableUnit(iud2);
 
@@ -46,10 +47,11 @@ public class SWTFragment extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.setProfileProperty("os", "win32");
 		req.addInstallableUnits(new IInstallableUnit[] {swt});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertOK("plan", plan.getStatus());
-		Collector c = plan.getAdditions().query(new InstallableUnitQuery("SWT"), new Collector(), null);
-		plan.getAdditions().query(new InstallableUnitQuery("SWT.WIN32"), c, null);
+		Collector c = new Collector();
+		c.addAll(plan.getAdditions().query(new InstallableUnitQuery("SWT"), null));
+		c.addAll(plan.getAdditions().query(new InstallableUnitQuery("SWT.WIN32"), null));
 		assertEquals(2, c.size());
 	}
 }

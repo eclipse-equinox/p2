@@ -14,19 +14,17 @@ import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
-import org.eclipse.ui.statushandlers.StatusManager;
+import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Element wrapper class for a metadata repository that gets its
@@ -36,28 +34,27 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * 
  * @since 3.4
  */
-public class MetadataRepositoryElement extends RootElement implements IRepositoryElement {
+public class MetadataRepositoryElement extends RootElement implements IRepositoryElement<IInstallableUnit> {
 
 	URI location;
 	boolean isEnabled;
 	String name;
 
 	public MetadataRepositoryElement(Object parent, URI location, boolean isEnabled) {
-		this(parent, null, null, location, isEnabled);
+		this(parent, null, ProvisioningUI.getDefaultUI(), location, isEnabled);
 	}
 
-	public MetadataRepositoryElement(IUViewQueryContext queryContext, Policy policy, URI location, boolean isEnabled) {
-		super(null, queryContext, policy);
+	public MetadataRepositoryElement(IUViewQueryContext queryContext, ProvisioningUI ui, URI location, boolean isEnabled) {
+		this(null, queryContext, ui, location, isEnabled);
+	}
+
+	private MetadataRepositoryElement(Object parent, IUViewQueryContext queryContext, ProvisioningUI ui, URI location, boolean isEnabled) {
+		super(parent, queryContext, ui);
 		this.location = location;
 		this.isEnabled = isEnabled;
 	}
 
-	private MetadataRepositoryElement(Object parent, IUViewQueryContext queryContext, Policy policy, URI location, boolean isEnabled) {
-		super(parent, queryContext, policy);
-		this.location = location;
-		this.isEnabled = isEnabled;
-	}
-
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IMetadataRepository.class)
 			return getQueryable();
@@ -76,7 +73,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			//only invoke super if we successfully loaded the repository
 			return super.fetchChildren(o, sub.newChild(100));
 		} catch (ProvisionException e) {
-			ProvUI.reportLoadFailure(location, e.getStatus(), StatusManager.SHOW, getPolicy().getRepositoryManipulator());
+			getProvisioningUI().getRepositoryTracker().reportLoadFailure(location, e);
 			// TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=276784
 			return new Object[] {new EmptyElementExplanation(this, IStatus.ERROR, e.getLocalizedMessage(), "")}; //$NON-NLS-1$
 		}
@@ -103,24 +100,25 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryable()
 	 */
-	public IQueryable getQueryable() {
+	public IQueryable<?> getQueryable() {
 		if (queryable == null)
-			return (IQueryable) getRepository(new NullProgressMonitor());
+			queryable = getRepository(new NullProgressMonitor());
 		return queryable;
 	}
 
-	public IRepository getRepository(IProgressMonitor monitor) {
+	public IMetadataRepository getRepository(IProgressMonitor monitor) {
 		try {
 			return getMetadataRepository(monitor);
 		} catch (ProvisionException e) {
-			ProvUI.reportLoadFailure(location, e.getStatus(), StatusManager.SHOW, getPolicy().getRepositoryManipulator());
+			getProvisioningUI().getRepositoryTracker().reportLoadFailure(location, e);
 		}
 		return null;
 	}
 
 	private IMetadataRepository getMetadataRepository(IProgressMonitor monitor) throws ProvisionException {
-		if (queryable == null)
-			queryable = ProvisioningUtil.loadMetadataRepository(location, monitor);
+		if (queryable == null) {
+			queryable = getProvisioningUI().loadMetadataRepository(location, false, monitor);
+		}
 		return (IMetadataRepository) queryable;
 
 	}
@@ -147,16 +145,13 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getName()
 	 */
 	public String getName() {
+		ProvisioningSession session = getProvisioningUI().getSession();
 		if (name == null) {
-			try {
-				name = ProvisioningUtil.getMetadataRepositoryProperty(location, IRepository.PROP_NICKNAME);
-				if (name == null)
-					name = ProvisioningUtil.getMetadataRepositoryProperty(location, IRepository.PROP_NAME);
-				if (name == null)
-					name = ""; //$NON-NLS-1$
-			} catch (ProvisionException e) {
+			name = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+			if (name == null)
+				name = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
+			if (name == null)
 				name = ""; //$NON-NLS-1$
-			}
 		}
 		return name;
 	}
@@ -175,16 +170,13 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
 	public String getDescription() {
-		if (ProvUI.hasNotFoundStatusBeenReported(location))
+		ProvisioningSession session = getProvisioningUI().getSession();
+		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location))
 			return ProvUIMessages.MetadataRepositoryElement_NotFound;
-		try {
-			String description = ProvisioningUtil.getMetadataRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
-			if (description == null)
-				return ""; //$NON-NLS-1$
-			return description;
-		} catch (ProvisionException e) {
+		String description = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
+		if (description == null)
 			return ""; //$NON-NLS-1$
-		}
+		return description;
 	}
 
 	/* (non-Javadoc)
@@ -216,7 +208,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			return true;
 		if (location == null)
 			return false;
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null || !(manager instanceof MetadataRepositoryManager))
 			return false;
 		IMetadataRepository repo = ((MetadataRepositoryManager) manager).getRepository(location);
@@ -232,7 +224,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			return super.getPolicy();
 		if (parent instanceof QueriedElement)
 			return ((QueriedElement) parent).getPolicy();
-		return Policy.getDefault();
+		return ProvisioningUI.getDefaultUI().getPolicy();
 	}
 
 	public String toString() {

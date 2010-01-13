@@ -22,12 +22,12 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.app.Activator;
 import org.eclipse.equinox.internal.p2.director.app.Application;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.Bundle;
 
@@ -473,10 +473,10 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		URI metadataRepo1 = getTestData("10.1", "/testData/metadataRepo/good").toURI();
 		URI metadataRepo2 = getTestData("10.1", "/testData/metadataRepo/multipleversions1").toURI();
 		Application application = new Application();
-		Method method = application.getClass().getDeclaredMethod("collectRootIUs", URI[].class, Query.class, Collector.class);
+		Method method = application.getClass().getDeclaredMethod("collectRootIUs", URI[].class, IQuery.class);
 		method.setAccessible(true);
 		URI[] uris = new URI[] {metadataRepo1, metadataRepo2};
-		Query query = new MatchQuery() {
+		IQuery query = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iu = (IInstallableUnit) candidate;
@@ -486,8 +486,7 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 				return false;
 			}
 		};
-		Collector collector = new Collector();
-		Collector result = (Collector) method.invoke(application, uris, query, collector);
+		Collector result = (Collector) method.invoke(application, uris, query);
 		assertEquals("1.0", 1, result.size());
 	}
 
@@ -572,8 +571,8 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		File artifactRepo1 = getTestData("12.0", "/testData/mirror/mirrorSourceRepo3");
 		File metadataRepo1 = getTestData("12.1", "/testData/mirror/mirrorSourceRepo3");
 
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(artifactManager);
 		assertNotNull(metadataManager);
 
@@ -619,8 +618,8 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		File artifactRepo1 = getTestData("13.0", "/testData/mirror/mirrorSourceRepo4");
 		File metadataRepo1 = getTestData("13.1", "/testData/mirror/mirrorSourceRepo4");
 
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(artifactManager);
 		assertNotNull(metadataManager);
 

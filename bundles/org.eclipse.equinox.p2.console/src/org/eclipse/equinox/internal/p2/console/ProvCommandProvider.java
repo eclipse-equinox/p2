@@ -1,15 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008, 2009 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: IBM Corporation - initial API and implementation
  * 	Band XI - add more commands
+ *  Composent, Inc. - command additions
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.io.File;
 import java.net.URI;
@@ -18,14 +20,17 @@ import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.GroupQuery;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
@@ -55,60 +60,90 @@ public class ProvCommandProvider implements CommandProvider {
 	}
 
 	/**
-	 * Adds a metadata repository.
+	 * Adds both a metadata repository and artifact repository
 	 */
 	public void _provaddrepo(CommandInterpreter interpreter) {
 		String urlString = interpreter.nextArgument();
 		if (urlString == null) {
-			interpreter.print("Repository location must be provided");
-			interpreter.println();
+			interpreter.println("Repository location must be provided");
 			return;
 		}
-		URI repoURL = toURI(interpreter, urlString);
-		if (repoURL == null)
+		URI repoURI = toURI(interpreter, urlString);
+		if (repoURI == null)
 			return;
-		if (ProvisioningHelper.addMetadataRepository(repoURL) == null)
-			interpreter.println("Unable to add repository: " + repoURL);
+		// add metadata repo
+		if (ProvisioningHelper.addMetadataRepository(repoURI) == null) {
+			interpreter.println("Unable to add metadata repository: " + repoURI);
+		} else // add artifact repo at same URL
+		if (ProvisioningHelper.addArtifactRepository(repoURI) == null) {
+			interpreter.println("Unable to add artifact repository: " + repoURI);
+		}
 	}
 
 	public void _provdelrepo(CommandInterpreter interpreter) {
 		String urlString = interpreter.nextArgument();
 		if (urlString == null) {
-			interpreter.print("Repository location must be provided");
-			interpreter.println();
+			interpreter.println("Repository location must be provided");
 			return;
 		}
-		URI repoURL = toURI(interpreter, urlString);
-		if (repoURL == null)
+		URI repoURI = toURI(interpreter, urlString);
+		if (repoURI == null)
 			return;
-		ProvisioningHelper.removeMetadataRepository(repoURL);
+		ProvisioningHelper.removeMetadataRepository(repoURI);
+		ProvisioningHelper.removeArtifactRepository(repoURI);
+	}
+
+	/**
+	 * Adds a metadata repository.
+	 */
+	public void _provaddmetadatarepo(CommandInterpreter interpreter) {
+		String urlString = interpreter.nextArgument();
+		if (urlString == null) {
+			interpreter.println("Repository location must be provided");
+			return;
+		}
+		URI repoURI = toURI(interpreter, urlString);
+		if (repoURI == null)
+			return;
+		if (ProvisioningHelper.addMetadataRepository(repoURI) == null)
+			interpreter.println("Unable to add repository: " + repoURI);
+	}
+
+	public void _provdelmetadatarepo(CommandInterpreter interpreter) {
+		String urlString = interpreter.nextArgument();
+		if (urlString == null) {
+			interpreter.println("Repository location must be provided");
+			return;
+		}
+		URI repoURI = toURI(interpreter, urlString);
+		if (repoURI == null)
+			return;
+		ProvisioningHelper.removeMetadataRepository(repoURI);
 	}
 
 	public void _provaddartifactrepo(CommandInterpreter interpreter) {
 		String urlString = interpreter.nextArgument();
 		if (urlString == null) {
-			interpreter.print("Repository location must be provided");
-			interpreter.println();
+			interpreter.println("Repository location must be provided");
 			return;
 		}
-		URI repoURL = toURI(interpreter, urlString);
-		if (repoURL == null)
+		URI repoURI = toURI(interpreter, urlString);
+		if (repoURI == null)
 			return;
-		if (ProvisioningHelper.addArtifactRepository(repoURL) == null)
-			interpreter.println("Unable to add repository: " + repoURL);
+		if (ProvisioningHelper.addArtifactRepository(repoURI) == null)
+			interpreter.println("Unable to add repository " + repoURI);
 	}
 
 	public void _provdelartifactrepo(CommandInterpreter interpreter) {
 		String urlString = interpreter.nextArgument();
 		if (urlString == null) {
-			interpreter.print("Repository location must be provided");
-			interpreter.println();
+			interpreter.println("Repository location must be provided");
 			return;
 		}
-		URI repoURL = toURI(interpreter, urlString);
-		if (repoURL == null)
+		URI repoURI = toURI(interpreter, urlString);
+		if (repoURI == null)
 			return;
-		ProvisioningHelper.removeArtifactRepository(repoURL);
+		ProvisioningHelper.removeArtifactRepository(repoURI);
 	}
 
 	/**
@@ -118,24 +153,26 @@ public class ProvCommandProvider implements CommandProvider {
 		String iu = interpreter.nextArgument();
 		String version = interpreter.nextArgument();
 		String profileId = interpreter.nextArgument();
-		if (profileId == null || profileId.equals("this"))
+		if (profileId == null || profileId.equals("this")) //$NON-NLS-1$
 			profileId = IProfileRegistry.SELF;
 		if (iu == null || version == null || profileId == null) {
-			interpreter.println("Installable unit id, version, and profile Id must be provided");
+			interpreter.println("Installable unit id, version, and profileid must be provided");
 			return;
 		}
 		IStatus s = null;
 		try {
 			s = ProvisioningHelper.install(iu, version, ProvisioningHelper.getProfile(profileId), new NullProgressMonitor());
 		} catch (ProvisionException e) {
-			interpreter.println("installation failed ");
-			e.printStackTrace();
+			interpreter.println("Installation failed with ProvisionException for " + iu + " " + version);
+			interpreter.printStackTrace(e);
 			return;
 		}
 		if (s.isOK())
-			interpreter.println("installation complete");
-		else
-			interpreter.println("installation failed " + s.getMessage());
+			interpreter.println("Installation complete for " + iu + " " + version);
+		else {
+			interpreter.println("Installation failed for " + iu + " " + version);
+			printErrorStatus(interpreter, s);
+		}
 	}
 
 	/**
@@ -150,16 +187,16 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		}
 		String environments = interpreter.nextArgument();
-		Properties props = new Properties();
-		props.setProperty(IProfile.PROP_INSTALL_FOLDER, location);
-		props.setProperty(IProfile.PROP_FLAVOR, flavor);
+		Map<String, String> props = new HashMap<String, String>();
+		props.put(IProfile.PROP_INSTALL_FOLDER, location);
 		if (environments != null)
-			props.setProperty(IProfile.PROP_ENVIRONMENTS, environments);
+			props.put(IProfile.PROP_ENVIRONMENTS, environments);
 
 		try {
 			ProvisioningHelper.addProfile(profileId, props);
 		} catch (ProvisionException e) {
-			interpreter.println("add profile failed " + e.getMessage());
+			interpreter.println("Add profile failed.  " + e.getMessage());
+			interpreter.printStackTrace(e);
 		}
 	}
 
@@ -169,7 +206,7 @@ public class ProvCommandProvider implements CommandProvider {
 	public void _provdelprofile(CommandInterpreter interpreter) {
 		String profileId = interpreter.nextArgument();
 		if (profileId == null) {
-			interpreter.println("Id must be provided");
+			interpreter.println("profileid must be provided");
 			return;
 		}
 		ProvisioningHelper.removeProfile(profileId);
@@ -225,9 +262,9 @@ public class ProvCommandProvider implements CommandProvider {
 	 */
 	public void _provlg(CommandInterpreter interpreter) {
 		String urlString = processArgument(interpreter.nextArgument());
-		IQueryable queryable = null;
+		IQueryable<IInstallableUnit> queryable = null;
 		if (urlString == null) {
-			queryable = (IQueryable) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+			queryable = (IQueryable<IInstallableUnit>) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 			if (queryable == null)
 				return;
 		} else {
@@ -238,8 +275,7 @@ public class ProvCommandProvider implements CommandProvider {
 			if (queryable == null)
 				return;
 		}
-		Query query = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
-		IInstallableUnit[] units = sort(queryable.query(query, new Collector(), null));
+		IInstallableUnit[] units = sort(queryable.query(new GroupQuery(), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -264,26 +300,27 @@ public class ProvCommandProvider implements CommandProvider {
 		if (repoURL == null)
 			return;
 		IArtifactRepository repo = ProvisioningHelper.getArtifactRepository(repoURL);
-		IArtifactKey[] keys = null;
+		IQueryResult<IArtifactKey> keys = null;
 		try {
-			keys = (repo != null) ? repo.getArtifactKeys() : null;
+			keys = (repo != null) ? repo.query(ArtifactKeyQuery.ALL_KEYS, null) : null;
 		} catch (UnsupportedOperationException e) {
-			interpreter.println("Repository does not support list commands.");
+			interpreter.println("Repository does not support queries.");
 			return;
 		}
-		if (keys == null || keys.length == 0) {
+		if (keys == null || keys.isEmpty()) {
 			interpreter.println("Repository has no artifacts");
 			return;
 		}
 		IFileArtifactRepository fileRepo = (IFileArtifactRepository) repo.getAdapter(IFileArtifactRepository.class);
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(keys[i]);
+		for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = iterator.next();
+			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
 			for (int j = 0; j < descriptors.length; j++) {
 				IArtifactDescriptor descriptor = descriptors[j];
 				File location = null;
 				if (fileRepo != null)
 					location = fileRepo.getArtifactFile(descriptor);
-				println(interpreter, keys[i], location);
+				println(interpreter, key, location);
 			}
 
 		}
@@ -326,53 +363,238 @@ public class ProvCommandProvider implements CommandProvider {
 		}
 		// determine which profile is to be listed
 		IProfile target = null;
-		if (profileId.equals("this"))
+		if (profileId.equals("this")) //$NON-NLS-1$
 			profileId = IProfileRegistry.SELF;
 		target = ProvisioningHelper.getProfile(profileId);
 		if (target == null)
 			return;
 
 		// list the profile contents
-		IInstallableUnit[] result = sort(target.query(new InstallableUnitQuery(id, new VersionRange(range)), new Collector(), null));
+		IInstallableUnit[] result = sort(target.query(new InstallableUnitQuery(id, new VersionRange(range)), null));
 		for (int i = 0; i < result.length; i++)
 			interpreter.println(result[i]);
 	}
 
-	private IInstallableUnit[] sort(Collector collector) {
-		IInstallableUnit[] units = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
-		Arrays.sort(units, new Comparator() {
-			public int compare(Object arg0, Object arg1) {
+	/**
+	 * Lists the profile timestamps for a given profile id, if no profile id, the default profile
+	 * is used.
+	 * 
+	 * @param interpreter
+	 */
+	public void _provlpts(CommandInterpreter interpreter) {
+		String profileId = processArgument(interpreter.nextArgument());
+		if (profileId == null || profileId.equals("this")) { //$NON-NLS-1$
+			profileId = IProfileRegistry.SELF;
+		}
+		long[] profileTimestamps = ProvisioningHelper.getProfileTimestamps(profileId);
+		// if no profile timestamps for given id, print that out and done
+		if (profileTimestamps == null || profileTimestamps.length == 0) {
+			interpreter.print("No timestamps found for profile ");
+			interpreter.println(profileId);
+			return;
+		}
+		// else if there are some timestamps then print them out on separate line
+		interpreter.print("Timestamps for profile ");
+		interpreter.println(profileId);
+		for (int i = 0; i < profileTimestamps.length; i++) {
+			interpreter.print("\t"); //$NON-NLS-1$
+			interpreter.println(new Long(profileTimestamps[i]));
+		}
+	}
+
+	/**
+	 * Revert a profile to a given timestamp
+	 */
+	public void _provrevert(CommandInterpreter interpreter) {
+		String timestamp = interpreter.nextArgument();
+		if (timestamp == null) {
+			interpreter.println("Valid timestamp must be provided.  Timestamps can be retrieved via 'provlpts' command.");
+			return;
+		}
+		Long ts = null;
+		try {
+			ts = new Long(timestamp);
+		} catch (NumberFormatException e) {
+			interpreter.println("Timestamp " + timestamp + " not valid.  Timestamps can be retrieved via 'provlpts' command.");
+			return;
+		}
+		String profileId = interpreter.nextArgument();
+		if (profileId == null || profileId.equals("this"))
+			profileId = IProfileRegistry.SELF;
+
+		IProfile profile = ProvisioningHelper.getProfile(profileId);
+		if (profile == null) {
+			interpreter.println("Profile " + profileId + " not found");
+			return;
+		}
+		IStatus s = null;
+		try {
+			s = ProvisioningHelper.revertToPreviousState(profile, ts.longValue());
+		} catch (ProvisionException e) {
+			interpreter.println("revert failed ");
+			interpreter.printStackTrace(e);
+			return;
+		}
+		if (s.isOK())
+			interpreter.println("revert completed");
+		else {
+			interpreter.println("revert failed ");
+			printErrorStatus(interpreter, s);
+		}
+	}
+
+	private IInstallableUnit[] sort(IQueryResult<IInstallableUnit> queryResult) {
+		IInstallableUnit[] units = queryResult.toArray(IInstallableUnit.class);
+		Arrays.sort(units, new Comparator<IInstallableUnit>() {
+			public int compare(IInstallableUnit arg0, IInstallableUnit arg1) {
 				return arg0.toString().compareTo(arg1.toString());
 			}
 		});
 		return units;
 	}
 
+	public void _provlgp(CommandInterpreter interpreter) {
+		String profileId = processArgument(interpreter.nextArgument());
+		if (profileId == null || profileId.equals("this")) {
+			profileId = IProfileRegistry.SELF;
+		}
+		IProfile profile = ProvisioningHelper.getProfile(profileId);
+		if (profile == null) {
+			interpreter.println("Profile " + profileId + " not found");
+			return;
+		}
+		IInstallableUnit[] units = sort(profile.query(new GroupQuery(), new NullProgressMonitor()));
+		// Now print out results
+		for (int i = 0; i < units.length; i++)
+			println(interpreter, units[i]);
+
+	}
+
+	public void _provremove(CommandInterpreter interpreter) {
+		String iu = interpreter.nextArgument();
+		String version = interpreter.nextArgument();
+		String profileId = interpreter.nextArgument();
+		if (profileId == null || profileId.equals("this"))
+			profileId = IProfileRegistry.SELF;
+		if (version == null) {
+			version = Version.emptyVersion.toString();
+		}
+		if (iu == null) {
+			interpreter.println("Installable unit id must be provided");
+			return;
+		}
+		IStatus s = null;
+		try {
+			s = ProvisioningHelper.uninstall(iu, version, ProvisioningHelper.getProfile(profileId), new NullProgressMonitor());
+		} catch (ProvisionException e) {
+			interpreter.println("Remove failed with ProvisionException for " + iu + " " + version);
+			interpreter.printStackTrace(e);
+			return;
+		}
+		if (s.isOK())
+			interpreter.println("Remove complete for " + iu + " " + version);
+		else {
+			interpreter.println("Remove failed for " + iu + " " + version);
+			printErrorStatus(interpreter, s);
+		}
+	}
+
+	private void printErrorStatus(CommandInterpreter interpreter, IStatus status) {
+		interpreter.print("--Error status ");
+		interpreter.print("message=" + status.getMessage());
+		interpreter.print(",code=" + status.getCode());
+		String severityString = null;
+		switch (status.getSeverity()) {
+			case IStatus.INFO :
+				severityString = "INFO";
+				break;
+			case IStatus.CANCEL :
+				severityString = "CANCEL";
+				break;
+			case IStatus.WARNING :
+				severityString = "WARNING";
+				break;
+			case IStatus.ERROR :
+				severityString = "ERROR";
+				break;
+		}
+		interpreter.print(",severity=" + severityString);
+		interpreter.print(",bundle=" + status.getPlugin());
+		interpreter.println("--");
+		Throwable t = status.getException();
+		if (t != null)
+			interpreter.printStackTrace(t);
+		IStatus[] children = status.getChildren();
+		if (children != null && children.length > 0) {
+			interpreter.println("Error status children:");
+			for (int i = 0; i < children.length; i++) {
+				printErrorStatus(interpreter, children[i]);
+			}
+		}
+		interpreter.println("--End Error Status--");
+	}
+
 	public String getHelp() {
 		StringBuffer help = new StringBuffer();
 		help.append(NEW_LINE);
-		help.append("---"); //$NON-NLS-1$
-		help.append("Provisioning Commands");
-		help.append("---"); //$NON-NLS-1$
+		help.append("---");
+		help.append("P2 Provisioning Commands");
+		help.append("---");
 		help.append(NEW_LINE);
-		help.append("\tprovlr [<repository URL> <iu id | *> <version range | *>]   - Lists all metadata repositories, or the contents of a given metadata repository");
+
+		help.append("---");
+		help.append("Repository Commands");
+		help.append("---");
 		help.append(NEW_LINE);
-		help.append("\tprovlar [<repository URL>] - Lists all artifact repositories, or the contents of a given artifact repository");
+		help.append("\tprovaddrepo <repository URI> - Adds a both a metadata and artifact repository at URI");
 		help.append(NEW_LINE);
-		help.append("\tprovliu [<repository URL | *> <iu id | *> <version range | *>] - Lists the IUs that match the pattern in the given repo.  * matches all");
+		help.append("\tprovdelrepo <repository URI> - Deletes a metadata and artifact repository at URI");
 		help.append(NEW_LINE);
-		help.append("\tprovlp [<profile id | *> - Lists all profiles, or the contents of the profile at the given profile");
+		help.append("\tprovaddmetadatarepo <repository URI> - Adds a metadata repository at URI");
 		help.append(NEW_LINE);
-		help.append("\tprovlg [<repository URL> <iu id | *> <version range | *>] - Lists all IUs with group capabilities in the given repo or in all repos if the URL is omitted");
+		help.append("\tprovdelmetadatarepo <repository URI> - Deletes a metadata repository at URI");
 		help.append(NEW_LINE);
-		help.append("\tprovinstall <InstallableUnit> <version> <profileId> - Provisions an IU to the profile with the give id");
+		help.append("\tprovaddartifactrepo <repository URI> - Adds an artifact repository at URI");
 		help.append(NEW_LINE);
-		help.append("\tprovaddrepo <repository URL> - Adds a metadata repository");
+		help.append("\tprovdelartifactrepo <repository URI> - Deletes an artifact repository URI");
 		help.append(NEW_LINE);
-		help.append("\tprovaddartifactrepo <repository URL> - Adds an artifact repository");
+		help.append("\tprovlg [<repository URI> <iu id | *> <version range | *>] - Lists all IUs with group capabilities in the given repo or in all repos if URI is omitted");
 		help.append(NEW_LINE);
-		help.append("\tprovaddprofile <profileId> <location> <flavor> - Adds a profile with the given id, location and flavor");
+		help.append("\tprovlr [<repository URI> <iu id | *> <version range | *>]   - Lists all metadata repositories, or the contents of a given metadata repository");
 		help.append(NEW_LINE);
+		help.append("\tprovlar [<repository URI>] - Lists all artifact repositories, or the contents of a given artifact repository");
+		help.append(NEW_LINE);
+		help.append("\tprovliu [<repository URI | *> <iu id | *> <version range | *>] - Lists the IUs that match the pattern in the given repo.  * matches all");
+		help.append(NEW_LINE);
+
+		help.append("---");
+		help.append("Profile Registry Commands");
+		help.append("---");
+		help.append(NEW_LINE);
+
+		help.append("\tprovaddprofile <profileid> <location> <flavor> - Adds a profile with the given profileid, location and flavor");
+		help.append(NEW_LINE);
+		help.append("\tprovdelprofile <profileid> - Deletes a profile with the given profileid");
+		help.append(NEW_LINE);
+		help.append("\tprovlp [<profileid | *>] - Lists all profiles, or the contents of the profile at the given profile");
+		help.append(NEW_LINE);
+		help.append("\tprovlgp [<profileid>] - Lists all IUs with group capabilities in the given profile, or current profile if profileid is omitted");
+		help.append(NEW_LINE);
+		help.append("\tprovlpts [<profileid>] - Lists timestamps for given profile, or if no profileid given then the default profile timestamps are reported");
+		help.append(NEW_LINE);
+
+		help.append("---");
+		help.append("Install Commands");
+		help.append("---");
+		help.append(NEW_LINE);
+
+		help.append("\tprovinstall <InstallableUnit> <version> <profileid> - installs an IU to the profileid.  If no profileid is given, installs into default profile.");
+		help.append(NEW_LINE);
+		help.append("\tprovremove <InstallableUnit> <version> <profileid> - Removes an IU from the profileid.  If no profileid is given, installs into default profile.");
+		help.append(NEW_LINE);
+		help.append("\tprovrevert <profileTimestamp> <profileid>] - Reverts to a given profileTimestamp for an optional profileId");
+		help.append(NEW_LINE);
+
 		return help.toString();
 	}
 

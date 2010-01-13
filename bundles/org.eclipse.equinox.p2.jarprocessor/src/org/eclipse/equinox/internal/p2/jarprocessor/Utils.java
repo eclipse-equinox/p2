@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipException;
-
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
 
 /**

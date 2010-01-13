@@ -24,6 +24,11 @@ import java.security.cert.Certificate;
  */
 public interface IServiceUI {
 	/**
+	 * Service name constant for the UI service.
+	 */
+	public static final String SERVICE_NAME = IServiceUI.class.getName();
+
+	/**
 	 * Authentication information returned from an authentication prompt request.
 	 */
 	public static class AuthenticationInfo {

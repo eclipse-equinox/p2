@@ -11,12 +11,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.installer;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
-
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
 
 /**
  * An install information captures all the data needed to perform a product install.
@@ -33,7 +32,7 @@ public class InstallDescription {
 	private URI[] metadataRepos;
 	private String productName;
 	private IVersionedId[] roots;
-	private final Map profileProperties = new HashMap();
+	private final Map<String, String> profileProperties = new HashMap<String, String>();
 
 	/**
 	 * Returns the p2 agent location, or <code>null</code> to indicate
@@ -86,7 +85,7 @@ public class InstallDescription {
 	/**
 	 * Returns the profile properties for this install.
 	 */
-	public Map getProfileProperties() {
+	public Map<String, String> getProfileProperties() {
 		return profileProperties;
 	}
 
@@ -140,7 +139,7 @@ public class InstallDescription {
 	 * Supplies a set of profile properties to be added when the profile is created.
 	 * @param properties the profile properties to be added
 	 */
-	public void setProfileProperties(Map properties) {
+	public void setProfileProperties(Map<String, String> properties) {
 		profileProperties.putAll(properties);
 	}
 

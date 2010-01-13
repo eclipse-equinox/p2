@@ -16,20 +16,20 @@ import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 public class CleanupcopyAction extends ProvisioningAction {
 
 	public static final String ACTION_CLEANUPCOPY = "cleanupcopy"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		return cleanupcopy(parameters, true);
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		return CopyAction.copy(parameters, false);
 	}
 
@@ -39,7 +39,7 @@ public class CleanupcopyAction extends ProvisioningAction {
 	 * @param restoreable flag indicating if the operation should be backed up
 	 * @return status
 	 */
-	public static IStatus cleanupcopy(Map parameters, boolean restoreable) {
+	public static IStatus cleanupcopy(Map<String, Object> parameters, boolean restoreable) {
 		String source = (String) parameters.get(ActionConstants.PARM_SOURCE);
 		if (source == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_SOURCE, ACTION_CLEANUPCOPY));
@@ -57,7 +57,7 @@ public class CleanupcopyAction extends ProvisioningAction {
 			return Status.OK_STATUS;
 
 		StringTokenizer tokenizer = new StringTokenizer(copied, ActionConstants.PIPE);
-		List directories = new ArrayList();
+		List<File> directories = new ArrayList<File>();
 		while (tokenizer.hasMoreTokens()) {
 			String fileName = tokenizer.nextToken();
 			File file = new File(fileName);
@@ -80,8 +80,7 @@ public class CleanupcopyAction extends ProvisioningAction {
 			}
 		}
 
-		for (Iterator it = directories.iterator(); it.hasNext();) {
-			File directory = (File) it.next();
+		for (File directory : directories) {
 			File[] children = directory.listFiles();
 			if (children == null)
 				return Util.createError(NLS.bind(Messages.Error_list_children_0, directory));

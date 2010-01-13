@@ -12,17 +12,11 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.QueryableMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * PreloadingRepositoryHandler provides background loading of
@@ -31,8 +25,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * @since 3.5
  */
 abstract class PreloadingRepositoryHandler extends AbstractHandler {
-
-	Object LOAD_FAMILY = new Object();
 
 	/**
 	 * The constructor.
@@ -45,38 +37,15 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	 * Execute the command.
 	 */
 	public Object execute(ExecutionEvent event) {
-		try {
-			final String profileId = ProvSDKUIActivator.getSelfProfileId();
-			BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
-				public void run() {
-					doExecuteAndLoad(profileId, preloadRepositories());
-				}
-			});
-
-		} catch (ProvisionException e) {
-			MessageDialog.openInformation(null, ProvSDKMessages.Handler_SDKUpdateUIMessageTitle, ProvSDKMessages.Handler_CannotLaunchUI);
-			ProvUI.handleException(e, null, StatusManager.LOG);
-		}
+		doExecuteAndLoad();
 		return null;
 	}
 
-	void doExecuteAndLoad(final String profileId, boolean preloadRepositories) {
-		//cancel any load that is already running
-		Job.getJobManager().cancel(LOAD_FAMILY);
-		final QueryableMetadataRepositoryManager queryableManager = new QueryableMetadataRepositoryManager(Policy.getDefault().getQueryContext(), false);
-		if (preloadRepositories) {
-			Job loadJob = new Job(ProvSDKMessages.InstallNewSoftwareHandler_LoadRepositoryJobLabel) {
-
-				protected IStatus run(IProgressMonitor monitor) {
-					queryableManager.loadAll(monitor);
-					return Status.OK_STATUS;
-				}
-
-				public boolean belongsTo(Object family) {
-					return family == LOAD_FAMILY;
-				}
-
-			};
+	void doExecuteAndLoad() {
+		if (preloadRepositories()) {
+			//cancel any load that is already running
+			Job.getJobManager().cancel(LoadMetadataRepositoryJob.LOAD_FAMILY);
+			final LoadMetadataRepositoryJob loadJob = new LoadMetadataRepositoryJob(getProvisioningUI());
 			setLoadJobProperties(loadJob);
 			if (waitForPreload()) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
@@ -85,7 +54,7 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 							if (event.getResult().isOK()) {
 								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 									public void run() {
-										doExecute(profileId, queryableManager);
+										doExecute(loadJob);
 									}
 								});
 							}
@@ -98,14 +67,14 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 				loadJob.setSystem(true);
 				loadJob.setUser(false);
 				loadJob.schedule();
-				doExecute(profileId, queryableManager);
+				doExecute(null);
 			}
 		} else {
-			doExecute(profileId, queryableManager);
+			doExecute(null);
 		}
 	}
 
-	protected abstract void doExecute(String profileId, QueryableMetadataRepositoryManager manager);
+	protected abstract void doExecute(LoadMetadataRepositoryJob job);
 
 	protected boolean preloadRepositories() {
 		return true;
@@ -116,7 +85,11 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	}
 
 	protected void setLoadJobProperties(Job loadJob) {
-		// nothing to do by default
+		loadJob.setProperty(LoadMetadataRepositoryJob.ACCUMULATE_LOAD_ERRORS, Boolean.toString(true));
+	}
+
+	protected ProvisioningUI getProvisioningUI() {
+		return ProvisioningUI.getDefaultUI();
 	}
 
 	/**
@@ -124,6 +97,6 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	 * @return a Shell
 	 */
 	protected Shell getShell() {
-		return ProvUI.getDefaultParentShell();
+		return getProvisioningUI().getDefaultParentShell();
 	}
 }

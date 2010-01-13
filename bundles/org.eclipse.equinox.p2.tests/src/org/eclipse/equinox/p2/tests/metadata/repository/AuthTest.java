@@ -13,8 +13,8 @@ import java.security.cert.Certificate;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.internal.p2.repository.RepositoryPreferences;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
 
@@ -30,7 +30,7 @@ public class AuthTest extends ServerBasedTestCase {
 		super.setUp();
 		PRIVATE_REPO = super.getBaseURL() + "/private/mdr/composite/one";
 		NEVER_REPO = super.getBaseURL() + "/proxy/never";
-		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
+		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
 		mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");

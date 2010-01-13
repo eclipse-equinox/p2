@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import java.net.URI;
-import org.eclipse.equinox.internal.p2.ui.admin.AddMetadataRepositoryOperation;
-import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddRepositoryOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.p2.ui.admin.MetadataRepositoryTracker;
+import org.eclipse.equinox.internal.p2.ui.dialogs.AddRepositoryDialog;
+import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -26,11 +24,16 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class AddMetadataRepositoryDialog extends AddRepositoryDialog {
 
-	public AddMetadataRepositoryDialog(Shell parentShell, Policy policy) {
-		super(parentShell, policy);
+	RepositoryTracker tracker;
+
+	public AddMetadataRepositoryDialog(Shell parentShell, ProvisioningUI ui) {
+		super(parentShell, ui);
 	}
 
-	protected AddRepositoryOperation getOperation(URI location) {
-		return new AddMetadataRepositoryOperation(ProvAdminUIMessages.AddMetadataRepositoryDialog_OperationLabel, location);
+	protected RepositoryTracker getRepositoryTracker() {
+		if (tracker == null) {
+			tracker = new MetadataRepositoryTracker(getProvisioningUI());
+		}
+		return tracker;
 	}
 }

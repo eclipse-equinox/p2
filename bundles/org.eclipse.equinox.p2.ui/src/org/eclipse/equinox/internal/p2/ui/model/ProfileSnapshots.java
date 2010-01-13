@@ -12,9 +12,8 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.progress.IElementCollector;
 
@@ -40,32 +39,27 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
 	 */
 	public Object[] getChildren(Object o) {
-		try {
-			long[] timestamps = ProvisioningUtil.getProfileTimestamps(profileId);
-			RollbackProfileElement[] elements = new RollbackProfileElement[timestamps.length];
-			boolean skipFirst = false;
-			for (int i = 0; i < timestamps.length; i++) {
-				elements[i] = new RollbackProfileElement(this, profileId, timestamps[i]);
-				// Eliminate the first in the list (earliest) if there was no content at all.
-				// This doesn't always happen, but can, and we don't want to offer the user an empty profile to
-				// revert to.
-				if (i == 0) {
-					skipFirst = elements[0].getChildren(elements[0]).length == 0;
-				}
-				if (i == timestamps.length - 1) {
-					elements[i].setIsCurrentProfile(true);
-				}
+		long[] timestamps = ProvUIActivator.getDefault().getSession().getProfileRegistry().listProfileTimestamps(profileId);
+		RollbackProfileElement[] elements = new RollbackProfileElement[timestamps.length];
+		boolean skipFirst = false;
+		for (int i = 0; i < timestamps.length; i++) {
+			elements[i] = new RollbackProfileElement(this, profileId, timestamps[i]);
+			// Eliminate the first in the list (earliest) if there was no content at all.
+			// This doesn't always happen, but can, and we don't want to offer the user an empty profile to
+			// revert to.
+			if (i == 0) {
+				skipFirst = elements[0].getChildren(elements[0]).length == 0;
 			}
-			if (skipFirst) {
-				RollbackProfileElement[] elementsWithoutFirst = new RollbackProfileElement[elements.length - 1];
-				System.arraycopy(elements, 1, elementsWithoutFirst, 0, elements.length - 1);
-				return elementsWithoutFirst;
+			if (i == timestamps.length - 1) {
+				elements[i].setIsCurrentProfile(true);
 			}
-			return elements;
-		} catch (ProvisionException e) {
-			handleException(e, null);
 		}
-		return null;
+		if (skipFirst) {
+			RollbackProfileElement[] elementsWithoutFirst = new RollbackProfileElement[elements.length - 1];
+			System.arraycopy(elements, 1, elementsWithoutFirst, 0, elements.length - 1);
+			return elementsWithoutFirst;
+		}
+		return elements;
 	}
 
 	/* (non-Javadoc)

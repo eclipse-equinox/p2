@@ -10,25 +10,28 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
+import org.eclipse.equinox.p2.query.IQueryResult;
+
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
+import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 
 public class BundlePoolFilteredListener extends DirectoryChangeListener {
 
 	private DirectoryChangeListener delegate;
-	private Set bundlePoolFiles = new HashSet();
+	private Set<File> bundlePoolFiles = new HashSet<File>();
 
 	public BundlePoolFilteredListener(DirectoryChangeListener listener) {
 		delegate = listener;
 		IFileArtifactRepository bundlePool = Activator.getBundlePoolRepository();
 		if (bundlePool != null) {
-			IArtifactKey[] keys = bundlePool.getArtifactKeys();
-			for (int i = 0; i < keys.length; i++) {
-				File artifactFile = bundlePool.getArtifactFile(keys[i]);
+			IQueryResult<IArtifactKey> keys = bundlePool.query(ArtifactKeyQuery.ALL_KEYS, null);
+			for (Iterator<IArtifactKey> iterator = keys.iterator(); iterator.hasNext();) {
+				IArtifactKey key = iterator.next();
+				File artifactFile = bundlePool.getArtifactFile(key);
 				if (artifactFile != null)
 					bundlePoolFiles.add(artifactFile);
 			}

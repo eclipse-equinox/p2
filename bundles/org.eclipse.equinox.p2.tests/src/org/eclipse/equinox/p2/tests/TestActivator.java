@@ -44,9 +44,9 @@ public class TestActivator implements BundleActivator {
 		packageAdmin = (PackageAdmin) context.getService(packageAdminRef);
 
 		//This is a hack because the junit plugin launch config do not allow to start bundles
-		getBundle("org.eclipse.equinox.p2.exemplarysetup").start();
-		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start();
-		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start();
+		AbstractProvisioningTest.startBundle(getBundle("org.eclipse.equinox.p2.exemplarysetup"));
+		AbstractProvisioningTest.startBundle(getBundle("org.eclipse.equinox.frameworkadmin.equinox"));
+		AbstractProvisioningTest.startBundle(getBundle("org.eclipse.equinox.simpleconfigurator.manipulator"));
 	}
 
 	public void stop(BundleContext context) throws Exception {

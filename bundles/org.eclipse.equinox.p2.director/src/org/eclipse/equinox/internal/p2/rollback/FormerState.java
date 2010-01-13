@@ -10,15 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.rollback;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 
 public class FormerState {
 
@@ -33,43 +31,39 @@ public class FormerState {
 	}
 
 	private static void synchronizeAllIUProperties(ProfileChangeRequest request, IProfile current, IProfile target) {
-		Collection currentIUs = current.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection();
-		Collection targetIUs = target.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection();
-		List iusToAdd = new ArrayList(targetIUs);
-		iusToAdd.remove(currentIUs);
+		Set<IInstallableUnit> currentIUset = current.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
+		Iterator<IInstallableUnit> targetIUs = target.query(InstallableUnitQuery.ANY, null).iterator();
+		List<IInstallableUnit> iusToAdd = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> iusToUpdate = new ArrayList<IInstallableUnit>();
+		while (targetIUs.hasNext()) {
+			IInstallableUnit nxt = targetIUs.next();
+			if (currentIUset.contains(nxt))
+				iusToUpdate.add(nxt);
+			else
+				iusToAdd.add(nxt);
+		}
 
 		//additions
-		for (Iterator iterator = iusToAdd.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			for (Iterator it = target.getInstallableUnitProperties(iu).entrySet().iterator(); it.hasNext();) {
-				Entry entry = (Entry) it.next();
-				String key = (String) entry.getKey();
-				String value = (String) entry.getValue();
-				request.setInstallableUnitProfileProperty(iu, key, value);
+		for (IInstallableUnit iu : iusToAdd) {
+			for (Entry<String, String> entry : target.getInstallableUnitProperties(iu).entrySet()) {
+				request.setInstallableUnitProfileProperty(iu, entry.getKey(), entry.getValue());
 			}
 		}
 
 		// updates
-		List iusToUpdate = new ArrayList(targetIUs);
-		iusToUpdate.remove(iusToAdd);
-		for (Iterator iterator = iusToUpdate.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			Map propertiesToSet = new HashMap(target.getInstallableUnitProperties(iu));
-			for (Iterator it = current.getInstallableUnitProperties(iu).entrySet().iterator(); it.hasNext();) {
-				Entry entry = (Entry) it.next();
-				String key = (String) entry.getKey();
-				String newValue = (String) propertiesToSet.get(key);
+		for (IInstallableUnit iu : iusToUpdate) {
+			Map<String, String> propertiesToSet = new HashMap<String, String>(target.getInstallableUnitProperties(iu));
+			for (Entry<String, String> entry : current.getInstallableUnitProperties(iu).entrySet()) {
+				String key = entry.getKey();
+				String newValue = propertiesToSet.get(key);
 				if (newValue == null) {
 					request.removeInstallableUnitProfileProperty(iu, key);
 				} else if (newValue.equals(entry.getValue()))
 					propertiesToSet.remove(key);
 			}
 
-			for (Iterator it = propertiesToSet.entrySet().iterator(); it.hasNext();) {
-				Entry entry = (Entry) it.next();
-				String key = (String) entry.getKey();
-				String value = (String) entry.getValue();
-				request.setInstallableUnitProfileProperty(iu, key, value);
+			for (Entry<String, String> entry : propertiesToSet.entrySet()) {
+				request.setInstallableUnitProfileProperty(iu, entry.getKey(), entry.getValue());
 			}
 		}
 	}
@@ -79,34 +73,30 @@ public class FormerState {
 		IInstallableUnit[] targetPlannerMarkedIUs = SimplePlanner.findPlannerMarkedIUs(target);
 
 		//additions
-		List markedIUsToAdd = new ArrayList(Arrays.asList(targetPlannerMarkedIUs));
+		List<IInstallableUnit> markedIUsToAdd = new ArrayList<IInstallableUnit>(Arrays.asList(targetPlannerMarkedIUs));
 		markedIUsToAdd.removeAll(Arrays.asList(currentPlannerMarkedIUs));
-		request.addInstallableUnits((IInstallableUnit[]) markedIUsToAdd.toArray(new IInstallableUnit[markedIUsToAdd.size()]));
+		request.addInstallableUnits(markedIUsToAdd);
 
 		// removes
-		List markedIUsToRemove = new ArrayList(Arrays.asList(currentPlannerMarkedIUs));
+		List<IInstallableUnit> markedIUsToRemove = new ArrayList<IInstallableUnit>(Arrays.asList(currentPlannerMarkedIUs));
 		markedIUsToRemove.removeAll(Arrays.asList(targetPlannerMarkedIUs));
-		request.removeInstallableUnits((IInstallableUnit[]) markedIUsToRemove.toArray(new IInstallableUnit[markedIUsToRemove.size()]));
+		request.removeInstallableUnits(markedIUsToRemove);
 	}
 
 	private static void synchronizeProfileProperties(ProfileChangeRequest request, IProfile current, IProfile target) {
-		Map profilePropertiesToSet = new HashMap(target.getProperties());
-		for (Iterator it = current.getProperties().entrySet().iterator(); it.hasNext();) {
-			Entry entry = (Entry) it.next();
-			String key = (String) entry.getKey();
+		Map<String, String> profilePropertiesToSet = new HashMap<String, String>(target.getProperties());
+		for (Entry<String, String> entry : current.getProperties().entrySet()) {
+			String key = entry.getKey();
 
-			String newValue = (String) profilePropertiesToSet.get(key);
+			String newValue = profilePropertiesToSet.get(key);
 			if (newValue == null) {
 				request.removeProfileProperty(key);
 			} else if (newValue.equals(entry.getValue()))
 				profilePropertiesToSet.remove(key);
 		}
 
-		for (Iterator it = profilePropertiesToSet.entrySet().iterator(); it.hasNext();) {
-			Entry entry = (Entry) it.next();
-			String key = (String) entry.getKey();
-			String value = (String) entry.getValue();
-			request.setProfileProperty(key, value);
+		for (Entry<String, String> entry : profilePropertiesToSet.entrySet()) {
+			request.setProfileProperty(entry.getKey(), entry.getValue());
 		}
 	}
 }

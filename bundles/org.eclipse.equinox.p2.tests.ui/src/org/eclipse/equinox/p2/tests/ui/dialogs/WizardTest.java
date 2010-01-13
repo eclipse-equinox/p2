@@ -10,22 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import java.net.URI;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
 /**
- * Tests for the install wizard
+ * Generic wizard test methods
  */
 public abstract class WizardTest extends AbstractProvisioningUITest {
-	protected PlannerResolutionOperation getResolvedOperation(ProfileChangeRequest request) throws ProvisionException {
-		PlannerResolutionOperation op = new PlannerResolutionOperation("Test resolve operation", request.getProfile().getProfileId(), request, new ProvisioningContext(new URI[] {}), new MultiStatus(ProvUIActivator.PLUGIN_ID, 0, "This is just a test multistatus", null), true);
-		op.execute(getMonitor());
-		return op;
-	}
+
 }

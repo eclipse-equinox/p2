@@ -12,9 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,13 +22,16 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.console.ProvisioningHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
+import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
@@ -48,8 +48,6 @@ public class Application implements IApplication {
 	static private final String ANT_PROPERTY_PREFIX = "${"; //$NON-NLS-1$
 	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
 	static private final String EXEMPLARY_SETUP = "org.eclipse.equinox.p2.exemplarysetup"; //$NON-NLS-1$
-	static private final String FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
-	static private final String SIMPLE_CONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
 
 	public static final int COMMAND_INSTALL = 0;
 	public static final int COMMAND_UNINSTALL = 1;
@@ -91,13 +89,13 @@ public class Application implements IApplication {
 		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Ambigous_Command, new Object[] {COMMAND_NAMES[cmd1], COMMAND_NAMES[cmd2]})));
 	}
 
-	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collector roots, boolean install) {
+	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, IQueryResult<IInstallableUnit> roots, boolean install) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		markRoots(request, roots);
 		if (install) {
-			request.addInstallableUnits((IInstallableUnit[]) roots.toArray(IInstallableUnit.class));
+			request.addInstallableUnits(roots);
 		} else {
-			request.removeInstallableUnits((IInstallableUnit[]) roots.toArray(IInstallableUnit.class));
+			request.removeInstallableUnits(roots);
 		}
 		return request;
 	}
@@ -119,7 +117,7 @@ public class Application implements IApplication {
 	}
 
 	private String getEnvironmentProperty() {
-		Properties values = new Properties();
+		Map<String, String> values = new HashMap<String, String>();
 		if (os != null)
 			values.put("osgi.os", os); //$NON-NLS-1$
 		if (nl != null)
@@ -145,26 +143,22 @@ public class Application implements IApplication {
 			if (flavor == null)
 				flavor = System.getProperty("eclipse.p2.configurationFlavor", FLAVOR_DEFAULT); //$NON-NLS-1$
 
-			Properties props = new Properties();
-			props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination.toOSString());
-			props.setProperty(IProfile.PROP_FLAVOR, flavor);
+			Map<String, String> props = new HashMap<String, String>();
+			props.put(IProfile.PROP_INSTALL_FOLDER, destination.toOSString());
 			if (bundlePool == null || bundlePool.equals(Messages.destination_commandline))
-				props.setProperty(IProfile.PROP_CACHE, destination.toOSString());
+				props.put(IProfile.PROP_CACHE, destination.toOSString());
 			else
-				props.setProperty(IProfile.PROP_CACHE, bundlePool);
+				props.put(IProfile.PROP_CACHE, bundlePool);
 			if (roamingProfile)
-				props.setProperty(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
+				props.put(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
 
 			String env = getEnvironmentProperty();
 			if (env != null)
-				props.setProperty(IProfile.PROP_ENVIRONMENTS, env);
+				props.put(IProfile.PROP_ENVIRONMENTS, env);
 			if (profileProperties != null) {
 				putProperties(profileProperties, props);
 			}
 			profile = ProvisioningHelper.addProfile(profileId, props);
-			String currentFlavor = profile.getProperty(IProfile.PROP_FLAVOR);
-			if (currentFlavor != null && !currentFlavor.endsWith(flavor))
-				throw new RuntimeException(NLS.bind("Install flavor {0} not consistent with profile flavor {1}", flavor, currentFlavor)); //$NON-NLS-1$
 		}
 		return profile;
 	}
@@ -174,7 +168,15 @@ public class Application implements IApplication {
 			if (throwException)
 				missingArgument("artifactRepository"); //$NON-NLS-1$
 		} else {
-			artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+			artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+			if (artifactManager == null) {
+				IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.SERVICE_CURRENT);
+				if (agent == null) {
+					IProvisioningAgentProvider provider = (IProvisioningAgentProvider) ServiceHelper.getService(Activator.getContext(), IProvisioningAgentProvider.SERVICE_NAME);
+					agent = provider.createAgent(null);
+				}
+				artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+			}
 			if (artifactManager == null) {
 				if (throwException)
 					throw new ProvisionException(Messages.Application_NoManager);
@@ -204,7 +206,7 @@ public class Application implements IApplication {
 			if (throwException)
 				missingArgument("metadataRepository"); //$NON-NLS-1$
 		} else {
-			metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+			metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 			if (metadataManager == null) {
 				if (throwException)
 					throw new ProvisionException(Messages.Application_NoManager);
@@ -232,11 +234,11 @@ public class Application implements IApplication {
 	}
 
 	private void initializeServices() {
-		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.class.getName());
+		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.SERVICE_NAME);
 		if (director == null)
 			throw new RuntimeException(Messages.Missing_director);
 
-		planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
+		planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.SERVICE_NAME);
 		if (planner == null)
 			throw new RuntimeException(Messages.Missing_planner);
 
@@ -245,9 +247,9 @@ public class Application implements IApplication {
 			throw new RuntimeException(Messages.Missing_Engine);
 	}
 
-	private void markRoots(ProfileChangeRequest request, Collector roots) {
-		for (Iterator iterator = roots.iterator(); iterator.hasNext();) {
-			request.setInstallableUnitProfileProperty((IInstallableUnit) iterator.next(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+	private void markRoots(ProfileChangeRequest request, IQueryResult<IInstallableUnit> roots) {
+		for (Iterator<IInstallableUnit> iterator = roots.iterator(); iterator.hasNext();) {
+			request.setInstallableUnitProfileProperty(iterator.next(), IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 		}
 	}
 
@@ -256,7 +258,7 @@ public class Application implements IApplication {
 	}
 
 	private IStatus planAndExecute(IProfile profile, ProvisioningContext context, ProfileChangeRequest request) {
-		ProvisioningPlan result;
+		IProvisioningPlan result;
 		IStatus operationStatus;
 		result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		if (!result.getStatus().isOK())
@@ -345,7 +347,7 @@ public class Application implements IApplication {
 
 			if (opt.equalsIgnoreCase("-version")) { //$NON-NLS-1$
 				if (arg != null && !arg.startsWith(ANT_PROPERTY_PREFIX))
-					version = new Version(arg);
+					version = Version.create(arg);
 			}
 
 			if (opt.equalsIgnoreCase(COMMAND_NAMES[COMMAND_UNINSTALL])) {
@@ -375,7 +377,7 @@ public class Application implements IApplication {
 	 * @param pairs	a comma separated list of tag=value pairs
 	 * @param properties the collection into which the pairs are put
 	 */
-	private void putProperties(String pairs, Properties properties) {
+	private void putProperties(String pairs, Map<String, String> properties) {
 		StringTokenizer tok = new StringTokenizer(pairs, ",", true); //$NON-NLS-1$
 		while (tok.hasMoreTokens()) {
 			String next = tok.nextToken().trim();
@@ -391,14 +393,14 @@ public class Application implements IApplication {
 	}
 
 	public Object run(String[] args) throws Exception {
-		System.out.println("This application is deprecated. Please use the org.eclipse.equinox.p2.director application.");
+		System.out.println(Messages.Deprecated_application);
 		long time = -System.currentTimeMillis();
 		initializeServices();
 		processArguments(args);
 
 		IStatus operationStatus = Status.OK_STATUS;
 		InstallableUnitQuery query;
-		Collector roots;
+		IQueryResult<IInstallableUnit> roots;
 		try {
 			initializeRepositories(command == COMMAND_INSTALL);
 			switch (command) {
@@ -407,10 +409,10 @@ public class Application implements IApplication {
 
 					IProfile profile = initializeProfile();
 					query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
-					roots = collectRootIUs(metadataRepositoryLocations, new CompositeQuery(new Query[] {query, new LatestIUVersionQuery()}), new Collector());
-					if (roots.size() <= 0)
-						roots = profile.query(query, roots, new NullProgressMonitor());
-					if (roots.size() <= 0) {
+					roots = collectRootIUs(metadataRepositoryLocations, new PipedQuery<IInstallableUnit>(query, new LatestIUVersionQuery<IInstallableUnit>()));
+					if (roots.isEmpty())
+						roots = profile.query(query, new NullProgressMonitor());
+					if (roots.isEmpty()) {
 						System.out.println(NLS.bind(Messages.Missing_IU, root));
 						logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, root)));
 						return EXIT_ERROR;
@@ -443,10 +445,10 @@ public class Application implements IApplication {
 					if (metadataRepositoryLocations == null)
 						missingArgument("metadataRepository"); //$NON-NLS-1$
 
-					roots = collectRootIUs(metadataRepositoryLocations, query, null);
-					Iterator unitIterator = roots.iterator();
+					roots = collectRootIUs(metadataRepositoryLocations, query);
+					Iterator<IInstallableUnit> unitIterator = roots.iterator();
 					while (unitIterator.hasNext()) {
-						IInstallableUnit iu = (IInstallableUnit) unitIterator.next();
+						IInstallableUnit iu = unitIterator.next();
 						System.out.println(iu.getId());
 					}
 					break;
@@ -479,30 +481,28 @@ public class Application implements IApplication {
 		}
 	}
 
-	class LocationQueryable implements IQueryable {
+	class LocationQueryable implements IQueryable<IInstallableUnit> {
 		private URI location;
 
 		public LocationQueryable(URI location) {
 			this.location = location;
 		}
 
-		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-			return ProvisioningHelper.getInstallableUnits(location, query, collector, monitor);
+		public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+			return ProvisioningHelper.getInstallableUnits(location, query, monitor);
 		}
 	}
 
-	private Collector collectRootIUs(URI[] locations, Query query, Collector collector) {
+	private IQueryResult<IInstallableUnit> collectRootIUs(URI[] locations, IQuery<IInstallableUnit> query) {
 		IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 		if (locations == null || locations.length == 0)
-			return ProvisioningHelper.getInstallableUnits(null, query, collector, nullMonitor);
+			return ProvisioningHelper.getInstallableUnits((URI) null, query, nullMonitor);
 
-		Collector result = collector != null ? collector : new Collector();
-		IQueryable[] locationQueryables = new IQueryable[locations.length];
-		for (int i = 0; i < locations.length; i++) {
-			locationQueryables[i] = new LocationQueryable(locations[i]);
-		}
-		return new CompoundQueryable(locationQueryables).query(query, result, nullMonitor);
+		List<IQueryable<IInstallableUnit>> locationQueryables = new ArrayList<IQueryable<IInstallableUnit>>(locations.length);
+		for (int i = 0; i < locations.length; i++)
+			locationQueryables.add(new LocationQueryable(locations[i]));
+		return new CompoundQueryable<IInstallableUnit>(locationQueryables).query(query, nullMonitor);
 	}
 
 	private synchronized void setPackageAdmin(PackageAdmin service) {
@@ -513,6 +513,7 @@ public class Application implements IApplication {
 		Bundle bundle = getBundle(bundleName);
 		if (bundle == null)
 			return false;
+		bundle.start(Bundle.START_ACTIVATION_POLICY);
 		bundle.start(Bundle.START_TRANSIENT);
 		return true;
 	}
@@ -524,15 +525,6 @@ public class Application implements IApplication {
 			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, EXEMPLARY_SETUP)));
 			return EXIT_ERROR;
 		}
-		if (!startEarly(SIMPLE_CONFIGURATOR_MANIPULATOR)) {
-			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, SIMPLE_CONFIGURATOR_MANIPULATOR)));
-			return EXIT_ERROR;
-		}
-		if (!startEarly(FRAMEWORKADMIN_EQUINOX)) {
-			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, FRAMEWORKADMIN_EQUINOX)));
-			return EXIT_ERROR;
-		}
-
 		return run((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 	}
 
@@ -541,15 +533,17 @@ public class Application implements IApplication {
 		Activator.getContext().ungetService(packageAdminRef);
 	}
 
-	private String toString(Properties context) {
+	private String toString(Map<String, String> context) {
 		StringBuffer result = new StringBuffer();
-		for (Enumeration iter = context.keys(); iter.hasMoreElements();) {
-			String key = (String) iter.nextElement();
+		boolean first = true;
+		for (String key : context.keySet()) {
+			if (first)
+				first = false;
+			else
+				result.append(',');
 			result.append(key);
 			result.append('=');
 			result.append(context.get(key));
-			if (iter.hasMoreElements())
-				result.append(',');
 		}
 		return result.toString();
 	}
@@ -586,7 +580,7 @@ public class Application implements IApplication {
 
 		ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
-		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		return PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 	}
 
@@ -598,7 +592,7 @@ public class Application implements IApplication {
 		request.setProfileProperty(IProfile.PROP_ROAMING, "true"); //$NON-NLS-1$
 		ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
-		ProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		return PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
 	}
 
@@ -606,7 +600,7 @@ public class Application implements IApplication {
 		if (spec == null)
 			return null;
 		String[] urlSpecs = getArrayFromString(spec, ","); //$NON-NLS-1$
-		ArrayList result = new ArrayList(urlSpecs.length);
+		ArrayList<URI> result = new ArrayList<URI>(urlSpecs.length);
 		for (int i = 0; i < urlSpecs.length; i++) {
 			try {
 				result.add(URIUtil.fromString(urlSpecs[i]));
@@ -616,7 +610,7 @@ public class Application implements IApplication {
 		}
 		if (result.size() == 0)
 			return null;
-		return (URI[]) result.toArray(new URI[result.size()]);
+		return result.toArray(new URI[result.size()]);
 	}
 
 	/**
@@ -626,13 +620,13 @@ public class Application implements IApplication {
 	public static String[] getArrayFromString(String list, String separator) {
 		if (list == null || list.trim().equals("")) //$NON-NLS-1$
 			return new String[0];
-		List result = new ArrayList();
+		List<String> result = new ArrayList<String>();
 		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
 			String token = tokens.nextToken().trim();
 			if (!token.equals("")) //$NON-NLS-1$
 				result.add(token);
 		}
-		return (String[]) result.toArray(new String[result.size()]);
+		return result.toArray(new String[result.size()]);
 	}
 
 	private void logFailure(IStatus status) {

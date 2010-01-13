@@ -10,16 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PatchTestUpdate extends AbstractProvisioningTest {
@@ -42,23 +43,23 @@ public class PatchTestUpdate extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		p2Feature = createIU(P2_FEATURE, new Version(1, 0, 0), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P1, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P2, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true)});
-		p1 = createIU(P1, new Version(1, 0, 0), true);
-		p2 = createIU(P2, new Version(1, 0, 0), true);
-		p1b = createIU(P1, new Version(1, 1, 1), true);
-		p2b = createIU(P2, new Version(1, 1, 1), true);
+		p2Feature = createIU(P2_FEATURE, Version.createOSGi(1, 0, 0), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P1, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P2, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true)});
+		p1 = createIU(P1, Version.createOSGi(1, 0, 0), true);
+		p2 = createIU(P2, Version.createOSGi(1, 0, 0), true);
+		p1b = createIU(P1, Version.createOSGi(1, 1, 1), true);
+		p2b = createIU(P2, Version.createOSGi(1, 1, 1), true);
 
 		IRequirementChange changepp1 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P1, VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P1, new VersionRange("[1.1.1, 1.1.1]"), null, false, false, true));
 		IRequiredCapability lifeCyclepp1 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P2_FEATURE, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true);
 		IRequiredCapability[][] scopepp1 = new IRequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P2_FEATURE, new VersionRange("[1.0.0,1.0.0]"), null, false, false)}};
-		pp1 = createIUPatch(PP1, new Version("3.0.0"), true, new IRequirementChange[] {changepp1}, scopepp1, lifeCyclepp1);
+		pp1 = createIUPatch(PP1, Version.create("3.0.0"), true, new IRequirementChange[] {changepp1}, scopepp1, lifeCyclepp1);
 
 		IRequirementChange changepp2 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P2, VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P2, new VersionRange("[1.1.1, 1.1.1]"), null, false, false, true));
 		IRequiredCapability lifeCyclepp2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P2_FEATURE, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true);
 		IRequiredCapability[][] scopepp2 = new IRequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P2_FEATURE, new VersionRange("[1.0.0, 1.0.0]"), null, false, false)}};
-		pp2 = createIUPatch(PP2, new Version("5.0.0"), true, new IRequirementChange[] {changepp2}, scopepp2, lifeCyclepp2);
+		pp2 = createIUPatch(PP2, Version.create("5.0.0"), true, new IRequirementChange[] {changepp2}, scopepp2, lifeCyclepp2);
 
-		p2Feature20 = createIU(P2_FEATURE, new Version(2, 0, 0), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P1, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P2, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true)});
+		p2Feature20 = createIU(P2_FEATURE, Version.createOSGi(2, 0, 0), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P1, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, P2, new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true)});
 		createTestMetdataRepository(new IInstallableUnit[] {p2Feature, p1, p2, p1b, p2b, pp1, pp2, p2Feature20});
 
 		profile1 = createProfile("TestProfile." + getName());
@@ -77,7 +78,7 @@ public class PatchTestUpdate extends AbstractProvisioningTest {
 		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
 		req1.setInstallableUnitInclusionRules(p2Feature20, PlannerHelper.createStrictInclusionRule(p2Feature20));
 		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
 	}
 
@@ -87,11 +88,12 @@ public class PatchTestUpdate extends AbstractProvisioningTest {
 		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
 		req1.setInstallableUnitInclusionRules(p2Feature20, PlannerHelper.createStrictInclusionRule(p2Feature20));
 		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		Set conflictingRoot = plan.getRequestStatus().getConflictsWithInstalledRoots();
+		final RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		Set conflictingRoot = requestStatus.getConflictsWithInstalledRoots();
 		assertEquals(1, conflictingRoot.size());
 		assertTrue(conflictingRoot.contains(p2Feature20));
-		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());
 	}
 }

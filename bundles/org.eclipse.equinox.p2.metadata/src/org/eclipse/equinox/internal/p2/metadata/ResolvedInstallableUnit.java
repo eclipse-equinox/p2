@@ -11,41 +11,48 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.p2.metadata.*;
+import org.osgi.framework.Filter;
 
 public class ResolvedInstallableUnit implements IInstallableUnit {
-	private static IInstallableUnit[] NO_IU = new IInstallableUnit[0];
+	private static IInstallableUnitFragment[] NO_IU = new IInstallableUnitFragment[0];
 
-	private IInstallableUnit[] fragments = NO_IU;
-	protected IInstallableUnit original;
+	private final IInstallableUnitFragment[] fragments;
+	protected final IInstallableUnit original;
 
 	public ResolvedInstallableUnit(IInstallableUnit resolved) {
-		this.original = resolved;
+		this(resolved, null);
 	}
 
 	public ResolvedInstallableUnit(IInstallableUnit resolved, IInstallableUnitFragment[] fragments) {
 		this.original = resolved;
-		this.fragments = fragments;
+		this.fragments = fragments == null ? NO_IU : fragments;
 	}
 
-	public IInstallableUnitFragment[] getFragments() {
-		ArrayList result = new ArrayList();
-		if (fragments != null)
-			result.addAll(Arrays.asList(fragments));
-		for (int i = 0; i < result.size(); i++) {
-			IInstallableUnit fragment = (IInstallableUnit) result.get(i);
+	public List<IInstallableUnitFragment> getFragments() {
+		int fcount = fragments.length;
+		if (fcount == 0)
+			return CollectionUtils.emptyList();
+
+		ArrayList<IInstallableUnitFragment> result = new ArrayList<IInstallableUnitFragment>(fcount);
+		result.addAll(Arrays.asList(fragments));
+		for (int i = 0; i < fcount; i++) {
+			IInstallableUnit fragment = fragments[i];
 			if (fragment.isResolved())
-				result.addAll(Arrays.asList(fragment.getFragments()));
+				result.addAll(fragment.getFragments());
 		}
-		return (IInstallableUnitFragment[]) result.toArray(new IInstallableUnitFragment[result.size()]);
+		return result;
 	}
 
-	public IArtifactKey[] getArtifacts() {
+	public Collection<IArtifactKey> getArtifacts() {
 		return original.getArtifacts();
 	}
 
-	public String getFilter() {
+	public Filter getFilter() {
 		return original.getFilter();
 	}
 
@@ -57,47 +64,56 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getProperty(key);
 	}
 
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		return original.getProperties();
 	}
 
-	public IProvidedCapability[] getProvidedCapabilities() {
-		ArrayList result = new ArrayList();
-		result.addAll(Arrays.asList(original.getProvidedCapabilities()));
-		for (int i = 0; i < fragments.length; i++) {
-			result.addAll(Arrays.asList(fragments[i].getProvidedCapabilities()));
-		}
-		return (IProvidedCapability[]) result.toArray(new IProvidedCapability[result.size()]);
+	public String getProperty(String key, String locale) {
+		return original.getProperty(key, locale);
 	}
 
-	public IRequiredCapability[] getRequiredCapabilities() {
-		ArrayList result = new ArrayList();
-		result.addAll(Arrays.asList(original.getRequiredCapabilities()));
-		for (int i = 0; i < fragments.length; i++) {
-			result.addAll(Arrays.asList(fragments[i].getRequiredCapabilities()));
-		}
-		return (IRequiredCapability[]) result.toArray(new IRequiredCapability[result.size()]);
+	public Collection<IProvidedCapability> getProvidedCapabilities() {
+		Collection<IProvidedCapability> originalCapabilities = original.getProvidedCapabilities();
+		if (fragments.length == 0)
+			return originalCapabilities;
+
+		ArrayList<IProvidedCapability> result = new ArrayList<IProvidedCapability>(originalCapabilities);
+		for (int i = 0; i < fragments.length; i++)
+			result.addAll(fragments[i].getProvidedCapabilities());
+		return result;
 	}
 
-	public IRequiredCapability[] getMetaRequiredCapabilities() {
-		ArrayList result = new ArrayList();
-		result.addAll(Arrays.asList(original.getMetaRequiredCapabilities()));
-		for (int i = 0; i < fragments.length; i++) {
-			result.addAll(Arrays.asList(fragments[i].getMetaRequiredCapabilities()));
-		}
-		return (IRequiredCapability[]) result.toArray(new IRequiredCapability[result.size()]);
+	public Collection<IRequirement> getRequiredCapabilities() {
+		Collection<IRequirement> originalCapabilities = original.getRequiredCapabilities();
+		if (fragments.length == 0)
+			return originalCapabilities;
+
+		ArrayList<IRequirement> result = new ArrayList<IRequirement>(originalCapabilities);
+		for (int i = 0; i < fragments.length; i++)
+			result.addAll(fragments[i].getRequiredCapabilities());
+		return result;
 	}
 
-	public ITouchpointData[] getTouchpointData() {
-		ArrayList result = new ArrayList();
-		result.addAll(Arrays.asList(original.getTouchpointData()));
-		for (int i = 0; i < fragments.length; i++) {
-			ITouchpointData[] data = fragments[i].getTouchpointData();
-			for (int j = 0; j < data.length; j++) {
-				result.add(data[j]);
-			}
-		}
-		return (ITouchpointData[]) result.toArray(new ITouchpointData[result.size()]);
+	public Collection<IRequirement> getMetaRequiredCapabilities() {
+		Collection<IRequirement> originalCapabilities = original.getMetaRequiredCapabilities();
+		if (fragments.length == 0)
+			return originalCapabilities;
+
+		ArrayList<IRequirement> result = new ArrayList<IRequirement>(originalCapabilities);
+		for (int i = 0; i < fragments.length; i++)
+			result.addAll(fragments[i].getMetaRequiredCapabilities());
+		return result;
+	}
+
+	public List<ITouchpointData> getTouchpointData() {
+		List<ITouchpointData> originalTouchpointData = original.getTouchpointData();
+		if (fragments.length == 0)
+			return originalTouchpointData;
+
+		ArrayList<ITouchpointData> result = new ArrayList<ITouchpointData>(originalTouchpointData);
+		for (int i = 0; i < fragments.length; i++)
+			result.addAll(fragments[i].getTouchpointData());
+		return result;
 	}
 
 	public ITouchpointType getTouchpointType() {
@@ -106,10 +122,6 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 
 	public Version getVersion() {
 		return original.getVersion();
-	}
-
-	public boolean isFragment() {
-		return original.isFragment();
 	}
 
 	public boolean isSingleton() {
@@ -139,14 +151,11 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original;
 	}
 
-	public int compareTo(Object toCompareTo) {
-		if (!(toCompareTo instanceof IInstallableUnit)) {
-			return -1;
-		}
-		IInstallableUnit other = (IInstallableUnit) toCompareTo;
-		if (getId().compareTo(other.getId()) == 0)
-			return (getVersion().compareTo(other.getVersion()));
-		return getId().compareTo(other.getId());
+	public int compareTo(IInstallableUnit other) {
+		int cmp = getId().compareTo(other.getId());
+		if (cmp == 0)
+			cmp = getVersion().compareTo(other.getVersion());
+		return cmp;
 	}
 
 	public boolean isResolved() {
@@ -161,20 +170,24 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getUpdateDescriptor();
 	}
 
-	public ILicense getLicense() {
-		return original.getLicense();
+	public Collection<ILicense> getLicenses() {
+		return original.getLicenses();
+	}
+
+	public ILicense[] getLicenses(String locale) {
+		return original.getLicenses(locale);
 	}
 
 	public ICopyright getCopyright() {
 		return original.getCopyright();
 	}
 
-	public boolean satisfies(IRequiredCapability candidate) {
-		IProvidedCapability[] provides = getProvidedCapabilities();
-		for (int i = 0; i < provides.length; i++)
-			if (provides[i].satisfies(candidate))
-				return true;
-		return false;
+	public ICopyright getCopyright(String locale) {
+		return original.getCopyright(locale);
+	}
+
+	public boolean satisfies(IRequirement candidate) {
+		return candidate.isMatch(this);
 	}
 
 }

@@ -10,17 +10,20 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
+
 import java.util.Arrays;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.osgi.util.NLS;
 
-public abstract class Explanation implements Comparable {
+public abstract class Explanation implements Comparable<Explanation> {
 
 	public static class PatchedHardRequirement extends Explanation {
 		public final IInstallableUnit iu;
 		public final IInstallableUnitPatch patch;
-		public final IRequiredCapability req;
+		public final IRequirement req;
 
 		public PatchedHardRequirement(IInstallableUnit iu, IInstallableUnitPatch patch) {
 			this.iu = iu;
@@ -28,7 +31,7 @@ public abstract class Explanation implements Comparable {
 			this.patch = patch;
 		}
 
-		public PatchedHardRequirement(IInstallableUnit iu, IRequiredCapability req, IInstallableUnitPatch patch) {
+		public PatchedHardRequirement(IInstallableUnit iu, IRequirement req, IInstallableUnitPatch patch) {
 			this.iu = iu;
 			this.req = req;
 			this.patch = patch;
@@ -53,9 +56,9 @@ public abstract class Explanation implements Comparable {
 
 	public static class HardRequirement extends Explanation {
 		public final IInstallableUnit iu;
-		public final IRequiredCapability req;
+		public final IRequirement req;
 
-		public HardRequirement(IInstallableUnit iu, IRequiredCapability req) {
+		public HardRequirement(IInstallableUnit iu, IRequirement req) {
 			this.iu = iu;
 			this.req = req;
 		}
@@ -118,9 +121,9 @@ public abstract class Explanation implements Comparable {
 
 	public static class MissingIU extends Explanation {
 		public final IInstallableUnit iu;
-		public final IRequiredCapability req;
+		public final IRequirement req;
 
-		public MissingIU(IInstallableUnit iu, IRequiredCapability req) {
+		public MissingIU(IInstallableUnit iu, IRequirement req) {
 			this.iu = iu;
 			this.req = req;
 		}
@@ -134,19 +137,17 @@ public abstract class Explanation implements Comparable {
 		}
 
 		public String toString() {
-			String filter = req.getFilter();
-			if (filter == null) {
+			if (req.getFilter() == null) {
 				return NLS.bind(Messages.Explanation_missingRequired, iu, req);
 			}
-			return NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {filter, iu, req});
+			return NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {req.getFilter(), iu, req});
 		}
 
 		public IStatus toStatus() {
-			String filter = req.getFilter();
-			if (filter == null) {
+			if (req.getFilter() == null) {
 				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRequired, getUserReadableName(iu), req));
 			}
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {filter, getUserReadableName(iu), req}));
+			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {req.getFilter(), getUserReadableName(iu), req}));
 		}
 	}
 
@@ -197,8 +198,7 @@ public abstract class Explanation implements Comparable {
 		super();
 	}
 
-	public int compareTo(Object arg0) {
-		Explanation exp = (Explanation) arg0;
+	public int compareTo(Explanation exp) {
 		if (this.orderValue() == exp.orderValue()) {
 			return this.toString().compareTo(exp.toString());
 		}

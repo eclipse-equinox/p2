@@ -11,7 +11,8 @@ package org.eclipse.equinox.p2.tests.core;
 
 import java.util.*;
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
  * This tests both Compound and Composite queries
@@ -28,16 +29,17 @@ public class AggregateQueryTest extends TestCase {
 	}
 
 	public void testEmptyCompositeQuery() {
-		CompositeQuery query = new CompositeQuery(new Query[0]);
-		query.perform(getABCDE().iterator(), new Collector());
+		PipedQuery query = new PipedQuery(new IQuery[0]);
+		query.perform(getABCDE().iterator());
 		// We should not throw an exception.  No guarantee on what perform
 		// will return in this case
 	}
 
 	public void testSymmetry() {
-		Query getLatest = new ContextQuery() {
+		IQuery getLatest = new ContextQuery() {
 
-			public Collector perform(Iterator iterator, Collector result) {
+			public Collector perform(Iterator iterator) {
+				Collector result = new Collector();
 				List list = new ArrayList();
 				while (iterator.hasNext()) {
 					list.add(iterator.next());
@@ -48,9 +50,10 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		Query getAllBut3 = new ContextQuery() {
+		IQuery getAllBut3 = new ContextQuery() {
 
-			public Collector perform(Iterator iterator, Collector result) {
+			public Collector perform(Iterator iterator) {
+				Collector result = new Collector();
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
 					if (!o.equals("3"))
@@ -60,21 +63,21 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new Query[] {getLatest, getAllBut3}, true);
-		Collector result = compoundQuery.perform(get123().iterator(), new Collector());
-		assertEquals(0, result.size());
+		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {getLatest, getAllBut3}, true);
+		IQueryResult result = compoundQuery.perform(get123().iterator());
+		assertEquals(0, AbstractProvisioningTest.queryResultSize(result));
 
-		compoundQuery = CompoundQuery.createCompoundQuery(new Query[] {getAllBut3, getLatest}, true);
-		result = compoundQuery.perform(get123().iterator(), new Collector());
-		assertEquals(0, result.size());
+		compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {getAllBut3, getLatest}, true);
+		result = compoundQuery.perform(get123().iterator());
+		assertEquals(0, AbstractProvisioningTest.queryResultSize(result));
 
-		compoundQuery = CompoundQuery.createCompoundQuery(new Query[] {getLatest, getAllBut3}, false);
-		result = compoundQuery.perform(get123().iterator(), new Collector());
-		assertEquals(3, result.size());
+		compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {getLatest, getAllBut3}, false);
+		result = compoundQuery.perform(get123().iterator());
+		assertEquals(3, AbstractProvisioningTest.queryResultSize(result));
 
-		compoundQuery = CompoundQuery.createCompoundQuery(new Query[] {getAllBut3, getLatest}, false);
-		result = compoundQuery.perform(get123().iterator(), new Collector());
-		assertEquals(3, result.size());
+		compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {getAllBut3, getLatest}, false);
+		result = compoundQuery.perform(get123().iterator());
+		assertEquals(3, AbstractProvisioningTest.queryResultSize(result));
 
 	}
 
@@ -83,9 +86,10 @@ public class AggregateQueryTest extends TestCase {
 	 * This method tests that
 	 */
 	public void testNonSymmetry() {
-		Query getLatest = new ContextQuery() {
+		IQuery getLatest = new ContextQuery() {
 
-			public Collector perform(Iterator iterator, Collector result) {
+			public Collector perform(Iterator iterator) {
+				Collector result = new Collector();
 				List list = new ArrayList();
 				while (iterator.hasNext()) {
 					list.add(iterator.next());
@@ -96,9 +100,11 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		Query getAllBut3 = new ContextQuery() {
+		IQuery getAllBut3 = new ContextQuery() {
 
-			public Collector perform(Iterator iterator, Collector result) {
+			public Collector perform(Iterator iterator) {
+				Collector result = new Collector();
+
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
 					if (!o.equals("3"))
@@ -108,95 +114,95 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		CompositeQuery compoundQuery = new CompositeQuery(new Query[] {getLatest, getAllBut3});
-		Collector result = compoundQuery.perform(get123().iterator(), new Collector());
-		assertEquals(0, result.size());
+		PipedQuery compoundQuery = new PipedQuery(getLatest, getAllBut3);
+		IQueryResult result = compoundQuery.perform(get123().iterator());
+		assertEquals(0, AbstractProvisioningTest.queryResultSize(result));
 
-		compoundQuery = new CompositeQuery(new Query[] {getAllBut3, getLatest});
-		result = compoundQuery.perform(get123().iterator(), new Collector());
-		assertEquals(1, result.size());
-		assertEquals("2", result.toCollection().iterator().next());
+		compoundQuery = new PipedQuery(getAllBut3, getLatest);
+		result = compoundQuery.perform(get123().iterator());
+		assertEquals(1, AbstractProvisioningTest.queryResultSize(result));
+		assertEquals("2", result.iterator().next());
 
 	}
 
 	public void testCompoundAllMatchQueries() {
-		Query A = new MatchQuery() {
+		IQuery A = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				return false;
 			}
 		};
-		Query B = new MatchQuery() {
+		IQuery B = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				return false;
 			}
 		};
-		Query C = new MatchQuery() {
+		IQuery C = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				return false;
 			}
 		};
-		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new Query[] {A, B, C}, true);
+		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {A, B, C}, true);
 		assertTrue("1.0", compoundQuery instanceof IMatchQuery);
-		assertEquals("1.1", 3, compoundQuery.getQueries().length);
-		assertEquals("1.2", A, compoundQuery.getQueries()[0]);
-		assertEquals("1.3", B, compoundQuery.getQueries()[1]);
-		assertEquals("1.4", C, compoundQuery.getQueries()[2]);
+		assertEquals("1.1", 3, compoundQuery.getQueries().size());
+		assertEquals("1.2", A, compoundQuery.getQueries().get(0));
+		assertEquals("1.3", B, compoundQuery.getQueries().get(1));
+		assertEquals("1.4", C, compoundQuery.getQueries().get(2));
 	}
 
 	public void testCompoundSomeMatchQueries() {
-		Query A = new MatchQuery() {
+		IQuery A = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				return false;
 			}
 		};
-		Query B = new ContextQuery() {
-			public Collector perform(Iterator iterator, Collector result) {
+		IQuery B = new ContextQuery() {
+			public Collector perform(Iterator iterator) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 		};
-		Query C = new MatchQuery() {
+		IQuery C = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				return false;
 			}
 		};
-		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new Query[] {A, B, C}, true);
+		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {A, B, C}, true);
 		assertTrue("1.0", !(compoundQuery instanceof IMatchQuery));
-		assertEquals("1.1", 3, compoundQuery.getQueries().length);
-		assertEquals("1.2", A, compoundQuery.getQueries()[0]);
-		assertEquals("1.3", B, compoundQuery.getQueries()[1]);
-		assertEquals("1.4", C, compoundQuery.getQueries()[2]);
+		assertEquals("1.1", 3, compoundQuery.getQueries().size());
+		assertEquals("1.2", A, compoundQuery.getQueries().get(0));
+		assertEquals("1.3", B, compoundQuery.getQueries().get(1));
+		assertEquals("1.4", C, compoundQuery.getQueries().get(2));
 	}
 
 	public void testCompoundNoMatchQueries() {
-		Query A = new ContextQuery() {
-			public Collector perform(Iterator iterator, Collector result) {
+		IQuery A = new ContextQuery() {
+			public Collector perform(Iterator iterator) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 		};
-		Query B = new ContextQuery() {
-			public Collector perform(Iterator iterator, Collector result) {
+		IQuery B = new ContextQuery() {
+			public Collector perform(Iterator iterator) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 		};
-		Query C = new ContextQuery() {
-			public Collector perform(Iterator iterator, Collector result) {
+		IQuery C = new ContextQuery() {
+			public Collector perform(Iterator iterator) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 		};
-		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new Query[] {A, B, C}, true);
+		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {A, B, C}, true);
 		assertTrue("1.0", !(compoundQuery instanceof IMatchQuery));
-		assertEquals("1.1", 3, compoundQuery.getQueries().length);
-		assertEquals("1.2", A, compoundQuery.getQueries()[0]);
-		assertEquals("1.3", B, compoundQuery.getQueries()[1]);
-		assertEquals("1.4", C, compoundQuery.getQueries()[2]);
+		assertEquals("1.1", 3, compoundQuery.getQueries().size());
+		assertEquals("1.2", A, compoundQuery.getQueries().get(0));
+		assertEquals("1.3", B, compoundQuery.getQueries().get(1));
+		assertEquals("1.4", C, compoundQuery.getQueries().get(2));
 	}
 
 	public void testIntersection() {
-		Query ABC = new MatchQuery() {
+		IQuery ABC = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate.equals("A") || candidate.equals("B") || candidate.equals("C"))
 					return true;
@@ -204,7 +210,7 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		Query BCDE = new MatchQuery() {
+		IQuery BCDE = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate.equals("B") || candidate.equals("C") || candidate.equals("D") || candidate.equals("E"))
 					return true;
@@ -212,16 +218,17 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new Query[] {ABC, BCDE}, true);
-		Collector result = compoundQuery.perform(getABCDE().iterator(), new Collector());
-		assertEquals("1.0", result.size(), 2);
-		assertTrue("1.1", result.toCollection().contains("B"));
-		assertTrue("1.2", result.toCollection().contains("C"));
+		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {ABC, BCDE}, true);
+		IQueryResult result = compoundQuery.perform(getABCDE().iterator());
+		assertEquals("1.0", AbstractProvisioningTest.queryResultSize(result), 2);
+		AbstractProvisioningTest.assertContains("1.1", result, "B");
+		AbstractProvisioningTest.assertContains("1.2", result, "C");
 	}
 
 	public void testIntersection2() {
-		Query ABC = new ContextQuery() {
-			public Collector perform(Iterator iterator, Collector result) {
+		IQuery ABC = new ContextQuery() {
+			public Collector perform(Iterator iterator) {
+				Collector result = new Collector();
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
 					if (o.equals("A") || o.equals("B") || o.equals("C"))
@@ -231,8 +238,9 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		Query BCDE = new ContextQuery() {
-			public Collector perform(Iterator iterator, Collector result) {
+		IQuery BCDE = new ContextQuery() {
+			public Collector perform(Iterator iterator) {
+				Collector result = new Collector();
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
 					if (o.equals("B") || o.equals("C") || o.equals("D") || o.equals("E"))
@@ -242,15 +250,15 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new Query[] {ABC, BCDE}, true);
-		Collector result = compoundQuery.perform(getABCDE().iterator(), new Collector());
-		assertEquals("1.0", result.size(), 2);
-		assertTrue("1.1", result.toCollection().contains("B"));
-		assertTrue("1.2", result.toCollection().contains("C"));
+		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {ABC, BCDE}, true);
+		IQueryResult result = compoundQuery.perform(getABCDE().iterator());
+		assertEquals("1.0", AbstractProvisioningTest.queryResultSize(result), 2);
+		AbstractProvisioningTest.assertContains("1.1", result, "B");
+		AbstractProvisioningTest.assertContains("1.2", result, "C");
 	}
 
 	public void testUnion() {
-		Query ABC = new MatchQuery() {
+		IQuery ABC = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate.equals("A") || candidate.equals("B") || candidate.equals("C"))
 					return true;
@@ -258,7 +266,7 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		Query BCDE = new MatchQuery() {
+		IQuery BCDE = new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate.equals("B") || candidate.equals("C") || candidate.equals("D") || candidate.equals("E"))
 					return true;
@@ -266,19 +274,20 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new Query[] {ABC, BCDE}, false);
-		Collector result = compoundQuery.perform(getABCDE().iterator(), new Collector());
-		assertEquals("1.0", result.size(), 5);
-		assertTrue("1.1", result.toCollection().contains("A"));
-		assertTrue("1.2", result.toCollection().contains("B"));
-		assertTrue("1.3", result.toCollection().contains("C"));
-		assertTrue("1.4", result.toCollection().contains("D"));
-		assertTrue("1.5", result.toCollection().contains("E"));
+		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {ABC, BCDE}, false);
+		IQueryResult result = compoundQuery.perform(getABCDE().iterator());
+		assertEquals("1.0", AbstractProvisioningTest.queryResultSize(result), 5);
+		AbstractProvisioningTest.assertContains("1.1", result, "A");
+		AbstractProvisioningTest.assertContains("1.2", result, "B");
+		AbstractProvisioningTest.assertContains("1.3", result, "C");
+		AbstractProvisioningTest.assertContains("1.4", result, "D");
+		AbstractProvisioningTest.assertContains("1.5", result, "E");
 	}
 
 	public void testUnion2() {
-		Query ABC = new ContextQuery() {
-			public Collector perform(Iterator iterator, Collector result) {
+		IQuery ABC = new ContextQuery() {
+			public Collector perform(Iterator iterator) {
+				Collector result = new Collector();
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
 					if (o.equals("A") || o.equals("B") || o.equals("C"))
@@ -288,8 +297,9 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		Query BCDE = new ContextQuery() {
-			public Collector perform(Iterator iterator, Collector result) {
+		IQuery BCDE = new ContextQuery() {
+			public Collector perform(Iterator iterator) {
+				Collector result = new Collector();
 				while (iterator.hasNext()) {
 					Object o = iterator.next();
 					if (o.equals("B") || o.equals("C") || o.equals("D") || o.equals("E"))
@@ -299,13 +309,13 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new Query[] {ABC, BCDE}, false);
-		Collector result = compoundQuery.perform(getABCDE().iterator(), new Collector());
-		assertEquals("1.0", result.size(), 5);
-		assertTrue("1.1", result.toCollection().contains("A"));
-		assertTrue("1.2", result.toCollection().contains("B"));
-		assertTrue("1.3", result.toCollection().contains("C"));
-		assertTrue("1.4", result.toCollection().contains("D"));
-		assertTrue("1.5", result.toCollection().contains("E"));
+		CompoundQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {ABC, BCDE}, false);
+		IQueryResult result = compoundQuery.perform(getABCDE().iterator());
+		assertEquals("1.0", AbstractProvisioningTest.queryResultSize(result), 5);
+		AbstractProvisioningTest.assertContains("1.1", result, "A");
+		AbstractProvisioningTest.assertContains("1.2", result, "B");
+		AbstractProvisioningTest.assertContains("1.3", result, "C");
+		AbstractProvisioningTest.assertContains("1.4", result, "D");
+		AbstractProvisioningTest.assertContains("1.5", result, "E");
 	}
 }

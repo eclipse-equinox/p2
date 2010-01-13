@@ -10,14 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SimpleSingleton extends AbstractProvisioningTest {
@@ -32,13 +35,13 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version("1.0.0"), true);
+		a1 = createIU("A", Version.create("1.0.0"), true);
 
-		a2 = createIU("A", new Version("2.0.0"), true);
+		a2 = createIU("A", Version.create("2.0.0"), true);
 
 		IRequiredCapability c1 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
 		IRequiredCapability c2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 2.0.0]"), null, false, false);
-		y = createIU("Y", new Version(2, 0, 0), new IRequiredCapability[] {c1, c2});
+		y = createIU("Y", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c1, c2});
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, y});
 
@@ -50,7 +53,7 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 	public void test1() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {y});
-		ProvisioningPlan provisioningPlan = planner.getProvisioningPlan(req, null, null);
+		ProvisioningPlan provisioningPlan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, provisioningPlan.getStatus().getSeverity());
 		assertNotNull(provisioningPlan.getCompleteState());
 	}
@@ -58,9 +61,10 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 	public void testExplanation() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {y});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, plan.getRequestStatus().getShortExplanation());
-		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(y));
+		final RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());
+		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(y));
 	}
 }

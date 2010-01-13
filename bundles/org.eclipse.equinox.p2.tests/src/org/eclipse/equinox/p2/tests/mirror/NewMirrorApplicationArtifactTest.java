@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.mirror;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -22,12 +22,15 @@ import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -311,15 +314,15 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 	 * Not Biconditional.
 	 */
 	private void assertFileSizes(String message, SimpleArtifactRepository expected, SimpleArtifactRepository actual) {
-		IArtifactKey[] expectedKeys = expected.getArtifactKeys();
-
-		for (int i = 0; i < expectedKeys.length; i++) {
-			IArtifactDescriptor[] expectedDescriptors = expected.getArtifactDescriptors(expectedKeys[i]);
-			IArtifactDescriptor[] actualDescriptors = actual.getArtifactDescriptors(expectedKeys[i]);
+		IQueryResult expectedKeys = expected.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator iterator = expectedKeys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
+			IArtifactDescriptor[] expectedDescriptors = expected.getArtifactDescriptors(key);
+			IArtifactDescriptor[] actualDescriptors = actual.getArtifactDescriptors(key);
 
 			if (expectedDescriptors == null || actualDescriptors == null)
 				if (!(expectedDescriptors == null && actualDescriptors == null))
-					fail(message + " missing key " + expectedKeys[i]);
+					fail(message + " missing key " + key);
 
 			top: for (int j = 0; j < expectedDescriptors.length; j++) {
 				for (int k = 0; k < actualDescriptors.length; k++) {
@@ -421,7 +424,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			assertContains("5.1", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			assertContains("5.2", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("5.3", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).getArtifactKeys().length + getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).getArtifactKeys().length, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
+			assertEquals("5.3", getArtifactKeyCount(sourceRepoLocation.toURI()) + getArtifactKeyCount(sourceRepo2Location.toURI()), getArtifactKeyCount(destRepoLocation.toURI()));
 		} catch (ProvisionException e) {
 			fail("5.4", e);
 		}
@@ -526,7 +529,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			assertContains("11.1", getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			assertContains("11.2", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("11.3", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).getArtifactKeys().length + getArtifactRepositoryManager().loadRepository(sourceRepo3Location.toURI(), null).getArtifactKeys().length, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
+			assertEquals("11.3", getArtifactKeyCount(sourceRepo2Location.toURI()) + getArtifactKeyCount(sourceRepo3Location.toURI()), getArtifactKeyCount(destRepoLocation.toURI()));
 		} catch (ProvisionException e) {
 			fail("11.4", e);
 		}
@@ -719,7 +722,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			assertContains("20.2", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			assertContains("20.3", getArtifactRepositoryManager().loadRepository(sourceRepo4Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("20.4", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).getArtifactKeys().length + getArtifactRepositoryManager().loadRepository(sourceRepo4Location.toURI(), null).getArtifactKeys().length, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
+			assertEquals("20.4", getArtifactKeyCount(sourceRepoLocation.toURI()) + getArtifactKeyCount(sourceRepo4Location.toURI()), getArtifactKeyCount(destRepoLocation.toURI()));
 		} catch (ProvisionException e) {
 			fail("20.5", e);
 		}
@@ -907,15 +910,15 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			fail("");
 		}
 
-		IArtifactKey[] keys = packedRepo.getArtifactKeys();
-
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactDescriptor[] srcDescriptors = packedRepo.getArtifactDescriptors(keys[i]);
+		IQueryResult keys = packedRepo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
+			IArtifactDescriptor[] srcDescriptors = packedRepo.getArtifactDescriptors(key);
 
 			for (int j = 0; j < srcDescriptors.length; j++) {
-				if (!(srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT) == null) && srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT).equals("packed")) {
+				if (!(srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT) == null) && srcDescriptors[j].getProperty(IArtifactDescriptor.FORMAT).equals(IArtifactDescriptor.FORMAT_PACKED)) {
 					//if we have a packed artifact
-					IArtifactDescriptor newDescriptor = new ArtifactDescriptor(keys[i]);
+					IArtifactDescriptor newDescriptor = new ArtifactDescriptor(key);
 					Map properties = new OrderedProperties();
 					properties.putAll(srcDescriptors[j].getProperties());
 					properties.remove(IArtifactDescriptor.FORMAT);
@@ -941,7 +944,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 						fail("27.2", e);
 					}
 					//corresponding key should now be in the destination
-					IArtifactDescriptor[] destDescriptors = destinationRepo.getArtifactDescriptors(keys[i]);
+					IArtifactDescriptor[] destDescriptors = destinationRepo.getArtifactDescriptors(key);
 					boolean canonicalFound = false;
 					for (int l = 0; !canonicalFound && (l < destDescriptors.length); l++) {
 						//No processing steps mean item is canonical
@@ -949,7 +952,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 							canonicalFound = true;
 					}
 					if (!canonicalFound)
-						fail("27.3 no canonical found for " + keys[i].toString());
+						fail("27.3 no canonical found for " + key.toString());
 
 					//ensure the canonical matches that in the expected
 					assertFileSizes("27.3", (SimpleArtifactRepository) destinationRepo, (SimpleArtifactRepository) packedRepo);
@@ -1083,7 +1086,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			assertContains("3", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			assertContains("4", getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null), getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null));
 			//checks that the destination has the correct number of keys (no extras)
-			assertEquals("5", getArtifactRepositoryManager().loadRepository(sourceRepoLocation.toURI(), null).getArtifactKeys().length + getArtifactRepositoryManager().loadRepository(sourceRepo2Location.toURI(), null).getArtifactKeys().length, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
+			assertEquals("5", getArtifactKeyCount(sourceRepoLocation.toURI()) + getArtifactKeyCount(sourceRepo2Location.toURI()), getArtifactKeyCount(destRepoLocation.toURI()));
 		} catch (ProvisionException e) {
 			fail("Could not load destination", e);
 		}
@@ -1111,19 +1114,15 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			if (newErr != null)
 				newErr.close();
 		}
-		try {
-			assertEquals("Verifying correct number of Keys", 2, getArtifactRepositoryManager().loadRepository(destRepoLocation.toURI(), null).getArtifactKeys().length);
-			//Because only 2 of the artifacts exists on disk, the number of artifacts in the destination should only be 1.
-			//Order in which mirror application mirrors artifacts is random.
-		} catch (ProvisionException e) {
-			fail("Error laoding destiantion repo", e);
-		}
+		assertEquals("Verifying correct number of Keys", 2, getArtifactKeyCount(destRepoLocation.toURI()));
+		//Because only 2 of the artifacts exists on disk, the number of artifacts in the destination should only be 1.
+		//Order in which mirror application mirrors artifacts is random.
 
 	}
 
 	public void testCompareUsingMD5Comparator() {
 		//Setup create descriptors with different md5 values
-		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/artifacts.xml");
 		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/artifacts.xml");
 		IArtifactDescriptor descriptor1 = PublisherHelper.createArtifactDescriptor(dupKey, artifact1);
@@ -1195,7 +1194,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 
 	public void testBaselineCompareUsingMD5Comparator() {
 		//Setup create descriptors with different md5 values
-		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactKey dupKey = PublisherHelper.createBinaryArtifactKey("testKeyId", Version.create("1.2.3"));
 		File artifact1 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo1 with space/content.xml");
 		File artifact2 = getTestData("0.0", "/testData/mirror/mirrorSourceRepo2/content.xml");
 
@@ -1301,10 +1300,6 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 				manager.removeRepository(srcLocation);
 			}
 
-			public synchronized IArtifactKey[] getArtifactKeys() {
-				return source.getArtifactKeys();
-			}
-
 			public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 				return source.getArtifactDescriptors(key);
 			}
@@ -1320,6 +1315,10 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 
 			public synchronized boolean contains(IArtifactDescriptor descriptor) {
 				return source.contains(descriptor);
+			}
+
+			public synchronized IQueryResult query(IQuery query, IProgressMonitor monitor) {
+				return source.query(query, monitor);
 			}
 		}
 
@@ -1392,9 +1391,10 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 
 		try {
 			//Mirroring full duplicate, so any key will do.
-			IArtifactDescriptor[] descriptors = sourceRepository.getArtifactDescriptors(sourceRepository.getArtifactKeys()[0]);
+			IQueryResult<IArtifactDescriptor> descriptors = sourceRepository.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+			IArtifactDescriptor descriptor = descriptors.iterator().next();
 			//Mirroring full duplicate, so any descriptor will do.
-			String message = NLS.bind(org.eclipse.equinox.internal.p2.artifact.repository.Messages.mirror_alreadyExists, descriptors[0], destRepoLocation.toURI());
+			String message = NLS.bind(org.eclipse.equinox.internal.p2.artifact.repository.Messages.mirror_alreadyExists, descriptor, destRepoLocation.toURI());
 			assertLogDoesNotContainLine(log.getFile(), message);
 		} catch (Exception e) {
 			fail("Error verifying log", e);
@@ -1469,9 +1469,10 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 
 		try {
 			//Mirroring full duplicate, so any key will do.
-			IArtifactDescriptor[] descriptors = sourceRepository.getArtifactDescriptors(sourceRepository.getArtifactKeys()[0]);
+			IQueryResult<IArtifactDescriptor> descriptors = sourceRepository.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+			IArtifactDescriptor descriptor = descriptors.iterator().next();
 			//Mirroring full duplicate, so any descriptor will do.
-			String message = NLS.bind(org.eclipse.equinox.internal.p2.artifact.repository.Messages.mirror_alreadyExists, descriptors[0], destRepoLocation.toURI());
+			String message = NLS.bind(org.eclipse.equinox.internal.p2.artifact.repository.Messages.mirror_alreadyExists, descriptor, destRepoLocation.toURI());
 			assertLogContainsLine(log.getFile(), message);
 		} catch (Exception e) {
 			fail("Error verifying log", e);

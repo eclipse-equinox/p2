@@ -10,12 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.core;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.osgi.framework.*;
@@ -25,14 +22,23 @@ import org.osgi.framework.*;
  */
 public class ProvisioningAgent implements IProvisioningAgent {
 
-	private final Map agentServices = Collections.synchronizedMap(new HashMap());
-
+	private final Map<String, Object> agentServices = Collections.synchronizedMap(new HashMap<String, Object>());
 	private BundleContext context;
+	private boolean stopped = false;
+	private ServiceRegistration reg;
+
+	/**
+	 * Instantiates a provisioning agent.
+	 */
+	public ProvisioningAgent() {
+		super();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.core.IProvisioningAgent#getService(java.lang.String)
 	 */
 	public Object getService(String serviceName) {
+		checkRunning();
 		Object service = agentServices.get(serviceName);
 		if (service != null)
 			return service;
@@ -59,7 +65,13 @@ public class ProvisioningAgent implements IProvisioningAgent {
 		return service;
 	}
 
+	private synchronized void checkRunning() {
+		if (stopped)
+			throw new RuntimeException("Attempt to access stopped agent: " + this);
+	}
+
 	public void registerService(String serviceName, Object service) {
+		checkRunning();
 		agentServices.put(serviceName, service);
 	}
 
@@ -68,18 +80,40 @@ public class ProvisioningAgent implements IProvisioningAgent {
 	}
 
 	public void setLocation(URI location) {
-		try {
-			AgentLocation agentLocation = new BasicLocation(URIUtil.toURL(location));
-			agentServices.put(AgentLocation.SERVICE_NAME, agentLocation);
-		} catch (MalformedURLException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Invalid agent location", e)); //$NON-NLS-1$
+		//treat a null location as using the currently running platform
+		IAgentLocation agentLocation = null;
+		if (location == null) {
+			ServiceReference ref = context.getServiceReference(IAgentLocation.SERVICE_NAME);
+			if (ref != null) {
+				agentLocation = (IAgentLocation) context.getService(ref);
+				context.ungetService(ref);
+			}
+		} else {
+			agentLocation = new AgentLocation(location);
 		}
+		agentServices.put(IAgentLocation.SERVICE_NAME, agentLocation);
 	}
 
 	public void unregisterService(String serviceName, Object service) {
+		synchronized (this) {
+			if (stopped)
+				return;
+		}
 		synchronized (agentServices) {
 			if (agentServices.get(serviceName) == service)
 				agentServices.remove(serviceName);
 		}
+	}
+
+	public synchronized void stop() {
+		stopped = true;
+		if (reg != null) {
+			reg.unregister();
+			reg = null;
+		}
+	}
+
+	public void setServiceRegistration(ServiceRegistration reg) {
+		this.reg = reg;
 	}
 }

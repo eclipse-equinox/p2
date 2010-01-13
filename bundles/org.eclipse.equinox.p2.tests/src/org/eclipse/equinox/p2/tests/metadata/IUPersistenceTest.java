@@ -10,21 +10,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnitPatch;
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
 import org.xml.sax.*;
 
 public class IUPersistenceTest extends AbstractProvisioningTest {
@@ -134,7 +135,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		}
 	}
 
-	private static String filter = "(& (osgi.ws=win32) (osgi.os=win32) (osgi.arch=x86))"; // not really
+	private static Filter filter = ExpressionUtil.parseLDAP("(& (osgi.ws=win32) (osgi.os=win32) (osgi.arch=x86))"); // not really
 	private static String id = "org.eclipse.osgi.services";
 
 	private static String[][] instructions = new String[][] {new String[] {"manifest", "Manifest-Version: 1.0\\Bundle-Vendor: Eclipse.org\\Bundle-ContactAddress: www.eclipse.org\\...a whole bunch of other manifest content..."}, new String[] {"zipped", "true"}, //
@@ -144,7 +145,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 
 	private static String IU_TEST_TARGET = "installableUnitTest";
 
-	private static Version IU_TEST_VERSION = new Version("0.0.1");
+	private static Version IU_TEST_VERSION = Version.create("0.0.1");
 
 	// Randomly chose org.eclipse.osgi.services as the IU for testing persistence
 	// but 'enhanced' it for better coverage.
@@ -176,7 +177,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	private static String[][] metaRequires = new String[][] {new String[] {PackagesNS, "some.actions1", "0.0.0", "true"}, //
 			new String[] {PackagesNS, "some.actions2", "1.2.0", "false"}}; //
 
-	private static Version version = new Version("3.1.200.v20070605");
+	private static Version version = Version.create("3.1.200.v20070605");
 
 	private Map propertyMap;
 
@@ -203,7 +204,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		IProvidedCapability[] provided = new IProvidedCapability[provideTuples.length];
 		for (int i = 0; i < provideTuples.length; i++) {
 			String[] nextTuple = provideTuples[i];
-			provided[i] = MetadataFactory.createProvidedCapability(nextTuple[0], nextTuple[1], new Version(nextTuple[2]));
+			provided[i] = MetadataFactory.createProvidedCapability(nextTuple[0], nextTuple[1], Version.create(nextTuple[2]));
 		}
 		// provided[provideTuples.length] = BUNDLE_CAPABILITY;
 		return provided;
@@ -213,7 +214,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		IRequiredCapability[] required = new IRequiredCapability[requireTuples.length];
 		for (int i = 0; i < requireTuples.length; i++) {
 			String[] nextTuple = requireTuples[i];
-			required[i] = MetadataFactory.createRequiredCapability(nextTuple[0], nextTuple[1], new VersionRange(nextTuple[2]), null, Boolean.valueOf(nextTuple[3]).booleanValue(), false);
+			required[i] = (IRequiredCapability) MetadataFactory.createRequiredCapability(nextTuple[0], nextTuple[1], new VersionRange(nextTuple[2]), null, Boolean.valueOf(nextTuple[3]).booleanValue(), false);
 		}
 		return required;
 	}
@@ -232,38 +233,40 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String[][] extractProvides(IInstallableUnit iu) {
-		IProvidedCapability[] provydes = iu.getProvidedCapabilities();
-		String[][] tuples = new String[provydes.length][3];
-		for (int i = 0; i < provydes.length; i++) {
-			IProvidedCapability next = provydes[i];
-			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getVersion().toString()};
+		Collection<IProvidedCapability> provydes = iu.getProvidedCapabilities();
+		String[][] tuples = new String[provydes.size()][3];
+		int i = 0;
+		for (IProvidedCapability capability : provydes) {
+			tuples[i++] = new String[] {capability.getNamespace(), capability.getName(), capability.getVersion().toString()};
 		}
 		return tuples;
 	}
 
 	private static String[][] extractRequires(IInstallableUnit iu) {
-		IRequiredCapability[] requyres = iu.getRequiredCapabilities();
-		String[][] tuples = new String[requyres.length][4];
-		for (int i = 0; i < requyres.length; i++) {
-			IRequiredCapability next = requyres[i];
-			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.isOptional()).toString()};
+		Collection<IRequirement> requyres = iu.getRequiredCapabilities();
+		String[][] tuples = new String[requyres.size()][4];
+		int i = 0;
+		for (Iterator iterator = requyres.iterator(); iterator.hasNext();) {
+			IRequiredCapability next = (IRequiredCapability) iterator.next();
+			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
 		return tuples;
 	}
 
 	private static String[][] extractMetaRequires(IInstallableUnit iu) {
-		IRequiredCapability[] requyres = iu.getMetaRequiredCapabilities();
-		String[][] tuples = new String[requyres.length][4];
-		for (int i = 0; i < requyres.length; i++) {
-			IRequiredCapability next = requyres[i];
-			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.isOptional()).toString()};
+		Collection<IRequirement> requyres = iu.getMetaRequiredCapabilities();
+		String[][] tuples = new String[requyres.size()][4];
+		int i = 0;
+		for (Iterator iterator = requyres.iterator(); iterator.hasNext();) {
+			IRequiredCapability next = (IRequiredCapability) iterator.next();
+			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
 		return tuples;
 	}
 
 	private IInstallableUnitPatch createPatchIU() {
 		propertyMap = createProperties(properties);
-		propertyMap.put(IInstallableUnit.PROP_TYPE_PATCH, "true");
+		propertyMap.put(InstallableUnitDescription.PROP_TYPE_PATCH, "true");
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
 		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
@@ -273,14 +276,14 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		IRequirementChange change1 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
 		IRequirementChange change2 = MetadataFactory.createRequirementChange(null, MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
 		IRequirementChange change3 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
-		IRequiredCapability[][] scope = new IRequiredCapability[][] { {MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true), MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true)}, {MetadataFactory.createRequiredCapability("zoo", "far", null, null, true, true)}};
+		IRequiredCapability[][] scope = new IRequiredCapability[][] { {(IRequiredCapability) MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true), (IRequiredCapability) MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true)}, {(IRequiredCapability) MetadataFactory.createRequiredCapability("zoo", "far", null, null, true, true)}};
 		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new IRequirementChange[] {change1, change2, change3}, scope, null, metaRequirements);
 		return iu;
 	}
 
 	private IInstallableUnitPatch createPatchWithEmptyScope() {
 		propertyMap = createProperties(properties);
-		propertyMap.put(IInstallableUnit.PROP_TYPE_PATCH, "true");
+		propertyMap.put(InstallableUnitDescription.PROP_TYPE_PATCH, "true");
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
 		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
@@ -300,10 +303,35 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
 		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
+		ILicense[] licenses = new ILicense[] {MetadataFactory.createLicense(URI.create("http://eclipse.org"), "license text"), MetadataFactory.createLicense(URI.create("http://apache.org"), "license text2")};
 		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
-		boolean singleton = false;
-		IInstallableUnit iu = createIU(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, metaRequirements);
+		InstallableUnitDescription iu1 = new MetadataFactory.InstallableUnitDescription();
+		iu1.setId(id);
+		iu1.setVersion(version);
+		iu1.setFilter(filter);
+		iu1.setLicenses(licenses);
+		IProvidedCapability[] provides1 = new IProvidedCapability[additionalProvides.length + 1];
+		provides1[0] = getSelfCapability(id, version);
+		for (int i = 0; i < additionalProvides.length; i++) {
+			provides1[i + 1] = additionalProvides[i];
+		}
+		for (Iterator iter = propertyMap.keySet().iterator(); iter.hasNext();) {
+			String nextKey = (String) iter.next();
+			String nextValue = (String) propertyMap.get(nextKey);
+			iu1.setProperty(nextKey, nextValue);
+		}
+		iu1.setCapabilities(provides1);
+		iu1.setRequiredCapabilities(requirements);
+		iu1.setTouchpointType(TOUCHPOINT_OSGI);
+		if (tpData != null)
+			iu1.addTouchpointData(tpData);
+		iu1.setSingleton(false);
+		iu1.setUpdateDescriptor(update);
+		if (metaRequirements == null)
+			metaRequirements = NO_REQUIRES;
+		iu1.setMetaRequiredCapabilities(metaRequirements);
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iu1);
 		return iu;
 	}
 
@@ -370,6 +398,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
 		InstallableUnit iu1 = (InstallableUnit) parser.getRootObject();
 		validateIU(iu1);
+		assertEquals(2, iu1.getLicenses().size());
 		ByteArrayOutputStream output1 = new ByteArrayOutputStream(1492);
 		IUStringWriter writer = new IUStringWriter(output1);
 		writer.writeTest(iu1);
@@ -381,7 +410,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	private void validateIU(IInstallableUnit iu) {
 		assertTrue("Installable unit id is not correct", id.equals(iu.getId()));
 		assertTrue("Installable unit version is not correct", version.equals(iu.getVersion()));
-		assertTrue("Installable unit filter is not correct", filter.equals(iu.getFilter()));
+		assertTrue("Installable unit filter is not correct", filter.equals(iu.getFilter() == null ? null : iu.getFilter()));
 		assertEquals("Installable unit properties are not correct", propertyMap, iu.getProperties());
 		assertTrue("Installable unit provided capabilities are not correct", equal(addSelfCapability(iu, provides), extractProvides(iu)));
 		assertTrue("Installable unit required capabilities are not correct", equal(requires, extractRequires(iu)));
@@ -396,11 +425,11 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		validateIU(iu);
 		assertTrue(iu.getApplicabilityScope() != null);
 		assertTrue(iu.getRequiredCapabilities() != null);
-		assertEquals(3, iu.getRequirementsChange().length);
-		assertEquals(null, iu.getRequirementsChange()[1].applyOn());
-		assertNotNull(iu.getRequirementsChange()[1].newValue());
-		assertEquals(null, iu.getRequirementsChange()[2].newValue());
-		assertNotNull(iu.getRequirementsChange()[2].applyOn());
+		assertEquals(3, iu.getRequirementsChange().size());
+		assertEquals(null, iu.getRequirementsChange().get(1).applyOn());
+		assertNotNull(iu.getRequirementsChange().get(1).newValue());
+		assertEquals(null, iu.getRequirementsChange().get(2).newValue());
+		assertNotNull(iu.getRequirementsChange().get(2).applyOn());
 		assertEquals(2, iu.getApplicabilityScope().length);
 		assertEquals(2, iu.getApplicabilityScope()[0].length);
 		assertEquals(1, iu.getApplicabilityScope()[1].length);
@@ -411,11 +440,11 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		validateIU(iu);
 		assertTrue(iu.getApplicabilityScope() != null);
 		assertTrue(iu.getRequiredCapabilities() != null);
-		assertEquals(3, iu.getRequirementsChange().length);
-		assertEquals(null, iu.getRequirementsChange()[1].applyOn());
-		assertNotNull(iu.getRequirementsChange()[1].newValue());
-		assertEquals(null, iu.getRequirementsChange()[2].newValue());
-		assertNotNull(iu.getRequirementsChange()[2].applyOn());
+		assertEquals(3, iu.getRequirementsChange().size());
+		assertEquals(null, iu.getRequirementsChange().get(1).applyOn());
+		assertNotNull(iu.getRequirementsChange().get(1).newValue());
+		assertEquals(null, iu.getRequirementsChange().get(2).newValue());
+		assertNotNull(iu.getRequirementsChange().get(2).applyOn());
 		assertEquals(0, iu.getApplicabilityScope().length);
 		assertNull(iu.getLifeCycle());
 	}

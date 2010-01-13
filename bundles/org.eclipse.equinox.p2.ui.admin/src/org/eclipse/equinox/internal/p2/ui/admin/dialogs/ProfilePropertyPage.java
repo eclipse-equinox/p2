@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
@@ -28,7 +28,7 @@ public class ProfilePropertyPage extends PropertyPage {
 	private ProfileGroup profileGroup;
 
 	protected Control createContents(Composite parent) {
-		IProfile profile = (IProfile) ProvUI.getAdapter(getElement(), IProfile.class);
+		IProfile profile = ProvUI.getAdapter(getElement(), IProfile.class);
 		if (profile == null) {
 			Label label = new Label(parent, SWT.DEFAULT);
 			label.setText(ProvAdminUIMessages.No_Property_Item_Selected);

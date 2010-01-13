@@ -11,9 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,16 +27,20 @@ import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.LocalizationHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.SiteCategory;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
+import org.osgi.framework.*;
 
 /**
  * @deprecated this class has been renamed to PublisherHelper and the vast majority
@@ -49,7 +50,6 @@ import org.osgi.framework.Constants;
 public class MetadataGeneratorHelper {
 	/**
 	 * A capability namespace representing the type of Eclipse resource (bundle, feature, source bundle, etc)
-	 * @see IRequiredCapability#getNamespace()
 	 * @see IProvidedCapability#getNamespace()
 	 */
 	public static final String NAMESPACE_ECLIPSE_TYPE = "org.eclipse.equinox.p2.eclipse.type"; //$NON-NLS-1$
@@ -57,28 +57,24 @@ public class MetadataGeneratorHelper {
 	/**
 	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing and OSGi bundle resource
-	 * @see IRequiredCapability#getName()
 	 * @see IProvidedCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_BUNDLE = "bundle"; //$NON-NLS-1$
 	/**
 	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing a feature
-	 * @see IRequiredCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_FEATURE = "feature"; //$NON-NLS-1$
 
 	/**
 	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace
 	 * representing a source bundle
-	 * @see IRequiredCapability#getName()
 	 */
 	public static final String TYPE_ECLIPSE_SOURCE = "source"; //$NON-NLS-1$
 
 	/**
 	 * A capability namespace representing the localization (translation)
 	 * of strings from a specified IU in a specified locale
-	 * @see IRequiredCapability#getNamespace()
 	 * @see IProvidedCapability#getNamespace()
 	 * TODO: this should be in API, probably in IInstallableUnit
 	 */
@@ -96,13 +92,13 @@ public class MetadataGeneratorHelper {
 
 	private static final String CAPABILITY_NS_UPDATE_FEATURE = "org.eclipse.update.feature"; //$NON-NLS-1$
 
-	private static final Version DEFAULT_JRE_VERSION = new Version("1.6"); //$NON-NLS-1$
+	private static final Version DEFAULT_JRE_VERSION = Version.create("1.6"); //$NON-NLS-1$
 
 	public static final String ECLIPSE_FEATURE_CLASSIFIER = "org.eclipse.update.feature"; //$NON-NLS-1$
 	public static final String OSGI_BUNDLE_CLASSIFIER = "osgi.bundle"; //$NON-NLS-1$
 	public static final String BINARY_ARTIFACT_CLASSIFIER = "binary"; //$NON-NLS-1$
 
-	public static final String INSTALL_FEATURES_FILTER = "(org.eclipse.update.install.features=true)"; //$NON-NLS-1$
+	public static final Filter INSTALL_FEATURES_FILTER = ExpressionUtil.parseLDAP("(org.eclipse.update.install.features=true)"); //$NON-NLS-1$
 
 	private static final String IU_NAMESPACE = IInstallableUnit.NAMESPACE_IU_ID;
 
@@ -115,21 +111,21 @@ public class MetadataGeneratorHelper {
 	private static final String UPDATE_FEATURE_PRIMARY_PROP = "org.eclipse.update.feature.primary"; //$NON-NLS-1$
 
 	//TODO - need to come up with a way to infer launcher version
-	private static final Version LAUNCHER_VERSION = new Version(1, 0, 0);
+	private static final Version LAUNCHER_VERSION = Version.createOSGi(1, 0, 0);
 
-	private static final Version versionMax = new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+	public static final ITouchpointType TOUCHPOINT_NATIVE = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.native", Version.createOSGi(1, 0, 0)); //$NON-NLS-1$
+	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", Version.createOSGi(1, 0, 0)); //$NON-NLS-1$
 
-	public static final ITouchpointType TOUCHPOINT_NATIVE = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.native", new Version(1, 0, 0)); //$NON-NLS-1$
-	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version(1, 0, 0)); //$NON-NLS-1$
-
-	public static final IProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new Version(1, 0, 0));
-	public static final IProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, new Version(1, 0, 0));
-	public static final IProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, new Version(1, 0, 0));
+	public static final IProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, Version.createOSGi(1, 0, 0));
+	public static final IProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, Version.createOSGi(1, 0, 0));
+	public static final IProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, Version.createOSGi(1, 0, 0));
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$
 
 	static final String BUNDLE_ADVICE_FILE = "META-INF/p2.inf"; //$NON-NLS-1$
 	static final String ADVICE_INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
+
+	static final String NAMESPACE_FLAVOR = "org.eclipse.equinox.p2.flavor"; //$NON-NLS-1$"
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recur) {
 		//TODO this size calculation is bogus
@@ -187,7 +183,6 @@ public class MetadataGeneratorHelper {
 	 * @deprecated moved to AbstractPublishingAction
 	 */
 	public static IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk, String installSize) {
-		final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
 		//TODO this size calculation is bogus
 		ArtifactDescriptor result = new ArtifactDescriptor(key);
 		if (pathOnDisk != null) {
@@ -195,9 +190,9 @@ public class MetadataGeneratorHelper {
 			// TODO - this is wrong but I'm testing a work-around for bug 205842
 			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
 		}
-		ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+		IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 		result.setProcessingSteps(steps);
-		result.setProperty(IArtifactDescriptor.FORMAT, PACKED_FORMAT);
+		result.setProperty(IArtifactDescriptor.FORMAT, IArtifactDescriptor.FORMAT_PACKED);
 		return result;
 	}
 
@@ -214,13 +209,13 @@ public class MetadataGeneratorHelper {
 		cu.setVersion(iuVersion);
 
 		//Indicate the IU to which this CU apply
-		cu.setHost(new IRequiredCapability[] { //
-				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, iuId, new VersionRange(iuVersion, true, versionMax, true), null, false, false, true), //
-						MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), false), null, false, false, false)});
+		cu.setHost(new IRequirement[] { //
+				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, iuId, new VersionRange(iuVersion, true, Version.MAX_VERSION, true), null, false, false, true), //
+						MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, iuVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, iuVersion), MetadataFactory.createProvidedCapability(NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		Map touchpointData = new HashMap();
 		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -249,7 +244,7 @@ public class MetadataGeneratorHelper {
 		if (!base.equals(org.osgi.framework.Version.emptyVersion)) {
 			updateRange = new VersionRange(Version.emptyVersion, true, Version.fromOSGiVersion(base), false);
 		} else {
-			updateRange = new VersionRange("0.0.0"); //$NON-NLS-1$
+			updateRange = VersionRange.emptyRange;
 		}
 		return updateRange;
 	}
@@ -297,7 +292,7 @@ public class MetadataGeneratorHelper {
 			//TODO this needs to be refined to take into account all the attribute handled by imports
 			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
 		}
-		iu.setRequiredCapabilities((IRequiredCapability[]) reqsDeps.toArray(new IRequiredCapability[reqsDeps.size()]));
+		iu.setRequiredCapabilities((IRequirement[]) reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
 
 		// Create set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
@@ -418,11 +413,11 @@ public class MetadataGeneratorHelper {
 		fragment.setVersion(Version.fromOSGiVersion(bd.getVersion())); // TODO: is this a meaningful version?
 
 		HostSpecification hostSpec = bd.getHost();
-		IRequiredCapability[] hostReqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), VersionRange.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
+		IRequirement[] hostReqs = new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), VersionRange.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
 		fragment.setHost(hostReqs);
 
 		fragment.setSingleton(true);
-		fragment.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		fragment.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 
 		// Create a provided capability for each locale and add the translated properties.
 		ArrayList providedCapabilities = new ArrayList(hostLocalizations.keySet().size());
@@ -463,7 +458,7 @@ public class MetadataGeneratorHelper {
 	}
 
 	private static IProvidedCapability makeTranslationCapability(String hostId, Locale locale) {
-		return MetadataFactory.createProvidedCapability(NAMESPACE_IU_LOCALIZATION, locale.toString(), new Version(1, 0, 0));
+		return MetadataFactory.createProvidedCapability(NAMESPACE_IU_LOCALIZATION, locale.toString(), Version.createOSGi(1, 0, 0));
 	}
 
 	/**
@@ -487,13 +482,13 @@ public class MetadataGeneratorHelper {
 		for (Iterator iterator = featureIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
+			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter() == null ? null : iu.getFilter(), false, false));
 		}
 		//note that update sites don't currently support nested categories, but it may be useful to add in the future
 		if (parentCategory != null) {
-			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, parentCategory.getId(), VersionRange.emptyRange, parentCategory.getFilter(), false, false));
+			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, parentCategory.getId(), VersionRange.emptyRange, parentCategory.getFilter() == null ? null : parentCategory.getFilter(), false, false));
 		}
-		cat.setRequiredCapabilities((IRequiredCapability[]) reqsConfigurationUnits.toArray(new IRequiredCapability[reqsConfigurationUnits.size()]));
+		cat.setRequiredCapabilities((IRequirement[]) reqsConfigurationUnits.toArray(new IRequirement[reqsConfigurationUnits.size()]));
 
 		// Create set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
@@ -516,7 +511,7 @@ public class MetadataGeneratorHelper {
 		cat.setCapabilities((IProvidedCapability[]) providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
 
 		cat.setArtifacts(new IArtifactKey[0]);
-		cat.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
+		cat.setProperty(InstallableUnitDescription.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
 		return MetadataFactory.createInstallableUnit(cat);
 	}
 
@@ -556,15 +551,15 @@ public class MetadataGeneratorHelper {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		String configUnitId = createDefaultConfigUnitId(OSGI_BUNDLE_CLASSIFIER, configurationFlavor);
 		cu.setId(configUnitId);
-		Version configUnitVersion = new Version(1, 0, 0);
+		Version configUnitVersion = Version.createOSGi(1, 0, 0);
 		cu.setVersion(configUnitVersion);
 
 		// Add capabilities for fragment, self, and describing the flavor supported
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		// Create a required capability on bundles
-		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
+		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
 		cu.setHost(reqs);
 		Map touchpointData = new HashMap();
 
@@ -592,15 +587,15 @@ public class MetadataGeneratorHelper {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		String configUnitId = createDefaultConfigUnitId(ECLIPSE_FEATURE_CLASSIFIER, configurationFlavor);
 		cu.setId(configUnitId);
-		Version configUnitVersion = new Version(1, 0, 0);
+		Version configUnitVersion = Version.createOSGi(1, 0, 0);
 		cu.setVersion(configUnitVersion);
 
 		// Add capabilities for fragment, self, and describing the flavor supported
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		// Create a required capability on features
-		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, true, true, false)};
+		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, true, true, false)};
 		cu.setHost(reqs);
 
 		cu.setFilter(INSTALL_FEATURES_FILTER);
@@ -616,15 +611,15 @@ public class MetadataGeneratorHelper {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		String configUnitId = createDefaultConfigUnitId("source", configurationFlavor); //$NON-NLS-1$
 		cu.setId(configUnitId);
-		Version configUnitVersion = new Version(1, 0, 0);
+		Version configUnitVersion = Version.createOSGi(1, 0, 0);
 		cu.setVersion(configUnitVersion);
 
 		// Add capabilities for fragment, self, and describing the flavor supported
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		// Create a required capability on source providers
-		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, true, true, false)};
+		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, true, true, false)};
 		cu.setHost(reqs);
 		Map touchpointData = new HashMap();
 
@@ -638,7 +633,7 @@ public class MetadataGeneratorHelper {
 	 * @deprecated moved to FeaturesAction
 	 */
 	public static IArtifactKey createFeatureArtifactKey(String fsn, String version) {
-		return new ArtifactKey(ECLIPSE_FEATURE_CLASSIFIER, fsn, new Version(version));
+		return new ArtifactKey(ECLIPSE_FEATURE_CLASSIFIER, fsn, Version.create(version));
 	}
 
 	/**
@@ -666,7 +661,7 @@ public class MetadataGeneratorHelper {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+			iu.setLicenses(new ILicense[] {MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense())});
 		if (feature.getCopyright() != null)
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		if (feature.getApplication() != null)
@@ -764,13 +759,13 @@ public class MetadataGeneratorHelper {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+			iu.setLicenses(new ILicense[] {MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense())});
 		if (feature.getCopyright() != null)
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
-		IRequiredCapability[] required = new IRequiredCapability[entries.length + (featureIU == null ? 0 : 1)];
+		IRequirement[] required = new IRequirement[entries.length + (featureIU == null ? 0 : 1)];
 		for (int i = 0; i < entries.length; i++) {
 			VersionRange range = getVersionRange(entries[i]);
 			String requiredId = entries[i].getId();
@@ -784,7 +779,7 @@ public class MetadataGeneratorHelper {
 			required[entries.length] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
 		iu.setRequiredCapabilities(required);
 		iu.setTouchpointType(ITouchpointType.NONE);
-		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
+		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
 		// 		 of the feature?
 		// iu.setFilter(filter);
@@ -834,7 +829,7 @@ public class MetadataGeneratorHelper {
 		if (feature.getProviderName() != null)
 			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
-			iu.setLicense(MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense()));
+			iu.setLicenses(new ILicense[] {MetadataFactory.createLicense(toURIOrNull(feature.getLicenseURL()), feature.getLicense())});
 		if (feature.getCopyright() != null)
 			iu.setCopyright(MetadataFactory.createCopyright(toURIOrNull(feature.getCopyrightURL()), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
@@ -845,13 +840,16 @@ public class MetadataGeneratorHelper {
 		ArrayList requirementChanges = new ArrayList();
 		for (int i = 0; i < entries.length; i++) {
 			VersionRange range = getVersionRange(entries[i]);
-			IRequiredCapability req = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
+			IRequirement req = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
 			if (entries[i].isRequires()) {
 				applicabilityScope.add(req);
+				if (applicabilityScope.size() == 1) {
+					iu.setLifeCycle(MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, null, false, false, false));
+				}
 				continue;
 			}
 			if (entries[i].isPlugin()) {
-				IRequiredCapability from = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), VersionRange.emptyRange, getFilter(entries[i]), entries[i].isOptional(), false);
+				IRequirement from = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), VersionRange.emptyRange, getFilter(entries[i]), entries[i].isOptional(), false);
 				requirementChanges.add(MetadataFactory.createRequirementChange(from, req));
 				continue;
 			}
@@ -859,21 +857,20 @@ public class MetadataGeneratorHelper {
 		}
 		//Always add a requirement on the IU containing the feature jar
 		patchRequirements.add(MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false));
-		iu.setRequiredCapabilities((IRequiredCapability[]) patchRequirements.toArray(new IRequiredCapability[patchRequirements.size()]));
-		iu.setApplicabilityScope(new IRequiredCapability[][] {(IRequiredCapability[]) applicabilityScope.toArray(new IRequiredCapability[applicabilityScope.size()])});
+		iu.setRequiredCapabilities((IRequirement[]) patchRequirements.toArray(new IRequirement[patchRequirements.size()]));
+		iu.setApplicabilityScope(new IRequirement[][] {(IRequirement[]) applicabilityScope.toArray(new IRequirement[applicabilityScope.size()])});
 		iu.setRequirementChanges((IRequirementChange[]) requirementChanges.toArray(new IRequirementChange[requirementChanges.size()]));
 
 		//Generate lifecycle
-		IRequiredCapability lifeCycle = null;
+		IRequirement lifeCycle = null;
 		if (applicabilityScope.size() > 0) {
-			IRequiredCapability req = (IRequiredCapability) applicabilityScope.get(0);
-			lifeCycle = MetadataFactory.createRequiredCapability(req.getNamespace(), req.getName(), req.getRange(), null, false, false, false);
-			iu.setLifeCycle(lifeCycle);
+			IRequirement req = (IRequirement) applicabilityScope.get(0);
+
 		}
 
 		iu.setTouchpointType(ITouchpointType.NONE);
-		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
-		iu.setProperty(IInstallableUnit.PROP_TYPE_PATCH, Boolean.TRUE.toString());
+		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString());
+		iu.setProperty(InstallableUnitDescription.PROP_TYPE_PATCH, Boolean.TRUE.toString());
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
 		// 		 of the feature?
 		// iu.setFilter(filter);
@@ -939,8 +936,8 @@ public class MetadataGeneratorHelper {
 		String configId = "config." + id;//$NON-NLS-1$
 		cu.setId(configId);
 		cu.setVersion(version);
-		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, versionMax, true), null, false, false)});
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setHost(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, Version.MAX_VERSION, true), null, false, false)});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configId, version)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
@@ -1006,8 +1003,8 @@ public class MetadataGeneratorHelper {
 		String configUnitId = configurationFlavor + launcherId;
 		cu.setId(configUnitId);
 		cu.setVersion(LAUNCHER_VERSION);
-		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherId, new VersionRange(LAUNCHER_VERSION, true, versionMax, true), null, false, false)});
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setHost(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherId, new VersionRange(LAUNCHER_VERSION, true, Version.MAX_VERSION, true), null, false, false)});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, LAUNCHER_VERSION)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
@@ -1142,11 +1139,11 @@ public class MetadataGeneratorHelper {
 		Version version = DEFAULT_JRE_VERSION;
 		//TODO Find a better way to determine JRE version
 		if (profileName.indexOf("1.6") > 0) { //$NON-NLS-1$
-			version = new Version("1.6"); //$NON-NLS-1$
+			version = Version.create("1.6"); //$NON-NLS-1$
 		} else if (profileName.indexOf("1.5") > 0) { //$NON-NLS-1$
-			version = new Version("1.5"); //$NON-NLS-1$
+			version = Version.create("1.5"); //$NON-NLS-1$
 		} else if (profileName.indexOf("1.4") > 0) { //$NON-NLS-1$
-			version = new Version("1.4"); //$NON-NLS-1$
+			version = Version.create("1.4"); //$NON-NLS-1$
 		}
 		iu.setVersion(version);
 		try {
@@ -1159,7 +1156,7 @@ public class MetadataGeneratorHelper {
 	/**
 	 * @deprecated moved to FeaturesAction
 	 */
-	public static String getFilter(FeatureEntry entry) {
+	public static Filter getFilter(FeatureEntry entry) {
 		StringBuffer result = new StringBuffer();
 		result.append("(&"); //$NON-NLS-1$
 		if (entry.getFilter() != null)
@@ -1175,7 +1172,7 @@ public class MetadataGeneratorHelper {
 		if (result.length() == 2)
 			return null;
 		result.append(')');
-		return result.toString();
+		return ExpressionUtil.parseLDAP(result.toString());
 	}
 
 	/**
@@ -1192,20 +1189,22 @@ public class MetadataGeneratorHelper {
 		String versionSpec = entry.getVersion();
 		if (versionSpec == null)
 			return VersionRange.emptyRange;
-		Version version = new Version(versionSpec);
+		Version version = Version.create(versionSpec);
 		if (version.equals(Version.emptyVersion))
 			return VersionRange.emptyRange;
 		if (!entry.isRequires())
 			return new VersionRange(version, true, version, true);
 		String match = entry.getMatch();
+
+		org.osgi.framework.Version osgiVersion = Version.toOSGiVersion(version);
 		if (match == null || match.equals("compatible")) { //$NON-NLS-1$
-			Version upper = new Version(version.getMajor() + 1, 0, 0);
+			Version upper = Version.createOSGi(osgiVersion.getMajor() + 1, 0, 0);
 			return new VersionRange(version, true, upper, false);
 		}
 		if (match.equals("perfect")) //$NON-NLS-1$
 			return new VersionRange(version, true, version, true);
 		if (match.equals("equivalent")) { //$NON-NLS-1$
-			Version upper = new Version(version.getMajor(), version.getMinor() + 1, 0);
+			Version upper = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor() + 1, 0);
 			return new VersionRange(version, true, upper, false);
 		}
 		if (match.equals("greaterOrEqual")) //$NON-NLS-1$

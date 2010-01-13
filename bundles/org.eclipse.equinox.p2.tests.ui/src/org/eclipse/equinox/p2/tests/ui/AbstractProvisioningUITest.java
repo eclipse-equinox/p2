@@ -10,29 +10,31 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
 
 import java.io.File;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
+import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.ProfileModificationJob;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Abstract class to set up the colocated UI test repo
@@ -59,25 +61,30 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 	protected IInstallableUnit upgrade;
 	protected IInstallableUnit uninstalled;
 	protected IInstallableUnit category;
+	private ProvisioningUI ui;
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		ProvisioningOperationRunner.suppressRestart(true);
+		ui = ProvisioningUI.getDefaultUI();
+		ui = new ProvisioningUI(ui.getSession(), TESTPROFILE, ui.getPolicy());
+		ui.getOperationRunner().suppressRestart(true);
+		// to squelch repo error reporting
+		ui.getPolicy().setRepositoriesVisible(false);
 		profile = createProfile(TESTPROFILE);
 		profileElement = new ProfileElement(null, TESTPROFILE);
-		install((top1 = createIU(TOPLEVELIU, new Version("1.0.0"))), true, false);
+		install((top1 = createIU(TOPLEVELIU, Version.create("1.0.0"))), true, false);
 		install((top2 = createIU(TOPLEVELIU2)), true, false);
 		install((nested = createIU(NESTEDIU)), false, false);
 		install((locked = createIU(LOCKEDIU)), true, true);
 		uninstalled = createIU(UNINSTALLEDIU);
 		IUpdateDescriptor update = MetadataFactory.createUpdateDescriptor(TOPLEVELIU, new VersionRange("[1.0.0, 1.0.0]"), 0, "update description");
-		upgrade = createIU(TOPLEVELIU, new Version(2, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, false, update, NO_REQUIRES);
+		upgrade = createIU(TOPLEVELIU, Version.createOSGi(2, 0, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, false, update, NO_REQUIRES);
 
-		category = createNamedIU(CATEGORYIU, CATEGORYIU, new Version("1.0.0"), true);
+		category = createNamedIU(CATEGORYIU, CATEGORYIU, Version.create("1.0.0"), true);
 		createTestMetdataRepository(new IInstallableUnit[] {top1, top2, uninstalled, upgrade});
 
-		metaManager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.context, IMetadataRepositoryManager.class.getName());
-		artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.class.getName());
+		metaManager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.context, IMetadataRepositoryManager.SERVICE_NAME);
+		artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.SERVICE_NAME);
 		File site = new File(TestActivator.getTestDataFolder().toString(), TEST_REPO_PATH);
 		testRepoLocation = site.toURI();
 		metaManager.addRepository(testRepoLocation);
@@ -99,22 +106,32 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		return false;
 	}
 
+	protected ProvisioningSession getSession() {
+		return ui.getSession();
+	}
+
+	protected ProvisioningUI getProvisioningUI() {
+		return ui;
+	}
+
+	protected Policy getPolicy() {
+		return ui.getPolicy();
+	}
+
 	protected IStatus install(IInstallableUnit iu, boolean root, boolean lock) throws ProvisionException {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {iu});
 		if (root) {
-			String rootProp = Policy.getDefault().getQueryContext().getVisibleInstalledIUProperty();
-			if (rootProp != null)
-				req.setInstallableUnitProfileProperty(iu, rootProp, Boolean.toString(true));
+			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 		}
 		if (lock) {
-			req.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU, new Integer(IInstallableUnit.LOCK_UNINSTALL | IInstallableUnit.LOCK_UPDATE).toString());
+			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, new Integer(IProfile.LOCK_UNINSTALL | IProfile.LOCK_UPDATE).toString());
 		}
 		// Use an empty provisioning context to prevent repo access
-		ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(req, new ProvisioningContext(new URI[] {}), getMonitor());
+		IProvisioningPlan plan = getSession().getPlanner().getProvisioningPlan(req, new ProvisioningContext(new URI[] {}), getMonitor());
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
-		return ProvisioningUtil.performProvisioningPlan(plan, new DefaultPhaseSet(), profile, new ProvisioningContext(), getMonitor());
+		return getSession().performProvisioningPlan(plan, new DefaultPhaseSet(), new ProvisioningContext(), getMonitor());
 	}
 
 	protected IInstallableUnit createNamedIU(String id, String name, Version version, boolean isCategory) {
@@ -123,13 +140,13 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, name);
 		if (isCategory)
-			iu.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
+			iu.setProperty(InstallableUnitDescription.PROP_TYPE_CATEGORY, Boolean.toString(true));
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
-	protected ProfileModificationOperation getLongTestOperation() {
-		return new ProfileModificationOperation("Test Operation", TESTPROFILE, null, null) {
-			protected IStatus doExecute(IProgressMonitor monitor) {
+	protected ProfileModificationJob getLongTestOperation() {
+		return new ProfileModificationJob("Test Operation", getSession(), TESTPROFILE, null, null) {
+			public IStatus runModal(IProgressMonitor monitor) {
 				while (true) {
 					// spin unless cancelled
 					if (monitor.isCanceled())

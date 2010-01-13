@@ -8,15 +8,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class UninstallEverything extends AbstractProvisioningTest {
@@ -27,7 +26,7 @@ public class UninstallEverything extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a = createIU("A", new Version("1.0.0"));
+		a = createIU("A", Version.create("1.0.0"));
 		createTestMetdataRepository(new IInstallableUnit[] {a});
 		profile = createProfile(Bug207319.class.getName());
 		director = createDirector();
@@ -43,7 +42,7 @@ public class UninstallEverything extends AbstractProvisioningTest {
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
 		req2.removeInstallableUnits(new IInstallableUnit[] {a});
 		assertEquals(IStatus.OK, director.provision(req2, null, null).getSeverity());
-		assertNotIUs(new IInstallableUnit[] {a}, profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator());
+		assertNotIUs(new IInstallableUnit[] {a}, profile.query(InstallableUnitQuery.ANY, null).iterator());
 
 	}
 }

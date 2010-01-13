@@ -10,26 +10,28 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Collection;
+import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.actions.QueryableFilterAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.ProductAction;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestData;
 
-@SuppressWarnings( {"unchecked"})
+@SuppressWarnings({"unchecked"})
 /**
  * Tests the product action when run on a product file that has a corresponding
  * advice file (p2.inf).
@@ -78,19 +80,21 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 		info.addAdvice(new QueryableFilterAdvice(info.getContextMetadataRepository()));
 
 		testAction.perform(info, publisherResult, null);
-		Collector results = publisherResult.query(new IUQuery("org.eclipse.platform.ide", new Version("3.5.0.I20081118")), new Collector(), null);
-		assertEquals("1.0", 1, results.size());
+		IQueryResult results = publisherResult.query(new IUQuery("org.eclipse.platform.ide", Version.create("3.5.0.I20081118")), null);
+		assertEquals("1.0", 1, queryResultSize(results));
 		IInstallableUnit unit = (IInstallableUnit) results.iterator().next();
-		IRequiredCapability[] requiredCapabilities = unit.getRequiredCapabilities();
+		Collection<IRequirement> requiredCapabilities = unit.getRequiredCapabilities();
 
 		IRequiredCapability capability = null;
-		for (int i = 0; i < requiredCapabilities.length; i++)
-			if (requiredCapabilities[i].getName().equals("org.eclipse.equinox.p2.user.ui.feature.group")) {
-				capability = requiredCapabilities[i];
+		for (Iterator iterator = requiredCapabilities.iterator(); iterator.hasNext();) {
+			IRequiredCapability req = (IRequiredCapability) iterator.next();
+			if (req.getName().equals("org.eclipse.equinox.p2.user.ui.feature.group")) {
+				capability = req;
 				break;
 			}
+		}
 		assertTrue("1.1", capability != null);
-		assertEquals("1.2", "(org.eclipse.update.install.features=true)", capability.getFilter());
+		assertEquals("1.2", "(org.eclipse.update.install.features=true)", capability.getFilter().toString());
 	}
 
 	/**
@@ -104,9 +108,9 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 		Collection productIUs = publisherResult.getIUs("productWithAdvice.product", IPublisherResult.NON_ROOT);
 		assertEquals("1.0", 1, productIUs.size());
 		IInstallableUnit product = (IInstallableUnit) productIUs.iterator().next();
-		ITouchpointData[] data = product.getTouchpointData();
-		assertEquals("1.1", 1, data.length);
-		String configure = data[0].getInstruction("configure").getBody();
+		List<ITouchpointData> data = product.getTouchpointData();
+		assertEquals("1.1", 1, data.size());
+		String configure = data.get(0).getInstruction("configure").getBody();
 		assertEquals("1.2", "addRepository(type:0,location:http${#58}//download.eclipse.org/releases/fred);addRepository(type:1,location:http${#58}//download.eclipse.org/releases/fred);", configure);
 	}
 

@@ -10,27 +10,29 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
@@ -46,26 +48,21 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	private ServiceTracker fwAdminTracker;
 
-	protected void setUp() throws Exception {
-		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.class.getName());
-		if (sr == null)
-			throw new RuntimeException("Director service not available");
-		director = createDirector();
-		//		planner = createPlanner();
-		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
-		metadataRepoManager = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
-		if (metadataRepoManager == null)
-			throw new RuntimeException("Metadata repository manager could not be loaded");
+	private static URI repositoryLocation = URI.create("http://download.eclipse.org/eclipse/updates/3.5");
 
-		ServiceReference sr3 = TestActivator.context.getServiceReference(IArtifactRepositoryManager.class.getName());
-		artifactRepoManager = (IArtifactRepositoryManager) TestActivator.context.getService(sr3);
-		if (artifactRepoManager == null)
-			throw new RuntimeException("Artifact repo manager could not be loaded");
+	private IProvisioningAgent end2endAgent = null;
+
+	protected void setUp() throws Exception {
+		ServiceReference sr = TestActivator.context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		IProvisioningAgentProvider agentFactory = (IProvisioningAgentProvider) TestActivator.context.getService(sr);
+		end2endAgent = agentFactory.createAgent(getTempFolder().toURI());
+		metadataRepoManager = (IMetadataRepositoryManager) end2endAgent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		artifactRepoManager = (IArtifactRepositoryManager) end2endAgent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		director = (IDirector) end2endAgent.getService(IDirector.SERVICE_NAME);
 	}
 
 	protected IProfile createProfile(String profileId, String installFolder) {
-		ServiceReference profileRegSr = TestActivator.context.getServiceReference(IProfileRegistry.class.getName());
-		IProfileRegistry profileRegistry = (IProfileRegistry) TestActivator.context.getService(profileRegSr);
+		IProfileRegistry profileRegistry = (IProfileRegistry) end2endAgent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null) {
 			throw new RuntimeException("Profile registry service not available");
 		}
@@ -77,7 +74,11 @@ public class End2EndTest extends AbstractProvisioningTest {
 			properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
 		properties.put("org.eclipse.update.install.features", "true");
 		properties.put(IProfile.PROP_CACHE, installFolder);
-		return createProfile(profileId, null, properties);
+		try {
+			return profileRegistry.addProfile(profileId, properties);
+		} catch (ProvisionException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
 	}
 
 	public void testInstallSDK35() {
@@ -86,16 +87,13 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 		//Add repository of the release
 		try {
-			URI location = new URI("http://download.eclipse.org/eclipse/updates/3.5");
-			metadataRepoManager.addRepository(location);
-			metadataRepoManager.setEnabled(location, true);
-			metadataRepoManager.loadRepository(location, new NullProgressMonitor());
-			artifactRepoManager.addRepository(location);
-			artifactRepoManager.setEnabled(location, true);
+			metadataRepoManager.addRepository(repositoryLocation);
+			metadataRepoManager.setEnabled(repositoryLocation, true);
+			metadataRepoManager.loadRepository(repositoryLocation, new NullProgressMonitor());
+			artifactRepoManager.addRepository(repositoryLocation);
+			artifactRepoManager.setEnabled(repositoryLocation, true);
 		} catch (ProvisionException e) {
 			fail("Exception loading the repository.", e);
-		} catch (URISyntaxException e) {
-			fail("Invalid repository location", e);
 		}
 
 		installPlatform35(profile2, installFolder);
@@ -113,19 +111,19 @@ public class End2EndTest extends AbstractProvisioningTest {
 	}
 
 	private void attemptToUninstallRCP35(IProfile profile2, File installFolder) {
-		Collector collect = profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor());
-		assertEquals(1, collect.size());
+		IQueryResult collect = profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		assertEquals(1, queryResultSize(collect));
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) collect.iterator().next()});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		assertOK("Can not uninstall RCP", s);
-		assertEquals(1, profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new Collector(), new NullProgressMonitor()).size());
+		assertEquals(1, queryResultSize(profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor())));
 	}
 
 	protected void uninstallPlatform(IProfile profile2, File installFolder) {
 		System.out.println("Uninstall the platform");
-		Collector collect = profile2.query(new InstallableUnitQuery("org.eclipse.platform.ide"), new Collector(), new NullProgressMonitor());
-		assertEquals(1, collect.size());
+		IQueryResult collect = profile2.query(new InstallableUnitQuery("org.eclipse.platform.ide"), new NullProgressMonitor());
+		assertEquals(1, queryResultSize(collect));
 		//		Collector collect2 = profile2.query(new InstallableUnitQuery("org.eclipse.platform.source.feature.group"), new Collector(), new NullProgressMonitor());
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) collect.iterator().next()});//, (IInstallableUnit) collect2.iterator().next()});
@@ -134,7 +132,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 	}
 
 	private void rollbackPlatformSource35(IProfile profile2, File installFolder) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = (IProfileRegistry) end2endAgent.getService(IProfileRegistry.SERVICE_NAME);
 		long[] timestamps = profileRegistry.listProfileTimestamps(profile2.getProfileId());
 		assertEquals(3, timestamps.length);
 
@@ -149,11 +147,9 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	private void installPlatformSource35(IProfile profile2, File installFolder) {
 		final String id = "org.eclipse.platform.source.feature.group";
-		final Version version = new Version("3.5.0.v20090611a-9gEeG1HFtQcmRThO4O3aR_fqSMvJR2sJ");
+		final Version version = Version.create("3.5.0.v20090611a-9gEeG1HFtQcmRThO4O3aR_fqSMvJR2sJ");
 
 		IInstallableUnit toInstall = getIU(id, version);
-		if (toInstall == null)
-			assertNotNull(toInstall);
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		request.addInstallableUnits(new IInstallableUnit[] {toInstall});
@@ -168,13 +164,13 @@ public class End2EndTest extends AbstractProvisioningTest {
 	private void installBogusIU(IProfile profile, File installFolder) {
 		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		iud.setId("org.eclipse.equinox.p2.tests.bogusIU.end2end");
-		iud.setVersion(new Version("1.0.0"));
-		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.p2.tests.bogusIU.end2end", new Version("1.0.0"))});
+		iud.setVersion(Version.create("1.0.0"));
+		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.p2.tests.bogusIU.end2end", Version.create("1.0.0"))});
 		Map data = new HashMap();
 		data.put("install", "org.eclipse.equinox.p2.osgi.removeJvmArg(programArg:-XX:+UnlockDiagnosticVMOptions);");
 		iud.addTouchpointData(MetadataFactory.createTouchpointData(data));
 		IInstallableUnit bogusIU = MetadataFactory.createInstallableUnit(iud);
-		iud.setTouchpointType(MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version("1.0.0")));
+		iud.setTouchpointType(MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", Version.create("1.0.0")));
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {bogusIU});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
@@ -183,13 +179,11 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	private void installPlatform35(IProfile profile2, File installFolder) {
 		final String id = "org.eclipse.platform.ide";
-		final Version version = new Version("3.5.0.I20090611-1540");
+		final Version version = Version.create("3.5.0.I20090611-1540");
 
 		//First we install the platform
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		IInstallableUnit platformIU = getIU(id, version);
-		if (platformIU == null)
-			assertNotNull(platformIU);
 
 		request.addInstallableUnits(new IInstallableUnit[] {platformIU});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
@@ -203,11 +197,31 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertFalse(new File(installFolder, "configuration/org.eclipse.equinox.source").exists());
 	}
 
+	/**
+	 * Returns the IU corresponding to the given id and version. Fails if the IU could
+	 * not be found. Never returns null.
+	 */
 	public IInstallableUnit getIU(String id, Version v) {
-		Iterator it = metadataRepoManager.query(new InstallableUnitQuery(id, v), new Collector(), null).iterator();
+		final InstallableUnitQuery query = new InstallableUnitQuery(id, v);
+		Iterator it = metadataRepoManager.query(query, null).iterator();
 		if (it.hasNext())
 			return (IInstallableUnit) it.next();
-		return null;
+		//try the repository location directly - retry because eclipse.org can be flaky
+		Exception failure = null;
+		for (int i = 0; i < 3; i++) {
+			try {
+				IMetadataRepository repo = metadataRepoManager.loadRepository(repositoryLocation, null);
+				it = repo.query(query, null).iterator();
+				if (it.hasNext())
+					return (IInstallableUnit) it.next();
+			} catch (ProvisionException e) {
+				failure = e;
+			}
+		}
+		if (failure == null)
+			failure = new RuntimeException("IU not found");
+		fail("Failed to obtain " + id + " version: " + v + " from: " + repositoryLocation, failure);
+		return null;//will never get here
 	}
 
 	private void validateInstallContentFor35(File installFolder) {

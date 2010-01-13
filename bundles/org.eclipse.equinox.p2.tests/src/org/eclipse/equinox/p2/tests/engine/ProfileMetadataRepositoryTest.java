@@ -12,16 +12,14 @@ package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 
 /**
  * Simple test of the engine API.
@@ -73,7 +71,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull("0.3", profile);
 
-		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		IQueryResult profileCollector = profile.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("0.4", profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
@@ -87,9 +85,9 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("0.99", e1);
 		}
 
-		Collector repoCollector = repo.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		IQueryResult repoCollector = repo.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("1.0", repoCollector.isEmpty());
-		assertTrue("1.1", repoCollector.toCollection().containsAll(profileCollector.toCollection()));
+		assertContains("1.1", repoCollector, profileCollector);
 	}
 
 	public void testLoadTimestampedProfile() {
@@ -101,7 +99,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull("0.3", profile);
 
-		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		IQueryResult profileCollector = profile.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("0.4", profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
@@ -118,9 +116,9 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("0.99", e1);
 		}
 
-		Collector repoCollector = repo.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		IQueryResult repoCollector = repo.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("1.0", repoCollector.isEmpty());
-		assertTrue("1.1", repoCollector.toCollection().containsAll(profileCollector.toCollection()));
+		assertContains("1.1", repoCollector, profileCollector);
 	}
 
 	public void DISABLED_testDefaultAgentRepoAndBundlePoolFromProfileRepo() throws InterruptedException {
@@ -128,17 +126,19 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		// /p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);
-		new SimpleArtifactRepositoryFactory().create(tempFolder.toURI(), "", "", null);
+		final SimpleArtifactRepositoryFactory simpleFactory = new SimpleArtifactRepositoryFactory();
+		simpleFactory.setAgent(getAgent());
+		simpleFactory.create(tempFolder.toURI(), "", "", null);
 
 		File defaultAgenRepositoryDirectory = new File(tempFolder, "p2/org.eclipse.equinox.p2.core/cache");
-		new SimpleArtifactRepositoryFactory().create(defaultAgenRepositoryDirectory.toURI(), "", "", null);
+		simpleFactory.create(defaultAgenRepositoryDirectory.toURI(), "", "", null);
 
 		File profileRegistryFolder = new File(tempFolder, "p2/org.eclipse.equinox.p2.engine/profileRegistry");
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(profileRegistryFolder, null, false);
 		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull("1.0", profile);
 
-		Collector profileCollector = profile.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		IQueryResult profileCollector = profile.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("1.1", profileCollector.isEmpty());
 
 		File simpleProfileFolder = new File(profileRegistryFolder, "SDKPatchingTest.profile");
@@ -147,7 +147,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		File timeStampedProfile = new File(simpleProfileFolder, "" + profile.getTimestamp() + ".profile");
 		assertTrue("1.3", timeStampedProfile.exists());
 
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		assertNotNull("2.0", manager);
 		assertFalse("2.1", manager.contains(tempFolder.toURI()));
 
@@ -159,9 +159,9 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 			fail("2.99", e1);
 		}
 
-		Collector repoCollector = repo.query(InstallableUnitQuery.ANY, new Collector(), getMonitor());
+		IQueryResult repoCollector = repo.query(InstallableUnitQuery.ANY, getMonitor());
 		assertFalse("3.0", repoCollector.isEmpty());
-		assertTrue("3.1", repoCollector.toCollection().containsAll(profileCollector.toCollection()));
+		assertContains("3.1", repoCollector, profileCollector);
 
 		int maxTries = 20;
 		int current = 0;

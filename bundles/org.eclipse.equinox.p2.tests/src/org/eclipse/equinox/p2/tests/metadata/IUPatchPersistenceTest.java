@@ -10,21 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnitPatch;
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
 import org.xml.sax.*;
 
 public class IUPatchPersistenceTest extends AbstractProvisioningTest {
@@ -34,8 +33,8 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	private static String PackagesNS = "osgi.packages";
 
 	private static String id = "org.eclipse.osgi.services";
-	private static Version version = new Version("3.1.200.v20070605");
-	private static String filter = "(& (osgi.ws=win32) (osgi.os=win32) (osgi.arch=x86))"; // not really
+	private static Version version = Version.create("3.1.200.v20070605");
+	private static Filter filter = ExpressionUtil.parseLDAP("(& (osgi.ws=win32) (osgi.os=win32) (osgi.arch=x86))"); // not really
 
 	private static String[][] properties = new String[][] {new String[] {"equinox.p2.name", "OSGi Release 4.0.1 Services"}, //
 			new String[] {"equinox.p2.description", "OSGi Service Platform Release 4.0.1 Service Interfaces and Classes"}, //
@@ -95,7 +94,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		IProvidedCapability[] provided = new IProvidedCapability[provideTuples.length];
 		for (int i = 0; i < provideTuples.length; i++) {
 			String[] nextTuple = provideTuples[i];
-			provided[i] = MetadataFactory.createProvidedCapability(nextTuple[0], nextTuple[1], new Version(nextTuple[2]));
+			provided[i] = MetadataFactory.createProvidedCapability(nextTuple[0], nextTuple[1], Version.create(nextTuple[2]));
 		}
 		// provided[provideTuples.length] = BUNDLE_CAPABILITY;
 		return provided;
@@ -105,7 +104,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		IRequiredCapability[] required = new IRequiredCapability[requireTuples.length];
 		for (int i = 0; i < requireTuples.length; i++) {
 			String[] nextTuple = requireTuples[i];
-			required[i] = MetadataFactory.createRequiredCapability(nextTuple[0], nextTuple[1], new VersionRange(nextTuple[2]), null, Boolean.valueOf(nextTuple[3]).booleanValue(), false);
+			required[i] = (IRequiredCapability) MetadataFactory.createRequiredCapability(nextTuple[0], nextTuple[1], new VersionRange(nextTuple[2]), null, Boolean.valueOf(nextTuple[3]).booleanValue(), false);
 		}
 		return required;
 	}
@@ -120,7 +119,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String IU_TEST_TARGET = "installableUnitTest";
-	private static Version IU_TEST_VERSION = new Version("0.0.1");
+	private static Version IU_TEST_VERSION = Version.create("0.0.1");
 
 	private static String IU_TEST_ELEMENT = "test";
 
@@ -286,8 +285,8 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		IRequirementChange change1 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
 		IRequirementChange change2 = MetadataFactory.createRequirementChange(null, MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
 		IRequirementChange change3 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
-		IRequiredCapability[][] scope = new IRequiredCapability[][] { {MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true), MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true)}, {MetadataFactory.createRequiredCapability("zoo", "far", null, null, true, true)}};
-		IRequiredCapability lifeCycle = MetadataFactory.createRequiredCapability("zoo", "x", null, null, false, false, false);
+		IRequiredCapability[][] scope = new IRequiredCapability[][] { {(IRequiredCapability) MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true), (IRequiredCapability) MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true)}, {(IRequiredCapability) MetadataFactory.createRequiredCapability("zoo", "far", null, null, true, true)}};
+		IRequiredCapability lifeCycle = (IRequiredCapability) MetadataFactory.createRequiredCapability("zoo", "x", null, null, false, false, false);
 		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new IRequirementChange[] {change1, change2, change3}, scope, lifeCycle, metaRequirements);
 		return iu;
 	}
@@ -296,11 +295,11 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 		validateIU(iu);
 		assertTrue(iu.getApplicabilityScope() != null);
 		assertTrue(iu.getRequiredCapabilities() != null);
-		assertEquals(3, iu.getRequirementsChange().length);
-		assertEquals(null, iu.getRequirementsChange()[1].applyOn());
-		assertNotNull(iu.getRequirementsChange()[1].newValue());
-		assertEquals(null, iu.getRequirementsChange()[2].newValue());
-		assertNotNull(iu.getRequirementsChange()[2].applyOn());
+		assertEquals(3, iu.getRequirementsChange().size());
+		assertEquals(null, iu.getRequirementsChange().get(1).applyOn());
+		assertNotNull(iu.getRequirementsChange().get(1).newValue());
+		assertEquals(null, iu.getRequirementsChange().get(2).newValue());
+		assertNotNull(iu.getRequirementsChange().get(2).applyOn());
 		assertEquals(2, iu.getApplicabilityScope().length);
 		assertEquals(2, iu.getApplicabilityScope()[0].length);
 		assertEquals(1, iu.getApplicabilityScope()[1].length);
@@ -346,31 +345,33 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String[][] extractProvides(IInstallableUnit iu) {
-		IProvidedCapability[] provydes = iu.getProvidedCapabilities();
-		String[][] tuples = new String[provydes.length][3];
-		for (int i = 0; i < provydes.length; i++) {
-			IProvidedCapability next = provydes[i];
-			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getVersion().toString()};
+		Collection<IProvidedCapability> provydes = iu.getProvidedCapabilities();
+		String[][] tuples = new String[provydes.size()][3];
+		int i = 0;
+		for (IProvidedCapability capability : provydes) {
+			tuples[i++] = new String[] {capability.getNamespace(), capability.getName(), capability.getVersion().toString()};
 		}
 		return tuples;
 	}
 
 	private static String[][] extractRequires(IInstallableUnit iu) {
-		IRequiredCapability[] requyres = iu.getRequiredCapabilities();
-		String[][] tuples = new String[requyres.length][4];
-		for (int i = 0; i < requyres.length; i++) {
-			IRequiredCapability next = requyres[i];
-			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.isOptional()).toString()};
+		Collection<IRequirement> reqs = iu.getRequiredCapabilities();
+		String[][] tuples = new String[reqs.size()][4];
+		int i = 0;
+		for (Iterator iterator = reqs.iterator(); iterator.hasNext();) {
+			IRequiredCapability next = (IRequiredCapability) iterator.next();
+			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
 		return tuples;
 	}
 
 	private static String[][] extractMetaRequires(IInstallableUnit iu) {
-		IRequiredCapability[] requyres = iu.getMetaRequiredCapabilities();
-		String[][] tuples = new String[requyres.length][4];
-		for (int i = 0; i < requyres.length; i++) {
-			IRequiredCapability next = requyres[i];
-			tuples[i] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.isOptional()).toString()};
+		Collection<IRequirement> requyres = iu.getMetaRequiredCapabilities();
+		String[][] tuples = new String[requyres.size()][4];
+		int i = 0;
+		for (Iterator iterator = requyres.iterator(); iterator.hasNext();) {
+			IRequiredCapability next = (IRequiredCapability) iterator.next();
+			tuples[i++] = new String[] {next.getNamespace(), next.getName(), next.getRange().toString(), Boolean.valueOf(next.getMin() == 0).toString()};
 		}
 		return tuples;
 	}

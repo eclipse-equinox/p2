@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+
+import org.eclipse.equinox.p2.core.ProvisionException;
+
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 
 import java.io.*;
 import java.net.URL;
@@ -25,11 +29,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
@@ -109,9 +110,9 @@ public class SimpleArtifactRepositoryIO {
 		// Constants defining the structure of the XML for a SimpleArtifactRepository
 
 		// A format version number for simple artifact repository XML.
-		public static final Version COMPATIBLE_VERSION = new Version(1, 0, 0);
-		public static final Version CURRENT_VERSION = new Version(1, 1, 0);
-		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
+		public static final Version COMPATIBLE_VERSION = Version.createOSGi(1, 0, 0);
+		public static final Version CURRENT_VERSION = Version.createOSGi(1, 1, 0);
+		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
 
 		// Constants for processing instructions
 		public static final String PI_REPOSITORY_TARGET = "artifactRepository"; //$NON-NLS-1$
@@ -176,11 +177,10 @@ public class SimpleArtifactRepositoryIO {
 			}
 		}
 
-		private void writeArtifacts(Set artifactDescriptors) {
+		private void writeArtifacts(Set<SimpleArtifactDescriptor> artifactDescriptors) {
 			start(ARTIFACTS_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, artifactDescriptors.size());
-			for (Iterator iter = artifactDescriptors.iterator(); iter.hasNext();) {
-				ArtifactDescriptor descriptor = (ArtifactDescriptor) iter.next();
+			for (SimpleArtifactDescriptor descriptor : artifactDescriptors) {
 				IArtifactKey key = descriptor.getArtifactKey();
 				start(ARTIFACT_ELEMENT);
 				attribute(ARTIFACT_CLASSIFIER_ATTRIBUTE, key.getClassifier());
@@ -194,7 +194,7 @@ public class SimpleArtifactRepositoryIO {
 			end(ARTIFACTS_ELEMENT);
 		}
 
-		private void writeProcessingSteps(ProcessingStepDescriptor[] processingSteps) {
+		private void writeProcessingSteps(IProcessingStepDescriptor[] processingSteps) {
 			if (processingSteps.length > 0) {
 				start(PROCESSING_STEPS_ELEMENT);
 				attribute(COLLECTION_SIZE_ATTRIBUTE, processingSteps.length);
@@ -326,9 +326,9 @@ public class SimpleArtifactRepositoryIO {
 				if (isValidXML()) {
 					String[][] mappingRules = (mappingRulesHandler == null ? new String[0][0] //
 							: mappingRulesHandler.getMappingRules());
-					Map properties = (propertiesHandler == null ? new OrderedProperties(0) //
+					Map<String, String> properties = (propertiesHandler == null ? new OrderedProperties(0) //
 							: propertiesHandler.getProperties());
-					Set artifacts = (artifactsHandler == null ? new HashSet(0) //
+					Set<SimpleArtifactDescriptor> artifacts = (artifactsHandler == null ? new HashSet<SimpleArtifactDescriptor>(0) //
 							: artifactsHandler.getArtifacts());
 					repository = new SimpleArtifactRepository(attrValues[0], attrValues[1], attrValues[2], attrValues[3], //
 							attrValues[4], artifacts, mappingRules, properties);
@@ -338,18 +338,18 @@ public class SimpleArtifactRepositoryIO {
 
 		protected class MappingRulesHandler extends AbstractHandler {
 
-			private List mappingRules;
+			private List<String[]> mappingRules;
 
 			public MappingRulesHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, MAPPING_RULES_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				mappingRules = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+				mappingRules = (size != null ? new ArrayList<String[]>(new Integer(size).intValue()) : new ArrayList<String[]>(4));
 			}
 
 			public String[][] getMappingRules() {
 				String[][] rules = new String[mappingRules.size()][2];
 				for (int index = 0; index < mappingRules.size(); index++) {
-					String[] ruleAttributes = (String[]) mappingRules.get(index);
+					String[] ruleAttributes = mappingRules.get(index);
 					rules[index] = ruleAttributes;
 				}
 				return rules;
@@ -368,7 +368,7 @@ public class SimpleArtifactRepositoryIO {
 
 			private final String[] required = new String[] {MAPPING_RULE_FILTER_ATTRIBUTE, MAPPING_RULE_OUTPUT_ATTRIBUTE};
 
-			public MappingRuleHandler(AbstractHandler parentHandler, Attributes attributes, List mappingRules) {
+			public MappingRuleHandler(AbstractHandler parentHandler, Attributes attributes, List<String[]> mappingRules) {
 				super(parentHandler, MAPPING_RULE_ELEMENT);
 				mappingRules.add(parseRequiredAttributes(attributes, required));
 			}
@@ -380,15 +380,15 @@ public class SimpleArtifactRepositoryIO {
 
 		protected class ArtifactsHandler extends AbstractHandler {
 
-			private Set artifacts;
+			private Set<SimpleArtifactDescriptor> artifacts;
 
 			public ArtifactsHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, ARTIFACTS_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				artifacts = (size != null ? new LinkedHashSet(new Integer(size).intValue()) : new LinkedHashSet(4));
+				artifacts = (size != null ? new LinkedHashSet<SimpleArtifactDescriptor>(new Integer(size).intValue()) : new LinkedHashSet<SimpleArtifactDescriptor>(4));
 			}
 
-			public Set getArtifacts() {
+			public Set<SimpleArtifactDescriptor> getArtifacts() {
 				return artifacts;
 			}
 
@@ -405,20 +405,20 @@ public class SimpleArtifactRepositoryIO {
 
 			private final String[] required = new String[] {ARTIFACT_CLASSIFIER_ATTRIBUTE, ID_ATTRIBUTE, VERSION_ATTRIBUTE};
 
-			private Set artifacts;
-			ArtifactDescriptor currentArtifact = null;
+			private Set<SimpleArtifactDescriptor> artifacts;
+			SimpleArtifactDescriptor currentArtifact = null;
 
 			private PropertiesHandler propertiesHandler = null;
 			private PropertiesHandler repositoryPropertiesHandler = null;
 			private ProcessingStepsHandler processingStepsHandler = null;
 
-			public ArtifactHandler(AbstractHandler parentHandler, Attributes attributes, Set artifacts) {
+			public ArtifactHandler(AbstractHandler parentHandler, Attributes attributes, Set<SimpleArtifactDescriptor> artifacts) {
 				super(parentHandler, ARTIFACT_ELEMENT);
 				this.artifacts = artifacts;
 				String[] values = parseRequiredAttributes(attributes, required);
 				Version version = checkVersion(ARTIFACT_ELEMENT, VERSION_ATTRIBUTE, values[2]);
 				// TODO: resolve access restriction on ArtifactKey construction
-				currentArtifact = new ArtifactDescriptor(new ArtifactKey(values[0], values[1], version));
+				currentArtifact = new SimpleArtifactDescriptor(new ArtifactKey(values[0], values[1], version));
 			}
 
 			public void startElement(String name, Attributes attributes) {
@@ -447,13 +447,13 @@ public class SimpleArtifactRepositoryIO {
 
 			protected void finished() {
 				if (isValidXML() && currentArtifact != null) {
-					Map properties = (propertiesHandler == null ? new OrderedProperties(0) : propertiesHandler.getProperties());
+					Map<String, String> properties = (propertiesHandler == null ? new OrderedProperties(0) : propertiesHandler.getProperties());
 					currentArtifact.addProperties(properties);
 
 					properties = (repositoryPropertiesHandler == null ? new OrderedProperties(0) : repositoryPropertiesHandler.getProperties());
 					currentArtifact.addRepositoryProperties(properties);
 
-					ProcessingStepDescriptor[] processingSteps = (processingStepsHandler == null ? new ProcessingStepDescriptor[0] //
+					IProcessingStepDescriptor[] processingSteps = (processingStepsHandler == null ? new ProcessingStepDescriptor[0] //
 							: processingStepsHandler.getProcessingSteps());
 					currentArtifact.setProcessingSteps(processingSteps);
 					artifacts.add(currentArtifact);
@@ -463,16 +463,16 @@ public class SimpleArtifactRepositoryIO {
 
 		protected class ProcessingStepsHandler extends AbstractHandler {
 
-			private List processingSteps;
+			private List<IProcessingStepDescriptor> processingSteps;
 
 			public ProcessingStepsHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, PROCESSING_STEPS_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				processingSteps = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+				processingSteps = (size != null ? new ArrayList<IProcessingStepDescriptor>(new Integer(size).intValue()) : new ArrayList<IProcessingStepDescriptor>(4));
 			}
 
-			public ProcessingStepDescriptor[] getProcessingSteps() {
-				return (ProcessingStepDescriptor[]) processingSteps.toArray(new ProcessingStepDescriptor[processingSteps.size()]);
+			public IProcessingStepDescriptor[] getProcessingSteps() {
+				return processingSteps.toArray(new ProcessingStepDescriptor[processingSteps.size()]);
 			}
 
 			public void startElement(String name, Attributes attributes) {
@@ -489,7 +489,7 @@ public class SimpleArtifactRepositoryIO {
 			private final String[] required = new String[] {ID_ATTRIBUTE, STEP_REQUIRED_ATTRIBUTE};
 			private final String[] optional = new String[] {STEP_DATA_ATTRIBUTE};
 
-			public ProcessingStepHandler(AbstractHandler parentHandler, Attributes attributes, List processingSteps) {
+			public ProcessingStepHandler(AbstractHandler parentHandler, Attributes attributes, List<IProcessingStepDescriptor> processingSteps) {
 				super(parentHandler, PROCESSING_STEP_ELEMENT);
 				String[] attributeValues = parseAttributes(attributes, required, optional);
 				processingSteps.add(new ProcessingStepDescriptor(attributeValues[0], attributeValues[2], checkBoolean(PROCESSING_STEP_ELEMENT, STEP_REQUIRED_ATTRIBUTE, attributeValues[1]).booleanValue()));

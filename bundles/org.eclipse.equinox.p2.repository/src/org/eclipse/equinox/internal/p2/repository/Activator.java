@@ -1,11 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2009, Cloudsmith Inc.
- * The code, documentation and other materials contained herein have been
- * licensed under the Eclipse Public License - v 1.0 by the copyright holder
- * listed above, as the Initial Contributor under such license. The text of
- * such license is available at www.eclipse.org.
+ * Copyright (c) 2009 Cloudsmith Inc and others.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ * 
+ *  Contributors:
+ * 	Cloudsmith Inc - initial API and implementation
+ * 	IBM Corporation - ongoing development
+ * 	Genuitec - Bug 291926
  ******************************************************************************/
-
 package org.eclipse.equinox.internal.p2.repository;
 
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
@@ -150,7 +154,8 @@ public class Activator implements BundleActivator {
 			for (int i = 0; i < bundles.length; i++) {
 				try {
 					if ((bundles[i].getState() & Bundle.INSTALLED) == 0) {
-						bundles[i].start();
+						bundles[i].start(Bundle.START_ACTIVATION_POLICY);
+						bundles[i].start(Bundle.START_TRANSIENT);
 						return true;
 					}
 				} catch (BundleException e) {

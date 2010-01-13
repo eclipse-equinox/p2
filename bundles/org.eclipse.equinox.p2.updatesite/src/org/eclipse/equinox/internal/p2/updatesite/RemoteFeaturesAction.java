@@ -10,11 +10,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
@@ -48,7 +49,7 @@ public class RemoteFeaturesAction extends FeaturesAction {
 	}
 
 	protected void generateFeatureIUs(Feature[] featureList, IPublisherResult result) {
-		Properties extraProperties = new Properties();
+		Map<String, String> extraProperties = new HashMap<String, String>();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 		for (int i = 0; i < featureList.length; i++) {
 			Feature feature = featureList[i];
@@ -56,7 +57,7 @@ public class RemoteFeaturesAction extends FeaturesAction {
 			for (int j = 0; j < featureEntries.length; j++) {
 				FeatureEntry entry = featureEntries[j];
 				if (entry.isPlugin() && !entry.isRequires()) {
-					Dictionary mockManifest = new Properties();
+					Dictionary<String, String> mockManifest = new Hashtable<String, String>();
 					mockManifest.put("Manifest-Version", "1.0"); //$NON-NLS-1$ //$NON-NLS-2$
 					mockManifest.put("Bundle-ManifestVersion", "2"); //$NON-NLS-1$ //$NON-NLS-2$
 					mockManifest.put("Bundle-SymbolicName", entry.getId()); //$NON-NLS-1$
@@ -69,7 +70,7 @@ public class RemoteFeaturesAction extends FeaturesAction {
 				}
 			}
 			IInstallableUnit featureIU = createFeatureJarIU(feature, new PublisherInfo());
-			List childIUs = new ArrayList();
+			List<IInstallableUnit> childIUs = new ArrayList<IInstallableUnit>();
 			childIUs.add(featureIU);
 			IInstallableUnit groupIU = createGroupIU(feature, childIUs, new PublisherInfo());
 			result.addIU(featureIU, IPublisherResult.ROOT);

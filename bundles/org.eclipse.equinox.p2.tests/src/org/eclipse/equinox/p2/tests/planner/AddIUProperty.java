@@ -8,15 +8,16 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AddIUProperty extends AbstractProvisioningTest {
@@ -28,9 +29,9 @@ public class AddIUProperty extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version("1.0.0"), true);
+		a1 = createIU("A", Version.create("1.0.0"), true);
 
-		a2 = createIU("A", new Version("2.0.0"), true);
+		a2 = createIU("A", Version.create("2.0.0"), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2});
 
@@ -42,7 +43,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 	public void testWithoutIUProperty() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
 	}
@@ -51,7 +52,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
 		req.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
 	}
@@ -60,43 +61,44 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		//Add a1, strictly ;
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
-		engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
+		engine.perform(plan, null);
 		assertProfileContainsAll("A1 is missing", profile, new IInstallableUnit[] {a1});
-		Collector allProfileIUs = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
-		assertEquals(allProfileIUs.size(), 1);
+		IQueryResult allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
+		assertEquals(queryResultSize(allProfileIUs), 1);
 
 		//Add a2 with a1. This is an error
 		ProfileChangeRequest req4 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
 		req4.addInstallableUnits(new IInstallableUnit[] {a2});
-		ProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
+		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertEquals(IStatus.ERROR, plan4.getStatus().getSeverity());
 
 		//Add a2, making a1 optional;
 		ProfileChangeRequest req2 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
 		req2.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
 		req2.addInstallableUnits(new IInstallableUnit[] {a2});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan2, a2);
 
-		engine.perform(profile, new DefaultPhaseSet(), plan2.getOperands(), null, null);
+		engine.perform(plan2, null);
+		profile = getProfile(profile.getProfileId());
 		assertProfileContainsAll("A2 is missing", profile, new IInstallableUnit[] {a2});
-		allProfileIUs = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
-		assertEquals(allProfileIUs.size(), 1);
+		allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
+		assertEquals(queryResultSize(allProfileIUs), 1);
 
-		Collector iuProfileProperties = profile.query(new IUProfilePropertyQuery(SimplePlanner.INCLUSION_RULES, null), new Collector(), null);
-		assertEquals(iuProfileProperties.size(), 1);
+		IQueryResult iuProfileProperties = profile.query(new IUProfilePropertyQuery(SimplePlanner.INCLUSION_RULES, null), null);
+		assertEquals(queryResultSize(iuProfileProperties), 1);
 
 		//Remove a1 optionality - should be a no-op
 		ProfileChangeRequest req3 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
 		req3.removeInstallableUnitInclusionRules(a1);
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
-		engine.perform(profile, new DefaultPhaseSet(), plan3.getOperands(), null, null);
-		allProfileIUs = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
+		engine.perform(plan3, null);
+		allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
 		assertProfileContainsAll("A2 is missing", profile, new IInstallableUnit[] {a2});
-		assertEquals(allProfileIUs.size(), 1);
+		assertEquals(queryResultSize(allProfileIUs), 1);
 	}
 }

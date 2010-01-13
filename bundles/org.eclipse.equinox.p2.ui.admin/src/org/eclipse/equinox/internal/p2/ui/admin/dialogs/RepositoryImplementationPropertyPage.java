@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-
 import java.util.Map;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
+import org.eclipse.equinox.internal.p2.ui.model.IRepositoryElement;
+import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -28,7 +27,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
  * @since 3.4
  */
 public class RepositoryImplementationPropertyPage extends PropertyPage {
-	private IRepositoryElement repositoryElement;
+	private IRepositoryElement<?> repositoryElement;
 	private Composite composite;
 	private Text name;
 	private Text location;
@@ -106,9 +105,9 @@ public class RepositoryImplementationPropertyPage extends PropertyPage {
 	}
 
 	private void initializeFields() {
-		IRepositoryElement element = getRepositoryElement();
+		IRepositoryElement<?> element = getRepositoryElement();
 		if (element != null) {
-			IRepository repo = getRepositoryElement().getRepository(null);
+			IRepository<?> repo = getRepositoryElement().getRepository(null);
 			location.setText(repo.getLocation().toString());
 			String value = repo.getName();
 			if (value != null)
@@ -127,9 +126,9 @@ public class RepositoryImplementationPropertyPage extends PropertyPage {
 
 	private void initializeTable() {
 		if (getRepositoryElement() != null) {
-			Map repoProperties = getRepositoryElement().getRepository(null).getProperties();
+			Map<String, String> repoProperties = getRepositoryElement().getRepository(null).getProperties();
 			if (repoProperties != null) {
-				String[] propNames = (String[]) repoProperties.keySet().toArray(new String[repoProperties.size()]);
+				String[] propNames = repoProperties.keySet().toArray(new String[repoProperties.size()]);
 				for (int i = 0; i < propNames.length; i++) {
 					TableItem item = new TableItem(propertiesTable, SWT.NULL);
 					item.setText(new String[] {propNames[i], repoProperties.get(propNames[i]).toString()});
@@ -138,9 +137,9 @@ public class RepositoryImplementationPropertyPage extends PropertyPage {
 		}
 	}
 
-	private IRepositoryElement getRepositoryElement() {
+	private IRepositoryElement<?> getRepositoryElement() {
 		if (repositoryElement == null) {
-			repositoryElement = (IRepositoryElement) ProvUI.getAdapter(getElement(), IRepositoryElement.class);
+			repositoryElement = ProvUI.getAdapter(getElement(), IRepositoryElement.class);
 		}
 		return repositoryElement;
 	}

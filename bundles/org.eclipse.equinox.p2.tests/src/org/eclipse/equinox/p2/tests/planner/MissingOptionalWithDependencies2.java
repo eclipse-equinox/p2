@@ -8,13 +8,17 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class MissingOptionalWithDependencies2 extends AbstractProvisioningTest {
@@ -28,15 +32,15 @@ public class MissingOptionalWithDependencies2 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version("1.0.0"), true);
-		c1 = createIU("C", new Version("1.0.0"), true);
-		c2 = createIU("C", new Version("2.0.0"), true);
+		a1 = createIU("A", Version.create("1.0.0"), true);
+		c1 = createIU("C", Version.create("1.0.0"), true);
+		c2 = createIU("C", Version.create("2.0.0"), true);
 
 		//B's dependency on C can not be satisfied
 		IRequiredCapability[] reqB = new IRequiredCapability[2];
 		reqB[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 1.0.0]"), null, true, false, true);
 		reqB[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
-		b1 = createIU("B", new Version("1.0.0"), reqB);
+		b1 = createIU("B", Version.create("1.0.0"), reqB);
 
 		IRequiredCapability[] req = new IRequiredCapability[3];
 		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
@@ -54,7 +58,7 @@ public class MissingOptionalWithDependencies2 extends AbstractProvisioningTest {
 		//Ensure that D's installation does not fail because of C's absence
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {d});
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, d);
 		assertInstallOperand(plan, a1);

@@ -16,12 +16,12 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 
 public class SetLauncherNameAction extends ProvisioningAction {
 	public static final String ID = "setLauncherName"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
 		getMemento().put(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME, profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME));
@@ -30,7 +30,7 @@ public class SetLauncherNameAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
 		String previousLauncherName = (String) getMemento().get(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);

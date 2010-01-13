@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class MultipleProvider extends AbstractProvisioningTest {
@@ -33,17 +33,17 @@ public class MultipleProvider extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B1", new VersionRange("[1.0.0, 2.0.0)"), null));
+		a1 = createIU("A", Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B1", new VersionRange("[1.0.0, 2.0.0)")));
 
-		b1 = createIU("B1", new Version("1.0.0"), true);
+		b1 = createIU("B1", Version.create("1.0.0"), true);
 
-		b11 = createIU("B1", new Version("1.1.0"), true);
+		b11 = createIU("B1", Version.create("1.1.0"), true);
 
-		b12 = createIU("B1", new Version("1.2.0"), true);
+		b12 = createIU("B1", Version.create("1.2.0"), true);
 
-		b13 = createIU("B1", new Version("1.3.0"), true);
+		b13 = createIU("B1", Version.create("1.3.0"), true);
 
-		b14 = createIU("B1", new Version("1.4.0"), true);
+		b14 = createIU("B1", Version.create("1.4.0"), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b11, b12, b13, b14});
 

@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.update;
 
 import java.io.*;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -49,18 +48,17 @@ public class XMLWriter extends PrintWriter {
 			super.print('\t');
 	}
 
-	public void printTag(String name, Map parameters) {
+	public void printTag(String name, Map<String, String> parameters) {
 		printTag(name, parameters, true, true);
 	}
 
-	public void printTag(String name, Map parameters, boolean shouldTab, boolean newLine) {
+	public void printTag(String name, Map<String, String> parameters, boolean shouldTab, boolean newLine) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("<"); //$NON-NLS-1$
 		sb.append(name);
 		if (parameters != null)
-			for (Iterator it = parameters.keySet().iterator(); it.hasNext();) {
+			for (String key : parameters.keySet()) {
 				sb.append(" "); //$NON-NLS-1$
-				String key = (String) it.next();
 				sb.append(key);
 				sb.append("=\""); //$NON-NLS-1$
 				sb.append(getEscaped(String.valueOf(parameters.get(key))));
@@ -75,11 +73,11 @@ public class XMLWriter extends PrintWriter {
 			print(sb.toString());
 	}
 
-	public void startTag(String name, Map parameters) {
+	public void startTag(String name, Map<String, String> parameters) {
 		startTag(name, parameters, true);
 	}
 
-	public void startTag(String name, Map parameters, boolean newLine) {
+	public void startTag(String name, Map<String, String> parameters, boolean newLine) {
 		printTag(name, parameters, true, newLine);
 		tab++;
 	}

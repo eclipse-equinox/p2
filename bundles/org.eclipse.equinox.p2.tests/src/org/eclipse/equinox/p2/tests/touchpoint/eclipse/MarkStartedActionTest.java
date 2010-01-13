@@ -19,13 +19,13 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstant
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.MarkStartedAction;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -45,9 +45,9 @@ public class MarkStartedActionTest extends AbstractProvisioningTest {
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File osgiSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
@@ -61,6 +61,7 @@ public class MarkStartedActionTest extends AbstractProvisioningTest {
 		bundlePool.addDescriptor(descriptor);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
@@ -90,9 +91,9 @@ public class MarkStartedActionTest extends AbstractProvisioningTest {
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File osgiSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/org.eclipse.osgi_3.4.2.R34x_v20080826-1230.jar");
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
@@ -106,6 +107,7 @@ public class MarkStartedActionTest extends AbstractProvisioningTest {
 		bundlePool.addDescriptor(descriptor);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);
@@ -138,9 +140,9 @@ public class MarkStartedActionTest extends AbstractProvisioningTest {
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File osgiSource = getTestData("1.0", "/testData/eclipseTouchpoint/bundles/org.eclipse.osgi.fragment_1.0.0.jar");
 		File targetPlugins = new File(installFolder, "plugins");
 		assertTrue(targetPlugins.mkdir());
@@ -154,6 +156,7 @@ public class MarkStartedActionTest extends AbstractProvisioningTest {
 		bundlePool.addDescriptor(descriptor);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);

@@ -9,15 +9,14 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IVersionedId;
-
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.tests.TestData;
 
 /**
@@ -57,7 +56,7 @@ public class ProductFileTest extends TestCase {
 	 * Test method for {@link org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile#getProperties()}.
 	 */
 	public void testGetConfigurationProperties() {
-		Properties properties = productFile.getConfigurationProperties();
+		Map<String, String> properties = productFile.getConfigurationProperties();
 		assertEquals("1.0", 4, properties.size());
 		assertEquals("1.1", "bar", properties.get("foo"));
 		assertEquals("1.2", "", properties.get("foo1"));
@@ -72,7 +71,7 @@ public class ProductFileTest extends TestCase {
 		List bundles = productFile.getBundles(false);
 		assertEquals("1.0", 1, bundles.size());
 		assertEquals("1.1", "org.eclipse.core.runtime", ((IVersionedId) bundles.get(0)).getId());
-		assertEquals("1.2", new Version(1, 0, 4), ((IVersionedId) bundles.get(0)).getVersion());
+		assertEquals("1.2", Version.createOSGi(1, 0, 4), ((IVersionedId) bundles.get(0)).getVersion());
 		bundles = productFile.getBundles(true);
 		assertEquals("1.3", 2, bundles.size());
 	}
@@ -105,7 +104,7 @@ public class ProductFileTest extends TestCase {
 		List features = productFile.getFeatures();
 		assertEquals("1.0", 1, features.size());
 		assertEquals("1.1", "org.eclipse.rcp", ((IVersionedId) features.get(0)).getId());
-		assertEquals("1.2", new Version("3.5.0.v20081110-9C9tEvNEla71LZ2jFz-RFB-t"), ((IVersionedId) features.get(0)).getVersion());
+		assertEquals("1.2", Version.create("3.5.0.v20081110-9C9tEvNEla71LZ2jFz-RFB-t"), ((IVersionedId) features.get(0)).getVersion());
 	}
 
 	/**
@@ -175,7 +174,7 @@ public class ProductFileTest extends TestCase {
 	 */
 	public void testGetVersion() {
 		String version = productFile.getVersion();
-		assertEquals("1.0", new Version("1"), new Version(version));
+		assertEquals("1.0", Version.create("1"), Version.create(version));
 	}
 
 	/**

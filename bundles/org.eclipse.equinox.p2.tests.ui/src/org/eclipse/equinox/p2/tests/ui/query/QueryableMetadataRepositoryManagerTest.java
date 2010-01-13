@@ -10,22 +10,29 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+
 import java.io.File;
 import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.tests.harness.CancelingProgressMonitor;
-import org.eclipse.equinox.internal.p2.ui.DefaultQueryProvider;
+import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IUViewQueryContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositories;
+import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.ProvisioningJob;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Tests for {@link QueryableMetadataRepositoryManager}.
@@ -34,6 +41,16 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 	/**
 	 * Tests querying against a non-existent repository
 	 */
+
+	ProvisioningUI ui;
+	ProvisioningSession session;
+
+	protected void setUp() throws Exception {
+		ui = ProvisioningUI.getDefaultUI();
+		session = ui.getSession();
+		super.setUp();
+	}
+
 	public void testBrokenRepository() {
 		URI brokenRepo;
 		try {
@@ -47,7 +64,8 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 		assertTrue("1.0", !manager.areRepositoriesLoaded());
 
-		manager.loadAll(getMonitor());
+		ProvisioningJob loadJob = new LoadMetadataRepositoryJob(ui);
+		loadJob.runModal(getMonitor());
 
 		//false because the broken repository is not loaded
 		assertTrue("1.1", !manager.areRepositoriesLoaded());
@@ -69,7 +87,8 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 		assertTrue("1.0", !manager.areRepositoriesLoaded());
 
-		manager.loadAll(new CancelingProgressMonitor());
+		ProvisioningJob loadJob = new LoadMetadataRepositoryJob(ui);
+		loadJob.runModal(new CancelingProgressMonitor());
 
 		//should not be loaded due to cancelation
 		assertTrue("1.1", !manager.areRepositoriesLoaded());
@@ -91,12 +110,8 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(broken);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
-		Collector result = manager.query(new InstallableUnitQuery("test.bundle", new Version(1, 0, 0)), new Collector(), new CancelingProgressMonitor());
-		assertEquals("1.0", 0, result.size());
-
-		//null query collects repository URLs
-		result = manager.query(null, new Collector(), new CancelingProgressMonitor());
-		assertEquals("2.0", 0, result.size());
+		IQueryResult result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), new CancelingProgressMonitor());
+		assertTrue("1.0", result.isEmpty());
 	}
 
 	public void testExistingRepository() {
@@ -112,10 +127,12 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 		assertTrue("1.0", !manager.areRepositoriesLoaded());
 
-		manager.loadAll(getMonitor());
+		ProvisioningJob loadJob = new LoadMetadataRepositoryJob(ui);
+		loadJob.runModal(getMonitor());
 
-		//we can never be sure that repositories are loaded because the repository manager cache can be flushed at any time
-		//		assertTrue("1.1", manager.areRepositoriesLoaded());
+		// the provisioning job retains references to the repos so they should
+		// not get garbage collected.
+		assertTrue("1.1", manager.areRepositoriesLoaded());
 	}
 
 	/**
@@ -137,7 +154,8 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		// not loaded yet
 		assertFalse("1.0", manager.areRepositoriesLoaded());
 
-		manager.loadAll(getMonitor());
+		ProvisioningJob loadJob = new LoadMetadataRepositoryJob(ui);
+		loadJob.runModal(getMonitor());
 
 		// the repositories have been loaded.  Because the non-existent 
 		// repository has been noticed and recorded as missing, it
@@ -161,24 +179,23 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(broken);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
-		Collector result = manager.query(new InstallableUnitQuery("test.bundle", new Version(1, 0, 0)), new Collector(), getMonitor());
-		assertEquals("1.0", 1, result.size());
+		IQueryResult result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), getMonitor());
+		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "test.bundle", iu.getId());
 
 		//RepoLocationQuery collects repository URLs
-		result = manager.query(new RepositoryLocationQuery(), new Collector(), getMonitor());
-		assertEquals("2.0", 3, result.size());
-		Collection resultCollection = result.toCollection();
-		assertTrue("2.1", resultCollection.contains(existing));
-		assertTrue("2.1", resultCollection.contains(nonExisting));
-		assertTrue("2.1", resultCollection.contains(broken));
+		result = manager.locationsQueriable().query(new RepositoryLocationQuery(), getMonitor());
+		assertEquals("2.0", 3, queryResultSize(result));
+		assertContains("2.1", result, existing);
+		assertContains("2.1", result, nonExisting);
+		assertContains("2.1", result, broken);
 
 		// null IUPropertyQuery collects all IUs
-		result = manager.query(new InstallableUnitQuery((String) null), new Collector(), getMonitor());
-		int iuCount = result.size();
-		result = manager.query(new IUPropertyQuery(null, null), new Collector(), getMonitor());
-		assertEquals("2.2", iuCount, result.size());
+		result = manager.query(new InstallableUnitQuery((String) null), getMonitor());
+		int iuCount = queryResultSize(result);
+		result = manager.query(new IUPropertyQuery(null, null), getMonitor());
+		assertEquals("2.2", iuCount, queryResultSize(result));
 	}
 
 	public void testNonLatestInMultipleRepositories() {
@@ -198,8 +215,8 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		IUViewQueryContext context = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
 		context.setShowLatestVersionsOnly(false);
 
-		MetadataRepositories rootElement = new MetadataRepositories(context, Policy.getDefault(), manager);
-		DefaultQueryProvider queryProvider = new DefaultQueryProvider(Policy.getDefault());
+		MetadataRepositories rootElement = new MetadataRepositories(context, ui, manager);
+		QueryProvider queryProvider = new QueryProvider(ui);
 		ElementQueryDescriptor queryDescriptor = queryProvider.getQueryDescriptor(rootElement);
 		Collection collection = queryDescriptor.performQuery(null);
 		assertEquals("1.0", 5, collection.size());
@@ -222,14 +239,13 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		IUViewQueryContext context = new IUViewQueryContext(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
 		context.setShowLatestVersionsOnly(true);
 
-		MetadataRepositories rootElement = new MetadataRepositories(context, Policy.getDefault(), manager);
-		manager.setQueryContext(context);
-		DefaultQueryProvider queryProvider = new DefaultQueryProvider(Policy.getDefault());
+		MetadataRepositories rootElement = new MetadataRepositories(context, ui, manager);
+		QueryProvider queryProvider = new QueryProvider(ui);
 		ElementQueryDescriptor queryDescriptor = queryProvider.getQueryDescriptor(rootElement);
 		Collection collection = queryDescriptor.performQuery(null);
 		assertEquals("1.0", 1, collection.size());
 		AvailableIUElement next = (AvailableIUElement) collection.iterator().next();
-		assertEquals("1.1", new Version(3, 0, 0), next.getIU().getVersion());
+		assertEquals("1.1", Version.createOSGi(3, 0, 0), next.getIU().getVersion());
 	}
 
 	/**
@@ -240,19 +256,22 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		try {
 			location = TestData.getFile("metadataRepo", "good").toURI();
 		} catch (Exception e) {
-			fail("0.99", e);
+			fail("0.98", e);
 			return;
 		}
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		metadataRepositoryManager.removeRepository(location);
 		metadataRepositoryManager.addRepository(location);
-		QueryableMetadataRepositoryManager manager = getQueryableManager();
-		manager.loadAll(getMonitor());
+		try {
+			ui.loadMetadataRepository(location, false, getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.99", e);
+		}
 		assertEquals("1.0", "Good Test Repository", metadataRepositoryManager.getRepositoryProperty(location, IRepository.PROP_NICKNAME));
 
 	}
 
 	private QueryableMetadataRepositoryManager getQueryableManager() {
-		return new QueryableMetadataRepositoryManager(Policy.getDefault().getQueryContext(), false);
+		return new QueryableMetadataRepositoryManager(ui, false);
 	}
 }

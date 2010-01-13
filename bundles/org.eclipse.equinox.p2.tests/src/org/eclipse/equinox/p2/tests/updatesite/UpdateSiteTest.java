@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatesite;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
+import java.util.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import junit.framework.Test;
@@ -28,19 +28,21 @@ import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.updatesite.SiteFeature;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.p2.updatesite.artifact.UpdateSiteArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.spi.p2.repository.AbstractRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.w3c.dom.*;
@@ -575,7 +577,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	}
 
 	public void testRepoWithFeatureWithNullUpdateURL() {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/missingUpdateURLFeature/");
 		IMetadataRepository metadataRepo = null;
@@ -584,16 +586,16 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Can't load repository missingUpdateURLFeature");
 		}
-		InstallableUnitQuery query = new InstallableUnitQuery("test.featurewithmissingupdateurl.feature.group", new Version("1.0.0"));
-		Collector result = metadataRepo.query(query, new Collector(), null);
-		assertEquals("1.0", 1, result.size());
+		InstallableUnitQuery query = new InstallableUnitQuery("test.featurewithmissingupdateurl.feature.group", Version.create("1.0.0"));
+		IQueryResult result = metadataRepo.query(query, null);
+		assertEquals("1.0", 1, queryResultSize(result));
 	}
 
 	/**
 	 * Tests that a feature requiring a bundle with no range is converted correctly.
 	 */
 	public void testBug243422() {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/UpdateSite243422/");
 		IMetadataRepository metadataRepo = null;
@@ -602,20 +604,21 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Can't load repository UpdateSite243422");
 		}
-		InstallableUnitQuery query = new InstallableUnitQuery("org.eclipse.jdt.astview.feature.feature.group", new Version("1.0.1"));
-		Collector result = metadataRepo.query(query, new Collector(), null);
-		assertEquals("1.0", 1, result.size());
+		InstallableUnitQuery query = new InstallableUnitQuery("org.eclipse.jdt.astview.feature.feature.group", Version.create("1.0.1"));
+		IQueryResult result = metadataRepo.query(query, null);
+		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit featureIU = (IInstallableUnit) result.iterator().next();
-		IRequiredCapability[] required = featureIU.getRequiredCapabilities();
-		for (int i = 0; i < required.length; i++) {
-			if (required[i].getName().equals("org.eclipse.ui.ide")) {
-				assertEquals("2.0", VersionRange.emptyRange, required[i].getRange());
+		Collection<IRequirement> required = featureIU.getRequiredCapabilities();
+		for (Iterator iterator = required.iterator(); iterator.hasNext();) {
+			IRequiredCapability req = (IRequiredCapability) iterator.next();
+			if (req.getName().equals("org.eclipse.ui.ide")) {
+				assertEquals("2.0", VersionRange.emptyRange, req.getRange());
 			}
 		}
 	}
 
 	public void testShortenVersionNumberInFeature() {
-		IArtifactRepositoryManager repoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager repoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/240121/UpdateSite240121/");
 		IArtifactRepository artifactRepo = null;
@@ -624,14 +627,12 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Can't load repository UpdateSite240121");
 		}
-		IArtifactKey[] keys = artifactRepo.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			if (keys[i].getId().equals("Plugin240121")) {
-				IStatus status = artifactRepo.getArtifact(artifactRepo.getArtifactDescriptors(keys[i])[0], new ByteArrayOutputStream(500), new NullProgressMonitor());
-				if (!status.isOK())
-					fail("Can't get the expected artifact:" + keys[i]);
-			}
-		}
+		IQueryResult keys = artifactRepo.query(new ArtifactKeyQuery(null, "Plugin240121", null), null);
+		assertEquals(1, queryResultSize(keys));
+		IArtifactKey key = (IArtifactKey) keys.iterator().next();
+		IStatus status = artifactRepo.getArtifact(artifactRepo.getArtifactDescriptors(key)[0], new ByteArrayOutputStream(500), new NullProgressMonitor());
+		if (!status.isOK())
+			fail("Can't get the expected artifact:" + key);
 	}
 
 	/**
@@ -639,7 +640,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	 * unzipping the feature on install.
 	 */
 	public void testFeatureJarUnzipInstruction() {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI location = null;
 		location = site.toURI();
@@ -650,12 +651,12 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("1.99", e);
 			return;
 		}
-		Collector result = repository.query(new InstallableUnitQuery("test.feature.feature.jar"), new Collector(), getMonitor());
+		IQueryResult result = repository.query(new InstallableUnitQuery("test.feature.feature.jar"), getMonitor());
 		assertTrue("1.0", !result.isEmpty());
 		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
-		ITouchpointData[] data = unit.getTouchpointData();
-		assertEquals("1.1", 1, data.length);
-		Map instructions = data[0].getInstructions();
+		List<ITouchpointData> data = unit.getTouchpointData();
+		assertEquals("1.1", 1, data.size());
+		Map instructions = data.get(0).getInstructions();
 		assertEquals("1.2", 1, instructions.size());
 		assertEquals("1.3", "true", ((ITouchpointInstruction) instructions.get("zipped")).getBody());
 	}
@@ -669,7 +670,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		URI testUpdateSite = new URI("http://download.eclipse.org/test/updatesite/");
 		URI testDiscoverySite = new URI("http://download.eclipse.org/test/discoverysite");
 
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(manager);
 		manager.removeRepository(testUpdateSite);
 		manager.removeRepository(testDiscoverySite);
@@ -691,7 +692,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI siteURI = site.toURI();
 
-		IMetadataRepositoryManager metadataRepoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager metadataRepoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(metadataRepoMan);
 
 		URI[] knownRepos = metadataRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
@@ -717,7 +718,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI siteURI = site.toURI();
 
-		IArtifactRepositoryManager artifactRepoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager artifactRepoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		assertNotNull(artifactRepoMan);
 
 		URI[] knownRepos = artifactRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
@@ -750,12 +751,12 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
-		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "test.feature", new Version("1.0.0"));
+		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "test.feature", Version.create("1.0.0"));
 		IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
 
 		// Should have a packed & canonical version
 		assertEquals(2, descriptors.length);
-		IArtifactDescriptor desc = "packed".equals(descriptors[0].getProperty("format")) ? descriptors[0] : descriptors[1];
+		IArtifactDescriptor desc = IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[0].getProperty(IArtifactDescriptor.FORMAT)) ? descriptors[0] : descriptors[1];
 		OutputStream out = null;
 		try {
 			out = new FileOutputStream(output);
@@ -783,7 +784,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File targetLocation = null;
 		URI siteURI = getTestData("0.1", testDataLocation).toURI();
 		try {
-			IArtifactKey key = new ArtifactKey("osgi.bundle", "test.fragment", new Version("1.0.0"));
+			IArtifactKey key = new ArtifactKey("osgi.bundle", "test.fragment", Version.create("1.0.0"));
 			// Load source repository
 			IArtifactRepository sourceRepo = getArtifactRepositoryManager().loadRepository(siteURI, getMonitor());
 
@@ -800,7 +801,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			IArtifactDescriptor[] descriptors = sourceRepo.getArtifactDescriptors(key);
 			IArtifactDescriptor descriptor = null;
 			for (int i = 0; i < descriptors.length && descriptor == null; i++)
-				if ("packed".equals(descriptors[i].getProperty("format")))
+				if (IArtifactDescriptor.FORMAT_PACKED.equals(descriptors[i].getProperty(IArtifactDescriptor.FORMAT)))
 					descriptor = descriptors[i];
 
 			if (descriptor == null)

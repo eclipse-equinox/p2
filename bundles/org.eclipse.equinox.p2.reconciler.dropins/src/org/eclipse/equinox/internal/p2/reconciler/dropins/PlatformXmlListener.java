@@ -10,18 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.update.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -38,7 +41,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	private boolean changed = false;
 	private File root;
 	private long lastModified = -1l;
-	private Set configRepositories;
+	private Set<IMetadataRepository> configRepositories;
 
 	private String toString(Feature[] features, String[] list) {
 		StringBuffer buffer = new StringBuffer();
@@ -127,7 +130,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		if (changed) {
 			lastModified = root.lastModified();
 			try {
-				Configuration configuration = ConfigurationParser.parse(root, Activator.getOSGiInstallArea());
+				Configuration configuration = Configuration.load(root, Activator.getOSGiInstallArea());
 				synchronizeConfiguration(configuration);
 			} catch (ProvisionException e) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, Messages.errorProcessingConfg, e));
@@ -136,9 +139,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		changed = false;
 	}
 
-	public Collection getMetadataRepositories() {
+	public Collection<IMetadataRepository> getMetadataRepositories() {
 		if (configRepositories == null)
-			return Collections.EMPTY_SET;
+			return CollectionUtils.emptySet();
 		return configRepositories;
 	}
 
@@ -147,12 +150,11 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	 * currently associated with the given url string. Return null if one could not
 	 * be found.
 	 */
-	private IMetadataRepository getMatchingRepo(Collection repositoryList, String urlString) {
+	private IMetadataRepository getMatchingRepo(Collection<IMetadataRepository> repositoryList, String urlString) {
 		if (repositoryList == null)
 			return null;
 		IPath urlPath = new Path(urlString).makeAbsolute();
-		for (Iterator iter = repositoryList.iterator(); iter.hasNext();) {
-			IMetadataRepository repo = (IMetadataRepository) iter.next();
+		for (IMetadataRepository repo : repositoryList) {
 			Path repoPath = new Path(URIUtil.toFile(repo.getLocation()).getAbsolutePath());
 			if (repoPath.makeAbsolute().equals(urlPath))
 				return repo;
@@ -179,11 +181,10 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	 * Ensure that we have a repository for each site in the given configuration.
 	 */
 	protected void synchronizeConfiguration(Configuration config) {
-		List sites = config.getSites();
-		Set newRepos = new LinkedHashSet();
-		Set toBeRemoved = new HashSet();
-		for (Iterator iter = sites.iterator(); iter.hasNext();) {
-			Site site = (Site) iter.next();
+		List<Site> sites = config.getSites();
+		Set<IMetadataRepository> newRepos = new LinkedHashSet<IMetadataRepository>();
+		Set<Site> toBeRemoved = new HashSet<Site>();
+		for (Site site : sites) {
 			String siteURL = site.getUrl();
 			IMetadataRepository match = getMatchingRepo(Activator.getRepositories(), siteURL);
 			if (match == null) {
@@ -202,7 +203,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					}
 					String eclipseExtensionURL = siteURL + Constants.EXTENSION_LOCATION;
 					URI location = URIUtil.fromString(eclipseExtensionURL);
-					Map properties = new HashMap();
+					Map<String, String> properties = new HashMap<String, String>();
 					properties.put(SiteListener.SITE_POLICY, site.getPolicy());
 
 					// In a "USER-INCLUDE" we add the site's features to the list
@@ -232,10 +233,8 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 							throw inner;
 						}
 						// set the repository properties here in case they have changed since the last time we loaded
-						for (Iterator inner = properties.keySet().iterator(); inner.hasNext();) {
-							String key = (String) inner.next();
-							String value = (String) properties.get(key);
-							metadataRepository.setProperty(key, value);
+						for (Entry<String, String> entry : properties.entrySet()) {
+							metadataRepository.setProperty(entry.getKey(), entry.getValue());
 						}
 					}
 					newRepos.add(metadataRepository);
@@ -246,9 +245,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					} catch (ProvisionException ex) {
 						IArtifactRepository artifactRepository = Activator.loadArtifactRepository(location, null);
 						// set the repository properties here in case they have changed since the last time we loaded
-						for (Iterator inner = properties.keySet().iterator(); inner.hasNext();) {
-							String key = (String) inner.next();
-							String value = (String) properties.get(key);
+						for (Iterator<String> inner = properties.keySet().iterator(); inner.hasNext();) {
+							String key = inner.next();
+							String value = properties.get(key);
 							artifactRepository.setProperty(key, value);
 						}
 					}
@@ -264,8 +263,8 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 			}
 		}
 		if (!toBeRemoved.isEmpty()) {
-			for (Iterator iter = toBeRemoved.iterator(); iter.hasNext();)
-				config.removeSite((Site) iter.next());
+			for (Iterator<Site> iter = toBeRemoved.iterator(); iter.hasNext();)
+				config.removeSite(iter.next());
 			try {
 				config.save(root, Activator.getOSGiInstallArea());
 			} catch (ProvisionException e) {

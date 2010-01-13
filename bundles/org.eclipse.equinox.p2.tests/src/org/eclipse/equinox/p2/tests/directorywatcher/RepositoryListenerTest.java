@@ -11,11 +11,12 @@
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
 import java.io.File;
+import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 
@@ -33,11 +34,11 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 		return new TestSuite(RepositoryListenerTest.class);
 	}
 
-	public static boolean isZipped(ITouchpointData[] data) {
-		if (data == null || data.length == 0)
+	public static boolean isZipped(List<ITouchpointData> data) {
+		if (data == null || data.size() == 0)
 			return false;
-		for (int i = 0; i < data.length; i++) {
-			if (data[i].getInstruction("zipped") != null) //$NON-NLS-1$
+		for (int i = 0; i < data.size(); i++) {
+			if (data.get(i).getInstruction("zipped") != null) //$NON-NLS-1$
 				return true;
 		}
 		return false;
@@ -135,7 +136,7 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 			IArtifactKey key = keys[i];
 			IArtifactDescriptor[] descriptors = watcher.getArtifactDescriptors(key);
 			assertEquals("8.0", 1, descriptors.length);
-			ArtifactDescriptor descriptor = (ArtifactDescriptor) descriptors[0];
+			SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) descriptors[0];
 			String isFolder = descriptor.getRepositoryProperty("artifact.folder");
 			if (Boolean.valueOf(isFolder).booleanValue()) {
 				assertNull("9.0", directoryDescriptor);

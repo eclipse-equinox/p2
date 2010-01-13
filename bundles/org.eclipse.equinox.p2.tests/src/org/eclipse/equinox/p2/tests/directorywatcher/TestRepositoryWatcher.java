@@ -11,16 +11,15 @@
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
 import java.io.File;
-import java.util.Dictionary;
 import java.util.Hashtable;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
+import java.util.Map;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;
@@ -37,7 +36,7 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	 */
 	public static TestRepositoryWatcher createWatcher(File folder) {
 		RepositoryListener listener = new RepositoryListener(AbstractProvisioningTest.getUniqueString(), false);
-		Dictionary props = new Hashtable();
+		Map<String, String> props = new Hashtable<String, String>();
 		props.put(DirectoryWatcher.DIR, folder.getAbsolutePath());
 		props.put(DirectoryWatcher.POLL, "500");
 		TestRepositoryWatcher result = new TestRepositoryWatcher(props, TestActivator.getContext());
@@ -48,7 +47,7 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	/*
 	 * Constructor for the class.
 	 */
-	private TestRepositoryWatcher(Dictionary props, BundleContext context) {
+	private TestRepositoryWatcher(Map<String, String> props, BundleContext context) {
 		super(props, context);
 	}
 
@@ -64,14 +63,15 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	 * Return the list of all the IUs known to the metadata repository this watcher's listener.
 	 */
 	public IInstallableUnit[] getInstallableUnits() {
-		return (IInstallableUnit[]) listener.getMetadataRepository().query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
+		return listener.getMetadataRepository().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class);
 	}
 
 	/*
 	 * Return the list of artifact keys known to this listener's repository.
 	 */
 	public IArtifactKey[] getArtifactKeys() {
-		return listener.getArtifactRepository().getArtifactKeys();
+		IQueryResult keys = listener.getArtifactRepository().query(ArtifactKeyQuery.ALL_KEYS, null);
+		return (IArtifactKey[]) keys.toArray(IArtifactKey.class);
 	}
 
 	/*

@@ -16,9 +16,6 @@ import org.eclipse.osgi.util.NLS;
  * TODO Shouldn't be a public class in an API package.
  */
 public class Messages extends NLS {
-	public static String _0_is_not_a_positive_integer_in_osgi_1;
-
-	public static String _0_is_not_a_string_in_osgi_1;
 
 	public static String _0_is_not_a_valid_qualifier_in_osgi_1;
 
@@ -54,6 +51,22 @@ public class Messages extends NLS {
 
 	public static String expected_slash_after_raw_vector_0;
 
+	public static String filter_trailing_characters;
+
+	public static String filter_missing_leftparen;
+
+	public static String filter_missing_rightparen;
+
+	public static String filter_invalid_operator;
+
+	public static String filter_missing_attr;
+
+	public static String filter_invalid_value;
+
+	public static String filter_missing_value;
+
+	public static String filter_premature_end;
+
 	public static String format_0_unable_to_parse_1;
 
 	public static String format_0_unable_to_parse_empty_version;
@@ -68,8 +81,6 @@ public class Messages extends NLS {
 
 	public static String illegal_character_encountered_ascii_0;
 
-	public static String illegal_number_of_entries_0_in_osgi_1;
-
 	public static String missing_comma_in_range_0;
 
 	public static String negative_character_range;
@@ -80,13 +91,13 @@ public class Messages extends NLS {
 
 	public static String only_format_specified_0;
 
+	public static String only_max_and_empty_string_defaults_can_have_translations;
+
 	public static String original_must_start_with_colon_0;
 
 	public static String original_stated_but_missing_0;
 
 	public static String pad_defined_more_then_once;
-
-	public static String pad_not_allowed_in_osgi_0;
 
 	public static String performing_subquery;
 

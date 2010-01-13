@@ -13,10 +13,10 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
 
 public class ProfileMetadataRepositoryFactory extends MetadataRepositoryFactory {
 
@@ -24,7 +24,7 @@ public class ProfileMetadataRepositoryFactory extends MetadataRepositoryFactory 
 	 * @throws ProvisionException
 	 * documenting to avoid warning 
 	 */
-	public IMetadataRepository create(URI location, String name, String type, Map properties) throws ProvisionException {
+	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {
 		return null;
 	}
 

@@ -9,11 +9,13 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.tests.harness.TestProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
  * Tests the compound queryable
@@ -56,10 +58,11 @@ public class CompoundQueryableTest extends TestCase {
 	IQueryable queryable1 = new IQueryable() {
 		Integer[] elements = new Integer[] {1, 2, 3, 4, 5};
 
-		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+			IQueryResult collector;
 			try {
 				monitor.beginTask("", 10);
-				collector = query.perform(createIterator(elements), collector);
+				collector = query.perform(createIterator(elements));
 				monitor.worked(10);
 			} finally {
 				monitor.done();
@@ -71,10 +74,11 @@ public class CompoundQueryableTest extends TestCase {
 	IQueryable queryable2 = new IQueryable() {
 		Integer[] elements = new Integer[] {4, 6, 8, 10, 12};
 
-		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+			IQueryResult collector;
 			try {
 				monitor.beginTask("", 10);
-				collector = query.perform(createIterator(elements), collector);
+				collector = query.perform(createIterator(elements));
 				monitor.worked(10);
 			} finally {
 				monitor.done();
@@ -86,10 +90,11 @@ public class CompoundQueryableTest extends TestCase {
 	IQueryable queryable3 = new IQueryable() {
 		Integer[] elements = new Integer[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 
-		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+			IQueryResult collector;
 			try {
 				monitor.beginTask("", 10);
-				collector = query.perform(createIterator(elements), collector);
+				collector = query.perform(createIterator(elements));
 				monitor.worked(10);
 			} finally {
 				monitor.done();
@@ -98,7 +103,7 @@ public class CompoundQueryableTest extends TestCase {
 		}
 	};
 
-	Query matchQuery = new MatchQuery() {
+	IQuery matchQuery = new MatchQuery() {
 
 		public boolean isMatch(Object candidate) {
 			if (candidate instanceof Integer) {
@@ -110,7 +115,7 @@ public class CompoundQueryableTest extends TestCase {
 		}
 	};
 
-	Query matchMod4query = new MatchQuery() {
+	IQuery matchMod4query = new MatchQuery() {
 		public boolean isMatch(Object candidate) {
 			if (candidate instanceof Integer) {
 				int x = ((Integer) candidate).intValue();
@@ -121,9 +126,10 @@ public class CompoundQueryableTest extends TestCase {
 		}
 	};
 
-	Query contextQuery = new ContextQuery() {
+	IQuery contextQuery = new ContextQuery() {
 
-		public Collector perform(Iterator iterator, Collector result) {
+		public Collector perform(Iterator iterator) {
+			Collector result = new Collector();
 			while (iterator.hasNext()) {
 				Object o = iterator.next();
 				if (o instanceof Integer && ((Integer) o).intValue() % 2 == 0) {
@@ -135,8 +141,9 @@ public class CompoundQueryableTest extends TestCase {
 
 	};
 
-	Query greatestNumberQuery = new ContextQuery() {
-		public Collector perform(Iterator iterator, Collector result) {
+	IQuery greatestNumberQuery = new ContextQuery() {
+		public Collector perform(Iterator iterator) {
+			Collector result = new Collector();
 			int greatest = Integer.MIN_VALUE;
 			while (iterator.hasNext()) {
 				int item = ((Integer) iterator.next()).intValue();
@@ -151,208 +158,129 @@ public class CompoundQueryableTest extends TestCase {
 	};
 
 	public void testMatchQuery() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(matchQuery, new Collector(), monitor);
-		assertEquals("1.0", 6, collector.size());
-		Collection collection = collector.toCollection();
-		assertTrue("1.1", collection.contains(2));
-		assertTrue("1.2", collection.contains(4));
-		assertTrue("1.3", collection.contains(6));
-		assertTrue("1.4", collection.contains(8));
-		assertTrue("1.5", collection.contains(10));
-		assertTrue("1.6", collection.contains(12));
+		IQueryResult queryResult = cQueryable.query(matchQuery, monitor);
+		assertEquals("1.0", 6, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.1", queryResult, 2);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 4);
+		AbstractProvisioningTest.assertContains("1.3", queryResult, 6);
+		AbstractProvisioningTest.assertContains("1.4", queryResult, 8);
+		AbstractProvisioningTest.assertContains("1.5", queryResult, 10);
+		AbstractProvisioningTest.assertContains("1.6", queryResult, 12);
 	}
 
 	public void testSingleQueryable() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(matchQuery, new Collector(), monitor);
-		assertEquals("1.0", 2, collector.size());
-		Collection collection = collector.toCollection();
-		assertTrue("1.1", collection.contains(2));
-		assertTrue("1.2", collection.contains(4));
+		IQueryResult queryResult = cQueryable.query(matchQuery, monitor);
+		assertEquals("1.0", 2, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.1", queryResult, 2);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 4);
 	}
 
 	public void testSingleContextQuery() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(greatestNumberQuery, new Collector(), monitor);
-		assertEquals("1.0", 1, collector.size());
-		Collection collection = collector.toCollection();
-		assertTrue("1.1", collection.contains(5));
+		IQueryResult queryResult = cQueryable.query(greatestNumberQuery, monitor);
+		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.1", queryResult, 5);
 	}
 
 	public void testMultipleContextQueries() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(greatestNumberQuery, new Collector(), monitor);
-		assertEquals("1.0", 1, collector.size());
-		Collection collection = collector.toCollection();
-		assertTrue("1.1", collection.contains(12));
-	}
-
-	public void testListCollector1() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
-		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(contextQuery, cQueryable.new ListCollector(), monitor);
-
-		// We use a list so there should be 7 elements (4 is there twice)
-		assertEquals("1.0", 7, collector.size());
-		Collection collection = collector.toCollection();
-		assertTrue("1.1", collection.contains(2));
-		assertTrue("1.2", collection.contains(4));
-		assertTrue("1.3", collection.contains(6));
-		assertTrue("1.4", collection.contains(8));
-		assertTrue("1.5", collection.contains(10));
-		assertTrue("1.6", collection.contains(12));
-	}
-
-	public void testListCollector_isEmpty() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
-		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.new ListCollector();
-		assertTrue("1.0", collector.isEmpty());
-		collector = cQueryable.query(contextQuery, cQueryable.new ListCollector(), monitor);
-		assertFalse("1.0", collector.isEmpty());
-	}
-
-	public void testListCollector_getCollection() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
-		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-
-		Collector collector = cQueryable.query(contextQuery, cQueryable.new ListCollector(), monitor);
-
-		// We use a list so there should be 7 elements (4 is there twice)
-		assertEquals("1.0", 7, collector.size());
-		Integer[] array = (Integer[]) collector.toArray(Integer.class);
-		Collection collection = Arrays.asList(array);
-		assertTrue("1.1", collection.contains(2));
-		assertTrue("1.2", collection.contains(4));
-		assertTrue("1.3", collection.contains(6));
-		assertTrue("1.4", collection.contains(8));
-		assertTrue("1.5", collection.contains(10));
-		assertTrue("1.6", collection.contains(12));
-	}
-
-	public void testListCollector_toArray() {
-		final CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
-		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-
-		class CustomListCollector extends CompoundQueryable.ListCollector {
-
-			public CustomListCollector() {
-				cQueryable.super();
-			}
-
-			public Collection getCollection() {
-				return super.getCollection();
-			}
-		}
-
-		CustomListCollector collector = (CustomListCollector) cQueryable.query(contextQuery, new CustomListCollector(), monitor);
-
-		// We use a list so there should be 7 elements (4 is there twice)
-		assertEquals("1.0", 7, collector.size());
-		Collection collection = collector.getCollection();
-		assertTrue("1.1", collection.contains(2));
-		assertTrue("1.2", collection.contains(4));
-		assertTrue("1.3", collection.contains(6));
-		assertTrue("1.4", collection.contains(8));
-		assertTrue("1.5", collection.contains(10));
-		assertTrue("1.6", collection.contains(12));
+		IQueryResult queryResult = cQueryable.query(greatestNumberQuery, monitor);
+		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.1", queryResult, 12);
 	}
 
 	public void testCompoundMatchAndQuery() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(CompoundQuery.createCompoundQuery(new Query[] {matchQuery, matchMod4query}, true), new Collector(), monitor);
-		assertEquals("1.0", 3, collector.size());
-		Collection collection = collector.toCollection();
-		assertTrue("1.2", collection.contains(4));
-		assertTrue("1.4", collection.contains(8));
-		assertTrue("1.6", collection.contains(12));
+		IQueryResult queryResult = cQueryable.query(CompoundQuery.createCompoundQuery(new IQuery[] {matchQuery, matchMod4query}, true), monitor);
+		assertEquals("1.0", 3, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 4);
+		AbstractProvisioningTest.assertContains("1.4", queryResult, 8);
+		AbstractProvisioningTest.assertContains("1.6", queryResult, 12);
 	}
 
 	public void testCompoundMatchOrQuery() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(CompoundQuery.createCompoundQuery(new Query[] {matchQuery, matchMod4query}, false), new Collector(), monitor);
-		assertEquals("1.0", 6, collector.size());
-		Collection collection = collector.toCollection();
-		assertTrue("1.2", collection.contains(2));
-		assertTrue("1.2", collection.contains(4));
-		assertTrue("1.2", collection.contains(6));
-		assertTrue("1.4", collection.contains(8));
-		assertTrue("1.2", collection.contains(10));
-		assertTrue("1.6", collection.contains(12));
+		IQueryResult queryResult = cQueryable.query(CompoundQuery.createCompoundQuery(new IQuery[] {matchQuery, matchMod4query}, false), monitor);
+		assertEquals("1.0", 6, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 2);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 4);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 6);
+		AbstractProvisioningTest.assertContains("1.4", queryResult, 8);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 10);
+		AbstractProvisioningTest.assertContains("1.6", queryResult, 12);
 	}
 
 	public void testMatchQueryProgressMonitor() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		cQueryable.query(matchQuery, new Collector(), monitor);
+		cQueryable.query(matchQuery, monitor);
 		assertTrue("1.0", monitor.isDone());
 		assertTrue("1.1", monitor.isWorkDone());
 	}
 
 	public void testSingleQueryableProgressMonitor() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		cQueryable.query(matchQuery, new Collector(), monitor);
+		cQueryable.query(matchQuery, monitor);
 		assertTrue("1.0", monitor.isDone());
 		assertTrue("1.1", monitor.isWorkDone());
 	}
 
 	public void testSingleContextQueryProgressMonitor() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		cQueryable.query(greatestNumberQuery, new Collector(), monitor);
+		cQueryable.query(greatestNumberQuery, monitor);
 		assertTrue("1.0", monitor.isDone());
 		assertTrue("1.1", monitor.isWorkDone());
 	}
 
 	public void testMultipleContextQueriesProgressMonitor() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		cQueryable.query(greatestNumberQuery, new Collector(), monitor);
+		cQueryable.query(greatestNumberQuery, monitor);
 		assertTrue("1.0", monitor.isDone());
 		assertTrue("1.1", monitor.isWorkDone());
 	}
 
 	public void testNullProgressMonitor() {
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {queryable1, queryable2});
-		cQueryable.query(greatestNumberQuery, new Collector(), null);
+		CompoundQueryable cQueryable = new CompoundQueryable(queryable1, queryable2);
+		cQueryable.query(greatestNumberQuery, null);
 		// this is the same as above will null passed in, this should not throw any exceptions
 
 	}
 
 	public void testDoubleCompoundContextOrQuery() {
-		CompoundQueryable cQueryable1 = new CompoundQueryable(new IQueryable[] {queryable3, queryable2});
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {cQueryable1, queryable1});
+		CompoundQueryable cQueryable1 = new CompoundQueryable(queryable3, queryable2);
+		CompoundQueryable cQueryable = new CompoundQueryable(cQueryable1, queryable1);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(CompoundQuery.createCompoundQuery(new Query[] {contextQuery, greatestNumberQuery}, false), new Collector(), monitor);
-		assertEquals("1.0", 7, collector.size());
-		Collection collection = collector.toCollection();
-		assertTrue("1.2", collection.contains(2));
-		assertTrue("1.2", collection.contains(4));
-		assertTrue("1.2", collection.contains(6));
-		assertTrue("1.4", collection.contains(8));
-		assertTrue("1.2", collection.contains(10));
-		assertTrue("1.6", collection.contains(12));
-		assertTrue("1.6", collection.contains(13));
+		IQueryResult queryResult = cQueryable.query(CompoundQuery.createCompoundQuery(new IQuery[] {contextQuery, greatestNumberQuery}, false), monitor);
+		assertEquals("1.0", 7, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 2);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 4);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 6);
+		AbstractProvisioningTest.assertContains("1.4", queryResult, 8);
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 10);
+		AbstractProvisioningTest.assertContains("1.6", queryResult, 12);
+		AbstractProvisioningTest.assertContains("1.6", queryResult, 13);
 		assertTrue("1.0", monitor.isDone());
 		assertTrue("1.1", monitor.isWorkDone());
 	}
 
 	public void testDoubleCompositeQuery() {
-		CompoundQueryable cQueryable1 = new CompoundQueryable(new IQueryable[] {queryable3, queryable2});
-		CompoundQueryable cQueryable = new CompoundQueryable(new IQueryable[] {cQueryable1, queryable1});
+		CompoundQueryable cQueryable1 = new CompoundQueryable(queryable3, queryable2);
+		CompoundQueryable cQueryable = new CompoundQueryable(cQueryable1, queryable1);
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
-		Collector collector = cQueryable.query(new CompositeQuery(new Query[] {contextQuery, greatestNumberQuery}), new Collector(), monitor);
-		assertEquals("1.0", 1, collector.size());
-		Collection collection = collector.toCollection();
-		assertTrue("1.2", collection.contains(12));
+		IQueryResult queryResult = cQueryable.query(new PipedQuery(contextQuery, greatestNumberQuery), monitor);
+		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(queryResult));
+		AbstractProvisioningTest.assertContains("1.2", queryResult, 12);
 		assertTrue("1.0", monitor.isDone());
 		assertTrue("1.1", monitor.isWorkDone());
 	}

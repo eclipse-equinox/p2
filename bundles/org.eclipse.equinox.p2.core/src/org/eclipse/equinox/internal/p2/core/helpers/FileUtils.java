@@ -21,10 +21,10 @@ public class FileUtils {
 
 	private static File[] untarFile(File source, File outputDir) throws IOException, TarException {
 		TarFile tarFile = new TarFile(source);
-		List untarredFiles = new ArrayList();
+		List<File> untarredFiles = new ArrayList<File>();
 		try {
-			for (Enumeration e = tarFile.entries(); e.hasMoreElements();) {
-				TarEntry entry = (TarEntry) e.nextElement();
+			for (Enumeration<TarEntry> e = tarFile.entries(); e.hasMoreElements();) {
+				TarEntry entry = e.nextElement();
 				InputStream input = tarFile.getInputStream(entry);
 				try {
 					File outFile = new File(outputDir, entry.getName());
@@ -52,7 +52,7 @@ public class FileUtils {
 		} finally {
 			tarFile.close();
 		}
-		return (File[]) untarredFiles.toArray(new File[untarredFiles.size()]);
+		return untarredFiles.toArray(new File[untarredFiles.size()]);
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class FileUtils {
 			in.close();
 			throw new IOException(Messages.Util_Invalid_Zip_File_Format);
 		}
-		ArrayList unzippedFiles = new ArrayList();
+		ArrayList<File> unzippedFiles = new ArrayList<File>();
 		do {
 			File outFile = new File(outputDir, ze.getName());
 			unzippedFiles.add(outFile);
@@ -131,7 +131,7 @@ public class FileUtils {
 		} while ((ze = in.getNextEntry()) != null);
 		in.close();
 
-		return (File[]) unzippedFiles.toArray(new File[unzippedFiles.size()]);
+		return unzippedFiles.toArray(new File[unzippedFiles.size()]);
 	}
 
 	// Delete empty directories under dir, including dir itself.
@@ -243,8 +243,8 @@ public class FileUtils {
 	public static void zip(File[] inclusions, File[] exclusions, File destinationArchive, IPathComputer pathComputer) throws IOException {
 		FileOutputStream fileOutput = new FileOutputStream(destinationArchive);
 		ZipOutputStream output = new ZipOutputStream(fileOutput);
-		HashSet exclusionSet = exclusions == null ? new HashSet() : new HashSet(Arrays.asList(exclusions));
-		HashSet directoryEntries = new HashSet();
+		HashSet<File> exclusionSet = exclusions == null ? new HashSet<File>() : new HashSet<File>(Arrays.asList(exclusions));
+		HashSet<IPath> directoryEntries = new HashSet<IPath>();
 		try {
 			for (int i = 0; i < inclusions.length; i++) {
 				pathComputer.reset();
@@ -273,11 +273,11 @@ public class FileUtils {
 	 * @param pathComputer - computer used to create the path of the files in the result.
 	 * @throws IOException
 	 */
-	public static void zip(ZipOutputStream output, File source, Set exclusions, IPathComputer pathComputer) throws IOException {
-		zip(output, source, exclusions, pathComputer, new HashSet());
+	public static void zip(ZipOutputStream output, File source, Set<File> exclusions, IPathComputer pathComputer) throws IOException {
+		zip(output, source, exclusions, pathComputer, new HashSet<IPath>());
 	}
 
-	public static void zip(ZipOutputStream output, File source, Set exclusions, IPathComputer pathComputer, Set directoryEntries) throws IOException {
+	public static void zip(ZipOutputStream output, File source, Set<File> exclusions, IPathComputer pathComputer, Set<IPath> directoryEntries) throws IOException {
 		if (exclusions.contains(source))
 			return;
 		if (source.isDirectory()) //if the file path is a URL then isDir and isFile are both false
@@ -286,7 +286,7 @@ public class FileUtils {
 			zipFile(output, source, pathComputer, directoryEntries);
 	}
 
-	private static void zipDirectoryEntry(ZipOutputStream output, IPath entry, long time, Set directoryEntries) throws IOException {
+	private static void zipDirectoryEntry(ZipOutputStream output, IPath entry, long time, Set<IPath> directoryEntries) throws IOException {
 		entry = entry.addTrailingSeparator();
 		if (!directoryEntries.contains(entry)) {
 			//make sure parent entries are in the zip
@@ -314,7 +314,7 @@ public class FileUtils {
 	 * Zip the contents of the given directory into the zip file represented by
 	 * the given zip stream. Prepend the given prefix to the file paths.
 	 */
-	private static void zipDir(ZipOutputStream output, File source, Set exclusions, IPathComputer pathComputer, Set directoryEntries) throws IOException {
+	private static void zipDir(ZipOutputStream output, File source, Set<File> exclusions, IPathComputer pathComputer, Set<IPath> directoryEntries) throws IOException {
 		File[] files = source.listFiles();
 		if (files.length == 0) {
 			zipDirectoryEntry(output, pathComputer.computePath(source), source.lastModified(), directoryEntries);
@@ -326,16 +326,16 @@ public class FileUtils {
 		// foo/bar.txt
 		// foo/something/bar2.txt
 		// foo/something/else/bar3.txt
-		Arrays.sort(files, new Comparator() {
-			public int compare(Object arg0, Object arg1) {
-				Path a = new Path(((File) arg0).getAbsolutePath());
-				Path b = new Path(((File) arg1).getAbsolutePath());
+		Arrays.sort(files, new Comparator<File>() {
+			public int compare(File arg0, File arg1) {
+				Path a = new Path(arg0.getAbsolutePath());
+				Path b = new Path(arg1.getAbsolutePath());
 				if (a.segmentCount() == b.segmentCount()) {
-					if (((File) arg0).isDirectory() && ((File) arg1).isFile())
+					if (arg0.isDirectory() && arg1.isFile())
 						return 1;
-					else if (((File) arg0).isDirectory() && ((File) arg1).isDirectory())
+					else if (arg0.isDirectory() && arg1.isDirectory())
 						return 0;
-					else if (((File) arg0).isFile() && ((File) arg1).isDirectory())
+					else if (arg0.isFile() && arg1.isDirectory())
 						return -1;
 					else
 						return 0;
@@ -352,7 +352,7 @@ public class FileUtils {
 	 * Add the given file to the zip file represented by the specified stream.
 	 * Prepend the given prefix to the path of the file.
 	 */
-	private static void zipFile(ZipOutputStream output, File source, IPathComputer pathComputer, Set directoryEntries) throws IOException {
+	private static void zipFile(ZipOutputStream output, File source, IPathComputer pathComputer, Set<IPath> directoryEntries) throws IOException {
 		boolean isManifest = false; //manifest files are special
 		InputStream input = new BufferedInputStream(new FileInputStream(source));
 		try {

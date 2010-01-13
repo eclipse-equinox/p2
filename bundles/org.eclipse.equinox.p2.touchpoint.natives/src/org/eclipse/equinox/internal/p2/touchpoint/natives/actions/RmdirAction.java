@@ -16,13 +16,13 @@ import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.osgi.util.NLS;
 
 public class RmdirAction extends ProvisioningAction {
 	public static final String ID = "rmdir"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
 		if (path == null)
 			return Util.createError(NLS.bind(Messages.param_not_set, ActionConstants.PARM_PATH, ID));
@@ -49,7 +49,7 @@ public class RmdirAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		String path = (String) parameters.get(ActionConstants.PARM_PATH);
 		IBackupStore store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
 		if (path == null)

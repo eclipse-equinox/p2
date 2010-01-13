@@ -11,7 +11,8 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.IVersionFormat;
+import org.eclipse.equinox.p2.metadata.Version;
 
 /**
  * Test common patterns:
@@ -22,8 +23,9 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
  * 
  */
 public class CommonPatternsTest extends VersionTesting {
+	public static String TRIPLET_FORMAT_STRING = "n=0;[.n=0;[.n=0;]][dS=m;]";
 	public static String MOZ_PREFIX = "format((<N=0;?s=m;?N=0;?s=m;?>(.<N=0;?s=m;?N=0;?s=m;?>)*)=p<0.m.0.m>;):";
-	public static String TRIPLE_PREFIX = "format(n=0;[.n=0;[.n=0;]][dS=m;]):";
+	public static String TRIPLE_PREFIX = "format(" + TRIPLET_FORMAT_STRING + "):";
 	public static String RPM_PREFIX = "format(<[n=0;:]a(d=[^a-zA-Z0-9@_-];?a)*>[-n[dS=!;]]):";
 	public static String JSR277_PREFIX = "format(n(.n=0;){0,3}[-S=m;]):";
 
@@ -140,6 +142,26 @@ public class CommonPatternsTest extends VersionTesting {
 	public void testTripletPatternToString() {
 		String test = TRIPLE_PREFIX + "1.0-FC1";
 		assertEquals(TRIPLE_PREFIX, Version.parseVersion(test).getFormat().toString() + ':');
+	}
+
+	public void testTripletPatternToOSGi() throws Exception {
+		IVersionFormat triplet = Version.compile(TRIPLET_FORMAT_STRING);
+		assertEquals(Version.createOSGi(1, 0, 0), triplet.parse("1.0.0." + IVersionFormat.DEFAULT_MIN_STRING_TRANSLATION));
+		assertEquals(Version.create("1.0.0." + IVersionFormat.DEFAULT_MAX_STRING_TRANSLATION), triplet.parse("1.0.0"));
+		assertEquals(Version.createOSGi(1, 0, 0, IVersionFormat.DEFAULT_MAX_STRING_TRANSLATION), Version.create("raw:1.0.0.m"));
+		assertEquals(triplet.parse("1.0"), Version.create("raw:1.0.0.m"));
+		assertEquals(triplet.parse("1.0." + IVersionFormat.DEFAULT_MIN_STRING_TRANSLATION), Version.create("raw:1.0.0.''"));
+		assertEquals(Version.createOSGi(1, 0, 0), Version.create("raw:1.0.0.''"));
+	}
+
+	public void testMinTranslation() throws Exception {
+		IVersionFormat format = Version.compile("n=0;[.n=0;[.n=0;]][dS=m{!};]");
+		assertEquals(Version.create("raw:1.0.0.''"), format.parse("1.0.0.!"));
+	}
+
+	public void testMaxTranslation() throws Exception {
+		IVersionFormat format = Version.compile("n=0;[.n=0;[.n=0;]][dS=''{~,4};]");
+		assertEquals(Version.create("raw:1.0.0.m"), format.parse("1.0.0.~~~~"));
 	}
 
 	// TODO: Not clear what a missing RPM EPOCH (i.e. first '.n:' should be interpreted as

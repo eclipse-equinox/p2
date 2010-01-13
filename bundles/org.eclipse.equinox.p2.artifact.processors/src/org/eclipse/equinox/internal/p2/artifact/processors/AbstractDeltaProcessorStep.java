@@ -11,16 +11,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors;
 
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
+
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 
 import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.AbstractDeltaStep;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.*;
 
 /**
  * The <code>AbstractDeltaPatchStep</code> is an abstract processing step that
@@ -30,7 +31,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
  */
 public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 
-	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+	public void initialize(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(descriptor, context);
 		if (!getStatus().isOK())
 			return;
@@ -43,7 +44,7 @@ public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 	private void fetchLocalArtifactRepository() {
 		if (repository != null)
 			return;
-		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		if (repoMgr == null) {
 			setStatus(new Status(IStatus.ERROR, Activator.ID, "Could not get artifact repository manager."));
 			return;

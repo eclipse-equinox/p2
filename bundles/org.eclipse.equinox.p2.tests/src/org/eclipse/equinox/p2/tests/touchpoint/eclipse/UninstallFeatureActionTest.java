@@ -11,19 +11,21 @@ package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 import java.io.File;
 import java.net.URI;
 import java.util.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.UninstallFeatureAction;
 import org.eclipse.equinox.internal.p2.update.Site;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -46,9 +48,9 @@ public class UninstallFeatureActionTest extends AbstractProvisioningTest {
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
 		profileProperties.setProperty(IProfile.PROP_CACHE, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(getAgent(), profile);
 		File featureSource = getTestData("1.0", "/testData/eclipseTouchpoint/features/org.eclipse.rcp_3.3.0.v20070607-8y8eE8NEbsN3X_fjWS8HPNG");
 		File targetPlugins = new File(installFolder, "features");
 		assertTrue(targetPlugins.mkdir());
@@ -59,13 +61,14 @@ public class UninstallFeatureActionTest extends AbstractProvisioningTest {
 		Feature feature = parser.parse(featureTarget);
 
 		IArtifactKey key = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
-		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, featureTarget);
-		((ArtifactDescriptor) descriptor).setRepositoryProperty("artifact.folder", Boolean.TRUE.toString());
+		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(bundlePool, key, featureTarget);
+		((SimpleArtifactDescriptor) descriptor).setRepositoryProperty("artifact.folder", Boolean.TRUE.toString());
 		IInstallableUnit iu = FeaturesAction.createFeatureJarIU(feature, new PublisherInfo());
 
 		bundlePool.addDescriptor(descriptor);
 
 		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_AGENT, getAgent());
 		parameters.put(ActionConstants.PARM_PROFILE, profile);
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		touchpoint.initializePhase(null, profile, "test", parameters);

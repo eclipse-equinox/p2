@@ -15,19 +15,20 @@ import java.io.File;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.update.Site;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.NLS;
 
@@ -40,8 +41,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private final CachingArtifactRepository artifactRepository;
 	// at any point in time currentFiles is the list of files/dirs that the watcher has seen and 
 	// believes to be on disk.
-	private final Map currentFiles = new HashMap();
-	private final Collection polledSeenFiles = new HashSet();
+	private final Map<File, Long> currentFiles = new HashMap<File, Long>();
+	private final Collection<File> polledSeenFiles = new HashSet<File>();
 
 	private EntryAdvice advice = new EntryAdvice();
 	private PublisherInfo info;
@@ -88,7 +89,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		}
 		try {
 			String name = repositoryName;
-			Map properties = new HashMap(1);
+			Map<String, String> properties = new HashMap<String, String>(1);
 			if (hidden) {
 				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 				name = "artifact listener " + repositoryName; //$NON-NLS-1$
@@ -113,7 +114,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		}
 		try {
 			String name = repositoryName;
-			Map properties = new HashMap(1);
+			Map<String, String> properties = new HashMap<String, String>(1);
 			if (hidden) {
 				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 				name = "metadata listener " + repositoryName; //$NON-NLS-1$
@@ -162,7 +163,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	private boolean processFeature(File file, boolean isAddition) {
-		String link = (String) metadataRepository.getProperties().get(Site.PROP_LINK_FILE);
+		String link = metadataRepository.getProperties().get(Site.PROP_LINK_FILE);
 		advice.setProperties(file, file.lastModified(), file.toURI(), link);
 		return publish(new FeaturesAction(new File[] {file}), isAddition);
 	}
@@ -177,7 +178,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	public Long getSeenFile(File file) {
-		Long lastSeen = (Long) currentFiles.get(file);
+		Long lastSeen = currentFiles.get(file);
 		if (lastSeen != null)
 			polledSeenFiles.add(file);
 		return lastSeen;
@@ -190,7 +191,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	public void stopPoll() {
-		final Set filesToRemove = new HashSet(currentFiles.keySet());
+		final Set<File> filesToRemove = new HashSet<File>(currentFiles.keySet());
 		filesToRemove.removeAll(polledSeenFiles);
 		polledSeenFiles.clear();
 
@@ -203,20 +204,17 @@ public class RepositoryListener extends DirectoryChangeListener {
 	/**
 	 * Flush all the pending changes to the metadata repository.
 	 */
-	private void synchronizeMetadataRepository(final Collection removedFiles) {
+	private void synchronizeMetadataRepository(final Collection<File> removedFiles) {
 		if (metadataRepository == null)
 			return;
-		final Collection changes = iusToChange.getIUs(null, null);
+		final Collection<IInstallableUnit> changes = iusToChange.getIUs(null, null);
 		// first remove any IUs that have changed or that are associated with removed files
 		if (!removedFiles.isEmpty() || !changes.isEmpty()) {
-			// create a query that will identify all ius related to removed files or ius that have changed
-			IMatchQuery removeQuery = new MatchQuery() {
-				public boolean isMatch(Object candidate) {
-					if (!(candidate instanceof IInstallableUnit))
-						return false;
-					IInstallableUnit iu = (IInstallableUnit) candidate;
-					if (changes.contains(iu))
-						return true;
+			metadataRepository.removeInstallableUnits(changes.toArray(new IInstallableUnit[changes.size()]), null);
+
+			// create a query that will identify all ius related to removed files
+			IMatchQuery<IInstallableUnit> removeQuery = new MatchQuery<IInstallableUnit>() {
+				public boolean isMatch(IInstallableUnit iu) {
 					String filename = iu.getProperty(FILE_NAME);
 					if (filename == null) {
 						String message = NLS.bind(Messages.filename_missing, "installable unit", iu.getId()); //$NON-NLS-1$
@@ -227,13 +225,14 @@ public class RepositoryListener extends DirectoryChangeListener {
 					return removedFiles.contains(iuFile);
 				}
 			};
-			metadataRepository.removeInstallableUnits(removeQuery, null);
+			IQueryResult<IInstallableUnit> toRemove = metadataRepository.query(removeQuery, null);
+			metadataRepository.removeInstallableUnits(toRemove.toArray(IInstallableUnit.class), null);
 		}
 		// Then add all the new IUs as well as the new copies of the ones that have changed
-		Collection additions = iusToAdd.getIUs(null, null);
+		Collection<IInstallableUnit> additions = iusToAdd.getIUs(null, null);
 		additions.addAll(changes);
 		if (!additions.isEmpty())
-			metadataRepository.addInstallableUnits((IInstallableUnit[]) additions.toArray(new IInstallableUnit[additions.size()]));
+			metadataRepository.addInstallableUnits(additions.toArray(new IInstallableUnit[additions.size()]));
 	}
 
 	/**
@@ -241,25 +240,21 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * descriptors related to any file that has been removed and flush the repo
 	 * to ensure that all the additions and removals have been completed.
 	 */
-	private void synchronizeArtifactRepository(final Collection removedFiles) {
+	private void synchronizeArtifactRepository(final Collection<File> removedFiles) {
 		if (artifactRepository == null)
 			return;
 		if (!removedFiles.isEmpty()) {
-			final List keys = new ArrayList(Arrays.asList(artifactRepository.getArtifactKeys()));
-			for (Iterator it = keys.iterator(); it.hasNext();) {
-				IArtifactKey key = (IArtifactKey) it.next();
-				IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key);
-				for (int i = 0; i < descriptors.length; i++) {
-					ArtifactDescriptor descriptor = (ArtifactDescriptor) descriptors[i];
-					String filename = descriptor.getRepositoryProperty(FILE_NAME);
-					if (filename == null) {
-						String message = NLS.bind(Messages.filename_missing, "artifact", descriptor.getArtifactKey()); //$NON-NLS-1$
-						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
-					} else {
-						File artifactFile = new File(filename);
-						if (removedFiles.contains(artifactFile))
-							artifactRepository.removeDescriptor(descriptor);
-					}
+			IQueryResult<IArtifactDescriptor> descriptors = artifactRepository.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
+			for (Iterator<IArtifactDescriptor> iterator = descriptors.iterator(); iterator.hasNext();) {
+				SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) iterator.next();
+				String filename = descriptor.getRepositoryProperty(FILE_NAME);
+				if (filename == null) {
+					String message = NLS.bind(Messages.filename_missing, "artifact", descriptor.getArtifactKey()); //$NON-NLS-1$
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
+				} else {
+					File artifactFile = new File(filename);
+					if (removedFiles.contains(artifactFile))
+						artifactRepository.removeDescriptor(descriptor);
 				}
 			}
 		}
@@ -273,9 +268,9 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private void synchronizeCurrentFiles() {
 		currentFiles.clear();
 		if (metadataRepository != null) {
-			Collector ius = metadataRepository.query(InstallableUnitQuery.ANY, new Collector(), null);
-			for (Iterator it = ius.iterator(); it.hasNext();) {
-				IInstallableUnit iu = (IInstallableUnit) it.next();
+			IQueryResult<IInstallableUnit> ius = metadataRepository.query(InstallableUnitQuery.ANY, null);
+			for (Iterator<IInstallableUnit> it = ius.iterator(); it.hasNext();) {
+				IInstallableUnit iu = it.next();
 				String filename = iu.getProperty(FILE_NAME);
 				if (filename == null) {
 					String message = NLS.bind(Messages.filename_missing, "installable unit", iu.getId()); //$NON-NLS-1$

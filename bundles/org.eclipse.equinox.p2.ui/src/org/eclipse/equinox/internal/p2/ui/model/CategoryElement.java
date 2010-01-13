@@ -10,13 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.ui.IUPropertyUtils;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.p2.ui.QueryProvider;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 
 /**
  * Element wrapper class for IU's that represent categories of
@@ -26,8 +28,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.QueryProvider;
  */
 public class CategoryElement extends RemoteQueriedElement implements IIUElement {
 
-	private ArrayList ius = new ArrayList(1);
-	private IRequiredCapability[] requirements;
+	private ArrayList<IInstallableUnit> ius = new ArrayList<IInstallableUnit>(1);
+	private Collection<IRequirement> requirements;
 
 	public CategoryElement(Object parent, IInstallableUnit iu) {
 		super(parent);
@@ -50,6 +52,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		if (adapter == IInstallableUnit.class)
 			return getIU();
@@ -63,11 +66,11 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 	public IInstallableUnit getIU() {
 		if (ius == null || ius.isEmpty())
 			return null;
-		return (IInstallableUnit) ius.get(0);
+		return ius.get(0);
 	}
 
 	public long getSize() {
-		return SIZE_UNKNOWN;
+		return ProvisioningSession.SIZE_UNKNOWN;
 	}
 
 	public boolean shouldShowSize() {
@@ -94,27 +97,25 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 	}
 
 	private String getMergeKey(IInstallableUnit iu) {
-		String mergeKey = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
+		String mergeKey = iu.getProperty(IInstallableUnit.PROP_NAME, null);
 		if (mergeKey == null || mergeKey.length() == 0) {
 			mergeKey = iu.getId();
 		}
 		return mergeKey;
 	}
 
-	public IRequiredCapability[] getRequirements() {
+	public Collection<IRequirement> getRequirements() {
 		if (ius == null || ius.isEmpty())
-			return new IRequiredCapability[0];
+			return CollectionUtils.emptyList();
 		if (requirements == null) {
 			if (ius.size() == 1)
 				requirements = getIU().getRequiredCapabilities();
 			else {
-				ArrayList capabilities = new ArrayList();
-				Iterator iter = ius.iterator();
-				while (iter.hasNext()) {
-					IInstallableUnit iu = (IInstallableUnit) iter.next();
-					capabilities.addAll(Arrays.asList(iu.getRequiredCapabilities()));
+				ArrayList<IRequirement> capabilities = new ArrayList<IRequirement>();
+				for (IInstallableUnit iu : ius) {
+					capabilities.addAll(iu.getRequiredCapabilities());
 				}
-				requirements = (IRequiredCapability[]) capabilities.toArray(new IRequiredCapability[capabilities.size()]);
+				requirements = capabilities;
 			}
 		}
 		return requirements;

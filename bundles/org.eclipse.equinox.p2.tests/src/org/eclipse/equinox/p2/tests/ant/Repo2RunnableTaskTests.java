@@ -12,16 +12,15 @@ package org.eclipse.equinox.p2.tests.ant;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Collection;
+import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractAntProvisioningTest;
 
 public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
@@ -61,8 +60,8 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		IInstallableUnit iu = null;
 		try {
 			IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(source, new NullProgressMonitor());
-			Collection ius = repo.query(new InstallableUnitQuery("helloworldfeature.feature.jar"), new Collector(), new NullProgressMonitor()).toCollection();
-			assertEquals("Expected number of IUs", 1, ius.size());
+			IQueryResult ius = repo.query(new InstallableUnitQuery("helloworldfeature.feature.jar"), new NullProgressMonitor());
+			assertEquals("Expected number of IUs", 1, queryResultSize(ius));
 			iu = (IInstallableUnit) ius.iterator().next();
 		} catch (ProvisionException e) {
 			fail("Failed to obtain iu", e);
@@ -71,7 +70,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		task.addElement(createIUElement(iu));
 
 		runAntTask();
-		assertEquals("Number of artifact keys differs", iu.getArtifacts().length, getArtifactKeyCount(destination));
+		assertEquals("Number of artifact keys differs", iu.getArtifacts().size(), getArtifactKeyCount(destination));
 		assertTrue("Unexpected format", expectedFormat(destination));
 	}
 
@@ -117,9 +116,9 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Failed to load repository", e);
 		}
-		IArtifactKey[] keys = repo.getArtifactKeys();
-		for (int i = 0; i < keys.length; i++) {
-			IArtifactKey key = keys[i];
+		IQueryResult keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null);
+		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+			IArtifactKey key = (IArtifactKey) iterator.next();
 			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(key);
 			for (int n = 0; n < descriptors.length; n++) {
 				IArtifactDescriptor desc = descriptors[n];
@@ -130,22 +129,10 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 				else
 					assertFalse(desc + " is a folder", isFolder);
 				// Artifacts should not be packed
-				assertTrue("Artifact is still packed", !"packed".equals(desc.getProperty("format")));
+				assertTrue("Artifact is still packed", !IArtifactDescriptor.FORMAT_PACKED.equals(desc.getProperty(IArtifactDescriptor.FORMAT)));
 			}
 		}
 		return true;
-	}
-
-	/*
-	 * Count the number of ArtifactKeys in the repository at the given location 
-	 */
-	protected int getArtifactKeyCount(URI location) {
-		try {
-			return getArtifactRepositoryManager().loadRepository(location, new NullProgressMonitor()).getArtifactKeys().length;
-		} catch (ProvisionException e) {
-			fail("Failed to count keys in repository", e);
-			return -1;
-		}
 	}
 
 	/*

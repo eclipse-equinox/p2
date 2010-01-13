@@ -10,21 +10,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.phases.Sizing;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.p2.engine.Phase;
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
+import org.eclipse.equinox.internal.p2.engine.phases.Sizing;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -40,8 +42,8 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		IMetadataRepositoryManager mmgr = getMetadataRepositoryManager();
 		metaRepo = mmgr.loadRepository((getTestData("MissingArtifact repo", testDataLocation).toURI()), null);
 
-		missingArtifactIU = (IInstallableUnit) metaRepo.query(new InstallableUnitQuery("javax.wsdl", new VersionRange("[1.5, 1.6)")), new Collector(), null).iterator().next();
-		missingSizeIU = (IInstallableUnit) metaRepo.query(new InstallableUnitQuery("javax.wsdl", new VersionRange("[1.4, 1.5)")), new Collector(), null).iterator().next();
+		missingArtifactIU = (IInstallableUnit) metaRepo.query(new InstallableUnitQuery("javax.wsdl", new VersionRange("[1.5, 1.6)")), null).iterator().next();
+		missingSizeIU = (IInstallableUnit) metaRepo.query(new InstallableUnitQuery("javax.wsdl", new VersionRange("[1.4, 1.5)")), null).iterator().next();
 
 		IArtifactRepositoryManager mgr = getArtifactRepositoryManager();
 		source = mgr.loadRepository((getTestData("MissingArtifact repo", testDataLocation).toURI()), null);
@@ -55,13 +57,13 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		req.addInstallableUnits(new IInstallableUnit[] {missingArtifactIU});
 		req.setInstallableUnitInclusionRules(missingArtifactIU, PlannerHelper.createStrictInclusionRule(missingArtifactIU));
 
-		ProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 		Sizing sizing = new Sizing(100, "");
 		PhaseSet set = new SPhaseSet(sizing);
 
-		IStatus status = engine.perform(profile1, set, plan.getOperands(), null, new NullProgressMonitor());
+		IStatus status = engine.perform(plan, set, new NullProgressMonitor());
 		if (!status.matches(IStatus.ERROR)) {
 			fail("Incorrect status for missing artifact during Sizing.");
 		}
@@ -73,13 +75,13 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		req.addInstallableUnits(new IInstallableUnit[] {missingSizeIU});
 		req.setInstallableUnitInclusionRules(missingSizeIU, PlannerHelper.createStrictInclusionRule(missingSizeIU));
 
-		ProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 		Sizing sizing = new Sizing(100, "");
 		PhaseSet set = new SPhaseSet(sizing);
 
-		IStatus status = engine.perform(profile1, set, plan.getOperands(), null, new NullProgressMonitor());
+		IStatus status = engine.perform(plan, set, new NullProgressMonitor());
 		if (!status.matches(IStatus.WARNING) && status.getCode() != ProvisionException.ARTIFACT_INCOMPLETE_SIZING) {
 			fail("Incorrect status for missing file size during Sizing");
 		}

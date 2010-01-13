@@ -11,13 +11,17 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ISurrogateProfileHandler;
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
 
-public class Profile implements IQueryable, IProfile {
+public class Profile implements IProfile {
 
 	//Internal id of the profile
 	private final String profileId;
@@ -27,22 +31,21 @@ public class Profile implements IQueryable, IProfile {
 	/**
 	 * 	A collection of child profiles.
 	 */
-	private List subProfileIds; // child profile ids
+	private List<String> subProfileIds; // child profile ids
 
-	private static final String[] noSubProfiles = new String[0];
 	/**
 	 * This storage is to be used by the touchpoints to store data.
 	 */
 	private OrderedProperties storage = new OrderedProperties();
 
-	private Set ius = new HashSet();
-	private Map iuProperties = new HashMap();
+	private Set<IInstallableUnit> ius = new HashSet<IInstallableUnit>();
+	private Map<IInstallableUnit, OrderedProperties> iuProperties = new HashMap<IInstallableUnit, OrderedProperties>();
 	private boolean changed = false;
 
 	private long timestamp;
 	private ISurrogateProfileHandler surrogateProfileHandler;
 
-	public Profile(String profileId, Profile parent, Map properties) {
+	public Profile(String profileId, Profile parent, Map<String, String> properties) {
 		if (profileId == null || profileId.length() == 0) {
 			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Null_Profile_Id, null));
 		}
@@ -91,7 +94,7 @@ public class Profile implements IQueryable, IProfile {
 
 	public void addSubProfile(String subProfileId) throws IllegalArgumentException {
 		if (subProfileIds == null)
-			subProfileIds = new ArrayList();
+			subProfileIds = new ArrayList<String>();
 
 		if (!subProfileIds.contains(subProfileId))
 			subProfileIds.add(subProfileId);
@@ -115,11 +118,10 @@ public class Profile implements IQueryable, IProfile {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getSubProfileIds()
 	 */
-	public String[] getSubProfileIds() {
+	public List<String> getSubProfileIds() {
 		if (subProfileIds == null)
-			return noSubProfiles;
-
-		return (String[]) subProfileIds.toArray(new String[subProfileIds.size()]);
+			return CollectionUtils.emptyList();
+		return Collections.unmodifiableList(subProfileIds);
 	}
 
 	/* (non-Javadoc)
@@ -157,25 +159,39 @@ public class Profile implements IQueryable, IProfile {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+		propagateProfileContext(query);
 		if (query instanceof IUProfilePropertyQuery) {
-			((IUProfilePropertyQuery) query).setProfile(this);
-			return query.perform(iuProperties.keySet().iterator(), collector);
+			return query.perform(iuProperties.keySet().iterator());
 		}
-		return query.perform(ius.iterator(), collector);
+		return query.perform(ius.iterator());
 	}
 
-	public Collector available(Query query, Collector collector, IProgressMonitor monitor) {
+	private <T> void propagateProfileContext(IQuery<T> query) {
+		// FIXME
+		if (query instanceof IUProfilePropertyQuery) {
+			((IUProfilePropertyQuery) query).setProfile(this);
+			return;
+		}
+		if (query instanceof ICompositeQuery<?>) {
+			List<IQuery<T>> queries = ((ICompositeQuery<T>) query).getQueries();
+			for (int i = 0; i < queries.size(); i++) {
+				propagateProfileContext(queries.get(i));
+			}
+		}
+	}
+
+	public IQueryResult<IInstallableUnit> available(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		if (surrogateProfileHandler != null)
-			return surrogateProfileHandler.queryProfile(this, query, collector, monitor);
-		return query(query, collector, monitor);
+			return surrogateProfileHandler.queryProfile(this, query, monitor);
+		return query(query, new NullProgressMonitor());
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getInstallableUnitProperty(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit, java.lang.String)
 	 */
 	public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
-		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
+		OrderedProperties properties = iuProperties.get(iu);
 		if (properties == null)
 			return null;
 
@@ -184,7 +200,7 @@ public class Profile implements IQueryable, IProfile {
 
 	public String setInstallableUnitProperty(IInstallableUnit iu, String key, String value) {
 		//		String iuKey = createIUKey(iu);
-		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
+		OrderedProperties properties = iuProperties.get(iu);
 		if (properties == null) {
 			properties = new OrderedProperties();
 			iuProperties.put(iu, properties);
@@ -196,11 +212,11 @@ public class Profile implements IQueryable, IProfile {
 
 	public String removeInstallableUnitProperty(IInstallableUnit iu, String key) {
 		//		String iuKey = createIUKey(iu);
-		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
+		OrderedProperties properties = iuProperties.get(iu);
 		if (properties == null)
 			return null;
 
-		String oldValue = (String) properties.remove(key);
+		String oldValue = properties.remove(key);
 		if (properties.isEmpty())
 			iuProperties.remove(iu);
 
@@ -215,18 +231,18 @@ public class Profile implements IQueryable, IProfile {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getLocalProperties()
 	 */
-	public Map getLocalProperties() {
+	public Map<String, String> getLocalProperties() {
 		return OrderedProperties.unmodifiableProperties(storage);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getProperties()
 	 */
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		if (parentProfile == null)
 			return getLocalProperties();
 
-		Map properties = new HashMap(parentProfile.getProperties());
+		Map<String, String> properties = new HashMap<String, String>(parentProfile.getProperties());
 		properties.putAll(storage);
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
@@ -235,7 +251,7 @@ public class Profile implements IQueryable, IProfile {
 	 * 	Add all the properties in the map to the local properties
 	 * 	of the profile.
 	 */
-	public void addProperties(Map properties) {
+	public void addProperties(Map<String, String> properties) {
 		storage.putAll(properties);
 		changed = true;
 	}
@@ -258,8 +274,8 @@ public class Profile implements IQueryable, IProfile {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getInstallableUnitProperties(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit)
 	 */
-	public Map getInstallableUnitProperties(IInstallableUnit iu) {
-		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
+	public Map<String, String> getInstallableUnitProperties(IInstallableUnit iu) {
+		OrderedProperties properties = iuProperties.get(iu);
 		if (properties == null)
 			properties = new OrderedProperties();
 
@@ -296,16 +312,14 @@ public class Profile implements IQueryable, IProfile {
 		snapshot.setTimestamp(timestamp);
 
 		if (subProfileIds != null) {
-			for (Iterator it = subProfileIds.iterator(); it.hasNext();) {
-				String subProfileId = (String) it.next();
+			for (String subProfileId : subProfileIds) {
 				snapshot.addSubProfile(subProfileId);
 			}
 		}
 
-		for (Iterator it = ius.iterator(); it.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) it.next();
+		for (IInstallableUnit iu : ius) {
 			snapshot.addInstallableUnit(iu);
-			Map properties = getInstallableUnitProperties(iu);
+			Map<String, String> properties = getInstallableUnitProperties(iu);
 			if (properties != null)
 				snapshot.addInstallableUnitProperties(iu, properties);
 		}
@@ -313,12 +327,9 @@ public class Profile implements IQueryable, IProfile {
 		return snapshot;
 	}
 
-	public void addInstallableUnitProperties(IInstallableUnit iu, Map properties) {
-		for (Iterator it = properties.entrySet().iterator(); it.hasNext();) {
-			Entry entry = (Entry) it.next();
-			String key = (String) entry.getKey();
-			String value = (String) entry.getValue();
-			setInstallableUnitProperty(iu, key, value);
+	public void addInstallableUnitProperties(IInstallableUnit iu, Map<String, String> properties) {
+		for (Entry<String, String> entry : properties.entrySet()) {
+			setInstallableUnitProperty(iu, entry.getKey(), entry.getValue());
 		}
 	}
 
@@ -328,17 +339,16 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	public void clearOrphanedInstallableUnitProperties() {
-		Set keys = iuProperties.keySet();
+		Set<IInstallableUnit> keys = iuProperties.keySet();
 		//		Set orphans = new HashSet();
-		Collection toRemove = new ArrayList();
-		for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-			Object iu = iterator.next();
+		Collection<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>();
+		for (IInstallableUnit iu : keys) {
 			if (!ius.contains(iu))
 				toRemove.add(iu);
 		}
 
-		for (Iterator iterator = toRemove.iterator(); iterator.hasNext();) {
-			iuProperties.remove(iterator.next());
+		for (IInstallableUnit iu : toRemove) {
+			iuProperties.remove(iu);
 		}
 		//		List iuKeys = new ArrayList();
 		//		for (Iterator it = ius.iterator(); it.hasNext();)
@@ -357,5 +367,12 @@ public class Profile implements IQueryable, IProfile {
 
 	public void setSurrogateProfileHandler(ISurrogateProfileHandler surrogateProfileHandler) {
 		this.surrogateProfileHandler = surrogateProfileHandler;
+	}
+
+	/**
+	 * Prints a string representation for debugging purposes only.
+	 */
+	public String toString() {
+		return "Profile(" + getProfileId() + ')'; //$NON-NLS-1$
 	}
 }

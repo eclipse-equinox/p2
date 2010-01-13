@@ -10,22 +10,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ArtifactRepositoryWithReferenceDescriptors extends AbstractProvisioningTest {
 	IArtifactRepository repo = null;
-	ArtifactDescriptor descriptor1 = null;
-	ArtifactDescriptor descriptor2 = null;
+	SimpleArtifactDescriptor descriptor1 = null;
+	SimpleArtifactDescriptor descriptor2 = null;
 
 	//    <artifact classifier='org.eclipse.update.feature' id='org.eclipse.datatools.sqldevtools.feature' version='1.6.0.v200805301340-7F7d-E8yz-SHrDBONwUwXwIyxYSZ'>
 	//    <repositoryProperties size='4'>
@@ -40,14 +40,14 @@ public class ArtifactRepositoryWithReferenceDescriptors extends AbstractProvisio
 		super.setUp();
 		repo = createArtifactRepository(getTempFolder().toURI(), null);
 		File fileLocation = getTestData("Artifacts for repositor with references", "testData/referenceArtifactRepo/test1 Reference.jar");
-		descriptor1 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "test1Reference", new Version("1.0.0")));
-		descriptor1.setProcessingSteps(new ProcessingStepDescriptor[0]);
+		descriptor1 = new SimpleArtifactDescriptor(new ArtifactKey("osgi.bundle", "test1Reference", Version.create("1.0.0")));
+		descriptor1.setProcessingSteps(new IProcessingStepDescriptor[0]);
 		descriptor1.setRepositoryProperty("artifact.reference", fileLocation.toURL().toExternalForm());
 		descriptor1.setRepositoryProperty("file.name", fileLocation.getAbsolutePath());
 		descriptor1.setRepositoryProperty("file.lastModified", Long.toString(fileLocation.lastModified()));
 
-		descriptor2 = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "test1Reference", new Version("1.0.0")));
-		descriptor2.setProcessingSteps(new ProcessingStepDescriptor[0]);
+		descriptor2 = new SimpleArtifactDescriptor(new ArtifactKey("osgi.bundle", "test1Reference", Version.create("1.0.0")));
+		descriptor2.setProcessingSteps(new IProcessingStepDescriptor[0]);
 		descriptor2.setRepositoryProperty("artifact.reference", fileLocation.toURI().toString());
 		descriptor2.setRepositoryProperty("file.name", fileLocation.getAbsolutePath());
 		descriptor2.setRepositoryProperty("file.lastModified", Long.toString(fileLocation.lastModified()));

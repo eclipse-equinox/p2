@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.tools.ant.BuildException;
@@ -20,7 +19,7 @@ import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.jarprocessor.ant.JarProcessorTask;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.*;
 import org.eclipse.osgi.util.NLS;
 
@@ -64,7 +63,8 @@ public class ProcessRepoTask extends Task {
 	public void execute() throws BuildException {
 		File file = URIUtil.toFile(repository);
 		if (file == null || !file.exists()) {
-			throw new BuildException(NLS.bind(Messages.ProcessRepo_must_be_local, repository.toString()));
+			throw new BuildException(NLS.bind(
+					Messages.ProcessRepo_must_be_local, repository.toString()));
 		}
 		if (pack | repack | signing != null) {
 			if (jarProcessor == null)
@@ -76,7 +76,8 @@ public class ProcessRepoTask extends Task {
 				jarProcessor.setStorepass(signing.storepass);
 				jarProcessor.setUnsign(signing.unsign);
 
-				if (signing.alias != null && signing.alias.length() > 0 && !signing.alias.startsWith("${")) //$NON-NLS-1$
+				if (signing.alias != null && signing.alias.length() > 0
+						&& !signing.alias.startsWith("${")) //$NON-NLS-1$
 					jarProcessor.setSign(true);
 			}
 			jarProcessor.setPack(pack);
@@ -103,9 +104,6 @@ public class ProcessRepoTask extends Task {
 		} catch (ProvisionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
@@ -113,7 +111,8 @@ public class ProcessRepoTask extends Task {
 		try {
 			this.repository = URIUtil.fromString(repository);
 		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException(NLS.bind(Messages.ProcessRepo_location_not_url, repository));
+			throw new IllegalArgumentException(NLS.bind(
+					Messages.ProcessRepo_location_not_url, repository));
 		}
 	}
 

@@ -66,7 +66,7 @@
             class="org.eclipse.equinox.internal.p2.ui.admin.dialogs.ProfilePropertyPage"
             id="org.eclipse.equinox.internal.p2.ui.admin.dialogs.ProfilePropertyPage">
             <enabledWhen>
-             <adapt type="org.eclipse.equinox.internal.provisional.p2.engine.IProfile"/>
+             <adapt type="org.eclipse.equinox.p2.engine.IProfile"/>
           </enabledWhen>
       </page>
       <page
@@ -74,7 +74,7 @@
             class="org.eclipse.equinox.internal.p2.ui.admin.dialogs.IUImplementationPropertyPage"
             id="org.eclipse.equinox.internal.p2.ui.admin.dialogs.IUImplementationPropertyPage">
             <enabledWhen>
-             <adapt type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit"/>
+             <adapt type="org.eclipse.equinox.p2.metadata.IInstallableUnit"/>
            </enabledWhen>
       </page>
             <page
@@ -83,7 +83,7 @@
             id="org.eclipse.equinox.internal.p2.ui.admin.dialogs.InstalledIUPropertyPage">
             <enabledWhen>
              <instanceof
-                  value="org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement">
+                  value="org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement">
              </instanceof>
           </enabledWhen>
       </page>
@@ -92,7 +92,7 @@
             class="org.eclipse.equinox.internal.p2.ui.admin.dialogs.RepositoryImplementationPropertyPage"
             id="org.eclipse.equinox.internal.p2.ui.admin.dialogs.RepositoryImplementationPropertyPage">
             <enabledWhen>
-             <adapt type="org.eclipse.equinox.internal.provisional.p2.repository.IRepository"/>
+             <adapt type="org.eclipse.equinox.p2.repository.IRepository"/>
            </enabledWhen>
       </page>
       

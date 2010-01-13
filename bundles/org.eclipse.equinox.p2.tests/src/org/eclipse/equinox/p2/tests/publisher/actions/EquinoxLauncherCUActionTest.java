@@ -12,16 +12,14 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
-
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnitFragment;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IProvidedCapability;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.IVersionAdvice;
@@ -29,7 +27,7 @@ import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxLauncherCUAction;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-@SuppressWarnings( {"restriction", "unchecked"})
+@SuppressWarnings({"restriction", "unchecked"})
 public class EquinoxLauncherCUActionTest extends ActionTest {
 
 	private static String a_ID = "iua.source"; //$NON-NLS-1$
@@ -56,7 +54,6 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 			version = Version.emptyVersion;
 		expect(result.getVersion()).andReturn(version).anyTimes();
 		expect(result.getFilter()).andReturn(null).anyTimes();
-		expect(result.isFragment()).andReturn(fragment).anyTimes();
 		replay(result);
 		return result;
 	}
@@ -70,13 +67,13 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 				assertTrue(iu instanceof InstallableUnitFragment);
 				//verify required capability
 				verifyRequiredCapability(iu.getRequiredCapabilities(), PublisherHelper.OSGI_BUNDLE_CLASSIFIER, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER, VersionRange.emptyRange);
-				verifyRequiredCapability(iu.getRequiredCapabilities(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(new Version("1.0.0"), true, new Version("2.0.0"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-				assertTrue(iu.getRequiredCapabilities().length == 2);
+				verifyRequiredCapability(iu.getRequiredCapabilities(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+				assertTrue(iu.getRequiredCapabilities().size() == 2);
 
-				IProvidedCapability[] cap = iu.getProvidedCapabilities();
+				Collection<IProvidedCapability> cap = iu.getProvidedCapabilities();
 				verifyProvidedCapability(cap, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$ 
-				verifyProvidedCapability(cap, "org.eclipse.equinox.p2.flavor", flavorArg, new Version("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$ 
-				assertTrue(cap.length == 2);
+				verifyProvidedCapability(cap, "org.eclipse.equinox.p2.flavor", flavorArg, Version.create("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$ 
+				assertTrue(cap.size() == 2);
 
 				Map prop = iu.getProperties();
 				assertTrue(prop.get("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -100,7 +97,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 		VersionAdvice versionAdvice = new VersionAdvice();
 		versionAdvice.setVersion(IInstallableUnit.NAMESPACE_IU_ID, flavorArg + "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$
 		versionAdvice.setVersion(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$
-		versionAdvice.setVersion("org.eclipse.equinox.p2.flavor", flavorArg, new Version("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$
+		versionAdvice.setVersion("org.eclipse.equinox.p2.flavor", flavorArg, Version.create("1.0.0")); //$NON-NLS-1$//$NON-NLS-2$
 
 		ArrayList versionList = new ArrayList();
 		versionList.add(versionAdvice);

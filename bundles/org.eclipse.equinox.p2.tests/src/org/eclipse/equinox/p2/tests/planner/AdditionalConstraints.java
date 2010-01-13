@@ -10,15 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.util.Arrays;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AdditionalConstraints extends AbstractProvisioningTest {
@@ -33,15 +34,15 @@ public class AdditionalConstraints extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", new Version("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 4.0.0)"), null));
+		a1 = createIU("A", Version.create("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 4.0.0)")));
 
-		b1 = createIU("B", new Version("1.0.0"), true);
+		b1 = createIU("B", Version.create("1.0.0"), true);
 
-		b2 = createIU("B", new Version("2.0.0"), true);
+		b2 = createIU("B", Version.create("2.0.0"), true);
 
-		b3 = createIU("B", new Version("3.0.0"), true);
+		b3 = createIU("B", Version.create("3.0.0"), true);
 
-		x1 = createIU("X", new Version(2, 0, 0), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 2.0.0]"), null));
+		x1 = createIU("X", Version.createOSGi(2, 0, 0), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 2.0.0]")));
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, b3, x1});
 
@@ -54,8 +55,8 @@ public class AdditionalConstraints extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
 		ProvisioningContext ctx = new ProvisioningContext();
-		ctx.setAdditionalRequirements(Arrays.asList(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 2.0.0]"), null)[0]));
-		ProvisioningPlan plan = planner.getProvisioningPlan(req, ctx, null);
+		ctx.setAdditionalRequirements(Arrays.<IRequirement> asList(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 2.0.0]"))[0]));
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, ctx, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
 		assertInstallOperand(plan, b2);

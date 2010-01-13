@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+
 import java.net.*;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -19,8 +22,6 @@ import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.internal.p2.core.StringPool;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -454,7 +455,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			parseAttributes(attributes, noAttributes, noAttributes);
 		}
 
-		public TextHandler(AbstractHandler parent, String elementName, Attributes attributes, List texts) {
+		public TextHandler(AbstractHandler parent, String elementName, Attributes attributes, List<String> texts) {
 			super(parent, elementName);
 			parseAttributes(attributes, noAttributes, noAttributes);
 		}
@@ -682,7 +683,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 
 	public VersionRange checkVersionRange(String element, String attribute, String value) {
 		try {
-			if (value != null && !value.equals("0.0.0")) //$NON-NLS-1$
+			if (value != null)
 				return new VersionRange(value);
 		} catch (IllegalArgumentException iae) {
 			invalidAttributeValue(element, attribute, value);

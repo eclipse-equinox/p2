@@ -10,8 +10,8 @@
 package org.eclipse.equinox.p2.tests.core;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.ContextQuery;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.ContextQuery;
 
 public class PropertyLookupQuery2 extends ContextQuery {
 
@@ -19,7 +19,7 @@ public class PropertyLookupQuery2 extends ContextQuery {
 		return "bar";
 	}
 
-	public Collector perform(Iterator iterator, Collector result) {
+	public Collector perform(Iterator iterator) {
 		return null;
 	}
 }

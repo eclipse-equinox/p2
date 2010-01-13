@@ -11,19 +11,14 @@
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * An IUPropertiesGroup is a reusable UI component that displays and edits the 
@@ -68,7 +63,7 @@ public class IUProfilePropertiesGroup extends IUGroup {
 		if (iuElement == null || !(iuElement instanceof InstalledIUElement)) {
 			return;
 		}
-		String[] propNames = new String[] {IInstallableUnit.PROP_PROFILE_ROOT_IU};
+		String[] propNames = new String[] {IProfile.PROP_PROFILE_ROOT_IU};
 		String[] userPropNames = new String[] {ProvAdminUIMessages.ProfileRootPropertyName};
 		for (int i = 0; i < propNames.length; i++) {
 			TableItem item = new TableItem(propertiesTable, SWT.NULL);
@@ -80,11 +75,6 @@ public class IUProfilePropertiesGroup extends IUGroup {
 	}
 
 	private IProfile getProfile(InstalledIUElement element) {
-		try {
-			return ProvisioningUtil.getProfile(element.getProfileId());
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, NLS.bind(ProvAdminUIMessages.IUProfilePropertiesGroup_InvalidProfileID, element.getProfileId()), StatusManager.LOG);
-			return null;
-		}
+		return ProvisioningUI.getDefaultUI().getSession().getProfileRegistry().getProfile(element.getProfileId());
 	}
 }

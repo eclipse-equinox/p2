@@ -10,13 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
+
+import org.eclipse.equinox.p2.metadata.ILicense;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.dialogs.PropertyDialog;
@@ -66,11 +68,11 @@ public class IUPropertyPagesTest extends AbstractProvisioningUITest {
 	private IInstallableUnit getIU() throws URISyntaxException {
 		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
 		iuDescription.setId("TestIU");
-		iuDescription.setVersion(new Version(1, 0, 0));
+		iuDescription.setVersion(Version.createOSGi(1, 0, 0));
 		iuDescription.setProperty(IInstallableUnit.PROP_PROVIDER, "Test Cases");
 		iuDescription.setProperty(IInstallableUnit.PROP_DESCRIPTION, "A description");
 		iuDescription.setProperty(IInstallableUnit.PROP_NAME, "The Biggest Baddest Test IU");
-		iuDescription.setLicense(MetadataFactory.createLicense(new URI("http://example.com"), "This is an example license"));
+		iuDescription.setLicenses(new ILicense[] {MetadataFactory.createLicense(new URI("http://example.com"), "This is an example license")});
 		iuDescription.setCopyright(MetadataFactory.createCopyright(new URI("http://example.com"), "This is an example copyright"));
 		return MetadataFactory.createInstallableUnit(iuDescription);
 	}

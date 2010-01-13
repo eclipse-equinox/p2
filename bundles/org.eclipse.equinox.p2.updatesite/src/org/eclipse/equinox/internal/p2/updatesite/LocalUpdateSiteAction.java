@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
+import org.eclipse.equinox.p2.publisher.IPublisherAction;
+
 import java.io.File;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
@@ -71,12 +73,12 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 
 	protected IPublisherAction[] createActions() {
 		createAdvice();
-		ArrayList result = new ArrayList();
+		ArrayList<IPublisherAction> result = new ArrayList<IPublisherAction>();
 		// create an action that just publishes the raw bundles and features
 		IPublisherAction action = new MergeResultsAction(new IPublisherAction[] {createFeaturesAction(), createBundlesAction()}, IPublisherResult.MERGE_ALL_NON_ROOT);
 		result.add(action);
 		result.add(createSiteXMLAction());
-		return (IPublisherAction[]) result.toArray(new IPublisherAction[result.size()]);
+		return result.toArray(new IPublisherAction[result.size()]);
 	}
 
 	private IPublisherAction createSiteXMLAction() {

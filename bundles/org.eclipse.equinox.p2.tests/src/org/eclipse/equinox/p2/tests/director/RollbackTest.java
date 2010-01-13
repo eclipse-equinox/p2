@@ -10,25 +10,25 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
-import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -49,8 +49,8 @@ public class RollbackTest extends AbstractProvisioningTest {
 		c1 = createIU("C", DEFAULT_VERSION, true);
 
 		IRequiredCapability[] req = new IRequiredCapability[1];
-		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
-		d1 = createIU("D", new Version("1.0.0"), req);
+		req[0] = (IRequiredCapability) MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
+		d1 = createIU("D", Version.create("1.0.0"), req);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1, d1});
 
@@ -67,21 +67,13 @@ public class RollbackTest extends AbstractProvisioningTest {
 	}
 
 	private IMetadataRepository getRollbackRepository() throws ProvisionException {
-		try {
-			IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
-			URL location = ((AgentLocation) ServiceHelper.getService(DirectorActivator.context, AgentLocation.class.getName())).getDataArea(DirectorActivator.PI_DIRECTOR);
-			return repoMan.loadRepository(URIUtil.toURI(new URL(location, "rollback")), null);
-		} catch (MalformedURLException e) {
-			fail("0.02", e);
-			return null;
-		} catch (URISyntaxException e) {
-			fail("0.03", e);
-			return null;
-		}
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+		URI location = ((IAgentLocation) ServiceHelper.getService(DirectorActivator.context, IAgentLocation.class.getName())).getDataArea(DirectorActivator.PI_DIRECTOR);
+		return repoMan.loadRepository(URIUtil.append(location, "rollback"), null);
 	}
 
 	public void testRollbackProfileProperties() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 
 		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
@@ -115,7 +107,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 	}
 
 	public void testRollbackIUs() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 
 		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
@@ -124,9 +116,9 @@ public class RollbackTest extends AbstractProvisioningTest {
 		IStatus status = director.provision(request1, null, new NullProgressMonitor());
 		assertEquals("1.0", IStatus.OK, status.getCode());
 
-		List profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
-		assertTrue("2.0", profileIUs.contains(a1));
-		assertTrue("3.0", profileIUs.contains(b1));
+		IQueryResult profileIUs = profile.query(InstallableUnitQuery.ANY, null);
+		assertContains("2.0", profileIUs, a1);
+		assertContains("3.0", profileIUs, b1);
 
 		assertEquals(2, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 
@@ -136,10 +128,10 @@ public class RollbackTest extends AbstractProvisioningTest {
 		status = director.provision(request2, null, new NullProgressMonitor());
 		assertEquals("5.0", IStatus.OK, status.getCode());
 
-		profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
-		assertFalse("6.0", profileIUs.contains(a1));
-		assertTrue("7.0", profileIUs.contains(b1));
-		assertTrue("8.0", profileIUs.contains(c1));
+		profileIUs = profile.query(InstallableUnitQuery.ANY, null);
+		assertNotContains("6.0", profileIUs, a1);
+		assertContains("7.0", profileIUs, b1);
+		assertContains("8.0", profileIUs, c1);
 
 		assertEquals(3, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		IProfile revertProfile = profileRegistry.getProfile(profile.getProfileId(), profileRegistry.listProfileTimestamps(profile.getProfileId())[1]);
@@ -147,14 +139,14 @@ public class RollbackTest extends AbstractProvisioningTest {
 		status = director.revert(profile, revertProfile, new ProvisioningContext(), new NullProgressMonitor());
 		assertEquals("10.0", IStatus.OK, status.getCode());
 
-		profileIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
-		assertTrue("11.0", profileIUs.contains(a1));
-		assertTrue("12.0", profileIUs.contains(b1));
-		assertFalse("13.0", profileIUs.contains(c1));
+		profileIUs = profile.query(InstallableUnitQuery.ANY, null);
+		assertContains("11.0", profileIUs, a1);
+		assertContains("12.0", profileIUs, b1);
+		assertNotContains("13.0", profileIUs, c1);
 	}
 
 	public void testRollbackIUProfileProperties() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 
 		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);
@@ -189,7 +181,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 	}
 
 	public void testRollbackDependentIUProfileProperties() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IProfileRegistry profileRegistry = getProfileRegistry();
 
 		assertEquals(1, profileRegistry.listProfileTimestamps(profile.getProfileId()).length);
 		ProfileChangeRequest request1 = new ProfileChangeRequest(profile);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import java.util.HashMap;
+import java.util.Map;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -22,22 +24,28 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
 	private static BundleContext context;
 	private ServiceRegistration repositoryManagerRegistration;
-	private ArtifactRepositoryManager repositoryManager;
-	private ServiceTracker busTracker;
+	private static final Map<ArtifactRepositoryManager, IProvisioningAgent> createdManagers = new HashMap<ArtifactRepositoryManager, IProvisioningAgent>();
+	private ServiceTracker agentTracker;
 
 	public static BundleContext getContext() {
 		return Activator.context;
 	}
 
+	/**
+	 * Remember an artifact repository manager so we can shut it down when the bundle stops
+	 */
+	static void addManager(ArtifactRepositoryManager manager, IProvisioningAgent agent) {
+		synchronized (createdManagers) {
+			createdManagers.put(manager, agent);
+		}
+	}
+
 	public void start(BundleContext aContext) throws Exception {
 		Activator.context = aContext;
-		repositoryManager = new ArtifactRepositoryManager();
-		repositoryManagerRegistration = aContext.registerService(IArtifactRepositoryManager.class.getName(), repositoryManager, null);
-
-		// need to track event bus coming and going to make sure cache gets cleaned on
-		// repository removals
-		busTracker = new ServiceTracker(context, IProvisioningEventBus.SERVICE_NAME, this);
-		busTracker.open();
+		// need to track agent so we can register global artifact repository manager
+		String filter = "(&(objectClass=" + IProvisioningAgent.SERVICE_NAME + ")(agent.current=true))"; //$NON-NLS-1$ //$NON-NLS-2$
+		agentTracker = new ServiceTracker(context, aContext.createFilter(filter), this);
+		agentTracker.open();
 	}
 
 	public void stop(BundleContext aContext) throws Exception {
@@ -45,28 +53,33 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 		if (repositoryManagerRegistration != null)
 			repositoryManagerRegistration.unregister();
 		repositoryManagerRegistration = null;
-		if (repositoryManager != null) {
-			repositoryManager.shutdown();
-			repositoryManager = null;
+		synchronized (createdManagers) {
+			for (ArtifactRepositoryManager manager : createdManagers.keySet()) {
+				manager.shutdown();
+				IProvisioningAgent agent = createdManagers.get(manager);
+				agent.unregisterService(IArtifactRepositoryManager.SERVICE_NAME, manager);
+			}
+			createdManagers.clear();
 		}
-		busTracker.close();
+		agentTracker.close();
 	}
 
 	public Object addingService(ServiceReference reference) {
-		IProvisioningEventBus bus = (IProvisioningEventBus) context.getService(reference);
-		if (repositoryManager != null)
-			repositoryManager.setEventBus(bus);
-		return bus;
+		//when someone registers the agent service, register a repository manager service
+		IProvisioningAgent agent = (IProvisioningAgent) context.getService(reference);
+		repositoryManagerRegistration = context.registerService(IArtifactRepositoryManager.SERVICE_NAME, agent.getService(IArtifactRepositoryManager.SERVICE_NAME), null);
+		return agent;
 	}
 
 	public void modifiedService(ServiceReference reference, Object service) {
 		// ignored
-
 	}
 
 	public void removedService(ServiceReference reference, Object service) {
-		if (repositoryManager != null)
-			repositoryManager.unsetEventBus((IProvisioningEventBus) service);
+		//the agent is going away so withdraw our service
+		if (repositoryManagerRegistration != null) {
+			repositoryManagerRegistration.unregister();
+			repositoryManagerRegistration = null;
+		}
 	}
-
 }

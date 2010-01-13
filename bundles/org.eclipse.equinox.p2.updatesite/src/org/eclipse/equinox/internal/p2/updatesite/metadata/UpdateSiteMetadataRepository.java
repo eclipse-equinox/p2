@@ -13,10 +13,10 @@ package org.eclipse.equinox.internal.p2.updatesite.metadata;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Query;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 public class UpdateSiteMetadataRepository implements IMetadataRepository {
 
@@ -43,7 +43,7 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
-	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
+	public boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
@@ -59,7 +59,7 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 		return delegate.getName();
 	}
 
-	public Map getProperties() {
+	public Map<String, String> getProperties() {
 		return delegate.getProperties();
 	}
 
@@ -95,11 +95,12 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Object getAdapter(Class adapter) {
 		return delegate.getAdapter(adapter);
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-		return delegate.query(query, collector, monitor);
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+		return delegate.query(query, monitor);
 	}
 }

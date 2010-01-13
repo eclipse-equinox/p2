@@ -15,7 +15,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.LinkAction;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class LinkActionTest extends AbstractProvisioningTest {
@@ -32,7 +32,7 @@ public class LinkActionTest extends AbstractProvisioningTest {
 		Properties profileProperties = new Properties();
 		File installFolder = getTempFolder();
 		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
-		IProfile profile = createProfile("test", null, profileProperties);
+		IProfile profile = createProfile("test", profileProperties);
 
 		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/a.zip");
 		File zipTarget = new File(installFolder, "a.zip");

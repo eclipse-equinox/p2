@@ -16,7 +16,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -34,7 +34,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 	 * Parse the given file handle which points to a platform.xml file and a configuration object.
 	 * Returns null if the file doesn't exist.
 	 */
-	public static Configuration parse(File file, URL osgiInstallArea) throws ProvisionException {
+	static Configuration parse(File file, URL osgiInstallArea) throws ProvisionException {
 		return new ConfigurationParser(osgiInstallArea).internalParse(file);
 	}
 
@@ -79,7 +79,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 		String locations = getAttribute(node, ATTRIBUTE_ROOT);
 		if (locations != null) {
 			StringTokenizer tokenizer = new StringTokenizer(locations, ","); //$NON-NLS-1$
-			ArrayList rootList = new ArrayList();
+			ArrayList<URL> rootList = new ArrayList<URL>();
 			while (tokenizer.hasMoreTokens()) {
 				try {
 					URL rootEntry = new URL(tokenizer.nextToken().trim());
@@ -88,7 +88,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 					// skip bad entries ...
 				}
 			}
-			URL[] roots = (URL[]) rootList.toArray(new URL[rootList.size()]);
+			URL[] roots = rootList.toArray(new URL[rootList.size()]);
 			result.setRoots(roots);
 		}
 
@@ -189,12 +189,22 @@ public class ConfigurationParser implements ConfigurationConstants {
 	 * Returns null if the file doesn't exist.
 	 */
 	private Configuration internalParse(File file) throws ProvisionException {
-		if (!file.exists())
+		if (!file.exists()) {
+			// remove from cache since it doesn't exist anymore on disk
+			ConfigurationCache.put(file, null);
 			return null;
+		}
+		// have we read this before?
+		Configuration result = ConfigurationCache.get(file);
+		if (result != null)
+			return result;
 		try {
 			InputStream input = new BufferedInputStream(new FileInputStream(file));
 			Document document = load(input);
-			return process(document);
+			result = process(document);
+			// save for future use
+			ConfigurationCache.put(file, result);
+			return result;
 		} catch (IOException e) {
 			throw new ProvisionException(NLS.bind(Messages.error_reading_config, file), e);
 		} catch (ParserConfigurationException e) {

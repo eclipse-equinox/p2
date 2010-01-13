@@ -10,94 +10,72 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
 
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 
 public class OperationGenerator {
 	private static final IInstallableUnit NULL_IU = MetadataFactory.createResolvedInstallableUnit(MetadataFactory.createInstallableUnit(new InstallableUnitDescription()), new IInstallableUnitFragment[0]);
 
-	public InstallableUnitOperand[] generateOperation(Collection from_, Collection to_) {
-		Collection intersection = new HashSet(from_);
+	public List<InstallableUnitOperand> generateOperation(Collection<IInstallableUnit> from_, Collection<IInstallableUnit> to_) {
+		Collection<IInstallableUnit> intersection = new HashSet<IInstallableUnit>(from_);
 		intersection.retainAll(to_);
 
-		HashSet tmpFrom = new HashSet(from_);
-		HashSet tmpTo = new HashSet(to_);
+		HashSet<IInstallableUnit> tmpFrom = new HashSet<IInstallableUnit>(from_);
+		HashSet<IInstallableUnit> tmpTo = new HashSet<IInstallableUnit>(to_);
 		tmpFrom.removeAll(intersection);
 		tmpTo.removeAll(intersection);
 
-		List from = new ArrayList(tmpFrom);
+		List<IInstallableUnit> from = new ArrayList<IInstallableUnit>(tmpFrom);
 		Collections.sort(from);
 
-		List to = new ArrayList(tmpTo);
+		List<IInstallableUnit> to = new ArrayList<IInstallableUnit>(tmpTo);
 		Collections.sort(to);
 
-		ArrayList operations = new ArrayList();
+		ArrayList<InstallableUnitOperand> operations = new ArrayList<InstallableUnitOperand>();
 		generateUpdates(from, to, operations);
 		generateInstallUninstall(from, to, operations);
 		generateConfigurationChanges(to_, intersection, operations);
-		InstallableUnitOperand[] ops = (InstallableUnitOperand[]) operations.toArray(new InstallableUnitOperand[operations.size()]);
-		return ops;
+		return operations;
 	}
 
 	//This generates operations that are causing the IUs to be reconfigured.
-	private void generateConfigurationChanges(Collection to_, Collection intersection, ArrayList operations) {
+	private void generateConfigurationChanges(Collection<IInstallableUnit> to_, Collection<IInstallableUnit> intersection, ArrayList<InstallableUnitOperand> operations) {
 		if (intersection.size() == 0)
 			return;
 		//We retain from each set the things that are the same.
 		//Note that despite the fact that they are the same, a different CU can be attached.
 		//The objects contained in the intersection are the one that were originally in the from collection.
-		TreeSet to = new TreeSet(to_);
-		for (Iterator iterator = intersection.iterator(); iterator.hasNext();) {
-			IInstallableUnit fromIU = (IInstallableUnit) iterator.next();
-			IInstallableUnit toIU = (IInstallableUnit) to.tailSet(fromIU).first();
+		TreeSet<IInstallableUnit> to = new TreeSet<IInstallableUnit>(to_);
+		for (IInstallableUnit fromIU : intersection) {
+			IInstallableUnit toIU = to.tailSet(fromIU).first();
 			generateConfigurationOperation(fromIU, toIU, operations);
 		}
 
 	}
 
-	private void generateConfigurationOperation(IInstallableUnit fromIU, IInstallableUnit toIU, ArrayList operations) {
-		IInstallableUnitFragment[] fromFragments = fromIU.getFragments();
-		IInstallableUnitFragment[] toFragments = toIU.getFragments();
+	private void generateConfigurationOperation(IInstallableUnit fromIU, IInstallableUnit toIU, ArrayList<InstallableUnitOperand> operations) {
+		List<IInstallableUnitFragment> fromFragments = fromIU.getFragments();
+		List<IInstallableUnitFragment> toFragments = toIU.getFragments();
 		if (fromFragments == toFragments)
 			return;
 		//Check to see if the two arrays are equals independently of the order of the fragments
-		boolean different = false;
-		if (fromFragments != null && toFragments != null) {
-			if (fromFragments.length != toFragments.length)
-				different = true;
-			else {
-				for (int i = 0; i < fromFragments.length; i++) {
-					boolean found = false;
-					for (int j = 0; j < toFragments.length; j++) {
-						if (fromFragments[i].equals(toFragments[j]))
-							found = true;
-					}
-					if (!found) {
-						different = true;
-						break;
-					}
-				}
-			}
-		} else {
-			//One of the two array is null
-			different = true;
-		}
-		if (!different)
+		if (fromFragments.size() == toFragments.size() && fromFragments.containsAll(toFragments))
 			return;
 		operations.add(new InstallableUnitOperand(fromIU, toIU));
 	}
 
-	private void generateInstallUninstall(List from, List to, ArrayList operations) {
+	private void generateInstallUninstall(List<IInstallableUnit> from, List<IInstallableUnit> to, ArrayList<InstallableUnitOperand> operations) {
 		int toIdx = 0;
 		int fromIdx = 0;
 		while (fromIdx != from.size() && toIdx != to.size()) {
-			IInstallableUnit fromIU = (IInstallableUnit) from.get(fromIdx);
-			IInstallableUnit toIU = (IInstallableUnit) to.get(toIdx);
+			IInstallableUnit fromIU = from.get(fromIdx);
+			IInstallableUnit toIU = to.get(toIdx);
 			int comparison = toIU.compareTo(fromIU);
 			if (comparison < 0) {
 				operations.add(createInstallOperation(toIU));
@@ -113,36 +91,35 @@ public class OperationGenerator {
 		}
 		if (fromIdx != from.size()) {
 			for (int i = fromIdx; i < from.size(); i++) {
-				operations.add(createUninstallOperation((IInstallableUnit) from.get(i)));
+				operations.add(createUninstallOperation(from.get(i)));
 			}
 		}
 		if (toIdx != to.size()) {
 			for (int i = toIdx; i < to.size(); i++) {
-				operations.add(createInstallOperation((IInstallableUnit) to.get(i)));
+				operations.add(createInstallOperation(to.get(i)));
 			}
 		}
 	}
 
-	private void generateUpdates(List from, List to, ArrayList operations) {
-		Set processed = new HashSet();
-		Set removedFromTo = new HashSet();
-
+	private void generateUpdates(List<IInstallableUnit> from, List<IInstallableUnit> to, ArrayList<InstallableUnitOperand> operations) {
 		if (to.isEmpty() || from.isEmpty())
 			return;
 
-		Map fromById = new HashMap();
-		for (Iterator iterator = from.iterator(); iterator.hasNext();) {
-			IInstallableUnit iuFrom = (IInstallableUnit) iterator.next();
-			List ius = (List) fromById.get(iuFrom.getId());
+		Set<IInstallableUnit> processed = new HashSet<IInstallableUnit>();
+		Set<IInstallableUnit> removedFromTo = new HashSet<IInstallableUnit>();
+
+		Map<String, List<IInstallableUnit>> fromById = new HashMap<String, List<IInstallableUnit>>();
+		for (IInstallableUnit iuFrom : from) {
+			List<IInstallableUnit> ius = fromById.get(iuFrom.getId());
 			if (ius == null) {
-				ius = new ArrayList();
+				ius = new ArrayList<IInstallableUnit>();
 				fromById.put(iuFrom.getId(), ius);
 			}
 			ius.add(iuFrom);
 		}
 
 		for (int toIdx = 0; toIdx < to.size(); toIdx++) {
-			IInstallableUnit iuTo = (IInstallableUnit) to.get(toIdx);
+			IInstallableUnit iuTo = to.get(toIdx);
 			if (iuTo.getId().equals(next(to, toIdx).getId())) { //This handle the case where there are multiple versions of the same IU in the target. Eg we are trying to update from A 1.0.0 to A 1.1.1 and A 1.2.2
 				toIdx = skip(to, iuTo, toIdx) - 1;
 				//System.out.println("Can't update " + iuTo + " because another iu with same id is in the target state");
@@ -151,18 +128,18 @@ public class OperationGenerator {
 			if (iuTo.getUpdateDescriptor() == null)
 				continue;
 
-			List fromIdIndexList = (List) fromById.get(iuTo.getUpdateDescriptor().getId());
+			List<IInstallableUnit> fromIdIndexList = fromById.get(iuTo.getUpdateDescriptor().getId());
 			if (fromIdIndexList == null)
 				continue;
 
 			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of
 			InstallableUnitQuery updateQuery = new InstallableUnitQuery(iuTo.getUpdateDescriptor().getId(), iuTo.getUpdateDescriptor().getRange());
-			Iterator updates = updateQuery.perform(fromIdIndexList.iterator(), new Collector()).iterator();
+			Iterator<IInstallableUnit> updates = updateQuery.perform(fromIdIndexList.iterator()).iterator();
 
 			if (!updates.hasNext()) { //Nothing to update from.
 				continue;
 			}
-			IInstallableUnit iuFrom = (IInstallableUnit) updates.next();
+			IInstallableUnit iuFrom = updates.next();
 			if (updates.hasNext()) { //There are multiple IUs to update from
 				//System.out.println("Can't update  " + iuTo + " because there are multiple IUs to update from (" + toString(iusFrom) + ')');
 				continue;
@@ -194,17 +171,17 @@ public class OperationGenerator {
 		return new InstallableUnitOperand(from, to);
 	}
 
-	private IInstallableUnit next(List l, int i) {
+	private IInstallableUnit next(List<IInstallableUnit> l, int i) {
 		i++;
 		if (i >= l.size())
 			return NULL_IU;
-		return (IInstallableUnit) l.get(i);
+		return l.get(i);
 	}
 
-	private int skip(List c, IInstallableUnit id, int idx) {
+	private int skip(List<IInstallableUnit> c, IInstallableUnit id, int idx) {
 		int i = idx;
 		for (; i < c.size(); i++) {
-			if (!id.getId().equals(((IInstallableUnit) c.get(i)).getId()))
+			if (!id.getId().equals(c.get(i).getId()))
 				return i;
 		}
 		return i;

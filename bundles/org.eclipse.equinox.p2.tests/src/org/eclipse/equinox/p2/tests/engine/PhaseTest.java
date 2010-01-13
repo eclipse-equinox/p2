@@ -10,15 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.Version;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.ParameterizedProvisioningAction;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
@@ -79,9 +81,9 @@ public class PhaseTest extends AbstractProvisioningTest {
 			return super.initializePhase(monitor, profile, parameters);
 		}
 
-		protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
+		protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
 			IInstallableUnit unit = operand.second();
-			ProvisioningAction[] parsedActions = getActions(unit, phaseId);
+			List<ProvisioningAction> parsedActions = getActions(unit, phaseId);
 			if (parsedActions != null)
 				return parsedActions;
 
@@ -94,7 +96,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 			if (action == null) {
 				throw new IllegalArgumentException("action not found: " + phaseId);
 			}
-			return new ProvisioningAction[] {action};
+			return Collections.singletonList(action);
 		}
 	}
 
@@ -160,7 +162,8 @@ public class PhaseTest extends AbstractProvisioningTest {
 		PhaseSet phaseSet = new TestPhaseSet(new TestPhase());
 		IProfile profile = createProfile("PhaseTest");
 
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[0], null, new NullProgressMonitor());
+		final InstallableUnitOperand[] operands = new InstallableUnitOperand[0];
+		engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
 	}
 
 	public void testInitCompletePhase() {
@@ -186,7 +189,8 @@ public class PhaseTest extends AbstractProvisioningTest {
 		PhaseSet phaseSet = new TestPhaseSet(phase);
 		IProfile profile = createProfile("PhaseTest");
 		IInstallableUnit unit = createIU("unit");
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
+		final InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)};
+		engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
 		assertTrue(phase.initializePhase);
 		assertTrue(phase.completePhase);
 	}
@@ -215,7 +219,8 @@ public class PhaseTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("PhaseTest");
 		IInstallableUnit unit = createIU("testInitCompleteOperand");
 
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
+		final InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)};
+		engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
 		assertTrue(phase.initializeOperand);
 		assertTrue(phase.completeOperand);
 	}
@@ -250,7 +255,8 @@ public class PhaseTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("PhaseTest");
 		IInstallableUnit unit = createIU("testGetProfileDataArea");
 
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
+		final InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)};
+		engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
 		assertTrue(phase.initializePhase);
 		assertTrue(phase.completePhase);
 	}
@@ -269,17 +275,17 @@ public class PhaseTest extends AbstractProvisioningTest {
 	public void testGetAction() {
 		final ArrayList actionsList1 = new ArrayList();
 		InstallableUnitPhase phase1 = new InstallableUnitPhase("test", 1) {
-			protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
-				ProvisioningAction[] actions = getActions(operand.second(), "test1");
-				actionsList1.addAll(Arrays.asList(actions));
+			protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
+				List<ProvisioningAction> actions = getActions(operand.second(), "test1");
+				actionsList1.addAll(actions);
 				return actions;
 			}
 		};
 		final ArrayList actionsList2 = new ArrayList();
 		InstallableUnitPhase phase2 = new InstallableUnitPhase("test", 1) {
-			protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
-				ProvisioningAction[] actions = getActions(operand.second(), "test2");
-				actionsList2.addAll(Arrays.asList(actions));
+			protected List<ProvisioningAction> getActions(InstallableUnitOperand operand) {
+				List<ProvisioningAction> actions = getActions(operand.second(), "test2");
+				actionsList2.addAll(actions);
 				return actions;
 			}
 		};
@@ -291,8 +297,9 @@ public class PhaseTest extends AbstractProvisioningTest {
 		instructions.put("test1", MetadataFactory.createTouchpointInstruction("test1.test()", null));
 		instructions.put("test2", MetadataFactory.createTouchpointInstruction("test2.test()", null));
 		ITouchpointData touchpointData = MetadataFactory.createTouchpointData(instructions);
-		IInstallableUnit unit = createIU("test", new Version("1.0.0"), null, NO_REQUIRES, new IProvidedCapability[0], NO_PROPERTIES, ITouchpointType.NONE, touchpointData, false);
-		IStatus status = engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
+		IInstallableUnit unit = createIU("test", Version.create("1.0.0"), null, NO_REQUIRES, new IProvidedCapability[0], NO_PROPERTIES, ITouchpointType.NONE, touchpointData, false);
+		final InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)};
+		IStatus status = engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
 		if (!status.isOK()) {
 			fail(status.toString());
 		}

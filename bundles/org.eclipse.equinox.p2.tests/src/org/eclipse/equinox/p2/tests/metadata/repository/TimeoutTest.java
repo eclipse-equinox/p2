@@ -12,8 +12,8 @@ import java.net.URI;
 import java.security.cert.Certificate;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
 
@@ -27,7 +27,7 @@ public class TimeoutTest extends ServerBasedTestCase {
 
 	public void setUp() throws Exception {
 		super.setUp();
-		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
+		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
 		mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");

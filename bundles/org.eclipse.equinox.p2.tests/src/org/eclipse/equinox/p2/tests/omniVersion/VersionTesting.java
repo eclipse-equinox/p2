@@ -11,9 +11,12 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+
 import java.io.*;
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.VersionVector;
 
 /**
  * Base class for version testing. Adds useful assert methods.
@@ -62,32 +65,31 @@ public class VersionTesting extends TestCase {
 		assertTrue(true);
 	}
 
-	//	/**
-	//	 * Assert that pad of v is the same as the single element raw version string
-	//	 * @param v
-	//	 * @param rawVersionString
-	//	 */
-	//	public static void assertPad(VersionVector v, String rawVersionString) {
-	//		assertNotNull(v);
-	//		assertNotNull(rawVersionString);
-	//		Version v2 = Version.parseVersion(rawVersionString);
-	//		assertNotNull(v2);
-	//
-	//		assertEquals(v.getPad(), v2);
-	//	}
+	public static void assertPad(Version v, String rawVersionString) {
+		assertNotNull(v);
+		Comparable cmp = null;
+		if (rawVersionString != null) {
+			Version v2 = Version.create(rawVersionString);
+			assertNotNull(v2);
+			assertTrue(v2.getSegmentCount() == 1);
+			cmp = v2.getSegment(0);
+		}
+		assertEquals(v.getPad(), cmp);
+	}
 
-	/**
-	 * Assert that pad of v is the same as the single element raw version string
-	 * @param v
-	 * @param rawVersionString
-	 */
-	public static void assertPad(Comparable v, String rawVersionString) {
-		assertTrue(v instanceof VersionVector);
-		assertNotNull(rawVersionString);
-		Version v2 = Version.parseVersion(rawVersionString);
-		assertNotNull(v2);
-
-		assertEquals(((VersionVector) v).getPad(), v2.getSegment(0));
+	public void assertPadPad(Version v, String rawVersionString) {
+		// TODO Auto-generated method stub
+		assertNotNull(v);
+		Comparable pad = v.getPad();
+		assertTrue(pad instanceof VersionVector);
+		Comparable cmp = null;
+		if (rawVersionString != null) {
+			Version v2 = Version.create(rawVersionString);
+			assertNotNull(v2);
+			assertTrue(v2.getSegmentCount() == 1);
+			cmp = v2.getSegment(0);
+		}
+		assertEquals(((VersionVector) pad).getPad(), cmp);
 	}
 
 	/**

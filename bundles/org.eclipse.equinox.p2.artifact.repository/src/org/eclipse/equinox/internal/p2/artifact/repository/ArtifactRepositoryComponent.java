@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 
 /**
  * Service factory providing {@link IArtifactRepositoryManager} instances.
@@ -20,7 +22,11 @@ import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 public class ArtifactRepositoryComponent implements IAgentServiceFactory {
 
 	public Object createService(IProvisioningAgent agent) {
-		return new ArtifactRepositoryManager();
+		final ArtifactRepositoryManager manager = new ArtifactRepositoryManager();
+		manager.setEventBus((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME));
+		manager.setAgentLocation((IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME));
+		manager.setAgent(agent);
+		Activator.addManager(manager, agent);
+		return manager;
 	}
-
 }

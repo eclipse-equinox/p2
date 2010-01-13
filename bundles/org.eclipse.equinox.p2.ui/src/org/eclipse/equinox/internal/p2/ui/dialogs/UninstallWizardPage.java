@@ -11,16 +11,17 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.IQueryable;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElementListRoot;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.PlannerResolutionOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policy;
+import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.operations.UninstallOperation;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 public class UninstallWizardPage extends ResolutionResultsWizardPage {
 
-	public UninstallWizardPage(Policy policy, IUElementListRoot root, String profileId, PlannerResolutionOperation initialResolution) {
-		super(policy, root, profileId, initialResolution);
+	public UninstallWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, UninstallOperation initialResolution) {
+		super(ui, wizard, root, initialResolution);
 		setTitle(ProvUIMessages.UninstallWizardPage_Title);
 		setDescription(ProvUIMessages.UninstallWizardPage_Description);
 	}
@@ -33,7 +34,7 @@ public class UninstallWizardPage extends ResolutionResultsWizardPage {
 		return ProvUIMessages.UninstallIUOperationTask;
 	}
 
-	protected IQueryable getQueryable(ProvisioningPlan plan) {
+	protected IQueryable<IInstallableUnit> getQueryable(IProvisioningPlan plan) {
 		return plan.getRemovals();
 	}
 }

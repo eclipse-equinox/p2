@@ -1,0 +1,33 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="IBM">
+   <meta name="GENERATOR" content="Mozilla/4.5 [en] (WinNT; I) [Netscape]">
+   <title>Package-level Javadoc</title>
+</head>
+<body>
+Describes high level provisioning operations that can be resolved and performed
+either modally or in the background.  
+<h2>
+Package Specification</h2>
+<p>
+This package consists of several kinds of operations and supporting classes:
+<ul>
+<li><b>Profile Change Operations</b> describe high level provisioning operations that
+modify a profile.  These operations generally are performed in two phases, the resolution
+of the operation, followed by the provisioning of the resolved operation.  Both the
+resolution and the provisioning tasks can be performed either synchronously or as jobs.
+</li>
+<li><b>Provisioning Jobs</b> describe lower level provisioning tasks that can
+be performed synchronously or in the background.
+</li>
+<li><b>ProvisioningSession</b> represents a particular instance of a p2 provisioning
+system.  It provides access to all of the p2 core services as well as utility methods
+for commonly performed provisioning tasks.
+</li>
+</ul>
+<p>
+@since 2.0
+</body>
+</html>

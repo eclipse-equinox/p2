@@ -8,30 +8,25 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.Properties;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProvisioningTest {
-	Object previousSelfValue = null;
-
 	public void setUp() throws Exception {
 		super.setUp();
 
-		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 		try {
 			Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
 			selfField.setAccessible(true);
@@ -44,11 +39,11 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		createProfile("agent");
 		Properties p = new Properties();
 		p.setProperty("org.eclipse.equinox.p2.planner.resolveMetaRequirements", "true");
-		createProfile("installation", null, p);
+		createProfile("installation", p);
 	}
 
 	public void tearDown() throws Exception {
-		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) getProfileRegistry();
 		try {
 			Field selfField = SimpleProfileRegistry.class.getDeclaredField("self"); //$NON-NLS-1$
 			selfField.setAccessible(true);
@@ -63,7 +58,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 	}
 
 	public void testGetAgentPlanActionNeededButUnavailable() {
-		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"), null);
+		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 
 		IProfile profile = getProfile("installation");
@@ -73,7 +68,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		request.addInstallableUnits(new IInstallableUnit[] {a});
 		ProvisioningContext context = new ProvisioningContext(new URI[0]);
 
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		assertNotOK(plan.getStatus());
 	}
 
@@ -81,7 +76,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		IProvidedCapability act1Cap = MetadataFactory.createProvidedCapability("p2.action", "action1", DEFAULT_VERSION);
 		IInstallableUnit act1 = createIU("Action1", DEFAULT_VERSION, null, NO_REQUIRES, new IProvidedCapability[] {act1Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
-		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"), null);
+		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 		createTestMetdataRepository(new IInstallableUnit[] {a, act1});
 
@@ -91,7 +86,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a});
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertTrue(plan.getStatus().isOK());
 		assertNotNull(plan.getInstallerPlan());
 	}
@@ -100,10 +95,10 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		//This tests the case where the action is in conflict with the thing being installed
 		//The action needs another version of A which is singleton
 		IProvidedCapability act1Cap = MetadataFactory.createProvidedCapability("p2.action", "action1", DEFAULT_VERSION);
-		IInstallableUnit act1 = createIU("Action1", DEFAULT_VERSION, null, createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 2.0.0]"), null), new IProvidedCapability[] {act1Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
-		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"), null);
+		IInstallableUnit act1 = createIU("Action1", DEFAULT_VERSION, null, createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 2.0.0]")), new IProvidedCapability[] {act1Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
+		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
-		IInstallableUnit a2 = createIU("A", new Version(2, 0, 0));
+		IInstallableUnit a2 = createIU("A", Version.createOSGi(2, 0, 0));
 
 		createTestMetdataRepository(new IInstallableUnit[] {a, a2, act1});
 
@@ -113,7 +108,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a});
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertNotOK(plan.getStatus());
 	}
 
@@ -121,7 +116,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		IProvidedCapability act1Cap = MetadataFactory.createProvidedCapability("p2.action", "action1", DEFAULT_VERSION);
 		IInstallableUnit act1 = createIU("Action1", DEFAULT_VERSION, null, NO_REQUIRES, new IProvidedCapability[] {act1Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
-		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"), null);
+		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 		IInstallableUnit b = createEclipseIU("B");
 
@@ -133,19 +128,19 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 
 		ProfileChangeRequest request = new ProfileChangeRequest(getProfile("installation"));
 		request.addInstallableUnits(new IInstallableUnit[] {a});
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		//Check that the actions are installed properly
-		assertOK("install actions", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan.getInstallerPlan().getOperands(), null, null));
+		assertOK("install actions", engine.perform(plan.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1});
 		//Check that the IUs are installed in the profile
-		assertOK("install A", engine.perform(getProfile("installation"), new DefaultPhaseSet(), plan.getOperands(), null, null));
+		assertOK("install A", engine.perform(plan, null));
 		assertProfileContainsAll("Checking profile after initial install", getProfile("installation"), new IInstallableUnit[] {a, act1});
 
 		ProfileChangeRequest request2 = new ProfileChangeRequest(getProfile("installation"));
 		request2.addInstallableUnits(new IInstallableUnit[] {b});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(request2, ctx, new NullProgressMonitor());
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(request2, ctx, new NullProgressMonitor());
 		assertNull(plan2.getInstallerPlan());
-		assertOK("install b", engine.perform(getProfile("installation"), new DefaultPhaseSet(), plan2.getOperands(), null, null));
+		assertOK("install b", engine.perform(plan2, null));
 		assertProfileContainsAll("Checking profile after initial install", getProfile("installation"), new IInstallableUnit[] {a, b, act1});
 		assertProfileContainsAll("Checking actions are still installed", getProfile("agent"), new IInstallableUnit[] {act1});
 	}
@@ -153,10 +148,10 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 	public void testWithOveralInDependency() {
 		IInstallableUnit common = createEclipseIU("Common");
 		IProvidedCapability act1Cap = MetadataFactory.createProvidedCapability("p2.action", "action1", DEFAULT_VERSION);
-		IInstallableUnit act1 = createIU("Action1", DEFAULT_VERSION, null, createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "Common", null), new IProvidedCapability[] {act1Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
+		IInstallableUnit act1 = createIU("Action1", DEFAULT_VERSION, null, createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "Common"), new IProvidedCapability[] {act1Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
-		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"), null);
-		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "Common", null), metaReq);
+		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
+		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "Common"), metaReq);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a, act1, common});
 
@@ -167,10 +162,10 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a});
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
-		assertOK("install actions", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan.getInstallerPlan().getOperands(), null, null));
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
+		assertOK("install actions", engine.perform(plan.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1, common});
-		assertOK("install A", engine.perform(getProfile("installation"), new DefaultPhaseSet(), plan.getOperands(), null, null));
+		assertOK("install A", engine.perform(plan, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("installation"), new IInstallableUnit[] {a, common, act1});
 	}
 
@@ -178,13 +173,13 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		IProvidedCapability act1Cap = MetadataFactory.createProvidedCapability("p2.action", "action1", DEFAULT_VERSION);
 		IInstallableUnit act1 = createIU("Action1", DEFAULT_VERSION, null, NO_REQUIRES, new IProvidedCapability[] {act1Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
-		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"), null);
+		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 
 		IProvidedCapability act2Cap = MetadataFactory.createProvidedCapability("p2.action", "action2", DEFAULT_VERSION);
 		IInstallableUnit act2 = createIU("Action2", DEFAULT_VERSION, null, NO_REQUIRES, new IProvidedCapability[] {act2Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
-		IRequiredCapability[] metaReq2 = createRequiredCapabilities("p2.action", "action2", new VersionRange("[0.0.0, 1.0.0]"), null);
+		IRequiredCapability[] metaReq2 = createRequiredCapabilities("p2.action", "action2", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit b = createIUWithMetaRequirement("B", DEFAULT_VERSION, true, NO_REQUIRES, metaReq2);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a, b, act1, act2,});
@@ -196,19 +191,19 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		//install A which will install Action1
 		ProfileChangeRequest request = new ProfileChangeRequest(getProfile("installation"));
 		request.addInstallableUnits(new IInstallableUnit[] {a});
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
-		assertOK("install actions", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan.getInstallerPlan().getOperands(), null, null));
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
+		assertOK("install actions", engine.perform(plan.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1});
-		assertOK("install A", engine.perform(getProfile("installation"), new DefaultPhaseSet(), plan.getOperands(), null, null));
+		assertOK("install A", engine.perform(plan, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("installation"), new IInstallableUnit[] {a, act1});
 
 		//install B which will install Action2
 		ProfileChangeRequest request2 = new ProfileChangeRequest(getProfile("installation"));
 		request2.addInstallableUnits(new IInstallableUnit[] {b});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(request2, ctx, new NullProgressMonitor());
-		assertOK("install actions", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan2.getInstallerPlan().getOperands(), null, null));
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(request2, ctx, new NullProgressMonitor());
+		assertOK("install actions", engine.perform(plan2.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act2, act1});
-		assertOK("install A", engine.perform(getProfile("installation"), new DefaultPhaseSet(), plan2.getOperands(), null, null));
+		assertOK("install A", engine.perform(plan2, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("installation"), new IInstallableUnit[] {b, a, act1, act2});
 	}
 
@@ -216,25 +211,25 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		IProvidedCapability act1Cap = MetadataFactory.createProvidedCapability("p2.action", "action1", DEFAULT_VERSION);
 		IInstallableUnit act1 = createIU("Action1", DEFAULT_VERSION, null, NO_REQUIRES, new IProvidedCapability[] {act1Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
-		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"), null);
+		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 
 		IProvidedCapability act1bCap = MetadataFactory.createProvidedCapability("p2.action", "action1b", DEFAULT_VERSION);
 		IInstallableUnit act1b = createIU("Action1b", DEFAULT_VERSION, null, NO_REQUIRES, new IProvidedCapability[] {act1bCap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
-		IRequiredCapability[] metaReqb = createRequiredCapabilities("p2.action", "action1b", new VersionRange("[0.0.0, 1.0.0]"), null);
-		IInstallableUnit a111 = createIUWithMetaRequirement("A", new Version(1, 1, 1), true, NO_REQUIRES, metaReqb);
+		IRequiredCapability[] metaReqb = createRequiredCapabilities("p2.action", "action1b", new VersionRange("[0.0.0, 1.0.0]"));
+		IInstallableUnit a111 = createIUWithMetaRequirement("A", Version.createOSGi(1, 1, 1), true, NO_REQUIRES, metaReqb);
 
 		IProvidedCapability act2Cap = MetadataFactory.createProvidedCapability("p2.action", "action2", DEFAULT_VERSION);
 		IInstallableUnit act2 = createIU("Action2", DEFAULT_VERSION, null, NO_REQUIRES, new IProvidedCapability[] {act2Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
-		IProvidedCapability act1v2Cap = MetadataFactory.createProvidedCapability("p2.action", "action2", new Version(2, 0, 0));
-		IInstallableUnit act1v2 = createIU("Action1", new Version("2.0.0"), null, NO_REQUIRES, new IProvidedCapability[] {act1v2Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
+		IProvidedCapability act1v2Cap = MetadataFactory.createProvidedCapability("p2.action", "action2", Version.createOSGi(2, 0, 0));
+		IInstallableUnit act1v2 = createIU("Action1", Version.create("2.0.0"), null, NO_REQUIRES, new IProvidedCapability[] {act1v2Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
-		IRequiredCapability[] metaReqd = createRequiredCapabilities("p2.action", "action2", new VersionRange("[2.0.0, 2.0.0]"), null);
+		IRequiredCapability[] metaReqd = createRequiredCapabilities("p2.action", "action2", new VersionRange("[2.0.0, 2.0.0]"));
 		IInstallableUnit d = createIUWithMetaRequirement("D", DEFAULT_VERSION, true, NO_REQUIRES, metaReqd);
 
-		IRequiredCapability[] metaReq2 = createRequiredCapabilities("p2.action", "action2", new VersionRange("[0.0.0, 1.0.0]"), null);
+		IRequiredCapability[] metaReq2 = createRequiredCapabilities("p2.action", "action2", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit b = createIUWithMetaRequirement("B", DEFAULT_VERSION, true, NO_REQUIRES, metaReq2);
 
 		IInstallableUnit c = createEclipseIU("C");
@@ -247,27 +242,27 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		//install A which will install Action1
 		ProfileChangeRequest request = new ProfileChangeRequest(getProfile("installation"));
 		request.addInstallableUnits(new IInstallableUnit[] {a});
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
-		assertOK("install actions for A", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan.getInstallerPlan().getOperands(), null, null));
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
+		assertOK("install actions for A", engine.perform(plan.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1});
-		assertOK("install A", engine.perform(getProfile("installation"), new DefaultPhaseSet(), plan.getOperands(), null, null));
+		assertOK("install A", engine.perform(plan, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("installation"), new IInstallableUnit[] {a, act1});
 
 		//install B which will install Action2
 		ProfileChangeRequest request2 = new ProfileChangeRequest(getProfile("installation"));
 		request2.addInstallableUnits(new IInstallableUnit[] {b});
-		ProvisioningPlan plan2 = planner.getProvisioningPlan(request2, ctx, new NullProgressMonitor());
-		assertOK("install actions for B", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan2.getInstallerPlan().getOperands(), null, null));
+		IProvisioningPlan plan2 = planner.getProvisioningPlan(request2, ctx, new NullProgressMonitor());
+		assertOK("install actions for B", engine.perform(plan2.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act2});
-		assertOK("install B", engine.perform(getProfile("installation"), new DefaultPhaseSet(), plan2.getOperands(), null, null));
+		assertOK("install B", engine.perform(plan2, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("installation"), new IInstallableUnit[] {b, a, act2});
 
 		//install C
 		ProfileChangeRequest requestForC = new ProfileChangeRequest(getProfile("installation"));
 		requestForC.addInstallableUnits(new IInstallableUnit[] {c});
-		ProvisioningPlan planForC = planner.getProvisioningPlan(requestForC, ctx, new NullProgressMonitor());
+		IProvisioningPlan planForC = planner.getProvisioningPlan(requestForC, ctx, new NullProgressMonitor());
 		assertNull(planForC.getInstallerPlan());
-		assertOK("install C", engine.perform(getProfile("installation"), new DefaultPhaseSet(), planForC.getOperands(), null, null));
+		assertOK("install C", engine.perform(planForC, null));
 		assertProfileContainsAll("Checking profile after C", getProfile("installation"), new IInstallableUnit[] {a, b, c, act2, act1});
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act2, act1});
 
@@ -275,42 +270,41 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		ProfileChangeRequest requestUpdateA = new ProfileChangeRequest(getProfile("installation"));
 		requestUpdateA.removeInstallableUnits(new IInstallableUnit[] {a});
 		requestUpdateA.addInstallableUnits(new IInstallableUnit[] {a111});
-		ProvisioningPlan planUpdateA = planner.getProvisioningPlan(requestUpdateA, ctx, new NullProgressMonitor());
-		assertOK("install actions for A 1.1.1", engine.perform(getProfile("agent"), new DefaultPhaseSet(), planUpdateA.getInstallerPlan().getOperands(), null, null));
+		IProvisioningPlan planUpdateA = planner.getProvisioningPlan(requestUpdateA, ctx, new NullProgressMonitor());
+		assertOK("install actions for A 1.1.1", engine.perform(planUpdateA.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1, act1b, act2});
-		assertOK("install A", engine.perform(getProfile("installation"), new DefaultPhaseSet(), planUpdateA.getOperands(), null, null));
+		assertOK("install A", engine.perform(planUpdateA, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("installation"), new IInstallableUnit[] {act2, act1b, a111, b, c});
-		assertEquals(0, getProfile("installation").query(new InstallableUnitQuery("Action1", DEFAULT_VERSION), new Collector(), null).size());
-		assertEquals(requestUpdateA, planUpdateA.getProfileChangeRequest());
-		assertEquals(getProfile("agent").getProfileId(), plan.getInstallerPlan().getProfileChangeRequest().getProfile().getProfileId());
+		assertTrue(getProfile("installation").query(new InstallableUnitQuery("Action1", DEFAULT_VERSION), null).isEmpty());
+		assertEquals(getProfile("agent").getProfileId(), plan.getInstallerPlan().getProfile().getProfileId());
 
 		//uninstall A
 		ProfileChangeRequest request3 = new ProfileChangeRequest(getProfile("installation"));
 		request3.removeInstallableUnits(new IInstallableUnit[] {a111});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(request3, ctx, new NullProgressMonitor());
+		IProvisioningPlan plan3 = planner.getProvisioningPlan(request3, ctx, new NullProgressMonitor());
 		//		assertOK("install actions", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan3.getInstallerPlan().getOperands(), null, null));
 		//		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1b}); //At this point there is not 
-		assertOK("install A", engine.perform(getProfile("installation"), new DefaultPhaseSet(), plan3.getOperands(), null, null));
+		assertOK("install A", engine.perform(plan3, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("installation"), new IInstallableUnit[] {c, b, act2});
 
 		//uninstall C
 		ProfileChangeRequest request4 = new ProfileChangeRequest(getProfile("installation"));
 		request4.removeInstallableUnits(new IInstallableUnit[] {c});
-		ProvisioningPlan uninstallC = planner.getProvisioningPlan(request4, ctx, new NullProgressMonitor());
+		IProvisioningPlan uninstallC = planner.getProvisioningPlan(request4, ctx, new NullProgressMonitor());
 		assertNull(uninstallC.getInstallerPlan());
-		assertOK("install C", engine.perform(getProfile("installation"), new DefaultPhaseSet(), uninstallC.getOperands(), null, null));
+		assertOK("install C", engine.perform(uninstallC, null));
 		assertProfileContainsAll("Checking profile after C", getProfile("installation"), new IInstallableUnit[] {b, act2});
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act2});
 
 		//install D, This will cause the removal of act1 and cause the addition of act1v2  from the installer
 		ProfileChangeRequest requestForD = new ProfileChangeRequest(getProfile("installation"));
 		requestForD.addInstallableUnits(new IInstallableUnit[] {d});
-		ProvisioningPlan planForD = planner.getProvisioningPlan(requestForD, ctx, new NullProgressMonitor());
+		IProvisioningPlan planForD = planner.getProvisioningPlan(requestForD, ctx, new NullProgressMonitor());
 		assertNotNull(planForD.getInstallerPlan());
-		assertEquals(1, planForD.getInstallerPlan().getRemovals().query(new InstallableUnitQuery(act1b.getId()), new Collector(), null).size());
-		assertOK("install actions", engine.perform(getProfile("agent"), new DefaultPhaseSet(), planForD.getInstallerPlan().getOperands(), null, null));
+		assertEquals(1, queryResultSize(planForD.getInstallerPlan().getRemovals().query(new InstallableUnitQuery(act1b.getId()), null)));
+		assertOK("install actions", engine.perform(planForD.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1v2});
-		assertOK("install D", engine.perform(getProfile("installation"), new DefaultPhaseSet(), planForD.getOperands(), null, null));
+		assertOK("install D", engine.perform(planForD, null));
 		assertProfileContainsAll("Checking profile after D", getProfile("installation"), new IInstallableUnit[] {b, d});
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act2, act1v2});
 	}
@@ -319,13 +313,13 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		IProvidedCapability act1Cap = MetadataFactory.createProvidedCapability("p2.action", "action1", DEFAULT_VERSION);
 		IInstallableUnit act1 = createIU("Action1", DEFAULT_VERSION, null, NO_REQUIRES, new IProvidedCapability[] {act1Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
-		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"), null);
+		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 
-		IProvidedCapability act1v2Cap = MetadataFactory.createProvidedCapability("p2.action", "action2", new Version(2, 0, 0));
-		IInstallableUnit act1v2 = createIU("Action1", new Version("2.0.0"), null, NO_REQUIRES, new IProvidedCapability[] {act1v2Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
+		IProvidedCapability act1v2Cap = MetadataFactory.createProvidedCapability("p2.action", "action2", Version.createOSGi(2, 0, 0));
+		IInstallableUnit act1v2 = createIU("Action1", Version.create("2.0.0"), null, NO_REQUIRES, new IProvidedCapability[] {act1v2Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
-		IRequiredCapability[] metaReqd = createRequiredCapabilities("p2.action", "action2", new VersionRange("[2.0.0, 2.0.0]"), null);
+		IRequiredCapability[] metaReqd = createRequiredCapabilities("p2.action", "action2", new VersionRange("[2.0.0, 2.0.0]"));
 		IInstallableUnit d = createIUWithMetaRequirement("D", DEFAULT_VERSION, true, NO_REQUIRES, metaReqd);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a, act1, d, act1v2});
@@ -336,8 +330,8 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a, d});
-		ProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertNotOK(plan.getStatus());
-		assertEquals(request, plan.getProfileChangeRequest());
+		assertEquals(request.getProfile(), plan.getProfile());
 	}
 }

@@ -16,8 +16,8 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.types.FileSet;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
+import org.eclipse.equinox.p2.repository.IRepository;
 
 public class RepositoryFileSet extends FileSet {
 	public final static int TYPE_ARTIFACT = IRepository.TYPE_ARTIFACT;
@@ -47,17 +47,14 @@ public class RepositoryFileSet extends FileSet {
 	}
 
 	public void setLocation(String value) {
-		// TODO depreciate 
 		myLocation = value;
 	}
 
 	public String getRepoLocation() {
-		// TODO depreciate 
 		return myLocation;
 	}
 
 	public URI getRepoLocationURI() {
-		// TODO depreciate 
 		try {
 			return RepositoryHelper.localRepoURIHelper(URIUtil.fromString(getRepoLocation()));
 		} catch (URISyntaxException e) {

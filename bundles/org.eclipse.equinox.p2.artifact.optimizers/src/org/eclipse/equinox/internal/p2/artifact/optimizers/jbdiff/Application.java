@@ -9,15 +9,16 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 
 /**
  * The optimizer <code>Application</code> for JBDiff based optimizations. 
@@ -30,7 +31,7 @@ public class Application implements IApplication {
 	private boolean nosar;
 
 	public Object start(IApplicationContext context) throws Exception {
-		Map args = context.getArguments();
+		Map<?, ?> args = context.getArguments();
 		initializeFromArguments((String[]) args.get("application.args")); //$NON-NLS-1$
 		IArtifactRepository repository = setupRepository(artifactRepositoryLocation);
 		new Optimizer(repository, width, depth, nosar).run();
@@ -38,7 +39,7 @@ public class Application implements IApplication {
 	}
 
 	private IArtifactRepository setupRepository(URI location) throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			// TODO log here
 			return null;

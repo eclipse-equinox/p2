@@ -8,13 +8,16 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.generator;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
+import junit.framework.TestCase;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitPatch;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Feature;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
+import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PatchIUGeneration extends AbstractProvisioningTest {
@@ -31,19 +34,19 @@ public class PatchIUGeneration extends AbstractProvisioningTest {
 		assertEquals(patchIU.getId(), "org.eclipse.jdt.3.2.1.patch.feature.group");
 
 		//Check applicability scope
-		assertEquals(IInstallableUnit.NAMESPACE_IU_ID, patchIU.getApplicabilityScope()[0][0].getNamespace());
-		assertEquals("org.eclipse.jdt.feature.group", patchIU.getApplicabilityScope()[0][0].getName());
-		assertEquals(new VersionRange("[3.2.1.r321_v20060905-R4CM1Znkvre9wC-,3.2.1.r321_v20060905-R4CM1Znkvre9wC-]"), patchIU.getApplicabilityScope()[0][0].getRange());
+		assertEquals(IInstallableUnit.NAMESPACE_IU_ID, ((IRequiredCapability) patchIU.getApplicabilityScope()[0][0]).getNamespace());
+		assertEquals("org.eclipse.jdt.feature.group", ((TestCase) patchIU.getApplicabilityScope()[0][0]).getName());
+		assertEquals(new VersionRange("[3.2.1.r321_v20060905-R4CM1Znkvre9wC-,3.2.1.r321_v20060905-R4CM1Znkvre9wC-]"), ((IRequiredCapability) patchIU.getApplicabilityScope()[0][0]).getRange());
 
-		assertEquals("org.eclipse.jdt.core", patchIU.getRequirementsChange()[0].applyOn().getName());
-		assertEquals(VersionRange.emptyRange, patchIU.getRequirementsChange()[0].applyOn().getRange());
-		assertEquals("org.eclipse.jdt.core", patchIU.getRequirementsChange()[0].newValue().getName());
-		assertEquals(new VersionRange("[3.2.2,3.2.2]"), patchIU.getRequirementsChange()[0].newValue().getRange());
-		assertEquals(Boolean.TRUE.toString(), patchIU.getProperty(IInstallableUnit.PROP_TYPE_PATCH));
-		assertEquals(1, patchIU.getRequiredCapabilities().length);
-		assertEquals(featureIU.getId(), patchIU.getRequiredCapabilities()[0].getName());
-		assertEquals("org.eclipse.jdt.feature.group", patchIU.getLifeCycle().getName());
+		assertEquals("org.eclipse.jdt.core", patchIU.getRequirementsChange().get(0).applyOn().getName());
+		assertEquals(VersionRange.emptyRange, patchIU.getRequirementsChange().get(0).applyOn().getRange());
+		assertEquals("org.eclipse.jdt.core", patchIU.getRequirementsChange().get(0).newValue().getName());
+		assertEquals(new VersionRange("[3.2.2,3.2.2]"), patchIU.getRequirementsChange().get(0).newValue().getRange());
+		assertTrue(PatchQuery.isPatch(patchIU));
+		assertEquals(1, patchIU.getRequiredCapabilities().size());
+		assertEquals(featureIU.getId(), ((IRequiredCapability) patchIU.getRequiredCapabilities().iterator().next()).getName());
+		assertEquals("org.eclipse.jdt.feature.group", ((IRequiredCapability) patchIU.getLifeCycle()).getName());
 		assertFalse(patchIU.getLifeCycle().isGreedy());
-		assertFalse(patchIU.getLifeCycle().isOptional());
+		assertFalse(patchIU.getLifeCycle().getMin() == 0);
 	}
 }

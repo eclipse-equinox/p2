@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
+import org.eclipse.equinox.p2.metadata.Version;
+
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 
 /*
  * Class used to persist a composite repository.
@@ -22,7 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
 public class CompositeWriter extends XMLWriter implements XMLConstants {
 
 	private static final String REPOSITORY_ELEMENT = "repository"; //$NON-NLS-1$
-	private static final Version CURRENT_VERSION = new Version(1, 0, 0);
+	private static final Version CURRENT_VERSION = Version.createOSGi(1, 0, 0);
 
 	public CompositeWriter(OutputStream output, String type) throws UnsupportedEncodingException {
 		super(output, new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeTargetVersionInstruction(type, CURRENT_VERSION)});

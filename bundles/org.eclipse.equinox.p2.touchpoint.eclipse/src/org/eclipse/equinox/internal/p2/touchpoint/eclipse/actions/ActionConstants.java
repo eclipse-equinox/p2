@@ -10,6 +10,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
 public class ActionConstants {
 
+	public static final String PARM_AGENT = "agent"; //$NON-NLS-1$
 	public static final String PARM_AT_ARTIFACT = "@artifact"; //$NON-NLS-1$
 	public static final String PARM_ARTIFACT_FILES = "artifactFiles"; //$NON-NLS-1$
 	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$

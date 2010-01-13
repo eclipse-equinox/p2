@@ -14,13 +14,13 @@ import java.io.File;
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.p2.updatesite.artifact.UpdateSiteArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class DoesNotCacheStaleData extends AbstractProvisioningTest {
@@ -39,7 +39,9 @@ public class DoesNotCacheStaleData extends AbstractProvisioningTest {
 		assertNotNull(e);
 		assertTrue(new File(URIUtil.toFile(UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(siteURI)), "content.xml").exists());
 		try {
-			IMetadataRepository repo = new SimpleMetadataRepositoryFactory().load(f.toURI(), 0, new NullProgressMonitor());
+			final SimpleMetadataRepositoryFactory simpleFactory = new SimpleMetadataRepositoryFactory();
+			simpleFactory.setAgent(getAgent());
+			IMetadataRepository repo = simpleFactory.load(f.toURI(), 0, new NullProgressMonitor());
 			assertEquals("0", repo.getProperties().get("site.checksum"));
 		} catch (ProvisionException e1) {
 			fail("3.0", e1);
@@ -60,7 +62,9 @@ public class DoesNotCacheStaleData extends AbstractProvisioningTest {
 		assertNotNull(e);
 		assertTrue(new File(URIUtil.toFile(UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(siteURI)), "artifacts.xml").exists());
 		try {
-			IArtifactRepository repo = new SimpleArtifactRepositoryFactory().load(f.toURI(), 0, new NullProgressMonitor());
+			final SimpleArtifactRepositoryFactory simpleFactory = new SimpleArtifactRepositoryFactory();
+			simpleFactory.setAgent(getAgent());
+			IArtifactRepository repo = simpleFactory.load(f.toURI(), 0, new NullProgressMonitor());
 			assertEquals("0", repo.getProperties().get("site.checksum"));
 		} catch (ProvisionException e1) {
 			fail("3.0", e1);

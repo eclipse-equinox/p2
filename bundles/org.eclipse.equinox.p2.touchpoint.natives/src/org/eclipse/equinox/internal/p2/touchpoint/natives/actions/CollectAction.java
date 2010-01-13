@@ -10,28 +10,34 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+
 import java.util.Collection;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 
 public class CollectAction extends ProvisioningAction {
 
 	public static final String ACTION_COLLECT = "collect"; //$NON-NLS-1$
 
-	public IStatus execute(Map parameters) {
+	public IStatus execute(Map<String, Object> parameters) {
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
+		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(ActionConstants.PARM_OPERAND);
 		try {
-			IArtifactRequest[] requests = collect(operand.second(), profile);
-			Collection artifactRequests = (Collection) parameters.get(ActionConstants.PARM_ARTIFACT_REQUESTS);
+			IArtifactRequest[] requests = collect(agent, operand.second(), profile);
+			@SuppressWarnings("unchecked")
+			Collection<IArtifactRequest[]> artifactRequests = (Collection<IArtifactRequest[]>) parameters.get(ActionConstants.PARM_ARTIFACT_REQUESTS);
 			artifactRequests.add(requests);
 		} catch (ProvisionException e) {
 			return e.getStatus();
@@ -39,21 +45,21 @@ public class CollectAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus undo(Map parameters) {
+	public IStatus undo(Map<String, Object> parameters) {
 		// nothing to do for now
 		return Status.OK_STATUS;
 	}
 
-	IArtifactRequest[] collect(IInstallableUnit installableUnit, IProfile profile) throws ProvisionException {
-		IArtifactKey[] toDownload = installableUnit.getArtifacts();
+	IArtifactRequest[] collect(IProvisioningAgent agent, IInstallableUnit installableUnit, IProfile profile) throws ProvisionException {
+		Collection<IArtifactKey> toDownload = installableUnit.getArtifacts();
 		if (toDownload == null)
 			return new IArtifactRequest[0];
-		IArtifactRepository destination = Util.getDownloadCacheRepo();
-		IArtifactRequest[] requests = new IArtifactRequest[toDownload.length];
+		IArtifactRepository destination = Util.getDownloadCacheRepo(agent);
+		IArtifactRequest[] requests = new IArtifactRequest[toDownload.size()];
 		int count = 0;
-		for (int i = 0; i < toDownload.length; i++) {
+		for (IArtifactKey key : toDownload) {
 			//TODO Here there are cases where the download is not necessary again because what needs to be done is just a configuration step
-			requests[count++] = Util.getArtifactRepositoryManager().createMirrorRequest(toDownload[i], destination, null, null);
+			requests[count++] = Util.getArtifactRepositoryManager(agent).createMirrorRequest(key, destination, null, null);
 		}
 
 		if (requests.length == count)

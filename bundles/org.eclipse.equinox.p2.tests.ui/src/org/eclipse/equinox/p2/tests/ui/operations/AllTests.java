@@ -19,11 +19,7 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(AddColocatedRepositoryOperationTest.class);
-		suite.addTestSuite(AddProfileOperationTest.class);
-		suite.addTestSuite(RemoveProfilesOperationTest.class);
 		suite.addTestSuite(SizingTest.class);
-		suite.addTestSuite(ProvisioningUtilTest.class);
 		return suite;
 	}
 }

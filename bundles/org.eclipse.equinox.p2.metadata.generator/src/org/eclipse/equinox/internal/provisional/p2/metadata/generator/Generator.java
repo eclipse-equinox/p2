@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.Version;
-import org.eclipse.equinox.internal.provisional.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,18 +23,25 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
+import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.core.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.repository.IRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.Filter;
 
 public class Generator {
 	/**
@@ -184,14 +188,15 @@ public class Generator {
 
 		GeneratorResult productContents = new GeneratorResult();
 
-		ProductQuery query = new ProductQuery(productFile, info.getFlavor(), result.configurationIUs, info.getVersionAdvice());
-		Collector collector = info.getMetadataRepository().query(query, query.getCollector(), null);
-		for (Iterator iterator = collector.iterator(); iterator.hasNext();) {
+		ProductQuery productQuery = new ProductQuery(productFile, info.getFlavor(), result.configurationIUs, info.getVersionAdvice());
+		PipedQuery query = new PipedQuery(new IQuery[] {productQuery, new LatestIUVersionQuery()});
+		IQueryResult queryResult = info.getMetadataRepository().query(query, null);
+		for (Iterator iterator = queryResult.iterator(); iterator.hasNext();) {
 			productContents.rootIUs.add(iterator.next());
 		}
 
 		String version = getProductVersion();
-		VersionRange range = new VersionRange(new Version(version), true, new Version(version), true);
+		VersionRange range = new VersionRange(Version.create(version), true, Version.create(version), true);
 		ArrayList requires = new ArrayList(1);
 		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_LAUCHER_SUFFIX, range, null, false, true));
 		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_INI_SUFFIX, range, null, false, false));
@@ -223,7 +228,7 @@ public class Generator {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
 		root.setId(configurationIdentification);
-		root.setVersion(new Version(configurationVersion));
+		root.setVersion(Version.create(configurationVersion));
 		root.setProperty(IInstallableUnit.PROP_NAME, configurationName);
 
 		ArrayList reqsConfigurationUnits = new ArrayList(result.rootIUs.size());
@@ -235,13 +240,13 @@ public class Generator {
 		}
 		if (requires != null)
 			reqsConfigurationUnits.addAll(requires);
-		root.setRequiredCapabilities((IRequiredCapability[]) reqsConfigurationUnits.toArray(new IRequiredCapability[reqsConfigurationUnits.size()]));
+		root.setRequiredCapabilities((IRequirement[]) reqsConfigurationUnits.toArray(new IRequirement[reqsConfigurationUnits.size()]));
 		root.setArtifacts(new IArtifactKey[0]);
 
 		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(configurationIdentification, VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null));
-		root.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
-		root.setCapabilities(new IProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configurationIdentification, new Version(configurationVersion))});
+		root.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString());
+		root.setCapabilities(new IProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configurationIdentification, Version.create(configurationVersion))});
 		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
 		Map touchpointData = new HashMap();
 
@@ -400,7 +405,7 @@ public class Generator {
 							format = (String) bundleManifest.get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
 						boolean isDir = (format != null && format.equals(BundleDescriptionFactory.DIR) ? true : false);
 
-						IArtifactKey key = new ArtifactKey(MetadataGeneratorHelper.OSGI_BUNDLE_CLASSIFIER, bd.getSymbolicName(), new Version(bd.getVersion().toString()));
+						IArtifactKey key = new ArtifactKey(MetadataGeneratorHelper.OSGI_BUNDLE_CLASSIFIER, bd.getSymbolicName(), Version.create(bd.getVersion().toString()));
 						IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
 						((ArtifactDescriptor) ad).setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 						File bundleFile = new File(bd.getLocation());
@@ -511,7 +516,7 @@ public class Generator {
 		while (i > -1) {
 			Version version = null;
 			try {
-				version = new Version(name.substring(i));
+				version = Version.create(name.substring(i));
 				bundleInfo.setSymbolicName(name.substring(0, i));
 				bundleInfo.setVersion(version.toString());
 				return new GeneratorBundleInfo(bundleInfo);
@@ -522,9 +527,8 @@ public class Generator {
 		}
 
 		//Query the repo
-		Query query = new InstallableUnitQuery(name);
-		Collector collector = new Collector();
-		Iterator matches = info.getMetadataRepository().query(query, collector, null).iterator();
+		IQuery query = new InstallableUnitQuery(name);
+		Iterator matches = info.getMetadataRepository().query(query, null).iterator();
 		//pick the newest match
 		IInstallableUnit newest = null;
 		while (matches.hasNext()) {
@@ -580,7 +584,7 @@ public class Generator {
 				continue;
 			}
 
-			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor() + cuIdPrefix, filter);
+			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.create(bundle.getVersion()), false, bundle, info.getFlavor() + cuIdPrefix, filter);
 			if (cu != null) {
 				allCUs.add(cu);
 				result.rootIUs.add(cu);
@@ -637,12 +641,11 @@ public class Generator {
 			if (configuredIU == null) {
 				if (!generateRootIU && data == null)
 					continue;
-				Query query = new InstallableUnitQuery(bundle.getSymbolicName());
-				Collector collector = new Collector();
+				IQuery query = new InstallableUnitQuery(bundle.getSymbolicName());
 				IMetadataRepository metadataRepository = info.getMetadataRepository();
 				if (metadataRepository == null)
 					continue;
-				Iterator matches = metadataRepository.query(query, collector, null).iterator();
+				Iterator matches = metadataRepository.query(query, null).iterator();
 				//pick the newest match
 				IInstallableUnit newest = null;
 				while (matches.hasNext()) {
@@ -657,8 +660,8 @@ public class Generator {
 				}
 			}
 			bundle.setVersion(configuredIU.getVersion().toString());
-			String filter = configuredIU == null ? null : configuredIU.getFilter();
-			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
+			Filter filter = configuredIU == null ? null : configuredIU.getFilter();
+			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.create(bundle.getVersion()), false, bundle, info.getFlavor(), filter == null ? null : filter.toString());
 			//the configuration unit should share the same platform filter as the IU being configured.
 			if (cu != null) {
 				result.rootIUs.add(cu);
@@ -708,10 +711,10 @@ public class Generator {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			required.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), VersionRange.emptyRange, iu.getFilter(), false, false));
 		}
-		cat.setRequiredCapabilities((IRequiredCapability[]) required.toArray(new IRequiredCapability[required.size()]));
+		cat.setRequiredCapabilities((IRequirement[]) required.toArray(new IRequirement[required.size()]));
 		cat.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, categoryId, Version.emptyVersion)});
 		cat.setArtifacts(new IArtifactKey[0]);
-		cat.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
+		cat.setProperty(InstallableUnitDescription.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
 		return MetadataFactory.createInstallableUnit(cat);
 	}
 
@@ -796,12 +799,12 @@ public class Generator {
 		String launcherIdPrefix = productNamespace + PRODUCT_LAUCHER_SUFFIX;
 		String launcherId = launcherIdPrefix + '.' + ws + '.' + os + '.' + arch;
 		iu.setId(launcherId);
-		Version launcherVersion = new Version(version);
+		Version launcherVersion = Version.create(version);
 		iu.setVersion(launcherVersion);
 		iu.setSingleton(true);
-		String filter = null;
+		Filter filter = null;
 		if (!ws.equals(CONFIG_ANY) && !os.equals(CONFIG_ANY) && !arch.equals(CONFIG_ANY)) {
-			filter = "(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			filter = ExpressionUtil.parseLDAP("(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			iu.setFilter(filter);
 		}
 
@@ -814,7 +817,7 @@ public class Generator {
 		String launcherFragment = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
 		if (!(Constants.OS_MACOSX.equals(os) && !Constants.ARCH_X86_64.equals(arch)))
 			launcherFragment += '.' + arch;
-		iu.setRequiredCapabilities(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
+		iu.setRequiredCapabilities(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
 		result.rootIUs.add(MetadataFactory.createInstallableUnit(iu));
 
 		//Create the CU
@@ -824,8 +827,8 @@ public class Generator {
 		cu.setVersion(launcherVersion);
 		if (filter != null)
 			cu.setFilter(filter);
-		cu.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherId, new VersionRange(launcherVersion, true, launcherVersion, true), null, false, false)});
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setHost(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherId, new VersionRange(launcherVersion, true, launcherVersion, true), null, false, false)});
+		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		//TODO bug 218890, would like the fragment to provide the launcher capability as well, but can't right now.
 		cu.setCapabilities(new IProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configUnitId, launcherVersion)});
 
@@ -933,7 +936,7 @@ public class Generator {
 			String configUnitId = info.getFlavor() + productFile.getId() + ".config." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
 
 			String version = getProductVersion();
-			Version cuVersion = new Version(version);
+			Version cuVersion = Version.create(version);
 			cu.setId(configUnitId);
 			cu.setVersion(cuVersion);
 			cu.setSingleton(true);
@@ -979,7 +982,7 @@ public class Generator {
 
 		InstallableUnitDescription cu = new MetadataFactory.InstallableUnitDescription();
 		String configUnitId = info.getFlavor() + productFile.getId() + ".ini." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
-		Version cuVersion = new Version(version);
+		Version cuVersion = Version.create(version);
 		cu.setId(configUnitId);
 		cu.setVersion(cuVersion);
 		cu.setSingleton(true);
@@ -1023,10 +1026,10 @@ public class Generator {
 			String location = feature.getLocation();
 			boolean isExploded = (location.endsWith(".jar") ? false : true); //$NON-NLS-1$
 			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true);
-			IArtifactKey[] artifacts = featureIU.getArtifacts();
+			Collection artifacts = featureIU.getArtifacts();
 			storePluginShape(feature, result);
-			for (int arti = 0; arti < artifacts.length; arti++) {
-				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(artifacts[arti], new File(location), true, false);
+			for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
+				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor((IArtifactKey) iterator.next(), new File(location), true, false);
 				if (isExploded)
 					publishArtifact(ad, new File(location).listFiles(), destination, false, new File(location));
 				else
