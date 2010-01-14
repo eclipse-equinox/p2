@@ -149,7 +149,9 @@ public class VersionTesting extends TestCase {
 	 * @param v
 	 */
 	public static void assertSerialized(Version v) {
-		assertEquals(v, getSerialized(v));
+		Version serialized = getSerialized(v);
+		assertEquals(v, serialized);
+		assertEquals(v.toString(), serialized.toString());
 	}
 
 	public static Version getSerialized(Version v) {
