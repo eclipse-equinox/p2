@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Cloudsmith Inc. - rewrite for smaller memory footprint
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
@@ -139,12 +140,10 @@ public class IUMap {
 			if (bucket == null)
 				return Collector.emptyCollector();
 
-			IInstallableUnit[] array;
 			if (bucket.getClass().isArray())
-				array = (IInstallableUnit[]) bucket;
+				candidates = CollectionUtils.unmodifiableList((IInstallableUnit[]) bucket).iterator();
 			else
-				array = new IInstallableUnit[] {(IInstallableUnit) bucket};
-			candidates = CollectionUtils.unmodifiableList(array).iterator();
+				candidates = Collections.<IInstallableUnit> singletonList((IInstallableUnit) bucket).iterator();
 		}
 		return query.perform(candidates);
 
