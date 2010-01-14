@@ -22,6 +22,10 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 	}
 
 	public IExpression and(IExpression... operands) {
+		if (operands.length == 0)
+			return Literal.TRUE_CONSTANT;
+		if (operands.length == 1)
+			return operands[0];
 		return new And(convertArray(operands));
 	}
 
@@ -110,6 +114,10 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 	}
 
 	public IExpression or(IExpression... operands) {
+		if (operands.length == 0)
+			return Literal.TRUE_CONSTANT;
+		if (operands.length == 1)
+			return operands[0];
 		return new Or(convertArray(operands));
 	}
 
