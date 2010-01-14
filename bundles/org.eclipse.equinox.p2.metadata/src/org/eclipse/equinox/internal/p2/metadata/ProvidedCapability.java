@@ -14,11 +14,12 @@ package org.eclipse.equinox.internal.p2.metadata;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 
 /**
  * Describes a capability as exposed or required by an installable unit
  */
-public class ProvidedCapability implements IProvidedCapability {
+public class ProvidedCapability implements IProvidedCapability, IMemberProvider {
 	private final String name;
 	private final String namespace;
 	private final Version version;
@@ -62,5 +63,15 @@ public class ProvidedCapability implements IProvidedCapability {
 
 	public String toString() {
 		return namespace + '/' + name + '/' + version;
+	}
+
+	public Object getMember(String memberName) {
+		if ("name".equals(memberName)) //$NON-NLS-1$
+			return name;
+		if ("namespace".equals(memberName)) //$NON-NLS-1$
+			return namespace;
+		if ("version".equals(memberName)) //$NON-NLS-1$
+			return version;
+		throw new IllegalArgumentException();
 	}
 }

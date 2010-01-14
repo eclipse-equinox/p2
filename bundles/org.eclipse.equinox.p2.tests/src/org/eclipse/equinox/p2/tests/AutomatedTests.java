@@ -20,6 +20,11 @@ import junit.framework.*;
  */
 public class AutomatedTests extends TestCase {
 	public static Test suite() {
+		try {
+			Thread.sleep(30000);
+		} catch (InterruptedException e) {
+			//
+		}
 		TestSuite suite = new TestSuite(AutomatedTests.class.getName());
 		suite.addTest(org.eclipse.equinox.frameworkadmin.tests.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.ant.AllTests.suite());

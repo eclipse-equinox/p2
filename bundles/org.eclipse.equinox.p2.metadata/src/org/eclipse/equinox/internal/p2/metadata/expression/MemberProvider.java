@@ -3,9 +3,10 @@ package org.eclipse.equinox.internal.p2.metadata.expression;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 import org.osgi.framework.ServiceReference;
 
-public abstract class MemberProvider {
+public abstract class MemberProvider implements IMemberProvider {
 
 	static class DictionaryMemberProvider extends MemberProvider {
 		private final Dictionary<String, ? extends Object> dictionary;
@@ -14,7 +15,6 @@ public abstract class MemberProvider {
 			this.dictionary = dictionary;
 		}
 
-		@Override
 		public Object getMember(String memberName) {
 			return dictionary.get(memberName);
 		}
@@ -59,7 +59,6 @@ public abstract class MemberProvider {
 			this.map = map;
 		}
 
-		@Override
 		public Object getMember(String memberName) {
 			return map.get(memberName);
 		}
@@ -105,7 +104,6 @@ public abstract class MemberProvider {
 			this.serviceRef = serviceRef;
 		}
 
-		@Override
 		public Object getMember(String memberName) {
 			return serviceRef.getProperty(memberName);
 		}
@@ -130,8 +128,6 @@ public abstract class MemberProvider {
 			return new ServiceRefMemberProvider((ServiceReference) value);
 		throw new IllegalArgumentException();
 	}
-
-	public abstract Object getMember(String memberName);
 
 	public static MemberProvider emptyProvider() {
 		return emptyProvider;

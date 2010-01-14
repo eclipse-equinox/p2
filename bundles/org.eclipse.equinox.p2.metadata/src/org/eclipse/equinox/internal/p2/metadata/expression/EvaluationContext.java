@@ -28,7 +28,7 @@ public class EvaluationContext implements IEvaluationContext {
 		}
 
 		public Object getParameter(int position) {
-			return position >= 0 && position < parameters.length ? parameters[position] : super.getParameter(position);
+			return parameters[position];
 		}
 	}
 

@@ -125,13 +125,6 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		assertEquals(queryResultSize(result), 1);
 	}
 
-	public void testMember() throws Exception {
-		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IProvidedCapability pc = MetadataFactory.createProvidedCapability("org.eclipse.equinox.p2.eclipse.type", "source", null);
-		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnitFragment.class, "host.exists(h | $0.name == h.name && $0.namespace == h.namespace)", new Object[] {pc}), new NullProgressMonitor());
-		assertEquals(queryResultSize(result), 1);
-	}
-
 	public void testPatch() throws Exception {
 		IRequiredCapability[][] applicability = new IRequiredCapability[2][2];
 		applicability[0][0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "javax.wsdl", null, null, false, false);

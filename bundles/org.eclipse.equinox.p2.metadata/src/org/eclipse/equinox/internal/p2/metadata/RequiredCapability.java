@@ -29,7 +29,7 @@ import org.osgi.framework.Filter;
  * 
  * @see IInstallableUnit#NAMESPACE_IU_ID
  */
-public class RequiredCapability implements IRequiredCapability {
+public class RequiredCapability implements IRequiredCapability, IMemberProvider {
 	private final Filter filter;
 	private final boolean greedy;
 	private final IMatchExpression<IInstallableUnit> matchExpression;
@@ -252,5 +252,19 @@ public class RequiredCapability implements IRequiredCapability {
 		if (!(expr == allVersionsExpression || expr == range_II_Expression || expr == range_IN_Expression || expr == range_NI_Expression || expr == range_NN_Expression || expr == strictVersionExpression || expr == openEndedExpression || expr == openEndedNonInclusiveExpression))
 			throw new IllegalArgumentException();
 		return expr;
+	}
+
+	public Object getMember(String memberName) {
+		if ("filter".equals(memberName)) //$NON-NLS-1$
+			return filter;
+		if ("min".equals(memberName)) //$NON-NLS-1$
+			return new Integer(min);
+		if ("max".equals(memberName)) //$NON-NLS-1$
+			return new Integer(max);
+		if ("greedy".equals(memberName)) //$NON-NLS-1$
+			return Boolean.valueOf(greedy);
+		if ("match".equals(memberName)) //$NON-NLS-1$
+			return matchExpression;
+		throw new IllegalArgumentException();
 	}
 }

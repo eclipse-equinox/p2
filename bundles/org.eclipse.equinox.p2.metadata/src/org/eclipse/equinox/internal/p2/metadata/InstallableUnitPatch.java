@@ -53,4 +53,12 @@ public class InstallableUnitPatch extends InstallableUnit implements IInstallabl
 	public void setRequirementsChange(IRequirementChange[] changes) {
 		this.changes = changes;
 	}
+
+	public Object getMember(String memberName) {
+		if ("lifeCycle".equals(memberName)) //$NON-NLS-1$
+			return lifeCycle;
+		if ("requirementsChange".equals(memberName)) //$NON-NLS-1$
+			return changes;
+		return super.getMember(memberName);
+	}
 }

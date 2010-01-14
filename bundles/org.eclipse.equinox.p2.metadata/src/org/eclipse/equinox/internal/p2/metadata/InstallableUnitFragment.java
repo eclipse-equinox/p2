@@ -42,4 +42,8 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 	public IRequirement[] getHost() {
 		return hostRequirements;
 	}
+
+	public Object getMember(String memberName) {
+		return "host".equals(memberName) ? hostRequirements : super.getMember(memberName); //$NON-NLS-1$
+	}
 }

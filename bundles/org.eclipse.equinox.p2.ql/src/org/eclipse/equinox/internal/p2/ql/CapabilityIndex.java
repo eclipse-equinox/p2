@@ -12,8 +12,10 @@ package org.eclipse.equinox.internal.p2.ql;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.ql.ICapabilityIndex;
 
 /**
@@ -25,7 +27,7 @@ public class CapabilityIndex implements ICapabilityIndex {
 
 	@SuppressWarnings("unchecked")
 	public CapabilityIndex(Iterator<IInstallableUnit> itor) {
-		HashMap<String, Object> index = new HashMap<String, Object>();
+		HashMap<String, Object> index = new HashMap<String, Object>(300);
 		while (itor.hasNext()) {
 			IInstallableUnit iu = itor.next();
 			Collection<IProvidedCapability> pcs = iu.getProvidedCapabilities();
@@ -73,15 +75,16 @@ public class CapabilityIndex implements ICapabilityIndex {
 	}
 
 	private void collectMatchingIUs(IRequirement requirement, Collection<IInstallableUnit> collector) {
-		if (!(requirement instanceof IRequiredCapability))
-			return;
-		Object v = capabilityMap.get(((IRequiredCapability) requirement).getName());
+		IMatchExpression<IInstallableUnit> matches = requirement.getMatches();
+		String name = RequiredCapability.extractName(matches);
+		Object v = capabilityMap.get(name);
 		if (v == null)
 			return;
 
+		IEvaluationContext ctx = matches.createContext();
 		if (v instanceof IInstallableUnit) {
 			IInstallableUnit iu = (IInstallableUnit) v;
-			if (iu.satisfies(requirement))
+			if (matches.isMatch(ctx, iu))
 				collector.add(iu);
 		} else {
 			@SuppressWarnings("unchecked")
@@ -89,24 +92,24 @@ public class CapabilityIndex implements ICapabilityIndex {
 			int idx = ius.size();
 			while (--idx >= 0) {
 				IInstallableUnit iu = ius.get(idx);
-				if (iu.satisfies(requirement))
+				if (matches.isMatch(ctx, iu))
 					collector.add(iu);
 			}
 		}
 	}
 
 	private Set<IInstallableUnit> retainMatchingIUs(IRequirement requirement, Set<IInstallableUnit> collector) {
-		if (!(requirement instanceof IRequiredCapability))
-			return CollectionUtils.emptySet();
-
-		Object v = capabilityMap.get(((IRequiredCapability) requirement).getName());
+		IMatchExpression<IInstallableUnit> matches = requirement.getMatches();
+		String name = RequiredCapability.extractName(matches);
+		Object v = capabilityMap.get(name);
 		if (v == null)
 			return CollectionUtils.emptySet();
 
+		IEvaluationContext ctx = matches.createContext();
 		Set<IInstallableUnit> retained = null;
 		if (v instanceof IInstallableUnit) {
 			IInstallableUnit iu = (IInstallableUnit) v;
-			if (iu.satisfies(requirement) && collector.contains(iu)) {
+			if (matches.isMatch(ctx, iu) && collector.contains(iu)) {
 				if (retained == null)
 					retained = new HashSet<IInstallableUnit>();
 				retained.add(iu);
@@ -117,7 +120,7 @@ public class CapabilityIndex implements ICapabilityIndex {
 			int idx = ius.size();
 			while (--idx >= 0) {
 				IInstallableUnit iu = ius.get(idx);
-				if (iu.satisfies(requirement) && collector.contains(iu)) {
+				if (matches.isMatch(ctx, iu) && collector.contains(iu)) {
 					if (retained == null)
 						retained = new HashSet<IInstallableUnit>();
 					retained.add(iu);

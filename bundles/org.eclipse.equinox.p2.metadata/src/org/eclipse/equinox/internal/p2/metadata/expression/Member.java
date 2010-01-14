@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.lang.reflect.*;
-import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
-import org.eclipse.equinox.p2.metadata.expression.IExpressionVisitor;
+import org.eclipse.equinox.p2.metadata.expression.*;
 
 /**
  * <p>An expression that performs member calls to obtain some value
@@ -36,66 +35,71 @@ public abstract class Member extends Unary {
 
 		DynamicMember(Expression operand, String name) {
 			super(operand, name, Expression.emptyArray);
-			if (!(name.startsWith(GET_PREFIX) || name.startsWith(IS_PREFIX)))
-				name = GET_PREFIX + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-			this.methodName = name;
 		}
 
 		public Object evaluate(IEvaluationContext context) {
 			return invoke(operand.evaluate(context));
 		}
 
-		public Object invoke(Object self) {
+		public final Object invoke(Object self) {
+			if (self instanceof IMemberProvider)
+				return ((IMemberProvider) self).getMember(name);
+
 			if (self == null)
 				throw new IllegalArgumentException("Cannot access member \'" + name + "\' in null"); //$NON-NLS-1$//$NON-NLS-2$
 
-			if (self instanceof MemberProvider)
-				return ((MemberProvider) self).getMember(name);
-
 			Class<?> c = self.getClass();
-			if (lastClass == null || !lastClass.isAssignableFrom(c)) {
-				Method m;
-				for (;;) {
-					try {
-						m = c.getMethod(methodName, NO_ARG_TYPES);
-						if (!Modifier.isPublic(m.getModifiers()))
-							throw new NoSuchMethodException();
-						break;
-					} catch (NoSuchMethodException e) {
-						if (methodName.startsWith(GET_PREFIX))
-							// Switch from using getXxx() to isXxx()
-							methodName = IS_PREFIX + Character.toUpperCase(name.charAt(0)) + name.substring(1);
-						else if (methodName.startsWith(IS_PREFIX))
-							// Switch from using isXxx() to xxx()
-							methodName = name;
-						else
-							throw new IllegalArgumentException("Cannot find a public member \'" + name + "\' in a " + self.getClass().getName()); //$NON-NLS-1$//$NON-NLS-2$
+			synchronized (this) {
+				if (methodName == null) {
+					String n = name;
+					if (!(n.startsWith(GET_PREFIX) || n.startsWith(IS_PREFIX)))
+						n = GET_PREFIX + Character.toUpperCase(n.charAt(0)) + n.substring(1);
+					methodName = n;
+				}
+				if (lastClass == null || !lastClass.isAssignableFrom(c)) {
+					Method m;
+					for (;;) {
+						try {
+							m = c.getMethod(methodName, NO_ARG_TYPES);
+							if (!Modifier.isPublic(m.getModifiers()))
+								throw new NoSuchMethodException();
+							break;
+						} catch (NoSuchMethodException e) {
+							if (methodName.startsWith(GET_PREFIX))
+								// Switch from using getXxx() to isXxx()
+								methodName = IS_PREFIX + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+							else if (methodName.startsWith(IS_PREFIX))
+								// Switch from using isXxx() to xxx()
+								methodName = name;
+							else
+								throw new IllegalArgumentException("Cannot find a public member \'" + name + "\' in a " + self.getClass().getName()); //$NON-NLS-1$//$NON-NLS-2$
+						}
 					}
+
+					// Since we already checked that it's public. This will speed
+					// up the calls a bit.
+					m.setAccessible(true);
+					lastClass = c;
+					method = m;
 				}
 
-				// Since we already checked that it's public. This will speed
-				// up the calls a bit.
-				m.setAccessible(true);
-				lastClass = c;
-				method = m;
+				Exception checked;
+				try {
+					return method.invoke(self, NO_ARGS);
+				} catch (IllegalArgumentException e) {
+					throw e;
+				} catch (IllegalAccessException e) {
+					checked = e;
+				} catch (InvocationTargetException e) {
+					Throwable cause = e.getTargetException();
+					if (cause instanceof RuntimeException)
+						throw (RuntimeException) cause;
+					if (cause instanceof Error)
+						throw (Error) cause;
+					checked = (Exception) cause;
+				}
+				throw new RuntimeException("Problem invoking " + methodName + " on a " + self.getClass().getName(), checked); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-
-			Exception checked;
-			try {
-				return method.invoke(self, NO_ARGS);
-			} catch (IllegalArgumentException e) {
-				throw e;
-			} catch (IllegalAccessException e) {
-				checked = e;
-			} catch (InvocationTargetException e) {
-				Throwable cause = e.getTargetException();
-				if (cause instanceof RuntimeException)
-					throw (RuntimeException) cause;
-				if (cause instanceof Error)
-					throw (Error) cause;
-				checked = (Exception) cause;
-			}
-			throw new RuntimeException("Problem invoking " + methodName + " on a " + self.getClass().getName(), checked); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 

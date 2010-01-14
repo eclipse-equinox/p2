@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression.parser;
 
-import java.util.ArrayList;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.Messages;
 import org.eclipse.equinox.internal.p2.metadata.expression.IExpressionConstants;
 import org.eclipse.equinox.internal.p2.metadata.expression.LDAPApproximation;
@@ -22,6 +22,13 @@ import org.eclipse.osgi.util.NLS;
  * objects rooted at the parent.
  */
 public class LDAPFilterParser {
+	@SuppressWarnings("serial")
+	private static final Map<String, IFilterExpression> filterCache = Collections.<String, IFilterExpression> synchronizedMap(new LinkedHashMap<String, IFilterExpression>() {
+		public boolean removeEldestEntry(Map.Entry<String, IFilterExpression> expr) {
+			return size() > 64;
+		}
+	});
+
 	private final IExpressionFactory factory;
 
 	private final IExpression self;
@@ -38,16 +45,24 @@ public class LDAPFilterParser {
 		position = 0;
 	}
 
-	public synchronized IFilterExpression parse(String filter) {
-		filterString = filter;
-		position = 0;
-		try {
-			IExpression expr = parseFilter();
-			if (position != filterString.length())
-				throw syntaxException(Messages.filter_trailing_characters);
-			return factory.filterExpression(expr);
-		} catch (StringIndexOutOfBoundsException e) {
-			throw syntaxException(Messages.filter_premature_end);
+	public IFilterExpression parse(String filterStr) {
+		IFilterExpression filter = filterCache.get(filterStr);
+		if (filter != null)
+			return filter;
+
+		synchronized (this) {
+			filterString = filterStr;
+			position = 0;
+			try {
+				IExpression expr = parseFilter();
+				if (position != filterString.length())
+					throw syntaxException(Messages.filter_trailing_characters);
+				filter = factory.filterExpression(expr);
+				filterCache.put(filterStr, filter);
+				return filter;
+			} catch (StringIndexOutOfBoundsException e) {
+				throw syntaxException(Messages.filter_premature_end);
+			}
 		}
 	}
 

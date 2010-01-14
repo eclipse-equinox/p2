@@ -11,16 +11,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 import org.osgi.framework.Filter;
 
-public class InstallableUnit implements IInstallableUnit {
+public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 
 	private static final OrderedProperties NO_PROPERTIES = new OrderedProperties();
 	private static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
@@ -300,5 +299,35 @@ public class InstallableUnit implements IInstallableUnit {
 			//copy array for safety
 			this.metaRequires = metaReqs.clone();
 		}
+	}
+
+	public Object getMember(String memberName) {
+		if ("providedCapabilities".equals(memberName)) //$NON-NLS-1$
+			return providedCapabilities;
+		if ("id".equals(memberName)) //$NON-NLS-1$
+			return id;
+		if ("version".equals(memberName)) //$NON-NLS-1$
+			return version;
+		if ("properties".equals(memberName)) //$NON-NLS-1$
+			return properties;
+		if ("filter".equals(memberName)) //$NON-NLS-1$
+			return filter;
+		if ("artifacts".equals(memberName)) //$NON-NLS-1$
+			return artifacts;
+		if ("requiredCapabilities".equals(memberName)) //$NON-NLS-1$
+			return requires;
+		if ("licenses".equals(memberName)) //$NON-NLS-1$
+			return licenses;
+		if ("copyright".equals(memberName)) //$NON-NLS-1$
+			return copyright;
+		if ("touchpointData".equals(memberName)) //$NON-NLS-1$
+			return touchpointData;
+		if ("touchpointType".equals(memberName)) //$NON-NLS-1$
+			return touchpointType;
+		if ("updateDescriptor".equals(memberName)) //$NON-NLS-1$
+			return updateInfo;
+		if ("singleton".equals(memberName)) //$NON-NLS-1$
+			return Boolean.valueOf(singleton);
+		throw new IllegalArgumentException();
 	}
 }
