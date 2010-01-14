@@ -18,6 +18,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.generator.features.SiteFeature;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
@@ -479,6 +480,37 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 				}
 			}
 		}
+	}
+
+	public void testSiteFeatureFileURL() {
+		SiteFeature a = new SiteFeature();
+		SiteFeature b = new SiteFeature();
+		assertEquals("1.0", a, b);
+		a.setURLString("file:/c:/foo");
+		b.setURLString("file:/c:/FOO");
+		if (a.equals(b))
+			assertEquals("1.1", a.hashCode(), b.hashCode());
+		a.setURLString("FILE:/c:/foo");
+		b.setURLString("file:/c:/FOO");
+		if (a.equals(b))
+			assertEquals("1.2", a.hashCode(), b.hashCode());
+		a.setURLString("HTTP://example.com");
+		b.setURLString("HTtP://example.com");
+		if (a.equals(b))
+			assertEquals("1.3", a.hashCode(), b.hashCode());
+		a.setURLString("HTTP://eXaMpLe.com");
+		b.setURLString("HTtP://example.com");
+		if (a.equals(b))
+			assertEquals("1.4", a.hashCode(), b.hashCode());
+		a.setURLString("HTTP://eXaMpLe.com/");
+		b.setURLString("HTtP://example.com");
+		assertEquals(a, b);
+		if (a.equals(b))
+			assertEquals("1.5", a.hashCode(), b.hashCode());
+		a.setURLString("http://localhost");
+		b.setURLString("http://127.0.0.1");
+		if (a.equals(b))
+			assertEquals("1.6", a.hashCode(), b.hashCode());
 	}
 
 	public void testMirrors() {
