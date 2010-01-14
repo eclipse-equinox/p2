@@ -95,7 +95,9 @@ public class VersionTesting extends TestCase {
 	 * @param v
 	 */
 	public static void assertSerialized(VersionRange range) {
-		assertEquals(range, getSerialized(range));
+		VersionRange serialized = getSerialized(range);
+		assertEquals(range, serialized);
+		assertEquals(range.toString(), serialized.toString());
 	}
 
 	public static VersionRange getSerialized(VersionRange range) {
@@ -146,7 +148,9 @@ public class VersionTesting extends TestCase {
 	 * @param v
 	 */
 	public static void assertSerialized(Version v) {
-		assertEquals(v, getSerialized(v));
+		Version serialized = getSerialized(v);
+		assertEquals(v, serialized);
+		assertEquals(v.toString(), serialized.toString());
 	}
 
 	public static Version getSerialized(Version v) {
