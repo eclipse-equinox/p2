@@ -322,4 +322,16 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 	void toString(StringBuffer sb, boolean rangeSafe) {
 		toString(sb, vector, padValue, rangeSafe);
 	}
+
+	private Object readResolve() {
+		VersionVector vv = this;
+		// Preserve the emptyString singleton
+		int idx = vector.length;
+		while (--idx >= 0)
+			if (MINS_VALUE.equals(vector[idx]))
+				vector[idx] = MINS_VALUE;
+		if (MINS_VALUE.equals(padValue))
+			vv = new VersionVector(vector, MINS_VALUE);
+		return vv;
+	}
 }

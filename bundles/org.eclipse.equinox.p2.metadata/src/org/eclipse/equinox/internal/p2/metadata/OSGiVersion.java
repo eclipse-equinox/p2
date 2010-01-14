@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.metadata;
 
 import org.eclipse.equinox.p2.metadata.IVersionFormat;
 import org.eclipse.equinox.p2.metadata.Version;
-
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -209,5 +208,13 @@ public class OSGiVersion extends BasicVersion {
 
 	public int getSegmentCount() {
 		return 4;
+	}
+
+	private Object readResolve() {
+		OSGiVersion v = this;
+		// Preserve the empty string singleton.
+		if (qualifier.equals(VersionVector.MINS_VALUE))
+			v = new OSGiVersion(major, minor, micro, VersionVector.MINS_VALUE);
+		return v;
 	}
 }

@@ -11,12 +11,11 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.io.*;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.VersionVector;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 /**
  * Base class for version testing. Adds useful assert methods.
@@ -97,7 +96,9 @@ public class VersionTesting extends TestCase {
 	 * @param v
 	 */
 	public static void assertSerialized(VersionRange range) {
-		assertEquals(range, getSerialized(range));
+		VersionRange serialized = getSerialized(range);
+		assertEquals(range, serialized);
+		assertEquals(range.toString(), serialized.toString());
 	}
 
 	public static VersionRange getSerialized(VersionRange range) {
