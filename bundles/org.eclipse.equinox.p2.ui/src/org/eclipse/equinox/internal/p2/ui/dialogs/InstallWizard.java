@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
-
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -23,7 +21,6 @@ import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.wizard.IWizardPage;
-import org.eclipse.swt.widgets.Composite;
 
 /**
  * An install wizard that allows the users to browse all of the repositories
@@ -70,17 +67,6 @@ public class InstallWizard extends WizardWithLicenses {
 		}
 		root.setChildren(list.toArray());
 		planSelections = selections.toArray();
-	}
-
-	public void createPageControls(Composite pageContainer) {
-		super.createPageControls(pageContainer);
-		if (repoPreloadJob != null)
-			// async exec since we are in the middle of opening
-			pageContainer.getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					repoPreloadJob.reportAccumulatedStatus();
-				}
-			});
 	}
 
 	protected ProvisioningContext getProvisioningContext() {

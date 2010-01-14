@@ -43,7 +43,7 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 
 	/**
 	 * The key that should be used to set a property on a repository load job to indicate
-	 * that authentication should be suppressed when loading the repositories.
+	 * that authentication should be suppressed when loading the repositories. 
 	 */
 	public static final QualifiedName SUPPRESS_AUTHENTICATION_JOB_MARKER = new QualifiedName(ProvUIActivator.PLUGIN_ID, "SUPPRESS_AUTHENTICATION_REQUESTS"); //$NON-NLS-1$
 
@@ -53,6 +53,14 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	 * will ignore all events related to the load.
 	 */
 	public static final QualifiedName SUPPRESS_REPOSITORY_EVENTS = new QualifiedName(ProvUIActivator.PLUGIN_ID, "SUPRESS_REPOSITORY_EVENTS"); //$NON-NLS-1$
+
+	/**
+	 * The key that should be used to set a property on a repository load job to indicate
+	 * that a wizard receiving this job needs to schedule it.  In some cases, a load job
+	 * is finished before invoking a wizard.  In other cases, the job has not yet been
+	 * scheduled so that listeners can be set up first.
+	 */
+	public static final QualifiedName WIZARD_CLIENT_SHOULD_SCHEDULE = new QualifiedName(ProvUIActivator.PLUGIN_ID, "WIZARD_CLIENT_SHOULD_SCHEDULE"); //$NON-NLS-1$
 
 	/**
 	 * The key that should be used to set a property on a repository load job to indicate

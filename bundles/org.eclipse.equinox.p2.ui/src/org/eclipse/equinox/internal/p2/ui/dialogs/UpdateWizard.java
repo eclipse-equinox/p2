@@ -21,7 +21,6 @@ import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.wizard.IWizardPage;
-import org.eclipse.swt.widgets.Composite;
 
 /**
  * @since 3.4
@@ -97,17 +96,6 @@ public class UpdateWizard extends WizardWithLicenses {
 		}
 		root.setChildren(list.toArray());
 		planSelections = selected.toArray();
-	}
-
-	public void createPageControls(Composite pageContainer) {
-		super.createPageControls(pageContainer);
-		if (getRepositoryPreloadJob() != null)
-			// async exec since we are in the middle of opening
-			pageContainer.getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					getRepositoryPreloadJob().reportAccumulatedStatus();
-				}
-			});
 	}
 
 	protected IResolutionErrorReportingPage createErrorReportingPage() {

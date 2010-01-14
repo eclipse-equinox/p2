@@ -66,8 +66,8 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 			} else {
 				loadJob.setSystem(true);
 				loadJob.setUser(false);
-				loadJob.schedule();
-				doExecute(null);
+				loadJob.setProperty(LoadMetadataRepositoryJob.WIZARD_CLIENT_SHOULD_SCHEDULE, Boolean.toString(true));
+				doExecute(loadJob);
 			}
 		} else {
 			doExecute(null);

@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
@@ -25,6 +26,8 @@ import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -229,5 +232,57 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 
 	protected boolean shouldShowProvisioningPlanChildren() {
 		return ProvUI.getQueryContext(getPolicy()).getShowProvisioningPlanChildren();
+	}
+
+	/*
+	 * Overridden to start the preload job after page control creation.
+	 * This allows any listeners on repo events to be set up before a
+	 * batch load occurs.  The job creator uses a property to indicate if
+	 * the job needs scheduling (the client may have already completed the job
+	 * before the UI was opened).
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.wizard.Wizard#createPageControls(org.eclipse.swt.widgets.Composite)
+	 */
+	public void createPageControls(Composite pageContainer) {
+		super.createPageControls(pageContainer);
+		if (repoPreloadJob != null) {
+			if (repoPreloadJob.getProperty(LoadMetadataRepositoryJob.WIZARD_CLIENT_SHOULD_SCHEDULE) != null) {
+				// job has not been scheduled.  Set a listener so we can report accumulated errors and
+				// schedule it.
+				repoPreloadJob.addJobChangeListener(new JobChangeAdapter() {
+					public void done(IJobChangeEvent e) {
+						asyncReportLoadFailures();
+					}
+				});
+				repoPreloadJob.schedule();
+			} else {
+				// job has been scheduled, might already be done.
+				if (repoPreloadJob.getState() == Job.NONE) {
+					// job is done, report failures found so far
+					// do it asynchronously since we are in the middle of creation
+					asyncReportLoadFailures();
+				} else {
+					// job is waiting, sleeping, running, report failures when
+					// it's done
+					repoPreloadJob.addJobChangeListener(new JobChangeAdapter() {
+						public void done(IJobChangeEvent e) {
+							asyncReportLoadFailures();
+						}
+					});
+				}
+
+			}
+		}
+	}
+
+	void asyncReportLoadFailures() {
+		if (repoPreloadJob != null && getShell() != null && !getShell().isDisposed()) {
+			getShell().getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					if (PlatformUI.isWorkbenchRunning() && getShell() != null && !getShell().isDisposed())
+						repoPreloadJob.reportAccumulatedStatus();
+				}
+			});
+		}
 	}
 }
