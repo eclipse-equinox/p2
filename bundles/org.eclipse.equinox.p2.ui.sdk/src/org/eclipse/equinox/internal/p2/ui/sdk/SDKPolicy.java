@@ -37,6 +37,8 @@ public class SDKPolicy extends Policy {
 		setVisibleAvailableIUQuery(new GroupQuery());
 		// If this ever changes, we must change AutomaticUpdateSchedule.getProfileQuery()
 		setVisibleInstalledIUQuery(new UserVisibleRootQuery());
+		setRepositoryPreferencePageId("org.eclipse.equinox.internal.p2.ui.sdk.SitesPreferencePage"); //$NON-NLS-1$
+		setRepositoryPreferencePageName(ProvSDKMessages.SDKPolicy_PrefPageName);
 		ProvSDKUIActivator.getDefault().updateWithPreferences(this);
 	}
 

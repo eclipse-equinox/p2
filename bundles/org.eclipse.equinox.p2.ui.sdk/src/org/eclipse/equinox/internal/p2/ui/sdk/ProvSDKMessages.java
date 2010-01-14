@@ -39,6 +39,7 @@ public class ProvSDKMessages extends NLS {
 	public static String ProvSDKUIActivator_OpenWizardAnyway;
 	public static String ProvSDKUIActivator_Question;
 	public static String ProvUILicenseManager_ParsingError;
+	public static String SDKPolicy_PrefPageName;
 	public static String UpdateHandler_NoSitesMessage;
 	public static String UpdateHandler_NoSitesTitle;
 }
