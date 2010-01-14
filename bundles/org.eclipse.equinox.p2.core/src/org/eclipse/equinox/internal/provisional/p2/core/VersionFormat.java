@@ -1210,12 +1210,12 @@ public class VersionFormat implements Serializable {
 	private Object readResolve() {
 		synchronized (formatCache) {
 			String string = toString();
-			VersionFormat fmt = (VersionFormat) formatCache.put(string, this);
-			if (fmt == null)
+			string = string.substring(7, string.length() - 1); // Strip of "format(" and ")"
+			VersionFormat fmt = (VersionFormat) formatCache.get(string);
+			if (fmt == null) {
 				fmt = this;
-			else
-				// Put old format back
 				formatCache.put(string, fmt);
+			}
 			return fmt;
 		}
 	}
