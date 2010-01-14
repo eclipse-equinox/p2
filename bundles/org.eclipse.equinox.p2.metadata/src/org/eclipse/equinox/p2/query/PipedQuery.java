@@ -29,8 +29,21 @@ public class PipedQuery<T> implements ICompositeQuery<T> {
 	 * 
 	 * @param queries the ordered list of queries to perform
 	 */
-	public PipedQuery(IQuery<T>... queries) {
+	public PipedQuery(IQuery<T>[] queries) {
 		this.queries = queries;
+	}
+
+	/**
+	 * Creates a piped query based on the two provided input queries. The full
+	 * query input will be passed into the first query in the provided array. The
+	 * second query will obtain as input the result of the first query.
+	 * 
+	 * @param query1 the first query
+	 * @param query2 the second query
+	 */
+	@SuppressWarnings("unchecked")
+	public PipedQuery(IQuery<T> query1, IQuery<T> query2) {
+		this(new IQuery[] {query1, query2});
 	}
 
 	/*(non-Javadoc)

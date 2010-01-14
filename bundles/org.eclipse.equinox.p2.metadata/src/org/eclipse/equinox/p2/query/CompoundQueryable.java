@@ -6,7 +6,6 @@
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
-*   IBM Corporation - ongoing development
 ******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
@@ -24,18 +23,41 @@ public class CompoundQueryable<T> implements IQueryable<T> {
 
 	private IQueryable<T>[] queryables;
 
-	/**
-	 * Creates a queryable that combines the provided input queryables
-	 * 
-	 * @param queryables The queryables that comprise this compound queryable
-	 */
-	public CompoundQueryable(IQueryable<T>... queryables) {
+	private CompoundQueryable(IQueryable<T>[] queryables) {
 		this.queryables = queryables;
 	}
 
+	/**
+	 * Creates a queryable that combines the given collection of input queryables
+	 * 
+	 * @param queryables The collection of queryables to be combined
+	 */
 	@SuppressWarnings("unchecked")
 	public CompoundQueryable(Collection<? extends IQueryable<T>> queryables) {
 		this(queryables.toArray(new IQueryable[queryables.size()]));
+	}
+
+	/**
+	 * Creates a queryable that combines the two provided input queryables
+	 * 
+	 * @param query1 The first queryable
+	 * @param query2 The second queryable
+	 */
+	@SuppressWarnings("unchecked")
+	public CompoundQueryable(IQueryable<T> query1, IQueryable<T> query2) {
+		this(new IQueryable[] {query1, query2});
+	}
+
+	/**
+	 * Creates a queryable that combines the three provided input queryables
+	 * 
+	 * @param query1 The first queryable
+	 * @param query2 The second queryable
+	 * @param query3 The third queryable
+	 */
+	@SuppressWarnings("unchecked")
+	public CompoundQueryable(IQueryable<T> query1, IQueryable<T> query2, IQueryable<T> query3) {
+		this(new IQueryable[] {query1, query2, query3});
 	}
 
 	/* (non-Javadoc)

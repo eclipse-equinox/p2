@@ -171,7 +171,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testSingleQueryable() {
-		CompoundQueryable cQueryable = new CompoundQueryable(queryable1);
+		CompoundQueryable cQueryable = new CompoundQueryable(Arrays.asList(queryable1));
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(matchQuery, monitor);
 		assertEquals("1.0", 2, AbstractProvisioningTest.queryResultSize(queryResult));
@@ -180,7 +180,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testSingleContextQuery() {
-		CompoundQueryable cQueryable = new CompoundQueryable(queryable1);
+		CompoundQueryable cQueryable = new CompoundQueryable(Arrays.asList(queryable1));
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		IQueryResult queryResult = cQueryable.query(greatestNumberQuery, monitor);
 		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(queryResult));
@@ -227,7 +227,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testSingleQueryableProgressMonitor() {
-		CompoundQueryable cQueryable = new CompoundQueryable(queryable1);
+		CompoundQueryable cQueryable = new CompoundQueryable(Arrays.asList(queryable1));
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		cQueryable.query(matchQuery, monitor);
 		assertTrue("1.0", monitor.isDone());
@@ -235,7 +235,7 @@ public class CompoundQueryableTest extends TestCase {
 	}
 
 	public void testSingleContextQueryProgressMonitor() {
-		CompoundQueryable cQueryable = new CompoundQueryable(queryable1);
+		CompoundQueryable cQueryable = new CompoundQueryable(Arrays.asList(queryable1));
 		CompoundQueryTestProgressMonitor monitor = new CompoundQueryTestProgressMonitor();
 		cQueryable.query(greatestNumberQuery, monitor);
 		assertTrue("1.0", monitor.isDone());
