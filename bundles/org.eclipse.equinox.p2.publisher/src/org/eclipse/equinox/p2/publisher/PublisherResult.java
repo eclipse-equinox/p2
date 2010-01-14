@@ -44,14 +44,14 @@ public class PublisherResult implements IPublisherResult {
 	}
 
 	public IInstallableUnit getIU(String id, Version version, String type) {
-		if (type == null || type == ROOT) {
+		if ((type == null || type == ROOT) && rootIUs.containsKey(id)) {
 			Collection<IInstallableUnit> ius = rootIUs.get(id);
 			for (IInstallableUnit iu : ius) {
 				if (iu.getVersion().equals(version))
 					return iu;
 			}
 		}
-		if (type == null || type == NON_ROOT) {
+		if ((type == null || type == NON_ROOT) && nonRootIUs.containsKey(id)) {
 			Collection<IInstallableUnit> ius = nonRootIUs.get(id);
 			for (IInstallableUnit iu : ius) {
 				if (iu.getVersion().equals(version))

@@ -29,10 +29,6 @@ public class FeatureEntry {
 	private boolean unpack = true;
 	private boolean optional = false;
 	private boolean isPatch = false;
-
-	/**
-	 * Temporary field to add provisioning filters to features
-	 */
 	private String filter;
 
 	public static FeatureEntry createRequires(String id, String version, String match, String filter, boolean isPlugin) {
@@ -77,9 +73,6 @@ public class FeatureEntry {
 		return arch;
 	}
 
-	/**
-	 * Temporary method to add provisioning filters to features
-	 */
 	public String getFilter() {
 		return filter;
 	}
@@ -147,9 +140,6 @@ public class FeatureEntry {
 		this.nl = nl;
 	}
 
-	/**
-	 * Temporary method to add provisioning filters to features
-	 */
 	public void setFilter(String filter) {
 		this.filter = filter;
 

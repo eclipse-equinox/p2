@@ -21,11 +21,11 @@ import org.easymock.EasyMock;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
-import org.eclipse.equinox.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.p2.publisher.IPublisherResult;
+import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -33,7 +33,7 @@ import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-@SuppressWarnings({"unchecked", "restriction"})
+@SuppressWarnings({"unchecked"})
 public class FeaturesActionTest extends ActionTest {
 
 	public static IArtifactKey FOO_KEY = ArtifactKey.parse("org.eclipse.update.feature,foo,1.0.0"); //$NON-NLS-1$
@@ -68,6 +68,40 @@ public class FeaturesActionTest extends ActionTest {
 		//TODO add a test for generating a feature patch
 	}
 
+	public void testFilters() throws Exception {
+		File testFolder = getTestFolder("FeaturesAction.testFilters");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("<feature id=\"test.feature\" version=\"1.0.0\" >                                       \n");
+		buffer.append("   <includes id=\"org.foo\" version=\"1.0.0\" filter=\"(osgi.os=win32)\"/>             \n");
+		buffer.append("   <plugin id=\"org.plug\" version=\"1.0.0\" filter=\"(my.prop=foo)\" os=\"win32\" />  \n");
+		buffer.append("   <requires>                                                                          \n");
+		buffer.append("      <import plugin=\"org.plug2\" version=\"1.0.0\" filter=\"(my.prop=foo)\" />       \n");
+		buffer.append("      <import feature=\"org.foo2\" version=\"1.0.0\" filter=\"(my.prop=foo)\" />       \n");
+		buffer.append("   </requires>                                                                         \n");
+		buffer.append("</feature>                                                                             \n");
+		File featureXML = new File(testFolder, "feature.xml");
+		writeBuffer(featureXML, buffer);
+
+		publisherInfo = new PublisherInfo();
+		FeaturesAction action = new FeaturesAction(new File[] {testFolder});
+		action.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+
+		IInstallableUnit iu = publisherResult.getIU("test.feature.feature.group", Version.parseVersion("1.0.0"), null);
+		Collection<IRequirement> requires = iu.getRequiredCapabilities();
+		assertEquals(5, requires.size());
+		for (IRequirement require : requires) {
+			if (((IRequiredCapability) require).getName().equals("org.foo.feature.group")) {
+				assertEquals(ExpressionUtil.parseLDAP("(osgi.os=win32)"), require.getFilter());
+			} else if (((IRequiredCapability) require).getName().equals("org.plug")) {
+				assertEquals(ExpressionUtil.parseLDAP("(&(my.prop=foo)(osgi.os=win32))"), require.getFilter());
+			} else if (((IRequiredCapability) require).getName().equals("org.plug2")) {
+				assertEquals(ExpressionUtil.parseLDAP("(my.prop=foo)"), require.getFilter());
+			} else if (((IRequiredCapability) require).getName().equals("org.foo2.feature.group")) {
+				assertEquals(ExpressionUtil.parseLDAP("(my.prop=foo)"), require.getFilter());
+			}
+		}
+	}
+
 	private void verifyRepositoryContents() throws Exception {
 		verifyArtifacts();
 		verifyMetadata();
@@ -95,7 +129,7 @@ public class FeaturesActionTest extends ActionTest {
 
 		//zipped=true
 		List<ITouchpointData> tpData = foo.getTouchpointData();
-		String fooValue = ((ITouchpointInstruction) tpData.get(0).getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
+		String fooValue = tpData.get(0).getInstructions().get("zipped").getBody(); //$NON-NLS-1$
 		assertTrue(fooValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
 		Collection<IRequirement> fooRequiredCapabilities = foo.getRequiredCapabilities();
@@ -143,7 +177,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(barGroup.getFilter().equals(ExpressionUtil.parseLDAP("(&(|(osgi.os=macosx)(osgi.os=win32))(|(osgi.ws=carbon)(osgi.ws=win32))(|(osgi.arch=ppc)(osgi.arch=x86))(osgi.nl=en))")));
 
 		//check zipped=true in touchpointData
-		String barValue = ((ITouchpointInstruction) bar.getTouchpointData().get(0).getInstructions().get("zipped")).getBody(); //$NON-NLS-1$
+		String barValue = bar.getTouchpointData().get(0).getInstructions().get("zipped").getBody(); //$NON-NLS-1$
 		assertTrue(barValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
 		//check touchpointType

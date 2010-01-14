@@ -187,6 +187,9 @@ public class FeatureManifestParser extends DefaultHandler {
 		if (flag != null)
 			entry.setOptional(Boolean.valueOf(flag).booleanValue());
 		setEnvironment(attributes, entry);
+		String filter = attributes.getValue("filter"); //$NON-NLS-1$
+		if (filter != null)
+			entry.setFilter(filter);
 		result.addEntry(entry);
 	}
 
