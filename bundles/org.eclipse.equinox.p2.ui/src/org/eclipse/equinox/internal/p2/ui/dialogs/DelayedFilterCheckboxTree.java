@@ -233,6 +233,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		});
 		loadJob.setSystem(true);
 		loadJob.setUser(false);
+		loadJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_REPOSITORY_EVENTS, Boolean.toString(true));
 		loadJob.schedule();
 	}
 
