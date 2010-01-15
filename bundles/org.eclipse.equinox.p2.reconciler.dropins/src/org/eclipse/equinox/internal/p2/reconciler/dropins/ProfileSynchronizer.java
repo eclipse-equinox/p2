@@ -458,7 +458,7 @@ public class ProfileSynchronizer {
 		ServiceReference reference = context.getServiceReference(IEngine.SERVICE_NAME);
 		IEngine engine = (IEngine) context.getService(reference);
 		ServiceReference plannerReference = context.getServiceReference(IPlanner.SERVICE_NAME);
-		IPlanner planner = (IPlanner) context.getService(reference);
+		IPlanner planner = (IPlanner) context.getService(plannerReference);
 		try {
 			ProfileChangeRequest addPropertyRequest = new ProfileChangeRequest(profile);
 			addPropertyRequest.setProfileProperty(key, value);
