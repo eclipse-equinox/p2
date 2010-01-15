@@ -12,11 +12,13 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.IVersionAdvice;
+import org.eclipse.osgi.service.environment.Constants;
 import org.osgi.framework.Filter;
 
 /**
@@ -52,9 +54,16 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 	 * CU if there is version advice for the fragment.
 	 */
 	private void publishLauncherFragmentCUs(IPublisherResult results) {
+		String id = null;
 		for (int i = 0; i < configSpecs.length; i++) {
 			String configSpec = configSpecs[i];
-			String id = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + configSpec;
+			String[] specs = Utils.getTokens(configSpec, "."); //$NON-NLS-1$
+			if (specs.length > 2 && Constants.OS_MACOSX.equals(specs[1]) && !Constants.ARCH_X86_64.equals(specs[2])) {
+				//launcher fragment for mac only has arch for x86_64
+				id = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + specs[0] + '.' + specs[1];
+			} else {
+				id = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + configSpec;
+			}
 			publishCU(id, configSpec, results);
 		}
 	}
