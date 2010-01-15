@@ -39,6 +39,11 @@ public class Messages extends NLS {
 	public static String log_failed_make_absolute;
 	public static String log_failed_make_relative;
 
+	public static String exception_unexpectedfwConfigLocation;
+	public static String exception_persistantLocationNotEqualConfigLocation;
+	public static String exception_noLocations;
+	public static String exception_errorReadingFile;
+
 	static {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

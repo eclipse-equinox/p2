@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.configuratormanipulator.Configur
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.PlatformAdmin;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.service.log.LogService;
 import org.osgi.service.startlevel.StartLevel;
@@ -55,27 +56,22 @@ public class EquinoxManipulatorImpl implements Manipulator {
 				if (fwConfigLocation.getName().equals(EquinoxConstants.CONFIG_INI))
 					fwConfigLocation = fwConfigLocation.getParentFile();
 				else
-					throw new IllegalStateException("fwConfigLocation is not a directory but its name does NOT equal \"" + EquinoxConstants.CONFIG_INI + "\"!\n" + "\tfwConfigLocation=" + fwConfigLocation.getAbsolutePath() + "\n\t,fwPersistentDataLocation=" + fwPersistentDataLocation.getAbsolutePath());
+					throw new IllegalStateException(NLS.bind(Messages.exception_unexpectedfwConfigLocation, fwConfigLocation.getAbsolutePath(), EquinoxConstants.CONFIG_INI));
 				launcherData.setFwConfigLocation(fwConfigLocation);
 			}
 			if (fwPersistentDataLocation != null) {
-				//				Log.log(LogService.LOG_DEBUG, "fwConfigLocation=" + fwConfigLocation.getAbsolutePath() + ",\n\tfwInstancePrivateArea=" + fwPersistentDataLocation.getAbsolutePath());
-				//if (!fwConfigLocation.getParentFile().equals(fwPersistentDataLocation))
-				//throw new IllegalStateException("!configFile.getParentFile().equals(fwInstancePrivateArea)\n" + "\tconfigFile=" + fwConfigLocation.getAbsolutePath() + "\n\t,fwInstancePrivateArea=" + fwPersistentDataLocation.getAbsolutePath());
 				if (!fwConfigLocation.equals(fwPersistentDataLocation))
-					throw new IllegalStateException("!fwConfigLocation.equals(fwPersistentDataLocation)\n" + "\t!fwConfigLocation=" + fwConfigLocation.getAbsolutePath() + "\n\t,fwPersistentDataLocation=" + fwPersistentDataLocation.getAbsolutePath());
+					throw new IllegalStateException(NLS.bind(Messages.exception_persistantLocationNotEqualConfigLocation, fwPersistentDataLocation.getAbsolutePath(), fwConfigLocation.getAbsolutePath()));
 			} else
 				launcherData.setFwPersistentDataLocation(fwConfigLocation, launcherData.isClean());
-			//launcherData.setFwPersistentDataLocation(fwConfigLocation.getParentFile(), launcherData.isClean());
 		} else {
 			if (fwPersistentDataLocation != null) {
 				launcherData.setFwConfigLocation(fwPersistentDataLocation);
-				//launcherData.setFwConfigLocation(new File(fwPersistentDataLocation, EquinoxConstants.CONFIG_INI));
 			} else {
 				File home = launcherData.getHome();
 				if (home == null)
-					throw new IllegalStateException("All of fwConfigLocation, fwPersistentDataLocation, and home are not set");
-				fwConfigLocation = new File(home, "configuration");
+					throw new IllegalStateException(Messages.exception_noLocations);
+				fwConfigLocation = new File(home, "configuration"); //$NON-NLS-1$
 				launcherData.setFwPersistentDataLocation(fwConfigLocation, launcherData.isClean());
 				launcherData.setFwConfigLocation(fwConfigLocation);
 			}
@@ -142,7 +138,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (!EquinoxBundlesState.checkFullySupported())
 			return new SimpleBundlesState(fwAdmin, this, EquinoxConstants.FW_SYMBOLIC_NAME);
 
-		EquinoxBundlesState state;
 		if (platformProperties.isEmpty())
 			return new EquinoxBundlesState(context, fwAdmin, this, platformAdmin, false);
 		// XXX checking if fwDependent or fwIndependent platformProperties are updated after the platformProperties was created might be required for better implementation.
@@ -186,7 +181,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		tracker.open();
 		Location location = (Location) tracker.getService();
 		URL url = location.getURL();
-		if (!url.getProtocol().equals("file"))
+		if (!url.getProtocol().equals("file")) //$NON-NLS-1$
 			return null;
 		return new File(url.getFile());
 	}
@@ -197,7 +192,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (eclipseCommandsSt == null)
 			return null;
 
-		StringTokenizer tokenizer = new StringTokenizer(eclipseCommandsSt, "\n");
+		StringTokenizer tokenizer = new StringTokenizer(eclipseCommandsSt, "\n"); //$NON-NLS-1$
 		boolean found = false;
 		String launcherSt = null;
 		while (tokenizer.hasMoreTokens()) {
@@ -206,7 +201,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 				launcherSt = token;
 				break;
 			}
-			if (token.equals("-launcher"))
+			if (token.equals("-launcher")) //$NON-NLS-1$
 				found = true;
 		}
 		if (launcherSt != null)
@@ -251,13 +246,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return ret;
 	}
 
-	//	//
-	//	public void load() throws IllegalStateException, IOException, FrameworkAdminRuntimeException {
-	//		this.load(true);
-	//	}
-
 	public void initialize() {
-		Log.log(LogService.LOG_DEBUG, this, "initialize()", "BEGIN");
+		Log.log(LogService.LOG_DEBUG, this, "initialize()", "BEGIN"); //$NON-NLS-1$ //$NON-NLS-2$
 		configData.initialize();
 		launcherData.initialize();
 	}
@@ -268,10 +258,9 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 		// 1. retrieve location data from Location services registered by equinox fw.
 		String fwJarLocation = context.getProperty(EquinoxConstants.PROP_OSGI_FW);
-		if (!fwJarLocation.startsWith("file:"))
-			throw new IllegalStateException("Current implementation assume that property value keyed by " + EquinoxConstants.PROP_OSGI_FW + " must start with \"file:\". But it was not:" + fwJarLocation);
-		File fwJar = new File(fwJarLocation.substring("file:".length()));
-		//System.out.println("fwJar=" + fwJar);
+		if (!fwJarLocation.startsWith("file:")) //$NON-NLS-1$
+			throw new IllegalStateException(NLS.bind(Messages.exception_fileURLExpected, EquinoxConstants.PROP_OSGI_FW, fwJarLocation));
+		File fwJar = new File(fwJarLocation.substring("file:".length())); //$NON-NLS-1$
 		File fwConfigLocation = getRunningConfigurationLocation();
 		File launcherFile = getRunningLauncherFile();
 		launcherData.setFwJar(fwJar);
@@ -319,16 +308,13 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		int initialBSL = configData.getInitialBundleStartLevel();
 		if (initialBSL != startLevelService.getInitialBundleStartLevel())
 			configData.setInitialBundleStartLevel(startLevelService.getInitialBundleStartLevel());
-
-		//		for (int j = 0; j < bInfos.length; j++)
-		//			configData.addBundle(bInfos[j]);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator#load()
 	 */
 	public void load() throws IllegalStateException, IOException, FrameworkAdminRuntimeException {
-		Log.log(LogService.LOG_DEBUG, this, "load()", "BEGIN");
+		Log.log(LogService.LOG_DEBUG, this, "load()", "BEGIN"); //$NON-NLS-1$//$NON-NLS-2$
 		loadWithoutFwPersistentData();
 
 		BundlesState bundlesState = null;
@@ -366,13 +352,13 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			try {
 				parser.readFwConfig(this, fwConfigFile);
 			} catch (URISyntaxException e) {
-				throw new FrameworkAdminRuntimeException(e, "loading");
+				throw new FrameworkAdminRuntimeException(e, NLS.bind(Messages.exception_errorReadingFile, fwConfigFile.getAbsolutePath()));
 			}
 	}
 
 	// Save all parameter in memory into proper config files.
 	public void save(boolean backup) throws IOException, FrameworkAdminRuntimeException {
-		Log.log(LogService.LOG_DEBUG, this, "save()", "BEGIN");
+		Log.log(LogService.LOG_DEBUG, this, "save()", "BEGIN"); //$NON-NLS-1$//$NON-NLS-2$
 		SimpleBundlesState.checkAvailability(fwAdmin);
 
 		try {
@@ -522,20 +508,20 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * @return true if it should be elimineted from FwDependentProperties and FwIndependentProperties,
 	 */
 	private boolean toBeEliminated(String key) {
-		if (key.startsWith("java."))
+		if (key.startsWith("java.")) //$NON-NLS-1$
 			return true;
 		return false;
 	}
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("++++++++++++++++++++++++++++++++++++++++++\n" + "Class:" + this.getClass().getName() + "\n");
-		sb.append("------------- LauncherData -----------\n");
+		sb.append("++++++++++++++++++++++++++++++++++++++++++\n" + "Class:" + this.getClass().getName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		sb.append("------------- LauncherData -----------\n"); //$NON-NLS-1$
 		sb.append(launcherData.toString());
-		sb.append("------------- ConfigData -----------\n");
+		sb.append("------------- ConfigData -----------\n"); //$NON-NLS-1$
 		sb.append(configData.toString());
-		sb.append("\n" + Utils.toStringProperties("platformProperties", this.platformProperties));
-		sb.append("++++++++++++++++++++++++++++++++++++++++++\n");
+		sb.append("\n" + Utils.toStringProperties("platformProperties", this.platformProperties)); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("++++++++++++++++++++++++++++++++++++++++++\n"); //$NON-NLS-1$
 		return sb.toString();
 	}
 
