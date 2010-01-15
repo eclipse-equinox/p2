@@ -17,35 +17,14 @@ import org.eclipse.equinox.p2.metadata.expression.IExpression;
  * Highly specialized evaluation contexts optimized for misc purposes
  */
 public class EvaluationContext implements IEvaluationContext {
-	public static class Parameters extends EvaluationContext {
-		private static final Object[] noParameters = new Object[0];
-
-		private final Object[] parameters;
-
-		public Parameters(IEvaluationContext parentContext, Object[] parameters) {
-			super(parentContext);
-			this.parameters = parameters == null ? noParameters : parameters;
-		}
-
-		public Object getParameter(int position) {
-			return parameters[position];
-		}
-	}
-
-	public static class SingleVariableContext implements IEvaluationContext {
-		private final IEvaluationContext parentContext;
-
+	static class SingleVariableContext extends EvaluationContext {
 		private Object value;
 
 		private final IExpression variable;
 
-		public SingleVariableContext(IEvaluationContext parentContext, IExpression variable) {
-			this.parentContext = parentContext;
+		public SingleVariableContext(IEvaluationContext parentContext, IExpression variable, Object[] parameters) {
+			super(parentContext, parameters);
 			this.variable = variable;
-		}
-
-		public Object getParameter(int position) {
-			return parentContext.getParameter(position);
 		}
 
 		public Object getValue(IExpression var) {
@@ -60,20 +39,14 @@ public class EvaluationContext implements IEvaluationContext {
 		}
 	}
 
-	static class MultiVariableContext implements IEvaluationContext {
-		private final IEvaluationContext parentContext;
-
+	static class MultiVariableContext extends EvaluationContext {
 		private final Object[] values;
 
-		public MultiVariableContext(IEvaluationContext parentContext, IExpression[] variables) {
-			this.parentContext = parentContext;
+		public MultiVariableContext(IEvaluationContext parentContext, IExpression[] variables, Object[] parameters) {
+			super(parentContext, parameters);
 			values = new Object[variables.length * 2];
 			for (int idx = 0, ndx = 0; ndx < variables.length; ++ndx, idx += 2)
 				values[idx] = variables[ndx];
-		}
-
-		public Object getParameter(int position) {
-			return parentContext.getParameter(position);
 		}
 
 		public Object getValue(IExpression variable) {
@@ -93,58 +66,65 @@ public class EvaluationContext implements IEvaluationContext {
 		}
 	}
 
-	public static final EvaluationContext INSTANCE = new EvaluationContext(null);
+	private static final Object[] noParameters = new Object[0];
+
+	private static final EvaluationContext INSTANCE = new EvaluationContext(null, noParameters);
 
 	public static IEvaluationContext create() {
 		return INSTANCE;
 	}
 
 	public static IEvaluationContext create(IEvaluationContext parent, IExpression variable) {
-		return new SingleVariableContext(parent, variable);
+		return new SingleVariableContext(parent, variable, ((EvaluationContext) parent).parameters);
 	}
 
 	public static IEvaluationContext create(IEvaluationContext parent, IExpression[] variables) {
-		return variables.length == 1 ? new SingleVariableContext(parent, variables[0]) : new MultiVariableContext(parent, variables);
+		return create(parent, ((EvaluationContext) parent).parameters, variables);
+	}
+
+	public static IEvaluationContext create(IEvaluationContext parent, Object[] parameters, IExpression[] variables) {
+		if (variables == null || variables.length == 0)
+			return create(parent, parameters);
+		if (parameters == null)
+			parameters = noParameters;
+		return variables.length == 1 ? new SingleVariableContext(parent, variables[0], parameters) : new MultiVariableContext(parent, variables, parameters);
 	}
 
 	public static IEvaluationContext create(IEvaluationContext parent, Object[] parameters) {
-		return new Parameters(parent, parameters);
+		if (parameters == null)
+			parameters = noParameters;
+		return new EvaluationContext(parent, parameters);
 	}
 
 	public static IEvaluationContext create(IExpression variable) {
-		return new SingleVariableContext(null, variable);
+		return new SingleVariableContext(INSTANCE, variable, noParameters);
 	}
 
 	public static IEvaluationContext create(IExpression[] variables) {
-		if (variables == null || variables.length == 0)
-			return INSTANCE;
-		return variables.length == 1 ? create(variables[0]) : new MultiVariableContext(INSTANCE, variables);
+		return create(INSTANCE, noParameters, variables);
 	}
 
 	public static IEvaluationContext create(Object[] parameters, IExpression variable) {
-		return parameters == null || parameters.length == 0 ? create(variable) : new SingleVariableContext(new Parameters(null, parameters), variable);
+		if (parameters == null)
+			parameters = noParameters;
+		return new SingleVariableContext(INSTANCE, variable, parameters);
 	}
 
 	public static IEvaluationContext create(Object[] parameters, IExpression[] variables) {
-		if (parameters == null || parameters.length == 0)
-			return create(variables);
-
-		Parameters pctx = new Parameters(null, parameters);
-		if (variables == null || variables.length == 0)
-			return pctx;
-		return create(pctx, variables);
+		return create(INSTANCE, parameters, variables);
 	}
 
-	protected EvaluationContext(IEvaluationContext parentContext) {
+	final IEvaluationContext parentContext;
+
+	private final Object[] parameters;
+
+	EvaluationContext(IEvaluationContext parentContext, Object[] parameters) {
 		this.parentContext = parentContext;
+		this.parameters = parameters;
 	}
 
-	private final IEvaluationContext parentContext;
-
-	public Object getParameter(int position) {
-		if (parentContext == null)
-			throw new IllegalArgumentException("No such parameter: $" + position); //$NON-NLS-1$
-		return parentContext.getParameter(position);
+	public final Object getParameter(int position) {
+		return parameters[position];
 	}
 
 	public Object getValue(IExpression variable) {

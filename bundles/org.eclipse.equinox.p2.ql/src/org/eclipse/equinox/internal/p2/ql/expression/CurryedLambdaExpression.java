@@ -74,22 +74,15 @@ final class CurryedLambdaExpression extends LambdaExpression implements IQLConst
 	}
 
 	public IEvaluationContext prolog(IEvaluationContext context) {
-		IEvaluationContext lambdaContext = super.prolog(context);
-		int top = assignments.length;
-		if (top > 0) {
-			if (top == 1) {
-				Assignment v = assignments[0];
-				lambdaContext = EvaluationContext.create(lambdaContext, v.lhs);
-				lambdaContext.setValue(v.lhs, v.rhs.evaluate(context));
-			} else {
-				Variable[] vars = new Variable[top];
-				for (int idx = 0; idx < top; ++idx)
-					vars[idx] = (Variable) assignments[idx].lhs;
-				lambdaContext = EvaluationContext.create(lambdaContext, vars);
-				for (int idx = 0; idx < top; ++idx)
-					lambdaContext.setValue(vars[idx], assignments[idx].rhs.evaluate(context));
-			}
-		}
+		IEvaluationContext lambdaContext;
+		int top = assignments.length + 1;
+		Variable[] vars = new Variable[top];
+		vars[0] = getItemVariable();
+		for (int idx = 1; idx < top; ++idx)
+			vars[idx] = (Variable) assignments[idx - 1].lhs;
+		lambdaContext = EvaluationContext.create(context, vars);
+		for (int idx = 1; idx < top; ++idx)
+			lambdaContext.setValue(vars[idx], assignments[idx - 1].rhs.evaluate(context));
 		return lambdaContext;
 	}
 }
