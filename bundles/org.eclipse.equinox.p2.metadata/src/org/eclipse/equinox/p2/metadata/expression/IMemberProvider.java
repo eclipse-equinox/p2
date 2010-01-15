@@ -15,6 +15,7 @@ package org.eclipse.equinox.p2.metadata.expression;
  * (high performance) access to its member to the expression evaluator. It
  * also gives the implementing class a way to hide or rename the members
  * otherwise accessible using getters.
+ * @since 2.0
  */
 public interface IMemberProvider {
 	/**
