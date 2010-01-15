@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.internal.repository.comparator.java;
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME = "org.eclipse.equinox.p2.internal.repository.comparator.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.p2.internal.repository.comparator.java.messages"; //$NON-NLS-1$
 	public static String differentNumberOfEntries;
 	public static String differentEntry;
 	public static String missingEntry;
