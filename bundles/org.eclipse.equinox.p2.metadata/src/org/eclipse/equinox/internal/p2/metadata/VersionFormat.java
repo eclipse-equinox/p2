@@ -182,10 +182,8 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	 * @throws IllegalArgumentException If the version string could not be parsed.
 	 */
 	public static BasicVersion parseRaw(String version, IVersionFormat originalFormat, String original) {
-		Comparable<?>[] padReturn = new Comparable<?>[1];
-		Comparable<?>[] vector = RAW_FORMAT.parse(version, 0, version.length(), padReturn);
-		Comparable<?> pad = padReturn[0];
-		return (originalFormat == OSGI_FORMAT) ? OSGiVersion.fromVector(vector, pad) : OmniVersion.fromVector(vector, pad, originalFormat, original);
+		List<Comparable<?>> vector = RAW_FORMAT.parse(version, 0, version.length());
+		return (originalFormat == OSGI_FORMAT) ? OSGiVersion.fromVector(vector) : OmniVersion.fromVector(vector, originalFormat, original);
 	}
 
 	static void rawToString(StringBuffer sb, boolean forRange, Comparable<?> e) {
@@ -262,21 +260,19 @@ public class VersionFormat implements IVersionFormat, Serializable {
 	}
 
 	public Version parse(String version) {
-		Comparable<?>[] padReturn = new Comparable<?>[1];
-		Comparable<?>[] vector = parse(version, 0, version.length(), padReturn);
-		Comparable<?> pad = padReturn[0];
-		return (this == OSGI_FORMAT) ? OSGiVersion.fromVector(vector, pad) : OmniVersion.fromVector(vector, pad, this, version);
+		List<Comparable<?>> vector = parse(version, 0, version.length());
+		return (this == OSGI_FORMAT) ? OSGiVersion.fromVector(vector) : OmniVersion.fromVector(vector, this, version);
 	}
 
-	Comparable<?>[] parse(String version, int start, int maxPos, Comparable<?>[] padReturn) {
+	List<Comparable<?>> parse(String version, int start, int maxPos) {
 		if (start == maxPos)
 			throw new IllegalArgumentException(NLS.bind(Messages.format_0_unable_to_parse_empty_version, this, version.substring(start, maxPos)));
 		TreeInfo info = new TreeInfo(topFragment, start);
-		ArrayList<Comparable<?>> entries = new ArrayList<Comparable<?>>();
+		ArrayList<Comparable<?>> entries = new ArrayList<Comparable<?>>(5);
 		if (!(topFragment.parse(entries, version, maxPos, info) && info.getPosition() == maxPos))
 			throw new IllegalArgumentException(NLS.bind(Messages.format_0_unable_to_parse_1, this, version.substring(start, maxPos)));
-		padReturn[0] = VersionParser.removeRedundantTrail(entries, info.getPadValue());
-		return entries.toArray(new Comparable[entries.size()]);
+		entries.add(VersionParser.removeRedundantTrail(entries, info.getPadValue()));
+		return entries;
 	}
 
 	// Preserve cache during deserialization
@@ -332,10 +328,9 @@ class RawFormat extends VersionFormat {
 	 * Parse but do not assign this format as the Version format nor the version
 	 * string as the original.
 	 */
-	public Version parse(String version, int start, int maxPos) {
-		Comparable<?>[] padReturn = new Comparable<?>[1];
-		Comparable<?>[] vector = parse(version, start, maxPos, padReturn);
-		return OmniVersion.fromVector(vector, padReturn[0], null, null);
+	public Version parse(String version) {
+		List<Comparable<?>> vector = parse(version, 0, version.length());
+		return OmniVersion.fromVector(vector, null, null);
 	}
 
 	// Preserve singleton when deserialized

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import java.util.Collections;
+import java.util.List;
 import org.eclipse.equinox.p2.metadata.IVersionFormat;
 import org.eclipse.equinox.p2.metadata.Version;
 
@@ -35,6 +37,8 @@ public class OmniVersion extends BasicVersion {
 
 	private static OmniVersion maximumVersion;
 
+	private static final Comparable<?>[] emptyVector = new Comparable<?>[0];
+
 	private final Comparable<?>[] vector;
 
 	private final Comparable<?> padValue;
@@ -49,34 +53,43 @@ public class OmniVersion extends BasicVersion {
 	 */
 	private final String original;
 
-	static BasicVersion fromVector(Comparable<?>[] vector, Comparable<?> padValue, IVersionFormat format, String original) {
-		if (vector.length == 0) {
+	static BasicVersion fromVector(List<Comparable<?>> vector, IVersionFormat format, String original) {
+		int vtop = vector.size() - 1;
+		Comparable<?> padValue = vector.get(vtop);
+		if (vtop == 0) {
 			if (padValue == null)
 				return (BasicVersion) emptyVersion;
 			if (padValue == VersionVector.MAX_VALUE)
 				return (BasicVersion) MAX_VERSION;
 		}
-		if (vector.length == 3 && padValue == null && vector[0] == VersionParser.ZERO_INT && vector[1] == VersionParser.ZERO_INT && vector[2] == VersionParser.ZERO_INT)
+		if (vtop == 3 && padValue == null && vector.get(0) == VersionParser.ZERO_INT && vector.get(1) == VersionParser.ZERO_INT && vector.get(2) == VersionParser.ZERO_INT)
 			return (BasicVersion) emptyVersion;
 
-		return new OmniVersion(vector, padValue, format, original);
+		return new OmniVersion(vector, format, original);
 	}
 
 	public static Version createMinVersion() {
 		if (minimumVersion == null)
-			minimumVersion = new OmniVersion(new Comparable[0], null, null, null);
+			minimumVersion = new OmniVersion(Collections.<Comparable<?>> singletonList(null), null, null);
 		return minimumVersion;
 	}
 
 	public static Version createMaxVersion() {
 		if (maximumVersion == null)
-			maximumVersion = new OmniVersion(new Comparable[0], VersionVector.MAX_VALUE, null, null);
+			maximumVersion = new OmniVersion(Collections.<Comparable<?>> singletonList(VersionVector.MAX_VALUE), null, null);
 		return maximumVersion;
 	}
 
-	private OmniVersion(Comparable<?>[] array, Comparable<?> padValue, IVersionFormat format, String original) {
-		this.vector = array;
-		this.padValue = padValue;
+	private OmniVersion(List<Comparable<?>> vector, IVersionFormat format, String original) {
+		int vtop = vector.size() - 1;
+		if (vtop > 0) {
+			Comparable<?>[] v = new Comparable<?>[vtop];
+			for (int idx = 0; idx < vtop; ++idx)
+				v[idx] = vector.get(idx);
+			this.vector = v;
+		} else
+			this.vector = emptyVector;
+		this.padValue = vector.get(vtop);
 		this.format = format;
 		this.original = original;
 	}

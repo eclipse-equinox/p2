@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import java.util.List;
 import org.eclipse.equinox.p2.metadata.IVersionFormat;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.osgi.util.NLS;
@@ -62,9 +63,11 @@ public class OSGiVersion extends BasicVersion {
 		return true;
 	}
 
-	static BasicVersion fromVector(Comparable<?>[] vector, Comparable<? extends Object> pad) {
-		if (vector.length != 4) {
-			if (vector.length == 0) {
+	static BasicVersion fromVector(List<Comparable<?>> vector) {
+		int vtop = vector.size() - 1;
+		Comparable<?> pad = vector.get(vtop);
+		if (vtop != 4) {
+			if (vtop == 0) {
 				if (pad == null)
 					return (BasicVersion) emptyVersion;
 				if (pad == VersionVector.MAX_VALUE)
@@ -72,10 +75,10 @@ public class OSGiVersion extends BasicVersion {
 			}
 			throw new IllegalArgumentException();
 		}
-		int major = ((Integer) vector[0]).intValue();
-		int minor = ((Integer) vector[1]).intValue();
-		int micro = ((Integer) vector[2]).intValue();
-		Comparable<?> qualifier = vector[3];
+		int major = ((Integer) vector.get(0)).intValue();
+		int minor = ((Integer) vector.get(1)).intValue();
+		int micro = ((Integer) vector.get(2)).intValue();
+		Comparable<?> qualifier = vector.get(3);
 		return (major == 0 && minor == 0 && micro == 0 && qualifier == VersionVector.MINS_VALUE) ? (BasicVersion) emptyVersion : new OSGiVersion(major, minor, micro, qualifier);
 	}
 
