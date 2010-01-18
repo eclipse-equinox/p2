@@ -25,6 +25,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(TranslationSupportTests.class);
 		suite.addTestSuite(LatestIUVersionElementWrapperTest.class);
 		suite.addTestSuite(QueryDescriptorTest.class);
+		suite.addTestSuite(QueryProviderTests.class);
 		suite.addTestSuite(QueryableMetadataRepositoryManagerTest.class);
 		// This must come after QueryableMetadataRepositoryManager or it causes side-effects in those tests.
 		suite.addTestSuite(QueryableArtifactRepositoryManagerTest.class);
