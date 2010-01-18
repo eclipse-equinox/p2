@@ -51,7 +51,6 @@ public class Activator implements BundleActivator {
 	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
 	private ServiceReference packageAdminRef;
-	private List<DirectoryWatcher> watchers = new ArrayList<DirectoryWatcher>();
 	private final static Set<IMetadataRepository> repositories = new HashSet<IMetadataRepository>();
 	private Collection<File> filesToCheck = null;
 
@@ -486,7 +485,6 @@ public class Activator implements BundleActivator {
 		DirectoryWatcher watcher = new DirectoryWatcher(directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();
-		watchers.add(watcher);
 		repositories.addAll(listener.getMetadataRepositories());
 	}
 
@@ -494,8 +492,6 @@ public class Activator implements BundleActivator {
 	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext context) throws Exception {
-		for (DirectoryWatcher watcher : watchers)
-			watcher.stop();
 		bundleContext = null;
 		setPackageAdmin(null);
 		context.ungetService(packageAdminRef);
