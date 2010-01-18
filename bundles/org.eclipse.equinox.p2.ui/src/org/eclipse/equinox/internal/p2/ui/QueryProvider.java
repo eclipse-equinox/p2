@@ -21,7 +21,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.query.*;
-import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -66,7 +65,6 @@ public class QueryProvider {
 		if (context == null) {
 			context = ProvUI.getQueryContext(policy);
 		}
-		RepositoryTracker tracker = ui.getRepositoryTracker();
 		switch (queryType) {
 			case ARTIFACT_REPOS :
 				queryable = new QueryableArtifactRepositoryManager(ui, false).locationsQueriable();
