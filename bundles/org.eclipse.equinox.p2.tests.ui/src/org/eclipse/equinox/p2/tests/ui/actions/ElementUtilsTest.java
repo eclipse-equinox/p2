@@ -19,7 +19,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
+import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -77,8 +78,6 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		manager.setEnabled(uri2, false);
 		session.getArtifactRepositoryManager().setEnabled(uri2, false);
 
-		// The elements reflect all visible sites, but not system sites
-		MetadataRepositories root = new MetadataRepositories(getProvisioningUI());
 		List children = new ArrayList();
 		children.add(new MetadataRepositoryElement(null, known1, true));
 		// Add known2, this is as if a user added it in the pref page

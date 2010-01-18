@@ -25,7 +25,6 @@ public class QueryDescriptorTest extends TestCase {
 		List elements = Arrays.asList(new String[] {"a", "b", "c", "d", "e"});
 
 		public IQueryResult query(IQuery query, IProgressMonitor monitor) {
-			Collector collector = new Collector();
 			return query.perform(elements.iterator());
 		}
 	}
