@@ -8,5 +8,7 @@
 		<mkdir dir="lib" />
 		<delete file="lib/jarprocessor-ant.jar" failonerror="false"/>
 		<jar destfile="lib/jarprocessor-ant.jar" basedir="bin_ant"/>
+		<eclipse.convertPath fileSystemPath="${basedir}/lib" property="resourcePath"/>
+		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
 	</target>
 </project>
