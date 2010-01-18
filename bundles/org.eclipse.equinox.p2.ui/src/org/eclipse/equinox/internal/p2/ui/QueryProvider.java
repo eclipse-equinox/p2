@@ -106,20 +106,20 @@ public class QueryProvider {
 				if (element instanceof CategoryElement || (element instanceof IIUElement && ((IIUElement) element).shouldShowChildren())) {
 					// children of a category should drill down according to the context.  If we aren't in a category, we are already drilling down and
 					// continue to do so.
-					boolean drillDown = element instanceof CategoryElement ? context.getShowAvailableChildren() : true;
+					boolean drillDownTheChildren = element instanceof CategoryElement ? context.getShowAvailableChildren() : true;
 					IQuery<IInstallableUnit> memberOfCategoryQuery = new CategoryMemberQuery(((IIUElement) element).getIU());
-					availableIUWrapper = new AvailableIUWrapper(queryable, element, true, drillDown);
+					availableIUWrapper = new AvailableIUWrapper(queryable, element, true, drillDownTheChildren);
 					if (targetProfile != null)
 						availableIUWrapper.markInstalledIUs(targetProfile, hideInstalled);
-					// if it's a category, the metadata was specifically set up so that the requirements are the IU's that should
-					// be visible in the category.
+					// if it's a category, there is a special query.
 					if (element instanceof CategoryElement) {
 						if (showLatest)
 							memberOfCategoryQuery = new PipedQuery<IInstallableUnit>(memberOfCategoryQuery, new LatestIUVersionQuery<IInstallableUnit>());
 						return new ElementQueryDescriptor(queryable, memberOfCategoryQuery, new Collector<Object>(), availableIUWrapper);
 					}
+					// It is not a category, we want to traverse the requirements that are groups.
 					@SuppressWarnings("unchecked")
-					IQuery<IInstallableUnit> query = CompoundQuery.createCompoundQuery(new IQuery[] {topLevelQuery, memberOfCategoryQuery}, true);
+					IQuery<IInstallableUnit> query = CompoundQuery.createCompoundQuery(new IQuery[] {topLevelQuery, new RequiredIUsQuery(((IIUElement) element).getIU())}, true);
 					if (showLatest)
 						query = new PipedQuery<IInstallableUnit>(query, new LatestIUVersionQuery<IInstallableUnit>());
 					// If it's not a category, these are generic requirements and should be filtered by the visibility property (topLevelQuery)
