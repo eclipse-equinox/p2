@@ -50,6 +50,6 @@ public class Install36from35 extends AbstractReconcilerTest {
 		File installFolder = getTempFolder();
 		System.out.println(installFolder);
 		assertEquals(0, runDirectorToInstall("Installing 3.6 from 3.5", new File(installFolder, "eclipse"), "http://download.eclipse.org/eclipse/updates/3.6-I-builds", "org.eclipse.platform.ide"));
-		assertEquals(0, installAndRunVerifierBundle35(installFolder));
+		assertEquals(0, installAndRunVerifierBundle(installFolder));
 	}
 }
