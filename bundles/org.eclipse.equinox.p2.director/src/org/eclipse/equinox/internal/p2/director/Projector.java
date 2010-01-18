@@ -214,11 +214,10 @@ public class Projector {
 			}
 			List<IInstallableUnit> toSort = new ArrayList<IInstallableUnit>(conflictingEntries.values());
 			Collections.sort(toSort, Collections.reverseOrder());
-			BigInteger weight = POWER;
+			BigInteger weight = BigInteger.ONE;
 			int count = toSort.size();
 			for (int i = 0; i < count; i++) {
-				IInstallableUnit iu = toSort.get(i);
-				weightedObjects.add(WeightedObject.newWO(iu, isInstalled(iu) ? BigInteger.ONE : weight));
+				weightedObjects.add(WeightedObject.newWO(toSort.get(i), weight));
 				weight = weight.multiply(POWER);
 			}
 			if (weight.compareTo(maxWeight) > 0)
@@ -255,7 +254,7 @@ public class Projector {
 					requestedPatches.add(match);
 					countOptional = countOptional + 1;
 				} else {
-					weightedObjects.add(WeightedObject.newWO(match, isInstalled(match) ? BigInteger.ONE : optionalWeight));
+					weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
 				}
 			}
 		}
