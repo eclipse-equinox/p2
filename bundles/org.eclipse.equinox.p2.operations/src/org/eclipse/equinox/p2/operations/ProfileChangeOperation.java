@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.operations;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
-import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -96,6 +95,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	protected ProfileChangeOperation(ProvisioningSession session) {
 		this.session = session;
 		this.profileId = IProfileRegistry.SELF;
+		this.context = new ProvisioningContext();
 	}
 
 	/**
