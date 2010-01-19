@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -77,7 +78,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		return true;
 	}
 
-	private String getLinkPath(File file) {
+	static File getLinkedFile(File file) {
 		Properties links = new Properties();
 		try {
 			InputStream input = new BufferedInputStream(new FileInputStream(file));
@@ -87,11 +88,11 @@ public class DropinsRepositoryListener extends RepositoryListener {
 				input.close();
 			}
 		} catch (IOException e) {
-			// ignore
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_reading_link, file.getAbsolutePath()), e));
+			return null;
 		}
 		String path = links.getProperty(LINKS_PATH);
 		if (path == null) {
-			// log
 			return null;
 		}
 
@@ -103,7 +104,19 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		} else {
 			path = path.trim();
 		}
-		return path;
+		File linkedFile = new File(path);
+		if (!linkedFile.isAbsolute()) {
+			// link support is relative to the install root
+			File root = Activator.getEclipseHome();
+			if (root != null)
+				linkedFile = new File(root, path);
+		}
+		try {
+			return linkedFile.getCanonicalFile();
+		} catch (IOException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_resolving_link, linkedFile.getAbsolutePath(), file.getAbsolutePath()), e));
+			return null;
+		}
 	}
 
 	private URL createRepositoryURL(File file) {
@@ -142,21 +155,13 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private URL getLinkRepository(File file, boolean logMissingLink) throws IOException {
-		String path = getLinkPath(file);
-		if (path == null) {
+		File linkedFile = getLinkedFile(file);
+		if (linkedFile == null) {
 			if (logMissingLink)
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to determine link location from file: " + file.getAbsolutePath())); //$NON-NLS-1$
 			return null;
 		}
-		File linkedFile = new File(path);
-		if (!linkedFile.isAbsolute()) {
-			// link support is relative to the install root
-			File root = Activator.getEclipseHome();
-			if (root != null)
-				linkedFile = new File(root, path);
-		}
-		File canonicalFile = linkedFile.getCanonicalFile();
-		return canonicalFile.toURL();
+		return linkedFile.toURL();
 	}
 
 	public void getMetadataRepository(URL repoURL) {
