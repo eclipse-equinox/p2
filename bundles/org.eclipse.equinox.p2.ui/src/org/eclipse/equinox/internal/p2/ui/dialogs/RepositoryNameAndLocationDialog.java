@@ -163,7 +163,7 @@ public class RepositoryNameAndLocationDialog extends StatusDialog {
 		setOkEnablement(!status.matches(IStatus.ERROR));
 	}
 
-	private void setOkEnablement(boolean enable) {
+	protected void setOkEnablement(boolean enable) {
 		if (okButton != null && !okButton.isDisposed())
 			okButton.setEnabled(enable);
 	}
