@@ -237,7 +237,6 @@ public class UpdateOperation extends ProfileChangeOperation {
 					defaultUpdates.add(update);
 			}
 			request.addInstallableUnits(theUpdate);
-			//			if (rootMarkerKey != null)
 			request.setInstallableUnitProfileProperty(theUpdate, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			if (PatchQuery.isPatch(theUpdate)) {
 				request.setInstallableUnitInclusionRules(theUpdate, PlannerHelper.createOptionalInclusionRule(theUpdate));
