@@ -119,8 +119,11 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SimpleOptionalTest2.class);
 		suite.addTestSuite(SimpleOptionalTest3.class);
 		suite.addTestSuite(SimpleOptionalTest4.class);
+		suite.addTestSuite(SimpleOptionalTest5.class);
 		suite.addTestSuite(SimpleSingleton.class);
 		suite.addTestSuite(SimulatedSharedInstallTest.class);
+		suite.addTestSuite(SingletonOptionallyInstalled.class);
+		suite.addTestSuite(SingletonOptionallyInstalled2.class);
 		suite.addTestSuite(SWTFragment.class);
 		suite.addTestSuite(TwoVersionsOfWSDL.class);
 		suite.addTestSuite(UninstallEverything.class);
