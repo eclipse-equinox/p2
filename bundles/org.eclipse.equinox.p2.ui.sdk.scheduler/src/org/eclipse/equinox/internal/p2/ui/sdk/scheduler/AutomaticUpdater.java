@@ -82,7 +82,11 @@ public class AutomaticUpdater implements IUpdateListener {
 	 * updatesAvailable(org.eclipse.equinox.internal.provisional.p2.updatechecker
 	 * .UpdateEvent)
 	 */
-	public void updatesAvailable(final UpdateEvent event) {
+	public void updatesAvailable(UpdateEvent event) {
+		updatesAvailable(event, true);
+	}
+
+	void updatesAvailable(final UpdateEvent event, final boolean notifyWithPopup) {
 		final boolean download = getPreferenceStore().getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY);
 		profileId = event.getProfileId();
 		iusWithUpdates = event.getIUs();
@@ -92,11 +96,10 @@ public class AutomaticUpdater implements IUpdateListener {
 		// Create an update operation to reflect the new updates that are available.
 		operation = new UpdateOperation(getSession(), iusWithUpdates);
 		operation.setProfileId(event.getProfileId());
-		//		operation.setRootMarkerKey(IProfile.PROP_PROFILE_ROOT_IU);
 		IStatus status = operation.resolveModal(new NullProgressMonitor());
 
 		if (!status.isOK() || operation.getPossibleUpdates() == null || operation.getPossibleUpdates().length == 0) {
-			clearUpdatesAvailable();
+			clearUpdateAffordances();
 			return;
 		}
 		// Download the items before notifying user if the
@@ -114,7 +117,7 @@ public class AutomaticUpdater implements IUpdateListener {
 						alreadyDownloaded = true;
 						PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 							public void run() {
-								setUpdateAffordanceState(operation.getResolutionResult().isOK());
+								notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup);
 							}
 						});
 					} else if (jobStatus.getSeverity() != IStatus.CANCEL) {
@@ -126,7 +129,7 @@ public class AutomaticUpdater implements IUpdateListener {
 		} else {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				public void run() {
-					setUpdateAffordanceState(operation.getResolutionResult().isOK());
+					notifyUserOfUpdates(operation.getResolutionResult().isOK(), notifyWithPopup);
 				}
 			});
 		}
@@ -244,10 +247,12 @@ public class AutomaticUpdater implements IUpdateListener {
 		}
 	}
 
-	void setUpdateAffordanceState(boolean isValid) {
+	void notifyUserOfUpdates(boolean isValid, boolean showPopup) {
 		if (updateAffordance == null)
-			return;
+			createUpdateAffordance();
 		if (isValid) {
+			if (showPopup)
+				openUpdatePopup();
 			updateAffordance.setTooltip(AutomaticUpdateMessages.AutomaticUpdater_ClickToReviewUpdates);
 			updateAffordance.setImage(AutomaticUpdatePlugin.getDefault().getImageRegistry().get((AutomaticUpdatePlugin.IMG_TOOL_UPDATE)));
 		} else {
@@ -275,13 +280,14 @@ public class AutomaticUpdater implements IUpdateListener {
 		}
 	}
 
-	void createUpdatePopup() {
-		popup = new AutomaticUpdatesPopup(getWorkbenchWindowShell(), alreadyDownloaded, getPreferenceStore());
+	void openUpdatePopup() {
+		if (popup == null)
+			popup = new AutomaticUpdatesPopup(getWorkbenchWindowShell(), alreadyDownloaded, getPreferenceStore());
 		popup.open();
 
 	}
 
-	void clearUpdatesAvailable() {
+	void clearUpdateAffordances() {
 		if (updateAffordance != null) {
 			IStatusLineManager manager = getStatusLineManager();
 			if (manager != null) {
@@ -312,8 +318,9 @@ public class AutomaticUpdater implements IUpdateListener {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
 				// notify that updates are available for all roots.  We don't know for sure that
-				// there are any, but this will cause everything to be rechecked
-				updatesAvailable(new UpdateEvent(profileId, getSession().getInstalledIUs(profileId, false)));
+				// there are any, but this will cause everything to be rechecked. Don't trigger
+				// a popup, just update the affordance and internal state.
+				updatesAvailable(new UpdateEvent(profileId, getSession().getInstalledIUs(profileId, false)), false);
 				return Status.OK_STATUS;
 			}
 		};
