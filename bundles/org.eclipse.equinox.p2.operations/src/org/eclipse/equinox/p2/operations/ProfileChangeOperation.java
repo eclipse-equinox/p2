@@ -12,6 +12,7 @@
 package org.eclipse.equinox.p2.operations;
 
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
@@ -279,7 +280,12 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	}
 
 	/**
-	 * Return a provisioning job that can be used to perform the resolved operation.
+	 * Return a provisioning job that can be used to perform the resolved operation.  The job is 
+	 * created using the default values associated with a new job.  It is up to clients to configure
+	 * the priority of the job and set any appropriate properties, such as
+	 * {@link Job#setUser(boolean)}, 
+	 * {@link Job#setSystem(boolean)}, or {@link Job#setProperty(QualifiedName, Object)},
+	 * before scheduling it.
 	 * 
 	 * @param monitor a progress monitor that should be used to report the job's progress in addition
 	 * to the standard job progress reporting.  Can be <code>null</code>.  If provided, this monitor 

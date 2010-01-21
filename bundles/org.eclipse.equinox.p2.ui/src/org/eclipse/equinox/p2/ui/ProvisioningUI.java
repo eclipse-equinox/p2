@@ -305,6 +305,7 @@ public class ProvisioningUI {
 	 * @param errorStyle the flags passed to the StatusManager for error reporting
 	 */
 	public void schedule(final ProvisioningJob job, final int errorStyle) {
+		job.setUser(true);
 		runner.schedule(job, errorStyle);
 	}
 
