@@ -17,7 +17,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
-public class OptionallyInstalled extends AbstractProvisioningTest {
+public class SimpleOptionalTest5 extends AbstractProvisioningTest {
 	IInstallableUnit a1;
 	IInstallableUnit a2;
 
