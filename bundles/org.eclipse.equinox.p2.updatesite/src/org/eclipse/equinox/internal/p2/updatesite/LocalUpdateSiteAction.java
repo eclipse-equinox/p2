@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import org.eclipse.equinox.p2.publisher.IPublisherAction;
-
 import java.io.File;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
@@ -29,6 +27,7 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 	protected String source;
 	private UpdateSite updateSite;
 	private String categoryQualifier;
+	private String categoryVersion;
 
 	protected LocalUpdateSiteAction() {
 		// empty
@@ -58,6 +57,10 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 		this.categoryQualifier = categoryQualifier;
 	}
 
+	public void setCategoryVersion(String version) {
+		categoryVersion = version;
+	}
+
 	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
 		IPublisherAction[] actions = createActions();
 		MultiStatus finalStatus = new MultiStatus(LocalUpdateSiteAction.class.getName(), 0, NLS.bind(Messages.Error_Generation, source != null ? source : (updateSite != null ? updateSite.getLocation().toString() : "Unknown")), null); //$NON-NLS-1$
@@ -82,13 +85,15 @@ public class LocalUpdateSiteAction implements IPublisherAction {
 	}
 
 	private IPublisherAction createSiteXMLAction() {
+		SiteXMLAction action = null;
 		if (updateSite != null)
-			return new SiteXMLAction(updateSite, categoryQualifier);
-		if (source != null) {
-			SiteXMLAction siteXmlAction = new SiteXMLAction(new File(source, "site.xml").toURI(), categoryQualifier); //$NON-NLS-1$
-			return siteXmlAction;
+			action = new SiteXMLAction(updateSite, categoryQualifier);
+		else if (source != null) {
+			action = new SiteXMLAction(new File(source, "site.xml").toURI(), categoryQualifier); //$NON-NLS-1$
 		}
-		return null;
+		if (action != null && categoryVersion != null)
+			action.setCategoryVersion(categoryVersion);
+		return action;
 	}
 
 	private void createAdvice() {

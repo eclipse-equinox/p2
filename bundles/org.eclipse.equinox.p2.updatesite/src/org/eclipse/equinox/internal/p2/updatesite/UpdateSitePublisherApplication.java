@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.publisher.*;
 public class UpdateSitePublisherApplication extends AbstractPublisherApplication {
 
 	private String categoryQualifier = null;
+	private String categoryVersion = null;
 
 	public UpdateSitePublisherApplication() {
 		// nothing todo
@@ -32,9 +33,13 @@ public class UpdateSitePublisherApplication extends AbstractPublisherApplication
 		if (arg.equalsIgnoreCase("-categoryQualifier")) //$NON-NLS-1$
 			categoryQualifier = parameter;
 
+		if (arg.equalsIgnoreCase("-categoryVersion")) //$NON-NLS-1$
+			categoryVersion = parameter;
 	}
 
 	protected IPublisherAction[] createActions() {
-		return new IPublisherAction[] {new LocalUpdateSiteAction(source, categoryQualifier)};
+		LocalUpdateSiteAction action = new LocalUpdateSiteAction(source, categoryQualifier);
+		action.setCategoryVersion(categoryVersion);
+		return new IPublisherAction[] {action};
 	}
 }

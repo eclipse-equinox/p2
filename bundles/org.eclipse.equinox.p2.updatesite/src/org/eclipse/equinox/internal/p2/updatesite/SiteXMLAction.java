@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
@@ -37,11 +38,13 @@ import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
  */
 public class SiteXMLAction extends AbstractPublisherAction {
 	static final private String QUALIFIER = "qualifier"; //$NON-NLS-1$
+	private static final VersionSuffixGenerator versionSuffixGenerator = new VersionSuffixGenerator();
 	protected UpdateSite updateSite;
 	private SiteCategory defaultCategory;
 	private HashSet<SiteCategory> defaultCategorySet;
 	protected URI location;
 	private String categoryQualifier = null;
+	private Version categoryVersion = null;
 
 	/**
 	 * Creates a SiteXMLAction from a Location (URI) with an optional qualifier to use for category names
@@ -65,6 +68,10 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	public SiteXMLAction(UpdateSite updateSite, String categoryQualifier) {
 		this.updateSite = updateSite;
 		this.categoryQualifier = categoryQualifier;
+	}
+
+	public void setCategoryVersion(String version) {
+		categoryVersion = Version.parseVersion(version);
 	}
 
 	private void initialize() {
@@ -266,8 +273,21 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		cat.setSingleton(true);
 		String categoryId = buildCategoryId(category.getName());
 		cat.setId(categoryId);
+		if (categoryVersion == null)
+			cat.setVersion(Version.createOSGi(1, 0, 0, versionSuffixGenerator.generateSuffix(featureIUs, CollectionUtils.<IVersionedId> emptyList())));
+		else {
+			if (categoryVersion.isOSGiCompatible()) {
+				org.osgi.framework.Version osgiVersion = Version.toOSGiVersion(categoryVersion);
+				String qualifier = osgiVersion.getQualifier();
+				if (qualifier.endsWith(QUALIFIER)) {
+					String suffix = versionSuffixGenerator.generateSuffix(featureIUs, CollectionUtils.<IVersionedId> emptyList());
+					qualifier = qualifier.substring(0, qualifier.length() - 9) + suffix;
+					categoryVersion = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor(), osgiVersion.getMicro(), qualifier);
+				}
+			}
+			cat.setVersion(categoryVersion);
+		}
 
-		cat.setVersion(Version.createOSGi(0, 0, 0, getDateQualifier()));
 		String label = category.getLabel();
 		cat.setProperty(IInstallableUnit.PROP_NAME, label != null ? label : category.getName());
 		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, category.getDescription());
@@ -320,32 +340,4 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			return URIUtil.toUnencodedString(updateSite.getLocation()) + "." + categoryName; //$NON-NLS-1$
 		return categoryName;
 	}
-
-	/*
-	 * Returns the current date/time as a string to be used as a qualifier
-	 * replacement.  This is the default qualifier replacement.  Will
-	 * be of the form YYYYMMDDHHMM.
-	 * @return current date/time as a qualifier replacement 
-	 */
-	private static String getDateQualifier() {
-		final String empty = ""; //$NON-NLS-1$
-		Calendar calendar = Calendar.getInstance();
-		int monthNbr = calendar.get(Calendar.MONTH) + 1;
-		String month = (monthNbr < 10 ? "0" : empty) + monthNbr; //$NON-NLS-1$
-
-		int dayNbr = calendar.get(Calendar.DAY_OF_MONTH);
-		String day = (dayNbr < 10 ? "0" : empty) + dayNbr; //$NON-NLS-1$
-
-		int hourNbr = calendar.get(Calendar.HOUR_OF_DAY);
-		String hour = (hourNbr < 10 ? "0" : empty) + hourNbr; //$NON-NLS-1$
-
-		int minuteNbr = calendar.get(Calendar.MINUTE);
-		String minute = (minuteNbr < 10 ? "0" : empty) + minuteNbr; //$NON-NLS-1$
-
-		int secondNbr = calendar.get(Calendar.SECOND);
-		String second = (secondNbr < 10 ? "0" : empty) + secondNbr; //$NON-NLS-1$
-
-		return empty + calendar.get(Calendar.YEAR) + month + day + hour + minute + second;
-	}
-
 }
