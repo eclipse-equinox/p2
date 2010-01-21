@@ -122,7 +122,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		// save the given repository in the preferences.
 		remember(repository, suffix);
 		if (added && signalAdd)
-			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true);
+			broadcastChangeEvent(repository.getLocation(), getRepositoryType(), RepositoryEvent.ADDED, true);
 	}
 
 	/* (non-Javadoc)
@@ -651,7 +651,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		}
 		//broadcast the add event after releasing lock
 		if (added)
-			broadcastChangeEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true);
+			broadcastChangeEvent(location, getRepositoryType(), RepositoryEvent.ADDED, true);
 		return result;
 	}
 
