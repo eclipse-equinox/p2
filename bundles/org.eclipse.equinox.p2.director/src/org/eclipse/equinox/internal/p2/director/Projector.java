@@ -183,7 +183,7 @@ public class Projector {
 
 			createMustHave(entryPointIU, alreadyExistingRoots, newRoots);
 
-			createOptimizationFunction(entryPointIU);
+			createOptimizationFunction(entryPointIU, newRoots);
 			if (DEBUG) {
 				long stop = System.currentTimeMillis();
 				Tracing.debug("Projection complete: " + (stop - start)); //$NON-NLS-1$
@@ -199,7 +199,7 @@ public class Projector {
 	}
 
 	//Create an optimization function favoring the highest version of each IU
-	private void createOptimizationFunction(IInstallableUnit metaIu) {
+	private void createOptimizationFunction(IInstallableUnit metaIu, IInstallableUnit[] newRoots) {
 
 		List<WeightedObject<? extends Object>> weightedObjects = new ArrayList<WeightedObject<? extends Object>>();
 
@@ -214,10 +214,21 @@ public class Projector {
 			}
 			List<IInstallableUnit> toSort = new ArrayList<IInstallableUnit>(conflictingEntries.values());
 			Collections.sort(toSort, Collections.reverseOrder());
-			BigInteger weight = BigInteger.ONE;
+			BigInteger weight = POWER;
 			int count = toSort.size();
+			boolean installedIuMet = false;
+			boolean rootedMet = false;
 			for (int i = 0; i < count; i++) {
-				weightedObjects.add(WeightedObject.newWO(toSort.get(i), weight));
+				IInstallableUnit iu = toSort.get(i);
+				if (!rootedMet && isInstalled(iu)) {
+					installedIuMet = true;
+					weightedObjects.add(WeightedObject.newWO(iu, BigInteger.ONE));
+				} else if (!installedIuMet && !rootedMet && isRoot(iu, newRoots)) {
+					rootedMet = true;
+					weightedObjects.add(WeightedObject.newWO(iu, BigInteger.ONE));
+				} else {
+					weightedObjects.add(WeightedObject.newWO(iu, weight));
+				}
 				weight = weight.multiply(POWER);
 			}
 			if (weight.compareTo(maxWeight) > 0)
@@ -266,6 +277,15 @@ public class Projector {
 		if (!weightedObjects.isEmpty()) {
 			createObjectiveFunction(weightedObjects);
 		}
+	}
+
+	private boolean isRoot(IInstallableUnit iu, IInstallableUnit[] newRoots) {
+		for (IInstallableUnit root : newRoots) {
+			if (root == iu) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void createObjectiveFunction(List<WeightedObject<? extends Object>> weightedObjects) {
