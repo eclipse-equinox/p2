@@ -58,7 +58,7 @@ public class SingletonOptionallyInstalled extends AbstractProvisioningTest {
 		req3.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		engine.perform(plan3, new NullProgressMonitor());
-		assertProfileContains("foo", profile, new IInstallableUnit[] {a1}); //Here we really expect a2
+		assertProfileContains("foo", profile, new IInstallableUnit[] {a2}); //Here we really expect a2
 
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile);
 		req4.addInstallableUnits(new IInstallableUnit[] {a2});
