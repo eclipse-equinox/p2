@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.text.NumberFormat;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.jobs.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -77,11 +77,6 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 		sizingJob.setUser(false);
 		sizingJob.setSystem(true);
 		sizingJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_AUTHENTICATION_JOB_MARKER, Boolean.toString(true));
-		sizingJob.addJobChangeListener(new JobChangeAdapter() {
-			public void done(IJobChangeEvent event) {
-				sizingJob = null;
-			}
-		});
 		sizingJob.schedule();
 	}
 
