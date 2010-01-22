@@ -99,7 +99,13 @@ public class AutomaticUpdater implements IUpdateListener {
 		IStatus status = operation.resolveModal(new NullProgressMonitor());
 
 		if (!status.isOK() || operation.getPossibleUpdates() == null || operation.getPossibleUpdates().length == 0) {
-			clearUpdateAffordances();
+			if (PlatformUI.isWorkbenchRunning()) {
+				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						clearUpdateAffordances();
+					}
+				});
+			}
 			return;
 		}
 		// Download the items before notifying user if the
