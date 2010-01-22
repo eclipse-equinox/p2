@@ -466,7 +466,7 @@ public class EquinoxFwConfigFileParser {
 			return;
 		}
 		if (!Utils.createParentDir(outputFile)) {
-			throw new IllegalStateException(Messages.exception_failedToCreateDir);
+			throw new IllegalStateException(NLS.bind(Messages.exception_failedToCreateDir, outputFile.getParent()));
 		}
 
 		if (DEBUG)
