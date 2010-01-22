@@ -64,7 +64,8 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.SERVICE_NAME);
+		manager = getArtifactRepositoryManager();
+		assertNotNull(manager);
 	}
 
 	/**
@@ -291,6 +292,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		listener.waitForEvent();
 		assertEquals("2.0", false, listener.lastEnablement);
 		assertEquals("2.1", false, manager.isEnabled(location));
+		assertEquals("2.2", IRepository.TYPE_ARTIFACT, listener.lastRepoType);
 		listener.reset();
 
 		manager.setEnabled(location, true);
@@ -298,6 +300,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		assertEquals("3.0", true, manager.isEnabled(location));
 		assertEquals("3.1", RepositoryEvent.ENABLEMENT, listener.lastKind);
 		assertEquals("3.2", true, listener.lastEnablement);
+		assertEquals("3.3", IRepository.TYPE_ARTIFACT, listener.lastRepoType);
 		listener.reset();
 	}
 
@@ -318,5 +321,6 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		listener.waitForEvent();
 		assertEquals("1.0", true, listener.lastEnablement);
 		assertEquals("1.1", true, manager.isEnabled(location));
+		assertEquals("1.2", IRepository.TYPE_ARTIFACT, listener.lastRepoType);
 	}
 }
