@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.core;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import org.eclipse.core.runtime.Path;
@@ -76,8 +75,11 @@ public class Activator implements BundleActivator {
 		try {
 			if (isFile)
 				return adjustTrailingSlash(new File(spec.substring(5)).toURI(), trailingSlash);
+			//for compatibility only allow non-file URI if it is also a legal URL
+			//when given "c:/foo" we want to treat it as a file rather than a URI with protocol "c"
+			new URL(spec);
 			return new URI(spec);
-		} catch (URISyntaxException e) {
+		} catch (Exception e) {
 			// if we failed and it is a file spec, there is nothing more we can do
 			// otherwise, try to make the spec into a file URL.
 			if (isFile)
