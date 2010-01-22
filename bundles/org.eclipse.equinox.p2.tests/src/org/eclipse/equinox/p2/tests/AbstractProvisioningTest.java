@@ -802,6 +802,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return (IProvisioningAgent) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.SERVICE_NAME);
 	}
 
+	protected static IProvisioningAgentProvider getAgentProvider() {
+		//get the global agent for the currently running system
+		return (IProvisioningAgentProvider) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgentProvider.SERVICE_NAME);
+	}
+
 	protected static IAgentLocation getAgentLocation() {
 		//get the location of the currently running system
 		return (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
