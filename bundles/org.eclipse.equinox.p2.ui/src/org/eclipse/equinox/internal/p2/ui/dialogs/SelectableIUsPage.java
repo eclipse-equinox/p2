@@ -107,6 +107,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		tableViewer.addCheckStateListener(new ICheckStateListener() {
 			public void checkStateChanged(CheckStateChangedEvent event) {
 				setPageComplete(tableViewer.getCheckedElements().length > 0);
+				getProvisioningWizard().mainPageSelectionsChanged();
 			}
 		});
 

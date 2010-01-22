@@ -114,7 +114,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 
 		availableIUGroup.getCheckboxTreeViewer().addCheckStateListener(new ICheckStateListener() {
 			public void checkStateChanged(CheckStateChangedEvent event) {
-				validateNextButton();
+				updateSelection();
 			}
 		});
 
@@ -235,11 +235,12 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			setDescription(ProvUIMessages.AvailableIUsPage_Description);
 		}
 		availableIUGroup.setRepositoryFilter(repoChoice, repoLocation);
-		validateNextButton();
+		updateSelection();
 	}
 
-	void validateNextButton() {
+	void updateSelection() {
 		setPageComplete(availableIUGroup.getCheckedLeafIUs().length > 0);
+		getProvisioningWizard().mainPageSelectionsChanged();
 	}
 
 	void updateQueryContext() {
@@ -308,7 +309,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			focusControl.setFocus();
 		updateDetails();
 		iuDetailsGroup.enablePropertyLink(availableIUGroup.getSelectedIUElements().length == 1);
-		validateNextButton();
+		updateSelection();
 
 		if (repoSelector != null) {
 			repoSelector.setRepositorySelection(AvailableIUGroup.AVAILABLE_NONE, null);

@@ -24,8 +24,7 @@ import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.wizard.IWizardPage;
-import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.jface.wizard.*;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -121,6 +120,25 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		return super.getNextPage(page);
 	}
 
+	/**
+	 * The selections in the main page have changed.  We might need to
+	 * change the completion state of the resolution page.
+	 */
+	public void mainPageSelectionsChanged() {
+		if (resolutionPage != null) {
+			// If the page selections are different than what we may have resolved
+			// against, then this page is not complete.
+			boolean old = resolutionPage.isPageComplete();
+			resolutionPage.setPageComplete(!pageSelectionsHaveChanged(mainPage));
+			// If the state has truly changed, update the buttons.  
+			if (old != resolutionPage.isPageComplete()) {
+				IWizardContainer container = getContainer();
+				if (container != null && container.getCurrentPage() != null)
+					getContainer().updateButtons();
+			}
+		}
+	}
+
 	private boolean shouldRecomputePlan(ISelectableIUsPage page) {
 		boolean previouslyWaiting = waitingForOtherJobs;
 		boolean previouslyCanceled = getCurrentStatus().getSeverity() == IStatus.CANCEL;
@@ -133,7 +151,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		Object[] currentSelections = page.getCheckedIUElements();
 		selectedIUs.addAll(Arrays.asList(ElementUtils.elementsToIUs(currentSelections)));
 		HashSet<IInstallableUnit> lastIUSelections = new HashSet<IInstallableUnit>();
-		lastIUSelections.addAll(Arrays.asList(ElementUtils.elementsToIUs(planSelections)));
+		if (planSelections != null)
+			lastIUSelections.addAll(Arrays.asList(ElementUtils.elementsToIUs(planSelections)));
 		return !(selectedIUs.equals(lastIUSelections));
 	}
 
