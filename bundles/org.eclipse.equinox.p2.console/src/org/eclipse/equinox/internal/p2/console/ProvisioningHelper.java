@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -150,7 +149,7 @@ public class ProvisioningHelper {
 	public static IQueryResult<IInstallableUnit> getInstallableUnits(URI location, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		IQueryable<IInstallableUnit> queryable = null;
 		if (location == null) {
-			queryable = (IQueryable<IInstallableUnit>) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+			queryable = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 		} else {
 			queryable = getMetadataRepository(location);
 		}

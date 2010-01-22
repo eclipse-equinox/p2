@@ -1,17 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008, 2009 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: IBM Corporation - initial API and implementation
+ * Contributors: 
+ * 	IBM Corporation - initial API and implementation
  * 	Band XI - add more commands
- *  Composent, Inc. - command additions
+ *		Composent, Inc. - command additions
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
-
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.io.File;
 import java.net.URI;
@@ -23,8 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.GroupQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -264,7 +261,7 @@ public class ProvCommandProvider implements CommandProvider {
 		String urlString = processArgument(interpreter.nextArgument());
 		IQueryable<IInstallableUnit> queryable = null;
 		if (urlString == null) {
-			queryable = (IQueryable<IInstallableUnit>) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+			queryable = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
 			if (queryable == null)
 				return;
 		} else {

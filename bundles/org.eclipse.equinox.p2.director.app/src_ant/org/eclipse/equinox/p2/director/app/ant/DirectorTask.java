@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,7 +40,7 @@ public class DirectorTask extends Task implements ILog {
 	private String extraArguments;
 	private File destination, bundlePool, agentLocation;
 	private URI metadataRepository, artifactRepository;
-	private List ius = new ArrayList();
+	private List<IUDescription> ius = new ArrayList<IUDescription>();
 	private String outputProperty;
 	private StringBuffer outputBuffer = null;
 	private File logFile = null;
@@ -134,8 +134,8 @@ public class DirectorTask extends Task implements ILog {
 		if (ius.size() > 0) {
 			result.add("-installIUs"); //$NON-NLS-1$
 			StringBuffer arg = new StringBuffer();
-			for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
-				IUDescription object = (IUDescription) iterator.next();
+			for (Iterator<IUDescription> iterator = ius.iterator(); iterator.hasNext();) {
+				IUDescription object = iterator.next();
 				arg.append(object.getVersionedId().toString());
 				if (iterator.hasNext())
 					arg.append(',');
