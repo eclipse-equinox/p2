@@ -462,6 +462,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		return (PluginConverter) ServiceHelper.getService(Activator.getContext(), PluginConverter.class.getName());
 	}
 
+	@SuppressWarnings("unchecked")
 	private static Dictionary<String, String> convertPluginManifest(File bundleLocation, boolean logConversionException) {
 		PluginConverter converter;
 		try {

@@ -28,12 +28,12 @@ public class QueryableArray implements IQueryable<IInstallableUnit> {
 	}
 
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		if (query instanceof ExpressionQuery)
-			return queryCapability((ExpressionQuery) query, new Collector<IInstallableUnit>(), monitor);
+		if (query instanceof ExpressionQuery<?>)
+			return queryCapability((ExpressionQuery<IInstallableUnit>) query, new Collector<IInstallableUnit>(), monitor);
 		return query.perform(dataSet.iterator());
 	}
 
-	private Collector<IInstallableUnit> queryCapability(ExpressionQuery query, Collector<IInstallableUnit> collector, IProgressMonitor monitor) {
+	private Collector<IInstallableUnit> queryCapability(ExpressionQuery<IInstallableUnit> query, Collector<IInstallableUnit> collector, IProgressMonitor monitor) {
 		generateNamedCapabilityIndex();
 
 		Collection<IInstallableUnit> resultIUs = null;
@@ -52,7 +52,7 @@ public class QueryableArray implements IQueryable<IInstallableUnit> {
 		return collector;
 	}
 
-	private Collection<IInstallableUnit> findMatchingIUs(IMatchExpression requirementMatch) {
+	private Collection<IInstallableUnit> findMatchingIUs(IMatchExpression<IInstallableUnit> requirementMatch) {
 		// TODO: This is a hack. Should be replaced by use of proper indexes
 		List<IInstallableUnit> ius = namedCapabilityIndex.get(RequiredCapability.extractName(requirementMatch));
 		if (ius == null)

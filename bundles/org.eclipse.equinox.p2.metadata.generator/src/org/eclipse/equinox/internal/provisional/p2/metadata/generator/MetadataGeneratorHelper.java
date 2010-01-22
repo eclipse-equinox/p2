@@ -862,11 +862,10 @@ public class MetadataGeneratorHelper {
 		iu.setRequirementChanges((IRequirementChange[]) requirementChanges.toArray(new IRequirementChange[requirementChanges.size()]));
 
 		//Generate lifecycle
-		IRequirement lifeCycle = null;
-		if (applicabilityScope.size() > 0) {
-			IRequirement req = (IRequirement) applicabilityScope.get(0);
-
-		}
+		//		IRequirement lifeCycle = null;
+		//		if (applicabilityScope.size() > 0) {
+		//			IRequirement req = (IRequirement) applicabilityScope.get(0);
+		//		}
 
 		iu.setTouchpointType(ITouchpointType.NONE);
 		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString());
