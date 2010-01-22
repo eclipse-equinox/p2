@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='file:/Users/pascal/tmp/repo - artifacts' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1264178685360'/>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='14'>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.equipment' version='1.2.1.v20100106'>
+      <properties size='3'>
+        <property name='artifact.size' value='15807'/>
+        <property name='download.size' value='15807'/>
+        <property name='download.md5' value='7cf18614363a8de65358a4ab1839509f'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.system' version='3.3.0.v20090831'>
+      <properties size='3'>
+        <property name='artifact.size' value='8621'/>
+        <property name='download.size' value='8621'/>
+        <property name='download.md5' value='7a8f2b2a76ead1c1131f9eb457ad3cbe'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.equipment' version='1.0.3.v20090513'>
+      <properties size='3'>
+        <property name='artifact.size' value='8433'/>
+        <property name='download.size' value='8433'/>
+        <property name='download.md5' value='b9c19b512dbba957d3a46be6fe3bf844'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.gemo' version='3.3.0.v20090429'>
+      <properties size='3'>
+        <property name='artifact.size' value='75899'/>
+        <property name='download.size' value='75899'/>
+        <property name='download.md5' value='9eebd9a2b3899de69d4549406e3fb213'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.gemo' version='3.2.1.v20090206'>
+      <properties size='3'>
+        <property name='artifact.size' value='71957'/>
+        <property name='download.size' value='71957'/>
+        <property name='download.md5' value='a7c918d352f7e7b3e9890e64cb7b532c'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.gemo' version='3.5.0.v20091030'>
+      <properties size='3'>
+        <property name='artifact.size' value='89736'/>
+        <property name='download.size' value='89736'/>
+        <property name='download.md5' value='9bcb9a6317543908f9eb18de2daab604'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.rda' version='5.1.0.v20100106'>
+      <properties size='3'>
+        <property name='artifact.size' value='67896'/>
+        <property name='download.size' value='67896'/>
+        <property name='download.md5' value='290ce2d86bc72d63752ed13e32e966b6'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.system' version='4.0.0.v20091030'>
+      <properties size='3'>
+        <property name='artifact.size' value='14040'/>
+        <property name='download.size' value='14040'/>
+        <property name='download.md5' value='eabb901aeed3f0c33cc84c03313f39ca'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.equipment' version='1.0.4.v20090831'>
+      <properties size='3'>
+        <property name='artifact.size' value='8904'/>
+        <property name='download.size' value='8904'/>
+        <property name='download.md5' value='3a06f9fe99444a4f058c984eeb4680dc'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.system' version='3.2.0.v20090430'>
+      <properties size='3'>
+        <property name='artifact.size' value='8760'/>
+        <property name='download.size' value='8760'/>
+        <property name='download.md5' value='13c2a489e44cf08428dfce4f61c6d140'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.gemo' version='3.4.0.v20090831'>
+      <properties size='3'>
+        <property name='artifact.size' value='80336'/>
+        <property name='download.size' value='80336'/>
+        <property name='download.md5' value='d45cf951a4b2aaa5dfefb171f1a962da'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.gemo' version='3.7.1.v20100106'>
+      <properties size='3'>
+        <property name='artifact.size' value='300329'/>
+        <property name='download.size' value='300329'/>
+        <property name='download.md5' value='fecee0f93274b36b538d63af09c73ef7'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.system' version='3.1.1.v20090205'>
+      <properties size='3'>
+        <property name='artifact.size' value='7818'/>
+        <property name='download.size' value='7818'/>
+        <property name='download.md5' value='99ed29d98b09743861a5a5d1adef4d17'/>
+      </properties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='com.dcns.rsm.profile.system' version='4.2.1.v20100106'>
+      <properties size='3'>
+        <property name='artifact.size' value='26991'/>
+        <property name='download.size' value='26991'/>
+        <property name='download.md5' value='ce54604eab6ab5659f7061fb88afdbd6'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>
