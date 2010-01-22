@@ -282,11 +282,11 @@ public abstract class AbstractApplication {
 	}
 
 	public boolean hasArtifactSources() {
-		return ((ICompositeRepository) getCompositeArtifactRepository()).getChildren().size() > 0;
+		return ((ICompositeRepository<?>) getCompositeArtifactRepository()).getChildren().size() > 0;
 	}
 
 	public boolean hasMetadataSources() {
-		return ((ICompositeRepository) getCompositeMetadataRepository()).getChildren().size() > 0;
+		return ((ICompositeRepository<?>) getCompositeMetadataRepository()).getChildren().size() > 0;
 	}
 
 	public abstract IStatus run(IProgressMonitor monitor) throws ProvisionException;

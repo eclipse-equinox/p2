@@ -30,6 +30,7 @@ public class QueryContext<T> implements IQueryContext<T> {
 		};
 	}
 
+	@SuppressWarnings("unchecked")
 	public synchronized ITranslationSupport getTranslationSupport(final Locale locale) {
 		if (translationSupports == null)
 			translationSupports = new HashMap<Locale, TranslationSupport>();

@@ -85,7 +85,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		}
 
 		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
-			parameters.put(NATIVE_ARTIFACTS, new ArrayList());
+			parameters.put(NATIVE_ARTIFACTS, new ArrayList<Object>());
 			return null;
 		}
 

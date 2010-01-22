@@ -33,6 +33,7 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 	private boolean failOnExists = false;
 	private String comparatorID = null;
 
+	@SuppressWarnings("unchecked")
 	public IStatus run(IProgressMonitor monitor) throws ProvisionException {
 		try {
 			initializeRepos(new NullProgressMonitor());
