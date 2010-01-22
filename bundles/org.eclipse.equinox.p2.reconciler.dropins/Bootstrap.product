@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="p2 bootstrap" id="org.eclipse.equinox.p2.reconciler.dropins.product" application="org.eclipse.equinox.p2.reconciler.application" useFeatures="false" includeLaunchers="true">
-
-   <configIni use="default">
-      <linux>/org.eclipse.equinox.p2.reconciler.dropins/config.ini</linux>
-      <macosx>/org.eclipse.equinox.p2.reconciler.dropins/config.ini</macosx>
-      <solaris>/org.eclipse.equinox.p2.reconciler.dropins/config.ini</solaris>
-      <win32>/org.eclipse.equinox.p2.reconciler.dropins/config.ini</win32>
-   </configIni>
+<product name="p2 bootstrap" id="org.eclipse.equinox.p2.reconciler.dropins.product" application="org.eclipse.equinox.p2.reconciler.application" version="1.1.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <launcherArgs>
       <vmArgs>-Dorg.eclipse.equinox.p2.reconciler.noConfig=true</vmArgs>
@@ -17,7 +10,7 @@
 
    <windowImages/>
 
-   <launcher name="eclipse.exe">
+   <launcher name="eclipse">
       <solaris/>
       <win useIco="false">
          <bmp/>
@@ -29,6 +22,7 @@
 
    <plugins>
       <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.expressions"/>
       <plugin id="org.eclipse.core.jobs"/>
       <plugin id="org.eclipse.core.net"/>
       <plugin id="org.eclipse.core.net.win32.x86" fragment="true"/>
@@ -42,6 +36,7 @@
       <plugin id="org.eclipse.ecf.ssl" fragment="true"/>
       <plugin id="org.eclipse.equinox.app"/>
       <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.ds"/>
       <plugin id="org.eclipse.equinox.frameworkadmin"/>
       <plugin id="org.eclipse.equinox.frameworkadmin.equinox"/>
       <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
@@ -66,11 +61,10 @@
       <plugin id="org.eclipse.equinox.security.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
+      <plugin id="org.eclipse.equinox.util"/>
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.sat4j.core"/>
       <plugin id="org.sat4j.pb"/>
    </plugins>
-
-
 </product>
