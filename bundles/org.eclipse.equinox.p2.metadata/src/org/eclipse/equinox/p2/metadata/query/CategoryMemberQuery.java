@@ -17,7 +17,6 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.query.MatchQuery;
 
 /**
-/**
  * A query matching every {@link IInstallableUnit} that is a member
  * of the specified category.
  * 
