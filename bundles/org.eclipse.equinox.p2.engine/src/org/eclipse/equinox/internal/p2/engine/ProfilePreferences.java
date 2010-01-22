@@ -31,9 +31,12 @@ import org.osgi.service.prefs.BackingStoreException;
  */
 public class ProfilePreferences extends EclipsePreferences {
 	private class SaveJob extends Job {
-		SaveJob() {
+		private IProfileRegistry registry;
+
+		SaveJob(IProfileRegistry registry) {
 			super(Messages.ProfilePreferences_saving);
 			setSystem(true);
+			this.registry = registry;
 		}
 
 		public boolean belongsTo(Object family) {
@@ -42,7 +45,7 @@ public class ProfilePreferences extends EclipsePreferences {
 
 		protected IStatus run(IProgressMonitor monitor) {
 			try {
-				doSave();
+				doSave(registry);
 			} catch (BackingStoreException e) {
 				LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Exception saving profile preferences", e)); //$NON-NLS-1$
 			}
@@ -88,8 +91,7 @@ public class ProfilePreferences extends EclipsePreferences {
 		qualifier = getSegment(path, 3);
 	}
 
-	private boolean containsProfile(IProvisioningAgent agent, String profileId) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+	private boolean containsProfile(IProfileRegistry profileRegistry, String profileId) {
 		if (profileId == null || profileRegistry == null)
 			return false;
 		return profileRegistry.containsProfile(profileId);
@@ -99,29 +101,23 @@ public class ProfilePreferences extends EclipsePreferences {
 	 * (non-Javadoc)
 	 * Create an Engine phase to save profile preferences
 	 */
-	protected void doSave() throws BackingStoreException {
+	protected void doSave(IProfileRegistry registry) throws BackingStoreException {
 		synchronized (((ProfilePreferences) parent).profileLock) {
-			ServiceReference agentRef = getAgent(getSegment(absolutePath(), 1));
-			IProvisioningAgent agent = (IProvisioningAgent) EngineActivator.getContext().getService(agentRef);
-			try {
-				String profileId = getSegment(absolutePath(), 2);
-				if (!containsProfile(agent, profileId)) {
-					//use the default location for the self profile, otherwise just do nothing and return
-					if (IProfileRegistry.SELF.equals(profileId)) {
-						IPath location = getDefaultLocation();
-						if (location != null) {
-							super.save(location);
-							return;
-						}
+			String profileId = getSegment(absolutePath(), 2);
+			if (!containsProfile(registry, profileId)) {
+				//use the default location for the self profile, otherwise just do nothing and return
+				if (IProfileRegistry.SELF.equals(profileId)) {
+					IPath location = getDefaultLocation();
+					if (location != null) {
+						super.save(location);
+						return;
 					}
-					if (Tracing.DEBUG_PROFILE_PREFERENCES)
-						Tracing.debug("Not saving preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
-					return;
 				}
-				super.save(getProfileLocation(agent, profileId));
-			} finally {
-				EngineActivator.getContext().ungetService(agentRef);
+				if (Tracing.DEBUG_PROFILE_PREFERENCES)
+					Tracing.debug("Not saving preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
+				return;
 			}
+			super.save(getProfileLocation(registry, profileId));
 		}
 	}
 
@@ -197,8 +193,8 @@ public class ProfilePreferences extends EclipsePreferences {
 	/**
 	 * Returns the location of the preference file for the given profile.
 	 */
-	private IPath getProfileLocation(IProvisioningAgent agent, String profileId) {
-		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+	private IPath getProfileLocation(IProfileRegistry registry, String profileId) {
+		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) registry;
 		File profileDataDirectory = profileRegistry.getProfileDataDirectory(profileId);
 		return computeLocation(new Path(profileDataDirectory.getAbsolutePath()), qualifier);
 	}
@@ -223,9 +219,10 @@ public class ProfilePreferences extends EclipsePreferences {
 		synchronized (((ProfilePreferences) parent).profileLock) {
 			ServiceReference agentRef = getAgent(getSegment(absolutePath(), 1));
 			IProvisioningAgent agent = (IProvisioningAgent) EngineActivator.getContext().getService(agentRef);
+			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 			try {
 				String profileId = getSegment(absolutePath(), 2);
-				if (!containsProfile(agent, profileId)) {
+				if (!containsProfile(registry, profileId)) {
 					//use the default location for the self profile, otherwise just do nothing and return
 					if (IProfileRegistry.SELF.equals(profileId)) {
 						IPath location = getDefaultLocation();
@@ -238,7 +235,7 @@ public class ProfilePreferences extends EclipsePreferences {
 						Tracing.debug("Not loading preferences since there is no file for node: " + absolutePath()); //$NON-NLS-1$
 					return;
 				}
-				load(getProfileLocation(agent, profileId));
+				load(getProfileLocation(registry, profileId));
 			} finally {
 				EngineActivator.getContext().ungetService(agentRef);
 			}
@@ -258,9 +255,22 @@ public class ProfilePreferences extends EclipsePreferences {
 	 * Schedules the save job. This method is synchronized to protect lazily initialization 
 	 * of the save job instance.
 	 */
-	protected synchronized void save() {
-		if (saveJob == null)
-			saveJob = new SaveJob();
+	protected synchronized void save() throws BackingStoreException {
+		if (saveJob == null) {
+			ServiceReference agentRef;
+			try {
+				agentRef = getAgent(getSegment(absolutePath(), 1));
+				IProvisioningAgent agent = (IProvisioningAgent) EngineActivator.getContext().getService(agentRef);
+				IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+				saveJob = new SaveJob(registry);
+				EngineActivator.getContext().ungetService(agentRef);
+			} catch (BackingStoreException e) {
+				if (Tracing.DEBUG_PROFILE_PREFERENCES)
+					e.printStackTrace();
+				//get agent has already gone away so we can't save preferences
+				//TODO see bug 300450
+			}
+		}
 		//only schedule a save if the engine bundle is still running
 		BundleContext context = EngineActivator.getContext();
 		if (context == null)
