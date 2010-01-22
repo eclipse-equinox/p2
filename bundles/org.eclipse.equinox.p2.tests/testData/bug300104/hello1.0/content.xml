@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='NLS missing message: FeatureExportOperation_0 in: org.eclipse.pde.internal.core.pderesources' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1259609695203'/>
+    <property name='p2.compressed' value='true'/>
+  </properties>
+  <units size='3'>
+    <unit id='hellofeature.feature.jar' version='1.0.0.200911201237'>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='Hellofeature'/>
+        <property name='org.eclipse.equinox.p2.description' value='[Enter Feature Description here.]'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://www.example.com/description'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='hellofeature.feature.jar' version='1.0.0.200911201237'/>
+        <provided namespace='org.eclipse.update.feature' name='hellofeature' version='1.0.0.200911201237'/>
+      </provides>
+      <filter>
+        (org.eclipse.update.install.features=true)
+      </filter>
+      <licenses size='1'>
+        <license uri='http://www.example.com/license' url='http://www.example.com/license'>
+          [Enter License Description here.]
+        </license>
+      </licenses>
+      <copyright uri='http://www.example.com/copyright' url='http://www.example.com/copyright'>
+        [Enter Copyright Description here.]
+      </copyright>
+    </unit>
+    <unit id='hello' version='1.0.0.200911201237'>
+      <update id='hello' range='[0.0.0,1.0.0.200911201237)' severity='0'/>
+      <properties size='1'>
+        <property name='org.eclipse.equinox.p2.name' value='Hello'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='hello' version='1.0.0.200911201237'/>
+        <provided namespace='osgi.bundle' name='hello' version='1.0.0.200911201237'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='hellofeature.feature.group' version='1.0.0.200911201237' singleton='false'>
+      <update id='hellofeature.feature.group' range='[0.0.0,1.0.0.200911201237)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='Hellofeature'/>
+        <property name='org.eclipse.equinox.p2.description' value='[Enter Feature Description here.]'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://www.example.com/description'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='hellofeature.feature.group' version='1.0.0.200911201237'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='hello' range='[1.0.0.200911201237,1.0.0.200911201237]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='hellofeature.feature.jar' range='[1.0.0.200911201237,1.0.0.200911201237]'>
+          <filter>
+            (org.eclipse.update.install.features=true)
+          </filter>
+        </required>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+      <licenses size='1'>
+        <license uri='http://www.example.com/license' url='http://www.example.com/license'>
+          [Enter License Description here.]
+        </license>
+      </licenses>
+      <copyright uri='http://www.example.com/copyright' url='http://www.example.com/copyright'>
+        [Enter Copyright Description here.]
+      </copyright>
+    </unit>
+  </units>
+</repository>
