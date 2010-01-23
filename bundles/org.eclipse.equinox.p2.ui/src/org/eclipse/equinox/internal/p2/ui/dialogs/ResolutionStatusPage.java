@@ -47,6 +47,11 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		super(pageName, ui, wizard);
 	}
 
+	/**
+	 * Update the caches associated with this page.
+	 * @param root the new root, or <code>null</code> if the root should not be updated.
+	 * @param resolvedOperation the new operation
+	 */
 	protected abstract void updateCaches(IUElementListRoot root, ProfileChangeOperation resolvedOperation);
 
 	protected abstract boolean isCreated();
@@ -58,7 +63,9 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	/**
 	 * Update the status area of the wizard to report the results of the operation.
 	 * 
-	 * @param newRoot the root that describes the root IUs involved in creating the plan
+	 * @param newRoot the root that describes the root IUs involved in creating the plan.
+	 * 		This can be <code>null</code> if the root should not be updated.
+	 * 
 	 * @param op the ProfileChangeOperation that describes the operation
 	 */
 	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation op) {

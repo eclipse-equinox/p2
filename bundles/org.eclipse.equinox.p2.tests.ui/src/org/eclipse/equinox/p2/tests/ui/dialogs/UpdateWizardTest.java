@@ -10,21 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
-
-import org.eclipse.equinox.p2.metadata.ILicense;
-
 import org.eclipse.equinox.internal.p2.metadata.License;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.operations.ProfileModificationJob;
+import org.eclipse.equinox.p2.operations.UpdateOperation;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -166,32 +159,6 @@ public class UpdateWizardTest extends WizardTest {
 		try {
 			assertNotNull("1.0", wizard.getStartingPage());
 			assertEquals("1.1", wizard.getStartingPage(), wizard.getPage(RESOLUTION_PAGE));
-		} finally {
-			dialog.getShell().close();
-		}
-	}
-
-	/**
-	 * Tests the wizard without a prior resolution being done.
-	 * This is not the SDK workflow, but should be supported.
-	 */
-	public void testUpdateWizardUnresolved() {
-		Update update = new Update(main, mainUpgrade1);
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
-		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, new Object[] {update}, null);
-		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
-		dialog.setBlockOnOpen(false);
-		dialog.open();
-
-		try {
-			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
-			// Page 1 should have selections
-			assertTrue(page1.isPageComplete());
-			// Should be able to resolve an unresolved operation
-			wizard.recomputePlan(dialog);
-			// Everything is still good
-			assertTrue(page1.isPageComplete());
-
 		} finally {
 			dialog.getShell().close();
 		}

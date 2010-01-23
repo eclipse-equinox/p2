@@ -96,7 +96,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * updates. 
 	 */
 	public void setSelectedUpdates(Update[] defaultUpdates) {
-		this.defaultUpdates = Arrays.asList(defaultUpdates);
+		this.defaultUpdates = new ArrayList<Update>(Arrays.asList(defaultUpdates));
 	}
 
 	/**
@@ -160,7 +160,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 		// IU should not be removed as part of the update.
 		Set<IInstallableUnit> toBeUpdated = new HashSet<IInstallableUnit>();
 		HashSet<Update> elementsToPlan = new HashSet<Update>();
-		boolean selectionSpecified = false;
+		boolean selectionSpecified = defaultUpdates != null;
 		IProfile profile = session.getProfileRegistry().getProfile(profileId);
 		if (profile == null)
 			return;
@@ -173,7 +173,6 @@ public class UpdateOperation extends ProfileChangeOperation {
 				toBeUpdated.add(iusToUpdate[i]);
 				if (defaultUpdates != null && defaultUpdates.contains(updates[j])) {
 					elementsToPlan.add(updates[j]);
-					selectionSpecified = true;
 				}
 
 			}

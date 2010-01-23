@@ -12,6 +12,7 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.*;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
@@ -28,6 +29,7 @@ import org.eclipse.jface.wizard.IWizardPage;
 public class UpdateWizard extends WizardWithLicenses {
 	IInstallableUnit[] iusToReplace;
 	boolean skipSelectionsPage = false;
+	IUElementListRoot firstPageRoot;
 
 	public static IInstallableUnit[] getIUsToReplace(Object[] elements) {
 		Set<IInstallableUnit> iusToReplace = new HashSet<IInstallableUnit>();
@@ -59,17 +61,27 @@ public class UpdateWizard extends WizardWithLicenses {
 		return updates.toArray(new Update[updates.size()]);
 	}
 
+	/**
+	 * Open an update wizard.  For update wizards, the operation must have been resolved in advanced.
+	 * This prevents searching for updates in the UI thread.
+	 * 
+	 * @param ui the provisioning UI
+	 * @param operation the update operation.  Must already be resolved!
+	 * @param initialSelections initial selections for the wizard (can be null)
+	 * @param preloadJob a job that has been used to preload metadata repositories (can be null)
+	 */
 	public UpdateWizard(ProvisioningUI ui, UpdateOperation operation, Object[] initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
+		Assert.isLegal(operation.hasResolved(), "Cannot create an update wizard on an unresolved operation"); //$NON-NLS-1$
 		setWindowTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UPDATE));
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
-		mainPage = new SelectableIUsPage(ui, this, input, selections);
+		mainPage = new SelectableIUsPage(ui, this, getAllPossibleUpdatesRoot(), selections);
 		mainPage.setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		mainPage.setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
-		((SelectableIUsPage) mainPage).updateStatus(input, operation);
+		((SelectableIUsPage) mainPage).updateStatus(getAllPossibleUpdatesRoot(), operation);
 		return mainPage;
 	}
 
@@ -130,5 +142,26 @@ public class UpdateWizard extends WizardWithLicenses {
 			((UpdateOperation) operation).setSelectedUpdates(makeUpdatesFromElements(elements));
 		}
 		return operation;
+	}
+
+	private IUElementListRoot getAllPossibleUpdatesRoot() {
+		if (firstPageRoot == null) {
+			firstPageRoot = new IUElementListRoot();
+			if (operation != null && operation instanceof UpdateOperation) {
+				Update[] updates;
+				if (getPolicy().getShowLatestVersionsOnly()) {
+					updates = ((UpdateOperation) operation).getSelectedUpdates();
+				} else {
+					updates = ((UpdateOperation) operation).getPossibleUpdates();
+				}
+				ArrayList<AvailableUpdateElement> allPossible = new ArrayList<AvailableUpdateElement>(updates.length);
+				for (int i = 0; i < updates.length; i++) {
+					AvailableUpdateElement newElement = new AvailableUpdateElement(firstPageRoot, updates[i].replacement, updates[i].toUpdate, getProfileId(), shouldShowProvisioningPlanChildren());
+					allPossible.add(newElement);
+				}
+				firstPageRoot.setChildren(allPossible.toArray());
+			}
+		}
+		return firstPageRoot;
 	}
 }

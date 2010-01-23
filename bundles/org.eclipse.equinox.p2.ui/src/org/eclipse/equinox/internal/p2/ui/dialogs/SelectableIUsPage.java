@@ -119,9 +119,9 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 		contentProvider = new ProvElementContentProvider();
 		tableViewer.setContentProvider(contentProvider);
-		tableViewer.setInput(root);
 		labelProvider = new IUDetailsLabelProvider(null, ProvUI.getIUColumnConfig(), getShell());
 		tableViewer.setLabelProvider(labelProvider);
+		tableViewer.setInput(root);
 		setInitialCheckState();
 
 		// Select and Deselect All buttons
@@ -262,11 +262,18 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		return tableViewer != null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionStatusPage#updateCaches(org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot, org.eclipse.equinox.p2.operations.ProfileChangeOperation)
+	 */
 	protected void updateCaches(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		resolvedOperation = op;
-		if (root != newRoot && tableViewer != null)
-			tableViewer.setInput(newRoot);
-		root = newRoot;
+		if (newRoot != null && root != newRoot) {
+			root = newRoot;
+			if (tableViewer != null)
+				tableViewer.setInput(newRoot);
+		}
+
 	}
 
 	/* (non-Javadoc)

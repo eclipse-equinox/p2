@@ -222,14 +222,16 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 	protected void updateCaches(IUElementListRoot newRoot, ProfileChangeOperation op) {
 		resolvedOperation = op;
-		setDrilldownElements(newRoot, resolvedOperation);
-		if (treeViewer != null) {
-			if (input != newRoot)
-				treeViewer.setInput(newRoot);
-			else
-				treeViewer.refresh();
+		if (newRoot != null) {
+			setDrilldownElements(newRoot, resolvedOperation);
+			if (treeViewer != null) {
+				if (input != newRoot)
+					treeViewer.setInput(newRoot);
+				else
+					treeViewer.refresh();
+			}
+			input = newRoot;
 		}
-		input = newRoot;
 	}
 
 	protected String getDialogSettingsName() {

@@ -167,10 +167,15 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	protected void planChanged() {
-		errorPage.updateStatus(root, operation);
+		resolutionPage.updateStatus(root, operation);
 		if (errorPage != resolutionPage) {
-			resolutionPage.updateStatus(root, operation);
+			IUElementListRoot newRoot = shouldUpdateErrorPageModelOnPlanChange() ? root : null;
+			errorPage.updateStatus(newRoot, operation);
 		}
+	}
+
+	protected boolean shouldUpdateErrorPageModelOnPlanChange() {
+		return errorPage != mainPage;
 	}
 
 	protected abstract void initializeResolutionModelElements(Object[] selectedElements);

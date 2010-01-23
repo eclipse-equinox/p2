@@ -31,7 +31,6 @@ import org.eclipse.jface.wizard.IWizardPage;
 public class InstallWizard extends WizardWithLicenses {
 
 	SelectableIUsPage errorReportingPage;
-	IUElementListRoot originalRoot;
 
 	public InstallWizard(ProvisioningUI ui, InstallOperation operation, IInstallableUnit[] initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
@@ -84,28 +83,6 @@ public class InstallWizard extends WizardWithLicenses {
 		return errorReportingPage;
 	}
 
-	protected void planChanged() {
-		// the superclass may change the page root when we don't wish this to happen.
-		// The code below will correct that case.  We set redraw to avoid a big flash.
-		errorReportingPage.getControl().setRedraw(false);
-		try {
-			super.planChanged();
-			// We don't want the root of the error page to change unless we are on the
-			// main page.  For example, if we are on the error page, change checkmarks, and
-			// resolve again with an error, we wouldn't want the root items to change in the
-			// error page.
-			if (getContainer().getCurrentPage() == mainPage) {
-				originalRoot = root;
-			} else {
-				errorReportingPage.updateStatus(originalRoot, operation);
-			}
-			// we always update the checkmarks to the current root
-			errorReportingPage.setCheckedElements(root.getChildren(root));
-		} finally {
-			errorReportingPage.getControl().setRedraw(true);
-		}
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.wizard.Wizard#getPreviousPage(org.eclipse.jface.wizard.IWizardPage)
@@ -126,5 +103,13 @@ public class InstallWizard extends WizardWithLicenses {
 		op.setProfileId(getProfileId());
 		//		op.setRootMarkerKey(getRootMarkerKey());
 		return op;
+	}
+
+	protected boolean shouldUpdateErrorPageModelOnPlanChange() {
+		// We don't want the root of the error page to change unless we are on the
+		// main page.  For example, if we are on the error page, change checkmarks, and
+		// resolve again with an error, we wouldn't want the root items to change in the
+		// error page.
+		return getContainer().getCurrentPage() == mainPage && super.shouldUpdateErrorPageModelOnPlanChange();
 	}
 }
