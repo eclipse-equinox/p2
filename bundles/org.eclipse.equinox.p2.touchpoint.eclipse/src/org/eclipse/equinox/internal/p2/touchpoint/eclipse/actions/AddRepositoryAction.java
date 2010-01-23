@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -35,7 +35,7 @@ public class AddRepositoryAction extends RepositoryAction {
 				addRepositoryToProfile(agentLocation, profile, event.getRepositoryLocation(), event.getRepositoryNickname(), event.getRepositoryType(), event.isRepositoryEnabled());
 			//if provisioning into the current profile, broadcast an event to add this repository directly to the current repository managers.
 			if (isSelfProfile(registry, profile))
-				addToSelf(agentLocation, event);
+				addToSelf(agent, agentLocation, event);
 			return Status.OK_STATUS;
 		} catch (CoreException e) {
 			return e.getStatus();
@@ -57,7 +57,7 @@ public class AddRepositoryAction extends RepositoryAction {
 				removeRepositoryFromProfile(agentLocation, profile, event.getRepositoryLocation(), event.getRepositoryType());
 			//if provisioning into the current profile, broadcast an event to add this repository directly to the current repository managers.
 			if (isSelfProfile(registry, profile))
-				removeFromSelf(agentLocation, event);
+				removeFromSelf(agent, agentLocation, event);
 			return Status.OK_STATUS;
 		} catch (CoreException e) {
 			return e.getStatus();

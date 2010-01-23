@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -14,9 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.Profile;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
@@ -53,11 +51,11 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * Returns the repository manager of the given type, or <code>null</code>
 	 * if not available.
 	 */
-	private static IRepositoryManager<?> getRepositoryManager(int type) {
+	private static IRepositoryManager<?> getRepositoryManager(IProvisioningAgent agent, int type) {
 		if (type == IRepository.TYPE_METADATA) {
-			return (IRepositoryManager<?>) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+			return (IRepositoryManager<?>) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		} else if (type == IRepository.TYPE_ARTIFACT) {
-			return (IRepositoryManager<?>) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+			return (IRepositoryManager<?>) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		}
 		return null;
 	}
@@ -92,8 +90,8 @@ abstract class RepositoryAction extends ProvisioningAction {
 	/**
 	 * Adds the repository corresponding to the given event to the currently running instance.
 	 */
-	protected void addToSelf(IAgentLocation agentLocation, RepositoryEvent event) {
-		IRepositoryManager<?> manager = getRepositoryManager(event.getRepositoryType());
+	protected void addToSelf(IProvisioningAgent agent, IAgentLocation agentLocation, RepositoryEvent event) {
+		IRepositoryManager<?> manager = getRepositoryManager(agent, event.getRepositoryType());
 		final URI location = event.getRepositoryLocation();
 		Preferences node = getRepositoryPreferenceNode(agentLocation, null, location, event.getRepositoryType());
 
@@ -168,8 +166,8 @@ abstract class RepositoryAction extends ProvisioningAction {
 	/**
 	 * Removes the repository corresponding to the given event from the currently running instance.
 	 */
-	protected void removeFromSelf(IAgentLocation agentLocation, RepositoryEvent event) {
-		IRepositoryManager<?> manager = getRepositoryManager(event.getRepositoryType());
+	protected void removeFromSelf(IProvisioningAgent agent, IAgentLocation agentLocation, RepositoryEvent event) {
+		IRepositoryManager<?> manager = getRepositoryManager(agent, event.getRepositoryType());
 		Preferences node = getRepositoryPreferenceNode(agentLocation, null, event.getRepositoryLocation(), event.getRepositoryType());
 		int count = getRepositoryCount(node);
 		if (--count < 1 && manager != null)
