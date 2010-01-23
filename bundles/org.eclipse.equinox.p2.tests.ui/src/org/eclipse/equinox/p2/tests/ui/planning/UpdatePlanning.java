@@ -162,9 +162,11 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1, b1}, null);
 		op.resolveModal(getMonitor());
 		Update[] updates = op.getSelectedUpdates();
-		assertTrue("1.0", updates.length == 2);
+		assertEquals("1.0", 2, updates.length);
 		// choose just one
 		op.setSelectedUpdates(new Update[] {updates[0]});
 		op.resolveModal(getMonitor());
+		assertEquals("1.1", 1, op.getSelectedUpdates().length);
+
 	}
 }
