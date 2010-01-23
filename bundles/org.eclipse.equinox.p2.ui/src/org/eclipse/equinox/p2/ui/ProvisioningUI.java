@@ -135,7 +135,6 @@ public class ProvisioningUI {
 	public InstallOperation getInstallOperation(IInstallableUnit[] iusToInstall, URI[] repositories) {
 		InstallOperation op = new InstallOperation(getSession(), iusToInstall);
 		op.setProfileId(getProfileId());
-		//		op.setRootMarkerKey(getPolicy().getQueryContext().getVisibleInstalledIUProperty());
 		op.setProvisioningContext(makeProvisioningContext(repositories));
 		return op;
 	}
@@ -151,7 +150,6 @@ public class ProvisioningUI {
 	public UpdateOperation getUpdateOperation(IInstallableUnit[] iusToUpdate, URI[] repositories) {
 		UpdateOperation op = new UpdateOperation(getSession(), iusToUpdate);
 		op.setProfileId(getProfileId());
-		//		op.setRootMarkerKey(getPolicy().getQueryContext().getVisibleInstalledIUProperty());
 		op.setProvisioningContext(makeProvisioningContext(repositories));
 		return op;
 	}
@@ -167,7 +165,6 @@ public class ProvisioningUI {
 	public UninstallOperation getUninstallOperation(IInstallableUnit[] iusToUninstall, URI[] repositories) {
 		UninstallOperation op = new UninstallOperation(getSession(), iusToUninstall);
 		op.setProfileId(getProfileId());
-		//		op.setRootMarkerKey(getPolicy().getQueryContext().getVisibleInstalledIUProperty());
 		op.setProvisioningContext(makeProvisioningContext(repositories));
 		return op;
 	}
