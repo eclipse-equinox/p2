@@ -10,27 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.planning;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
-import org.eclipse.equinox.p2.metadata.IRequirementChange;
-import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.operations.Update;
 import org.eclipse.equinox.p2.operations.UpdateOperation;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
 public class UpdatePlanning extends AbstractProvisioningUITest {
-	IInstallableUnit a1;
+	IInstallableUnit a1, b1;
+	IInstallableUnit b12;
 	IInstallableUnit a120WithDifferentId;
 	IInstallableUnit a130;
 	IInstallableUnit a140WithDifferentId;
@@ -53,6 +46,9 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		IRequiredCapability lifeCycle2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 3.2.0]"), null, false, false);
 		patchFora2 = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {change2}, new IRequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, lifeCycle2);
 
+		b1 = createIU("B", Version.create("1.0.0"));
+		update = MetadataFactory.createUpdateDescriptor("B", new VersionRange("[1.0.0, 1.0.0]"), 0, "update description");
+		b12 = createIU("B", Version.createOSGi(1, 2, 0), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, false, update, NO_REQUIRES);
 		// Ensure that all versions, not just the latest, are considered by the UI
 		getPolicy().setShowLatestVersionsOnly(false);
 	}
@@ -157,5 +153,18 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a140WithDifferentId));
 		// All three patches and all three updates can be chosen
 		assertEquals("1.2", 6, op.getPossibleUpdates().length);
+	}
+
+	// bug 300445
+	public void testRemoveSelectionAfterResolve() throws ProvisionException {
+		createTestMetdataRepository(new IInstallableUnit[] {a1, a130, b1, b12});
+		install(a1, true, false);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1, b1}, null);
+		op.resolveModal(getMonitor());
+		Update[] updates = op.getSelectedUpdates();
+		assertTrue("1.0", updates.length == 2);
+		// choose just one
+		op.setSelectedUpdates(new Update[] {updates[0]});
+		op.resolveModal(getMonitor());
 	}
 }
