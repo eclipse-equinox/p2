@@ -1,2 +1,0 @@
-Y
-// This y.txt should have the first line being a single Y
