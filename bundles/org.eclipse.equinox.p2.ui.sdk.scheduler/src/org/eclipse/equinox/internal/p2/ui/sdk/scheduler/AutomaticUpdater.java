@@ -310,7 +310,7 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	public void launchUpdate() {
-		getProvisioningUI().openUpdateWizard(getProvisioningUI().getDefaultParentShell(), true, operation, null);
+		getProvisioningUI().openUpdateWizard(getProvisioningUI().getDefaultParentShell(), false, operation, null);
 	}
 
 	/*
