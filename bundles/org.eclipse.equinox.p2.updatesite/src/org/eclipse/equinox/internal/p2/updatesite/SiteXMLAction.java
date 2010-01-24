@@ -85,27 +85,27 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		defaultCategorySet.add(defaultCategory);
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		if (updateSite == null) {
 			try {
 				updateSite = UpdateSite.load(location, monitor);
 			} catch (ProvisionException e) {
-				return new Status(IStatus.ERROR, Activator.ID, "Error generating site xml action.", e);
+				return new Status(IStatus.ERROR, Activator.ID, Messages.Error_generating_siteXML, e);
 			} catch (OperationCanceledException e) {
 				return Status.CANCEL_STATUS;
 			}
 		}
 		initialize();
-		return generateCategories(info, results, monitor);
+		return generateCategories(publisherInfo, results, monitor);
 	}
 
-	private IStatus generateCategories(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+	private IStatus generateCategories(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		Map<SiteCategory, Set<IInstallableUnit>> categoriesToFeatureIUs = new HashMap<SiteCategory, Set<IInstallableUnit>>();
-		Map<SiteFeature, Set<SiteCategory>> featuresToCategories = getFeatureToCategoryMappings(info);
+		Map<SiteFeature, Set<SiteCategory>> featuresToCategories = getFeatureToCategoryMappings(publisherInfo);
 		for (SiteFeature feature : featuresToCategories.keySet()) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			IInstallableUnit iu = getFeatureIU(feature, info, results);
+			IInstallableUnit iu = getFeatureIU(feature, publisherInfo, results);
 			if (iu == null)
 				continue;
 			Set<SiteCategory> categories = featuresToCategories.get(feature);
@@ -173,7 +173,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	 * if available. Returns an empty map if there is not site.xml, or no categories.
 	 * @return A map of SiteFeature -> Set<SiteCategory>.
 	 */
-	protected Map<SiteFeature, Set<SiteCategory>> getFeatureToCategoryMappings(IPublisherInfo info) {
+	protected Map<SiteFeature, Set<SiteCategory>> getFeatureToCategoryMappings(IPublisherInfo publisherInfo) {
 		HashMap<SiteFeature, Set<SiteCategory>> mappings = new HashMap<SiteFeature, Set<SiteCategory>>();
 		if (updateSite == null)
 			return mappings;
@@ -188,17 +188,17 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			int index = mirrors.indexOf("site.xml"); //$NON-NLS-1$
 			if (index != -1)
 				mirrors = mirrors.substring(0, index) + mirrors.substring(index + "site.xml".length()); //$NON-NLS-1$
-			info.getMetadataRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
+			publisherInfo.getMetadataRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
 			// there does not really need to be an artifact repo but if there is, setup its mirrors.
-			if (info.getArtifactRepository() != null)
-				info.getArtifactRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
+			if (publisherInfo.getArtifactRepository() != null)
+				publisherInfo.getArtifactRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
 		}
 
 		//publish associate sites as repository references
 		URLEntry[] associatedSites = site.getAssociatedSites();
 		if (associatedSites != null)
 			for (int i = 0; i < associatedSites.length; i++)
-				generateSiteReference(associatedSites[i].getURL(), associatedSites[i].getAnnotation(), null, info.getMetadataRepository());
+				generateSiteReference(associatedSites[i].getURL(), associatedSites[i].getAnnotation(), null, publisherInfo.getMetadataRepository());
 
 		File siteFile = URIUtil.toFile(updateSite.getLocation());
 		if (siteFile != null && siteFile.exists()) {
@@ -230,20 +230,20 @@ public class SiteXMLAction extends AbstractPublisherAction {
 
 	/**
 	 * Generates and publishes a reference to an update site location
-	 * @param location The update site location
+	 * @param siteLocation The update site location
 	 * @param label The update site label
 	 * @param featureId the identifier of the feature where the error occurred, or null
 	 * @param metadataRepo The repository into which the references are added
 	 */
-	private void generateSiteReference(String location, String label, String featureId, IMetadataRepository metadataRepo) {
+	private void generateSiteReference(String siteLocation, String label, String featureId, IMetadataRepository metadataRepo) {
 		if (metadataRepo == null)
 			return;
 		try {
-			URI associateLocation = new URI(location);
+			URI associateLocation = new URI(siteLocation);
 			metadataRepo.addReference(associateLocation, label, IRepository.TYPE_METADATA, IRepository.ENABLED);
 			metadataRepo.addReference(associateLocation, label, IRepository.TYPE_ARTIFACT, IRepository.ENABLED);
 		} catch (URISyntaxException e) {
-			String message = "Invalid site reference: " + location; //$NON-NLS-1$
+			String message = "Invalid site reference: " + siteLocation; //$NON-NLS-1$
 			if (featureId != null)
 				message = message + " in feature: " + featureId; //$NON-NLS-1$
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));

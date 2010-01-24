@@ -26,14 +26,14 @@ public class CategoryXMLAction extends SiteXMLAction {
 		super(location, categoryQualifier);
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results, IProgressMonitor monitor) {
+	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		try {
 			updateSite = UpdateSite.loadCategoryFile(location, monitor);
 		} catch (ProvisionException e) {
-			return new Status(IStatus.ERROR, Activator.ID, "Error generating category xml action.", e);
+			return new Status(IStatus.ERROR, Activator.ID, Messages.Error_generating_category, e);
 		}
 		if (updateSite == null)
-			return new Status(IStatus.ERROR, Activator.ID, "Error generating category xml action.");
-		return super.perform(info, results, monitor);
+			return new Status(IStatus.ERROR, Activator.ID, Messages.Error_generating_category);
+		return super.perform(publisherInfo, results, monitor);
 	}
 }
