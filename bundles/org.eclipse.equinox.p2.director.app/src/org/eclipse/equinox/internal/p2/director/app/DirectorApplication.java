@@ -326,6 +326,9 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private void initializeRepositories() throws CoreException {
+		if (rootsToInstall.isEmpty() && revertToPreviousState == -1 && !printIUList)
+			// Not much point initializing repositories if we have nothing to install
+			return;
 		if (artifactRepositoryLocations == null)
 			missingArgument("-artifactRepository"); //$NON-NLS-1$
 
