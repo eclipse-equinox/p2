@@ -143,7 +143,11 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 	 */
 	protected abstract IRepository<T> doLoadRepository(IRepositoryManager<T> manager, URI location, IProgressMonitor monitor) throws ProvisionException;
 
+	@SuppressWarnings("unchecked")
 	protected IQueryResult<T> query(URI uris[], IQuery<T> query, IProgressMonitor monitor) {
+		if (query instanceof RepositoryLocationQuery) {
+			return (IQueryResult<T>) locationsQueriable().query((IQuery<URI>) query, monitor);
+		}
 		SubMonitor sub = SubMonitor.convert(monitor, (uris.length + 1) * 100);
 		ArrayList<IRepository<T>> loadedRepos = new ArrayList<IRepository<T>>(uris.length);
 		for (int i = 0; i < uris.length; i++) {

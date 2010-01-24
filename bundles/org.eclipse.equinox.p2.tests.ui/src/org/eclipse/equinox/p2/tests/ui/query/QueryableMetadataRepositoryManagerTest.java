@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-
 import java.io.File;
 import java.net.URI;
 import java.util.Collection;
@@ -25,6 +21,8 @@ import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -184,8 +182,9 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "test.bundle", iu.getId());
 
-		//RepoLocationQuery collects repository URLs
-		result = manager.locationsQueriable().query(new RepositoryLocationQuery(), getMonitor());
+		// RepoLocationQuery must cause repository URI's to be collected and no repository
+		// loading should occur.
+		result = manager.query(new RepositoryLocationQuery(), getMonitor());
 		assertEquals("2.0", 3, queryResultSize(result));
 		assertContains("2.1", result, existing);
 		assertContains("2.1", result, nonExisting);
