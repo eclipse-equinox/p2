@@ -21,6 +21,7 @@ Import-Package: com.ibm.icu.text,
  org.eclipse.equinox.internal.provisional.p2.director,
  org.eclipse.equinox.internal.provisional.p2.repository,
  org.eclipse.equinox.p2.core,
+ org.eclipse.equinox.p2.core.spi,
  org.eclipse.equinox.p2.engine,
  org.eclipse.equinox.p2.engine.query,
  org.eclipse.equinox.p2.metadata,
@@ -52,5 +53,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  J2SE-1.4,
  CDC-1.1/Foundation-1.1
-Service-Component: OSGI-INF/serviceui_component.xml, OSGI-INF/repositoryTracker_component.xml
- 
+Service-Component: OSGI-INF/serviceui_component.xml, OSGI-INF/repositoryTracker_component.xml, OSGI-INF/serviceui.xml
