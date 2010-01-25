@@ -21,6 +21,7 @@ import org.eclipse.osgi.util.NLS;
 //We should just use the native touchpoint copy when we have a replacement for the use of @artifact in parameters
 public class LinkAction extends ProvisioningAction {
 	public static final String ID = "ln"; //$NON-NLS-1$
+	private static final boolean WINDOWS = java.io.File.separatorChar == '\\';
 
 	public IStatus execute(Map<String, Object> parameters) {
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
@@ -67,6 +68,8 @@ public class LinkAction extends ProvisioningAction {
 	 * @param force if overwrite of existing file should be performed.
 	 */
 	private void ln(String targetDir, String linkTarget, String linkName, boolean force) {
+		if (WINDOWS)
+			return;
 
 		Runtime r = Runtime.getRuntime();
 		try {

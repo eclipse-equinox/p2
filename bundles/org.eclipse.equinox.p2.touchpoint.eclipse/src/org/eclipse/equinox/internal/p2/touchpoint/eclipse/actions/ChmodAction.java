@@ -24,6 +24,7 @@ import org.eclipse.osgi.util.NLS;
 // We should just use the native touchpoint copy when we have a replacement for the use of @artifact in parameters
 public class ChmodAction extends ProvisioningAction {
 	private static final String ACTION_CHMOD = "chmod"; //$NON-NLS-1$
+	private static final boolean WINDOWS = java.io.File.separatorChar == '\\';
 
 	public IStatus execute(Map<String, Object> parameters) {
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
@@ -85,6 +86,8 @@ public class ChmodAction extends ProvisioningAction {
 	}
 
 	public void chmod(String targetDir, String targetFile, String perms, String[] options) {
+		if (WINDOWS)
+			return;
 		Runtime r = Runtime.getRuntime();
 		try {
 			// Note: 3 is from chmod, permissions, and target

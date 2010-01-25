@@ -19,6 +19,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class LinkAction extends ProvisioningAction {
 	public static final String ID = "ln"; //$NON-NLS-1$
+	private static final boolean WINDOWS = java.io.File.separatorChar == '\\';
 
 	public IStatus execute(Map<String, Object> parameters) {
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
@@ -46,6 +47,8 @@ public class LinkAction extends ProvisioningAction {
 	}
 
 	public IStatus undo(Map<String, Object> parameters) {
+		if (WINDOWS)
+			return Status.OK_STATUS;
 		String targetDir = (String) parameters.get(ActionConstants.PARM_TARGET_DIR);
 		String linkName = (String) parameters.get(ActionConstants.PARM_LINK_NAME);
 
@@ -68,6 +71,8 @@ public class LinkAction extends ProvisioningAction {
 	 * @throws IOException if backup of existing file fails
 	 */
 	private void ln(String targetDir, String linkTarget, String linkName, boolean force, IBackupStore store) throws IOException {
+		if (WINDOWS)
+			return;
 		// backup a file that would be overwritten using "force == true"
 		if (force && store != null) {
 			File xFile = new File(targetDir, linkName);
