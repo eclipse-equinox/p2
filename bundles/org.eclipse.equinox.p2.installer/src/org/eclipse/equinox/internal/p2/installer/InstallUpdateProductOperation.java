@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -22,11 +19,11 @@ import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -34,8 +31,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 /**
  * This operation performs installation or update of an Eclipse-based product.
@@ -43,7 +38,7 @@ import org.osgi.framework.ServiceReference;
 public class InstallUpdateProductOperation implements IInstallOperation {
 
 	private IArtifactRepositoryManager artifactRepoMan;
-	private BundleContext bundleContext;
+	private IProvisioningAgent agent;
 	private IDirector director;
 	private final InstallDescription installDescription;
 	private boolean isInstall = true;
@@ -51,10 +46,8 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	private IProfileRegistry profileRegistry;
 	private IStatus result;
 
-	private ArrayList<ServiceReference> serviceReferences = new ArrayList<ServiceReference>();
-
-	public InstallUpdateProductOperation(BundleContext context, InstallDescription description) {
-		this.bundleContext = context;
+	public InstallUpdateProductOperation(IProvisioningAgent agent, InstallDescription description) {
+		this.agent = agent;
 		this.installDescription = description;
 	}
 
@@ -194,13 +187,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	private Object getService(String name) throws CoreException {
-		ServiceReference ref = bundleContext.getServiceReference(name);
-		if (ref == null)
-			throw fail(Messages.Op_NoService + name);
-		Object service = bundleContext.getService(ref);
+		Object service = agent.getService(name);
 		if (service == null)
 			throw fail(Messages.Op_NoServiceImpl + name);
-		serviceReferences.add(ref);
 		return service;
 	}
 
@@ -236,14 +225,11 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	private void postInstall() {
-		for (ServiceReference sr : serviceReferences)
-			bundleContext.ungetService(sr);
-		serviceReferences.clear();
+		//nothing to do
 	}
 
 	private void preInstall() throws CoreException {
 		//obtain required services
-		serviceReferences.clear();
 		director = (IDirector) getService(IDirector.SERVICE_NAME);
 		metadataRepoMan = (IMetadataRepositoryManager) getService(IMetadataRepositoryManager.SERVICE_NAME);
 		artifactRepoMan = (IArtifactRepositoryManager) getService(IArtifactRepositoryManager.SERVICE_NAME);

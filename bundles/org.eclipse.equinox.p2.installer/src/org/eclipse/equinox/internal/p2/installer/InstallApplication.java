@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -21,7 +21,9 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.installer.ui.SWTInstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
-import org.osgi.framework.*;
+import org.eclipse.equinox.p2.core.*;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * This is a simple installer application built using P2.  The application must be given
@@ -137,9 +139,9 @@ public class InstallApplication implements IApplication {
 			InstallDescription description = null;
 			try {
 				description = computeInstallDescription();
-				startRequiredBundles(description);
+				IProvisioningAgent agent = startAgent(description);
 				//perform long running install operation
-				InstallUpdateProductOperation operation = new InstallUpdateProductOperation(InstallerActivator.getDefault().getContext(), description);
+				InstallUpdateProductOperation operation = new InstallUpdateProductOperation(agent, description);
 				IStatus result = advisor.performInstall(operation);
 				if (!result.isOK()) {
 					LogHelper.log(result);
@@ -156,6 +158,7 @@ public class InstallApplication implements IApplication {
 					//TODO present the user an option to immediately start the product
 					advisor.setResult(result);
 				}
+				agent.stop();
 			} catch (OperationCanceledException e) {
 				advisor.setResult(Status.CANCEL_STATUS);
 			} catch (Exception e) {
@@ -194,30 +197,16 @@ public class InstallApplication implements IApplication {
 	/**
 	 * Starts the p2 bundles needed to continue with the install.
 	 */
-	private void startRequiredBundles(InstallDescription description) throws CoreException {
+	private IProvisioningAgent startAgent(InstallDescription description) throws CoreException {
 		IPath installLocation = description.getInstallLocation();
 		if (installLocation == null)
 			throw fail(Messages.App_NoInstallLocation, null);
 		//set agent location if specified
 		IPath agentLocation = description.getAgentLocation();
-		if (agentLocation != null) {
-			String agentArea = System.getProperty("eclipse.p2.data.area"); //$NON-NLS-1$
-			// TODO a bit of a hack here.  If the value is already set and it is set to @config/p2 then 
-			// it may well be the default value put in by PDE.  Overwrite it.
-			// Its kind of unclear why we would NOT overwrite.  At this point the user set their choice
-			// of shared or standalone and those dicate where the agent should put its info...
-			if (agentArea == null || agentArea.length() == 0 || agentArea.startsWith("@config")) //$NON-NLS-1$
-				System.setProperty("eclipse.p2.data.area", agentLocation.toOSString()); //$NON-NLS-1$ 
-		}
-		//start up p2
 		try {
-			if (agentLocation != null) {
-				// reset the agent location
-				InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.core").stop(Bundle.STOP_TRANSIENT); //$NON-NLS-1$
-				InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.core").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-			}
-			InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-		} catch (BundleException e) {
+			IProvisioningAgentProvider provider = (IProvisioningAgentProvider) getService(InstallerActivator.getDefault().getContext(), IProvisioningAgentProvider.SERVICE_NAME);
+			return provider.createAgent(agentLocation == null ? null : agentLocation.toFile().toURI());
+		} catch (ProvisionException e) {
 			throw fail(Messages.App_FailedStart, e);
 		}
 	}
