@@ -72,7 +72,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {x});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
-		assertEquals(1, queryResultSize(plan.getCompleteState().query(new InstallableUnitQuery("X"), null)));
+		assertEquals(1, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(new InstallableUnitQuery("X"), null)));
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 	}
@@ -88,7 +88,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {y});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		final RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		final RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
 		Set explanation = requestStatus.getExplanations();
 		// System.out.println(explanation);
 		assertFalse(explanation.isEmpty());
@@ -117,7 +117,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {w});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		final RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		final RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
 		Set explanation = requestStatus.getExplanations();
 		// System.out.println(explanation);
 		assertFalse(explanation.isEmpty());
@@ -152,7 +152,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {u, v});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		final RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		final RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
 		Set explanation = requestStatus.getExplanations();
 		assertFalse(explanation.isEmpty());
 		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());

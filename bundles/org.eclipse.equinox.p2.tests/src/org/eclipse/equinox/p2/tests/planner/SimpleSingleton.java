@@ -10,17 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningPlan;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SimpleSingleton extends AbstractProvisioningTest {
@@ -55,7 +52,7 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {y});
 		ProvisioningPlan provisioningPlan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, provisioningPlan.getStatus().getSeverity());
-		assertNotNull(provisioningPlan.getCompleteState());
+		assertNotNull(((PlannerStatus) provisioningPlan.getStatus()).getPlannedState());
 	}
 
 	public void testExplanation() {
@@ -63,7 +60,7 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {y});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		final RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		final RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
 		assertEquals(Explanation.VIOLATED_SINGLETON_CONSTRAINT, requestStatus.getShortExplanation());
 		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(y));
 	}

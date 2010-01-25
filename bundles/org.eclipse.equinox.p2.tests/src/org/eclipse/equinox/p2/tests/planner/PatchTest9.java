@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -69,7 +66,7 @@ public class PatchTest9 extends AbstractProvisioningTest {
 		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
 		ProvisioningPlan plan1 = (ProvisioningPlan) planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan1.getStatus().getSeverity());
-		final RequestStatus requestStatus = (RequestStatus) plan1.getRequestStatus();
+		final RequestStatus requestStatus = ((PlannerStatus) plan1.getStatus()).getRequestStatus();
 		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());
 		Set conflictingRoots = requestStatus.getConflictsWithInstalledRoots();
 		assertEquals(1, conflictingRoots.size());

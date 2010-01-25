@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -76,7 +73,7 @@ public class PatchTest12 extends AbstractProvisioningTest {
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1});
 		ProvisioningPlan plan3 = (ProvisioningPlan) planner.getProvisioningPlan(req3, null, null);
 		assertTrue(IStatus.ERROR == plan3.getStatus().getSeverity());
-		final RequestStatus requestStatus = (RequestStatus) plan3.getRequestStatus();
+		final RequestStatus requestStatus = ((PlannerStatus) plan3.getStatus()).getRequestStatus();
 		Set conflictRootIUs = requestStatus.getConflictsWithInstalledRoots();
 		assertTrue(conflictRootIUs.contains(p1));
 		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());

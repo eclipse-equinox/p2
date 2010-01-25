@@ -10,12 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ExplanationDeepConflict extends AbstractProvisioningTest {
@@ -55,7 +52,7 @@ public class ExplanationDeepConflict extends AbstractProvisioningTest {
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
-		RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
 		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(cdt));
 		//Here we verify that we only return the roots we asked the installation of. The SDK is installable since it is already installed
 		assertFalse(requestStatus.getConflictsWithInstalledRoots().contains(sdk));

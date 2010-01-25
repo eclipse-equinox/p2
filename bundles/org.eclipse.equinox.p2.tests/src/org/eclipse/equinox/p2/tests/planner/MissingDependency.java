@@ -10,17 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class MissingDependency extends AbstractProvisioningTest {
@@ -56,7 +53,7 @@ public class MissingDependency extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {a1, b1});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
-		RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
 		Set explanation = requestStatus.getExplanations();
 		// System.out.println(explanation);
 		assertEquals(2, explanation.size());

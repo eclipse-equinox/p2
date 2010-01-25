@@ -61,10 +61,16 @@ public class SimplePlanner implements IPlanner {
 				Tracing.debug(operands[i].toString());
 			}
 		}
-		return new ProvisioningPlan(Status.OK_STATUS, operands, computeActualChangeRequest(toState, changeRequest), null, installerPlan, changeRequest.getProfile(), new QueryableArray(toState.toArray(new IInstallableUnit[toState.size()])), context);
+
+		Map<IInstallableUnit, RequestStatus>[] changes = computeActualChangeRequest(toState, changeRequest);
+		Map<IInstallableUnit, RequestStatus> requestChanges = (changes == null) ? null : changes[0];
+		Map<IInstallableUnit, RequestStatus> requestSideEffects = (changes == null) ? null : changes[1];
+		QueryableArray plannedState = new QueryableArray(toState.toArray(new IInstallableUnit[toState.size()]));
+		PlannerStatus plannerStatus = new PlannerStatus(Status.OK_STATUS, null, requestChanges, requestSideEffects, plannedState);
+		return new ProvisioningPlan(plannerStatus, changeRequest.getProfile(), operands, context, installerPlan);
 	}
 
-	private Map<IInstallableUnit, IStatus>[] buildDetailedErrors(ProfileChangeRequest changeRequest) {
+	private Map<IInstallableUnit, RequestStatus>[] buildDetailedErrors(ProfileChangeRequest changeRequest) {
 		IInstallableUnit[] added = changeRequest.getAddedInstallableUnits();
 		IInstallableUnit[] removed = changeRequest.getRemovedInstallableUnits();
 		Map<IInstallableUnit, RequestStatus> requestStatus = new HashMap<IInstallableUnit, RequestStatus>(added.length + removed.length);
@@ -75,11 +81,11 @@ public class SimplePlanner implements IPlanner {
 			requestStatus.put(removed[i], new RequestStatus(removed[i], RequestStatus.REMOVED, IStatus.ERROR, null));
 		}
 		@SuppressWarnings("unchecked")
-		Map<IInstallableUnit, IStatus>[] maps = new Map[] {requestStatus, null};
+		Map<IInstallableUnit, RequestStatus>[] maps = new Map[] {requestStatus, null};
 		return maps;
 	}
 
-	private Map<IInstallableUnit, IStatus>[] computeActualChangeRequest(Collection<IInstallableUnit> toState, ProfileChangeRequest changeRequest) {
+	private Map<IInstallableUnit, RequestStatus>[] computeActualChangeRequest(Collection<IInstallableUnit> toState, ProfileChangeRequest changeRequest) {
 		IInstallableUnit[] added = changeRequest.getAddedInstallableUnits();
 		IInstallableUnit[] removed = changeRequest.getRemovedInstallableUnits();
 		Map<IInstallableUnit, RequestStatus> requestStatus = new HashMap<IInstallableUnit, RequestStatus>(added.length + removed.length);
@@ -107,7 +113,7 @@ public class SimplePlanner implements IPlanner {
 			}
 		}
 		@SuppressWarnings("unchecked")
-		Map<IInstallableUnit, IStatus>[] maps = new Map[] {requestStatus, sideEffectStatus};
+		Map<IInstallableUnit, RequestStatus>[] maps = new Map[] {requestStatus, sideEffectStatus};
 		return maps;
 	}
 
@@ -308,21 +314,26 @@ public class SimplePlanner implements IPlanner {
 			Slicer slicer = new Slicer(new QueryableArray(availableIUs), newSelectionContext, satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, sub.newChild(ExpandWork / 4));
 			if (slice == null)
-				return new ProvisioningPlan(slicer.getStatus(), profile, null, context);
+				return new ProvisioningPlan(slicer.getStatus(), profile, context, null);
 			Projector projector = new Projector(slice, newSelectionContext, satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			projector.encode((IInstallableUnit) updatedPlan[0], (IInstallableUnit[]) updatedPlan[1], profile, profileChangeRequest.getAddedInstallableUnits(), sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
 			if (s.getSeverity() == IStatus.CANCEL)
-				return new ProvisioningPlan(s, profile, null, context);
+				return new ProvisioningPlan(s, profile, context, null);
 			if (s.getSeverity() == IStatus.ERROR) {
 				sub.setTaskName(Messages.Planner_NoSolution);
 				if (context != null && !(context.getProperty(EXPLANATION) == null || Boolean.TRUE.toString().equalsIgnoreCase(context.getProperty(EXPLANATION))))
-					return new ProvisioningPlan(s, profile, null, context);
+					return new ProvisioningPlan(s, profile, context, null);
 
 				//Extract the explanation
 				Set<Explanation> explanation = projector.getExplanation(sub.newChild(ExpandWork / 4));
 				IStatus explanationStatus = convertExplanationToStatus(explanation);
-				return new ProvisioningPlan(explanationStatus, new Operand[0], buildDetailedErrors(profileChangeRequest), new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation), null, profile, null, context);
+
+				Map<IInstallableUnit, RequestStatus>[] changes = buildDetailedErrors(profileChangeRequest);
+				Map<IInstallableUnit, RequestStatus> requestChanges = (changes == null) ? null : changes[0];
+				Map<IInstallableUnit, RequestStatus> requestSideEffects = (changes == null) ? null : changes[1];
+				PlannerStatus plannerStatus = new PlannerStatus(explanationStatus, new RequestStatus(null, RequestStatus.REMOVED, IStatus.ERROR, explanation), requestChanges, requestSideEffects, null);
+				return new ProvisioningPlan(plannerStatus, profile, new Operand[0], context, null);
 			}
 			//The resolution succeeded. We can forget about the warnings since there is a solution.
 			if (Tracing.DEBUG && s.getSeverity() != IStatus.OK)
@@ -356,7 +367,7 @@ public class SimplePlanner implements IPlanner {
 			//Create a plan for installing necessary pieces to complete the installation (e.g touchpoint actions)
 			return createInstallerPlan(profileChangeRequest.getProfile(), profileChangeRequest, fullState, newState, temporaryPlan, context, sub.newChild(ExpandWork / 2));
 		} catch (OperationCanceledException e) {
-			return new ProvisioningPlan(Status.CANCEL_STATUS, profileChangeRequest.getProfile(), null, context);
+			return new ProvisioningPlan(Status.CANCEL_STATUS, profileChangeRequest.getProfile(), context, null);
 		} finally {
 			sub.done();
 		}
@@ -382,8 +393,12 @@ public class SimplePlanner implements IPlanner {
 				Tracing.debug(operands[i].toString());
 			}
 		}
-		return new ProvisioningPlan(Status.OK_STATUS, operands, computeActualChangeRequest(toState, profileChangeRequest), null, null, profileChangeRequest.getProfile(), new QueryableArray(toState.toArray(new IInstallableUnit[toState.size()])), context);
-
+		Map<IInstallableUnit, RequestStatus>[] changes = computeActualChangeRequest(toState, profileChangeRequest);
+		Map<IInstallableUnit, RequestStatus> requestChanges = (changes == null) ? null : changes[0];
+		Map<IInstallableUnit, RequestStatus> requestSideEffects = (changes == null) ? null : changes[1];
+		QueryableArray plannedState = new QueryableArray(toState.toArray(new IInstallableUnit[toState.size()]));
+		PlannerStatus plannerStatus = new PlannerStatus(Status.OK_STATUS, null, requestChanges, requestSideEffects, plannedState);
+		return new ProvisioningPlan(plannerStatus, profileChangeRequest.getProfile(), operands, context, null);
 	}
 
 	//Verify that all the meta requirements necessary to perform the uninstallation (if necessary) and all t
@@ -416,7 +431,7 @@ public class SimplePlanner implements IPlanner {
 		try {
 			sub.setTaskName(Messages.Director_Task_installer_plan);
 			if (profileRegistry == null)
-				return new ProvisioningPlan(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_no_profile_registry), profile, null, initialContext);
+				return new ProvisioningPlan(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_no_profile_registry), profile, initialContext, null);
 
 			IProfile agentProfile = profileRegistry.getProfile(IProfileRegistry.SELF);
 			if (agentProfile == null)
@@ -424,7 +439,7 @@ public class SimplePlanner implements IPlanner {
 
 			if (profile.getProfileId().equals(agentProfile.getProfileId())) {
 				if (profile.getTimestamp() != agentProfile.getTimestamp())
-					return new ProvisioningPlan(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_profile_out_of_sync, profile.getProfileId())), profile, null, initialContext);
+					return new ProvisioningPlan(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_profile_out_of_sync, profile.getProfileId())), profile, initialContext, null);
 				return createInstallerPlanForCohostedCase(profile, initialRequest, initialPlan, unattachedState, expectedState, initialContext, sub);
 			}
 
@@ -459,7 +474,7 @@ public class SimplePlanner implements IPlanner {
 		if (externalInstallerPlan instanceof IProvisioningPlan && ((IProvisioningPlan) externalInstallerPlan).getStatus().getSeverity() == IStatus.ERROR) {
 			MultiStatus externalInstallerStatus = new MultiStatus(DirectorActivator.PI_DIRECTOR, 0, Messages.Planner_can_not_install_preq, null);
 			externalInstallerStatus.add(((IProvisioningPlan) externalInstallerPlan).getStatus());
-			return new ProvisioningPlan(externalInstallerStatus, initialRequest.getProfile(), new ProvisioningPlan(externalInstallerStatus, agentProfile, null, initialContext), initialContext);
+			return new ProvisioningPlan(externalInstallerStatus, initialRequest.getProfile(), initialContext, new ProvisioningPlan(externalInstallerStatus, agentProfile, initialContext, null));
 		}
 
 		initialPlan.setInstallerPlan(generatePlan((Projector) externalInstallerPlan, null, agentRequest, initialContext));
@@ -504,7 +519,7 @@ public class SimplePlanner implements IPlanner {
 		if (agentSolution instanceof IProvisioningPlan && ((IProvisioningPlan) agentSolution).getStatus().getSeverity() == IStatus.ERROR) {
 			MultiStatus agentStatus = new MultiStatus(DirectorActivator.PI_DIRECTOR, 0, Messages.Planner_actions_and_software_incompatible, null);
 			agentStatus.add(((IProvisioningPlan) agentSolution).getStatus());
-			return new ProvisioningPlan(agentStatus, initialRequest.getProfile(), new ProvisioningPlan(agentStatus, agentRequest.getProfile(), null, initialContext), initialContext);
+			return new ProvisioningPlan(agentStatus, initialRequest.getProfile(), initialContext, new ProvisioningPlan(agentStatus, agentRequest.getProfile(), initialContext, null));
 		}
 
 		//Compute the installer plan. It is the difference between what is currently in the profile and the solution we just computed

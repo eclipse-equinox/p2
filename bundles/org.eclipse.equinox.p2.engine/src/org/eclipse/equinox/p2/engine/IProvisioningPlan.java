@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
-import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -69,33 +68,6 @@ public interface IProvisioningPlan {
 	 * @return The proposed profile removals.
 	 */
 	public abstract IQueryable<IInstallableUnit> getRemovals();
-
-	/**
-	 * Returns the problems associated with changes to the given installable unit
-	 * in this plan. A status with severity {@link IStatus#OK} is returned if the unit
-	 * can be provisioned successfully, or if this plan does not include changes to the
-	 * given unit.
-	 * 
-	 * @param iu The installable unit to return status for
-	 * @return The status for the given unit in this plan
-	 */
-	public abstract IStatus getRequestStatus(IInstallableUnit iu);
-
-	/**
-	 * Returns a map of side-effects that will occur as a result of the plan being executed.
-	 * Side-effects of an install may include:
-	 * <ul>
-	 * <li>Optional software being installed that will become satisfied once the plan
-	 * is executed.</li>
-	 * <li>Optional software currently in the profile that will be uninstalled as a result
-	 * of the plan being executed. This occurs when the optional software has dependencies
-	 * that are incompatible with the software being installed.
-	 * This includes additional software that will be installed as a result of the change,
-	 * or optional
-	 * @return A map of {@link IInstallableUnit} to {@link IStatus} of the additional 
-	 * changes and their corresponding explanation.
-	 */
-	public abstract Map<IInstallableUnit, IStatus> getSideEffectChanges();
 
 	/**
 	 * Returns the overall plan status. The severity of this status indicates

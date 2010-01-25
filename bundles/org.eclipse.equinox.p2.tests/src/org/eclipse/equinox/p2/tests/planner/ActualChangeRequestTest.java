@@ -10,16 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -51,7 +48,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		req.setInstallableUnitInclusionRules(b, PlannerHelper.createStrictInclusionRule(b));
 		req.setInstallableUnitProfileProperty(b, "foo", "bar");
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
-		assertEquals(IStatus.OK, plan.getRequestStatus(b).getSeverity());
+		assertEquals(IStatus.OK, ((PlannerStatus) plan.getStatus()).getRequestChanges().get(b).getSeverity());
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan, null);
 		assertProfileContainsAll("B is missing", profile1, new IInstallableUnit[] {b});
@@ -64,10 +61,10 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		req2.setInstallableUnitProfileProperty(a, "foo", "bar");
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
-		assertNull(plan2.getRequestStatus(b));
-		Map m = plan2.getSideEffectChanges();
+		assertNull(((PlannerStatus) plan2.getStatus()).getRequestChanges().get(b));
+		Map m = ((PlannerStatus) plan2.getStatus()).getRequestSideEffects();
 		m.toString();
-		assertEquals(IStatus.OK, plan2.getRequestStatus(a).getSeverity());
+		assertEquals(IStatus.OK, ((PlannerStatus) plan2.getStatus()).getRequestChanges().get(a).getSeverity());
 		engine.perform(plan2, null);
 		assertProfileContainsAll("A is missing", profile1, new IInstallableUnit[] {a, b});
 		assertEquals(2, queryResultSize(profile1.query(InstallableUnitQuery.ANY, null)));
@@ -78,6 +75,6 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		req3.removeInstallableUnitProfileProperty(b, "foo");
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan3.getStatus().getSeverity());
-		assertEquals(IStatus.ERROR, plan3.getRequestStatus(b).getSeverity());
+		assertEquals(IStatus.ERROR, ((PlannerStatus) plan3.getStatus()).getRequestChanges().get(b).getSeverity());
 	}
 }

@@ -1,18 +1,14 @@
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -87,8 +83,8 @@ public class NegationTesting extends AbstractProvisioningTest {
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.addInstallableUnits(new IInstallableUnit[] {iu1});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
-		assertEquals(0, queryResultSize(plan.getCompleteState().query(new InstallableUnitQuery("ProviderOf1_1_1"), null)));
-		assertEquals(2, queryResultSize(plan.getCompleteState().query(InstallableUnitQuery.ANY, null)));
+		assertEquals(0, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(new InstallableUnitQuery("ProviderOf1_1_1"), null)));
+		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(InstallableUnitQuery.ANY, null)));
 
 		//Verify that the installing iu1 and iu3 will result in a conflict since iu3 is excluded by the requirement of iu1
 		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);
@@ -175,8 +171,8 @@ public class NegationTesting extends AbstractProvisioningTest {
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.addInstallableUnits(new IInstallableUnit[] {iu1});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
-		assertEquals(0, queryResultSize(plan.getCompleteState().query(new InstallableUnitQuery("ProviderOf1_1_1"), null)));
-		assertEquals(2, queryResultSize(plan.getCompleteState().query(InstallableUnitQuery.ANY, null)));
+		assertEquals(0, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(new InstallableUnitQuery("ProviderOf1_1_1"), null)));
+		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(InstallableUnitQuery.ANY, null)));
 	}
 
 	//Test the slicer and the resolver. 
@@ -228,8 +224,8 @@ public class NegationTesting extends AbstractProvisioningTest {
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.addInstallableUnits(new IInstallableUnit[] {iu1});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
-		assertEquals(0, queryResultSize(plan.getCompleteState().query(new InstallableUnitQuery("ProviderOf1_1_1"), null)));
-		assertEquals(2, queryResultSize(plan.getCompleteState().query(InstallableUnitQuery.ANY, null)));
+		assertEquals(0, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(new InstallableUnitQuery("ProviderOf1_1_1"), null)));
+		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(InstallableUnitQuery.ANY, null)));
 
 		//Verify that the installing iu1 and iu3 will result in a conflict since iu3 is excluded by the requirement of iu1
 		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);
@@ -299,8 +295,8 @@ public class NegationTesting extends AbstractProvisioningTest {
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.addInstallableUnits(new IInstallableUnit[] {iu1});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
-		assertEquals(0, queryResultSize(plan.getCompleteState().query(new InstallableUnitQuery("ProviderOf1_1_1"), null)));
-		assertEquals(2, queryResultSize(plan.getCompleteState().query(InstallableUnitQuery.ANY, null)));
+		assertEquals(0, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(new InstallableUnitQuery("ProviderOf1_1_1"), null)));
+		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(InstallableUnitQuery.ANY, null)));
 
 		//Verify that the installing iu1 and iu4 will result in a conflict since iu3 is excluded by the requirement of iu1
 		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);

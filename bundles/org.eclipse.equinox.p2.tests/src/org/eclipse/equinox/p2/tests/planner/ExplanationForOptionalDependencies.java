@@ -10,14 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ExplanationForOptionalDependencies extends AbstractProvisioningTest {
@@ -58,7 +55,7 @@ public class ExplanationForOptionalDependencies extends AbstractProvisioningTest
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
-		RequestStatus requestStatus = (RequestStatus) plan.getRequestStatus();
+		RequestStatus requestStatus = ((PlannerStatus) plan.getStatus()).getRequestStatus();
 		assertTrue(requestStatus.getConflictsWithInstalledRoots().contains(emf));
 		assertFalse(requestStatus.getConflictsWithInstalledRoots().contains(cdt));
 		assertFalse(requestStatus.getConflictsWithInstalledRoots().contains(sdk));

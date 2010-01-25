@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.util.Set;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest {
@@ -57,7 +54,7 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
-		Set conflictRoots = ((RequestStatus) plan.getRequestStatus()).getConflictsWithInstalledRoots();
+		Set conflictRoots = ((PlannerStatus) plan.getStatus()).getRequestStatus().getConflictsWithInstalledRoots();
 		assertTrue(conflictRoots.contains(cdt) || conflictRoots.contains(emf));
 		//		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));
 
@@ -83,7 +80,7 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
-		Set conflictRoots = ((RequestStatus) plan.getRequestStatus()).getConflictsWithInstalledRoots();
+		Set conflictRoots = ((PlannerStatus) plan.getStatus()).getRequestStatus().getConflictsWithInstalledRoots();
 		assertTrue(conflictRoots.contains(cdt) || conflictRoots.contains(emf));
 
 		//		assertEquals(0, plan.getRequestStatus(cdt).getConflictsWithInstalledRoots().size());
@@ -107,7 +104,7 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 		pcr.addInstallableUnits(new IInstallableUnit[] {cdt, emf});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, null, null);
 		// System.out.println(plan.getRequestStatus().getExplanations());
-		Set conflictRoots = ((RequestStatus) plan.getRequestStatus()).getConflictsWithInstalledRoots();
+		Set conflictRoots = ((PlannerStatus) plan.getStatus()).getRequestStatus().getConflictsWithInstalledRoots();
 		assertTrue(conflictRoots.contains(cdt) || conflictRoots.contains(emf));
 		//		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(cdt));
 		//		assertTrue(plan.getRequestStatus().getConflictsWithInstalledRoots().contains(emf));

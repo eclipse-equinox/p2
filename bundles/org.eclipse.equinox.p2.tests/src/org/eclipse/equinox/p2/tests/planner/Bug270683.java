@@ -10,13 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -57,6 +54,6 @@ public class Bug270683 extends AbstractProvisioningTest {
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1, pp1});
 		ProvisioningPlan plan3 = (ProvisioningPlan) planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
-		assertTrue(((RequestStatus) plan3.getRequestStatus()).getExplanations().toString().contains("patched"));
+		assertTrue(((PlannerStatus) plan3.getStatus()).getRequestStatus().getExplanations().toString().contains("patched"));
 	}
 }

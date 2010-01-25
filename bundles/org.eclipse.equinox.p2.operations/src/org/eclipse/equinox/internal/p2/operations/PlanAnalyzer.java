@@ -13,8 +13,7 @@ package org.eclipse.equinox.internal.p2.operations;
 
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
+import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
@@ -96,10 +95,16 @@ public class PlanAnalyzer {
 		// As it stands now, if the provisioning plan is in error, that info is more detailed
 		// than the request status.  So we will only add request status info to the overall
 		// status when the overall status is not in error.
+
+		PlannerStatus plannerStatus = plan.getStatus() instanceof PlannerStatus ? (PlannerStatus) plan.getStatus() : null;
+		// If there is no additional plannerStatus details just return the report
+		if (plannerStatus == null)
+			return report;
+
 		if (plan.getStatus().getSeverity() != IStatus.ERROR) {
 			IInstallableUnit[] iusAdded = originalRequest.getAddedInstallableUnits();
 			for (int i = 0; i < iusAdded.length; i++) {
-				RequestStatus rs = (RequestStatus) plan.getRequestStatus(iusAdded[i]);
+				RequestStatus rs = plannerStatus.getRequestChanges().get(iusAdded[i]);
 				if (rs.getSeverity() == IStatus.ERROR) {
 					// This is a serious error so it must also appear in the overall status
 					IStatus fail = new Status(IStatus.ERROR, Activator.ID, IStatusCodes.ALTERED_IGNORED_INSTALL_REQUEST, NLS.bind(Messages.PlanAnalyzer_IgnoringInstall, getIUString(iusAdded[i])), null);
@@ -109,7 +114,7 @@ public class PlanAnalyzer {
 			}
 			IInstallableUnit[] iusRemoved = originalRequest.getRemovedInstallableUnits();
 			for (int i = 0; i < iusRemoved.length; i++) {
-				RequestStatus rs = (RequestStatus) plan.getRequestStatus(iusRemoved[i]);
+				RequestStatus rs = plannerStatus.getRequestChanges().get(iusRemoved[i]);
 				if (rs.getSeverity() == IStatus.ERROR) {
 					// TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=255984
 					// We are making assumptions here about why the planner chose to ignore an uninstall.
@@ -124,9 +129,9 @@ public class PlanAnalyzer {
 		}
 
 		// Now process the side effects
-		for (Entry<IInstallableUnit, IStatus> entry : plan.getSideEffectChanges().entrySet()) {
+		for (Entry<IInstallableUnit, RequestStatus> entry : plannerStatus.getRequestSideEffects().entrySet()) {
 			IInstallableUnit iu = entry.getKey();
-			RequestStatus rs = (RequestStatus) entry.getValue();
+			RequestStatus rs = entry.getValue();
 			if (rs.getInitialRequestType() == RequestStatus.ADDED) {
 				report.addStatus(iu, new Status(rs.getSeverity(), Activator.ID, IStatusCodes.ALTERED_SIDE_EFFECT_INSTALL, NLS.bind(Messages.PlanAnalyzer_SideEffectInstall, getIUString(iu)), null));
 			} else {

@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -101,7 +98,7 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		req3.addInstallableUnits(new IInstallableUnit[] {a1, p2});
 		ProvisioningPlan plan3 = (ProvisioningPlan) planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.ERROR, plan3.getStatus().getSeverity());
-		final RequestStatus requestStatus = (RequestStatus) plan3.getRequestStatus();
+		final RequestStatus requestStatus = ((PlannerStatus) plan3.getStatus()).getRequestStatus();
 		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());
 		// System.out.println(plan3.getRequestStatus().getExplanations());
 		Set conflictingRoot = requestStatus.getConflictsWithInstalledRoots();
@@ -115,7 +112,7 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		req5.addInstallableUnits(new IInstallableUnit[] {a1, p4});
 		ProvisioningPlan plan5 = (ProvisioningPlan) planner.getProvisioningPlan(req5, null, null);
 		assertEquals(IStatus.ERROR, plan5.getStatus().getSeverity());
-		final RequestStatus requestStatus = (RequestStatus) plan5.getRequestStatus();
+		final RequestStatus requestStatus = ((PlannerStatus) plan5.getStatus()).getRequestStatus();
 		assertEquals(Explanation.MISSING_REQUIREMENT, requestStatus.getShortExplanation());
 		// System.out.println(plan5.getRequestStatus().getExplanations());
 		Set conflictingRoot = requestStatus.getConflictsWithInstalledRoots();
