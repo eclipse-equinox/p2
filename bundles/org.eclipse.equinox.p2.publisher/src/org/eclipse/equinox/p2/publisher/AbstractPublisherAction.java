@@ -517,10 +517,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		if (collector.isEmpty() && info.getContextMetadataRepository() != null)
 			collector = info.getContextMetadataRepository().query(query, progress);
 
-		if (version != null && !Version.emptyVersion.equals(version)) {
-			query = new LimitQuery<IInstallableUnit>(InstallableUnitQuery.ANY, 1);
-		} else {
-			query = new PipedQuery<IInstallableUnit>(InstallableUnitQuery.ANY, new LatestIUVersionQuery<IInstallableUnit>());
+		if (version == null || Version.emptyVersion.equals(version)) {
+			query = new LatestIUVersionQuery<IInstallableUnit>();
+			collector = collector.query(query, null);
 		}
 		if (!collector.isEmpty())
 			return collector.iterator().next();
