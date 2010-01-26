@@ -1,0 +1,262 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='file:/Users/pascal/tmp/repo - metadata' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1264178685363'/>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <units size='14'>
+    <unit id='com.dcns.rsm.profile.system' version='4.2.1.v20100106'>
+      <update id='com.dcns.rsm.profile.system' range='[0.0.0,4.2.1.v20100106)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='System Plug-in'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.system' version='4.2.1.v20100106'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.system' version='4.2.1.v20100106'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='8'>
+        <required namespace='osgi.bundle' name='com.dcns.rsm.rda' range='5.1.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.uml2.uml' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.emf.mapping.ecore2xml' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.modeler.ui' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.profile.equipment' version='1.0.3.v20090513'>
+      <update id='com.dcns.rsm.profile.equipment' range='[0.0.0,1.0.3.v20090513)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Equipment Plug-in'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.equipment' version='1.0.3.v20090513'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.equipment' version='1.0.3.v20090513'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.profile.system' version='3.3.0.v20090831'>
+      <update id='com.dcns.rsm.profile.system' range='[0.0.0,3.3.0.v20090831)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Plug-in System'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.system' version='3.3.0.v20090831'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.system' version='3.3.0.v20090831'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.profile.gemo' version='3.3.0.v20090429'>
+      <update id='com.dcns.rsm.profile.gemo' range='[0.0.0,3.3.0.v20090429)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Plug-in Gemo'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.gemo' version='3.3.0.v20090429'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.gemo' version='3.3.0.v20090429'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.profile.equipment' version='1.2.1.v20100106'>
+      <update id='com.dcns.rsm.profile.equipment' range='[0.0.0,1.2.1.v20100106)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Equipment Plug-in'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.equipment' version='1.2.1.v20100106'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.equipment' version='1.2.1.v20100106'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='8'>
+        <required namespace='osgi.bundle' name='com.dcns.rsm.rda' range='5.1.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.uml2.uml' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.emf.mapping.ecore2xml' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.modeler.ui' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.profile.gemo' version='3.2.1.v20090206'>
+      <update id='com.dcns.rsm.profile.gemo' range='[0.0.0,3.2.1.v20090206)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Plug-in Gemo'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.gemo' version='3.2.1.v20090206'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.gemo' version='3.2.1.v20090206'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.rda' version='5.1.0.v20100106'>
+      <update id='com.dcns.rsm.rda' range='[0.0.0,5.1.0.v20100106)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='Rda Kit Plug-in'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='6'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.rda' version='5.1.0.v20100106'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.rda' version='5.1.0.v20100106'/>
+        <provided namespace='java.package' name='com.dcns.rsm.rda.utils' version='0.0.0'/>
+        <provided namespace='java.package' name='com.dcns.rsm.rda.utils.domaintypes' version='0.0.0'/>
+        <provided namespace='java.package' name='com.dcns.rsm.rda.utils.uml2' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='7'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.uml2.uml' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.emf.mapping.ecore2xml' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.modeler.ui' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.profile.gemo' version='3.7.1.v20100106'>
+      <update id='com.dcns.rsm.profile.gemo' range='[0.0.0,3.7.1.v20100106)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='Gemo Kit Plug-in'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+        <property name='org.eclipse.equinox.p2.bundle.localization' value='plugin'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.gemo' version='3.7.1.v20100106'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.gemo' version='3.7.1.v20100106'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='8'>
+        <required namespace='osgi.bundle' name='com.dcns.rsm.rda' range='5.1.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.uml2.uml' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.emf.mapping.ecore2xml' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.modeler.ui' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.profile.system' version='3.1.1.v20090205'>
+      <update id='com.dcns.rsm.profile.system' range='[0.0.0,3.1.1.v20090205)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Plug-in System'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.system' version='3.1.1.v20090205'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.system' version='3.1.1.v20090205'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.profile.system' version='3.2.0.v20090430'>
+      <update id='com.dcns.rsm.profile.system' range='[0.0.0,3.2.0.v20090430)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Plug-in System'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.system' version='3.2.0.v20090430'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.system' version='3.2.0.v20090430'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.profile.equipment' version='1.0.4.v20090831'>
+      <update id='com.dcns.rsm.profile.equipment' range='[0.0.0,1.0.4.v20090831)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Equipment Plug-in'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.equipment' version='1.0.4.v20090831'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.equipment' version='1.0.4.v20090831'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.profile.gemo' version='3.5.0.v20091030'>
+      <update id='com.dcns.rsm.profile.gemo' range='[0.0.0,3.5.0.v20091030)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Plug-in Gemo'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.gemo' version='3.5.0.v20091030'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.gemo' version='3.5.0.v20091030'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.profile.gemo' version='3.4.0.v20090831'>
+      <update id='com.dcns.rsm.profile.gemo' range='[0.0.0,3.4.0.v20090831)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Plug-in Gemo'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.gemo' version='3.4.0.v20090831'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.gemo' version='3.4.0.v20090831'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+      </requires>
+    </unit>
+    <unit id='com.dcns.rsm.profile.system' version='4.0.0.v20091030'>
+      <update id='com.dcns.rsm.profile.system' range='[0.0.0,4.0.0.v20091030)' severity='0'/>
+      <properties size='2'>
+        <property name='org.eclipse.equinox.p2.name' value='Plug-in System'/>
+        <property name='org.eclipse.equinox.p2.provider' value='DCNS'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.system' version='4.0.0.v20091030'/>
+        <provided namespace='osgi.bundle' name='com.dcns.rsm.profile.system' version='4.0.0.v20091030'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.gmf.runtime.emf.core' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='com.ibm.xtools.uml.msl' range='0.0.0'/>
+      </requires>
+    </unit>
+  </units>
+</repository>
