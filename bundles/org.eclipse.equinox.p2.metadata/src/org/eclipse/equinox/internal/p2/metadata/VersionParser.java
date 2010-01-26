@@ -38,7 +38,7 @@ public abstract class VersionParser {
 	}
 
 	public static Integer valueOf(int i) {
-		if (i < cache.length)
+		if (i >= 0 && i < cache.length)
 			return cache[i];
 
 		return (i == Integer.MAX_VALUE) ? MAX_INT_OBJ : new Integer(i);
