@@ -54,7 +54,7 @@ public abstract class ExpressionUtil {
 	 * Parse a boolean Expression from the <code>expression</code> string. If <code>expression</code> is <code>null</code>
 	 * or a string that is empty or only consists of whitespace, then this method returns <code>null</code>.
 	 * @param expression The expression to parse. Can be <code>null</code> or empty.
-	 * @return An expression that corresponds to the LDAP filter or <code>null</code>.
+	 * @return An expression tree or <code>null</code>.
 	 * @throws ExpressionParseException If the syntax was invalid
 	 */
 	public static IExpression parse(String expression) {

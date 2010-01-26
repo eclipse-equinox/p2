@@ -19,7 +19,9 @@ package org.eclipse.equinox.p2.metadata.expression;
  */
 public interface IMemberProvider {
 	/**
-	 * Returns the value for the specified member.
+	 * Returns the value for the specified member. Implementers can rely
+	 * on that the <code>memberName</code> is a string that has been
+	 * internalized using {@link String#intern()}.
 	 * @param memberName The name of the member
 	 * @return The member value.
 	 * @throws IllegalArgumentException if the instance has no member with

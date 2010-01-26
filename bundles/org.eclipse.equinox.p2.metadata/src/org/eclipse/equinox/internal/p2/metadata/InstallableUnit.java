@@ -28,6 +28,20 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	private static final ITouchpointData[] NO_TOUCHPOINT_DATA = new ITouchpointData[0];
 	private static final ILicense[] NO_LICENSE = new ILicense[0];
 
+	public static final String MEMBER_PROVIDED_CAPABILITIES = "providedCapabilities"; //$NON-NLS-1$
+	public static final String MEMBER_ID = "id"; //$NON-NLS-1$
+	public static final String MEMBER_VERSION = "version"; //$NON-NLS-1$
+	public static final String MEMBER_PROPERTIES = "properties"; //$NON-NLS-1$
+	public static final String MEMBER_FILTER = "filter"; //$NON-NLS-1$
+	public static final String MEMBER_ARTIFACTS = "artifacts"; //$NON-NLS-1$
+	public static final String MEMBER_REQUIRED_CAPABILITIES = "requiredCapabilities"; //$NON-NLS-1$
+	public static final String MEMBER_LICENSES = "licenses"; //$NON-NLS-1$
+	public static final String MEMBER_COPYRIGHT = "copyright"; //$NON-NLS-1$
+	public static final String MEMBER_TOUCHPOINT_DATA = "touchpointData"; //$NON-NLS-1$
+	public static final String MEMBER_TOUCHPOINT_TYPE = "touchpointType"; //$NON-NLS-1$
+	public static final String MEMBER_UPDATE_DESCRIPTOR = "updateDescriptor"; //$NON-NLS-1$
+	public static final String MEMBER_SINGLETON = "singleton"; //$NON-NLS-1$
+
 	private IArtifactKey[] artifacts = NO_ARTIFACTS;
 	private Filter filter;
 
@@ -302,31 +316,36 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	}
 
 	public Object getMember(String memberName) {
-		if ("providedCapabilities".equals(memberName)) //$NON-NLS-1$
+
+		// It is OK to use identity comparisons here since
+		// a) All constant valued strings are always interned
+		// b) The Member constructor always interns the name
+		//
+		if (MEMBER_PROVIDED_CAPABILITIES == memberName)
 			return providedCapabilities;
-		if ("id".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_ID == memberName)
 			return id;
-		if ("version".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_VERSION == memberName)
 			return version;
-		if ("properties".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_PROPERTIES == memberName)
 			return properties;
-		if ("filter".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_FILTER == memberName)
 			return filter;
-		if ("artifacts".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_ARTIFACTS == memberName)
 			return artifacts;
-		if ("requiredCapabilities".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_REQUIRED_CAPABILITIES == memberName)
 			return requires;
-		if ("licenses".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_LICENSES == memberName)
 			return licenses;
-		if ("copyright".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_COPYRIGHT == memberName)
 			return copyright;
-		if ("touchpointData".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_TOUCHPOINT_DATA == memberName)
 			return touchpointData;
-		if ("touchpointType".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_TOUCHPOINT_TYPE == memberName)
 			return touchpointType;
-		if ("updateDescriptor".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_UPDATE_DESCRIPTOR == memberName)
 			return updateInfo;
-		if ("singleton".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_SINGLETON == memberName)
 			return Boolean.valueOf(singleton);
 		throw new IllegalArgumentException();
 	}

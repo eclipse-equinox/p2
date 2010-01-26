@@ -30,16 +30,17 @@ import org.osgi.framework.Filter;
  * @see IInstallableUnit#NAMESPACE_IU_ID
  */
 public class RequiredCapability implements IRequiredCapability, IMemberProvider {
+	public static final String MEMBER_FILTER = "filter"; //$NON-NLS-1$
+	public static final String MEMBER_MIN = "min"; //$NON-NLS-1$
+	public static final String MEMBER_MAX = "max"; //$NON-NLS-1$
+	public static final String MEMBER_GREEDY = "greedy"; //$NON-NLS-1$
+	public static final String MEMBER_MATCH = "match"; //$NON-NLS-1$
+
 	private final Filter filter;
 	private final boolean greedy;
 	private final IMatchExpression<IInstallableUnit> matchExpression;
 	private final int min;
 	private final int max;
-
-	private static final String MEMBER_NAME = "name"; //$NON-NLS-1$
-	private static final String MEMBER_NAMESPACE = "namespace"; //$NON-NLS-1$
-	private static final String MEMBER_VERSION = "version"; //$NON-NLS-1$
-	private static final String MEMBER_PROVIDED_CAPABILITIES = "providedCapabilities"; //$NON-NLS-1$
 
 	private static final IExpression allVersionsExpression;
 	private static final IExpression range_II_Expression;
@@ -53,10 +54,10 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 	static {
 		IExpressionFactory factory = ExpressionUtil.getFactory();
 		IExpression xVar = factory.variable("x"); //$NON-NLS-1$
-		IExpression nameEqual = factory.equals(factory.member(xVar, MEMBER_NAME), factory.indexedParameter(0));
-		IExpression namespaceEqual = factory.equals(factory.member(xVar, MEMBER_NAMESPACE), factory.indexedParameter(1));
+		IExpression nameEqual = factory.equals(factory.member(xVar, ProvidedCapability.MEMBER_NAME), factory.indexedParameter(0));
+		IExpression namespaceEqual = factory.equals(factory.member(xVar, ProvidedCapability.MEMBER_NAMESPACE), factory.indexedParameter(1));
 
-		IExpression versionMember = factory.member(xVar, MEMBER_VERSION);
+		IExpression versionMember = factory.member(xVar, ProvidedCapability.MEMBER_VERSION);
 
 		IExpression versionCmpLow = factory.indexedParameter(2);
 		IExpression versionEqual = factory.equals(versionMember, versionCmpLow);
@@ -67,7 +68,7 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		IExpression versionLt = factory.less(versionMember, versionCmpHigh);
 		IExpression versionLtEqual = factory.lessEqual(versionMember, versionCmpHigh);
 
-		IExpression pvMember = factory.member(factory.thisVariable(), MEMBER_PROVIDED_CAPABILITIES);
+		IExpression pvMember = factory.member(factory.thisVariable(), InstallableUnit.MEMBER_PROVIDED_CAPABILITIES);
 		allVersionsExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual)));
 		strictVersionExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionEqual)));
 		openEndedExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual)));
@@ -255,15 +256,19 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 	}
 
 	public Object getMember(String memberName) {
-		if ("filter".equals(memberName)) //$NON-NLS-1$
+		// It is OK to use identity comparisons here since
+		// a) All constant valued strings are always interned
+		// b) The Member constructor always interns the name
+		//
+		if (MEMBER_FILTER == memberName)
 			return filter;
-		if ("min".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_MIN == memberName)
 			return new Integer(min);
-		if ("max".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_MAX == memberName)
 			return new Integer(max);
-		if ("greedy".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_GREEDY == memberName)
 			return Boolean.valueOf(greedy);
-		if ("match".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_MATCH == memberName)
 			return matchExpression;
 		throw new IllegalArgumentException();
 	}

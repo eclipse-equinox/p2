@@ -30,8 +30,8 @@ public abstract class Member extends Unary {
 
 		private Class<?> lastClass;
 
-		private Method method;
-		private String methodName;
+		private transient Method method;
+		private transient String methodName;
 
 		DynamicMember(Expression operand, String name) {
 			super(operand, name, Expression.emptyArray);
@@ -115,7 +115,7 @@ public abstract class Member extends Unary {
 
 	protected Member(Expression operand, String name, Expression[] args) {
 		super(operand);
-		this.name = name;
+		this.name = name.intern();
 		this.argExpressions = args;
 	}
 

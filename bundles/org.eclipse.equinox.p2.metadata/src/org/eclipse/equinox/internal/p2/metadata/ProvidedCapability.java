@@ -20,6 +20,10 @@ import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
  * Describes a capability as exposed or required by an installable unit
  */
 public class ProvidedCapability implements IProvidedCapability, IMemberProvider {
+	public static final String MEMBER_NAME = "name"; //$NON-NLS-1$
+	public static final String MEMBER_VERSION = "version"; //$NON-NLS-1$
+	public static final String MEMBER_NAMESPACE = "namespace"; //$NON-NLS-1$
+
 	private final String name;
 	private final String namespace;
 	private final Version version;
@@ -66,12 +70,16 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 	}
 
 	public Object getMember(String memberName) {
-		if ("name".equals(memberName)) //$NON-NLS-1$
+		// It is OK to use identity comparisons here since
+		// a) All constant valued strings are always interned
+		// b) The Member constructor always interns the name
+		//
+		if (MEMBER_NAME == memberName)
 			return name;
-		if ("namespace".equals(memberName)) //$NON-NLS-1$
-			return namespace;
-		if ("version".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_VERSION == memberName)
 			return version;
+		if (MEMBER_NAMESPACE == memberName)
+			return namespace;
 		throw new IllegalArgumentException();
 	}
 }
