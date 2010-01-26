@@ -506,13 +506,8 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @return the first matching IU or <code>null</code> if none.
 	 */
 	protected IInstallableUnit queryForIU(IPublisherResult publisherResult, String iuId, Version version) {
-		IQuery<IInstallableUnit> query = null;
+		IQuery<IInstallableUnit> query = new InstallableUnitQuery(iuId, version);
 		IQueryResult<IInstallableUnit> collector = Collector.emptyCollector();
-		if (version != null && !Version.emptyVersion.equals(version)) {
-			query = new LimitQuery<IInstallableUnit>(new InstallableUnitQuery(iuId, version), 1);
-		} else {
-			query = new PipedQuery<IInstallableUnit>(new InstallableUnitQuery(iuId), new LatestIUVersionQuery<IInstallableUnit>());
-		}
 
 		NullProgressMonitor progress = new NullProgressMonitor();
 		if (publisherResult != null)
@@ -522,6 +517,11 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		if (collector.isEmpty() && info.getContextMetadataRepository() != null)
 			collector = info.getContextMetadataRepository().query(query, progress);
 
+		if (version != null && !Version.emptyVersion.equals(version)) {
+			query = new LimitQuery<IInstallableUnit>(InstallableUnitQuery.ANY, 1);
+		} else {
+			query = new PipedQuery<IInstallableUnit>(InstallableUnitQuery.ANY, new LatestIUVersionQuery<IInstallableUnit>());
+		}
 		if (!collector.isEmpty())
 			return collector.iterator().next();
 		return null;

@@ -102,8 +102,7 @@ public class PublisherResult implements IPublisherResult {
 	protected List<IInstallableUnit> flatten(Collection<Set<IInstallableUnit>> values) {
 		ArrayList<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
 		for (Set<IInstallableUnit> iuSet : values)
-			for (IInstallableUnit iu : iuSet)
-				result.add(iu);
+			result.addAll(iuSet);
 		return result;
 	}
 
@@ -137,11 +136,46 @@ public class PublisherResult implements IPublisherResult {
 	 */
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		//optimize for installable unit query
-		if (query instanceof InstallableUnitQuery)
+		if (query instanceof InstallableUnitQuery) {
 			return queryIU((InstallableUnitQuery) query, monitor);
+		} else if (query instanceof LimitQuery<?>) {
+			return doLimitQuery((LimitQuery<IInstallableUnit>) query, monitor);
+		} else if (query instanceof PipedQuery<?>) {
+			return doPipedQuery((PipedQuery<IInstallableUnit>) query, monitor);
+		}
 		IQueryable<IInstallableUnit> nonRootQueryable = new QueryableMap(nonRootIUs);
 		IQueryable<IInstallableUnit> rootQueryable = new QueryableMap(rootIUs);
 		return new CompoundQueryable<IInstallableUnit>(nonRootQueryable, rootQueryable).query(query, monitor);
+	}
+
+	/**
+	 * Optimize performance of LimitQuery for cases where we know how to optimize
+	 * the child query.
+	 */
+	private IQueryResult<IInstallableUnit> doLimitQuery(LimitQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+		//perform the child query first so it can be optimized
+		IQuery<IInstallableUnit> child = query.getQueries().get(0);
+		return query(child, monitor).query(query, monitor);
+	}
+
+	/**
+	 * Optimize performance of PipedQuery for cases where we know how to optimize
+	 * the child query.
+	 */
+	private IQueryResult<IInstallableUnit> doPipedQuery(PipedQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+		IQueryResult<IInstallableUnit> last = Collector.emptyCollector();
+		List<IQuery<IInstallableUnit>> queries = query.getQueries();
+		if (!queries.isEmpty()) {
+			//call our method to do optimized execution of first query
+			last = query(queries.get(0), monitor);
+			for (int i = 1; i < queries.size(); i++) {
+				if (last.isEmpty())
+					break;
+				//Can't optimize the rest, but likely at this point the result set is much smaller
+				last = queries.get(i).perform(last.iterator());
+			}
+		}
+		return last;
 	}
 
 	private IQueryResult<IInstallableUnit> queryIU(InstallableUnitQuery query, IProgressMonitor monitor) {

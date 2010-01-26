@@ -697,10 +697,11 @@ public class BundlesAction extends AbstractPublisherAction {
 					IQueryResult<IInstallableUnit> hosts = queryForIUs(result, hostId, hostVersionRange);
 
 					for (Iterator<IInstallableUnit> itor = hosts.iterator(); itor.hasNext();) {
+						IInstallableUnit host = itor.next();
 						String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
 						fragment = queryForIU(result, fragmentId, Version.fromOSGiVersion(bd.getVersion()));
 						if (fragment == null) {
-							String[] externalizedStrings = getExternalizedStrings(itor.next());
+							String[] externalizedStrings = getExternalizedStrings(host);
 							fragment = createHostLocalizationFragment(bundleIU, bd, hostId, externalizedStrings);
 						}
 					}
