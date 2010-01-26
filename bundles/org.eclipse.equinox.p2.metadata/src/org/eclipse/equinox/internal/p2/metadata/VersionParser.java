@@ -38,11 +38,10 @@ public abstract class VersionParser {
 	}
 
 	public static Integer valueOf(int i) {
-		try {
+		if (i < cache.length)
 			return cache[i];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return (i == Integer.MAX_VALUE) ? MAX_INT_OBJ : new Integer(i);
-		}
+
+		return (i == Integer.MAX_VALUE) ? MAX_INT_OBJ : new Integer(i);
 	}
 
 	static Comparable<?> removeRedundantTrail(List<Comparable<?>> segments, Comparable<?> padValue) {
