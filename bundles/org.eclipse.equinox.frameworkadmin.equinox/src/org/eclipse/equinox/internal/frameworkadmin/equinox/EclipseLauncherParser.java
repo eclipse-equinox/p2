@@ -68,7 +68,7 @@ public class EclipseLauncherParser {
 
 		if (launcherData.getJvm() != null) {
 			lines.add(EquinoxConstants.OPTION_VM);
-			lines.add(launcherData.getJvm().getAbsolutePath());
+			lines.add(launcherData.getJvm().getPath());
 		}
 		final String[] jvmArgs = launcherData.getJvmArgs();
 		if (jvmArgs != null && jvmArgs.length != 0) {
@@ -157,9 +157,9 @@ public class EclipseLauncherParser {
 			} else if (line.equalsIgnoreCase(EquinoxConstants.OPTION_VM)) {
 				final String nextLine = lines[++i].trim();
 				File file = new File(nextLine);
-				if (!file.isAbsolute()) {
-					file = new File(launcherConfigFile.getAbsolutePath() + File.separator + nextLine);
-				}
+				//				if (!file.isAbsolute()) {
+				//					file = new File(launcherConfigFile.getAbsolutePath() + File.separator + nextLine);
+				//				}
 				launcherData.setJvm(file);
 				continue;
 			} else if (line.equalsIgnoreCase(EquinoxConstants.OPTION_FW)) {
