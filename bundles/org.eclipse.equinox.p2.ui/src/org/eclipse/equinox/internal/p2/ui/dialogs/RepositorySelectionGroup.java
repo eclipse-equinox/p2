@@ -543,6 +543,7 @@ public class RepositorySelectionGroup {
 						}
 						if (status.isOK() && location != null) {
 							manipulator.addRepository(location, null, ui.getSession());
+							fillRepoCombo(getSiteString(location));
 						}
 						setRepoComboDecoration(status);
 					}
