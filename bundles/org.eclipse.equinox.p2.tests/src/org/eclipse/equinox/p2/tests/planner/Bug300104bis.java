@@ -13,10 +13,10 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.io.File;
 import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -51,29 +51,31 @@ public class Bug300104bis extends AbstractProvisioningTest {
 
 	public void testInstall() {
 		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-		IMetadataRepository repo = null;
 		try {
 			repo = mgr.loadRepository(getTestData("test data bug 300104bis repo", "testData/bug300104bis/repo").toURI(), null);
 		} catch (ProvisionException e) {
-			assertNull(e); //This guarantees that the error does not go unoticed
+			assertNull(e); //This guarantees that the error does not go unnoticed
 		}
 		IQueryResult<IInstallableUnit> ius = repo.query(InstallableUnitQuery.ANY, null);
-		createRequest(ius);
+		IPlanner planner = getPlanner(agent);
+		IProvisioningPlan plan = planner.getProvisioningPlan(createRequest(ius), null, new NullProgressMonitor());
 
-		//		com.dcns.rsm.profile.equipment_1.0.3.v20090513.jar
-		//		com.dcns.rsm.rda_5.1.0.v20100106.jar
-		//		com.dcns.rsm.profile.equipment_1.0.4.v20090831.jar
-		//		com.dcns.rsm.profile.equipment_1.2.1.v20100106.jar
-		//		com.dcns.rsm.profile.gemo_3.2.1.v20090206.jar
-		//		com.dcns.rsm.profile.gemo_3.3.0.v20090429.jar
-		//		com.dcns.rsm.profile.gemo_3.4.0.v20090831.jar
-		//		com.dcns.rsm.profile.gemo_3.5.0.v20091030.jar
-		//		com.dcns.rsm.profile.gemo_3.7.1.v20100106.jar
-		//		com.dcns.rsm.profile.system_3.1.1.v20090205.jar
-		//		com.dcns.rsm.profile.system_3.2.0.v20090430.jar
-		//		com.dcns.rsm.profile.system_3.3.0.v20090831.jar
-		//		com.dcns.rsm.profile.system_4.0.0.v20091030.jar
-		//		com.dcns.rsm.profile.system_4.2.1.v20100106.jar
+		IProvisioningPlan expected = planner.getProvisioningPlan(createFilteredRequest(ius), null, new NullProgressMonitor());
+
+		assertEquals("Plan comparison", expected.getAdditions().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class), plan.getAdditions().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class), false);
+	}
+
+	private ProfileChangeRequest createFilteredRequest(IQueryResult<IInstallableUnit> ius) {
+		ProfileChangeRequest pcr = new ProfileChangeRequest(profileRegistry.getProfile(profileLoadedId));
+		Iterator it = ius.iterator();
+		while (it.hasNext()) {
+			IInstallableUnit iu = (IInstallableUnit) it.next();
+			if ((iu.getId().equals("com.dcns.rsm.rda") && iu.getVersion().equals(Version.create("5.1.0.v20100112"))) || (iu.getId().equals("com.dcns.rsm.profile.equipment") && iu.getVersion().equals(Version.create("1.2.2.v20100108"))) || (iu.getId().equals("com.dcns.rsm.profile.gemo") && iu.getVersion().equals(Version.create("3.7.2.v20100108"))) || (iu.getId().equals("com.dcns.rsm.profile.system") && iu.getVersion().equals(Version.create("4.2.2.v20100112")))) {
+				pcr.addInstallableUnits(new IInstallableUnit[] {iu});
+			}
+		}
+		return pcr;
+
 	}
 
 	private ProfileChangeRequest createRequest(IQueryResult<IInstallableUnit> ius) {
