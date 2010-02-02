@@ -21,6 +21,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(AccumulateConfigDataActionTest.class);
 		suite.addTestSuite(AdviceFileParserTest.class);
 		suite.addTestSuite(BundlesActionTest.class);
+		suite.addTestSuite(CategoryPublisherTest.class);
 		suite.addTestSuite(ConfigCUsActionTest.class);
 		suite.addTestSuite(DefaultCUsActionTest.class);
 		suite.addTestSuite(EquinoxExecutableActionTest.class);

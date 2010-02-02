@@ -58,7 +58,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 	private ServiceReference agentRef;
 
-	private IProvisioningAgent agent;
+	protected IProvisioningAgent agent;
 
 	/**
 	 * Returns the error message for this application, or the empty string
