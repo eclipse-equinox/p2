@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.query;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.query.QueryHelpers;
 
 /**
  * A PipedQuery is a composite query in which each sub-query is executed in succession.  
@@ -44,20 +43,6 @@ public class PipedQuery<T> implements ICompositeQuery<T> {
 	@SuppressWarnings("unchecked")
 	public PipedQuery(IQuery<T> query1, IQuery<T> query2) {
 		this(new IQuery[] {query1, query2});
-	}
-
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query.IQuery#getId()
-	 */
-	public String getId() {
-		return QueryHelpers.getId(this);
-	}
-
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query.IQuery#getProperty(java.lang.String)
-	 */
-	public Object getProperty(String property) {
-		return QueryHelpers.getProperty(this, property);
 	}
 
 	/*(non-Javadoc)

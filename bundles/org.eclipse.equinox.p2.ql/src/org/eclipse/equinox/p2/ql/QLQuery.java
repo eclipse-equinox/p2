@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.ql;
 
 import java.util.Locale;
-import org.eclipse.equinox.internal.p2.query.QueryHelpers;
 import org.eclipse.equinox.p2.query.IQuery;
 
 /**
@@ -34,14 +33,4 @@ public abstract class QLQuery<T> implements IQuery<T> {
 		this.locale = locale;
 	}
 
-	/**
-	 * Gets the ID for this Query. 
-	 */
-	public String getId() {
-		return QueryHelpers.getId(this);
-	}
-
-	public Object getProperty(String property) {
-		return QueryHelpers.getProperty(this, property);
-	}
 }

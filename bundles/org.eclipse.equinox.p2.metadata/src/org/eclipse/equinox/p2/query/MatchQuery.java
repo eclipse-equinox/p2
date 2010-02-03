@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.query;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.query.QueryHelpers;
 
 /**
  * This class represents the superclass of most of p2's queries.  Every element
@@ -39,21 +38,6 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 	 * Clients should call {@link #perform(Iterator)}
 	 */
 	public abstract boolean isMatch(T candidate);
-
-	/**
-	 * Gets the ID for this Query. 
-	 */
-	public String getId() {
-		return QueryHelpers.getId(this);
-	}
-
-	/**
-	 * Gets a particular property of the query.
-	 * @param property The property to retrieve 
-	 */
-	public Object getProperty(String property) {
-		return QueryHelpers.getProperty(this, property);
-	}
 
 	/**
 	 * Performs this query on the given iterator, passing all objects in the iterator 

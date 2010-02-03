@@ -39,17 +39,4 @@ public interface IQuery<T> {
 	 */
 	public abstract IQueryResult<T> perform(Iterator<T> iterator);
 
-	/**
-	 * Gets a unique identifier for this query.
-	 * @return a unique identifier for this query
-	 */
-	public String getId();
-
-	/**
-	 * Gets a particular property of the query.
-	 * @param property The property to retrieve 
-	 * @return The value of the retrieved property, or <code>null</code>
-	 * if no such property is defined.
-	 */
-	public Object getProperty(String property);
 }

@@ -54,7 +54,6 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata;
    org.eclipse.pde.ui,
    org.eclipse.equinox.p2.repository.tools,
    org.eclipse.pde.core",
- org.eclipse.equinox.internal.p2.query;x-friends:="org.eclipse.equinox.p2.ql,org.eclipse.equinox.p2.ui",
  org.eclipse.equinox.internal.provisional.p2.metadata;
   x-friends:="org.eclipse.equinox.p2.artifact.optimizers,
    org.eclipse.equinox.p2.artifact.processors,

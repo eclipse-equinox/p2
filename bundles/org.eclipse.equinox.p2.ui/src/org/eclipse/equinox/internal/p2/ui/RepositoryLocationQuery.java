@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URI;
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.query.QueryHelpers;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 
@@ -26,21 +25,6 @@ import org.eclipse.equinox.p2.repository.IRepository;
  * @since 3.5
  */
 public class RepositoryLocationQuery implements IQuery<URI> {
-
-	/**
-	 * Gets the ID for this Query. 
-	 */
-	public String getId() {
-		return QueryHelpers.getId(this);
-	}
-
-	/**
-	 * Gets a particular property of the query.
-	 * @param property The property to retrieve 
-	 */
-	public Object getProperty(String property) {
-		return QueryHelpers.getProperty(this, property);
-	}
 
 	public IQueryResult<URI> perform(Iterator<URI> iterator) {
 		Collector<URI> result = new Collector<URI>();

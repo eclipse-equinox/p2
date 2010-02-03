@@ -99,37 +99,6 @@ public class QueryTest extends TestCase {
 		assertTrue("1.4", query.areHooksExecutedProperly());
 	}
 
-	public void testPropertyLookupMatchQuery() {
-		IQuery query1 = new PropertyLookupQuery1();
-		Object property = query1.getProperty("SomeProperty");
-		assertEquals("1.0", "foo", property);
-	}
-
-	public void testPropertyLookupContextQuery() {
-		IQuery query1 = new PropertyLookupQuery2();
-		Object property = query1.getProperty("SomeOtherProperty");
-		assertEquals("1.0", "bar", property);
-	}
-
-	public void testPropertyLookupInvalidProperty1() {
-		IQuery query1 = new PropertyLookupQuery1();
-		Object property = query1.getProperty("ThisProperty");
-		assertEquals("1.0", null, property);
-	}
-
-	public void testPropertyLookupInvalidProperty2() {
-		IQuery query1 = new PropertyLookupQuery1();
-		Object property = query1.getProperty("SomeOtherProperty");
-		assertEquals("1.0", null, property);
-	}
-
-	public void testIDLookup() {
-		IQuery query1 = new PropertyLookupQuery1();
-		IQuery query2 = new PropertyLookupQuery2();
-		assertEquals("1.0", "org.eclipse.equinox.p2.tests.core.PropertyLookupQuery1", query1.getId());
-		assertEquals("1.0", "org.eclipse.equinox.p2.tests.core.PropertyLookupQuery2", query2.getId());
-	}
-
 	public void testPerformHooksOnQueryFail() {
 		List items = Arrays.asList("red", new Object());
 		PerformHookQuery query = new PerformHookQuery();

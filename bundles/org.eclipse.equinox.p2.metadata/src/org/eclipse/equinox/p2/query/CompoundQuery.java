@@ -14,7 +14,6 @@ package org.eclipse.equinox.p2.query;
 import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.query.QueryHelpers;
 
 /**
  * A query that combines a group of sub-queries.<P>
@@ -94,21 +93,6 @@ public abstract class CompoundQuery<T> implements ICompositeQuery<T> {
 			}
 		}
 		return true;
-	}
-
-	/**
-	 * Gets the ID for this Query. 
-	 */
-	public String getId() {
-		return QueryHelpers.getId(this);
-	}
-
-	/**
-	 * Gets a particular property of the query.
-	 * @param property The property to retrieve 
-	 */
-	public Object getProperty(String property) {
-		return QueryHelpers.getProperty(this, property);
 	}
 
 	/**
