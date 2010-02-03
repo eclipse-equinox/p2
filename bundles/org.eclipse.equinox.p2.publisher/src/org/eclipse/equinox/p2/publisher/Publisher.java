@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
 public class Publisher {
 	static final public String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
+	private static final long SERVICE_TIMEOUT = 5000;
 
 	private IPublisherInfo info;
 	private IPublisherResult results;
@@ -56,7 +57,7 @@ public class Publisher {
 		}
 
 		// 	the given repo location is not an existing repo so we have to create something
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = getService(agent, IMetadataRepositoryManager.SERVICE_NAME);
 		String repositoryName = name == null ? location + " - metadata" : name; //$NON-NLS-1$
 		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		if (result != null) {
@@ -71,14 +72,14 @@ public class Publisher {
 
 	/**
 	 * Load a metadata repository from the given location.
-	 * @param location the URI location of the repo
+	 * @param location the URI location of the repository
 	 * @param modifiable whether to ask the manager for a modifiable repository
 	 * @param removeFromManager remove the loaded repository from the manager if it wasn't already loaded
 	 * @return the loaded repository
 	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository loadMetadataRepository(IProvisioningAgent agent, URI location, boolean modifiable, boolean removeFromManager) throws ProvisionException {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = getService(agent, IMetadataRepositoryManager.SERVICE_NAME);
 		boolean existing = manager.contains(location);
 
 		IMetadataRepository result = manager.loadRepository(location, modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
@@ -114,7 +115,7 @@ public class Publisher {
 			//fall through and create a new repository
 		}
 
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager manager = getService(agent, IArtifactRepositoryManager.SERVICE_NAME);
 		String repositoryName = name != null ? name : location + " - artifacts"; //$NON-NLS-1$
 		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		if (result != null) {
@@ -131,14 +132,14 @@ public class Publisher {
 
 	/**
 	 * Load an artifact repository from the given location.
-	 * @param location the URI location of the repo
+	 * @param location the URI location of the repository
 	 * @param modifiable whether to ask the manager for a modifiable repository
 	 * @param removeFromManager remove the loaded repository from the manager if it wasn't already loaded
 	 * @return the loaded repository
 	 * @throws ProvisionException
 	 */
 	public static IArtifactRepository loadArtifactRepository(IProvisioningAgent agent, URI location, boolean modifiable, boolean removeFromManager) throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager manager = getService(agent, IArtifactRepositoryManager.SERVICE_NAME);
 		boolean existing = manager.contains(location);
 
 		IArtifactRepository result = manager.loadRepository(location, modifiable ? IRepositoryManager.REPOSITORY_HINT_MODIFIABLE : 0, null);
@@ -150,6 +151,36 @@ public class Publisher {
 	public Publisher(IPublisherInfo info) {
 		this.info = info;
 		results = new PublisherResult();
+	}
+
+	/**
+	 * Obtains a service from the agent, waiting for a reasonable timeout period
+	 * if the service is not yet available. This method never returns <code>null</code>;
+	 * an exception is thrown if the service could not be obtained.
+	 * 
+	 * @param <T> The type of the service to return
+	 * @param agent The agent to obtain the service from
+	 * @param serviceName The name of the service to obtain
+	 * @return The service instance
+	 */
+	@SuppressWarnings("unchecked")
+	protected static <T> T getService(IProvisioningAgent agent, String serviceName) {
+		T service = (T) agent.getService(serviceName);
+		if (service != null)
+			return service;
+		long start = System.currentTimeMillis();
+		do {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				//ignore and keep waiting
+			}
+			service = (T) agent.getService(serviceName);
+			if (service != null)
+				return service;
+		} while ((System.currentTimeMillis() - start) < SERVICE_TIMEOUT);
+		//could not obtain the service
+		throw new IllegalStateException("Unable to obtain required service: " + serviceName); //$NON-NLS-1$
 	}
 
 	public Publisher(IPublisherInfo info, IPublisherResult results) {
