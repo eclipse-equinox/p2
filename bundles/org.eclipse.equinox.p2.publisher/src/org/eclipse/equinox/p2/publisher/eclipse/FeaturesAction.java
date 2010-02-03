@@ -531,7 +531,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	private void expandFilter(String filter, String osgiFilterValue, StringBuffer result) {
-		if (filter != null) {
+		if (filter != null && filter.length() != 0) {
 			StringTokenizer token = new StringTokenizer(filter, ","); //$NON-NLS-1$
 			if (token.countTokens() == 1)
 				result.append('(' + osgiFilterValue + '=' + filter + ')');
