@@ -216,6 +216,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	private MirrorSelector mirrors;
 
+	private boolean disableSave = false;
+
 	static void delete(File toDelete) {
 		if (toDelete.isDirectory()) {
 			File[] children = toDelete.listFiles();
@@ -437,11 +439,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			simple = createInternalDescriptor(descriptor);
 		if (simple.getRepositoryProperty(SimpleArtifactDescriptor.ARTIFACT_REFERENCE) == null) {
 			File file = getArtifactFile(descriptor);
-			if (file == null)
-				return false;
-			delete(file);
-			if (file.exists())
-				return false;
+			if (file != null) {
+				// If the file != null remove it, otherwise just remove
+				// the descriptor
+				delete(file);
+				if (file.exists())
+					return false;
+			}
 		}
 		boolean result = artifactDescriptors.remove(descriptor);
 		if (result)
@@ -900,11 +904,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public void save() {
-		boolean compress = "true".equalsIgnoreCase(properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		if (disableSave)
+			return;
+		boolean compress = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
 		save(compress);
 	}
 
-	public void save(boolean compress) {
+	private void save(boolean compress) {
 		assertModifiable();
 		OutputStream os = null;
 		try {
@@ -989,5 +995,30 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		return query.perform(artifactMap.keySet().iterator());
+	}
+
+	public IStatus executeBatch(Runnable runnable) {
+		IStatus result = null;
+		synchronized (this) {
+			try {
+				disableSave = true;
+				runnable.run();
+			} catch (Throwable e) {
+				result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+			} finally {
+				disableSave = false;
+				try {
+					save();
+				} catch (Exception e) {
+					if (result != null)
+						result = new MultiStatus(Activator.ID, IStatus.ERROR, new IStatus[] {result}, e.getMessage(), e);
+					else
+						result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+				}
+			}
+		}
+		if (result == null)
+			result = Status.OK_STATUS;
+		return result;
 	}
 }

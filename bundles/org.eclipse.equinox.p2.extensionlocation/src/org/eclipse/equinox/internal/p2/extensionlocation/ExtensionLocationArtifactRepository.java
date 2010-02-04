@@ -239,4 +239,13 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 		ensureInitialized();
 		return artifactRepository.query(query, monitor);
 	}
+
+	public IStatus executeBatch(Runnable runnable) {
+		try {
+			runnable.run();
+		} catch (Exception e) {
+			return new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+		}
+		return Status.OK_STATUS;
+	}
 }

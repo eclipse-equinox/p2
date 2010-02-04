@@ -257,4 +257,14 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		CompoundQueryable<IArtifactKey> compound = new CompoundQueryable<IArtifactKey>(cached, innerRepo);
 		return compound.query(query, monitor);
 	}
+
+	public IStatus executeBatch(Runnable runnable) {
+		try {
+			runnable.run();
+		} catch (Exception e) {
+			return new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+		}
+		return Status.OK_STATUS;
+	}
+
 }

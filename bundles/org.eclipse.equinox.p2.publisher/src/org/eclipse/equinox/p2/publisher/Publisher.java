@@ -188,6 +188,39 @@ public class Publisher {
 		this.results = results;
 	}
 
+	class ArtifactProcess implements Runnable {
+
+		private final IPublisherAction[] actions;
+		private final IPublisherInfo info;
+		private final IProgressMonitor monitor;
+		private IStatus result = null;
+
+		public ArtifactProcess(IPublisherAction[] actions, IPublisherInfo info, IProgressMonitor monitor) {
+			this.monitor = monitor;
+			this.info = info;
+			this.actions = actions;
+		}
+
+		public void run() {
+			MultiStatus finalStatus = new MultiStatus("this", 0, "publishing result", null); //$NON-NLS-1$//$NON-NLS-2$
+			for (int i = 0; i < actions.length; i++) {
+				if (monitor.isCanceled()) {
+					result = Status.CANCEL_STATUS;
+					return;
+				}
+				IStatus status = actions[i].perform(info, results, monitor);
+				finalStatus.merge(status);
+				monitor.worked(1);
+			}
+			result = finalStatus;
+		}
+
+		public IStatus getStatus() {
+			return result;
+		}
+
+	}
+
 	public IStatus publish(IPublisherAction[] actions, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
@@ -195,15 +228,20 @@ public class Publisher {
 		if (Tracing.DEBUG_PUBLISHING)
 			Tracing.debug("Invoking publisher"); //$NON-NLS-1$
 		try {
-			// run all the actions
-			MultiStatus finalStatus = new MultiStatus("this", 0, "publishing result", null); //$NON-NLS-1$//$NON-NLS-2$
-			for (int i = 0; i < actions.length; i++) {
-				if (sub.isCanceled())
-					return Status.CANCEL_STATUS;
-				IStatus status = actions[i].perform(info, results, monitor);
-				finalStatus.merge(status);
-				sub.worked(1);
+			ArtifactProcess artifactProcess = new ArtifactProcess(actions, info, sub);
+
+			IStatus finalStatus = null;
+			if (info.getArtifactRepository() != null) {
+				finalStatus = info.getArtifactRepository().executeBatch(artifactProcess);
+				if (finalStatus.isOK())
+					// If the batch process didn't report any errors, then 
+					// Use the status from our actions
+					finalStatus = artifactProcess.getStatus();
+			} else {
+				artifactProcess.run();
+				finalStatus = artifactProcess.getStatus();
 			}
+
 			if (Tracing.DEBUG_PUBLISHING)
 				Tracing.debug("Publishing complete. Result=" + finalStatus); //$NON-NLS-1$
 			if (!finalStatus.isOK())

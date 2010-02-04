@@ -307,4 +307,13 @@ public class TestArtifactRepository implements IArtifactRepository {
 			}
 		};
 	}
+
+	public IStatus executeBatch(Runnable runnable) {
+		try {
+			runnable.run();
+		} catch (Exception e) {
+			return new Status(IStatus.ERROR, "org.eclipse.equinox.p2.tests.publisher", e.getMessage(), e);
+		}
+		return Status.OK_STATUS;
+	}
 }

@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact.spi;
 
-import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
-
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 
 /**
  * The common base class for all artifact repository implementations. Clients must
@@ -85,5 +85,14 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return new ArtifactDescriptor(key);
+	}
+
+	public IStatus executeBatch(Runnable runnable) {
+		try {
+			runnable.run();
+		} catch (Exception e) {
+			return new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+		}
+		return Status.OK_STATUS;
 	}
 }

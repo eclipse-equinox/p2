@@ -45,6 +45,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	// keep a list of the repositories that we have successfully loaded
 	private List<ChildInfo> loadedRepos = new ArrayList<ChildInfo>();
 	private IArtifactRepositoryManager manager;
+	private boolean disableSave;
 
 	/**
 	 * Create a Composite repository in memory.
@@ -79,7 +80,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return manager;
 	}
 
-	/*
+	/**
 	 * This is only called by the parser when loading a repository.
 	 */
 	CompositeArtifactRepository(IArtifactRepositoryManager manager, CompositeRepositoryState state) {
@@ -89,7 +90,10 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			addChild(state.getChildren()[i], false);
 	}
 
-	CompositeArtifactRepository(IArtifactRepositoryManager manager, URI location, String repositoryName, Map<String, String> properties) {
+	/**
+	 * @noreference This constructor is not intended to be referenced by clients.
+	 */
+	protected CompositeArtifactRepository(IArtifactRepositoryManager manager, URI location, String repositoryName, Map<String, String> properties) {
 		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties);
 		this.manager = manager;
 		save();
@@ -393,7 +397,15 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return applicable.toArray(new IArtifactRequest[applicable.size()]);
 	}
 
-	private void save() {
+	/**
+	 * This method is only protected for testing purposes
+	 * 
+	 * @nooverride This method is not intended to be re-implemented or extended by clients.
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	protected void save() {
+		if (disableSave)
+			return;
 		if (!isModifiable())
 			return;
 		boolean compress = "true".equalsIgnoreCase(properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
@@ -550,5 +562,30 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		}
 		CompoundQueryable<IArtifactDescriptor> queryable = new CompoundQueryable<IArtifactDescriptor>(repos);
 		return queryable;
+	}
+
+	public IStatus executeBatch(Runnable runnable) {
+		IStatus result = null;
+		synchronized (this) {
+			try {
+				disableSave = true;
+				runnable.run();
+			} catch (Throwable e) {
+				result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+			} finally {
+				disableSave = false;
+				try {
+					save();
+				} catch (Exception e) {
+					if (result != null)
+						result = new MultiStatus(Activator.ID, IStatus.ERROR, new IStatus[] {result}, e.getMessage(), e);
+					else
+						result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+				}
+			}
+		}
+		if (result == null)
+			result = Status.OK_STATUS;
+		return result;
 	}
 }

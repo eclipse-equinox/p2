@@ -12,9 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,7 +23,7 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.IRepository;

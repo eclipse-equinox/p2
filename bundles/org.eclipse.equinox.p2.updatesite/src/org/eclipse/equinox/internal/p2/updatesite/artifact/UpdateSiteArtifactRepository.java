@@ -146,4 +146,8 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		return delegate.query(query, monitor);
 	}
+
+	public IStatus executeBatch(Runnable runnable) {
+		return delegate.executeBatch(runnable);
+	}
 }
