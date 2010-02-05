@@ -31,7 +31,7 @@ public class Bug254481dataSet1 extends AbstractProvisioningTest {
 		File reporegistry1 = getTestData("test data bug 254481", "testData/bug254481/dataSet1/profileRegistry");
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), tempFolder, null, false);
 		profile = registry.getProfile("bootProfile");
 		assertNotNull(profile);
 		repo = getMetadataRepositoryManager().loadRepository(getTestData("test data bug 254481", "testData/bug254481/dataSet1/repo").toURI(), null);

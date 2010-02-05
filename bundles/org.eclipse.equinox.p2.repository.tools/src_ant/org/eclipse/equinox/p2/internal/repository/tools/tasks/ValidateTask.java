@@ -13,8 +13,6 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 import java.net.URI;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.ArtifactRepositoryValidator;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
@@ -32,7 +30,7 @@ public class ValidateTask extends AbstractRepositoryTask {
 	 * @see org.apache.tools.ant.Task#execute()
 	 */
 	public void execute() {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new BuildException(Messages.no_artifactRepo_manager);
 

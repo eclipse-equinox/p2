@@ -22,11 +22,8 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 public class MetadataRepositoryComponent implements IAgentServiceFactory {
 
 	public Object createService(IProvisioningAgent agent) {
-		MetadataRepositoryManager manager = new MetadataRepositoryManager();
+		MetadataRepositoryManager manager = new MetadataRepositoryManager(agent);
 		final IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
-		manager.setEventBus(eventBus);
-		manager.setAgentLocation((IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME));
-		manager.setAgent(agent);
 		CacheManager cache = new CacheManager((IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME));
 		cache.setEventBus(eventBus);
 		agent.registerService(CacheManager.SERVICE_NAME, cache);

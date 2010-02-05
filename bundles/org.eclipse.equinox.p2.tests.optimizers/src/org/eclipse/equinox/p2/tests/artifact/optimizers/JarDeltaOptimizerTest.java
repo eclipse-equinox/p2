@@ -11,30 +11,26 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.optimizers;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
-import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
-
-import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
-
 import java.io.*;
 import java.util.zip.ZipInputStream;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta.JarDeltaOptimizerStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.tests.artifact.processors.ArtifactRepositoryMock;
 import org.eclipse.equinox.p2.tests.optimizers.TestData;
 
 /**
  * Test the <code>JarDelta</code> processing step.
  */
-public class JarDeltaOptimizerTest extends TestCase {
+public class JarDeltaOptimizerTest extends OptimizerTest {
 
 	//	public void testPrepare() throws IOException {
 	//		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/testdata_1.0.0.1.jar");
@@ -61,7 +57,7 @@ public class JarDeltaOptimizerTest extends TestCase {
 		IProcessingStepDescriptor stepDescriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0.0.1", true);
 		IArtifactKey key = new ArtifactKey("cl", "id1", Version.create("1.0.0.2"));
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
-		step.initialize(stepDescriptor, descriptor);
+		step.initialize(getAgent(), stepDescriptor, descriptor);
 		ByteArrayOutputStream destination = new ByteArrayOutputStream();
 		step.link(destination, new NullProgressMonitor());
 

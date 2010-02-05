@@ -63,7 +63,7 @@ public class InstallOperation extends ProfileChangeOperation {
 	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#computeProfileChangeRequest(org.eclipse.core.runtime.MultiStatus, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
-		request = ProfileChangeRequest.createByProfileId(profileId);
+		request = ProfileChangeRequest.createByProfileId(session.getProvisioningAgent(), profileId);
 		IProfile profile;
 		profile = session.getProfileRegistry().getProfile(profileId);
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.InstallOperation_ComputeProfileChangeProgress, toInstall.length);

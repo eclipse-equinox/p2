@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -22,7 +22,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 	private static final String PROVIDER_NAME = "org.eclipse.osgi.framework.console.CommandProvider"; //$NON-NLS-1$
 	private static BundleContext context;
 
-	private ServiceTracker profileTracker;
+	private ServiceTracker agentTracker;
 	private ProvCommandProvider provider;
 	private ServiceRegistration providerRegistration = null;
 
@@ -44,13 +44,13 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 		}
 
 		if (registerCommands) {
-			profileTracker = new ServiceTracker(context, IProfileRegistry.SERVICE_NAME, this);
-			profileTracker.open();
+			agentTracker = new ServiceTracker(context, IProvisioningAgent.SERVICE_NAME, this);
+			agentTracker.open();
 		}
 	}
 
 	public void stop(BundleContext ctxt) throws Exception {
-		profileTracker.close();
+		agentTracker.close();
 		if (providerRegistration != null)
 			providerRegistration.unregister();
 		providerRegistration = null;
@@ -59,10 +59,10 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
 	public Object addingService(ServiceReference reference) {
 		BundleContext ctxt = Activator.getContext();
-		IProfileRegistry registry = (IProfileRegistry) ctxt.getService(reference);
-		provider = new ProvCommandProvider(ctxt.getProperty("eclipse.p2.profile"), registry); //$NON-NLS-1$
+		IProvisioningAgent agent = (IProvisioningAgent) ctxt.getService(reference);
+		provider = new ProvCommandProvider(ctxt.getProperty("eclipse.p2.profile"), agent); //$NON-NLS-1$
 		providerRegistration = ctxt.registerService(PROVIDER_NAME, provider, null);
-		return registry;
+		return agent;
 	}
 
 	public void modifiedService(ServiceReference reference, Object service) {

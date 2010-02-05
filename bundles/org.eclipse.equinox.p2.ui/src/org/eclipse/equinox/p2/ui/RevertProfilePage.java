@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -20,12 +18,12 @@ import org.eclipse.compare.*;
 import org.eclipse.compare.structuremergeviewer.Differencer;
 import org.eclipse.compare.structuremergeviewer.IStructureComparator;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.CopyUtils;
 import org.eclipse.equinox.internal.p2.ui.dialogs.InstalledIUGroup;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.*;
@@ -540,7 +538,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 				// If it is a recognized element and it is not the current profile, then it can be deleted.
 				if (selected instanceof RollbackProfileElement && !((RollbackProfileElement) selected).isCurrentProfile()) {
 					RollbackProfileElement snapshot = (RollbackProfileElement) selected;
-					IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.SERVICE_NAME);
+					IProfileRegistry registry = getSession().getProfileRegistry();
 					if (registry != null) {
 						try {
 							registry.removeProfile(profileId, snapshot.getTimestamp());

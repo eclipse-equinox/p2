@@ -15,8 +15,8 @@ import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
-import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
@@ -83,13 +83,18 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	/**
 	 * Set used to manage exclusive load locks on repository locations.
 	 */
-	private Map<URI, Thread> loadLocks = new HashMap<URI, Thread>();
-	protected IProvisioningEventBus eventBus;
-	private IAgentLocation agentLocation;
-	protected IProvisioningAgent agent;
+	private final Map<URI, Thread> loadLocks = new HashMap<URI, Thread>();
+	private final IAgentLocation agentLocation;
+	protected final IProvisioningEventBus eventBus;
+	protected final IProvisioningAgent agent;
 
-	protected AbstractRepositoryManager() {
+	protected AbstractRepositoryManager(IProvisioningAgent agent) {
 		super();
+		this.agent = agent;
+		agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
+		eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		eventBus.addListener(this);
+		Activator.addManager(this);
 	}
 
 	/**
@@ -449,6 +454,10 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		if (key.endsWith("_")) //$NON-NLS-1$
 			key = key.substring(0, key.length() - 1);
 		return key;
+	}
+
+	public IProvisioningAgent getAgent() {
+		return agent;
 	}
 
 	/* (non-Javadoc)
@@ -960,53 +969,10 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	}
 
 	/**
-	 * Injects the agent service to be used by this repository manager
-	 * @param agent The agent for this repository manager
-	 */
-	public void setAgent(IProvisioningAgent agent) {
-		this.agent = agent;
-	}
-
-	/**
-	 * Injects the agent location service to be used by this repository manager
-	 * @param location The agent location
-	 */
-	public void setAgentLocation(IAgentLocation location) {
-		this.agentLocation = location;
-	}
-
-	/**
-	 * Injects the event bus service to be used by this repository manager.
-	 * @param bus The event bus being added
-	 */
-	public void setEventBus(IProvisioningEventBus bus) {
-		if (eventBus == bus)
-			return;
-		if (eventBus != null)
-			unsetEventBus(eventBus);
-		this.eventBus = bus;
-		eventBus.addListener(this);
-	}
-
-	/**
-	 * Removes the event bus service used by this repository manager
-	 * @param bus The bus being removed
-	 */
-	public void unsetEventBus(IProvisioningEventBus bus) {
-		if (bus == eventBus) {
-			eventBus.removeListener(this);
-			eventBus = null;
-		}
-	}
-
-	/**
 	 * Shuts down the repository manager.
 	 */
 	public void shutdown() {
-		if (eventBus != null) {
-			eventBus.removeListener(this);
-			eventBus = null;
-		}
+		eventBus.removeListener(this);
 		//ensure all repository state in memory is written to disk
 		boolean changed = false;
 		synchronized (repositoryLock) {

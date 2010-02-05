@@ -36,6 +36,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 
 	public void testCreate() {
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
+		factory.setAgent(getAgent());
 		try {
 			assertNull("1.0", factory.create(getTempFolder().toURI(), "", "", null));
 		} catch (ProvisionException e) {
@@ -52,6 +53,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue("0.3", simpleProfileFolder.exists());
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
+		factory.setAgent(getAgent());
 		IStatus status = factory.validate(simpleProfileFolder.toURI(), getMonitor());
 		assertOK("1.0", status);
 
@@ -67,7 +69,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);
 
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), tempFolder, null, false);
 		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull("0.3", profile);
 
@@ -78,6 +80,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue("0.5", simpleProfileFolder.exists());
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
+		factory.setAgent(getAgent());
 		ProfileMetadataRepository repo = null;
 		try {
 			repo = (ProfileMetadataRepository) factory.load(simpleProfileFolder.toURI(), 0, getMonitor());
@@ -95,7 +98,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);
 
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), tempFolder, null, false);
 		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull("0.3", profile);
 
@@ -109,6 +112,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertTrue("0.6", timeStampedProfile.exists());
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
+		factory.setAgent(getAgent());
 		ProfileMetadataRepository repo = null;
 		try {
 			repo = (ProfileMetadataRepository) factory.load(timeStampedProfile.toURI(), 0, getMonitor());
@@ -134,7 +138,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		simpleFactory.create(defaultAgenRepositoryDirectory.toURI(), "", "", null);
 
 		File profileRegistryFolder = new File(tempFolder, "p2/org.eclipse.equinox.p2.engine/profileRegistry");
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(profileRegistryFolder, null, false);
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), profileRegistryFolder, null, false);
 		IProfile profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull("1.0", profile);
 
@@ -152,6 +156,7 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertFalse("2.1", manager.contains(tempFolder.toURI()));
 
 		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
+		factory.setAgent(getAgent());
 		ProfileMetadataRepository repo = null;
 		try {
 			repo = (ProfileMetadataRepository) factory.load(timeStampedProfile.toURI(), 0, getMonitor());

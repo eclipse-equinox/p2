@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
-import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.*;
 import java.net.URI;
 import java.util.Map;
@@ -25,8 +21,10 @@ import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.p2.repository.Transport;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
@@ -99,7 +97,7 @@ public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 					}
 					descriptorStream = jInStream;
 				}
-				SimpleArtifactRepositoryIO io = new SimpleArtifactRepositoryIO();
+				SimpleArtifactRepositoryIO io = new SimpleArtifactRepositoryIO(getAgent());
 				SimpleArtifactRepository result = (SimpleArtifactRepository) io.read(localFile.toURL(), descriptorStream, sub.newChild(100));
 				result.initializeAfterLoad(location);
 				if (Tracing.DEBUG_METADATA_PARSING) {
@@ -124,7 +122,7 @@ public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 	}
 
 	public IArtifactRepository create(URI location, String name, String type, Map<String, String> properties) {
-		return new SimpleArtifactRepository(name, location, properties);
+		return new SimpleArtifactRepository(getAgent(), name, location, properties);
 	}
 
 	private Transport getTransport() {

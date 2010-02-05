@@ -38,7 +38,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		File reporegistry1 = getTestData("test data explanation large conflict", "testData/testLargeConflict/profileRegistry");
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), tempFolder, null, false);
 		SDKprofile = registry.getProfile("SDKProfile");
 		assertNotNull(SDKprofile);
 

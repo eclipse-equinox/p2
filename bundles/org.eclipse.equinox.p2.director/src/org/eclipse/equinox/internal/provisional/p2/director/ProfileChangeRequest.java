@@ -12,8 +12,9 @@ package org.eclipse.equinox.internal.provisional.p2.director;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.director.*;
+import org.eclipse.equinox.internal.p2.director.Messages;
+import org.eclipse.equinox.internal.p2.director.SimplePlanner;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -30,8 +31,8 @@ public class ProfileChangeRequest implements Cloneable {
 	private HashMap<IInstallableUnit, List<String>> iuPropertiesToRemove = null; // map of iu->list of property keys to be removed for an iu
 	private boolean isAbsolute = false; //Indicate whether or not the request is an absolute one
 
-	public static ProfileChangeRequest createByProfileId(String profileId) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.SERVICE_NAME);
+	public static ProfileChangeRequest createByProfileId(IProvisioningAgent agent, String profileId) {
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			throw new IllegalStateException(Messages.Planner_no_profile_registry);
 		IProfile profile = profileRegistry.getProfile(profileId);

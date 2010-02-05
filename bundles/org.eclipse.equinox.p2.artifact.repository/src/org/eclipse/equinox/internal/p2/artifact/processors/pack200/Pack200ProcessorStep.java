@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors.pack200;
 
-import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
-
 import java.io.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -20,7 +18,9 @@ import org.eclipse.equinox.internal.p2.artifact.processing.AbstractBufferingStep
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.jarprocessor.UnpackStep;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 
@@ -37,8 +37,8 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 		return new BufferedOutputStream(new FileOutputStream(incoming));
 	}
 
-	public void initialize(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
-		super.initialize(descriptor, context);
+	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+		super.initialize(agent, descriptor, context);
 		if (!UnpackStep.canUnpack())
 			setStatus(new Status(IStatus.ERROR, Activator.ID, "Unpack facility not configured")); //$NON-NLS-1$
 	}

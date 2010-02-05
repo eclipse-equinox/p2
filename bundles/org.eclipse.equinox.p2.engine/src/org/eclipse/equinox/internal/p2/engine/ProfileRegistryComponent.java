@@ -23,7 +23,7 @@ public class ProfileRegistryComponent implements IAgentServiceFactory {
 
 	public Object createService(IProvisioningAgent agent) {
 		IAgentLocation location = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(SimpleProfileRegistry.getDefaultRegistryDirectory(location));
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(agent, SimpleProfileRegistry.getDefaultRegistryDirectory(location));
 		registry.setEventBus((IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME));
 		return registry;
 	}

@@ -16,6 +16,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -31,8 +32,8 @@ import org.eclipse.osgi.service.environment.EnvironmentInfo;
 
 public class ProvisioningHelper {
 
-	public static IMetadataRepository addMetadataRepository(URI location) {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+	public static IMetadataRepository addMetadataRepository(IProvisioningAgent agent, URI location) {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("No metadata repository manager found");
 		try {
@@ -50,8 +51,8 @@ public class ProvisioningHelper {
 		}
 	}
 
-	public static IMetadataRepository getMetadataRepository(URI location) {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+	public static IMetadataRepository getMetadataRepository(IProvisioningAgent agent, URI location) {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("No metadata repository manager found");
 		try {
@@ -61,15 +62,15 @@ public class ProvisioningHelper {
 		}
 	}
 
-	public static void removeMetadataRepository(URI location) {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+	public static void removeMetadataRepository(IProvisioningAgent agent, URI location) {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("No metadata repository manager found");
 		manager.removeRepository(location);
 	}
 
-	public static IArtifactRepository addArtifactRepository(URI location) {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+	public static IArtifactRepository addArtifactRepository(IProvisioningAgent agent, URI location) {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			// TODO log here
 			return null;
@@ -87,16 +88,16 @@ public class ProvisioningHelper {
 		}
 	}
 
-	public static void removeArtifactRepository(URI location) {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+	public static void removeArtifactRepository(IProvisioningAgent agent, URI location) {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			// TODO log here
 			return;
 		manager.removeRepository(location);
 	}
 
-	public static IProfile addProfile(String profileId, Map<String, String> properties) throws ProvisionException {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.SERVICE_NAME);
+	public static IProfile addProfile(IProvisioningAgent agent, String profileId, Map<String, String> properties) throws ProvisionException {
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			return null;
 		IProfile profile = profileRegistry.getProfile(profileId);
@@ -115,22 +116,22 @@ public class ProvisioningHelper {
 		return profileRegistry.addProfile(profileId, profileProperties);
 	}
 
-	public static void removeProfile(String profileId) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.SERVICE_NAME);
+	public static void removeProfile(IProvisioningAgent agent, String profileId) {
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			return;
 		profileRegistry.removeProfile(profileId);
 	}
 
-	public static IProfile[] getProfiles() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.SERVICE_NAME);
+	public static IProfile[] getProfiles(IProvisioningAgent agent) {
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			return new IProfile[0];
 		return profileRegistry.getProfiles();
 	}
 
-	public static IProfile getProfile(String id) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.SERVICE_NAME);
+	public static IProfile getProfile(IProvisioningAgent agent, String id) {
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			return null;
 		return profileRegistry.getProfile(id);
@@ -146,20 +147,20 @@ public class ProvisioningHelper {
 	 * @param monitor A progress monitor, or <code>null</code>
 	 * @return The IUs that match the query
 	 */
-	public static IQueryResult<IInstallableUnit> getInstallableUnits(URI location, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+	public static IQueryResult<IInstallableUnit> getInstallableUnits(IProvisioningAgent agent, URI location, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		IQueryable<IInstallableUnit> queryable = null;
 		if (location == null) {
-			queryable = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+			queryable = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		} else {
-			queryable = getMetadataRepository(location);
+			queryable = getMetadataRepository(agent, location);
 		}
 		if (queryable != null)
 			return queryable.query(query, monitor);
 		return Collector.emptyCollector();
 	}
 
-	public static URI[] getMetadataRepositories() {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+	public static URI[] getMetadataRepositories(IProvisioningAgent agent) {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			// TODO log here
 			return null;
@@ -172,15 +173,15 @@ public class ProvisioningHelper {
 	/**
 	 * Install the described IU
 	 */
-	public static IStatus install(String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
+	public static IStatus install(IProvisioningAgent agent, String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
-		IQueryResult<IInstallableUnit> units = getInstallableUnits((URI) null, new InstallableUnitQuery(unitId, Version.create(version)), progress);
+		IQueryResult<IInstallableUnit> units = getInstallableUnits(agent, (URI) null, new InstallableUnitQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuffer error = new StringBuffer();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');
 			error.append("Repositories searched:\n");
-			URI[] repos = getMetadataRepositories();
+			URI[] repos = getMetadataRepositories(agent);
 			if (repos != null) {
 				for (int i = 0; i < repos.length; i++)
 					error.append(repos[i] + "\n");
@@ -188,11 +189,11 @@ public class ProvisioningHelper {
 			throw new ProvisionException(error.toString());
 		}
 
-		IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.SERVICE_NAME);
+		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 		if (planner == null)
 			throw new ProvisionException("No planner service found.");
 
-		IEngine engine = (IEngine) ServiceHelper.getService(Activator.getContext(), IEngine.SERVICE_NAME);
+		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new ProvisionException("No director service found.");
 		ProvisioningContext context = new ProvisioningContext();
@@ -202,8 +203,8 @@ public class ProvisioningHelper {
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}
 
-	public static URI[] getArtifactRepositories() {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+	public static URI[] getArtifactRepositories(IProvisioningAgent agent) {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			// TODO log here
 			return null;
@@ -213,8 +214,8 @@ public class ProvisioningHelper {
 		return null;
 	}
 
-	public static IArtifactRepository getArtifactRepository(URI repoURL) {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+	public static IArtifactRepository getArtifactRepository(IProvisioningAgent agent, URI repoURL) {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		try {
 			if (manager != null)
 				return manager.loadRepository(repoURL, null);
@@ -224,29 +225,29 @@ public class ProvisioningHelper {
 		return null;
 	}
 
-	public static long[] getProfileTimestamps(String profileId) {
+	public static long[] getProfileTimestamps(IProvisioningAgent agent, String profileId) {
 		if (profileId == null) {
 			profileId = IProfileRegistry.SELF;
 		}
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			return null;
 		return profileRegistry.listProfileTimestamps(profileId);
 	}
 
-	public static IStatus revertToPreviousState(IProfile profile, long revertToPreviousState) throws ProvisionException {
-		IEngine engine = (IEngine) ServiceHelper.getService(Activator.getContext(), IEngine.SERVICE_NAME);
+	public static IStatus revertToPreviousState(IProvisioningAgent agent, IProfile profile, long revertToPreviousState) throws ProvisionException {
+		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new ProvisionException("No p2 engine found.");
-		IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.SERVICE_NAME);
+		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 		if (planner == null)
 			throw new ProvisionException("No planner found.");
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			throw new ProvisionException("profile registry cannot be null");
 		// If given profile is null, then get/use the self profile
 		if (profile == null) {
-			profile = getProfile(IProfileRegistry.SELF);
+			profile = getProfile(agent, IProfileRegistry.SELF);
 		}
 		IProfile targetProfile = null;
 		if (revertToPreviousState == 0) {
@@ -260,8 +261,8 @@ public class ProvisioningHelper {
 		}
 		if (targetProfile == null)
 			throw new ProvisionException("target profile with timestamp=" + revertToPreviousState + " not found");
-		URI[] artifactRepos = getArtifactRepositories();
-		URI[] metadataRepos = getMetadataRepositories();
+		URI[] artifactRepos = getArtifactRepositories(agent);
+		URI[] metadataRepos = getMetadataRepositories(agent);
 		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
 		ProvisioningContext context = new ProvisioningContext(metadataRepos);
 		context.setArtifactRepositories(artifactRepos);
@@ -271,7 +272,7 @@ public class ProvisioningHelper {
 	/**
 	 * Install the described IU
 	 */
-	public static IStatus uninstall(String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
+	public static IStatus uninstall(IProvisioningAgent agent, String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
 		IQueryResult<IInstallableUnit> units = profile.query(new InstallableUnitQuery(unitId, Version.create(version)), progress);
@@ -279,7 +280,7 @@ public class ProvisioningHelper {
 			StringBuffer error = new StringBuffer();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');
 			error.append("Repositories searched:\n");
-			URI[] repos = getMetadataRepositories();
+			URI[] repos = getMetadataRepositories(agent);
 			if (repos != null) {
 				for (int i = 0; i < repos.length; i++)
 					error.append(repos[i] + "\n"); //$NON-NLS-1$
@@ -287,11 +288,11 @@ public class ProvisioningHelper {
 			throw new ProvisionException(error.toString());
 		}
 
-		IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.SERVICE_NAME);
+		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 		if (planner == null)
 			throw new ProvisionException("No planner service found.");
 
-		IEngine engine = (IEngine) ServiceHelper.getService(Activator.getContext(), IEngine.SERVICE_NAME);
+		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new ProvisionException("No engine service found.");
 		ProvisioningContext context = new ProvisioningContext();

@@ -84,6 +84,7 @@ public class Application implements IApplication {
 
 	private ServiceReference packageAdminRef;
 	private PackageAdmin packageAdmin;
+	protected IProvisioningAgent agent;
 
 	private void ambigousCommand(int cmd1, int cmd2) throws CoreException {
 		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Ambigous_Command, new Object[] {COMMAND_NAMES[cmd1], COMMAND_NAMES[cmd2]})));
@@ -136,7 +137,7 @@ public class Application implements IApplication {
 			profileId = IProfileRegistry.SELF;
 			noProfileId = true;
 		}
-		IProfile profile = ProvisioningHelper.getProfile(profileId);
+		IProfile profile = ProvisioningHelper.getProfile(agent, profileId);
 		if (profile == null) {
 			if (destination == null)
 				missingArgument("destination"); //$NON-NLS-1$
@@ -158,7 +159,7 @@ public class Application implements IApplication {
 			if (profileProperties != null) {
 				putProperties(profileProperties, props);
 			}
-			profile = ProvisioningHelper.addProfile(profileId, props);
+			profile = ProvisioningHelper.addProfile(agent, profileId, props);
 		}
 		return profile;
 	}
@@ -168,15 +169,7 @@ public class Application implements IApplication {
 			if (throwException)
 				missingArgument("artifactRepository"); //$NON-NLS-1$
 		} else {
-			artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
-			if (artifactManager == null) {
-				IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.SERVICE_CURRENT);
-				if (agent == null) {
-					IProvisioningAgentProvider provider = (IProvisioningAgentProvider) ServiceHelper.getService(Activator.getContext(), IProvisioningAgentProvider.SERVICE_NAME);
-					agent = provider.createAgent(null);
-				}
-				artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-			}
+			artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 			if (artifactManager == null) {
 				if (throwException)
 					throw new ProvisionException(Messages.Application_NoManager);
@@ -206,7 +199,7 @@ public class Application implements IApplication {
 			if (throwException)
 				missingArgument("metadataRepository"); //$NON-NLS-1$
 		} else {
-			metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+			metadataManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 			if (metadataManager == null) {
 				if (throwException)
 					throw new ProvisionException(Messages.Application_NoManager);
@@ -233,16 +226,20 @@ public class Application implements IApplication {
 		}
 	}
 
-	private void initializeServices() {
-		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.SERVICE_NAME);
+	private void initializeServices() throws ProvisionException {
+		ServiceReference agentProviderRef = Activator.getContext().getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) Activator.getContext().getService(agentProviderRef);
+		agent = provider.createAgent(null);
+
+		IDirector director = (IDirector) agent.getService(IDirector.SERVICE_NAME);
 		if (director == null)
 			throw new RuntimeException(Messages.Missing_director);
 
-		planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.SERVICE_NAME);
+		planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 		if (planner == null)
 			throw new RuntimeException(Messages.Missing_planner);
 
-		engine = (IEngine) ServiceHelper.getService(Activator.getContext(), IEngine.SERVICE_NAME);
+		engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new RuntimeException(Messages.Missing_Engine);
 	}
@@ -489,7 +486,7 @@ public class Application implements IApplication {
 		}
 
 		public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-			return ProvisioningHelper.getInstallableUnits(location, query, monitor);
+			return ProvisioningHelper.getInstallableUnits(agent, location, query, monitor);
 		}
 	}
 
@@ -497,7 +494,7 @@ public class Application implements IApplication {
 		IProgressMonitor nullMonitor = new NullProgressMonitor();
 
 		if (locations == null || locations.length == 0)
-			return ProvisioningHelper.getInstallableUnits((URI) null, query, nullMonitor);
+			return ProvisioningHelper.getInstallableUnits(agent, (URI) null, query, nullMonitor);
 
 		List<IQueryable<IInstallableUnit>> locationQueryables = new ArrayList<IQueryable<IInstallableUnit>>(locations.length);
 		for (int i = 0; i < locations.length; i++)

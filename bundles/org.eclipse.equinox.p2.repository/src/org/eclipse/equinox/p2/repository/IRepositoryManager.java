@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository;
 
-import org.eclipse.equinox.p2.query.IQueryable;
-
 import java.net.URI;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
  * The common base class for metadata and artifact repository managers.
@@ -93,6 +93,12 @@ public interface IRepositoryManager<T> extends IQueryable<T> {
 	 * and <code>false</code> otherwise
 	 */
 	public boolean contains(URI location);
+
+	/**
+	 * Returns the provisioning agent in charge of this reposiotry manager
+	 * @return The provisioning agent.
+	 */
+	public IProvisioningAgent getAgent();
 
 	/**
 	 * Returns the artifact repository locations known to the repository manager.

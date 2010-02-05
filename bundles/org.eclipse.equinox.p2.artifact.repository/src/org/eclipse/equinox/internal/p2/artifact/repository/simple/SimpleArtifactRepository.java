@@ -24,11 +24,11 @@ import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.*;
@@ -257,8 +257,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	/*
 	 * This is only called by the parser when loading a repository.
 	 */
-	SimpleArtifactRepository(String name, String type, String version, String description, String provider, Set<SimpleArtifactDescriptor> artifacts, String[][] mappingRules, Map<String, String> properties) {
-		super(name, type, version, null, description, provider, properties);
+	SimpleArtifactRepository(IProvisioningAgent agent, String name, String type, String version, String description, String provider, Set<SimpleArtifactDescriptor> artifacts, String[][] mappingRules, Map<String, String> properties) {
+		super(agent, name, type, version, null, description, provider, properties);
 		this.artifactDescriptors.addAll(artifacts);
 		this.mappingRules = mappingRules;
 		for (SimpleArtifactDescriptor desc : artifactDescriptors)
@@ -286,8 +286,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			artifactMap.remove(key);
 	}
 
-	public SimpleArtifactRepository(String repositoryName, URI location, Map<String, String> properties) {
-		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties);
+	public SimpleArtifactRepository(IProvisioningAgent agent, String repositoryName, URI location, Map<String, String> properties) {
+		super(agent, repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties);
 		initializeAfterLoad(location);
 		if (properties != null) {
 			if (properties.containsKey(PUBLISH_PACK_FILES_AS_SIBLINGS)) {
@@ -834,7 +834,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public OutputStream processDestination(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		destination = addPostSteps(handler, descriptor, destination, monitor);
-		destination = handler.createAndLink(descriptor.getProcessingSteps(), descriptor, destination, monitor);
+		destination = handler.createAndLink(agent, descriptor.getProcessingSteps(), descriptor, destination, monitor);
 		destination = addPreSteps(handler, descriptor, destination, monitor);
 		return destination;
 	}
@@ -940,7 +940,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 					os = jOs;
 				}
 				super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
-				new SimpleArtifactRepositoryIO().write(this, os);
+				new SimpleArtifactRepositoryIO(agent).write(this, os);
 			} catch (IOException e) {
 				// TODO proper exception handling
 				e.printStackTrace();
@@ -969,7 +969,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 		save();
 		//force repository manager to reload this repository because it caches properties
-		ArtifactRepositoryManager manager = (ArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+		ArtifactRepositoryManager manager = (ArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager.removeRepository(getLocation()))
 			manager.addRepository(this);
 		return oldValue;

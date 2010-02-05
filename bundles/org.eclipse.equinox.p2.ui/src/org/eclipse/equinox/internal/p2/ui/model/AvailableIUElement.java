@@ -94,7 +94,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	}
 
 	protected IProvisioningPlan getSizingPlan(IProgressMonitor monitor) {
-		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileID);
+		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProvisioningUI().getSession().getProvisioningAgent(), profileID);
 		request.addInstallableUnits(new IInstallableUnit[] {getIU()});
 		return getProvisioningUI().getSession().getPlanner().getProvisioningPlan(request, getProvisioningContext(), monitor);
 	}

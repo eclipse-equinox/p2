@@ -15,7 +15,6 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
@@ -128,10 +127,10 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			request.setAbsoluteMode(true);
 			request.addInstallableUnits(processedIUs.toArray(new IInstallableUnit[processedIUs.size()]));
 			ProvisioningContext context = new ProvisioningContext();
-			IEngine engine = (IEngine) ServiceHelper.getService(Activator.getBundleContext(), IEngine.SERVICE_NAME);
+			IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 			if (engine == null)
 				throw new ProvisionException(Messages.exception_noEngineService);
-			IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getBundleContext(), IPlanner.SERVICE_NAME);
+			IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 			if (planner == null)
 				throw new ProvisionException(Messages.exception_noPlannerService);
 

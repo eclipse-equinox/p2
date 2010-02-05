@@ -10,13 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
-
-import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
-
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -29,8 +22,12 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
@@ -45,6 +42,12 @@ import org.xml.sax.*;
 // TODO: Should a registration/factory mechanism be supported
 //		 for getting a repository reader/writer given a repository type
 public class SimpleArtifactRepositoryIO {
+
+	private final IProvisioningAgent agent;
+
+	public SimpleArtifactRepositoryIO(IProvisioningAgent agent) {
+		this.agent = agent;
+	}
 
 	/**
 	 * Writes the given artifact repository to the stream.
@@ -330,7 +333,7 @@ public class SimpleArtifactRepositoryIO {
 							: propertiesHandler.getProperties());
 					Set<SimpleArtifactDescriptor> artifacts = (artifactsHandler == null ? new HashSet<SimpleArtifactDescriptor>(0) //
 							: artifactsHandler.getArtifacts());
-					repository = new SimpleArtifactRepository(attrValues[0], attrValues[1], attrValues[2], attrValues[3], //
+					repository = new SimpleArtifactRepository(agent, attrValues[0], attrValues[1], attrValues[2], attrValues[3], //
 							attrValues[4], artifacts, mappingRules, properties);
 				}
 			}

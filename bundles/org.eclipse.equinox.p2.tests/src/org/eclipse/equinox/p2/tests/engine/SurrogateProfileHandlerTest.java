@@ -57,7 +57,7 @@ public class SurrogateProfileHandlerTest extends AbstractProvisioningTest {
 		getServices();
 		//ensure we start in a clean state
 		registry.removeProfile(PROFILE_NAME);
-		handler = new SurrogateProfileHandler();
+		handler = new SurrogateProfileHandler(getAgent());
 		Field registryField = SurrogateProfileHandler.class.getDeclaredField("profileRegistry");
 		registryField.setAccessible(true);
 		registryField.set(handler, registry);

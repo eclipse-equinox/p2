@@ -19,7 +19,6 @@ import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.osgi.framework.*;
 
 public class Activator implements BundleActivator {
@@ -73,18 +72,6 @@ public class Activator implements BundleActivator {
 		registrationBus = context.registerService(IProvisioningEventBus.SERVICE_NAME, bus, null);
 	}
 
-	/**
-	 * Returns a metadata repository manager, registering a service if there isn't
-	 * one registered already.
-	 */
-	private void registerMetadataRepositoryManager() {
-		//make sure there isn't a repository manager already registered
-		if (context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME) == null) {
-			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-			registrationDefaultManager = context.registerService(IMetadataRepositoryManager.SERVICE_NAME, manager, null);
-		}
-	}
-
 	private void registerPlanner() {
 		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 		registrationPlanner = context.registerService(IPlanner.SERVICE_NAME, planner, null);
@@ -98,17 +85,18 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext aContext) throws Exception {
 		//Need to do the configuration of all the bits and pieces:
 		Activator.context = aContext;
-
 		registerAgent();
-		registerEventBus();
-		//create the profile registry
-		registerProfileRegistry();
-		registerMetadataRepositoryManager();
 
-		//create the director and planner.  The planner must be
-		//registered first because the director finds it in its constructor.
-		registerPlanner();
-		registerDirector();
+		if (false) {
+			registerEventBus();
+			//create the profile registry
+			registerProfileRegistry();
+
+			//create the director and planner.  The planner must be
+			//registered first because the director finds it in its constructor.
+			registerPlanner();
+			registerDirector();
+		}
 		startGarbageCollector();
 
 		//create artifact repositories
@@ -121,11 +109,13 @@ public class Activator implements BundleActivator {
 
 	public void stop(BundleContext aContext) throws Exception {
 		//		unregisterDefaultArtifactRepoManager();
-		unregisterDirector();
-		unregisterPlanner();
-		unregisterDefaultMetadataRepoManager();
-		unregisterProfileRegistry();
-		unregisterEventBus();
+		if (false) {
+			unregisterDirector();
+			unregisterPlanner();
+			unregisterDefaultMetadataRepoManager();
+			unregisterProfileRegistry();
+			unregisterEventBus();
+		}
 		unregisterAgent();
 		Activator.context = null;
 

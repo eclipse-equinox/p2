@@ -17,9 +17,11 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -68,8 +70,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	/**
 	 * This no argument constructor is called when restoring an existing repository.
 	 */
-	public LocalMetadataRepository() {
-		super();
+	public LocalMetadataRepository(IProvisioningAgent agent) {
+		super(agent);
 	}
 
 	/**
@@ -77,8 +79,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	 * @param location The location of the repository
 	 * @param name The name of the repository
 	 */
-	public LocalMetadataRepository(URI location, String name, Map<String, String> properties) {
-		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
+	public LocalMetadataRepository(IProvisioningAgent agent, URI location, String name, Map<String, String> properties) {
+		super(agent, name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
 		if (!location.getScheme().equals("file")) //$NON-NLS-1$
 			throw new IllegalArgumentException("Invalid local repository location: " + location); //$NON-NLS-1$
 		//when creating a repository, we must ensure it exists on disk so a subsequent load will succeed
@@ -116,7 +118,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	 * Broadcast discovery events for all repositories referenced by this repository.
 	 */
 	public void publishRepositoryReferences() {
-		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 		if (bus == null)
 			return;
 
@@ -196,7 +198,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 				output = jOutput;
 			}
 			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
-			new MetadataRepositoryIO().write(this, output);
+			new MetadataRepositoryIO(agent).write(this, output);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, "Error saving metadata repository: " + location, e)); //$NON-NLS-1$
 		}
@@ -211,7 +213,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 			save();
 		}
 		//force repository manager to reload this repository because it caches properties
-		MetadataRepositoryManager manager = (MetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+		MetadataRepositoryManager manager = (MetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager.removeRepository(getLocation()))
 			manager.addRepository(this);
 		return oldValue;

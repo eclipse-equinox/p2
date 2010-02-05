@@ -84,7 +84,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 * This is only called by the parser when loading a repository.
 	 */
 	CompositeArtifactRepository(IArtifactRepositoryManager manager, CompositeRepositoryState state) {
-		super(state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
+		super(manager.getAgent(), state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
 		this.manager = manager;
 		for (int i = 0; i < state.getChildren().length; i++)
 			addChild(state.getChildren()[i], false);
@@ -94,7 +94,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	 * @noreference This constructor is not intended to be referenced by clients.
 	 */
 	protected CompositeArtifactRepository(IArtifactRepositoryManager manager, URI location, String repositoryName, Map<String, String> properties) {
-		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties);
+		super(manager.getAgent(), repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties);
 		this.manager = manager;
 		save();
 	}

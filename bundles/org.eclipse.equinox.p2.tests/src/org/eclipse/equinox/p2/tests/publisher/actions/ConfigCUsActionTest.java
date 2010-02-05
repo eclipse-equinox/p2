@@ -114,7 +114,7 @@ public class ConfigCUsActionTest extends ActionTest {
 		//setup metadata repository
 		IInstallableUnit[] ius = {mockIU("foo", null), mockIU("bar", null)}; //$NON-NLS-1$ //$NON-NLS-2$
 
-		metadataRepo = new TestMetadataRepository(ius);
+		metadataRepo = new TestMetadataRepository(getAgent(), ius);
 		expect(publisherInfo.getMetadataRepository()).andReturn(metadataRepo).anyTimes();
 		expect(publisherInfo.getContextMetadataRepository()).andReturn(null).anyTimes();
 

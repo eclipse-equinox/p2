@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.rollback.FormerState;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
@@ -756,6 +757,10 @@ public class SimplePlanner implements IPlanner {
 
 		public String getProperty(String key) {
 			return profile.getProperty(key);
+		}
+
+		public IProvisioningAgent getProvisioningAgent() {
+			return profile.getProvisioningAgent();
 		}
 
 		public long getTimestamp() {

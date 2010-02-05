@@ -10,21 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.net.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.ServiceReference;
 
 public class JarURLArtifactRepositoryTest extends TestCase {
 
-	private ServiceReference managerRef;
 	private IArtifactRepositoryManager manager;
 
 	public JarURLArtifactRepositoryTest(String name) {
@@ -36,13 +35,12 @@ public class JarURLArtifactRepositoryTest extends TestCase {
 	}
 
 	protected void setUp() throws Exception {
-		managerRef = TestActivator.getContext().getServiceReference(IArtifactRepositoryManager.SERVICE_NAME);
-		manager = (IArtifactRepositoryManager) TestActivator.getContext().getService(managerRef);
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.SERVICE_NAME);
+		manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
 	protected void tearDown() throws Exception {
 		manager = null;
-		TestActivator.getContext().ungetService(managerRef);
 	}
 
 	public void testJarURLRepository() throws ProvisionException, URISyntaxException {

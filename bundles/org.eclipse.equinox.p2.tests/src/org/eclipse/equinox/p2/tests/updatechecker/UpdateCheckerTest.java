@@ -10,11 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatechecker;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
@@ -33,7 +29,7 @@ public class UpdateCheckerTest extends AbstractProvisioningTest {
 	IInstallableUnit toInstallIU, update;
 
 	protected IUpdateChecker getChecker() {
-		IUpdateChecker checker = (IUpdateChecker) ServiceHelper.getService(Activator.context, IUpdateChecker.SERVICE_NAME);
+		IUpdateChecker checker = (IUpdateChecker) getAgent().getService(IUpdateChecker.SERVICE_NAME);
 		assertNotNull(checker);
 		return checker;
 	}

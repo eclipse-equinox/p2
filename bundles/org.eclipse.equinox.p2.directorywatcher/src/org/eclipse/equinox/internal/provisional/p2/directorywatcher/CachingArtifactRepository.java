@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.FlatteningIterator;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -182,6 +183,10 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 
 	public String getProvider() {
 		return innerRepo.getProvider();
+	}
+
+	public IProvisioningAgent getProvisioningAgent() {
+		return innerRepo.getProvisioningAgent();
 	}
 
 	public String getType() {

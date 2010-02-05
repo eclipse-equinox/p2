@@ -42,6 +42,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		delete(tempDirectory);
 		tempDirectory.mkdirs();
 		factory = new ExtensionLocationMetadataRepositoryFactory();
+		factory.setAgent(getAgent());
 	}
 
 	public void testNonFileURL() {

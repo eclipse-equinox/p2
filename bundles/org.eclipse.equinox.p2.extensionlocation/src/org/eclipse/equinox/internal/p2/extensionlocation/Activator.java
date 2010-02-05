@@ -64,19 +64,12 @@ public class Activator implements BundleActivator {
 	}
 
 	public static IProfile getCurrentProfile() {
-		ServiceReference reference = bundleContext.getServiceReference(IProfileRegistry.SERVICE_NAME);
-		if (reference == null)
-			return null;
-		IProfileRegistry profileRegistry = (IProfileRegistry) bundleContext.getService(reference);
-		try {
-			return profileRegistry.getProfile(IProfileRegistry.SELF);
-		} finally {
-			bundleContext.ungetService(reference);
-		}
+		IProfileRegistry profileRegistry = (IProfileRegistry) getCurrentAgent().getService(IProfileRegistry.SERVICE_NAME);
+		return profileRegistry.getProfile(IProfileRegistry.SELF);
 	}
 
 	public static IProvisioningAgent getCurrentAgent() {
-		ServiceReference reference = bundleContext.getServiceReference(IProvisioningAgent.class.getName());
+		ServiceReference reference = bundleContext.getServiceReference(IProvisioningAgent.SERVICE_NAME);
 		if (reference == null)
 			return null;
 		return (IProvisioningAgent) bundleContext.getService(reference);

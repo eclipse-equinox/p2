@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.engine;
 
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
 
@@ -110,6 +111,12 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	 * be installed in this profile
 	 */
 	public static final String PROP_INSTALL_FEATURES = "org.eclipse.update.install.features"; //$NON-NLS-1$
+
+	/**
+	 * Returns the provisioning agent that manages this profile
+	 * @return A provisioning agent.
+	 */
+	public IProvisioningAgent getProvisioningAgent();
 
 	public String getProfileId();
 

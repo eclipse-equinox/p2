@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.updatesite.metadata;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -65,6 +66,10 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 
 	public String getProvider() {
 		return delegate.getProvider();
+	}
+
+	public IProvisioningAgent getProvisioningAgent() {
+		return delegate.getProvisioningAgent();
 	}
 
 	public String getType() {

@@ -43,7 +43,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		delete(tempDirectory);
 		tempDirectory.mkdirs();
 		factory = new ExtensionLocationArtifactRepositoryFactory();
-
+		factory.setAgent(getAgent());
 	}
 
 	public static File getFile(String path) throws IOException {

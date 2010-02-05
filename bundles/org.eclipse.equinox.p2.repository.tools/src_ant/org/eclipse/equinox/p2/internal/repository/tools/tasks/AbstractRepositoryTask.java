@@ -18,6 +18,9 @@ import org.apache.tools.ant.*;
 import org.apache.tools.ant.types.FileSet;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.internal.repository.tools.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
@@ -96,6 +99,16 @@ public abstract class AbstractRepositoryTask extends Task {
 		destinations.add(destination);
 		application.addDestination(destination.getDescriptor());
 		return destination;
+	}
+
+	/*
+	 * Return the provisioning agent. Throw an exception if it cannot be obtained.
+	 */
+	public static IProvisioningAgent getAgent() throws BuildException {
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.SERVICE_NAME);
+		if (agent == null)
+			throw new BuildException(Messages.no_provisioning_agent);
+		return agent;
 	}
 
 	/*

@@ -10,22 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
-import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
-
 import java.io.File;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.operations.ProfileModificationJob;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -83,8 +77,8 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		category = createNamedIU(CATEGORYIU, CATEGORYIU, Version.create("1.0.0"), true);
 		createTestMetdataRepository(new IInstallableUnit[] {top1, top2, uninstalled, upgrade});
 
-		metaManager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.context, IMetadataRepositoryManager.SERVICE_NAME);
-		artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.SERVICE_NAME);
+		metaManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		artifactManager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
 		File site = new File(TestActivator.getTestDataFolder().toString(), TEST_REPO_PATH);
 		testRepoLocation = site.toURI();
 		metaManager.addRepository(testRepoLocation);

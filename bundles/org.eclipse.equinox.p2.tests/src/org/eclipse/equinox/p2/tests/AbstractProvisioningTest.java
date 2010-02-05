@@ -232,7 +232,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static IDirector createDirector() {
-		return (IDirector) ServiceHelper.getService(TestActivator.getContext(), IDirector.SERVICE_NAME);
+		return (IDirector) getAgent().getService(IDirector.SERVICE_NAME);
 	}
 
 	/**
@@ -264,7 +264,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static IEngine createEngine() {
-		return (IEngine) ServiceHelper.getService(TestActivator.getContext(), IEngine.SERVICE_NAME);
+		return (IEngine) getAgent().getService(IEngine.SERVICE_NAME);
 	}
 
 	/**
@@ -512,7 +512,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static IPlanner createPlanner() {
-		return (IPlanner) ServiceHelper.getService(TestActivator.getContext(), IPlanner.SERVICE_NAME);
+		return (IPlanner) getAgent().getService(IPlanner.SERVICE_NAME);
 	}
 
 	/**
@@ -782,7 +782,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * The repository will automatically be removed in the tearDown method.
 	 */
 	protected IMetadataRepository createTestMetdataRepository(IInstallableUnit[] units) {
-		IMetadataRepository repo = new TestMetadataRepository(units);
+		IMetadataRepository repo = new TestMetadataRepository(getAgent(), units);
 		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) getMetadataRepositoryManager();
 		assertNotNull(repoMan);
 		repoMan.addRepository(repo);
@@ -1035,7 +1035,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected IProvisioningEventBus getEventBus() {
-		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(TestActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus bus = (IProvisioningEventBus) getAgent().getService(IProvisioningEventBus.SERVICE_NAME);
 		assertNotNull(bus);
 		return bus;
 	}

@@ -17,6 +17,7 @@ import java.net.URL;
 import java.util.Iterator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
@@ -40,6 +41,8 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private static final String PROP_RESOLVE = "org.eclipse.equinox.p2.resolve"; //$NON-NLS-1$
 	private static final String OPTIONAL = "OPTIONAL"; //$NON-NLS-1$
 	private static final String PROP_INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
+
+	private final IProvisioningAgent agent;
 
 	private SimpleProfileRegistry profileRegistry;
 
@@ -109,13 +112,17 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		userProfile.setProperty(IProfile.PROP_LAUNCHER_CONFIGURATION, launcherConfigFile.getAbsolutePath());
 	}
 
+	public SurrogateProfileHandler(IProvisioningAgent agent) {
+		this.agent = agent;
+	}
+
 	private synchronized SimpleProfileRegistry getProfileRegistry() {
 		if (profileRegistry == null) {
 			String installArea = EngineActivator.getContext().getProperty(OSGI_INSTALL_AREA);
 			try {
 				URL registryURL = new URL(installArea + P2_ENGINE_DIR + SimpleProfileRegistry.DEFAULT_STORAGE_DIR);
 				File sharedRegistryDirectory = new File(registryURL.getPath());
-				profileRegistry = new SimpleProfileRegistry(sharedRegistryDirectory, null, false);
+				profileRegistry = new SimpleProfileRegistry(agent, sharedRegistryDirectory, null, false);
 			} catch (MalformedURLException e) {
 				//this is not possible because we know the above URL is valid
 			}
@@ -153,7 +160,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		if (sharedProfile == null)
 			return null;
 
-		Profile userProfile = new Profile(id, null, sharedProfile.getProperties());
+		Profile userProfile = new Profile(agent, id, null, sharedProfile.getProperties());
 		userProfile.setProperty(PROP_SURROGATE, Boolean.TRUE.toString());
 		userProfile.setSurrogateProfileHandler(this);
 		updateProperties(sharedProfile, userProfile);

@@ -51,7 +51,7 @@ public class ExtensionLocationArtifactRepositoryFactory extends ArtifactReposito
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_EXISTS, msg, null));
 		}
 		IFileArtifactRepository repo = (IFileArtifactRepository) simpleFactory.create(repoLocation, name, type, properties);
-		return new ExtensionLocationArtifactRepository(location, repo, null);
+		return new ExtensionLocationArtifactRepository(getAgent(), location, repo, null);
 	}
 
 	/* (non-Javadoc)
@@ -76,7 +76,7 @@ public class ExtensionLocationArtifactRepositoryFactory extends ArtifactReposito
 			final SimpleArtifactRepositoryFactory simpleFactory = new SimpleArtifactRepositoryFactory();
 			simpleFactory.setAgent(getAgent());
 			IFileArtifactRepository repo = (IFileArtifactRepository) simpleFactory.load(repoLocation, flags, null);
-			return new ExtensionLocationArtifactRepository(location, repo, monitor);
+			return new ExtensionLocationArtifactRepository(getAgent(), location, repo, monitor);
 		} catch (ProvisionException e) {
 			return create(location, Activator.getRepositoryName(location), ExtensionLocationArtifactRepository.TYPE, null);
 		}

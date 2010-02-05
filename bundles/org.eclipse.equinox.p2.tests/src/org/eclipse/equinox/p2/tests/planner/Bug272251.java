@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.File;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
@@ -19,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -33,7 +32,7 @@ public class Bug272251 extends AbstractProvisioningTest {
 		File reporegistry1 = getTestData("test data bug 272251", "testData/bug272251/profileRegistry/");
 		File tempFolder = getTempFolder();
 		copy("0.2", reporegistry1, tempFolder);
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(tempFolder, null, false);
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), tempFolder, null, false);
 		profile = registry.getProfile("PlatformProfile");
 		assertNotNull(profile);
 		repo = getMetadataRepositoryManager().loadRepository(getTestData("test data bug 272251", "testData/bug272251/repo").toURI(), null);

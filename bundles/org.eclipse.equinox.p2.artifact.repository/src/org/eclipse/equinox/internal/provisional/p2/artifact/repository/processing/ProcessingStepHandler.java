@@ -11,15 +11,15 @@
 *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing;
 
-import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
-
 import java.io.OutputStream;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository.ArtifactOutputStream;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -127,14 +127,14 @@ public class ProcessingStepHandler {
 		return null;
 	}
 
-	public ProcessingStep[] create(IProcessingStepDescriptor[] descriptors, IArtifactDescriptor context) {
+	public ProcessingStep[] create(IProvisioningAgent agent, IProcessingStepDescriptor[] descriptors, IArtifactDescriptor context) {
 		ProcessingStep[] result = new ProcessingStep[descriptors.length];
 		for (int i = 0; i < descriptors.length; i++)
-			result[i] = create(descriptors[i], context);
+			result[i] = create(agent, descriptors[i], context);
 		return result;
 	}
 
-	public ProcessingStep create(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+	public ProcessingStep create(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		IExtensionRegistry registry = RegistryFactory.getRegistry();
 		IExtension extension = registry.getExtension(PROCESSING_STEPS_EXTENSION_ID, descriptor.getProcessorId());
 		Exception error;
@@ -143,7 +143,7 @@ public class ProcessingStepHandler {
 			try {
 				Object object = config[0].createExecutableExtension("class"); //$NON-NLS-1$
 				ProcessingStep step = (ProcessingStep) object;
-				step.initialize(descriptor, context);
+				step.initialize(agent, descriptor, context);
 				return step;
 			} catch (Exception e) {
 				error = e;
@@ -157,10 +157,10 @@ public class ProcessingStepHandler {
 		return result;
 	}
 
-	public OutputStream createAndLink(IProcessingStepDescriptor[] descriptors, IArtifactDescriptor context, OutputStream output, IProgressMonitor monitor) {
+	public OutputStream createAndLink(IProvisioningAgent agent, IProcessingStepDescriptor[] descriptors, IArtifactDescriptor context, OutputStream output, IProgressMonitor monitor) {
 		if (descriptors == null)
 			return output;
-		ProcessingStep[] steps = create(descriptors, context);
+		ProcessingStep[] steps = create(agent, descriptors, context);
 		return link(steps, output, monitor);
 	}
 

@@ -11,10 +11,8 @@ package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
 
 import java.net.URI;
 import java.util.Map;
-import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.artifact.optimizers.Activator;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.artifact.optimizers.OptimizerApplication;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -22,7 +20,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 /**
  * The optimizer <code>Application</code> for JBDiff based optimizations. 
  */
-public class Application implements IApplication {
+public class Application extends OptimizerApplication {
 
 	private URI artifactRepositoryLocation;
 	private int width = 1;
@@ -37,15 +35,11 @@ public class Application implements IApplication {
 	}
 
 	private IArtifactRepository setupRepository(URI location) throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		if (manager == null)
 			// TODO log here
 			return null;
 		return manager.loadRepository(location, null);
-	}
-
-	public void stop() {
-		// nothing to do yet
 	}
 
 	public void initializeFromArguments(String[] args) throws Exception {

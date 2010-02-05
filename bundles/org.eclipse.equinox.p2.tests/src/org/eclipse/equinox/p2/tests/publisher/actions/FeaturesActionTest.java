@@ -40,7 +40,7 @@ public class FeaturesActionTest extends ActionTest {
 	public static IArtifactKey BAR_KEY = ArtifactKey.parse("org.eclipse.update.feature,bar,1.1.1"); //$NON-NLS-1$
 
 	private static File root = new File(TestActivator.getTestDataFolder().toString(), "FeaturesActionTest"); //$NON-NLS-1$
-	protected TestArtifactRepository artifactRepository = new TestArtifactRepository();
+	protected TestArtifactRepository artifactRepository = new TestArtifactRepository(getAgent());
 	protected TestMetadataRepository metadataRepository;
 	private Version fooVersion = Version.create("1.0.0"); //$NON-NLS-1$
 	private Version barVersion = Version.create("1.1.1"); //$NON-NLS-1$
@@ -207,7 +207,7 @@ public class FeaturesActionTest extends ActionTest {
 
 	protected void insertPublisherInfoBehavior() {
 		//setup metadataRepository with barIU
-		metadataRepository = new TestMetadataRepository(new IInstallableUnit[] {mockIU(BAR, null)});
+		metadataRepository = new TestMetadataRepository(getAgent(), new IInstallableUnit[] {mockIU(BAR, null)});
 
 		ArrayList adviceCollection = fillAdvice(new ArrayList());
 		expect(publisherInfo.getAdvice(null, false, "bar.feature.jar", barVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();

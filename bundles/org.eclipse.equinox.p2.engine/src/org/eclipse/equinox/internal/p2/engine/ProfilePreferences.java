@@ -16,7 +16,8 @@ import org.eclipse.core.internal.preferences.EclipsePreferences;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -31,12 +32,12 @@ import org.osgi.service.prefs.BackingStoreException;
  */
 public class ProfilePreferences extends EclipsePreferences {
 	private class SaveJob extends Job {
-		private IProfileRegistry registry;
+		private IProvisioningAgent agent;
 
-		SaveJob(IProfileRegistry registry) {
+		SaveJob(IProvisioningAgent agent) {
 			super(Messages.ProfilePreferences_saving);
 			setSystem(true);
-			this.registry = registry;
+			this.agent = agent;
 		}
 
 		public boolean belongsTo(Object family) {
@@ -45,7 +46,7 @@ public class ProfilePreferences extends EclipsePreferences {
 
 		protected IStatus run(IProgressMonitor monitor) {
 			try {
-				doSave(registry);
+				doSave(agent);
 			} catch (BackingStoreException e) {
 				LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Exception saving profile preferences", e)); //$NON-NLS-1$
 			}
@@ -59,6 +60,7 @@ public class ProfilePreferences extends EclipsePreferences {
 	public static final Object PROFILE_SAVE_JOB_FAMILY = new Object();
 
 	private static final long SAVE_SCHEDULE_DELAY = 500;
+
 	//private IPath location;
 	private IEclipsePreferences loadLevel;
 	private Object profileLock;
@@ -73,6 +75,7 @@ public class ProfilePreferences extends EclipsePreferences {
 
 	public ProfilePreferences(EclipsePreferences nodeParent, String nodeName) {
 		super(nodeParent, nodeName);
+
 		//path is /profile/{agent location}/{profile id}/qualifier
 
 		// cache the segment count
@@ -101,13 +104,14 @@ public class ProfilePreferences extends EclipsePreferences {
 	 * (non-Javadoc)
 	 * Create an Engine phase to save profile preferences
 	 */
-	protected void doSave(IProfileRegistry registry) throws BackingStoreException {
+	protected void doSave(IProvisioningAgent agent) throws BackingStoreException {
 		synchronized (((ProfilePreferences) parent).profileLock) {
 			String profileId = getSegment(absolutePath(), 2);
+			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 			if (!containsProfile(registry, profileId)) {
 				//use the default location for the self profile, otherwise just do nothing and return
 				if (IProfileRegistry.SELF.equals(profileId)) {
-					IPath location = getDefaultLocation();
+					IPath location = getDefaultLocation(agent);
 					if (location != null) {
 						super.save(location);
 						return;
@@ -164,9 +168,9 @@ public class ProfilePreferences extends EclipsePreferences {
 	/**
 	 * Returns the preference file to use when there is no active profile.
 	 */
-	private IPath getDefaultLocation() {
+	private IPath getDefaultLocation(IProvisioningAgent agent) {
 		//use engine agent location for preferences if there is no self profile
-		IAgentLocation location = (IAgentLocation) ServiceHelper.getService(EngineActivator.getContext(), IAgentLocation.SERVICE_NAME);
+		IAgentLocation location = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 		if (location == null) {
 			LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Agent location service not available", new RuntimeException())); //$NON-NLS-1$
 			return null;
@@ -225,7 +229,7 @@ public class ProfilePreferences extends EclipsePreferences {
 				if (!containsProfile(registry, profileId)) {
 					//use the default location for the self profile, otherwise just do nothing and return
 					if (IProfileRegistry.SELF.equals(profileId)) {
-						IPath location = getDefaultLocation();
+						IPath location = getDefaultLocation(agent);
 						if (location != null) {
 							load(location);
 							return;
@@ -261,8 +265,7 @@ public class ProfilePreferences extends EclipsePreferences {
 			try {
 				agentRef = getAgent(getSegment(absolutePath(), 1));
 				IProvisioningAgent agent = (IProvisioningAgent) EngineActivator.getContext().getService(agentRef);
-				IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
-				saveJob = new SaveJob(registry);
+				saveJob = new SaveJob(agent);
 				EngineActivator.getContext().ungetService(agentRef);
 			} catch (BackingStoreException e) {
 				if (Tracing.DEBUG_PROFILE_PREFERENCES)

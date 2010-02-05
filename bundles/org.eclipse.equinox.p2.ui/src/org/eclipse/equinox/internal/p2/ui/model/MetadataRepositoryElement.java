@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.net.URI;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
@@ -208,7 +207,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			return true;
 		if (location == null)
 			return false;
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = ProvUIActivator.getDefault().getSession().getMetadataRepositoryManager();
 		if (manager == null || !(manager instanceof MetadataRepositoryManager))
 			return false;
 		IMetadataRepository repo = ((MetadataRepositoryManager) manager).getRepository(location);

@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.repository;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
@@ -155,6 +156,12 @@ public interface IRepository<T> extends IAdaptable, IQueryable<T> {
 	 * @return the properties of this repository.
 	 */
 	public Map<String, String> getProperties();
+
+	/**
+	 * Returns the provisioning agent that manages this repository
+	 * @return A provisioning agent.
+	 */
+	public IProvisioningAgent getProvisioningAgent();
 
 	/**
 	 * Returns <code>true</code> if this repository can be modified.

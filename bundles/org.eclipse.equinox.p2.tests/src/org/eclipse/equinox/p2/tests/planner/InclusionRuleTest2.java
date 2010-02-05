@@ -10,17 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -61,7 +57,7 @@ public class InclusionRuleTest2 extends AbstractProvisioningTest {
 		assertEquals(queryResultSize(c), 1);
 
 		System.gc();
-		ProfileChangeRequest req2 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
+		ProfileChangeRequest req2 = ProfileChangeRequest.createByProfileId(getAgent(), profile.getProfileId());
 		req2.removeInstallableUnits(new IInstallableUnit[] {a1});
 		req2.addInstallableUnits(new IInstallableUnit[] {a2});
 		//		req2.setInstallableUnitProfileProperty(a2, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());

@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -50,8 +50,8 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		return null;
 	}
 
-	public TestMetadataRepository(IInstallableUnit[] ius) {
-		super(NAME, TYPE, VERSION, createLocation(), DESCRIPTION, PROVIDER, null);
+	public TestMetadataRepository(IProvisioningAgent agent, IInstallableUnit[] ius) {
+		super(agent, NAME, TYPE, VERSION, createLocation(), DESCRIPTION, PROVIDER, null);
 		units.addAll(Arrays.asList(ius));
 	}
 

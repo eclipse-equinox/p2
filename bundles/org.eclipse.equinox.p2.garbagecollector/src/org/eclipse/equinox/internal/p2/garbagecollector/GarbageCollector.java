@@ -42,7 +42,7 @@ public class GarbageCollector {
 
 	public GarbageCollector() {
 		// we need to use DS to create an Agent Listener here
-		agent = (IProvisioningAgent) GCActivator.getContext().getService(GCActivator.getContext().getServiceReference(IProvisioningAgent.class.getName()));
+		agent = (IProvisioningAgent) GCActivator.getContext().getService(GCActivator.getContext().getServiceReference(IProvisioningAgent.SERVICE_NAME));
 	}
 
 	public void runGC(IProfile profile) {

@@ -34,7 +34,7 @@ public class From35to36 extends AbstractReconcilerTest {
 		if (currentBuildRepo == null)
 			currentBuildRepo = "http://download.eclipse.org/eclipse/updates/3.6-I-builds";
 		runInitialize("Initializing 3.5 to get the profile paths properly setup.");
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(new File(output, "eclipse/p2/org.eclipse.equinox.p2.engine/profileRegistry/"), null, false);
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), new File(output, "eclipse/p2/org.eclipse.equinox.p2.engine/profileRegistry/"), null, false);
 		String initialTimestamp = Long.toString(registry.getProfile("PlatformProfile").getTimestamp());
 
 		//Take 3.5 archive, unzip, run it to update to 3.6

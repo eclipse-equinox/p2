@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
@@ -22,7 +23,7 @@ import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
 
 public class Profile implements IProfile {
-
+	private final IProvisioningAgent agent;
 	//Internal id of the profile
 	private final String profileId;
 
@@ -45,7 +46,8 @@ public class Profile implements IProfile {
 	private long timestamp;
 	private ISurrogateProfileHandler surrogateProfileHandler;
 
-	public Profile(String profileId, Profile parent, Map<String, String> properties) {
+	public Profile(IProvisioningAgent agent, String profileId, Profile parent, Map<String, String> properties) {
+		this.agent = agent;
 		if (profileId == null || profileId.length() == 0) {
 			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Null_Profile_Id, null));
 		}
@@ -53,6 +55,7 @@ public class Profile implements IProfile {
 		setParent(parent);
 		if (properties != null)
 			storage.putAll(properties);
+
 	}
 
 	/* (non-Javadoc)
@@ -247,6 +250,10 @@ public class Profile implements IProfile {
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
+	public IProvisioningAgent getProvisioningAgent() {
+		return agent;
+	}
+
 	/**
 	 * 	Add all the properties in the map to the local properties
 	 * 	of the profile.
@@ -306,7 +313,7 @@ public class Profile implements IProfile {
 		if (parentProfile != null)
 			parentSnapshot = parentProfile.snapshot();
 
-		Profile snapshot = new Profile(profileId, parentSnapshot, storage);
+		Profile snapshot = new Profile(agent, profileId, parentSnapshot, storage);
 		if (surrogateProfileHandler != null)
 			snapshot.setSurrogateProfileHandler(surrogateProfileHandler);
 		snapshot.setTimestamp(timestamp);

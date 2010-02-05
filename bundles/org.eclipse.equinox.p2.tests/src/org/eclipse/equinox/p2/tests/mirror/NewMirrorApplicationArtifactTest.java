@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.mirror;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -26,6 +24,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -1289,7 +1288,7 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 			IArtifactRepository source;
 
 			public TestRetryArtifactRepository(String repositoryName, URI location, URI srcLocation, Map properties, IArtifactRepositoryManager manager) {
-				super(repositoryName, location, properties);
+				super(getAgent(), repositoryName, location, properties);
 
 				//initialize
 				try {

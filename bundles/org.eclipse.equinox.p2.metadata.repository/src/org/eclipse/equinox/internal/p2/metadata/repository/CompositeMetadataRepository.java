@@ -89,7 +89,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	}
 
 	CompositeMetadataRepository(IMetadataRepositoryManager manager, URI location, String name, Map<String, String> properties) {
-		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
+		super(manager.getAgent(), name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
 		this.manager = manager;
 		//when creating a repository, we must ensure it exists on disk so a subsequent load will succeed
 		save();
@@ -99,7 +99,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	 * This is only called by the parser when loading a repository.
 	 */
 	CompositeMetadataRepository(IMetadataRepositoryManager manager, CompositeRepositoryState state) {
-		super(state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
+		super(manager.getAgent(), state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
 		this.manager = manager;
 		for (int i = 0; i < state.getChildren().length; i++)
 			addChild(state.getChildren()[i], false);

@@ -19,6 +19,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -38,6 +39,7 @@ public class VerifierApplication implements IApplication {
 
 	private static final File DEFAULT_PROPERTIES_FILE = new File("verifier.properties"); //$NON-NLS-1$
 	private static final String ARG_PROPERTIES = "-verifier.properties"; //$NON-NLS-1$
+	private IProvisioningAgent agent;
 	private Properties properties = null;
 	private List ignoreResolved = null;
 
@@ -75,6 +77,9 @@ public class VerifierApplication implements IApplication {
 		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 		processArguments(args);
+
+		agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getBundleContext(), IProvisioningAgent.SERVICE_NAME);
+
 		IStatus result = verify();
 		if (!result.isOK()) {
 			//			PrintWriter out = new PrintWriter(new FileWriter(new File("c:/tmp/dropins-debug.txt")));
@@ -290,7 +295,7 @@ public class VerifierApplication implements IApplication {
 	 * Ensure we have a profile registry and can access the SELF profile.
 	 */
 	private IStatus checkProfileRegistry() {
-		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(Activator.getBundleContext(), IProfileRegistry.class.getName());
+		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (registry == null)
 			return createError("Profile registry service not available."); //$NON-NLS-1$
 		IProfile profile = registry.getProfile(IProfileRegistry.SELF);

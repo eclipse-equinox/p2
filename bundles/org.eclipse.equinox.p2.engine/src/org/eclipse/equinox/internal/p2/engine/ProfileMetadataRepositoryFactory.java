@@ -33,12 +33,12 @@ public class ProfileMetadataRepositoryFactory extends MetadataRepositoryFactory 
 		if ((flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0) {
 			return null;
 		}
-		return new ProfileMetadataRepository(location, monitor);
+		return new ProfileMetadataRepository(getAgent(), location, monitor);
 	}
 
 	public IStatus validate(URI location, IProgressMonitor monitor) {
 		try {
-			ProfileMetadataRepository.validate(location, monitor);
+			ProfileMetadataRepository.validate(getAgent(), location, monitor);
 		} catch (ProvisionException e) {
 			return e.getStatus();
 		}

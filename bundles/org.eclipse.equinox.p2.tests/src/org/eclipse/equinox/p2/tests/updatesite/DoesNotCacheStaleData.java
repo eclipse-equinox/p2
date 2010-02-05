@@ -32,7 +32,9 @@ public class DoesNotCacheStaleData extends AbstractProvisioningTest {
 		contentXml.delete();
 		Exception e = null;
 		try {
-			new UpdateSiteMetadataRepositoryFactory().load(siteURI, 0, new NullProgressMonitor());
+			UpdateSiteMetadataRepositoryFactory factory = new UpdateSiteMetadataRepositoryFactory();
+			factory.setAgent(getAgent());
+			factory.load(siteURI, 0, new NullProgressMonitor());
 		} catch (ProvisionException e1) {
 			e = e1;
 		}
@@ -55,7 +57,9 @@ public class DoesNotCacheStaleData extends AbstractProvisioningTest {
 		contentXml.delete();
 		Exception e = null;
 		try {
-			new UpdateSiteArtifactRepositoryFactory().load(siteURI, 0, new NullProgressMonitor());
+			UpdateSiteArtifactRepositoryFactory factory = new UpdateSiteArtifactRepositoryFactory();
+			factory.setAgent(getAgent());
+			factory.load(siteURI, 0, new NullProgressMonitor());
 		} catch (ProvisionException e1) {
 			e = e1;
 		}

@@ -16,10 +16,10 @@ import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -39,11 +39,11 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	public static final Integer VERSION = new Integer(1);
 	private IProfile profile;
 
-	public ProfileMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		super(location.toString(), TYPE, VERSION.toString(), location, null, null, null);
+	public ProfileMetadataRepository(IProvisioningAgent agent, URI location, IProgressMonitor monitor) throws ProvisionException {
+		super(agent, location.toString(), TYPE, VERSION.toString(), location, null, null, null);
 
 		try {
-			profile = getProfile(location);
+			profile = getProfile(agent, location);
 		} catch (RuntimeException e) {
 			throw new ProvisionException(new Status(IStatus.ERROR, EngineActivator.ID, ProvisionException.REPOSITORY_FAILED_READ, e.getMessage(), e));
 		}
@@ -53,7 +53,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	private void publishArtifactRepos() {
 		List<URI> artifactRepos = findArtifactRepos();
 
-		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 		if (bus == null)
 			return;
 		for (URI repo : artifactRepos) {
@@ -159,15 +159,15 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		return profile.query(query, monitor);
 	}
 
-	public static void validate(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public static void validate(IProvisioningAgent agent, URI location, IProgressMonitor monitor) throws ProvisionException {
 		try {
-			getProfile(location);
+			getProfile(agent, location);
 		} catch (RuntimeException e) {
 			throw new ProvisionException(new Status(IStatus.ERROR, EngineActivator.ID, ProvisionException.REPOSITORY_FAILED_READ, e.getMessage(), e));
 		}
 	}
 
-	private static IProfile getProfile(URI location) throws ProvisionException {
+	private static IProfile getProfile(IProvisioningAgent agent, URI location) throws ProvisionException {
 		if (!FILE_SCHEME.equalsIgnoreCase(location.getScheme()))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 
@@ -197,7 +197,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		File registryDirectory = target.getParentFile();
 		if (registryDirectory == null)
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(registryDirectory, null, false);
+		SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(agent, registryDirectory, null, false);
 		if (timestamp == -1) {
 			long[] timestamps = profileRegistry.listProfileTimestamps(profileId);
 			timestamp = timestamps[timestamps.length - 1];

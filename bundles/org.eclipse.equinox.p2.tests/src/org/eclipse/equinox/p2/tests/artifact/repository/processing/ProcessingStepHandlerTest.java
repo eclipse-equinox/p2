@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.artifact.repository.processing;
 
 import java.io.*;
 import java.util.Arrays;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.pack200.Pack200ProcessorStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -22,9 +21,10 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
-public class ProcessingStepHandlerTest extends TestCase {
+public class ProcessingStepHandlerTest extends AbstractProvisioningTest {
 
 	//	private static final int BUFFER_SIZE = 8 * 1024;
 
@@ -34,7 +34,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 	public void testExecuteNoPSs() throws IOException {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[0];
 		OutputStream result = new ByteArrayOutputStream(10);
-		OutputStream testStream = handler.createAndLink(descriptors, null, result, monitor);
+		OutputStream testStream = handler.createAndLink(getAgent(), descriptors, null, result, monitor);
 		testStream.write("Test".getBytes());
 		testStream.close();
 		assertEquals("Test", result.toString());
@@ -129,7 +129,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 		if (!PackStep.canPack())
 			return;
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
-		ProcessingStep[] steps = handler.create(descriptors, null);
+		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
 		ByteArrayOutputStream result = new ByteArrayOutputStream(100000);
 		OutputStream testStream = handler.link(steps, result, monitor);
 		IStatus status = ProcessingStepHandler.checkStatus(testStream);
@@ -141,7 +141,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 
 	public void testCreateByteShifterPS() {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ByteShifter", "1", true)};
-		ProcessingStep[] steps = handler.create(descriptors, null);
+		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
 		assertNotNull(steps);
 		assertEquals(1, steps.length);
 		assertEquals(ByteShifter.class, steps[0].getClass());
@@ -157,7 +157,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 
 	public void testCreateAdderPS() {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true)};
-		ProcessingStep[] steps = handler.create(descriptors, null);
+		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
 		assertNotNull(steps);
 		assertEquals(1, steps.length);
 		assertEquals(Adder.class, steps[0].getClass());
@@ -165,7 +165,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 
 	public void testCreateMultiplierPS() {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true)};
-		ProcessingStep[] steps = handler.create(descriptors, null);
+		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
 		assertNotNull(steps);
 		assertEquals(1, steps.length);
 		assertEquals(Multiplier.class, steps[0].getClass());
@@ -173,7 +173,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 
 	public void testCreatePack200UnpackerPS() {
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
-		ProcessingStep[] steps = handler.create(descriptors, null);
+		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
 		assertNotNull(steps);
 		assertEquals(1, steps.length);
 		assertEquals(Pack200ProcessorStep.class, steps[0].getClass());
@@ -183,7 +183,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 		IProcessingStepDescriptor adder = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true);
 		IProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {adder, multiplier};
-		ProcessingStep[] steps = handler.create(descriptors, null);
+		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
 		OutputStream testStream = handler.link(steps, result, monitor);
 		testStream.write(new byte[] {1, 2, 3, 4, 5});
@@ -195,7 +195,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 		IProcessingStepDescriptor adder = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Adder", "1", true);
 		IProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {multiplier, adder};
-		ProcessingStep[] steps = handler.create(descriptors, null);
+		ProcessingStep[] steps = handler.create(getAgent(), descriptors, null);
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
 		OutputStream testStream = handler.link(steps, result, monitor);
 		testStream.write(new byte[] {1, 2, 3, 4, 5});
@@ -208,7 +208,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 		IProcessingStepDescriptor multiplier = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Multiplier", "2", true);
 		IProcessingStepDescriptor[] descriptors = new IProcessingStepDescriptor[] {adder, multiplier};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(10);
-		OutputStream testStream = handler.createAndLink(descriptors, null, result, monitor);
+		OutputStream testStream = handler.createAndLink(getAgent(), descriptors, null, result, monitor);
 		testStream.write(new byte[] {1, 2, 3, 4, 5});
 		testStream.close();
 		assertTrue(Arrays.equals(new byte[] {4, 6, 8, 10, 12}, result.toByteArray()));

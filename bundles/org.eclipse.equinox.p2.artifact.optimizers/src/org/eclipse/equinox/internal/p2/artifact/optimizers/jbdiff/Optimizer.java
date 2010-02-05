@@ -194,7 +194,7 @@ public class Optimizer {
 
 				// Add in all the processing steps needed to optimize (e.g., pack200, ...)
 				ProcessingStep diffStep = getProcessingStep(strategy);
-				diffStep.initialize(patchStep, newDescriptor);
+				diffStep.initialize(repository.getProvisioningAgent(), patchStep, newDescriptor);
 				ProcessingStepHandler handler = new ProcessingStepHandler();
 				OutputStream destination = handler.link(new ProcessingStep[] {diffStep}, repositoryStream, null);
 

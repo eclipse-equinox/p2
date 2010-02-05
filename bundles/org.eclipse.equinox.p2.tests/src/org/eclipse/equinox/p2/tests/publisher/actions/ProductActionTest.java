@@ -44,7 +44,7 @@ public class ProductActionTest extends ActionTest {
 	private Capture<RootIUAdvice> rootIUAdviceCapture;
 	private Capture<ProductFileAdvice> productFileAdviceCapture;
 	String source = "";
-	protected TestArtifactRepository artifactRepository = new TestArtifactRepository();
+	protected TestArtifactRepository artifactRepository = new TestArtifactRepository(getAgent());
 
 	@Override
 	protected IPublisherInfo createPublisherInfoMock() {

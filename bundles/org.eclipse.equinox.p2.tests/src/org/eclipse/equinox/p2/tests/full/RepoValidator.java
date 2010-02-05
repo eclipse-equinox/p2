@@ -41,8 +41,7 @@ public class RepoValidator extends AbstractProvisioningTest {
 			throw new RuntimeException("Planner could not be loaded");
 		}
 
-		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.SERVICE_NAME);
-		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
+		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");
 		}

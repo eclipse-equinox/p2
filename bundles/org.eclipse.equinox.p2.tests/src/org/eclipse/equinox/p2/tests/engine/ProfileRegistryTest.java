@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,10 +22,10 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.ServiceReference;
 
 /**
  * Simple test of the engine API.
@@ -35,7 +33,6 @@ import org.osgi.framework.ServiceReference;
 public class ProfileRegistryTest extends AbstractProvisioningTest {
 	private static final String PROFILE_NAME = "ProfileRegistryTest.profile";
 	private IProfileRegistry registry;
-	private ServiceReference registryRef;
 
 	public ProfileRegistryTest() {
 		super("");
@@ -46,13 +43,11 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	}
 
 	protected void getServices() {
-		registryRef = TestActivator.getContext().getServiceReference(IProfileRegistry.SERVICE_NAME);
-		registry = (IProfileRegistry) TestActivator.getContext().getService(registryRef);
+		registry = (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
 	}
 
 	private void ungetServices() {
 		registry = null;
-		TestActivator.getContext().ungetService(registryRef);
 	}
 
 	private static void saveProfile(IProfileRegistry iRegistry, Profile profile) {
@@ -247,7 +242,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		profile = (Profile) registry.getProfile(PROFILE_NAME);
 		assertTrue(registry.isCurrent(profile));
 		IAgentLocation agentLocation = getAgentLocation();
-		SimpleProfileRegistry simpleRegistry2 = new SimpleProfileRegistry(SimpleProfileRegistry.getDefaultRegistryDirectory(agentLocation));
+		SimpleProfileRegistry simpleRegistry2 = new SimpleProfileRegistry(getAgent(), SimpleProfileRegistry.getDefaultRegistryDirectory(agentLocation));
 		profile2 = (Profile) simpleRegistry2.getProfile(PROFILE_NAME);
 		simpleRegistry2.lockProfile(profile2);
 		try {
@@ -437,7 +432,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	//	}
 
 	private SimpleProfileRegistry createAndValidateProfileRegistry(File registryFolder, String id) {
-		SimpleProfileRegistry simpleRegistry = new SimpleProfileRegistry(registryFolder, null, false);
+		SimpleProfileRegistry simpleRegistry = new SimpleProfileRegistry(getAgent(), registryFolder, null, false);
 		IProfile[] profiles = simpleRegistry.getProfiles();
 		assertNotNull(profiles);
 		assertEquals(1, profiles.length);
@@ -542,8 +537,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		IInstallableUnit engineIU = createEclipseIU("org.eclipse.equinox.p2.engine", Version.create("1.0.100.v20090605"));
 		File folder = getTempFolder();
 		folder.mkdirs();
-		SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(folder, null, false);
-		Profile profile = new Profile(getName(), null, null);
+		SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(getAgent(), folder, null, false);
+		Profile profile = new Profile(getAgent(), getName(), null, null);
 		profile.addInstallableUnit(engineIU);
 		Method saveMethod;
 		try {
@@ -592,8 +587,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 					System.getProperties().put(EngineActivator.PROP_PROFILE_FORMAT, currentValue);
 				File folder = getTempFolder();
 				folder.mkdirs();
-				SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(folder, null, false);
-				Profile profile = new Profile(getName(), null, null);
+				SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(getAgent(), folder, null, false);
+				Profile profile = new Profile(getAgent(), getName(), null, null);
 				profile.addInstallableUnit(engineIU);
 				Method saveMethod;
 				try {
@@ -632,8 +627,8 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		IInstallableUnit engineIU = createEclipseIU("org.eclipse.equinox.p2.engine", Version.create("1.0.101"));
 		File folder = getTempFolder();
 		folder.mkdirs();
-		SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(folder, null, false);
-		Profile profile = new Profile(getName(), null, null);
+		SimpleProfileRegistry profileRegistry = new SimpleProfileRegistry(getAgent(), folder, null, false);
+		Profile profile = new Profile(getAgent(), getName(), null, null);
 		profile.addInstallableUnit(engineIU);
 		Method saveMethod;
 		try {

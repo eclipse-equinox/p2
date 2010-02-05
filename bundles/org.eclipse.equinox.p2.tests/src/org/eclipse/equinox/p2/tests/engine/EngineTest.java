@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -20,13 +18,12 @@ import org.eclipse.equinox.internal.p2.engine.phases.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.Collector;
-import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
@@ -733,8 +730,8 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testIncompatibleProfile() {
 
 		IProfile profile = new IProfile() {
-			public Collector available(IQuery query, IProgressMonitor monitor) {
-				return new Collector();
+			public IQueryResult<IInstallableUnit> available(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+				return new Collector<IInstallableUnit>();
 			}
 
 			public Map getInstallableUnitProperties(IInstallableUnit iu) {
@@ -757,12 +754,16 @@ public class EngineTest extends AbstractProvisioningTest {
 				return null;
 			}
 
+			public IProvisioningAgent getProvisioningAgent() {
+				return getAgent();
+			}
+
 			public long getTimestamp() {
 				return 0;
 			}
 
-			public Collector query(IQuery query, IProgressMonitor monitor) {
-				return new Collector();
+			public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+				return new Collector<IInstallableUnit>();
 			}
 		};
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};

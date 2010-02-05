@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -70,12 +71,12 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		}
 	};
 
-	public TestArtifactRepository(URI location) {
-		super(NAME, TYPE, VERSION, location, DESCRIPTION, PROVIDER, null);
+	public TestArtifactRepository(IProvisioningAgent agent, URI location) {
+		super(agent, NAME, TYPE, VERSION, location, DESCRIPTION, PROVIDER, null);
 	}
 
-	public TestArtifactRepository() {
-		super(NAME, TYPE, VERSION, null, DESCRIPTION, PROVIDER, null);
+	public TestArtifactRepository(IProvisioningAgent agent) {
+		super(agent, NAME, TYPE, VERSION, null, DESCRIPTION, PROVIDER, null);
 	}
 
 	public boolean addToRepositoryManager() {
@@ -142,7 +143,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ProcessingStepHandler handler = new ProcessingStepHandler();
-		destination = handler.createAndLink(descriptor.getProcessingSteps(), null, destination, monitor);
+		destination = handler.createAndLink(agent, descriptor.getProcessingSteps(), null, destination, monitor);
 		testhandler.download(keysToLocations.get(descriptor.getArtifactKey()), destination, monitor);
 		return Status.OK_STATUS;
 	}

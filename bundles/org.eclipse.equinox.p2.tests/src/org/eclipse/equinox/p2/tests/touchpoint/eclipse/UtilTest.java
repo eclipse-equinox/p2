@@ -16,8 +16,6 @@ import java.util.Collections;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.core.IAgentLocation;
@@ -45,7 +43,7 @@ public class UtilTest extends AbstractProvisioningTest {
 
 	public void testDefaultBundlePool() {
 		IProfile profile = createProfile("test");
-		IAgentLocation agentLocation = (IAgentLocation) ServiceHelper.getService(Activator.getContext(), IAgentLocation.class.getName());
+		IAgentLocation agentLocation = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
 		assertEquals(agentLocation.getDataArea("org.eclipse.equinox.p2.touchpoint.eclipse"), Util.getBundlePoolLocation(getAgent(), profile));
 	}
 

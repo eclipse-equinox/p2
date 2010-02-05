@@ -108,7 +108,7 @@ public class EclipseSDK33Test extends AbstractProvisioningTest {
 		} catch (IOException e) {
 			fail("4.99", e);
 		}
-		TestGeneratorInfo info = new TestGeneratorInfo(rootFile);
+		TestGeneratorInfo info = new TestGeneratorInfo(getAgent(), rootFile);
 		return info;
 	}
 

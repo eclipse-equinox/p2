@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.repository.Activator;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -31,8 +32,8 @@ import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
  */
 public abstract class AbstractArtifactRepository extends AbstractRepository<IArtifactKey> implements IArtifactRepository {
 
-	protected AbstractArtifactRepository(String name, String type, String version, URI location, String description, String provider, Map<String, String> properties) {
-		super(name, type, version, location, description, provider, properties);
+	protected AbstractArtifactRepository(IProvisioningAgent agent, String name, String type, String version, URI location, String description, String provider, Map<String, String> properties) {
+		super(agent, name, type, version, location, description, provider, properties);
 	}
 
 	public abstract boolean contains(IArtifactDescriptor descriptor);

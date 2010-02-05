@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -26,6 +24,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -46,7 +45,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		targetLocation = File.createTempFile("target", ".repo");
 		targetLocation.delete();
 		targetLocation.mkdirs();
-		targetRepository = new SimpleArtifactRepository("TargetRepo", targetLocation.toURI(), null);
+		targetRepository = new SimpleArtifactRepository(getAgent(), "TargetRepo", targetLocation.toURI(), null);
 
 		IArtifactRepositoryManager mgr = getArtifactRepositoryManager();
 		sourceRepository = mgr.loadRepository((getTestData("EmptyJar repo", testDataLocation).toURI()), null);
@@ -260,7 +259,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		int downloadCount = 0;
 
 		RemoteRepo(SimpleArtifactRepository repo) {
-			super(repo.getName(), repo.getType(), repo.getVersion(), repo.getLocation(), repo.getDescription(), repo.getProvider(), repo.getProperties());
+			super(getAgent(), repo.getName(), repo.getType(), repo.getVersion(), repo.getLocation(), repo.getDescription(), repo.getProvider(), repo.getProperties());
 			delegate = repo;
 		}
 

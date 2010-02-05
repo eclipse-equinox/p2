@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.*;
@@ -107,7 +108,10 @@ public class TestArtifactRepository implements IArtifactRepository {
 		}
 	}
 
-	public TestArtifactRepository() {
+	private final IProvisioningAgent agent;
+
+	public TestArtifactRepository(IProvisioningAgent agent) {
+		this.agent = agent;
 		repo = new HashMap/*<IArtifactDescriptor, byte[]>*/();
 	}
 
@@ -221,6 +225,10 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 	public String getProvider() {
 		return provider;
+	}
+
+	public IProvisioningAgent getProvisioningAgent() {
+		return agent;
 	}
 
 	public String getType() {

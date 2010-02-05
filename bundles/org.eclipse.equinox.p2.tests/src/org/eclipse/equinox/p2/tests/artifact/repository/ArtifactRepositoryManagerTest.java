@@ -134,7 +134,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		}
 
 		//everybody's happy again
-		manager = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.context, IArtifactRepositoryManager.SERVICE_NAME);
+		manager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
 		assertTrue("1.0", manager.contains(location));
 	}
 

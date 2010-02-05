@@ -10,17 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
-import org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory;
-
-import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
 public class ExtensionLocationMetadataRepositoryFactory extends MetadataRepositoryFactory {
@@ -53,7 +50,7 @@ public class ExtensionLocationMetadataRepositoryFactory extends MetadataReposito
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_EXISTS, msg, null));
 		}
 		IMetadataRepository repository = simpleFactory.create(repoLocation, name, null, properties);
-		return new ExtensionLocationMetadataRepository(location, repository, null);
+		return new ExtensionLocationMetadataRepository(getAgent(), location, repository, null);
 	}
 
 	/* (non-Javadoc)
@@ -78,7 +75,7 @@ public class ExtensionLocationMetadataRepositoryFactory extends MetadataReposito
 			final SimpleMetadataRepositoryFactory simpleFactory = new SimpleMetadataRepositoryFactory();
 			simpleFactory.setAgent(getAgent());
 			IMetadataRepository repository = simpleFactory.load(repoLocation, flags, null);
-			return new ExtensionLocationMetadataRepository(location, repository, monitor);
+			return new ExtensionLocationMetadataRepository(getAgent(), location, repository, monitor);
 		} catch (ProvisionException e) {
 			return create(location, Activator.getRepositoryName(location), ExtensionLocationMetadataRepository.TYPE, null);
 		}

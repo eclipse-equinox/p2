@@ -24,7 +24,7 @@ public class Bug262580 extends AbstractProvisioningTest {
 		File tempFolder = getTempFolder();
 		copy("0.2", testData, tempFolder);
 
-		SimpleProfileRegistry testRregistry = new SimpleProfileRegistry(tempFolder, null, false);
+		SimpleProfileRegistry testRregistry = new SimpleProfileRegistry(getAgent(), tempFolder, null, false);
 		IProfile currentProfile = testRregistry.getProfile("Bug262580");
 		IProfile revertProfile = testRregistry.getProfile("Bug262580", 1233157854281L);
 		assertNotNull(currentProfile);

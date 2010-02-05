@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -73,7 +74,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		assertContains(profile.query(InstallableUnitQuery.ANY, null), c1);
 
 		IProfile availableWrapper = new IProfile() {
-			public IQueryResult available(IQuery query, IProgressMonitor monitor) {
+			public IQueryResult<IInstallableUnit> available(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 				IQueryResult queryResult = profile.query(query, monitor);
 				Collector collector = new Collector();
 				collector.addAll(queryResult);
@@ -109,8 +110,12 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 				return profile.getTimestamp();
 			}
 
-			public IQueryResult query(IQuery query, IProgressMonitor monitor) {
+			public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 				return profile.query(query, monitor);
+			}
+
+			public IProvisioningAgent getProvisioningAgent() {
+				return profile.getProvisioningAgent();
 			}
 		};
 

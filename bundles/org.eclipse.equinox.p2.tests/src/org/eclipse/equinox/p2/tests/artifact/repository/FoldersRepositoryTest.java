@@ -10,26 +10,25 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.net.URL;
 import java.util.Iterator;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.ServiceReference;
 
 public class FoldersRepositoryTest extends TestCase {
 
-	private ServiceReference managerRef;
 	private IArtifactRepositoryManager manager;
 	private File testRepo;
 
@@ -42,13 +41,12 @@ public class FoldersRepositoryTest extends TestCase {
 	}
 
 	protected void setUp() throws Exception {
-		managerRef = TestActivator.getContext().getServiceReference(IArtifactRepositoryManager.SERVICE_NAME);
-		manager = (IArtifactRepositoryManager) TestActivator.getContext().getService(managerRef);
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.SERVICE_NAME);
+		manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
 	protected void tearDown() throws Exception {
 		manager = null;
-		TestActivator.getContext().ungetService(managerRef);
 		if (testRepo != null)
 			AbstractProvisioningTest.delete(testRepo);
 	}

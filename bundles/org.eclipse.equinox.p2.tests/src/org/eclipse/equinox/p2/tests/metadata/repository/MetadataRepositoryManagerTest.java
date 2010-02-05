@@ -54,7 +54,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		manager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.context, IMetadataRepositoryManager.SERVICE_NAME);
+		manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		//only enable the failing repository factory for this test to avoid noise in other tests.
 		FailingMetadataRepositoryFactory.FAIL = true;
 	}
@@ -130,6 +130,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 			assertEquals(ProvisionException.REPOSITORY_INVALID_LOCATION, e.getStatus().getCode());
 		}
 		factory = new UpdateSiteMetadataRepositoryFactory();
+		factory.setAgent(getAgent());
 		try {
 			factory.load(location, 0, new NullProgressMonitor());
 		} catch (ProvisionException e) {
@@ -330,7 +331,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 */
 	public void testMetadataCachingLocalRepo() throws ProvisionException {
 		File repoLocation = getTempLocation();
-		IAgentLocation agentLocation = (IAgentLocation) ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.class.getName());
+		IAgentLocation agentLocation = (IAgentLocation) ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.SERVICE_NAME);
 		URI dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
 		File dataAreaFile = URIUtil.toFile(dataArea);
 		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".xml");
@@ -352,7 +353,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		URI repoLocation = new URI("http://download.eclipse.org/eclipse/updates/3.4milestones/");
 		if (!repoAvailable(repoLocation))
 			return;
-		IAgentLocation agentLocation = (IAgentLocation) ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.class.getName());
+		IAgentLocation agentLocation = (IAgentLocation) ServiceHelper.getService(TestActivator.getContext(), IAgentLocation.SERVICE_NAME);
 		URI dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
 		File dataAreaFile = URIUtil.toFile(dataArea);
 		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".xml");

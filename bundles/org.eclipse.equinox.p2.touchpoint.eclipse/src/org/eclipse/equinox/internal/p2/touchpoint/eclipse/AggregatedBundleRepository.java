@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -25,8 +26,8 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	private static final String REPOSITORY_TYPE = AggregatedBundleRepository.class.getName();
 	private final Collection<IFileArtifactRepository> bundleRepositories;
 
-	public AggregatedBundleRepository(Collection<IFileArtifactRepository> bundleRepositories) {
-		super(REPOSITORY_TYPE, REPOSITORY_TYPE, "1.0", null, null, null, null); //$NON-NLS-1$
+	public AggregatedBundleRepository(IProvisioningAgent agent, Collection<IFileArtifactRepository> bundleRepositories) {
+		super(agent, REPOSITORY_TYPE, REPOSITORY_TYPE, "1.0", null, null, null, null); //$NON-NLS-1$
 		this.bundleRepositories = bundleRepositories;
 	}
 

@@ -11,14 +11,6 @@
 *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
-import org.eclipse.equinox.p2.query.IQueryResult;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
-
-import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
@@ -27,9 +19,13 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 
 public class Optimizer {
 
@@ -185,7 +181,7 @@ public class Optimizer {
 
 				// Add in all the processing steps needed to optimize (e.g., pack200, ...)
 				ProcessingStep optimizerStep = new JarDeltaOptimizerStep(repository);
-				optimizerStep.initialize(patchStep, newDescriptor);
+				optimizerStep.initialize(repository.getProvisioningAgent(), patchStep, newDescriptor);
 				ProcessingStepHandler handler = new ProcessingStepHandler();
 				OutputStream destination = handler.link(new ProcessingStep[] {optimizerStep}, repositoryStream, null);
 

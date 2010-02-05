@@ -56,7 +56,7 @@ public class UninstallOperation extends ProfileChangeOperation {
 	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#computeProfileChangeRequest(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
-		request = ProfileChangeRequest.createByProfileId(profileId);
+		request = ProfileChangeRequest.createByProfileId(session.getProvisioningAgent(), profileId);
 		request.removeInstallableUnits(toUninstall);
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=255984
 		// We ask to remove the the profile root property in addition to removing the IU.  In theory this

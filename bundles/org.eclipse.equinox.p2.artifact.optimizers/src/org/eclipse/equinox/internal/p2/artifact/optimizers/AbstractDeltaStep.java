@@ -11,13 +11,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers;
 
-import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
-
 import java.io.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.processing.AbstractBufferingStep;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -42,8 +41,8 @@ public abstract class AbstractDeltaStep extends AbstractBufferingStep {
 		this.repository = repository;
 	}
 
-	public void initialize(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
-		super.initialize(descriptor, context);
+	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+		super.initialize(agent, descriptor, context);
 		readArtifactKey(descriptor);
 	}
 

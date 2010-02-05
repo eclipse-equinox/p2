@@ -14,6 +14,7 @@ import java.util.Map;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 
@@ -29,7 +30,8 @@ public class Application implements IApplication {
 	 * Return the profile with the given id, or null if not found.
 	 */
 	private IProfile getProfile(String id) {
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(GCActivator.getContext(), IProfileRegistry.SERVICE_NAME);
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(GCActivator.getContext(), IProvisioningAgent.SERVICE_NAME);
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		return profileRegistry == null ? null : profileRegistry.getProfile(id);
 	}
 

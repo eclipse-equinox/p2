@@ -11,15 +11,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
-import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
-
 import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.AbstractDeltaStep;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
 
@@ -31,20 +28,20 @@ import org.eclipse.equinox.p2.repository.artifact.*;
  */
 public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 
-	public void initialize(IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
-		super.initialize(descriptor, context);
+	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+		super.initialize(agent, descriptor, context);
 		if (!getStatus().isOK())
 			return;
-		fetchLocalArtifactRepository();
+		fetchLocalArtifactRepository(agent);
 	}
 
 	/**
 	 * Fetch a local artifact repository containing the fetched artifact key.
 	 */
-	private void fetchLocalArtifactRepository() {
+	private void fetchLocalArtifactRepository(IProvisioningAgent agent) {
 		if (repository != null)
 			return;
-		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (repoMgr == null) {
 			setStatus(new Status(IStatus.ERROR, Activator.ID, "Could not get artifact repository manager."));
 			return;

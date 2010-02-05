@@ -10,29 +10,25 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.optimizers;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
-import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
-
-import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
-
 import java.io.*;
 import java.util.Arrays;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.JBDiffStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.tests.artifact.processors.ArtifactRepositoryMock;
 import org.eclipse.equinox.p2.tests.optimizers.TestData;
 
 /**
  * Test the <code>JBDiffStepTest</code> processing step.
  */
-public class JBDiffStepTest extends TestCase {
+public class JBDiffStepTest extends OptimizerTest {
 
 	//	public void testGenerateTestDataExe32To33() throws IOException {
 	//		File exe32 = TestData.getTempFile("optimizers", "eclipse-3.2.exe");
@@ -53,7 +49,7 @@ public class JBDiffStepTest extends TestCase {
 		IProcessingStepDescriptor stepDescriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
 		IArtifactKey key = new ArtifactKey("cl", "id1", Version.create("1.1"));
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
-		differ.initialize(stepDescriptor, descriptor);
+		differ.initialize(getAgent(), stepDescriptor, descriptor);
 
 		ByteArrayOutputStream destination = new ByteArrayOutputStream();
 		differ.link(destination, new NullProgressMonitor());

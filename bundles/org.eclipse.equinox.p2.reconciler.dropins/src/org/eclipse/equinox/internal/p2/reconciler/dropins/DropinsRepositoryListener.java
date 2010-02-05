@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationArtifa
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepository;
 import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -44,11 +45,13 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private static final String DROPIN_ARTIFACT_REPOSITORIES = "dropin.artifactRepositories"; //$NON-NLS-1$
 	private static final String DROPIN_METADATA_REPOSITORIES = "dropin.metadataRepositories"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
+	private final IProvisioningAgent agent;
 	private List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
 	private List<IArtifactRepository> artifactRepositories = new ArrayList<IArtifactRepository>();
 
-	public DropinsRepositoryListener(String repositoryName) {
+	public DropinsRepositoryListener(IProvisioningAgent agent, String repositoryName) {
 		super(repositoryName, true);
+		this.agent = agent;
 	}
 
 	public boolean isInterested(File file) {
@@ -248,7 +251,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private void removeMetadataRepository(String urlString) {
-		IMetadataRepositoryManager manager = Activator.getMetadataRepositoryManager();
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
 		try {
@@ -274,7 +277,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	public void removeArtifactRepository(String urlString) {
-		IArtifactRepositoryManager manager = Activator.getArtifactRepositoryManager();
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
 		try {

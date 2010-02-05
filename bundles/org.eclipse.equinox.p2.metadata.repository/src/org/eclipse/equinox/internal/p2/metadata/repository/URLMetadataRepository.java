@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQuery;
@@ -44,12 +45,12 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		return URIUtil.append(base, CONTENT_FILENAME + extension);
 	}
 
-	public URLMetadataRepository() {
-		super();
+	public URLMetadataRepository(IProvisioningAgent agent) {
+		super(agent);
 	}
 
-	public URLMetadataRepository(URI location, String name, Map<String, String> properties) {
-		super(name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
+	public URLMetadataRepository(IProvisioningAgent agent, URI location, String name, Map<String, String> properties) {
+		super(agent, name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
 		content = getActualLocation(location);
 	}
 

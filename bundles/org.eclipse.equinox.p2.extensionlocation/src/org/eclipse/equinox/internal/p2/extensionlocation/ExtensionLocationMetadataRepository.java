@@ -16,6 +16,7 @@ import java.io.FilenameFilter;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
@@ -49,8 +50,8 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	 * Constructor for the class. Return a new extension location repository based on the 
 	 * given location and specified nested repo.
 	 */
-	public ExtensionLocationMetadataRepository(URI location, IMetadataRepository repository, IProgressMonitor monitor) throws ProvisionException {
-		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
+	public ExtensionLocationMetadataRepository(IProvisioningAgent agent, URI location, IMetadataRepository repository, IProgressMonitor monitor) throws ProvisionException {
+		super(agent, Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 		this.metadataRepository = repository;
 		this.base = getBaseDirectory(location);
 	}
@@ -65,7 +66,9 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 
 	void reload() {
 		try {
-			ExtensionLocationMetadataRepository repo = (ExtensionLocationMetadataRepository) new ExtensionLocationMetadataRepositoryFactory().load(getLocation(), 0, null);
+			ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
+			factory.setAgent(agent);
+			ExtensionLocationMetadataRepository repo = (ExtensionLocationMetadataRepository) factory.load(getLocation(), 0, null);
 			metadataRepository = repo.metadataRepository;
 			base = repo.base;
 		} catch (ProvisionException e) {

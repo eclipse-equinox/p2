@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -87,7 +88,8 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 		private IProfile getProfile() {
 			if (cachedProfile == null) {
-				IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProfileRegistry.SERVICE_NAME);
+				IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
+				IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 				if (profileRegistry != null)
 					cachedProfile = profileRegistry.getProfile(profileId);
 			}
@@ -105,7 +107,8 @@ public class AutomaticUpdateScheduler implements IStartup {
 	 */
 	public AutomaticUpdateScheduler() {
 		AutomaticUpdatePlugin.getDefault().setScheduler(this);
-		checker = (IUpdateChecker) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IUpdateChecker.SERVICE_NAME);
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
+		checker = (IUpdateChecker) agent.getService(IUpdateChecker.SERVICE_NAME);
 		if (checker == null) {
 			// Something did not initialize properly
 			IStatus status = new Status(IStatus.ERROR, AutomaticUpdatePlugin.PLUGIN_ID, AutomaticUpdateMessages.AutomaticUpdateScheduler_UpdateNotInitialized);

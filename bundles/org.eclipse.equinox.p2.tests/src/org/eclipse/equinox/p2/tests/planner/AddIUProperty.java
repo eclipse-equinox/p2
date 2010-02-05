@@ -8,14 +8,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -69,13 +68,13 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		assertEquals(queryResultSize(allProfileIUs), 1);
 
 		//Add a2 with a1. This is an error
-		ProfileChangeRequest req4 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
+		ProfileChangeRequest req4 = ProfileChangeRequest.createByProfileId(getAgent(), profile.getProfileId());
 		req4.addInstallableUnits(new IInstallableUnit[] {a2});
 		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertEquals(IStatus.ERROR, plan4.getStatus().getSeverity());
 
 		//Add a2, making a1 optional;
-		ProfileChangeRequest req2 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
+		ProfileChangeRequest req2 = ProfileChangeRequest.createByProfileId(getAgent(), profile.getProfileId());
 		req2.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
 		req2.addInstallableUnits(new IInstallableUnit[] {a2});
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
@@ -92,7 +91,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		assertEquals(queryResultSize(iuProfileProperties), 1);
 
 		//Remove a1 optionality - should be a no-op
-		ProfileChangeRequest req3 = ProfileChangeRequest.createByProfileId(profile.getProfileId());
+		ProfileChangeRequest req3 = ProfileChangeRequest.createByProfileId(getAgent(), profile.getProfileId());
 		req3.removeInstallableUnitInclusionRules(a1);
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());

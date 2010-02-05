@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -72,10 +72,20 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
+	 * Return the provisioning agent. Throw an exception if it cannot be obtained.
+	 */
+	public static IProvisioningAgent getAgent() throws ProvisionException {
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getBundleContext(), IProvisioningAgent.SERVICE_NAME);
+		if (agent == null)
+			throw new ProvisionException(Messages.no_provisioning_agent);
+		return agent;
+	}
+
+	/*
 	 * Return the artifact repository manager. Throw an exception if it cannot be obtained.
 	 */
 	public static IArtifactRepositoryManager getArtifactRepositoryManager() throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(getBundleContext(), IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new ProvisionException(Messages.no_artifactRepo_manager);
 		return manager;
@@ -85,7 +95,7 @@ public class Activator implements BundleActivator {
 	 * Return the profile registry. Throw an exception if it cannot be found.
 	 */
 	static IProfileRegistry getProfileRegistry() throws ProvisionException {
-		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(getBundleContext(), IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry registry = (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
 		if (registry == null)
 			throw new ProvisionException(Messages.no_profile_registry);
 		return registry;
@@ -113,7 +123,7 @@ public class Activator implements BundleActivator {
 	 * Return the metadata repository manager. Throw an exception if it cannot be obtained.
 	 */
 	public static IMetadataRepositoryManager getMetadataRepositoryManager() throws ProvisionException {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(getBundleContext(), IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new ProvisionException(Messages.no_metadataRepo_manager);
 		return manager;

@@ -12,9 +12,6 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipInputStream;
@@ -79,7 +76,7 @@ public class BundlesActionTest extends ActionTest {
 	private final VersionRange TEST2_IUC_VERSION_RANGE = new VersionRange(Version.create("1.0.0"), true, Version.MAX_VERSION, true);//$NON-NLS-1$
 	private final VersionRange TEST1_IUD_VERSION_RANGE = new VersionRange(Version.create("1.3.0"), true, Version.MAX_VERSION, true);//$NON-NLS-1$
 
-	protected TestArtifactRepository artifactRepository = new TestArtifactRepository();
+	protected TestArtifactRepository artifactRepository = new TestArtifactRepository(getAgent());
 
 	private MultiCapture<ITouchpointAdvice> tpAdvice1, tpAdvice2;
 

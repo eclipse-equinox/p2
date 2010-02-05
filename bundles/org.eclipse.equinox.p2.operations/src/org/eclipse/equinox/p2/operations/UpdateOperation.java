@@ -225,7 +225,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 			return;
 		}
 
-		request = ProfileChangeRequest.createByProfileId(profileId);
+		request = ProfileChangeRequest.createByProfileId(session.getProvisioningAgent(), profileId);
 		for (Update update : elementsToPlan) {
 			IInstallableUnit theUpdate = update.replacement;
 			if (defaultUpdates == null) {

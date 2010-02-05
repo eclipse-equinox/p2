@@ -53,7 +53,7 @@ public class Util {
 	public static final int AGGREGATE_CACHE_EXTENSIONS = 0x04;
 
 	public static IAgentLocation getAgentLocation(IProvisioningAgent agent) {
-		return (IAgentLocation) agent.getService(IAgentLocation.class.getName());
+		return (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 	}
 
 	public static IArtifactRepositoryManager getArtifactRepositoryManager(IProvisioningAgent agent) {
@@ -142,7 +142,7 @@ public class Util {
 				}
 			}
 		}
-		return new AggregatedBundleRepository(bundleRepositories);
+		return new AggregatedBundleRepository(agent, bundleRepositories);
 	}
 
 	private static List<String> getListProfileProperty(IProfile profile, String key) {

@@ -523,7 +523,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 */
 	public boolean isInstalled(String id, String version) {
 		File location = new File(output, "eclipse/p2/org.eclipse.equinox.p2.engine/profileRegistry");
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(location, new SurrogateProfileHandler(), false);
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), location, new SurrogateProfileHandler(getAgent()), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
 		IQueryResult queryResult = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);
@@ -532,7 +532,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 
 	public IInstallableUnit getRemoteIU(String id, String version) {
 		File location = new File(output, "eclipse/p2/org.eclipse.equinox.p2.engine/profileRegistry");
-		SimpleProfileRegistry registry = new SimpleProfileRegistry(location, new SurrogateProfileHandler(), false);
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), location, new SurrogateProfileHandler(getAgent()), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
 		IQueryResult queryResult = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);

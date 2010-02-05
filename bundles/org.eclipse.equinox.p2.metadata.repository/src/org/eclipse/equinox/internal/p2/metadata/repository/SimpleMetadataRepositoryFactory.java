@@ -31,8 +31,8 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 
 	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) {
 		if (location.getScheme().equals("file")) //$NON-NLS-1$
-			return new LocalMetadataRepository(location, name, properties);
-		return new URLMetadataRepository(location, name, properties);
+			return new LocalMetadataRepository(getAgent(), location, name, properties);
+		return new URLMetadataRepository(getAgent(), location, name, properties);
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 				sub.setWorkRemaining(100);
 				if (doLoad) {
 					InputStream descriptorStream = jarStream != null ? jarStream : inStream;
-					IMetadataRepository result = new MetadataRepositoryIO().read(localFile.toURL(), descriptorStream, sub.newChild(100));
+					IMetadataRepository result = new MetadataRepositoryIO(getAgent()).read(localFile.toURL(), descriptorStream, sub.newChild(100));
 					if (result != null && (flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0 && !result.isModifiable())
 						return null;
 					if (result instanceof LocalMetadataRepository)

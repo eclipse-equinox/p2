@@ -10,16 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.metadata.spi;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
-import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
-
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
 /**
  * The common base class for all metadata repositories.
@@ -43,15 +42,15 @@ public abstract class AbstractMetadataRepository extends AbstractRepository<IIns
 		public RepositoryReference[] Repositories;
 	}
 
-	public AbstractMetadataRepository() {
-		super("noName", "noType", "noVersion", null, null, null, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	public AbstractMetadataRepository(IProvisioningAgent agent) {
+		super(agent, "noName", "noType", "noVersion", null, null, null, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	//TODO Consider removing from abstract class, this is currently an implementation detail of the simple metadata repo parser
 	public abstract void initialize(RepositoryState state);
 
-	protected AbstractMetadataRepository(String name, String type, String version, URI location, String description, String provider, Map<String, String> properties) {
-		super(name, type, version, location, description, provider, properties);
+	protected AbstractMetadataRepository(IProvisioningAgent agent, String name, String type, String version, URI location, String description, String provider, Map<String, String> properties) {
+		super(agent, name, type, version, location, description, provider, properties);
 	}
 
 	public void addInstallableUnits(IInstallableUnit[] installableUnit) {

@@ -40,7 +40,7 @@ public class AvailableUpdateElement extends AvailableIUElement {
 	}
 
 	protected IProvisioningPlan getSizingPlan(IProgressMonitor monitor) {
-		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileID);
+		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProvisioningUI().getSession().getProvisioningAgent(), profileID);
 		if (iuToBeUpdated.getId().equals(getIU().getId()))
 			request.removeInstallableUnit(iuToBeUpdated);
 		request.addInstallableUnits(getIU());

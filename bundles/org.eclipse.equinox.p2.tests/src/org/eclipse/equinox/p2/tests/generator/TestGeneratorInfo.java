@@ -16,6 +16,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IGeneratorInfo;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -36,9 +37,11 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 	private String launcherConfig;
 	private URI siteLocation;
 	private boolean updateCompatibilty = false;
+	private IProvisioningAgent agent;
 
-	public TestGeneratorInfo(File baseLocation) {
+	public TestGeneratorInfo(IProvisioningAgent agent, File baseLocation) {
 		this.baseLocation = baseLocation;
+		this.agent = agent;
 	}
 
 	public boolean addDefaultIUs() {
@@ -51,7 +54,7 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 
 	public IArtifactRepository getArtifactRepository() {
 		if (artifactRepo == null)
-			artifactRepo = new TestArtifactRepository();
+			artifactRepo = new TestArtifactRepository(agent);
 		return artifactRepo;
 	}
 
@@ -98,7 +101,7 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 
 	public IMetadataRepository getMetadataRepository() {
 		if (metadataRepo == null)
-			metadataRepo = new TestMetadataRepository(new IInstallableUnit[0]);
+			metadataRepo = new TestMetadataRepository(agent, new IInstallableUnit[0]);
 		return metadataRepo;
 	}
 

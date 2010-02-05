@@ -9,6 +9,9 @@
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import junit.framework.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class ServerBasedTestCase extends TestCase {
 
@@ -27,6 +30,11 @@ public class ServerBasedTestCase extends TestCase {
 
 	protected String getBaseURL() {
 		return "http://localhost:" + System.getProperty(AllServerTests.PROP_TESTSERVER_PORT, "8080");
+	}
+
+	protected static IProvisioningAgent getAgent() {
+		//get the global agent for the currently running system
+		return (IProvisioningAgent) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgent.SERVICE_NAME);
 	}
 
 	protected void basicRun(TestResult result) {

@@ -15,6 +15,7 @@ import java.io.*;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.*;
@@ -49,8 +50,8 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 	 * Constructor for the class. Return a new extension location repository based on 
 	 * the given url and nested repository.
 	 */
-	public ExtensionLocationArtifactRepository(URI location, IFileArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
-		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
+	public ExtensionLocationArtifactRepository(IProvisioningAgent agent, URI location, IFileArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
+		super(agent, Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 		this.artifactRepository = repository;
 		this.base = getBaseDirectory(location);
 	}
@@ -65,7 +66,9 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 
 	void reload() {
 		try {
-			ExtensionLocationArtifactRepository repo = (ExtensionLocationArtifactRepository) new ExtensionLocationArtifactRepositoryFactory().load(getLocation(), 0, null);
+			ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
+			factory.setAgent(agent);
+			ExtensionLocationArtifactRepository repo = (ExtensionLocationArtifactRepository) factory.load(getLocation(), 0, null);
 			artifactRepository = repo.artifactRepository;
 			base = repo.base;
 		} catch (ProvisionException e) {

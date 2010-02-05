@@ -34,7 +34,7 @@ public class CategoryXMLActionTest extends AbstractProvisioningTest {
 		super.setUp();
 		actionResult = new PublisherResult();
 		PublisherInfo info = new PublisherInfo();
-		metadataRepository = new TestMetadataRepository(new IInstallableUnit[0]);
+		metadataRepository = new TestMetadataRepository(getAgent(), new IInstallableUnit[0]);
 		info.setMetadataRepository(metadataRepository);
 		siteLocation = TestData.getFile("updatesite", "CategoryXMLActionTest/category.xml").toURI();
 		FeaturesAction featuresAction = new FeaturesAction(new File[] {TestData.getFile("updatesite", "CategoryXMLActionTest")});

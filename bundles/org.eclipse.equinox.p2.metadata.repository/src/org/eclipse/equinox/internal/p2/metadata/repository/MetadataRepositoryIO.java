@@ -11,10 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
@@ -26,8 +24,9 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
@@ -41,6 +40,12 @@ import org.xml.sax.*;
  * This class reads and writes provisioning metadata.
  */
 public class MetadataRepositoryIO {
+
+	protected final IProvisioningAgent agent;
+
+	public MetadataRepositoryIO(IProvisioningAgent agent) {
+		this.agent = agent;
+	}
 
 	/**
 	 * Reads metadata from the given stream, and returns the contained array
@@ -304,25 +309,21 @@ public class MetadataRepositoryIO {
 					state.Units = (unitsHandler == null ? new IInstallableUnit[0] //
 							: unitsHandler.getUnits());
 					state.Repositories = repositoryReferencesHandler == null ? new RepositoryReference[0] : repositoryReferencesHandler.getReferences();
+					Object repositoryObject = null;
+					//can't create repository if missing type - this is already logged when parsing attributes
+					if (state.Type == null)
+						return;
 					try {
-						//can't create repository if missing type - this is already logged when parsing attributes
-						if (state.Type == null)
-							return;
 						Class<?> clazz = Class.forName(state.Type);
-						Object repositoryObject = clazz.newInstance();
-						if (repositoryObject instanceof AbstractMetadataRepository) {
-							repository = (AbstractMetadataRepository) repositoryObject;
-							repository.initialize(state);
-						}
-					} catch (InstantiationException e) {
+						Constructor<?> ctor = clazz.getConstructor(IProvisioningAgent.class);
+						repositoryObject = ctor.newInstance(agent);
+					} catch (Exception e) {
 						// TODO: Throw a SAXException
 						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						// TODO: Throw a SAXException
-						e.printStackTrace();
-					} catch (ClassNotFoundException e) {
-						// TODO: Throw a SAXException
-						e.printStackTrace();
+					}
+					if (repositoryObject instanceof AbstractMetadataRepository) {
+						repository = (AbstractMetadataRepository) repositoryObject;
+						repository.initialize(state);
 					}
 				}
 			}

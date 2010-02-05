@@ -31,6 +31,8 @@ public class Messages extends NLS {
 	public static String io_IncompatibleVersion;
 	public static String io_parseError;
 
+	public static String no_provisioning_agent;
+
 	public static String repo_loading;
 
 	public static String repoMan_internalError;

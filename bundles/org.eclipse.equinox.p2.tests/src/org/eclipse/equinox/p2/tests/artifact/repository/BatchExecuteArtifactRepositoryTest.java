@@ -222,7 +222,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		 * @param properties
 		 */
 		public FailingSimpleArtifactRepository(String repositoryName, URI location, Map properties) {
-			super(repositoryName, location, properties);
+			super(getAgent(), repositoryName, location, properties);
 		}
 
 		public IStatus executeBatch(Runnable runnable) {
@@ -349,7 +349,7 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 		 * @param properties
 		 */
 		public TrackSavignSimpleArtifactRepository(String repositoryName, URI location, Map properties) {
-			super(repositoryName, location, properties);
+			super(getAgent(), repositoryName, location, properties);
 		}
 
 		public IStatus executeBatch(Runnable runnable) {

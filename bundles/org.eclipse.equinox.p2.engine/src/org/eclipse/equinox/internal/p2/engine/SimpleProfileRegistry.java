@@ -20,8 +20,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.p2.core.IAgentLocation;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -42,6 +41,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	public static final String DEFAULT_STORAGE_DIR = "profileRegistry"; //$NON-NLS-1$
 	private static final String DATA_EXT = ".data"; //$NON-NLS-1$
 
+	protected final IProvisioningAgent agent;
+
 	/**
 	 * Reference to Map of String(Profile id)->Profile. 
 	 */
@@ -59,11 +60,12 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 	private IProvisioningEventBus eventBus;
 
-	public SimpleProfileRegistry(File registryDirectory) {
-		this(registryDirectory, new SurrogateProfileHandler(), true);
+	public SimpleProfileRegistry(IProvisioningAgent agent, File registryDirectory) {
+		this(agent, registryDirectory, new SurrogateProfileHandler(agent), true);
 	}
 
-	public SimpleProfileRegistry(File registryDirectory, ISurrogateProfileHandler handler, boolean updateSelfProfile) {
+	public SimpleProfileRegistry(IProvisioningAgent agent, File registryDirectory, ISurrogateProfileHandler handler, boolean updateSelfProfile) {
+		this.agent = agent;
 		store = registryDirectory;
 		surrogateProfileHandler = handler;
 		Assert.isNotNull(store, "Profile registry requires a directory"); //$NON-NLS-1$
@@ -326,7 +328,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				throw new ProvisionException(NLS.bind(Messages.Profile_Parent_Not_Found, parentId));
 		}
 
-		Profile profile = new Profile(id, parent, profileProperties);
+		Profile profile = new Profile(agent, id, parent, profileProperties);
 		if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(profile))
 			profile.setSurrogateProfileHandler(surrogateProfileHandler);
 		profileMap.put(id, profile);
@@ -649,7 +651,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				parentProfile = profileMap.get(parentId);
 			}
 
-			Profile profile = new Profile(profileId, parentProfile, profileHandler.getProperties());
+			Profile profile = new Profile(agent, profileId, parentProfile, profileHandler.getProperties());
 			if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(profile))
 				profile.setSurrogateProfileHandler(surrogateProfileHandler);
 

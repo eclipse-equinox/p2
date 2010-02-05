@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.tools.analyzer.RepositoryAnalyzer;
@@ -31,7 +32,8 @@ public class RepositoryAnalyzerApplication implements IApplication {
 
 		long start = System.currentTimeMillis();
 		URI uri = new URI("http://download.eclipse.org/releases/galileo");
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getBundleContext(), IMetadataRepositoryManager.class.getName());
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getBundleContext(), IProvisioningAgent.SERVICE_NAME);
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		IMetadataRepository repository = manager.loadRepository(uri, new NullProgressMonitor());
 		RepositoryAnalyzer repositoryAnalyzer = new RepositoryAnalyzer(new IMetadataRepository[] {repository});
 		IStatus status = repositoryAnalyzer.analyze(new NullProgressMonitor());

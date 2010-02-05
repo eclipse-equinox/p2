@@ -108,7 +108,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		startEarly("org.eclipse.equinox.p2.exemplarysetup"); //$NON-NLS-1$
 		startEarly("org.eclipse.equinox.p2.updatechecker"); //$NON-NLS-1$
 
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.class.getName());
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
 		session = new ProvisioningSession(agent);
 
 		PreferenceInitializer.migratePreferences();

@@ -10,18 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.ant;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -29,7 +25,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 /**
  * Ant task for creating a new composite metadata repository.
  */
-public class CreateCompositeMetadataRepositoryTask extends Task {
+public class CreateCompositeMetadataRepositoryTask extends AbstractMDRTask {
 
 	URI location; // desired location of the composite repository
 	String name = "Composite Metadata Repository";
@@ -41,7 +37,7 @@ public class CreateCompositeMetadataRepositoryTask extends Task {
 	 * @see org.apache.tools.ant.Task#execute()
 	 */
 	public void execute() {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new BuildException("Unable to aquire metadata repository manager service.");
 

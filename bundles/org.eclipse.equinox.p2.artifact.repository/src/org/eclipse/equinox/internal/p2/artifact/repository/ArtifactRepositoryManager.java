@@ -16,10 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
-import org.eclipse.equinox.p2.core.IAgentLocation;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -33,8 +31,8 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
  */
 public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifactKey> implements IArtifactRepositoryManager {
 
-	public ArtifactRepositoryManager() {
-		super();
+	public ArtifactRepositoryManager(IProvisioningAgent agent) {
+		super(agent);
 	}
 
 	public void addRepository(IArtifactRepository repository) {
@@ -109,7 +107,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 	 */
 	protected void restoreSpecialRepositories() {
 		// TODO while recreating, we may want to have proxies on repo instead of the real repo object to limit what is activated.
-		IAgentLocation location = (IAgentLocation) ServiceHelper.getService(Activator.getContext(), IAgentLocation.class.getName());
+		IAgentLocation location = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
 		if (location == null)
 			// TODO should do something here since we are failing to restore.
 			return;

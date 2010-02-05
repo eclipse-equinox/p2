@@ -12,14 +12,11 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.query.IQuery;
@@ -328,7 +325,7 @@ public class RootIUActionTest extends ActionTest {
 		}
 
 		IInstallableUnit[] ius = (IInstallableUnit[]) repoContents.toArray(new IInstallableUnit[repoContents.size()]);
-		metadataRepository = new TestMetadataRepository(ius);
+		metadataRepository = new TestMetadataRepository(getAgent(), ius);
 	}
 
 	public void setupAdvice(int testSpec) {

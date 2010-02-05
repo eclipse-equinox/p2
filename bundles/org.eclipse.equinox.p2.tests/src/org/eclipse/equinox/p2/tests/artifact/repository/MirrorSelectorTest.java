@@ -38,7 +38,7 @@ public class MirrorSelectorTest extends AbstractProvisioningTest {
 		one.incrementFailureCount();
 		two.incrementFailureCount();
 		Arrays.sort(sorted);
-		assertOrder("1.2)", sorted, three, four, two, one);
+		assertOrder("1.2", sorted, three, four, two, one);
 
 		//go back to default order
 		one = new MirrorInfo("one", 0);
@@ -48,15 +48,18 @@ public class MirrorSelectorTest extends AbstractProvisioningTest {
 		sorted = new MirrorInfo[] {one, two, three, four};
 
 		//set bit rate and ensure order is updated
-		two.setBytesPerSecond(200L);
-		Arrays.sort(sorted);
-		assertOrder("1.2)", sorted, two, one, three, four);
-
 		one.setBytesPerSecond(100L);
-		three.setBytesPerSecond(400L);
-		four.setBytesPerSecond(300L);
+		two.setBytesPerSecond(400L);
+		three.setBytesPerSecond(800L);
+		four.setBytesPerSecond(600L);
 		Arrays.sort(sorted);
-		assertOrder("1.2)", sorted, three, four, two, one);
+		assertOrder("1.3", sorted, three, four, two, one);
+
+		//introduce a failure and ensure order is updated but that
+		//the failure isn't put last
+		three.incrementFailureCount();
+		Arrays.sort(sorted);
+		assertOrder("1.4", sorted, four, two, three, one);
 	}
 
 	private void assertOrder(String message, MirrorInfo[] sorted, MirrorInfo one, MirrorInfo two, MirrorInfo three, MirrorInfo four) {

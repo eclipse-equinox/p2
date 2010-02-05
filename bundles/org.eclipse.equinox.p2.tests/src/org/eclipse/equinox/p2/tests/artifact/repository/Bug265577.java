@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 import java.io.*;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -25,7 +24,6 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class Bug265577 extends AbstractProvisioningTest {
 	IProfile profile;
@@ -38,7 +36,7 @@ public class Bug265577 extends AbstractProvisioningTest {
 		super.setUp();
 		profile = createProfile(Bug265577.class.getName());
 
-		engine = (IEngine) ServiceHelper.getService(TestActivator.context, IEngine.SERVICE_NAME);
+		engine = (IEngine) getAgent().getService(IEngine.SERVICE_NAME);
 		// Load repositories
 		File repoLocation = getTestData("Repository location", "/testData/bug265577/zipRepo.zip");
 		if (repoLocation == null)

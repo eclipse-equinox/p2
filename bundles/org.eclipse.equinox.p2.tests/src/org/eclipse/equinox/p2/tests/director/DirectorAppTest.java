@@ -11,20 +11,13 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.director.app.Activator;
 import org.eclipse.equinox.internal.p2.director.app.Application;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -469,27 +462,6 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		delete(destinationRepo);
 	}
 
-	public void testQueryMultipleRepos() throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException {
-		URI metadataRepo1 = getTestData("10.1", "/testData/metadataRepo/good").toURI();
-		URI metadataRepo2 = getTestData("10.1", "/testData/metadataRepo/multipleversions1").toURI();
-		Application application = new Application();
-		Method method = application.getClass().getDeclaredMethod("collectRootIUs", URI[].class, IQuery.class);
-		method.setAccessible(true);
-		URI[] uris = new URI[] {metadataRepo1, metadataRepo2};
-		IQuery query = new MatchQuery() {
-			public boolean isMatch(Object candidate) {
-				if (candidate instanceof IInstallableUnit) {
-					IInstallableUnit iu = (IInstallableUnit) candidate;
-					if (iu.getId().equals("Default"))
-						return true;
-				}
-				return false;
-			}
-		};
-		Collector result = (Collector) method.invoke(application, uris, query);
-		assertEquals("1.0", 1, result.size());
-	}
-
 	/**
 	 * Test the application's behaviour given a single metadata and a single artifact repository where all are valid
 	 * Note: this test should end with "The installable unit invalidIU has not been found."
@@ -571,8 +543,8 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		File artifactRepo1 = getTestData("12.0", "/testData/mirror/mirrorSourceRepo3");
 		File metadataRepo1 = getTestData("12.1", "/testData/mirror/mirrorSourceRepo3");
 
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
-		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(artifactManager);
 		assertNotNull(metadataManager);
 
@@ -618,8 +590,8 @@ public class DirectorAppTest extends AbstractProvisioningTest {
 		File artifactRepo1 = getTestData("13.0", "/testData/mirror/mirrorSourceRepo4");
 		File metadataRepo1 = getTestData("13.1", "/testData/mirror/mirrorSourceRepo4");
 
-		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.SERVICE_NAME);
-		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(artifactManager);
 		assertNotNull(metadataManager);
 

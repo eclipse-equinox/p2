@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -27,6 +25,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator;
 import org.eclipse.equinox.p2.internal.repository.tools.ArtifactRepositoryValidator;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -939,7 +938,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			CompositeArtifactRepository repository = createRepository(new URI("memory:/in/memory"), "in memory test");
 
 			IArtifactRepository childOne = getArtifactRepositoryManager().loadRepository(childLocation, null);
-			TestArtifactRepository childTwo = new TestArtifactRepository(new URI("memory:/in/memory/two"));
+			TestArtifactRepository childTwo = new TestArtifactRepository(getAgent(), new URI("memory:/in/memory/two"));
 			// Add to repo manager
 			assertTrue(childTwo.addToRepositoryManager());
 
@@ -980,7 +979,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			int downloadAttempts = 0;
 
 			public BadMirrorSite(URI location) {
-				super(location);
+				super(getAgent(), location);
 				addToRepositoryManager();
 			}
 
@@ -1047,7 +1046,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			File location = new File(getTempFolder(), getUniqueString());
 
 			public BadSite(URI location) {
-				super(location);
+				super(getAgent(), location);
 			}
 
 			public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream out, IProgressMonitor monitor) {
@@ -1088,7 +1087,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			source.addChild(childOne.getLocation());
 
 			// Create 'good' child which downloads successfully
-			TestArtifactRepository childTwo = new TestArtifactRepository(new URI("memory:/in/memory/two"));
+			TestArtifactRepository childTwo = new TestArtifactRepository(getAgent(), new URI("memory:/in/memory/two"));
 			childTwo.addDescriptor(descriptor);
 			childTwo.addArtifact(descriptor.getArtifactKey(), contents);
 			childTwo.addToRepositoryManager();
@@ -1319,7 +1318,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	 */
 	protected IArtifactRepository createChild() {
 		try {
-			TestArtifactRepository repo = new TestArtifactRepository(new URI("memory:/in/memory/" + childCount++)) {
+			TestArtifactRepository repo = new TestArtifactRepository(getAgent(), new URI("memory:/in/memory/" + childCount++)) {
 				public boolean contains(IArtifactDescriptor desc) {
 					return true;
 				}

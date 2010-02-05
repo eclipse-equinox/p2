@@ -98,7 +98,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		} catch (BundleException e) {
 			ProvUI.handleException(e, "Error initializing provisioning UI", StatusManager.LOG); //$NON-NLS-1$
 		}
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.class.getName());
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
 		session = new ProvisioningSession(agent);
 
 		Policy policy = (Policy) ServiceHelper.getService(ProvUIActivator.getContext(), Policy.class.getName());
@@ -123,10 +123,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	}
 
 	public IProvisioningEventBus getProvisioningEventBus() {
-		ServiceReference busReference = context.getServiceReference(IProvisioningEventBus.SERVICE_NAME);
-		if (busReference == null)
-			return null;
-		return (IProvisioningEventBus) context.getService(busReference);
+		return getSession().getProvisioningEventBus();
 	}
 
 	public void removeProvisioningListener(ProvUIProvisioningListener listener) {

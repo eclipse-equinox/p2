@@ -15,9 +15,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -41,6 +43,7 @@ public class UpdateChecker implements IUpdateChecker {
 	 */
 	private HashMap<IUpdateListener, UpdateCheckThread> checkers = new HashMap<IUpdateListener, UpdateCheckThread>();
 
+	private final IProvisioningAgent agent;
 	IProfileRegistry profileRegistry;
 	IPlanner planner;
 
@@ -90,6 +93,10 @@ public class UpdateChecker implements IUpdateChecker {
 		}
 	}
 
+	public UpdateChecker(IProvisioningAgent agent) {
+		this.agent = agent;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker#addUpdateCheck(java.lang.String, long, long, org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener)
 	 */
@@ -135,7 +142,7 @@ public class UpdateChecker implements IUpdateChecker {
 	 * Returns the list of metadata repositories that are currently available.
 	 */
 	private URI[] getAvailableRepositories() {
-		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		URI[] repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		ArrayList<URI> available = new ArrayList<URI>();
 		for (int i = 0; i < repositories.length; i++) {
@@ -162,7 +169,7 @@ public class UpdateChecker implements IUpdateChecker {
 
 	IPlanner getPlanner() {
 		if (planner == null) {
-			planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.SERVICE_NAME);
+			planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 			if (planner == null) {
 				throw new IllegalStateException("Provisioning system has not been initialized"); //$NON-NLS-1$
 			}
@@ -172,7 +179,7 @@ public class UpdateChecker implements IUpdateChecker {
 
 	IProfileRegistry getProfileRegistry() {
 		if (profileRegistry == null) {
-			profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.SERVICE_NAME);
+			profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 			if (profileRegistry == null) {
 				throw new IllegalStateException("Provisioning system has not been initialized"); //$NON-NLS-1$
 			}

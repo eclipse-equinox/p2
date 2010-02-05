@@ -17,7 +17,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -39,9 +39,12 @@ public class ProvCommandProvider implements CommandProvider {
 	private static final String WILDCARD_ANY = "*"; //$NON-NLS-1$
 	public static final String NEW_LINE = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 
+	private final IProvisioningAgent agent;
+
 	//	private Profile profile;
 
-	public ProvCommandProvider(String profileId, IProfileRegistry registry) {
+	public ProvCommandProvider(String profileId, IProvisioningAgent agent) {
+		this.agent = agent;
 		// look up the profile we are currently running and use it as the
 		// default.
 		// TODO define a way to spec the default profile to manage
@@ -69,10 +72,10 @@ public class ProvCommandProvider implements CommandProvider {
 		if (repoURI == null)
 			return;
 		// add metadata repo
-		if (ProvisioningHelper.addMetadataRepository(repoURI) == null) {
+		if (ProvisioningHelper.addMetadataRepository(agent, repoURI) == null) {
 			interpreter.println("Unable to add metadata repository: " + repoURI);
 		} else // add artifact repo at same URL
-		if (ProvisioningHelper.addArtifactRepository(repoURI) == null) {
+		if (ProvisioningHelper.addArtifactRepository(agent, repoURI) == null) {
 			interpreter.println("Unable to add artifact repository: " + repoURI);
 		}
 	}
@@ -86,8 +89,8 @@ public class ProvCommandProvider implements CommandProvider {
 		URI repoURI = toURI(interpreter, urlString);
 		if (repoURI == null)
 			return;
-		ProvisioningHelper.removeMetadataRepository(repoURI);
-		ProvisioningHelper.removeArtifactRepository(repoURI);
+		ProvisioningHelper.removeMetadataRepository(agent, repoURI);
+		ProvisioningHelper.removeArtifactRepository(agent, repoURI);
 	}
 
 	/**
@@ -102,7 +105,7 @@ public class ProvCommandProvider implements CommandProvider {
 		URI repoURI = toURI(interpreter, urlString);
 		if (repoURI == null)
 			return;
-		if (ProvisioningHelper.addMetadataRepository(repoURI) == null)
+		if (ProvisioningHelper.addMetadataRepository(agent, repoURI) == null)
 			interpreter.println("Unable to add repository: " + repoURI);
 	}
 
@@ -115,7 +118,7 @@ public class ProvCommandProvider implements CommandProvider {
 		URI repoURI = toURI(interpreter, urlString);
 		if (repoURI == null)
 			return;
-		ProvisioningHelper.removeMetadataRepository(repoURI);
+		ProvisioningHelper.removeMetadataRepository(agent, repoURI);
 	}
 
 	public void _provaddartifactrepo(CommandInterpreter interpreter) {
@@ -127,7 +130,7 @@ public class ProvCommandProvider implements CommandProvider {
 		URI repoURI = toURI(interpreter, urlString);
 		if (repoURI == null)
 			return;
-		if (ProvisioningHelper.addArtifactRepository(repoURI) == null)
+		if (ProvisioningHelper.addArtifactRepository(agent, repoURI) == null)
 			interpreter.println("Unable to add repository " + repoURI);
 	}
 
@@ -140,7 +143,7 @@ public class ProvCommandProvider implements CommandProvider {
 		URI repoURI = toURI(interpreter, urlString);
 		if (repoURI == null)
 			return;
-		ProvisioningHelper.removeArtifactRepository(repoURI);
+		ProvisioningHelper.removeArtifactRepository(agent, repoURI);
 	}
 
 	/**
@@ -158,7 +161,7 @@ public class ProvCommandProvider implements CommandProvider {
 		}
 		IStatus s = null;
 		try {
-			s = ProvisioningHelper.install(iu, version, ProvisioningHelper.getProfile(profileId), new NullProgressMonitor());
+			s = ProvisioningHelper.install(agent, iu, version, ProvisioningHelper.getProfile(agent, profileId), new NullProgressMonitor());
 		} catch (ProvisionException e) {
 			interpreter.println("Installation failed with ProvisionException for " + iu + " " + version);
 			interpreter.printStackTrace(e);
@@ -190,7 +193,7 @@ public class ProvCommandProvider implements CommandProvider {
 			props.put(IProfile.PROP_ENVIRONMENTS, environments);
 
 		try {
-			ProvisioningHelper.addProfile(profileId, props);
+			ProvisioningHelper.addProfile(agent, profileId, props);
 		} catch (ProvisionException e) {
 			interpreter.println("Add profile failed.  " + e.getMessage());
 			interpreter.printStackTrace(e);
@@ -206,7 +209,7 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println("profileid must be provided");
 			return;
 		}
-		ProvisioningHelper.removeProfile(profileId);
+		ProvisioningHelper.removeProfile(agent, profileId);
 	}
 
 	/**
@@ -221,7 +224,7 @@ public class ProvCommandProvider implements CommandProvider {
 		URI repoURL = null;
 		if (urlString != null && !urlString.equals(WILDCARD_ANY))
 			repoURL = toURI(interpreter, urlString);
-		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(repoURL, new InstallableUnitQuery(id, new VersionRange(version)), null));
+		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoURL, new InstallableUnitQuery(id, new VersionRange(version)), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -237,7 +240,7 @@ public class ProvCommandProvider implements CommandProvider {
 		String id = processArgument(interpreter.nextArgument());
 		String version = processArgument(interpreter.nextArgument());
 		if (urlString == null) {
-			URI[] repositories = ProvisioningHelper.getMetadataRepositories();
+			URI[] repositories = ProvisioningHelper.getMetadataRepositories(agent);
 			if (repositories != null)
 				for (int i = 0; i < repositories.length; i++)
 					interpreter.println(repositories[i]);
@@ -246,7 +249,7 @@ public class ProvCommandProvider implements CommandProvider {
 		URI repoLocation = toURI(interpreter, urlString);
 		if (repoLocation == null)
 			return;
-		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(repoLocation, new InstallableUnitQuery(id, new VersionRange(version)), null));
+		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoLocation, new InstallableUnitQuery(id, new VersionRange(version)), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -261,14 +264,14 @@ public class ProvCommandProvider implements CommandProvider {
 		String urlString = processArgument(interpreter.nextArgument());
 		IQueryable<IInstallableUnit> queryable = null;
 		if (urlString == null) {
-			queryable = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.SERVICE_NAME);
+			queryable = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 			if (queryable == null)
 				return;
 		} else {
 			URI repoURL = toURI(interpreter, urlString);
 			if (repoURL == null)
 				return;
-			queryable = ProvisioningHelper.getMetadataRepository(repoURL);
+			queryable = ProvisioningHelper.getMetadataRepository(agent, repoURL);
 			if (queryable == null)
 				return;
 		}
@@ -286,7 +289,7 @@ public class ProvCommandProvider implements CommandProvider {
 	public void _provlar(CommandInterpreter interpreter) {
 		String urlString = processArgument(interpreter.nextArgument());
 		if (urlString == null) {
-			URI[] repositories = ProvisioningHelper.getArtifactRepositories();
+			URI[] repositories = ProvisioningHelper.getArtifactRepositories(agent);
 			if (repositories == null)
 				return;
 			for (int i = 0; i < repositories.length; i++)
@@ -296,7 +299,7 @@ public class ProvCommandProvider implements CommandProvider {
 		URI repoURL = toURI(interpreter, urlString);
 		if (repoURL == null)
 			return;
-		IArtifactRepository repo = ProvisioningHelper.getArtifactRepository(repoURL);
+		IArtifactRepository repo = ProvisioningHelper.getArtifactRepository(agent, repoURL);
 		IQueryResult<IArtifactKey> keys = null;
 		try {
 			keys = (repo != null) ? repo.query(ArtifactKeyQuery.ALL_KEYS, null) : null;
@@ -353,7 +356,7 @@ public class ProvCommandProvider implements CommandProvider {
 		String id = processArgument(interpreter.nextArgument());
 		String range = processArgument(interpreter.nextArgument());
 		if (profileId == null) {
-			IProfile[] profiles = ProvisioningHelper.getProfiles();
+			IProfile[] profiles = ProvisioningHelper.getProfiles(agent);
 			for (int i = 0; i < profiles.length; i++)
 				interpreter.println(profiles[i].getProfileId());
 			return;
@@ -362,7 +365,7 @@ public class ProvCommandProvider implements CommandProvider {
 		IProfile target = null;
 		if (profileId.equals("this")) //$NON-NLS-1$
 			profileId = IProfileRegistry.SELF;
-		target = ProvisioningHelper.getProfile(profileId);
+		target = ProvisioningHelper.getProfile(agent, profileId);
 		if (target == null)
 			return;
 
@@ -383,7 +386,7 @@ public class ProvCommandProvider implements CommandProvider {
 		if (profileId == null || profileId.equals("this")) { //$NON-NLS-1$
 			profileId = IProfileRegistry.SELF;
 		}
-		long[] profileTimestamps = ProvisioningHelper.getProfileTimestamps(profileId);
+		long[] profileTimestamps = ProvisioningHelper.getProfileTimestamps(agent, profileId);
 		// if no profile timestamps for given id, print that out and done
 		if (profileTimestamps == null || profileTimestamps.length == 0) {
 			interpreter.print("No timestamps found for profile ");
@@ -419,14 +422,14 @@ public class ProvCommandProvider implements CommandProvider {
 		if (profileId == null || profileId.equals("this"))
 			profileId = IProfileRegistry.SELF;
 
-		IProfile profile = ProvisioningHelper.getProfile(profileId);
+		IProfile profile = ProvisioningHelper.getProfile(agent, profileId);
 		if (profile == null) {
 			interpreter.println("Profile " + profileId + " not found");
 			return;
 		}
 		IStatus s = null;
 		try {
-			s = ProvisioningHelper.revertToPreviousState(profile, ts.longValue());
+			s = ProvisioningHelper.revertToPreviousState(agent, profile, ts.longValue());
 		} catch (ProvisionException e) {
 			interpreter.println("revert failed ");
 			interpreter.printStackTrace(e);
@@ -455,7 +458,7 @@ public class ProvCommandProvider implements CommandProvider {
 		if (profileId == null || profileId.equals("this")) {
 			profileId = IProfileRegistry.SELF;
 		}
-		IProfile profile = ProvisioningHelper.getProfile(profileId);
+		IProfile profile = ProvisioningHelper.getProfile(agent, profileId);
 		if (profile == null) {
 			interpreter.println("Profile " + profileId + " not found");
 			return;
@@ -482,7 +485,7 @@ public class ProvCommandProvider implements CommandProvider {
 		}
 		IStatus s = null;
 		try {
-			s = ProvisioningHelper.uninstall(iu, version, ProvisioningHelper.getProfile(profileId), new NullProgressMonitor());
+			s = ProvisioningHelper.uninstall(agent, iu, version, ProvisioningHelper.getProfile(agent, profileId), new NullProgressMonitor());
 		} catch (ProvisionException e) {
 			interpreter.println("Remove failed with ProvisionException for " + iu + " " + version);
 			interpreter.printStackTrace(e);

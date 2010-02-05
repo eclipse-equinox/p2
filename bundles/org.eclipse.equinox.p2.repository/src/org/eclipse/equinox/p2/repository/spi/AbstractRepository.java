@@ -14,6 +14,7 @@ import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
@@ -26,6 +27,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
  * @since 2.0
 */
 public abstract class AbstractRepository<T> extends PlatformObject implements IRepository<T> {
+	protected final IProvisioningAgent agent;
 	protected String description;
 	protected transient URI location;
 	protected String name;
@@ -34,7 +36,8 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	protected String type;
 	protected String version;
 
-	protected AbstractRepository(String name, String type, String version, URI location, String description, String provider, Map<String, String> properties) {
+	protected AbstractRepository(IProvisioningAgent agent, String name, String type, String version, URI location, String description, String provider, Map<String, String> properties) {
+		this.agent = agent;
 		this.name = name;
 		this.type = type;
 		this.version = version;
@@ -95,6 +98,10 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	 */
 	public synchronized String getProvider() {
 		return provider;
+	}
+
+	public IProvisioningAgent getProvisioningAgent() {
+		return agent;
 	}
 
 	/**
