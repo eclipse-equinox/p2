@@ -121,11 +121,11 @@ public class DirectorTask extends Task implements ILog {
 		}
 		if (metadataRepository != null) {
 			result.add("-metadataRepository"); //$NON-NLS-1$
-			result.add(metadataRepository.toString());
+			result.add(URIUtil.toUnencodedString(metadataRepository));
 		}
 		if (artifactRepository != null) {
 			result.add("-artifactRepository"); //$NON-NLS-1$
-			result.add(artifactRepository.toString());
+			result.add(URIUtil.toUnencodedString(artifactRepository));
 		}
 		if (flavor != null) {
 			result.add("-flavor"); //$NON-NLS-1$
