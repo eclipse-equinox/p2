@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,8 +23,7 @@ import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.mirroring.*;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -197,7 +194,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		return mirrorStatus;
 	}
 
-	private IStatus mirrorArtifacts(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) throws ProvisionException {
+	private IStatus mirrorArtifacts(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {
 		// Obtain ArtifactKeys from IUs
 		IQueryResult<IInstallableUnit> ius = slice.query(InstallableUnitQuery.ANY, monitor);
 		ArrayList<IArtifactKey> keys = new ArrayList<IArtifactKey>();
@@ -228,10 +225,16 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		return result;
 	}
 
-	private IArtifactRepository initializeBaseline() throws ProvisionException {
+	private IArtifactRepository initializeBaseline() {
 		if (baseline == null)
 			return null;
-		return addRepository(getArtifactRepositoryManager(), baseline, 0, null);
+		try {
+			return addRepository(getArtifactRepositoryManager(), baseline, 0, null);
+		} catch (ProvisionException e) {
+			if (mirrorLog != null && e.getStatus() != null)
+				mirrorLog.log(e.getStatus());
+			return null;
+		}
 	}
 
 	private void mirrorMetadata(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {

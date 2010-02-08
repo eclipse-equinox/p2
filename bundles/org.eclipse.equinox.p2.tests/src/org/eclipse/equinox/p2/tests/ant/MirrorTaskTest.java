@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ant;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,8 +21,7 @@ import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -87,6 +84,23 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		runAntTask();
 
 		assertEquals("Different number of IUs", getIUCount(sourceRepo2), getIUCount(destinationRepo));
+	}
+
+	public void testMirrorEmptyBaseline() throws Exception {
+		File folder = getTestFolder("MirrorEmptyBaseline");
+		String baseline = "file:" + new File(folder, "base").getAbsolutePath();
+		String dest = "file:" + new File(folder, "destination").getAbsolutePath();
+		String logFile = new File(folder, "log.txt").getAbsolutePath();
+
+		AntTaskElement mirror = new AntTaskElement("p2.artifact.mirror");
+		mirror.addAttribute("source", URIUtil.toUnencodedString(sourceRepo2));
+		mirror.addAttribute("baseline", baseline);
+		mirror.addAttribute("comparatorId", "org.eclipse.equinox.p2.repository.tools.jar.comparator");
+		mirror.addAttribute("destination", dest);
+		mirror.addAttribute("log", logFile);
+		addTask(mirror);
+		runAntTask();
+		assertLogContainsLine(new File(folder, "log.txt"), "No repository found at " + URIUtil.toUnencodedString(URIUtil.fromString(baseline)));
 	}
 
 	/*
