@@ -48,7 +48,15 @@ public class ProfilePreferences extends EclipsePreferences {
 			try {
 				doSave(agent);
 			} catch (BackingStoreException e) {
-				LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Exception saving profile preferences", e)); //$NON-NLS-1$
+				//TODO: This happens because the agent goes away before the engine bundle
+				//See bug 300450 for details
+				if (Tracing.DEBUG_PROFILE_PREFERENCES)
+					LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Exception saving profile preferences", e)); //$NON-NLS-1$
+			} catch (RuntimeException e) {
+				//TODO: This happens because the agent goes away before the engine bundle
+				//See bug 300450 for details
+				if (Tracing.DEBUG_PROFILE_PREFERENCES)
+					LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Exception saving profile preferences", e)); //$NON-NLS-1$
 			}
 			return Status.OK_STATUS;
 		}
