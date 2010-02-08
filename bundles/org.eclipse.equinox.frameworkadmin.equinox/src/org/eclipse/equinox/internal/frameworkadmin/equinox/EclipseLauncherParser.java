@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -85,6 +85,7 @@ public class EclipseLauncherParser {
 		//Log.log(LogService.LOG_DEBUG, "inputFile=" + inputFile.getAbsolutePath());
 		//		final File launcherFile = launcherData.getLauncher();
 		final File launcherConfigFile = EquinoxManipulatorImpl.getLauncherConfigLocation(launcherData);
+		final File launcherConfigFileParent = launcherConfigFile.getParentFile();
 
 		boolean clean = launcherData.isClean();
 		boolean needToUpdate = false;
@@ -92,7 +93,7 @@ public class EclipseLauncherParser {
 		File fwConfigLocation = launcherData.getFwConfigLocation();
 		if (fwPersistentDataLoc == null) {
 			if (fwConfigLocation == null) {
-				fwPersistentDataLoc = new File(launcherConfigFile.getParent(), EquinoxConstants.DEFAULT_CONFIGURATION);
+				fwPersistentDataLoc = new File(launcherConfigFileParent, EquinoxConstants.DEFAULT_CONFIGURATION);
 				fwConfigLocation = fwPersistentDataLoc;
 				needToUpdate = true;
 			} else {
@@ -108,7 +109,7 @@ public class EclipseLauncherParser {
 
 		File fwJar = launcherData.getFwJar();
 		if (fwJar == null) {
-			String location = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_SYMBOLIC_NAME, new File(launcherConfigFile.getParent(), EquinoxConstants.PLUGINS_DIR));
+			String location = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_SYMBOLIC_NAME, new File(launcherConfigFileParent, EquinoxConstants.PLUGINS_DIR));
 			if (location != null)
 				try {
 					fwJar = new File(new URL(location).getFile());
@@ -146,7 +147,7 @@ public class EclipseLauncherParser {
 				final String nextLine = lines[++i].trim();
 				File file = new File(nextLine);
 				if (!file.isAbsolute())
-					file = new File(launcherConfigFile.getParent() + File.separator + nextLine);
+					file = new File(launcherConfigFileParent + File.separator + nextLine);
 				fwPersistentDataLoc = file;
 				needToUpdate = true;
 				continue;
@@ -166,7 +167,7 @@ public class EclipseLauncherParser {
 				final String nextLine = lines[++i].trim();
 				File file = new File(nextLine);
 				if (!file.isAbsolute()) {
-					file = new File(launcherConfigFile.getAbsolutePath() + File.separator + nextLine);
+					file = new File(launcherConfigFileParent, nextLine);
 				}
 				launcherData.setFwJar(file);
 				continue;
@@ -239,6 +240,8 @@ public class EclipseLauncherParser {
 			return launcherFolder;
 		if (EquinoxConstants.OPTION_FW.equalsIgnoreCase(entry))
 			return osgiInstallArea != null ? osgiInstallArea : launcherFolder;
+		if (EquinoxConstants.OPTION_VM.equalsIgnoreCase(entry))
+			return launcherFolder;
 		return null;
 	}
 
@@ -266,7 +269,20 @@ public class EclipseLauncherParser {
 			String resolveNextLine = null;
 			for (int i = 0; i < lines.length; i++) {
 				if (resolveNextLine != null) {
-					lines[i] = EquinoxManipulatorImpl.makeRelative(lines[i], resolveNextLine);
+					// If we have a -vm argument which is located under the install folder then
+					// make it relative. Otherwise write it out as absolute.
+					boolean makeRelative = false;
+					if (EquinoxConstants.OPTION_VM.equalsIgnoreCase(lines[i - 1])) {
+						File launcherConfigFileParent = launcherConfigFile.getParentFile();
+						for (File current = new File(lines[i]).getParentFile(); current != null && !makeRelative; current = current.getParentFile()) {
+							if (current.equals(launcherConfigFileParent))
+								makeRelative = true;
+						}
+					} else {
+						makeRelative = true;
+					}
+					if (makeRelative)
+						lines[i] = EquinoxManipulatorImpl.makeRelative(lines[i], resolveNextLine);
 					resolveNextLine = null;
 				} else {
 					resolveNextLine = needsPathResolution(lines[i], osgiInstallArea, launcherData.getLauncher().getParentFile().getAbsolutePath() + File.separator);
