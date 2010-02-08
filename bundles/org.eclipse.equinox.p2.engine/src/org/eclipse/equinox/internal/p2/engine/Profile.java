@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -14,11 +14,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.metadata.IUMap;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
 
@@ -39,7 +41,7 @@ public class Profile implements IProfile {
 	 */
 	private OrderedProperties storage = new OrderedProperties();
 
-	private Set<IInstallableUnit> ius = new HashSet<IInstallableUnit>();
+	private IUMap ius = new IUMap();
 	private Map<IInstallableUnit, OrderedProperties> iuProperties = new HashMap<IInstallableUnit, OrderedProperties>();
 	private boolean changed = false;
 
@@ -166,6 +168,8 @@ public class Profile implements IProfile {
 		propagateProfileContext(query);
 		if (query instanceof IUProfilePropertyQuery) {
 			return query.perform(iuProperties.keySet().iterator());
+		} else if (query instanceof InstallableUnitQuery) {
+			return ius.query((InstallableUnitQuery) query);
 		}
 		return query.perform(ius.iterator());
 	}
@@ -324,7 +328,8 @@ public class Profile implements IProfile {
 			}
 		}
 
-		for (IInstallableUnit iu : ius) {
+		for (Iterator<IInstallableUnit> iter = ius.iterator(); iter.hasNext();) {
+			IInstallableUnit iu = iter.next();
 			snapshot.addInstallableUnit(iu);
 			Map<String, String> properties = getInstallableUnitProperties(iu);
 			if (properties != null)

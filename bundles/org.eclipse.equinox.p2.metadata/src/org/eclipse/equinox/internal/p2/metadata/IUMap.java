@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,11 +9,12 @@
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc. - rewrite for smaller memory footprint
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.metadata.repository;
+package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -122,6 +123,12 @@ public class IUMap {
 			add(toAdd[i]);
 	}
 
+	public void addAll(Collection<IInstallableUnit> toAdd) {
+		for (IInstallableUnit unit : toAdd) {
+			add(unit);
+		}
+	}
+
 	public void clear() {
 		units.clear();
 	}
@@ -147,6 +154,34 @@ public class IUMap {
 		}
 		return query.perform(candidates);
 
+	}
+
+	public boolean contains(IInstallableUnit unit) {
+		return get(unit.getId(), unit.getVersion()) != null;
+	}
+
+	public IQueryResult<IInstallableUnit> get(String id) {
+		return internalGet(id, null);
+	}
+
+	private IQueryResult<IInstallableUnit> internalGet(String id, Version version) {
+		// TODO can probably optimize this
+		InstallableUnitQuery query = null;
+		if (version == null) {
+			if (id == null) {
+				query = InstallableUnitQuery.ANY;
+			} else {
+				query = new InstallableUnitQuery(id);
+			}
+		} else {
+			query = new InstallableUnitQuery(id, version);
+		}
+		return query(query);
+	}
+
+	public IInstallableUnit get(String id, Version version) {
+		IQueryResult<IInstallableUnit> result = internalGet(id, version);
+		return result.isEmpty() ? null : result.iterator().next();
 	}
 
 	public void remove(IInstallableUnit unit) {
