@@ -29,6 +29,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 public class Collect extends InstallableUnitPhase {
 	private static final String PHASE_ID = IPhaseSet.PHASE_COLLECT;
 	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
+	public static final String NO_ARTIFACT_REPOSITORIES_AVAILABLE = "noArtifactRepositoriesAvailable"; //$NON-NLS-1$
 
 	public Collect(int weight) {
 		super(PHASE_ID, weight);

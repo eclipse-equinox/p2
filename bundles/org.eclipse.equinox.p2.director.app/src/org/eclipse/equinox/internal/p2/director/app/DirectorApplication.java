@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.internal.p2.metadata.VersionedId;
 import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -204,6 +205,7 @@ public class DirectorApplication implements IApplication {
 	private ILog log = null;
 
 	private IProvisioningAgent agent;
+	private boolean noArtifactRepositorySpecified = false;
 
 	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, IInstallableUnit[] installs, IInstallableUnit[] uninstalls) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
@@ -353,8 +355,7 @@ public class DirectorApplication implements IApplication {
 			}
 		}
 		if (!anyValid)
-			//all repositories failed to load
-			throw new ProvisionException(Messages.Application_NoRepositories);
+			noArtifactRepositorySpecified = true;
 
 		if (metadataRepositoryLocations == null)
 			missingArgument("metadataRepository"); //$NON-NLS-1$
@@ -532,9 +533,24 @@ public class DirectorApplication implements IApplication {
 		IStatus operationStatus;
 		if (!verifyOnly) {
 			operationStatus = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
-			if (!operationStatus.isOK())
+			if (!operationStatus.isOK()) {
+				if (noArtifactRepositorySpecified && hasNoRepositoryFound(operationStatus))
+					throw new ProvisionException(Messages.Application_NoRepositories);
 				throw new CoreException(operationStatus);
+			}
 		}
+	}
+
+	private boolean hasNoRepositoryFound(IStatus status) {
+		if (status.getException() != null && Collect.NO_ARTIFACT_REPOSITORIES_AVAILABLE.equals(status.getException().getMessage()))
+			return true;
+		if (status.isMultiStatus()) {
+			for (IStatus child : status.getChildren()) {
+				if (hasNoRepositoryFound(child))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	private void printRequest(ProfileChangeRequest request) {

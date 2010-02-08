@@ -14,6 +14,7 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -88,7 +89,7 @@ public class DownloadManager {
 			else
 				repositories = provContext.getArtifactRepositories();
 			if (repositories.length == 0)
-				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository, new Exception());
+				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository, new Exception(Collect.NO_ARTIFACT_REPOSITORIES_AVAILABLE));
 			Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
 			fetch(repositories, subMonitor);
 			return overallStatus(monitor);
