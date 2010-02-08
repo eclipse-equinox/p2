@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.garbagecollector;
 
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -19,6 +17,7 @@ import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.osgi.service.debug.DebugOptions;
 import org.osgi.framework.*;
@@ -43,6 +42,24 @@ public class GCActivator implements BundleActivator {
 		return result;
 	}
 
+	static IProvisioningAgent getAgent(BundleContext ctx) {
+		ServiceReference reference = ctx.getServiceReference(IProvisioningAgent.SERVICE_NAME);
+		if (reference == null)
+			return null;
+		IProvisioningAgent result = (IProvisioningAgent) ctx.getService(reference);
+		ctx.ungetService(reference);
+		return result;
+	}
+
+	static IProvisioningEventBus getEventBus(BundleContext ctx) {
+		IProvisioningAgent agent = getAgent(GCActivator.context);
+		if (agent == null) {
+			LogHelper.log(new Status(IStatus.ERROR, GCActivator.ID, Messages.Missing_agent));
+			return null;
+		}
+		return (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+	}
+
 	public void start(BundleContext inContext) throws Exception {
 		GCActivator.context = inContext;
 		DebugOptions debug = (DebugOptions) getService(inContext, DebugOptions.class.getName());
@@ -54,7 +71,7 @@ public class GCActivator implements BundleActivator {
 
 	//	Register the listener used to trigger the GC.
 	private void registerGCTrigger() {
-		IProvisioningEventBus eventBus = (IProvisioningEventBus) getService(GCActivator.context, IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus eventBus = getEventBus(GCActivator.context);
 		if (eventBus == null) {
 			LogHelper.log(new Status(IStatus.ERROR, GCActivator.ID, Messages.Missing_bus));
 			return;
@@ -96,7 +113,7 @@ public class GCActivator implements BundleActivator {
 	}
 
 	private void unregisterGCTrigger() {
-		IProvisioningEventBus eventBus = (IProvisioningEventBus) getService(GCActivator.context, IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus eventBus = getEventBus(GCActivator.context);
 		if (eventBus != null && busListener != null)
 			eventBus.removeListener(busListener);
 	}
