@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Cloudsmith, Inc - Ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.exemplarysetup;
 
@@ -14,11 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
-import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.p2.core.*;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.osgi.framework.*;
 
 public class Activator implements BundleActivator {
@@ -26,13 +23,6 @@ public class Activator implements BundleActivator {
 	public static final String ID = "org.eclipse.equinox.p2.exemplarysetup"; //$NON-NLS-1$
 
 	private IProvisioningAgent agent;
-	private IProvisioningEventBus bus;
-
-	private ServiceRegistration registrationBus;
-	private ServiceRegistration registrationDefaultManager;
-	private ServiceRegistration registrationDirector;
-	private ServiceRegistration registrationPlanner;
-	private ServiceRegistration registrationProfileRegistry;
 
 	/**
 	 * Register the agent instance representing the currently running system.
@@ -62,41 +52,11 @@ public class Activator implements BundleActivator {
 
 	}
 
-	private void registerDirector() {
-		IDirector director = (IDirector) agent.getService(IDirector.SERVICE_NAME);
-		registrationDirector = context.registerService(IDirector.SERVICE_NAME, director, null);
-	}
-
-	private void registerEventBus() {
-		bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
-		registrationBus = context.registerService(IProvisioningEventBus.SERVICE_NAME, bus, null);
-	}
-
-	private void registerPlanner() {
-		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
-		registrationPlanner = context.registerService(IPlanner.SERVICE_NAME, planner, null);
-	}
-
-	private void registerProfileRegistry() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
-		registrationProfileRegistry = context.registerService(IProfileRegistry.SERVICE_NAME, profileRegistry, null);
-	}
-
 	public void start(BundleContext aContext) throws Exception {
 		//Need to do the configuration of all the bits and pieces:
 		Activator.context = aContext;
 		registerAgent();
 
-		if (false) {
-			registerEventBus();
-			//create the profile registry
-			registerProfileRegistry();
-
-			//create the director and planner.  The planner must be
-			//registered first because the director finds it in its constructor.
-			registerPlanner();
-			registerDirector();
-		}
 		startGarbageCollector();
 
 		//create artifact repositories
@@ -108,17 +68,8 @@ public class Activator implements BundleActivator {
 	}
 
 	public void stop(BundleContext aContext) throws Exception {
-		//		unregisterDefaultArtifactRepoManager();
-		if (false) {
-			unregisterDirector();
-			unregisterPlanner();
-			unregisterDefaultMetadataRepoManager();
-			unregisterProfileRegistry();
-			unregisterEventBus();
-		}
 		unregisterAgent();
 		Activator.context = null;
-
 	}
 
 	private void unregisterAgent() {
@@ -128,37 +79,4 @@ public class Activator implements BundleActivator {
 		}
 	}
 
-	private void unregisterDefaultMetadataRepoManager() {
-		//unregister the service if we registered it
-		if (registrationDefaultManager != null) {
-			registrationDefaultManager.unregister();
-			registrationDefaultManager = null;
-		}
-	}
-
-	private void unregisterDirector() {
-		registrationDirector.unregister();
-		registrationDirector = null;
-	}
-
-	private void unregisterEventBus() {
-		if (registrationBus != null) {
-			registrationBus.unregister();
-			registrationBus = null;
-		}
-		if (bus != null) {
-			bus.close();
-			bus = null;
-		}
-	}
-
-	private void unregisterPlanner() {
-		registrationPlanner.unregister();
-		registrationPlanner = null;
-	}
-
-	private void unregisterProfileRegistry() {
-		registrationProfileRegistry.unregister();
-		registrationProfileRegistry = null;
-	}
 }
