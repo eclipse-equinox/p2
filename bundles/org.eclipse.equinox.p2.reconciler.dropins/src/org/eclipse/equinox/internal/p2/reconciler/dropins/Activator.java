@@ -69,6 +69,7 @@ public class Activator implements BundleActivator {
 		if (manager == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
 		ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
+		factory.setAgent(agent);
 		IMetadataRepository repository = factory.create(location, name, ExtensionLocationMetadataRepository.TYPE, properties);
 		//we need to add the concrete repository to the repository manager, or its properties will not be correct
 		((MetadataRepositoryManager) manager).addRepository(repository);
@@ -107,6 +108,7 @@ public class Activator implements BundleActivator {
 		if (manager == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 		ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
+		factory.setAgent(agent);
 		IArtifactRepository repository = factory.create(location, name, ExtensionLocationArtifactRepository.TYPE, properties);
 		//we need to add the concrete repository to the repository manager, or its properties will not be correct
 		((ArtifactRepositoryManager) manager).addRepository(repository);
