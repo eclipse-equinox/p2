@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -142,12 +142,12 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	/**
 	 * Executes a runnable against this repository. It is up to the repository
 	 * implementor to determine what "batch process" means, for example, it may mean
-	 * that the repository serialization is deferred until after the runnable completes.
+	 * that the repository index is not stored until after the runnable completes.
 	 * 
 	 * The runnable should not execute anything in a separate thread.
 	 *  
-	 * @param process The runnable
-	 * @return The result of running the runnable. Any exceptions thrown durring
+	 * @param runnable The runnable to execute
+	 * @return The result of running the runnable. Any exceptions thrown during
 	 * the execution will be returned in the status.
 	 */
 	public IStatus executeBatch(Runnable runnable);
