@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -9,8 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
 
 import java.io.File;
 import java.net.URI;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
@@ -155,7 +154,10 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 			return null;
 		IPath urlPath = new Path(urlString).makeAbsolute();
 		for (IMetadataRepository repo : repositoryList) {
-			Path repoPath = new Path(URIUtil.toFile(repo.getLocation()).getAbsolutePath());
+			File file = URIUtil.toFile(repo.getLocation());
+			if (file == null)
+				continue;
+			Path repoPath = new Path(file.getAbsolutePath());
 			if (repoPath.makeAbsolute().equals(urlPath))
 				return repo;
 			// normalize the URLs to be the same
