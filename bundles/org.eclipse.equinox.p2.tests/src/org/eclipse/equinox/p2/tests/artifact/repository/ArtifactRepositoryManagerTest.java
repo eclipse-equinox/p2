@@ -116,7 +116,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(TestActivator.getContext(), IPreferencesService.class.getName());
 		IAgentLocation agentLocation = (IAgentLocation) getAgent().getService(IAgentLocation.SERVICE_NAME);
 		String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
-		Preferences prefs = prefService.getRootNode().node("/profile/" + locationString + "_SELF_/" + REPO_BUNDLE + "/repositories"); //$NON-NLS-1$ //$NON-NLS-2$
+		Preferences prefs = prefService.getRootNode().node("/profile/" + locationString + "/_SELF_/" + REPO_BUNDLE + "/repositories"); //$NON-NLS-1$ //$NON-NLS-2$
 		try {
 			String[] children = prefs.childrenNames();
 			for (int i = 0; i < children.length; i++)

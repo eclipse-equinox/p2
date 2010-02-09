@@ -17,10 +17,12 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.core.spi.IAgentService;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -32,7 +34,7 @@ import org.osgi.framework.ServiceReference;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class SimpleProfileRegistry implements IProfileRegistry {
+public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	private static final String PROFILE_REGISTRY = "profile registry"; //$NON-NLS-1$
 
@@ -831,5 +833,24 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (!profileDataArea.isDirectory() && !profileDataArea.mkdir())
 			throw new IllegalStateException("Could not create profile data area " + profileDataArea.getAbsolutePath() + "for: " + id); //$NON-NLS-1$ //$NON-NLS-2$
 		return profileDataArea;
+	}
+
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#start()
+	 */
+	public void start() {
+		//nothing to do
+	}
+
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#stop()
+	 */
+	public void stop() {
+		try {
+			//ensure there are no more profile preference save jobs running
+			Job.getJobManager().join(ProfilePreferences.PROFILE_SAVE_JOB_FAMILY, null);
+		} catch (InterruptedException e) {
+			//ignore
+		}
 	}
 }

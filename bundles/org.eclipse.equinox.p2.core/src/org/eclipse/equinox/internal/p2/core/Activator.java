@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -14,9 +14,9 @@ import java.io.File;
 import java.net.*;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
@@ -44,7 +44,9 @@ public class Activator implements BundleActivator {
 	private static final String VAR_USER_DIR = "@user.dir"; //$NON-NLS-1$
 	private static final String VAR_USER_HOME = "@user.home"; //$NON-NLS-1$
 
+	private IProvisioningAgent agent;
 	private ServiceRegistration agentLocationRegistration = null;
+
 	ServiceTracker logTracker;
 
 	/**
@@ -156,6 +158,25 @@ public class Activator implements BundleActivator {
 		return logTracker;
 	}
 
+	/**
+	 * Register the agent instance representing the currently running system.
+	 * This will be the "default" agent for anyone not specifically trying to manipulate
+	 * a different p2 agent location
+	 */
+	private void registerAgent() {
+		//no need to register an agent if there is no agent location
+		if (agentDataLocation == null)
+			return;
+		ServiceReference agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) context.getService(agentProviderRef);
+		try {
+			agent = provider.createAgent(null);
+		} catch (Exception e) {
+			final String msg = "Unable to instantiate p2 agent at location " + agentDataLocation.getRootLocation(); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, ID, msg, e));
+		}
+	}
+
 	public void start(BundleContext aContext) throws Exception {
 		instance = this;
 		Activator.context = aContext;
@@ -166,9 +187,11 @@ public class Activator implements BundleActivator {
 			locationProperties.put("type", PROP_AGENT_DATA_AREA); //$NON-NLS-1$
 			agentLocationRegistration = aContext.registerService(IAgentLocation.SERVICE_NAME, agentDataLocation, locationProperties);
 		}
+		registerAgent();
 	}
 
 	public void stop(BundleContext aContext) throws Exception {
+		unregisterAgent();
 		instance = null;
 		agentDataLocation = null;
 		if (agentLocationRegistration != null)
@@ -178,5 +201,12 @@ public class Activator implements BundleActivator {
 			logTracker = null;
 		}
 		Activator.context = null;
+	}
+
+	private void unregisterAgent() {
+		if (agent != null) {
+			agent.stop();
+			agent = null;
+		}
 	}
 }

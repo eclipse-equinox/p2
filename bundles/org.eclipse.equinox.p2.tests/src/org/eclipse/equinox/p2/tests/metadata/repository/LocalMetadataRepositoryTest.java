@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+
 import org.eclipse.equinox.p2.metadata.Version;
 
 import java.io.File;
@@ -206,7 +208,8 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 				callCount[0]++;
 			}
 		};
-		getEventBus().addListener(listener);
+		final IProvisioningEventBus eventBus = getEventBus();
+		eventBus.addListener(listener);
 		try {
 			//now remove and reload the repository
 			manager.removeRepository(repoURI);
@@ -215,7 +218,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 			assertTrue("1.1", wasEnabled[0]);
 			assertEquals("1.2", 1, callCount[0]);
 		} finally {
-			getEventBus().removeListener(listener);
+			eventBus.removeListener(listener);
 		}
 	}
 

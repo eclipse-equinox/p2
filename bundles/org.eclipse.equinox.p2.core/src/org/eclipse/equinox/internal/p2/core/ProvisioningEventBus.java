@@ -15,12 +15,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.*;
+import org.eclipse.equinox.p2.core.spi.IAgentService;
 import org.eclipse.osgi.framework.eventmgr.*;
 
 /**
  * Default implementation of the {@link IProvisioningEventBus} service.
  */
-public class ProvisioningEventBus implements EventDispatcher, IProvisioningEventBus {
+public class ProvisioningEventBus implements EventDispatcher, IProvisioningEventBus, IAgentService {
 	private final CopyOnWriteIdentityMap syncListeners = new CopyOnWriteIdentityMap();
 	private final CopyOnWriteIdentityMap asyncListeners = new CopyOnWriteIdentityMap();
 	private EventManager eventManager = new EventManager("Provisioning Event Dispatcher"); //$NON-NLS-1$
@@ -136,5 +137,19 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 		}
 		if (interrupted)
 			Thread.currentThread().interrupt();
+	}
+
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#start()
+	 */
+	public void start() {
+		//nothing to do
+	}
+
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#stop()
+	 */
+	public void stop() {
+		close();
 	}
 }

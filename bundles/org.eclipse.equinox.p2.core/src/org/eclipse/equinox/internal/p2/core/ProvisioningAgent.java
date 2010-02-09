@@ -14,6 +14,7 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.spi.IAgentService;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.osgi.framework.*;
 
@@ -61,18 +62,20 @@ public class ProvisioningAgent implements IProvisioningAgent {
 			context.ungetService(refs[0]);
 		}
 		if (service != null)
-			agentServices.put(serviceName, service);
+			registerService(serviceName, service);
 		return service;
 	}
 
 	private synchronized void checkRunning() {
 		if (stopped)
-			throw new RuntimeException("Attempt to access stopped agent: " + this);
+			throw new RuntimeException("Attempt to access stopped agent: " + this); //$NON-NLS-1$
 	}
 
 	public void registerService(String serviceName, Object service) {
 		checkRunning();
 		agentServices.put(serviceName, service);
+		if (service instanceof IAgentService)
+			((IAgentService) service).start();
 	}
 
 	public void setBundleContext(BundleContext context) {
@@ -91,7 +94,7 @@ public class ProvisioningAgent implements IProvisioningAgent {
 		} else {
 			agentLocation = new AgentLocation(location);
 		}
-		agentServices.put(IAgentLocation.SERVICE_NAME, agentLocation);
+		registerService(IAgentLocation.SERVICE_NAME, agentLocation);
 	}
 
 	public void unregisterService(String serviceName, Object service) {
@@ -102,11 +105,19 @@ public class ProvisioningAgent implements IProvisioningAgent {
 		synchronized (agentServices) {
 			if (agentServices.get(serviceName) == service)
 				agentServices.remove(serviceName);
+			if (service instanceof IAgentService)
+				((IAgentService) service).stop();
 		}
 	}
 
-	public synchronized void stop() {
-		stopped = true;
+	public void stop() {
+		for (Object service : agentServices.values()) {
+			if (service instanceof IAgentService)
+				((IAgentService) service).stop();
+		}
+		synchronized (this) {
+			stopped = true;
+		}
 		if (reg != null) {
 			reg.unregister();
 			reg = null;
