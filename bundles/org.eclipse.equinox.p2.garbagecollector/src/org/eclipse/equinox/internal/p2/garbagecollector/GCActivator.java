@@ -53,10 +53,8 @@ public class GCActivator implements BundleActivator {
 
 	static IProvisioningEventBus getEventBus(BundleContext ctx) {
 		IProvisioningAgent agent = getAgent(GCActivator.context);
-		if (agent == null) {
-			LogHelper.log(new Status(IStatus.ERROR, GCActivator.ID, Messages.Missing_agent));
+		if (agent == null)
 			return null;
-		}
 		return (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 	}
 
