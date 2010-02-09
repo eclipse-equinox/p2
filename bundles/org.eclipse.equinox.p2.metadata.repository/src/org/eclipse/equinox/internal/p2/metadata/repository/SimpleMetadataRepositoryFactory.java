@@ -70,27 +70,10 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 		return localFile;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
-	 */
-	public IStatus validate(URI location, IProgressMonitor monitor) {
-		try {
-			validateAndLoad(location, false, 0, monitor);
-		} catch (ProvisionException e) {
-			return e.getStatus();
-		}
-		return Status.OK_STATUS;
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
-		return validateAndLoad(location, true, flags, monitor);
-	}
-
-	protected IMetadataRepository validateAndLoad(URI location, boolean doLoad, int flags, IProgressMonitor monitor) throws ProvisionException {
 		long time = 0;
 		final String debugMsg = "Validating and loading metadata repository "; //$NON-NLS-1$
 		if (Tracing.DEBUG_METADATA_PARSING) {
@@ -117,21 +100,19 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 				}
 				//parse the repository descriptor file
 				sub.setWorkRemaining(100);
-				if (doLoad) {
-					InputStream descriptorStream = jarStream != null ? jarStream : inStream;
-					IMetadataRepository result = new MetadataRepositoryIO(getAgent()).read(localFile.toURL(), descriptorStream, sub.newChild(100));
-					if (result != null && (flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0 && !result.isModifiable())
-						return null;
-					if (result instanceof LocalMetadataRepository)
-						((LocalMetadataRepository) result).initializeAfterLoad(location);
-					if (result instanceof URLMetadataRepository)
-						((URLMetadataRepository) result).initializeAfterLoad(location);
-					if (Tracing.DEBUG_METADATA_PARSING) {
-						time += System.currentTimeMillis();
-						Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 
-					}
-					return result;
+				InputStream descriptorStream = jarStream != null ? jarStream : inStream;
+				IMetadataRepository result = new MetadataRepositoryIO(getAgent()).read(localFile.toURL(), descriptorStream, sub.newChild(100));
+				if (result != null && (flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0 && !result.isModifiable())
+					return null;
+				if (result instanceof LocalMetadataRepository)
+					((LocalMetadataRepository) result).initializeAfterLoad(location);
+				if (result instanceof URLMetadataRepository)
+					((URLMetadataRepository) result).initializeAfterLoad(location);
+				if (Tracing.DEBUG_METADATA_PARSING) {
+					time += System.currentTimeMillis();
+					Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 
 				}
+				return result;
 			} finally {
 				safeClose(jarStream);
 				safeClose(inStream);
@@ -146,7 +127,6 @@ public class SimpleMetadataRepositoryFactory extends MetadataRepositoryFactory {
 			if (monitor != null)
 				monitor.done();
 		}
-		return null;
 	}
 
 	/**

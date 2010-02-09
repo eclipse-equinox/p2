@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -42,23 +41,6 @@ public class ProfileMetadataRepositoryTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("1.99", e);
 		}
-	}
-
-	public void testValidate() {
-		File testData = getTestData("0.1", "testData/sdkpatchingtest");
-		File tempFolder = getTempFolder();
-		copy("0.2", testData, tempFolder);
-
-		File simpleProfileFolder = new File(tempFolder, "SDKPatchingTest.profile");
-		assertTrue("0.3", simpleProfileFolder.exists());
-
-		ProfileMetadataRepositoryFactory factory = new ProfileMetadataRepositoryFactory();
-		factory.setAgent(getAgent());
-		IStatus status = factory.validate(simpleProfileFolder.toURI(), getMonitor());
-		assertOK("1.0", status);
-
-		status = factory.validate(tempFolder.toURI(), getMonitor());
-		assertNotOK("2.0", status);
 	}
 
 	public void testLoad() {

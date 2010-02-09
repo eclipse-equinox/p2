@@ -12,24 +12,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
-import org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory;
-
-import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
-
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository;
-import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
+import org.eclipse.equinox.internal.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.p2.updatesite.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
 public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFactory {
@@ -47,23 +41,6 @@ public class UpdateSiteMetadataRepositoryFactory extends MetadataRepositoryFacto
 	 */
 	public IMetadataRepository create(URI location, String name, String type, Map<String, String> properties) {
 		return null;
-	}
-
-	public IStatus validate(URI location, IProgressMonitor monitor) {
-		try {
-			UpdateSite.validate(location, monitor);
-		} catch (ProvisionException e) {
-			return e.getStatus();
-		} catch (UserCancelledException e) {
-			return Status.CANCEL_STATUS;
-		} catch (AuthenticationFailedException e) {
-			return new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, NLS.bind(Messages.AuthenticationFailedFor_0, location.toString()), e);
-		} catch (FileNotFoundException e) {
-			return new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.RepositoryNotFound_0, location.toString()), e);
-		} catch (CoreException e) {
-			return e.getStatus();
-		}
-		return Status.OK_STATUS;
 	}
 
 	public IMetadataRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {

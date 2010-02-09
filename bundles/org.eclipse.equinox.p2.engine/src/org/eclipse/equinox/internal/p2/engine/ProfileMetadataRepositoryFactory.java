@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.net.URI;
 import java.util.Map;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -34,14 +34,5 @@ public class ProfileMetadataRepositoryFactory extends MetadataRepositoryFactory 
 			return null;
 		}
 		return new ProfileMetadataRepository(getAgent(), location, monitor);
-	}
-
-	public IStatus validate(URI location, IProgressMonitor monitor) {
-		try {
-			ProfileMetadataRepository.validate(getAgent(), location, monitor);
-		} catch (ProvisionException e) {
-			return e.getStatus();
-		}
-		return Status.OK_STATUS;
 	}
 }

@@ -812,10 +812,6 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 					RepositoryManipulationPage.this.removeRepositories();
 				}
 
-				protected IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor) {
-					return session.getMetadataRepositoryManager().validateRepositoryLocation(location, monitor);
-				}
-
 				public void refreshRepositories(URI[] locations, ProvisioningSession session, IProgressMonitor monitor) {
 					// Nothing to refresh in the local cache
 				}

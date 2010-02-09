@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,6 +18,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
@@ -116,25 +115,8 @@ public abstract class RepositoryTracker {
 				break;
 			}
 		}
-
-		if (!localValidationStatus.isOK())
-			return localValidationStatus;
-
-		if (contactRepositories)
-			return validateRepositoryLocationWithManager(session, location, monitor);
-
 		return localValidationStatus;
 	}
-
-	/**
-	 * Validate the specified repository location using the appropriate repository manager.
-	 * 
-	 * @param session the provisioning session providing the repository services
-	 * @param location the location in question
-	 * @param monitor the progress monitor
-	 * @return a status indicating the current status of the repository
-	 */
-	protected abstract IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor);
 
 	/**
 	 * Add the specified location to the list of "not found" repositories.

@@ -159,14 +159,6 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		return profile.query(query, monitor);
 	}
 
-	public static void validate(IProvisioningAgent agent, URI location, IProgressMonitor monitor) throws ProvisionException {
-		try {
-			getProfile(agent, location);
-		} catch (RuntimeException e) {
-			throw new ProvisionException(new Status(IStatus.ERROR, EngineActivator.ID, ProvisionException.REPOSITORY_FAILED_READ, e.getMessage(), e));
-		}
-	}
-
 	private static IProfile getProfile(IProvisioningAgent agent, URI location) throws ProvisionException {
 		if (!FILE_SCHEME.equalsIgnoreCase(location.getScheme()))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);

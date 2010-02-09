@@ -38,11 +38,4 @@ public class FailingMetadataRepositoryFactory extends MetadataRepositoryFactory 
 		throw new ProvisionException(new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, ProvisionException.REPOSITORY_NOT_FOUND, "", null));
 	}
 
-	@Override
-	public IStatus validate(URI location, IProgressMonitor monitor) {
-		if (FAIL)
-			throw new RuntimeException("Exception thrown deliberately as part of test");
-		return new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, ProvisionException.REPOSITORY_NOT_FOUND, "", null);
-	}
-
 }

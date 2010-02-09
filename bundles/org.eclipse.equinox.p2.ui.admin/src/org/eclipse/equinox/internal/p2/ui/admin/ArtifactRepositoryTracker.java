@@ -11,11 +11,11 @@
 
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.net.URI;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -31,10 +31,6 @@ public class ArtifactRepositoryTracker extends RepositoryTracker {
 
 	public URI[] getKnownRepositories(ProvisioningSession session) {
 		return session.getArtifactRepositoryManager().getKnownRepositories(getArtifactRepositoryFlags());
-	}
-
-	protected IStatus validateRepositoryLocationWithManager(ProvisioningSession session, URI location, IProgressMonitor monitor) {
-		return Status.OK_STATUS;
 	}
 
 	public void addRepository(URI repoLocation, String nickname, ProvisioningSession session) {

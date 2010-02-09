@@ -12,13 +12,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
@@ -27,6 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -304,12 +304,6 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		compRepo.removeAllChildren();
 		assertEquals("Children size after removeAllChildren", 0, compRepo.getChildren().size());
-	}
-
-	public void testValidate() {
-		//Setup: create an uncompressed repository
-		createRepo(false);
-		assertEquals("Verifying repository's status is OK", Status.OK_STATUS, (new CompositeMetadataRepositoryFactory()).validate(repoLocation.toURI(), null));
 	}
 
 	public void testLoadingRepositoryRemote() {

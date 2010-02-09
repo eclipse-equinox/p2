@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.spi.MetadataRepositoryFactory;
-import org.eclipse.osgi.util.NLS;
 
 /**
  * Default implementation of {@link IMetadataRepositoryManager}.
@@ -96,33 +95,4 @@ public class MetadataRepositoryManager extends AbstractRepositoryManager<IInstal
 		return (IMetadataRepository) basicRefreshRepository(location, monitor);
 	}
 
-	public IStatus validateRepositoryLocation(URI location, IProgressMonitor monitor) {
-		if (!location.isAbsolute())
-			return new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, NLS.bind(Messages.repoMan_relativeLocation, location.toString()), null);
-		IMetadataRepository result = getRepository(location);
-		if (result != null)
-			return Status.OK_STATUS;
-		String[] suffixes = getAllSuffixes();
-		SubMonitor sub = SubMonitor.convert(monitor, Messages.repo_loading, suffixes.length * 100);
-		IStatus status = new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toString()), null);
-		for (int i = 0; i < suffixes.length; i++) {
-			SubMonitor loopMonitor = sub.newChild(100);
-			IExtension[] providers = findMatchingRepositoryExtensions(suffixes[i], null);
-			// Loop over the candidates and return the first one that successfully loads
-			loopMonitor.beginTask("", providers.length * 10); //$NON-NLS-1$
-			for (int j = 0; j < providers.length; j++) {
-				MetadataRepositoryFactory factory = (MetadataRepositoryFactory) createExecutableExtension(providers[j], EL_FACTORY);
-				if (factory != null) {
-					status = factory.validate(location, loopMonitor.newChild(10));
-					if (status.isOK()) {
-						sub.done();
-						return status;
-					}
-				}
-			}
-
-		}
-		sub.done();
-		return status;
-	}
 }

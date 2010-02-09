@@ -10,21 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
-import org.eclipse.equinox.p2.publisher.eclipse.Feature;
-
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
-import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.util.NLS;
 import org.xml.sax.SAXException;
@@ -275,25 +270,6 @@ public class UpdateSite {
 				featureFile.delete();
 		}
 		return null;
-	}
-
-	/**
-	 * Throw an exception if the site pointed to by the given URI is not valid.
-	 * @param url the site file to check
-	 * @param monitor a monitor
-	 * @throws UserCancelledException if user canceled during authentication
-	 * @throws AuthenticationFailedException if too many attempts made to login
-	 * @throws FileNotFoundException if the remote file does not exist
-	 * @throws CoreException on errors in communication (unknown host, connection refused, etc.)
-	 */
-	public static void validate(URI url, IProgressMonitor monitor) throws UserCancelledException, AuthenticationFailedException, FileNotFoundException, CoreException {
-		URI siteURI = getSiteURI(url);
-		long lastModified = getTransport().getLastModified(siteURI, monitor);
-		if (lastModified == 0) {
-			throw new FileNotFoundException(url.toString());
-			//			String msg = NLS.bind(Messages.ErrorReadingSite, url);
-			//			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, null));
-		}
 	}
 
 	/*
