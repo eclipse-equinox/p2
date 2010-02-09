@@ -51,12 +51,10 @@ public class DigestParser extends DefaultHandler {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		featureHandler.characters(ch, start, length);
 	}
 
-	@SuppressWarnings("unused")
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		if ("digest".equals(localName)) { //$NON-NLS-1$
 			return;
@@ -106,7 +104,6 @@ public class DigestParser extends DefaultHandler {
 		return null;
 	}
 
-	@SuppressWarnings("unused")
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		if ("digest".equals(localName)) { //$NON-NLS-1$
 			return;
