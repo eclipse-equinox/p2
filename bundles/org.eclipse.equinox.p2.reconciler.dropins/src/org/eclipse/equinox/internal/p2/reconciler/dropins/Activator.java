@@ -64,7 +64,7 @@ public class Activator implements BundleActivator {
 	 * @throws ProvisionException 
 	 */
 	public static IMetadataRepository createExtensionLocationMetadataRepository(URI location, String name, Map<String, String> properties) throws ProvisionException {
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
+		IProvisioningAgent agent = getAgent();
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
@@ -77,6 +77,10 @@ public class Activator implements BundleActivator {
 		return repository;
 	}
 
+	private static IProvisioningAgent getAgent() {
+		return (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
+	}
+
 	/**
 	 * Helper method to load an extension location metadata repository from the given URL.
 	 * 
@@ -84,8 +88,7 @@ public class Activator implements BundleActivator {
 	 * @throws ProvisionException
 	 */
 	public static IMetadataRepository loadMetadataRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
 		IMetadataRepository repository = manager.loadRepository(location, monitor);
@@ -103,7 +106,7 @@ public class Activator implements BundleActivator {
 	 * @throws ProvisionException 
 	 */
 	public static IArtifactRepository createExtensionLocationArtifactRepository(URI location, String name, Map<String, String> properties) throws ProvisionException {
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
+		IProvisioningAgent agent = getAgent();
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
@@ -123,8 +126,7 @@ public class Activator implements BundleActivator {
 	 * @throws ProvisionException
 	 */
 	public static IArtifactRepository loadArtifactRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) getAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 		IArtifactRepository repository = manager.loadRepository(location, monitor);
@@ -416,7 +418,7 @@ public class Activator implements BundleActivator {
 		if (profile == null)
 			return;
 		// create the profile synchronizer on all available repositories
-		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, repositories);
+		ProfileSynchronizer synchronizer = new ProfileSynchronizer(getAgent(), profile, repositories);
 		IStatus result = synchronizer.synchronize(monitor);
 		if (ProfileSynchronizer.isReconciliationApplicationRunning()) {
 			System.getProperties().put(PROP_APPLICATION_STATUS, result);
@@ -483,8 +485,7 @@ public class Activator implements BundleActivator {
 		if (directories.isEmpty())
 			return;
 
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
-		DropinsRepositoryListener listener = new DropinsRepositoryListener(agent, DROPINS);
+		DropinsRepositoryListener listener = new DropinsRepositoryListener(getAgent(), DROPINS);
 		DirectoryWatcher watcher = new DirectoryWatcher(directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();
@@ -620,15 +621,11 @@ public class Activator implements BundleActivator {
 	 * Return the current profile or null if it cannot be retrieved.
 	 */
 	public static IProfile getCurrentProfile(BundleContext context) {
-		ServiceReference reference = context.getServiceReference(IProfileRegistry.SERVICE_NAME);
-		if (reference == null)
+		IProvisioningAgent agent = getAgent();
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		if (profileRegistry == null)
 			return null;
-		IProfileRegistry profileRegistry = (IProfileRegistry) context.getService(reference);
-		try {
-			return profileRegistry.getProfile(IProfileRegistry.SELF);
-		} finally {
-			context.ungetService(reference);
-		}
+		return profileRegistry.getProfile(IProfileRegistry.SELF);
 	}
 
 	private static synchronized void setPackageAdmin(PackageAdmin service) {

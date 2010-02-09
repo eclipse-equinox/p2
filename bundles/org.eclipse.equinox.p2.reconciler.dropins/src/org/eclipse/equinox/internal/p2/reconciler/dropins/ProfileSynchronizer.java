@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
@@ -52,11 +53,13 @@ public class ProfileSynchronizer {
 
 	final Map<String, IMetadataRepository> repositoryMap;
 	private Map<String, String> timestamps;
+	private final IProvisioningAgent agent;
 
 	/*
 	 * Constructor for the class.
 	 */
-	public ProfileSynchronizer(IProfile profile, Collection<IMetadataRepository> repositories) {
+	public ProfileSynchronizer(IProvisioningAgent agent, IProfile profile, Collection<IMetadataRepository> repositories) {
+		this.agent = agent;
 		this.profile = profile;
 		this.repositoryMap = new HashMap<String, IMetadataRepository>();
 		for (IMetadataRepository repository : repositories) {
@@ -442,53 +445,32 @@ public class ProfileSynchronizer {
 	}
 
 	private IProvisioningPlan createProvisioningPlan(ProfileChangeRequest request, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
-		BundleContext context = Activator.getContext();
-		ServiceReference reference = context.getServiceReference(IPlanner.SERVICE_NAME);
-		IPlanner planner = (IPlanner) context.getService(reference);
-
-		try {
-			return planner.getProvisioningPlan(request, provisioningContext, monitor);
-		} finally {
-			context.ungetService(reference);
-		}
+		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		return planner.getProvisioningPlan(request, provisioningContext, monitor);
 	}
 
 	private IStatus setProperty(String key, String value, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
-		BundleContext context = Activator.getContext();
-		ServiceReference reference = context.getServiceReference(IEngine.SERVICE_NAME);
-		IEngine engine = (IEngine) context.getService(reference);
-		ServiceReference plannerReference = context.getServiceReference(IPlanner.SERVICE_NAME);
-		IPlanner planner = (IPlanner) context.getService(plannerReference);
-		try {
-			ProfileChangeRequest addPropertyRequest = new ProfileChangeRequest(profile);
-			addPropertyRequest.setProfileProperty(key, value);
-			IProvisioningPlan plan = planner.getProvisioningPlan(addPropertyRequest, provisioningContext, monitor);
-			IPhaseSet phaseSet = engine.createPhaseSetExcluding(new String[] {IPhaseSet.PHASE_COLLECT, IPhaseSet.PHASE_CHECK_TRUST});
-			return engine.perform(plan, phaseSet, monitor);
-		} finally {
-			context.ungetService(reference);
-			context.ungetService(plannerReference);
-		}
+		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
+		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		ProfileChangeRequest addPropertyRequest = new ProfileChangeRequest(profile);
+		addPropertyRequest.setProfileProperty(key, value);
+		IProvisioningPlan plan = planner.getProvisioningPlan(addPropertyRequest, provisioningContext, monitor);
+		IPhaseSet phaseSet = engine.createPhaseSetExcluding(new String[] {IPhaseSet.PHASE_COLLECT, IPhaseSet.PHASE_CHECK_TRUST});
+		return engine.perform(plan, phaseSet, monitor);
 	}
 
 	private IStatus executePlan(IProvisioningPlan plan, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
-		BundleContext context = Activator.getContext();
-		ServiceReference reference = context.getServiceReference(IEngine.SERVICE_NAME);
-		IEngine engine = (IEngine) context.getService(reference);
-		try {
-			IPhaseSet phaseSet = engine.createPhaseSetExcluding(new String[] {IPhaseSet.PHASE_COLLECT, IPhaseSet.PHASE_CHECK_TRUST});
+		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
+		IPhaseSet phaseSet = engine.createPhaseSetExcluding(new String[] {IPhaseSet.PHASE_COLLECT, IPhaseSet.PHASE_CHECK_TRUST});
 
-			if (plan.getInstallerPlan() != null) {
-				IStatus installerPlanStatus = engine.perform(plan.getInstallerPlan(), phaseSet, monitor);
-				if (!installerPlanStatus.isOK())
-					return installerPlanStatus;
+		if (plan.getInstallerPlan() != null) {
+			IStatus installerPlanStatus = engine.perform(plan.getInstallerPlan(), phaseSet, monitor);
+			if (!installerPlanStatus.isOK())
+				return installerPlanStatus;
 
-				applyConfiguration(true);
-			}
-			return engine.perform(plan, phaseSet, monitor);
-		} finally {
-			context.ungetService(reference);
+			applyConfiguration(true);
 		}
+		return engine.perform(plan, phaseSet, monitor);
 	}
 
 	/*
