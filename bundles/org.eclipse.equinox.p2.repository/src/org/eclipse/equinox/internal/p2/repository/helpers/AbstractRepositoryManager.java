@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Wind River - fix for bug 299227
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository.helpers;
 
@@ -178,7 +179,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			IRepository<T> repo = info.repository.get();
 			//update our repository info because the repository may have changed
 			if (repo != null)
-				addRepository(repo, false, null);
+				addRepository(repo, false, info.suffix);
 			return repo;
 		}
 	}
