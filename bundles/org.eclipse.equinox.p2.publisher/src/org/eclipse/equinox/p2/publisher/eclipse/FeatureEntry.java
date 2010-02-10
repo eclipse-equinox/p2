@@ -66,6 +66,11 @@ public class FeatureEntry {
 				return false;
 		} else if (!version.equals(other.version))
 			return false;
+
+		if (isPlugin() != other.isPlugin())
+			return false;
+		if (isRequires() != other.isRequires())
+			return false;
 		return true;
 	}
 
@@ -167,7 +172,7 @@ public class FeatureEntry {
 
 	public String toString() {
 		StringBuffer result = new StringBuffer();
-
+		result.append(isRequires ? "Requires: " : ""); //$NON-NLS-1$ //$NON-NLS-2$
 		result.append(isPlugin ? "Plugin: " : "Feature: "); //$NON-NLS-1$ //$NON-NLS-2$
 		result.append(id != null ? id.toString() : ""); //$NON-NLS-1$
 		result.append(version != null ? " " + version.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$

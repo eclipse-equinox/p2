@@ -15,9 +15,29 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.p2.internal.repository.comparator.java.messages"; //$NON-NLS-1$
 	public static String differentNumberOfEntries;
+	public static String binaryDifferentLength;
+	public static String classesDifferent;
+	public static String propertiesSizesDifferent;
+	public static String differentPropertyValueShort;
+	public static String differentPropertyValueFull;
+	public static String missingProperty;
+	public static String manifestDifferentSize;
+	public static String manifestMissingEntry;
+	public static String manifestDifferentValue;
+	public static String binaryFilesDifferent;
 	public static String differentEntry;
 	public static String missingEntry;
 	public static String ioexception;
+
+	public static String featureSize;
+	public static String featureIdsDontMatch;
+	public static String featureVersionsDontMatch;
+	public static String featureEntry;
+	public static String featureEntryOptional;
+	public static String featureEntryUnpack;
+	public static String featureEntryMatch;
+	public static String featureEntryFilter;
+
 	public static String disassembler_opentypedeclaration;
 	public static String disassembler_closetypedeclaration;
 	public static String disassembler_endofmethodheader;
