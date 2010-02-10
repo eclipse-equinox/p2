@@ -7,6 +7,72 @@
     <property name='dropin.metadataRepositories' value='file:/C:/Program Files/IBM/SDP75/configuration/org.eclipse.update/com.ibm.cic.bootstrap.repository/p2/|file:/C:/Program Files/IBM/SDP75/dropins/RATLC01417182_20100112/'/>
   </properties>
   <units size='18'>
+    <unit id='myFeature.feature.group' version='1.0.0' singleton='false'>
+      <update id='myFeature.feature.group' range='[0.0.0,1.0.0)' severity='0'/>
+      <properties size='4'>
+        <property name='org.eclipse.equinox.p2.name' value='myFeature'/>
+        <property name='org.eclipse.equinox.p2.description' value='[Enter Feature Description here.]'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://www.example.com/description'/>
+        <property name='org.eclipse.equinox.p2.type.group' value='true'/>
+      </properties>
+      <provides size='1'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='myFeature.feature.group' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.rda' range='[5.1.0.v20100112,5.1.0.v20100112]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.equipment' range='[1.2.2.v20100108,1.2.2.v20100108]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.gemo' range='[3.7.2.v20100108,3.7.2.v20100108]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='com.dcns.rsm.profile.system' range='[4.2.2.v20100112,4.2.2.v20100112]'/>
+        <required namespace='org.eclipse.equinox.p2.iu' name='myFeature.feature.jar' range='[1.0.0,1.0.0]'>
+          <filter>
+            (org.eclipse.update.install.features=true)
+          </filter>
+        </required>
+      </requires>
+      <touchpoint id='null' version='0.0.0'/>
+      <licenses size='1'>
+        <license uri='http://www.example.com/license' url='http://www.example.com/license'>
+          [Enter License Description here.]
+        </license>
+      </licenses>
+      <copyright uri='http://www.example.com/copyright' url='http://www.example.com/copyright'>
+        [Enter Copyright Description here.]
+      </copyright>
+    </unit>
+    <unit id='myFeature.feature.jar' version='1.0.0'>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='myFeature'/>
+        <property name='org.eclipse.equinox.p2.description' value='[Enter Feature Description here.]'/>
+        <property name='org.eclipse.equinox.p2.description.url' value='http://www.example.com/description'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='myFeature.feature.jar' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='feature' version='1.0.0'/>
+        <provided namespace='org.eclipse.update.feature' name='myFeature' version='1.0.0'/>
+      </provides>
+      <filter>
+        (org.eclipse.update.install.features=true)
+      </filter>
+      <artifacts size='1'>
+        <artifact classifier='org.eclipse.update.feature' id='myFeature' version='1.0.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='zipped'>
+            true
+          </instruction>
+        </instructions>
+      </touchpointData>
+      <licenses size='1'>
+        <license uri='http://www.example.com/license' url='http://www.example.com/license'>
+          [Enter License Description here.]
+        </license>
+      </licenses>
+      <copyright uri='http://www.example.com/copyright' url='http://www.example.com/copyright'>
+        [Enter Copyright Description here.]
+      </copyright>
+    </unit>
     <unit id='com.dcns.rsm.profile.equipment' version='1.0.3.v20090513'>
       <update id='com.dcns.rsm.profile.equipment' range='[0.0.0,1.0.3.v20090513)' severity='0'/>
       <properties size='4'>
