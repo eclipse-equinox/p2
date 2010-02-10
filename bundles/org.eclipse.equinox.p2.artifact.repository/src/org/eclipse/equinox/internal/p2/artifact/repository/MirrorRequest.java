@@ -12,15 +12,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -160,7 +163,33 @@ public class MirrorRequest extends ArtifactRequest {
 		do {
 			status = transferSingle(destinationDescriptor, sourceDescriptor, monitor);
 		} while (status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY);
+		if (status.isOK())
+			collectStats(sourceDescriptor, monitor);
 		return status;
+	}
+
+	/**
+	 * Collect download statistics, if specified by the descriptor and the source repository
+	 */
+	private void collectStats(IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
+		final String statsProperty = sourceDescriptor.getProperty("download.stats"); //$NON-NLS-1$
+		if (statsProperty == null)
+			return;
+		String statsRoot = sourceDescriptor.getRepository().getProperties().get("stats.url"); //$NON-NLS-1$
+		if (statsRoot == null)
+			return;
+		URI statsURI;
+		try {
+			statsURI = URIUtil.append(new URI(statsRoot), statsProperty);
+		} catch (URISyntaxException e) {
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Unable to report download statistics due to invalid URL: " + statsRoot + " suffix: " + statsProperty)); //$NON-NLS-1$ //$NON-NLS-2$
+			return;
+		}
+		try {
+			RepositoryTransport.getInstance().getLastModified(statsURI, monitor);
+		} catch (Exception e) {
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Failure reporting download statistics to URL: " + statsURI, e)); //$NON-NLS-1$
+		}
 	}
 
 	private IStatus transferSingle(IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
