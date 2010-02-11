@@ -17,16 +17,19 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentService;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.osgi.framework.*;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
  * Represents a p2 agent instance.
  */
-public class ProvisioningAgent implements IProvisioningAgent {
+public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCustomizer {
 
 	private final Map<String, Object> agentServices = Collections.synchronizedMap(new HashMap<String, Object>());
 	private BundleContext context;
 	private boolean stopped = false;
 	private ServiceRegistration reg;
+	private final Map<ServiceReference, ServiceTracker> trackers = Collections.synchronizedMap(new HashMap<ServiceReference, ServiceTracker>());
 
 	/**
 	 * Instantiates a provisioning agent.
@@ -53,16 +56,21 @@ public class ProvisioningAgent implements IProvisioningAgent {
 		}
 		if (refs == null || refs.length == 0)
 			return null;
-		IAgentServiceFactory factory = (IAgentServiceFactory) context.getService(refs[0]);
-		if (factory == null)
+		//track the factory so that we can automatically remove the service when the factory goes away
+		ServiceTracker tracker = new ServiceTracker(context, refs[0], this);
+		tracker.open();
+		IAgentServiceFactory factory = (IAgentServiceFactory) tracker.getService();
+		if (factory == null) {
+			tracker.close();
 			return null;
-		try {
-			service = factory.createService(this);
-		} finally {
-			context.ungetService(refs[0]);
 		}
-		if (service != null)
-			registerService(serviceName, service);
+		service = factory.createService(this);
+		if (service == null) {
+			tracker.close();
+			return null;
+		}
+		registerService(serviceName, service);
+		trackers.put(refs[0], tracker);
 		return service;
 	}
 
@@ -111,12 +119,19 @@ public class ProvisioningAgent implements IProvisioningAgent {
 	}
 
 	public void stop() {
+		//give services a chance to do their own shutdown
 		for (Object service : agentServices.values()) {
 			if (service instanceof IAgentService)
 				((IAgentService) service).stop();
 		}
 		synchronized (this) {
 			stopped = true;
+		}
+		//close all service trackers
+		synchronized (trackers) {
+			for (ServiceTracker t : trackers.values())
+				t.close();
+			trackers.clear();
 		}
 		if (reg != null) {
 			reg.unregister();
@@ -126,5 +141,42 @@ public class ProvisioningAgent implements IProvisioningAgent {
 
 	public void setServiceRegistration(ServiceRegistration reg) {
 		this.reg = reg;
+	}
+
+	/*(non-Javadoc)
+	 * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
+	 */
+	public Object addingService(ServiceReference reference) {
+		if (stopped)
+			return null;
+		return context.getService(reference);
+	}
+
+	/*(non-Javadoc)
+	 * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference, java.lang.Object)
+	 */
+	public void modifiedService(ServiceReference reference, Object service) {
+		//nothing to do
+	}
+
+	/*(non-Javadoc)
+	 * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(org.osgi.framework.ServiceReference, java.lang.Object)
+	 */
+	public void removedService(ServiceReference reference, Object factoryService) {
+		if (stopped)
+			return;
+		String serviceName = (String) reference.getProperty(IAgentServiceFactory.PROP_CREATED_SERVICE_NAME);
+		if (serviceName == null)
+			return;
+		Object registered = agentServices.get(serviceName);
+		if (registered == null)
+			return;
+		if (FrameworkUtil.getBundle(registered.getClass()) == FrameworkUtil.getBundle(factoryService.getClass())) {
+			//the service we are holding is going away
+			unregisterService(serviceName, registered);
+			ServiceTracker toRemove = trackers.remove(reference);
+			if (toRemove != null)
+				toRemove.close();
+		}
 	}
 }

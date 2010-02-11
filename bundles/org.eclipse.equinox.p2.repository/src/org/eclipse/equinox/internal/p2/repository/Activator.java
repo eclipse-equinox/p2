@@ -12,12 +12,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.ecf.provider.filetransfer.IFileTransferProtocolToFactoryMapper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.ServiceTracker;
@@ -42,17 +39,6 @@ public class Activator implements BundleActivator {
 
 	// The shared instance
 	private static Activator plugin;
-	/**
-	 * Remember a repository manager so we can shut it down when the bundle stops
-	 */
-	private static final List<AbstractRepositoryManager<? extends Object>> createdManagers = new ArrayList<AbstractRepositoryManager<? extends Object>>();
-
-	public static void addManager(AbstractRepositoryManager<? extends Object> manager) {
-		synchronized (createdManagers) {
-			if (createdManagers.indexOf(manager) < 0)
-				createdManagers.add(manager);
-		}
-	}
 
 	public void start(BundleContext aContext) throws Exception {
 		Activator.context = aContext;
@@ -60,11 +46,6 @@ public class Activator implements BundleActivator {
 	}
 
 	public void stop(BundleContext aContext) throws Exception {
-		synchronized (createdManagers) {
-			for (AbstractRepositoryManager<? extends Object> manager : createdManagers)
-				manager.shutdown();
-			createdManagers.clear();
-		}
 		Activator.context = null;
 		Activator.plugin = null;
 		if (retrievalFactoryTracker != null) {

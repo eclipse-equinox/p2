@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.core.spi.IAgentService;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -33,7 +34,7 @@ import org.osgi.service.prefs.Preferences;
 /**
  * Common code shared between artifact and metadata repository managers.
  */
-public abstract class AbstractRepositoryManager<T> implements IRepositoryManager<T>, ProvisioningListener {
+public abstract class AbstractRepositoryManager<T> implements IRepositoryManager<T>, IAgentService, ProvisioningListener {
 	protected static class RepositoryInfo<R> {
 		public String description;
 		public boolean isEnabled = true;
@@ -95,7 +96,6 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 		eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 		eventBus.addListener(this);
-		Activator.addManager(this);
 	}
 
 	/**
@@ -490,6 +490,8 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		if (agentLocation == null)
 			return null;
 		IPreferencesService prefService = (IPreferencesService) ServiceHelper.getService(Activator.getContext(), IPreferencesService.class.getName());
+		if (prefService == null)
+			return null;
 		try {
 			//see ProfileScope for preference path format
 			String locationString = EncodingUtils.encodeSlashes(agentLocation.getRootLocation().toString());
@@ -974,10 +976,17 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		broadcastChangeEvent(location, getRepositoryType(), RepositoryEvent.ENABLEMENT, enablement);
 	}
 
-	/**
-	 * Shuts down the repository manager.
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#start()
 	 */
-	public void shutdown() {
+	public void start() {
+		//nothing to do
+	}
+
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#stop()
+	 */
+	public void stop() {
 		eventBus.removeListener(this);
 		//ensure all repository state in memory is written to disk
 		boolean changed = false;
