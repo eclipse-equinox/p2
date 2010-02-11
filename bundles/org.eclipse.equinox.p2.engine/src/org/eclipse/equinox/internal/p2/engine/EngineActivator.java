@@ -10,14 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.engine.IEngine;
-import org.osgi.framework.*;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
-public class EngineActivator implements BundleActivator, ServiceTrackerCustomizer {
+public class EngineActivator implements BundleActivator {
 	private static BundleContext context;
 	public static final String ID = "org.eclipse.equinox.p2.engine"; //$NON-NLS-1$
 
@@ -56,50 +52,15 @@ public class EngineActivator implements BundleActivator, ServiceTrackerCustomize
 	 */
 	public static final String UNSIGNED_ALLOW = "allow"; //$NON-NLS-1$
 
-	private ServiceRegistration registration;
-
-	private ServiceTracker tracker;
-
 	public static BundleContext getContext() {
 		return context;
 	}
 
-	public Object addingService(ServiceReference reference) {
-		if (registration == null) {
-			//TODO: eventually we shouldn't register a singleton engine automatically
-			IProvisioningAgent agent = (IProvisioningAgent) context.getService(reference);
-			IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
-			registration = context.registerService(IEngine.SERVICE_NAME, engine, null);
-			return agent;
-		}
-		return null;
-	}
-
-	public void modifiedService(ServiceReference reference, Object service) {
-		// nothing to do
-	}
-
-	public void removedService(ServiceReference reference, Object service) {
-		if (registration != null) {
-			registration.unregister();
-			registration = null;
-		}
-	}
-
 	public void start(BundleContext aContext) throws Exception {
 		EngineActivator.context = aContext;
-		//only want to register a service for the agent of the currently running system
-		String filter = "(&(objectClass=" + IProvisioningAgent.SERVICE_NAME + ")(agent.current=true))"; //$NON-NLS-1$ //$NON-NLS-2$
-		tracker = new ServiceTracker(context, aContext.createFilter(filter), this);
-		tracker.open();
 	}
 
 	public void stop(BundleContext aContext) throws Exception {
-		tracker.close();
-		tracker = null;
-		//ensure there are no more profile preference save jobs running
-		Job.getJobManager().join(ProfilePreferences.PROFILE_SAVE_JOB_FAMILY, null);
-
 		EngineActivator.context = null;
 	}
 

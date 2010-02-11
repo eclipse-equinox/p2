@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,9 +20,7 @@ import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.engine.PhaseTest.TestPhaseSet;
-import org.osgi.framework.ServiceReference;
 
 /**
  * Simple test of the engine API.
@@ -119,7 +117,6 @@ public class TouchpointTest extends AbstractProvisioningTest {
 		}
 	}
 
-	private ServiceReference engineRef;
 	private IEngine engine;
 
 	public TouchpointTest(String name) {
@@ -131,13 +128,11 @@ public class TouchpointTest extends AbstractProvisioningTest {
 	}
 
 	protected void setUp() throws Exception {
-		engineRef = TestActivator.getContext().getServiceReference(IEngine.SERVICE_NAME);
-		engine = (IEngine) TestActivator.getContext().getService(engineRef);
+		engine = getEngine();
 	}
 
 	protected void tearDown() throws Exception {
 		engine = null;
-		TestActivator.getContext().ungetService(engineRef);
 	}
 
 	public void testInitCompleteOperand() {

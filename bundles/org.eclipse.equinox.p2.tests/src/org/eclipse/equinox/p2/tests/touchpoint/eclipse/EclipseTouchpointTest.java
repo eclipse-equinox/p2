@@ -30,10 +30,8 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
-import org.osgi.framework.ServiceReference;
 
 public class EclipseTouchpointTest extends AbstractProvisioningTest {
 
@@ -195,13 +193,11 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 
 		InstallableUnitOperand op = new InstallableUnitOperand(null, iu);
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {op};
-		ServiceReference engineRef = TestActivator.getContext().getServiceReference(IEngine.SERVICE_NAME);
-		IEngine engine = (IEngine) TestActivator.getContext().getService(engineRef);
+		IEngine engine = getEngine();
 
 		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
 		assertTrue(result.isOK());
 		engine = null;
-		TestActivator.getContext().ungetService(engineRef);
 
 		iterator = profile.query(new InstallableUnitQuery(iu.getId()), null).iterator();
 		assertTrue(iterator.hasNext());

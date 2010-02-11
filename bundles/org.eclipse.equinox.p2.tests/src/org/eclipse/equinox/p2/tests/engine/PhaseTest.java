@@ -20,8 +20,6 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.ServiceReference;
 
 /**
  * Simple test of the engine API.
@@ -98,7 +96,6 @@ public class PhaseTest extends AbstractProvisioningTest {
 		}
 	}
 
-	private ServiceReference engineRef;
 	private IEngine engine;
 
 	public PhaseTest(String name) {
@@ -110,14 +107,12 @@ public class PhaseTest extends AbstractProvisioningTest {
 	}
 
 	protected void setUp() throws Exception {
-		engineRef = TestActivator.getContext().getServiceReference(IEngine.SERVICE_NAME);
-		engine = (IEngine) TestActivator.getContext().getService(engineRef);
+		engine = getEngine();
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		engine = null;
-		TestActivator.getContext().ungetService(engineRef);
 	}
 
 	public void testNullPhaseId() {

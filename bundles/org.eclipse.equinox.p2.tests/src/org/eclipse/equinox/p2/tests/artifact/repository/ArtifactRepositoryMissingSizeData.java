@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009 IBM Corporation and others.
+ *  Copyright (c) 2009, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -27,7 +27,6 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest {
 	private static final String testDataLocation = "testData/artifactRepo/missingArtifact";
@@ -47,7 +46,7 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		IArtifactRepositoryManager mgr = getArtifactRepositoryManager();
 		source = mgr.loadRepository((getTestData("MissingArtifact repo", testDataLocation).toURI()), null);
 
-		engine = (IEngine) TestActivator.getContext().getService(TestActivator.getContext().getServiceReference(IEngine.SERVICE_NAME));
+		engine = getEngine();
 	}
 
 	public void testMissingArtifact() {

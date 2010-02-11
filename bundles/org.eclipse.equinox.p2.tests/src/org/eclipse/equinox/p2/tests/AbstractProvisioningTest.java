@@ -1505,8 +1505,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 	}
 
-	public IEngine getEngine(IProvisioningAgent agent) {
-		return (IEngine) agent.getService(IEngine.SERVICE_NAME);
+	public IEngine getEngine() {
+		return (IEngine) getAgent().getService(IEngine.SERVICE_NAME);
 	}
 
 	public IPlanner getPlanner(IProvisioningAgent agent) {
