@@ -161,7 +161,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 
 	public Collection<IInstallableUnit> getRemovals() {
 		if (iusToRemove == null)
-			return Collections.emptyList();
+			return CollectionUtils.emptyList();
 		return Collections.unmodifiableList(iusToRemove);
 	}
 
@@ -170,7 +170,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	 */
 	public Collection<IInstallableUnit> getAdditions() {
 		if (iusToAdd == null)
-			return Collections.emptyList();
+			return CollectionUtils.emptyList();
 		return Collections.unmodifiableList(iusToAdd);
 	}
 
