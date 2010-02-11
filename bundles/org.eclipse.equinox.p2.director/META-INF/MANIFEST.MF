@@ -21,7 +21,7 @@ Import-Package: org.eclipse.core.expressions,
  org.eclipse.osgi.util;version="1.0.0",
  org.osgi.framework;version="1.3.0"
 Export-Package: org.eclipse.equinox.internal.p2.director;x-friends:="org.eclipse.equinox.p2.exemplarysetup,org.eclipse.pde.core,org.eclipse.equinox.p2.repository.tools",
- org.eclipse.equinox.internal.p2.rollback,
+ org.eclipse.equinox.internal.p2.rollback;x-internal:=true,
  org.eclipse.equinox.internal.provisional.p2.director;
   x-friends:="org.eclipse.equinox.p2.console,
    org.eclipse.equinox.p2.director.app,
