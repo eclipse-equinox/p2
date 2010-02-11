@@ -242,7 +242,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 		Class<?> c = null;
 		try {
-			c = Class.forName("org.eclipse.equinox.internal.provisional.p2.director.IPlanner"); //$NON-NLS-1$
+			c = Class.forName("org.eclipse.equinox.p2.planner.IPlanner"); //$NON-NLS-1$
 		} catch (ClassNotFoundException e) {
 			//ignore and proceed without validation
 			return null;
