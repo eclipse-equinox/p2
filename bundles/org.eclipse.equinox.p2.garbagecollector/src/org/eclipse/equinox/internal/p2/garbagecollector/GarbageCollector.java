@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -12,12 +12,16 @@ package org.eclipse.equinox.internal.p2.garbagecollector;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.core.spi.IAgentService;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.osgi.service.prefs.Preferences;
 
 /**
  * The main control point for the p2 garbage collector.  Takes a Profile and runs the CoreGarbageCollector with the
@@ -30,91 +34,24 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
  * checked to see if its artifact repository is already a key in markSet.  If so, that MarkSet's artifact keys 
  * are added to the list that is mapped to by the artifact repository. 
  */
-public class GarbageCollector {
-	private static final String ATTRIBUTE_CLASS = "class"; //$NON-NLS-1$
-	private static final String PT_MARKSET = GCActivator.ID + ".marksetproviders"; //$NON-NLS-1$
-
+public class GarbageCollector implements SynchronousProvisioningListener, IAgentService {
 	/**
-	 * Maps IArtifactRepository objects to their respective "marked set" of IArtifactKeys
+	 * Service name constant for the garbage collection service.
 	 */
-	private Map<IArtifactRepository, Collection<IArtifactKey>> markSet;
-	final IProvisioningAgent agent;
-
-	public GarbageCollector() {
-		// we need to use DS to create an Agent Listener here
-		agent = (IProvisioningAgent) GCActivator.getContext().getService(GCActivator.getContext().getServiceReference(IProvisioningAgent.SERVICE_NAME));
-	}
-
-	public void runGC(IProfile profile) {
-		markSet = new HashMap<IArtifactRepository, Collection<IArtifactKey>>();
-		if (!traverseMainProfile(profile))
-			return;
-
-		//Complete each MarkSet with the MarkSets provided by all of the other registered Profiles
-		traverseRegisteredProfiles();
-
-		//Run the GC on each MarkSet
-		invokeCoreGC();
-	}
-
-	private boolean traverseMainProfile(IProfile profile) {
-		IExtensionRegistry registry = RegistryFactory.getRegistry();
-		IConfigurationElement[] configElts = registry.getConfigurationElementsFor(PT_MARKSET);
-
-		//First we collect all repos and keys for the profile being GC'ed
-		for (int i = 0; i < configElts.length; i++) {
-			if (!(configElts[i].getName().equals("run"))) { //$NON-NLS-1$
-				continue;
-			}
-			IConfigurationElement runAttribute = configElts[i];
-			if (runAttribute == null) {
-				continue;
-			}
-
-			contributeMarkSets(runAttribute, profile, true);
-		}
-		return true;
-	}
-
-	private void invokeCoreGC() {
-		for (IArtifactRepository nextRepo : markSet.keySet()) {
-			IArtifactKey[] keys = markSet.get(nextRepo).toArray(new IArtifactKey[0]);
-			MarkSet aMarkSet = new MarkSet(keys, nextRepo);
-			new CoreGarbageCollector().clean(aMarkSet.getKeys(), aMarkSet.getRepo());
-		}
-	}
-
-	private void traverseRegisteredProfiles() {
-		IExtensionRegistry registry = RegistryFactory.getRegistry();
-		IConfigurationElement[] configElts = registry.getConfigurationElementsFor(PT_MARKSET);
-		for (int i = 0; i < configElts.length; i++) {
-			if (!(configElts[i].getName().equals("run"))) { //$NON-NLS-1$
-				continue;
-			}
-			IConfigurationElement runAttribute = configElts[i];
-			if (runAttribute == null) {
-				continue;
-			}
-
-			IProfileRegistry profileRegistry = (IProfileRegistry) GCActivator.getService(GCActivator.getContext(), IProfileRegistry.SERVICE_NAME);
-			if (profileRegistry == null)
-				return;
-			IProfile[] registeredProfiles = profileRegistry.getProfiles();
-
-			for (int j = 0; j < registeredProfiles.length; j++) {
-				contributeMarkSets(runAttribute, registeredProfiles[j], false);
-			}
-		}
-	}
+	public static final String SERVICE_NAME = GarbageCollector.class.getName();
 
 	private class ParameterizedSafeRunnable implements ISafeRunnable {
-		IConfigurationElement cfg;
 		IProfile aProfile;
 		MarkSet[] aProfileMarkSets;
+		IConfigurationElement cfg;
 
 		public ParameterizedSafeRunnable(IConfigurationElement runtAttribute, IProfile profile) {
 			cfg = runtAttribute;
 			aProfile = profile;
+		}
+
+		public MarkSet[] getResult() {
+			return aProfileMarkSets;
 		}
 
 		public void handleException(Throwable exception) {
@@ -129,10 +66,37 @@ public class GarbageCollector {
 			}
 			aProfileMarkSets = aMarkSetProvider.getMarkSets(agent, aProfile);
 		}
+	}
 
-		public MarkSet[] getResult() {
-			return aProfileMarkSets;
-		}
+	private static final String ATTRIBUTE_CLASS = "class"; //$NON-NLS-1$
+
+	private static final String PT_MARKSET = GCActivator.ID + ".marksetproviders"; //$NON-NLS-1$
+	final IProvisioningAgent agent;
+
+	//The GC is triggered when an uninstall event occurred during a "transaction" and the transaction is committed.   
+	boolean uninstallEventOccurred = false;
+
+	/**
+	 * Maps IArtifactRepository objects to their respective "marked set" of IArtifactKeys
+	 */
+	private Map<IArtifactRepository, Collection<IArtifactKey>> markSet;
+
+	/**
+	 * @deprecated obtain the garbage collector directly from the agent instead.
+	 * This method will be removed by 3.6 M6
+	 */
+	public GarbageCollector() {
+		// we need to use DS to create an Agent Listener here
+		agent = (IProvisioningAgent) GCActivator.getService(IProvisioningAgent.SERVICE_NAME);
+	}
+
+	public GarbageCollector(IProvisioningAgent agent) {
+		this.agent = agent;
+	}
+
+	private void addKeys(Collection<IArtifactKey> keyList, IArtifactKey[] keyArray) {
+		for (int i = 0; i < keyArray.length; i++)
+			keyList.add(keyArray[i]);
 	}
 
 	private void contributeMarkSets(IConfigurationElement runAttribute, IProfile profile, boolean addRepositories) {
@@ -159,8 +123,113 @@ public class GarbageCollector {
 		}
 	}
 
-	private void addKeys(Collection<IArtifactKey> keyList, IArtifactKey[] keyArray) {
-		for (int i = 0; i < keyArray.length; i++)
-			keyList.add(keyArray[i]);
+	protected boolean getBooleanPreference(String key, boolean defaultValue) {
+		IPreferencesService prefService = (IPreferencesService) GCActivator.getService(IPreferencesService.class.getName());
+		if (prefService == null)
+			return defaultValue;
+		List<IEclipsePreferences> nodes = new ArrayList<IEclipsePreferences>();
+		// todo we should look in the instance scope as well but have to be careful that the instance location has been set
+		nodes.add(new ConfigurationScope().getNode(GCActivator.ID));
+		nodes.add(new DefaultScope().getNode(GCActivator.ID));
+		return Boolean.valueOf(prefService.get(key, Boolean.toString(defaultValue), nodes.toArray(new Preferences[nodes.size()]))).booleanValue();
+	}
+
+	private void invokeCoreGC() {
+		for (IArtifactRepository nextRepo : markSet.keySet()) {
+			IArtifactKey[] keys = markSet.get(nextRepo).toArray(new IArtifactKey[0]);
+			MarkSet aMarkSet = new MarkSet(keys, nextRepo);
+			new CoreGarbageCollector().clean(aMarkSet.getKeys(), aMarkSet.getRepo());
+		}
+	}
+
+	public void notify(EventObject o) {
+		if (o instanceof InstallableUnitEvent) {
+			InstallableUnitEvent event = (InstallableUnitEvent) o;
+			if (event.isUninstall() && event.isPost()) {
+				uninstallEventOccurred = true;
+			}
+		} else if (o instanceof CommitOperationEvent) {
+			if (uninstallEventOccurred == true) {
+				CommitOperationEvent event = (CommitOperationEvent) o;
+				if (getBooleanPreference(GCActivator.GC_ENABLED, true))
+					runGC(event.getProfile());
+				uninstallEventOccurred = false;
+			}
+		} else if (o instanceof RollbackOperationEvent) {
+			uninstallEventOccurred = false;
+		}
+	}
+
+	public void runGC(IProfile profile) {
+		markSet = new HashMap<IArtifactRepository, Collection<IArtifactKey>>();
+		if (!traverseMainProfile(profile))
+			return;
+
+		//Complete each MarkSet with the MarkSets provided by all of the other registered Profiles
+		traverseRegisteredProfiles();
+
+		//Run the GC on each MarkSet
+		invokeCoreGC();
+	}
+
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#start()
+	 */
+	public void start() {
+		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		if (eventBus == null)
+			return;
+		eventBus.addListener(this);
+	}
+
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.p2.core.spi.IAgentService#stop()
+	 */
+	public void stop() {
+		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		if (eventBus != null)
+			eventBus.removeListener(this);
+	}
+
+	private boolean traverseMainProfile(IProfile profile) {
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		IConfigurationElement[] configElts = registry.getConfigurationElementsFor(PT_MARKSET);
+
+		//First we collect all repos and keys for the profile being GC'ed
+		for (int i = 0; i < configElts.length; i++) {
+			if (!(configElts[i].getName().equals("run"))) { //$NON-NLS-1$
+				continue;
+			}
+			IConfigurationElement runAttribute = configElts[i];
+			if (runAttribute == null) {
+				continue;
+			}
+
+			contributeMarkSets(runAttribute, profile, true);
+		}
+		return true;
+	}
+
+	private void traverseRegisteredProfiles() {
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		IConfigurationElement[] configElts = registry.getConfigurationElementsFor(PT_MARKSET);
+		for (int i = 0; i < configElts.length; i++) {
+			if (!(configElts[i].getName().equals("run"))) { //$NON-NLS-1$
+				continue;
+			}
+			IConfigurationElement runAttribute = configElts[i];
+			if (runAttribute == null) {
+				continue;
+			}
+
+			IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			if (profileRegistry == null)
+				return;
+			IProfile[] registeredProfiles = profileRegistry.getProfiles();
+
+			for (int j = 0; j < registeredProfiles.length; j++) {
+				contributeMarkSets(runAttribute, registeredProfiles[j], false);
+			}
+		}
 	}
 }

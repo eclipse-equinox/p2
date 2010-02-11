@@ -13,8 +13,7 @@ package org.eclipse.equinox.internal.p2.garbagecollector;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 
@@ -25,12 +24,12 @@ public class Application implements IApplication {
 
 	private static final String DEFAULT_PROFILE_ID = "SDKProfile"; //$NON-NLS-1$
 	private String profileId;
+	private IProvisioningAgent agent;
 
 	/*
 	 * Return the profile with the given id, or null if not found.
 	 */
 	private IProfile getProfile(String id) {
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(GCActivator.getContext(), IProvisioningAgent.SERVICE_NAME);
 		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		return profileRegistry == null ? null : profileRegistry.getProfile(id);
 	}
@@ -39,18 +38,25 @@ public class Application implements IApplication {
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) throws Exception {
-		// TODO - do we have to start exemplarySetup here?
 		Map<?, ?> allArgs = context.getArguments();
 		String[] args = (String[]) allArgs.get(IApplicationContext.APPLICATION_ARGS);
 		processArguments(args);
 		// if the user didn't give us a profile id, then use the default SDK one
 		if (profileId == null)
 			profileId = DEFAULT_PROFILE_ID;
+
+		initializeServices();
 		IProfile profile = getProfile(profileId);
 		if (profile == null)
 			throw new IllegalArgumentException("\"" + profileId + "\" is not a valid profile identifier.");
-		new GarbageCollector().runGC(profile);
+		GarbageCollector gc = (GarbageCollector) agent.getService(GarbageCollector.SERVICE_NAME);
+		gc.runGC(profile);
 		return null;
+	}
+
+	private void initializeServices() throws ProvisionException {
+		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) GCActivator.getService(IProvisioningAgentProvider.SERVICE_NAME);
+		agent = provider.createAgent(null);
 	}
 
 	/* (non-Javadoc)
