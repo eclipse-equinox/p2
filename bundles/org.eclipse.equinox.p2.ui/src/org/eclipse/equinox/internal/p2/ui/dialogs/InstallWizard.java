@@ -35,7 +35,7 @@ public class InstallWizard extends WizardWithLicenses {
 	SelectableIUsPage errorReportingPage;
 
 	public InstallWizard(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
-		super(ui, operation, initialSelections.toArray(), preloadJob);
+		super(ui, operation, initialSelections == null ? null : initialSelections.toArray(), preloadJob);
 		setWindowTitle(ProvUIMessages.InstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL));
 	}
