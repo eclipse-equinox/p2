@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -195,7 +195,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	 * Creates the specified image descriptor and registers it
 	 */
 	private void createImageDescriptor(String id, ImageRegistry reg) {
-		URL url = FileLocator.find(getBundle(), new Path(ICON_PATH + id), null);
+		URL url = FileLocator.find(getBundle(), new Path(ICON_PATH).append(id), null);
 		ImageDescriptor desc = ImageDescriptor.createFromURL(url);
 		reg.put(id, desc);
 	}
