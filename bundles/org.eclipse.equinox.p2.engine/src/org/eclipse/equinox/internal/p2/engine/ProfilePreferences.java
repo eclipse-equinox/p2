@@ -50,8 +50,6 @@ public class ProfilePreferences extends EclipsePreferences {
 			} catch (BackingStoreException e) {
 				LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Exception saving profile preferences", e)); //$NON-NLS-1$
 			} catch (RuntimeException e) {
-				//TODO: This happens because the agent goes away before the engine bundle
-				//See bug 300450 for details
 				LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Exception saving profile preferences", e)); //$NON-NLS-1$
 			}
 			return Status.OK_STATUS;
@@ -112,6 +110,9 @@ public class ProfilePreferences extends EclipsePreferences {
 		synchronized (((ProfilePreferences) parent).profileLock) {
 			String profileId = getSegment(absolutePath(), 2);
 			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			//can't save anything without a profile registry
+			if (registry == null)
+				return;
 			if (!containsProfile(registry, profileId)) {
 				//use the default location for the self profile, otherwise just do nothing and return
 				if (IProfileRegistry.SELF.equals(profileId)) {
@@ -138,9 +139,12 @@ public class ProfilePreferences extends EclipsePreferences {
 		Exception failure = null;
 		try {
 			String filter = "(locationURI=" + encodeForFilter(locationString) + ')'; //$NON-NLS-1$
-			ServiceReference[] refs = EngineActivator.getContext().getServiceReferences(IProvisioningAgent.SERVICE_NAME, filter);
-			if (refs != null && refs.length > 0)
-				return refs[0];
+			final BundleContext context = EngineActivator.getContext();
+			if (context != null) {
+				ServiceReference[] refs = context.getServiceReferences(IProvisioningAgent.SERVICE_NAME, filter);
+				if (refs != null && refs.length > 0)
+					return refs[0];
+			}
 		} catch (InvalidSyntaxException e) {
 			failure = e;
 		}
