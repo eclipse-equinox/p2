@@ -419,7 +419,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	}
 
 	protected String[] getAllSuffixes() {
-		IConfigurationElement[] elements = RegistryFactory.getRegistry().getConfigurationElementsFor(getRepositoryProviderExtensionPointId());
+		final IExtensionRegistry registry = RegistryFactory.getRegistry();
+		if (registry == null) {
+			log("Extension registry not found", new RuntimeException()); //$NON-NLS-1$
+			return new String[0];
+		}
+		IConfigurationElement[] elements = registry.getConfigurationElementsFor(getRepositoryProviderExtensionPointId());
 		ArrayList<String> result = new ArrayList<String>(elements.length);
 		result.add(getDefaultSuffix());
 		for (int i = 0; i < elements.length; i++) {
