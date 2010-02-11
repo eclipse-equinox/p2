@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -16,8 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -125,7 +124,7 @@ public class UpdateChecker implements IUpdateChecker {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 		ArrayList<IInstallableUnit> iusWithUpdates = new ArrayList<IInstallableUnit>();
 		if (profile == null)
-			return Collections.emptyList();
+			return CollectionUtils.emptyList();
 		ProvisioningContext context = new ProvisioningContext(getAvailableRepositories());
 		if (query == null)
 			query = InstallableUnitQuery.ANY;
