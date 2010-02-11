@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.p2.tests.ui.actions;
 
+import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.actions.UninstallAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
@@ -24,7 +25,7 @@ public class UninstallActionTest extends ProfileModificationActionTest {
 			super(UninstallActionTest.this.getProvisioningUI(), UninstallActionTest.this.getSelectionProvider(sel), profile.getProfileId());
 		}
 
-		public IInstallableUnit[] getSelectedIUs() {
+		public List<IInstallableUnit> getSelectedIUs() {
 			return super.getSelectedIUs();
 		}
 	}
@@ -32,54 +33,54 @@ public class UninstallActionTest extends ProfileModificationActionTest {
 	public void testLockedElements() {
 		TestUninstallAction action = new TestUninstallAction(getTopLevelIUElementsWithLockedIU());
 		assertFalse("Should not be enabled with locked elements", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testLockedIUs() {
 		TestUninstallAction action = new TestUninstallAction(getTopLevelIUsWithLockedIU());
 		assertFalse("Should not be enabled with locked ius", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testEmptySelection() {
 		TestUninstallAction action = new TestUninstallAction(getEmptySelection());
 		assertFalse("Should not be enabled with empty selection", action.isEnabled());
-		assertEquals(0, action.getSelectedIUs().length);
+		assertEquals(0, action.getSelectedIUs().size());
 	}
 
 	public void testTopLevelIUs() {
 		TestUninstallAction action = new TestUninstallAction(getTopLevelIUs());
 		assertTrue("Should be enabled", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testTopLevelElements() {
 		TestUninstallAction action = new TestUninstallAction(getTopLevelIUElements());
 		assertTrue("Should be enabled", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testNestedIUs() {
 		TestUninstallAction action = new TestUninstallAction(getMixedIUs());
 		assertFalse("Should not enabled", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testNestedElements() {
 		TestUninstallAction action = new TestUninstallAction(getMixedIUElements());
 		assertFalse("Should not enabled", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testMixedIUsAndNonIUs() {
 		TestUninstallAction action = new TestUninstallAction(getMixedIUsAndNonIUs());
 		assertFalse("Should not enabled", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testMixedIUsAndElements() {
 		TestUninstallAction action = new TestUninstallAction(getMixedIUsAndElements());
 		assertTrue("Should be enabled", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 }

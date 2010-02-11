@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -272,7 +273,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * @return the array of selected IU's
 	 */
 	// overridden for visibility in the public package
-	public IInstallableUnit[] getSelectedIUs() {
+	public java.util.List<IInstallableUnit> getSelectedIUs() {
 		return super.getSelectedIUs();
 	}
 

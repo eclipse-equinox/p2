@@ -39,7 +39,7 @@ public class SizingTest extends AbstractProvisioningUITest {
 		String profileId = "testSimpleSizing";
 		IProfile testProfile = createProfile(profileId);
 		ProfileChangeRequest request = new ProfileChangeRequest(testProfile);
-		request.addInstallableUnits(new IInstallableUnit[] {f1});
+		request.add(f1);
 		IProvisioningPlan plan = null;
 		plan = getSession().getPlanner().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
 		long size = ProvisioningSession.SIZE_NOTAPPLICABLE;

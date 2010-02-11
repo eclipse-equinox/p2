@@ -8,13 +8,15 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
+
+import org.eclipse.equinox.p2.planner.IPlanner;
 
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;

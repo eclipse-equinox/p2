@@ -11,9 +11,8 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import junit.framework.TestCase;
+import org.eclipse.equinox.p2.metadata.Version;
 
 /**
  * Tests format(d) and explicit delimiter chars and strings.

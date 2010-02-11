@@ -7,12 +7,12 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.*;
@@ -28,8 +28,8 @@ import org.eclipse.jface.wizard.IWizardPage;
  */
 public class UninstallWizard extends ProvisioningOperationWizard {
 
-	public UninstallWizard(ProvisioningUI ui, UninstallOperation operation, IInstallableUnit[] initialSelections, LoadMetadataRepositoryJob job) {
-		super(ui, operation, initialSelections, job);
+	public UninstallWizard(ProvisioningUI ui, UninstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob job) {
+		super(ui, operation, initialSelections.toArray(), job);
 		setWindowTitle(ProvUIMessages.UninstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL));
 	}

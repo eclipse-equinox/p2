@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,8 +9,11 @@
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith - https://bugs.eclipse.org/bugs/show_bug.cgi?id=226401
  *     EclipseSource - ongoing development
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
+
+import org.eclipse.equinox.p2.planner.IPlanner;
 
 import java.io.File;
 import java.net.URI;
@@ -29,6 +32,7 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -94,9 +98,9 @@ public class Application implements IApplication {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		markRoots(request, roots);
 		if (install) {
-			request.addInstallableUnits(roots);
+			request.addAll(roots.toSet());
 		} else {
-			request.removeInstallableUnits(roots);
+			request.removeAll(roots.toSet());
 		}
 		return request;
 	}
@@ -244,7 +248,7 @@ public class Application implements IApplication {
 			throw new RuntimeException(Messages.Missing_Engine);
 	}
 
-	private void markRoots(ProfileChangeRequest request, IQueryResult<IInstallableUnit> roots) {
+	private void markRoots(IProfileChangeRequest request, IQueryResult<IInstallableUnit> roots) {
 		for (Iterator<IInstallableUnit> iterator = roots.iterator(); iterator.hasNext();) {
 			request.setInstallableUnitProfileProperty(iterator.next(), IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 		}
@@ -267,13 +271,13 @@ public class Application implements IApplication {
 	}
 
 	private void printRequest(ProfileChangeRequest request) {
-		IInstallableUnit[] toAdd = request.getAddedInstallableUnits();
-		IInstallableUnit[] toRemove = request.getRemovedInstallableUnits();
-		for (int i = 0; i < toAdd.length; i++) {
-			System.out.println(NLS.bind(Messages.Installing, toAdd[i].getId(), toAdd[i].getVersion()));
+		Collection<IInstallableUnit> toAdd = request.getAdditions();
+		Collection<IInstallableUnit> toRemove = request.getRemovals();
+		for (IInstallableUnit added : toAdd) {
+			System.out.println(NLS.bind(Messages.Installing, added.getId(), added.getVersion()));
 		}
-		for (int i = 0; i < toRemove.length; i++) {
-			System.out.println(NLS.bind(Messages.Uninstalling, toRemove[i].getId(), toRemove[i].getVersion()));
+		for (IInstallableUnit removed : toRemove) {
+			System.out.println(NLS.bind(Messages.Uninstalling, removed.getId(), removed.getVersion()));
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -442,20 +443,20 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}
 
 		// Now look for IU's
-		IInstallableUnit[] selected = getSelectedIUs();
-		if (selected.length == 1) {
+		java.util.List<IInstallableUnit> selected = getSelectedIUs();
+		if (selected.size() == 1) {
 			StringBuffer result = new StringBuffer();
-			String description = selected[0].getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
+			String description = selected.get(0).getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
 			if (description != null) {
 				result.append(description);
 			} else {
-				String name = selected[0].getProperty(IInstallableUnit.PROP_NAME, null);
+				String name = selected.get(0).getProperty(IInstallableUnit.PROP_NAME, null);
 				if (name != null)
 					result.append(name);
 				else
-					result.append(selected[0].getId());
+					result.append(selected.get(0).getId());
 				result.append(" "); //$NON-NLS-1$
-				result.append(selected[0].getVersion().toString());
+				result.append(selected.get(0).getVersion().toString());
 			}
 
 			iuDetailsGroup.setDetailText(result.toString());
@@ -464,7 +465,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		iuDetailsGroup.setDetailText(""); //$NON-NLS-1$
 	}
 
-	public IInstallableUnit[] getSelectedIUs() {
+	public java.util.List<IInstallableUnit> getSelectedIUs() {
 		return availableIUGroup.getSelectedIUs();
 	}
 

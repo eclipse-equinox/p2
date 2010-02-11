@@ -8,6 +8,7 @@
  * Daniel Le Berre - Fix in the encoding and the optimization function
  * Alban Browaeys - Optimized string concatenation in bug 251357
  * Jed Anderson - switch from opb files to API calls to DependencyHelper in bug 200380
+ *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
@@ -140,7 +141,7 @@ public class Projector {
 		return !lastState.query(new InstallableUnitQuery(iu), null).isEmpty();
 	}
 
-	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IQueryable<IInstallableUnit> installedIUs, IInstallableUnit[] newRoots, IProgressMonitor monitor) {
+	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IQueryable<IInstallableUnit> installedIUs, Collection<IInstallableUnit> newRoots, IProgressMonitor monitor) {
 		alreadyInstalledIUs = Arrays.asList(alreadyExistingRoots);
 		lastState = installedIUs;
 		this.entryPoint = entryPointIU;
@@ -181,7 +182,7 @@ public class Projector {
 			}
 			createConstraintsForSingleton();
 
-			createMustHave(entryPointIU, alreadyExistingRoots, newRoots);
+			createMustHave(entryPointIU, alreadyExistingRoots);
 
 			createOptimizationFunction(entryPointIU, newRoots);
 			if (DEBUG) {
@@ -199,7 +200,7 @@ public class Projector {
 	}
 
 	//Create an optimization function favoring the highest version of each IU
-	private void createOptimizationFunction(IInstallableUnit metaIu, IInstallableUnit[] newRoots) {
+	private void createOptimizationFunction(IInstallableUnit metaIu, Collection<IInstallableUnit> newRoots) {
 
 		List<WeightedObject<? extends Object>> weightedObjects = new ArrayList<WeightedObject<? extends Object>>();
 
@@ -279,13 +280,8 @@ public class Projector {
 		}
 	}
 
-	private boolean isRoot(IInstallableUnit iu, IInstallableUnit[] newRoots) {
-		for (IInstallableUnit root : newRoots) {
-			if (root == iu) {
-				return true;
-			}
-		}
-		return false;
+	private boolean isRoot(IInstallableUnit iu, Collection<IInstallableUnit> newRoots) {
+		return newRoots.contains(iu);
 	}
 
 	private void createObjectiveFunction(List<WeightedObject<? extends Object>> weightedObjects) {
@@ -305,7 +301,7 @@ public class Projector {
 		dependencyHelper.setObjectiveFunction(array);
 	}
 
-	private void createMustHave(IInstallableUnit iu, IInstallableUnit[] alreadyExistingRoots, IInstallableUnit[] newRoots) throws ContradictionException {
+	private void createMustHave(IInstallableUnit iu, IInstallableUnit[] alreadyExistingRoots) throws ContradictionException {
 		processIU(iu, true);
 		if (DEBUG) {
 			Tracing.debug(iu + "=1"); //$NON-NLS-1$

@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.p2.tests.ui.actions;
 
+import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
@@ -24,7 +25,7 @@ public class UpdateActionTest extends ProfileModificationActionTest {
 			super(UpdateActionTest.this.getProvisioningUI(), UpdateActionTest.this.getSelectionProvider(sel), profile.getProfileId(), true);
 		}
 
-		public IInstallableUnit[] getSelectedIUs() {
+		public List<IInstallableUnit> getSelectedIUs() {
 			return super.getSelectedIUs();
 		}
 	}
@@ -32,54 +33,54 @@ public class UpdateActionTest extends ProfileModificationActionTest {
 	public void testLockedElements() {
 		TestUpdateAction action = new TestUpdateAction(getTopLevelIUElementsWithLockedIU());
 		assertFalse("Should not be enabled with locked elements", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testLockedIUs() {
 		TestUpdateAction action = new TestUpdateAction(getTopLevelIUsWithLockedIU());
 		assertFalse("Should not be enabled with locked ius", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testEmptySelection() {
 		TestUpdateAction action = new TestUpdateAction(getEmptySelection());
 		assertFalse("Should not be enabled with empty selection", action.isEnabled());
-		assertEquals(0, action.getSelectedIUs().length);
+		assertEquals(0, action.getSelectedIUs().size());
 	}
 
 	public void testTopLevelIUs() {
 		TestUpdateAction action = new TestUpdateAction(getTopLevelIUs());
 		assertTrue("Should be enabled", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testTopLevelElements() {
 		TestUpdateAction action = new TestUpdateAction(getTopLevelIUElements());
 		assertTrue("Should be enabled", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testNestedIUs() {
 		TestUpdateAction action = new TestUpdateAction(getMixedIUs());
 		assertFalse("Should not enabled", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testNestedElements() {
 		TestUpdateAction action = new TestUpdateAction(getMixedIUElements());
 		assertFalse("Should not enabled", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testMixedIUsAndNonIUs() {
 		TestUpdateAction action = new TestUpdateAction(getMixedIUsAndNonIUs());
 		assertFalse("Should not enabled", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 
 	public void testMixedIUsAndElements() {
 		TestUpdateAction action = new TestUpdateAction(getMixedIUsAndElements());
 		assertTrue("Should be enabled", action.isEnabled());
-		assertEquals(2, action.getSelectedIUs().length);
+		assertEquals(2, action.getSelectedIUs().size());
 	}
 }

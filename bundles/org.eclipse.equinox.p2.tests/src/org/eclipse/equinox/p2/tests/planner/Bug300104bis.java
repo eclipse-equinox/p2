@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.IPlanner;
+
 import java.io.File;
 import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -80,7 +82,7 @@ public class Bug300104bis extends AbstractProvisioningTest {
 
 	private ProfileChangeRequest createRequest(IQueryResult<IInstallableUnit> ius) {
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profileRegistry.getProfile(profileLoadedId));
-		pcr.addInstallableUnits(ius);
+		pcr.addInstallableUnits(ius.toArray(IInstallableUnit.class));
 		Iterator it = ius.iterator();
 		while (it.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) it.next();

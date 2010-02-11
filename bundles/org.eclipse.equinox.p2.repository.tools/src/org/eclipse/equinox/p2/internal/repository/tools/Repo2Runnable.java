@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009-2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,8 +7,11 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
+
+import org.eclipse.equinox.p2.planner.IPlanner;
 
 import java.net.URISyntaxException;
 import java.util.*;
@@ -17,7 +20,6 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
-import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -125,7 +127,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		try {
 			ProfileChangeRequest request = new ProfileChangeRequest(profile);
 			request.setAbsoluteMode(true);
-			request.addInstallableUnits(processedIUs.toArray(new IInstallableUnit[processedIUs.size()]));
+			request.addAll(processedIUs);
 			ProvisioningContext context = new ProvisioningContext();
 			IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 			if (engine == null)

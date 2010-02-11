@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -248,10 +249,10 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	}
 
 	protected IInstallableUnit getSelectedIU() {
-		IInstallableUnit[] units = ElementUtils.elementsToIUs(getSelectedElements());
-		if (units.length == 0)
+		java.util.List<IInstallableUnit> units = ElementUtils.elementsToIUs(getSelectedElements());
+		if (units.size() == 0)
 			return null;
-		return units[0];
+		return units.get(0);
 	}
 
 	protected IUDetailsGroup getDetailsGroup() {

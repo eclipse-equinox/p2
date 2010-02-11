@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,11 +7,13 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.ui.actions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
@@ -57,14 +59,14 @@ public class UpdateAction extends ExistingIUInProfileAction {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#getProfileChangeOperation(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
 	 */
-	protected ProfileChangeOperation getProfileChangeOperation(IInstallableUnit[] ius) {
+	protected ProfileChangeOperation getProfileChangeOperation(Collection<IInstallableUnit> ius) {
 		return ui.getUpdateOperation(ius, null);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#performAction(org.eclipse.equinox.p2.operations.ProfileChangeOperation, org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
 	 */
-	protected int performAction(ProfileChangeOperation operation, IInstallableUnit[] ius) {
+	protected int performAction(ProfileChangeOperation operation, Collection<IInstallableUnit> ius) {
 		return ui.openUpdateWizard(getShell(), skipSelectionPage, (UpdateOperation) operation, null);
 	}
 }

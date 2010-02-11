@@ -11,20 +11,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.File;
 import java.net.URI;
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;

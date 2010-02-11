@@ -8,6 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     David Dubrow <david.dubrow@nokia.com> - Bug 276356 [ui] check the wizard and page completion logic for AcceptLicensesWizardPage
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -42,7 +43,7 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 	protected AcceptLicensesWizardPage createLicensesPage() {
 		IInstallableUnit[] ius = new IInstallableUnit[0];
 		if (planSelections != null)
-			ius = ElementUtils.elementsToIUs(planSelections);
+			ius = ElementUtils.elementsToIUs(planSelections).toArray(new IInstallableUnit[0]);
 		return new AcceptLicensesWizardPage(ui.getLicenseManager(), ius, operation);
 	}
 
@@ -64,7 +65,7 @@ public abstract class WizardWithLicenses extends ProvisioningOperationWizard {
 
 	protected void planChanged() {
 		super.planChanged();
-		licensePage.update(ElementUtils.elementsToIUs(planSelections), operation);
+		licensePage.update(ElementUtils.elementsToIUs(planSelections).toArray(new IInstallableUnit[0]), operation);
 	}
 
 	/*

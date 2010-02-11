@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
@@ -42,8 +43,8 @@ public class AvailableUpdateElement extends AvailableIUElement {
 	protected IProvisioningPlan getSizingPlan(IProgressMonitor monitor) {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProvisioningUI().getSession().getProvisioningAgent(), profileID);
 		if (iuToBeUpdated.getId().equals(getIU().getId()))
-			request.removeInstallableUnit(iuToBeUpdated);
-		request.addInstallableUnits(getIU());
+			request.remove(iuToBeUpdated);
+		request.add(getIU());
 		return ProvUIActivator.getDefault().getSession().getPlanner().getProvisioningPlan(request, new ProvisioningContext(), monitor);
 	}
 

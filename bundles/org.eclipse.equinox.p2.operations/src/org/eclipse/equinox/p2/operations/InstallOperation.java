@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009-2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
 
 package org.eclipse.equinox.p2.operations;
 
+import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
@@ -43,7 +45,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
  */
 public class InstallOperation extends ProfileChangeOperation {
 
-	private IInstallableUnit[] toInstall;
+	private Collection<IInstallableUnit> toInstall;
 
 	/**
 	 * Create an install operation on the specified provisioning session that installs
@@ -53,7 +55,7 @@ public class InstallOperation extends ProfileChangeOperation {
 	 * @param session the session to use for obtaining provisioning services
 	 * @param toInstall the IInstallableUnits to be installed into the profile.
 	 */
-	public InstallOperation(ProvisioningSession session, IInstallableUnit[] toInstall) {
+	public InstallOperation(ProvisioningSession session, Collection<IInstallableUnit> toInstall) {
 		super(session);
 		this.toInstall = toInstall;
 	}
@@ -66,21 +68,21 @@ public class InstallOperation extends ProfileChangeOperation {
 		request = ProfileChangeRequest.createByProfileId(session.getProvisioningAgent(), profileId);
 		IProfile profile;
 		profile = session.getProfileRegistry().getProfile(profileId);
-		SubMonitor sub = SubMonitor.convert(monitor, Messages.InstallOperation_ComputeProfileChangeProgress, toInstall.length);
-		for (int i = 0; i < toInstall.length; i++) {
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.InstallOperation_ComputeProfileChangeProgress, toInstall.size());
+		for (IInstallableUnit entryToInstall : toInstall) {
 			// If the user is installing a patch, we mark it optional.  This allows
 			// the patched IU to be updated later by removing the patch.
-			if (PatchQuery.isPatch(toInstall[i]))
-				request.setInstallableUnitInclusionRules(toInstall[i], PlannerHelper.createOptionalInclusionRule(toInstall[i]));
+			if (PatchQuery.isPatch(entryToInstall))
+				request.setInstallableUnitInclusionRules(entryToInstall, PlannerHelper.createOptionalInclusionRule(entryToInstall));
 
 			// Check to see if it is already installed.  This may alter the request.
-			IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(new InstallableUnitQuery(toInstall[i].getId()), null);
+			IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(new InstallableUnitQuery(entryToInstall.getId()), null);
 			// TODO ideally we should only do this check if the iu is a singleton, but in practice many iu's that should
 			// be singletons are not, so we don't check this (yet)
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=230878
 			if (!alreadyInstalled.isEmpty()) { //  && installedIU.isSingleton()
 				IInstallableUnit installedIU = alreadyInstalled.iterator().next();
-				int compareTo = toInstall[i].getVersion().compareTo(installedIU.getVersion());
+				int compareTo = entryToInstall.getVersion().compareTo(installedIU.getVersion());
 				// If the iu is a newer version of something already installed, consider this an
 				// update request
 				if (compareTo > 0) {
@@ -91,37 +93,37 @@ public class InstallOperation extends ProfileChangeOperation {
 					if (lockedForUpdate) {
 						// Add a status telling the user that this implies an update, but the
 						// iu should not be updated
-						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_UPDATE, toInstall[i]));
+						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_UPDATE, entryToInstall));
 					} else {
-						request.addInstallableUnits(toInstall[i]);
-						request.removeInstallableUnit(installedIU);
+						request.add(entryToInstall);
+						request.remove(installedIU);
 						// Add a status informing the user that the update has been inferred
-						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, toInstall[i]));
+						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IMPLIED_UPDATE, entryToInstall));
 						// Mark it as a root if it hasn't been already
 						if (!UserVisibleRootQuery.isUserVisible(installedIU, profile))
-							request.setInstallableUnitProfileProperty(toInstall[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+							request.setInstallableUnitProfileProperty(entryToInstall, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 					}
 				} else if (compareTo < 0) {
 					// An implied downgrade.  We will not put this in the plan, add a status informing the user
-					status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_DOWNGRADE, toInstall[i]));
+					status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_IMPLIED_DOWNGRADE, entryToInstall));
 				} else {
 					//					if (rootMarkerKey != null) {
 					if (UserVisibleRootQuery.isUserVisible(installedIU, profile))
 						// It is already a root, nothing to do. We tell the user it was already installed
-						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED, toInstall[i]));
+						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_IGNORED_ALREADY_INSTALLED, entryToInstall));
 					else {
 						// It was already installed but not as a root.  Tell the user that parts of it are already installed and mark
 						// it as a root. 
-						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_PARTIAL_INSTALL, toInstall[i]));
-						request.setInstallableUnitProfileProperty(toInstall[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+						status.merge(PlanAnalyzer.getStatus(IStatusCodes.ALTERED_PARTIAL_INSTALL, entryToInstall));
+						request.setInstallableUnitProfileProperty(entryToInstall, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 					}
 					//					}
 				}
 			} else {
 				// Install it and mark as a root
-				request.addInstallableUnits(new IInstallableUnit[] {toInstall[i]});
+				request.add(entryToInstall);
 				//				if (rootMarkerKey != null)
-				request.setInstallableUnitProfileProperty(toInstall[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+				request.setInstallableUnitProfileProperty(entryToInstall, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			}
 			sub.worked(1);
 		}

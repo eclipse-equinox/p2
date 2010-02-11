@@ -5,9 +5,12 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: 
- * IBM Corporation - initial implementation and ideas 
+ * IBM Corporation - initial implementation and ideas
+ *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
+
+import org.eclipse.equinox.p2.planner.IPlanner;
 
 import java.io.*;
 import java.net.URI;
@@ -352,8 +355,8 @@ public class ProfileSynchronizer {
 		}
 
 		context.setExtraIUs(toAdd);
-		request.addInstallableUnits(toAdd.toArray(new IInstallableUnit[toAdd.size()]));
-		request.removeInstallableUnits(toRemove.toArray(new IInstallableUnit[toRemove.size()]));
+		request.addAll(toAdd);
+		request.removeAll(toRemove);
 		debug(request);
 		return request;
 	}
@@ -363,10 +366,8 @@ public class ProfileSynchronizer {
 			return;
 		final String PREFIX = "[reconciler] [plan] "; //$NON-NLS-1$
 		// get the request
-		List<IInstallableUnit> toAdd = new ArrayList<IInstallableUnit>();
-		toAdd.addAll(Arrays.asList(request.getAddedInstallableUnits()));
-		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>();
-		toRemove.addAll(Arrays.asList(request.getRemovedInstallableUnits()));
+		List<IInstallableUnit> toAdd = new ArrayList<IInstallableUnit>(request.getAdditions());
+		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>(request.getRemovals());
 		// remove from the request everything what is in the plan
 		Operand[] ops = plan.getOperands();
 		for (int i = 0; i < ops.length; i++) {
@@ -400,12 +401,12 @@ public class ProfileSynchronizer {
 		if (!Tracing.DEBUG_RECONCILER)
 			return;
 		final String PREFIX = "[reconciler] "; //$NON-NLS-1$
-		IInstallableUnit[] toAdd = request.getAddedInstallableUnits();
-		if (toAdd == null || toAdd.length == 0) {
+		Collection<IInstallableUnit> toAdd = request.getAdditions();
+		if (toAdd == null || toAdd.size() == 0) {
 			Tracing.debug(PREFIX + "No installable units to add."); //$NON-NLS-1$
 		} else {
-			for (int i = 0; i < toAdd.length; i++) {
-				Tracing.debug(PREFIX + "Adding IU: " + toAdd[i].getId() + ' ' + toAdd[i].getVersion()); //$NON-NLS-1$
+			for (IInstallableUnit add : toAdd) {
+				Tracing.debug(PREFIX + "Adding IU: " + add.getId() + ' ' + add.getVersion()); //$NON-NLS-1$
 			}
 		}
 		Map<IInstallableUnit, Map<String, String>> propsToAdd = request.getInstallableUnitProfilePropertiesToAdd();
@@ -417,12 +418,12 @@ public class ProfileSynchronizer {
 			}
 		}
 
-		IInstallableUnit[] toRemove = request.getRemovedInstallableUnits();
-		if (toRemove == null || toRemove.length == 0) {
+		Collection<IInstallableUnit> toRemove = request.getRemovals();
+		if (toRemove == null || toRemove.size() == 0) {
 			Tracing.debug(PREFIX + "No installable units to remove."); //$NON-NLS-1$
 		} else {
-			for (int i = 0; i < toRemove.length; i++) {
-				Tracing.debug(PREFIX + "Removing IU: " + toRemove[i].getId() + ' ' + toRemove[i].getVersion()); //$NON-NLS-1$
+			for (IInstallableUnit remove : toRemove) {
+				Tracing.debug(PREFIX + "Removing IU: " + remove.getId() + ' ' + remove.getVersion()); //$NON-NLS-1$
 			}
 		}
 		Map<IInstallableUnit, List<String>> propsToRemove = request.getInstallableUnitProfilePropertiesToRemove();

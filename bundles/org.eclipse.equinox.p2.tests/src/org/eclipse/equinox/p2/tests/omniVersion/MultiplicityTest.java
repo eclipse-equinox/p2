@@ -11,9 +11,8 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import junit.framework.TestCase;
+import org.eclipse.equinox.p2.metadata.Version;
 
 /**
  * Tests {n.m} in different combinations and the special +?*

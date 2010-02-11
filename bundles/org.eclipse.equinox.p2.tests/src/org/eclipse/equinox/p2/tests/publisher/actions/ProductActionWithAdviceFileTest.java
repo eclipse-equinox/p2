@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.io.File;
 import java.net.URI;
 import java.util.*;

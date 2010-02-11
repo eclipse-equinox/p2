@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009-2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
 
 package org.eclipse.equinox.p2.operations;
+
+import org.eclipse.equinox.p2.planner.IPlanner;
 
 import java.io.IOException;
 import java.util.*;
@@ -20,7 +23,6 @@ import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -217,7 +219,7 @@ public class ProvisioningSession {
 				// we will be able to get everything else.
 				ProfileChangeRequest downloadRequest = new ProfileChangeRequest(profile);
 				downloadRequest.setAbsoluteMode(true);
-				downloadRequest.addInstallableUnits(new CompoundQueryable<IInstallableUnit>(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(InstallableUnitQuery.ANY, null));
+				downloadRequest.addAll(new CompoundQueryable<IInstallableUnit>(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(InstallableUnitQuery.ANY, null).toSet());
 
 				PhaseSet download = new DownloadPhaseSet();
 				IProvisioningPlan downloadPlan = getPlanner().getProvisioningPlan(downloadRequest, context, mon.newChild(100));
@@ -301,17 +303,17 @@ public class ProvisioningSession {
 	 * 
 	 * @return an array of IInstallableUnits installed in the profile.
 	 */
-	public IInstallableUnit[] getInstalledIUs(String profileId, boolean all) {
+	public Collection<IInstallableUnit> getInstalledIUs(String profileId, boolean all) {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 		if (profile == null)
-			return new IInstallableUnit[0];
+			return Collections.EMPTY_LIST;
 		IQuery<IInstallableUnit> query;
 		if (all)
 			query = InstallableUnitQuery.ANY;
 		else
 			query = new UserVisibleRootQuery();
 		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
-		return queryResult.toArray(IInstallableUnit.class);
+		return queryResult.toSet();
 	}
 
 }

@@ -184,7 +184,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 
 		// RepoLocationQuery must cause repository URI's to be collected and no repository
 		// loading should occur.
-		result = manager.query(new RepositoryLocationQuery(), getMonitor());
+		result = manager.locationsQueriable().query(new RepositoryLocationQuery(), getMonitor());
 		assertEquals("2.0", 3, queryResultSize(result));
 		assertContains("2.1", result, existing);
 		assertContains("2.1", result, nonExisting);

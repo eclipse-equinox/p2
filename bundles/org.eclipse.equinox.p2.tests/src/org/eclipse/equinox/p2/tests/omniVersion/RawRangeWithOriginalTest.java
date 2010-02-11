@@ -11,10 +11,9 @@
 
 package org.eclipse.equinox.p2.tests.omniVersion;
 
+import org.eclipse.equinox.internal.p2.metadata.VersionFormat;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-
-import org.eclipse.equinox.internal.p2.metadata.VersionFormat;
 
 /**
  * Tests inclusion of original version range string in raw format.

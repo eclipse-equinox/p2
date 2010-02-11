@@ -8,9 +8,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import java.util.Collection;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
@@ -156,13 +158,13 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	}
 
 	protected IInstallableUnit getSelectedIU() {
-		IInstallableUnit[] units = ElementUtils.elementsToIUs(getSelectedElements());
-		if (units.length == 0)
+		java.util.List<IInstallableUnit> units = ElementUtils.elementsToIUs(getSelectedElements());
+		if (units.size() == 0)
 			return null;
-		return units[0];
+		return units.get(0);
 	}
 
-	protected IInstallableUnit[] getIUs() {
+	protected Collection<IInstallableUnit> getIUs() {
 		return ElementUtils.elementsToIUs(input.getChildren(input));
 	}
 

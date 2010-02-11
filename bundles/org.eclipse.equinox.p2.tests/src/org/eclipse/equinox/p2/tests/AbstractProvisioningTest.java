@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import org.eclipse.equinox.p2.planner.IPlanner;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -963,8 +965,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected IStatus install(IProfile profile, IInstallableUnit[] ius, boolean strict, IPlanner planner, IEngine engine) {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(ius);
 		for (int i = 0; i < ius.length; i++) {
+			req.add(ius[i]);
 			req.setInstallableUnitInclusionRules(ius[i], strict ? PlannerHelper.createStrictInclusionRule(ius[i]) : PlannerHelper.createOptionalInclusionRule(ius[i]));
 		}
 

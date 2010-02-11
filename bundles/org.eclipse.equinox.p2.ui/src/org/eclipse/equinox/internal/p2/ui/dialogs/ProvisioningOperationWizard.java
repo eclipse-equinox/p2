@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -149,10 +150,10 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	private boolean pageSelectionsHaveChanged(ISelectableIUsPage page) {
 		HashSet<IInstallableUnit> selectedIUs = new HashSet<IInstallableUnit>();
 		Object[] currentSelections = page.getCheckedIUElements();
-		selectedIUs.addAll(Arrays.asList(ElementUtils.elementsToIUs(currentSelections)));
+		selectedIUs.addAll(ElementUtils.elementsToIUs(currentSelections));
 		HashSet<IInstallableUnit> lastIUSelections = new HashSet<IInstallableUnit>();
 		if (planSelections != null)
-			lastIUSelections.addAll(Arrays.asList(ElementUtils.elementsToIUs(planSelections)));
+			lastIUSelections.addAll(ElementUtils.elementsToIUs(planSelections));
 		return !(selectedIUs.equals(lastIUSelections));
 	}
 

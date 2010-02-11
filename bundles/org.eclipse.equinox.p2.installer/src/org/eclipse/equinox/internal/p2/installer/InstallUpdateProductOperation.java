@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Code 9 - ongoing development
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
@@ -54,7 +55,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	/**
 	 * Determine what top level installable units should be installed by the director
 	 */
-	private IInstallableUnit[] computeUnitsToInstall() throws CoreException {
+	private Collection<IInstallableUnit> computeUnitsToInstall() throws CoreException {
 		ArrayList<IInstallableUnit> units = new ArrayList<IInstallableUnit>();
 		IVersionedId roots[] = installDescription.getRoots();
 		for (int i = 0; i < roots.length; i++) {
@@ -63,7 +64,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			if (iu != null)
 				units.add(iu);
 		}
-		return units.toArray(new IInstallableUnit[units.size()]);
+		return units;
 	}
 
 	/**
@@ -101,20 +102,20 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		prepareMetadataRepositories();
 		prepareArtifactRepositories();
 		IProfile p = createProfile();
-		IInstallableUnit[] toInstall = computeUnitsToInstall();
+		Collection<IInstallableUnit> toInstall = computeUnitsToInstall();
 		monitor.worked(5);
 
 		IStatus s;
 		ProfileChangeRequest request = new ProfileChangeRequest(p);
 		if (isInstall) {
 			monitor.setTaskName(NLS.bind(Messages.Op_Installing, installDescription.getProductName()));
-			request.addInstallableUnits(toInstall);
+			request.addAll(toInstall);
 			s = director.provision(request, null, monitor.newChild(90));
 		} else {
 			monitor.setTaskName(NLS.bind(Messages.Op_Updating, installDescription.getProductName()));
 			IQueryResult<IInstallableUnit> toUninstall = computeUnitsToUninstall(p);
-			request.removeInstallableUnits(toUninstall);
-			request.addInstallableUnits(toInstall);
+			request.removeAll(toUninstall.toSet());
+			request.addAll(toInstall);
 			s = director.provision(request, null, monitor.newChild(90));
 		}
 		if (!s.isOK())

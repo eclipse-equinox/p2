@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.ui.model;
@@ -110,14 +111,14 @@ public class ElementUtils {
 		return ProvUI.getAdapter(element, IInstallableUnit.class);
 	}
 
-	public static IInstallableUnit[] elementsToIUs(Object[] elements) {
+	public static List<IInstallableUnit> elementsToIUs(Object[] elements) {
 		ArrayList<IInstallableUnit> theIUs = new ArrayList<IInstallableUnit>(elements.length);
 		for (int i = 0; i < elements.length; i++) {
 			IInstallableUnit iu = ProvUI.getAdapter(elements[i], IInstallableUnit.class);
 			if (iu != null)
 				theIUs.add(iu);
 		}
-		return theIUs.toArray(new IInstallableUnit[theIUs.size()]);
+		return theIUs;
 	}
 
 	static boolean containsURI(URI[] locations, URI url) {

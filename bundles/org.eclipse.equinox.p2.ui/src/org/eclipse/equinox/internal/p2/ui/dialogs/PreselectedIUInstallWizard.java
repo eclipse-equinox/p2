@@ -7,12 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -31,8 +31,8 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 
 	QueryableMetadataRepositoryManager manager;
 
-	public PreselectedIUInstallWizard(ProvisioningUI ui, InstallOperation operation, IInstallableUnit[] initialSelections, LoadMetadataRepositoryJob job) {
-		super(ui, operation, initialSelections, job);
+	public PreselectedIUInstallWizard(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob job) {
+		super(ui, operation, initialSelections.toArray(), job);
 		setWindowTitle(ProvUIMessages.InstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL));
 	}

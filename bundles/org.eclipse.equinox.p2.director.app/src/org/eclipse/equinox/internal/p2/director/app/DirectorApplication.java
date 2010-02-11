@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,8 +9,11 @@
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith - https://bugs.eclipse.org/bugs/show_bug.cgi?id=226401
  *     EclipseSource - ongoing development
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
+
+import org.eclipse.equinox.p2.planner.IPlanner;
 
 import java.io.*;
 import java.net.URI;
@@ -30,6 +33,7 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -207,12 +211,12 @@ public class DirectorApplication implements IApplication {
 	private IProvisioningAgent agent;
 	private boolean noArtifactRepositorySpecified = false;
 
-	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, IInstallableUnit[] installs, IInstallableUnit[] uninstalls) {
+	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collection<IInstallableUnit> installs, Collection<IInstallableUnit> uninstalls) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		markRoots(request, installs);
 		markRoots(request, uninstalls);
-		request.addInstallableUnits(installs);
-		request.removeInstallableUnits(uninstalls);
+		request.addAll(installs);
+		request.removeAll(uninstalls);
 		return request;
 	}
 
@@ -242,7 +246,7 @@ public class DirectorApplication implements IApplication {
 		return new CompoundQueryable<IInstallableUnit>(locationQueryables).query(query, nullMonitor);
 	}
 
-	private IInstallableUnit[] collectRoots(IProfile profile, List<IVersionedId> rootNames, boolean forInstall) throws CoreException {
+	private Collection<IInstallableUnit> collectRoots(IProfile profile, List<IVersionedId> rootNames, boolean forInstall) throws CoreException {
 		ArrayList<IInstallableUnit> allRoots = new ArrayList<IInstallableUnit>();
 		int top = rootNames.size();
 		for (int i = 0; i < top; ++i) {
@@ -263,7 +267,7 @@ public class DirectorApplication implements IApplication {
 				allRoots.add(itor.next());
 			} while (itor.hasNext());
 		}
-		return allRoots.toArray(new IInstallableUnit[allRoots.size()]);
+		return allRoots;
 	}
 
 	synchronized Bundle getBundle(String symbolicName) {
@@ -466,9 +470,10 @@ public class DirectorApplication implements IApplication {
 		logStatus(status);
 	}
 
-	private void markRoots(ProfileChangeRequest request, IInstallableUnit[] roots) {
-		for (int idx = 0; idx < roots.length; ++idx)
-			request.setInstallableUnitProfileProperty(roots[idx], IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+	private void markRoots(IProfileChangeRequest request, Collection<IInstallableUnit> roots) {
+		for (IInstallableUnit root : roots) {
+			request.setInstallableUnitProfileProperty(root, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+		}
 	}
 
 	private void missingArgument(String argumentName) throws CoreException {
@@ -502,8 +507,8 @@ public class DirectorApplication implements IApplication {
 
 	private void performProvisioningActions() throws CoreException {
 		IProfile profile = initializeProfile();
-		IInstallableUnit[] installs = collectRoots(profile, rootsToInstall, true);
-		IInstallableUnit[] uninstalls = collectRoots(profile, rootsToUninstall, false);
+		Collection<IInstallableUnit> installs = collectRoots(profile, rootsToInstall, true);
+		Collection<IInstallableUnit> uninstalls = collectRoots(profile, rootsToUninstall, false);
 
 		// keep this result status in case there is a problem so we can report it to the user
 		boolean wasRoaming = Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue();
@@ -554,13 +559,13 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private void printRequest(ProfileChangeRequest request) {
-		IInstallableUnit[] toAdd = request.getAddedInstallableUnits();
-		for (int i = 0; i < toAdd.length; i++) {
-			printMessage(NLS.bind(Messages.Installing, toAdd[i].getId(), toAdd[i].getVersion()));
+		Collection<IInstallableUnit> toAdd = request.getAdditions();
+		for (IInstallableUnit added : toAdd) {
+			printMessage(NLS.bind(Messages.Installing, added.getId(), added.getVersion()));
 		}
-		IInstallableUnit[] toRemove = request.getRemovedInstallableUnits();
-		for (int i = 0; i < toRemove.length; i++) {
-			printMessage(NLS.bind(Messages.Uninstalling, toRemove[i].getId(), toRemove[i].getVersion()));
+		Collection<IInstallableUnit> toRemove = request.getRemovals();
+		for (IInstallableUnit removed : toRemove) {
+			printMessage(NLS.bind(Messages.Uninstalling, removed.getId(), removed.getVersion()));
 		}
 	}
 

@@ -58,7 +58,6 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new IRequiredCapability[] {capability});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
-		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 		IDirector director = createDirector();
 
@@ -67,7 +66,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		properties.put(IProfile.PROP_ENVIRONMENTS, "FilterKey=true");
 		IProfile satisfied = createProfile("Satisfied." + getName(), properties);
 		ProfileChangeRequest request = new ProfileChangeRequest(satisfied);
-		request.addInstallableUnits(toInstallArray);
+		request.add(toInstallIU);
 		IStatus result = director.provision(request, null, null);
 		assertTrue("1.0", result.isOK());
 		assertProfileContains("1.1", satisfied, allUnits);

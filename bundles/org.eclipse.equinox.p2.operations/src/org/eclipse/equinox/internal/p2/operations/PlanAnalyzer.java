@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.operations;
 
+import java.util.Collection;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -102,27 +104,27 @@ public class PlanAnalyzer {
 			return report;
 
 		if (plan.getStatus().getSeverity() != IStatus.ERROR) {
-			IInstallableUnit[] iusAdded = originalRequest.getAddedInstallableUnits();
-			for (int i = 0; i < iusAdded.length; i++) {
-				RequestStatus rs = plannerStatus.getRequestChanges().get(iusAdded[i]);
+			Collection<IInstallableUnit> iusAdded = originalRequest.getAdditions();
+			for (IInstallableUnit added : iusAdded) {
+				RequestStatus rs = plannerStatus.getRequestChanges().get(added);
 				if (rs.getSeverity() == IStatus.ERROR) {
 					// This is a serious error so it must also appear in the overall status
-					IStatus fail = new Status(IStatus.ERROR, Activator.ID, IStatusCodes.ALTERED_IGNORED_INSTALL_REQUEST, NLS.bind(Messages.PlanAnalyzer_IgnoringInstall, getIUString(iusAdded[i])), null);
-					report.addStatus(iusAdded[i], fail);
+					IStatus fail = new Status(IStatus.ERROR, Activator.ID, IStatusCodes.ALTERED_IGNORED_INSTALL_REQUEST, NLS.bind(Messages.PlanAnalyzer_IgnoringInstall, getIUString(added)), null);
+					report.addStatus(added, fail);
 					report.addSummaryStatus(fail);
 				}
 			}
-			IInstallableUnit[] iusRemoved = originalRequest.getRemovedInstallableUnits();
-			for (int i = 0; i < iusRemoved.length; i++) {
-				RequestStatus rs = plannerStatus.getRequestChanges().get(iusRemoved[i]);
+			Collection<IInstallableUnit> iusRemoved = originalRequest.getRemovals();
+			for (IInstallableUnit removed : iusRemoved) {
+				RequestStatus rs = plannerStatus.getRequestChanges().get(removed);
 				if (rs.getSeverity() == IStatus.ERROR) {
 					// TODO see https://bugs.eclipse.org/bugs/show_bug.cgi?id=255984
 					// We are making assumptions here about why the planner chose to ignore an uninstall.
 					// Assume it could not be uninstalled because of some other dependency, yet the planner did not view
 					// this as an error.  So we inform the user that we can only uninstall parts of it.  The root property will be
 					// removed per the original change request.
-					IStatus fail = new Status(IStatus.INFO, Activator.ID, IStatusCodes.ALTERED_PARTIAL_UNINSTALL, NLS.bind(Messages.PlanAnalyzer_PartialUninstall, getIUString(iusRemoved[i])), null);
-					report.addStatus(iusRemoved[i], fail);
+					IStatus fail = new Status(IStatus.INFO, Activator.ID, IStatusCodes.ALTERED_PARTIAL_UNINSTALL, NLS.bind(Messages.PlanAnalyzer_PartialUninstall, getIUString(removed)), null);
+					report.addStatus(removed, fail);
 					report.addSummaryStatus(fail);
 				}
 			}
@@ -154,6 +156,6 @@ public class PlanAnalyzer {
 	}
 
 	private static boolean nothingToDo(ProfileChangeRequest request) {
-		return request.getAddedInstallableUnits().length == 0 && request.getRemovedInstallableUnits().length == 0 && request.getInstallableUnitProfilePropertiesToAdd().size() == 0 && request.getInstallableUnitProfilePropertiesToRemove().size() == 0;
+		return request.getAdditions().size() == 0 && request.getRemovals().size() == 0 && request.getInstallableUnitProfilePropertiesToAdd().size() == 0 && request.getInstallableUnitProfilePropertiesToRemove().size() == 0;
 	}
 }

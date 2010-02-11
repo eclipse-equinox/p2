@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -67,7 +68,9 @@ public class QueryProviderTests extends AbstractProvisioningUITest {
 		IUElementListRoot root = new IUElementListRoot();
 		AvailableIUElement element = new AvailableIUElement(root, a, TESTPROFILE, getPolicy().getShowDrilldownRequirements());
 		root.setChildren(new Object[] {element});
-		InstallOperation op = new InstallOperation(getSession(), new IInstallableUnit[] {a});
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(a);
+		InstallOperation op = new InstallOperation(getSession(), iusInvolved);
 		op.setProfileId(TESTPROFILE);
 		op.resolveModal(getMonitor());
 		IQueryable queryable = op.getProvisioningPlan().getAdditions();

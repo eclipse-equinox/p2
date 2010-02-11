@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009-2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
 
 package org.eclipse.equinox.p2.operations;
@@ -60,7 +61,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
  */
 public class UpdateOperation extends ProfileChangeOperation {
 
-	private IInstallableUnit[] iusToUpdate;
+	private Collection<IInstallableUnit> iusToUpdate;
 	private HashMap<IInstallableUnit, List<Update>> possibleUpdatesByIU = new HashMap<IInstallableUnit, List<Update>>();
 	private List<Update> defaultUpdates;
 
@@ -72,7 +73,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 	 * @param session the session to use for obtaining provisioning services
 	 * @param toBeUpdated the IInstallableUnits to be updated.
 	 */
-	public UpdateOperation(ProvisioningSession session, IInstallableUnit[] toBeUpdated) {
+	public UpdateOperation(ProvisioningSession session, Collection<IInstallableUnit> toBeUpdated) {
 		super(session);
 		this.iusToUpdate = toBeUpdated;
 	}
@@ -165,12 +166,12 @@ public class UpdateOperation extends ProfileChangeOperation {
 		if (profile == null)
 			return;
 
-		SubMonitor sub = SubMonitor.convert(monitor, Messages.UpdateOperation_ProfileChangeRequestProgress, 100 * iusToUpdate.length);
-		for (int i = 0; i < iusToUpdate.length; i++) {
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.UpdateOperation_ProfileChangeRequestProgress, 100 * iusToUpdate.size());
+		for (IInstallableUnit iuToUpdate : iusToUpdate) {
 			SubMonitor iuMon = sub.newChild(100);
-			Update[] updates = updatesFor(iusToUpdate[i], profile, iuMon);
+			Update[] updates = updatesFor(iuToUpdate, profile, iuMon);
 			for (int j = 0; j < updates.length; j++) {
-				toBeUpdated.add(iusToUpdate[i]);
+				toBeUpdated.add(iuToUpdate);
 				if (defaultUpdates != null && defaultUpdates.contains(updates[j])) {
 					elementsToPlan.add(updates[j]);
 				}
@@ -209,7 +210,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 					for (String id : keys) {
 						// Get rid of things keyed by a different id.  We've already made sure
 						// that updates with a different id are keyed under the original id
-						if (!id.equals(iusToUpdate[i].getId())) {
+						if (!id.equals(iuToUpdate.getId())) {
 							latestVersions.remove(id);
 						}
 					}
@@ -235,12 +236,12 @@ public class UpdateOperation extends ProfileChangeOperation {
 				if (!defaultUpdates.contains(update))
 					defaultUpdates.add(update);
 			}
-			request.addInstallableUnits(theUpdate);
+			request.add(theUpdate);
 			request.setInstallableUnitProfileProperty(theUpdate, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			if (PatchQuery.isPatch(theUpdate)) {
 				request.setInstallableUnitInclusionRules(theUpdate, PlannerHelper.createOptionalInclusionRule(theUpdate));
 			} else {
-				request.removeInstallableUnit(update.toUpdate);
+				request.remove(update.toUpdate);
 			}
 
 		}

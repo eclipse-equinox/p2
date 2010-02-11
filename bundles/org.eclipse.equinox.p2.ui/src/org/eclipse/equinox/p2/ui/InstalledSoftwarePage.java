@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 
 package org.eclipse.equinox.p2.ui;
@@ -185,9 +186,9 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 	}
 
 	void updateDetailsArea() {
-		IInstallableUnit[] selected = installedIUGroup.getSelectedIUs();
-		if (selected.length == 1) {
-			String description = selected[0].getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
+		java.util.List<IInstallableUnit> selected = installedIUGroup.getSelectedIUs();
+		if (selected.size() == 1) {
+			String description = selected.get(0).getProperty(IInstallableUnit.PROP_DESCRIPTION, null);
 			if (description != null) {
 				detailsArea.setText(description);
 				return;

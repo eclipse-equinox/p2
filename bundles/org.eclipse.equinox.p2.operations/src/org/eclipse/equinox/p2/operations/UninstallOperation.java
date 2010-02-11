@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009-2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
 
 package org.eclipse.equinox.p2.operations;
 
+import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.operations.Messages;
@@ -37,7 +39,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  */
 public class UninstallOperation extends ProfileChangeOperation {
 
-	private IInstallableUnit[] toUninstall;
+	private Collection<IInstallableUnit> toUninstall;
 
 	/**
 	 * Create an uninstall operation on the specified provisioning session that uninstalls
@@ -47,7 +49,7 @@ public class UninstallOperation extends ProfileChangeOperation {
 	 * @param session the session to use for obtaining provisioning services
 	 * @param toUninstall the IInstallableUnits to be installed into the profile.
 	 */
-	public UninstallOperation(ProvisioningSession session, IInstallableUnit[] toUninstall) {
+	public UninstallOperation(ProvisioningSession session, Collection<IInstallableUnit> toUninstall) {
 		super(session);
 		this.toUninstall = toUninstall;
 	}
@@ -57,14 +59,15 @@ public class UninstallOperation extends ProfileChangeOperation {
 	 */
 	protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 		request = ProfileChangeRequest.createByProfileId(session.getProvisioningAgent(), profileId);
-		request.removeInstallableUnits(toUninstall);
+		request.removeAll(toUninstall);
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=255984
 		// We ask to remove the the profile root property in addition to removing the IU.  In theory this
 		// should be redundant, but there are cases where the planner decides not to uninstall something because
 		// it is needed by others.  We still want to remove the root in this case.
 		//		if (rootMarkerKey != null)
-		for (int i = 0; i < toUninstall.length; i++)
-			request.removeInstallableUnitProfileProperty(toUninstall[i], IProfile.PROP_PROFILE_ROOT_IU);
+		for (IInstallableUnit iuToUninstall : toUninstall) {
+			request.removeInstallableUnitProfileProperty(iuToUninstall, IProfile.PROP_PROFILE_ROOT_IU);
+		}
 
 	}
 

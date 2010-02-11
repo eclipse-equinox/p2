@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 
 /**
  * Test <code>ArtifactkeyDeSerializer</code>

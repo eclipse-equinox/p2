@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *      IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.rollback;
 
@@ -17,10 +18,11 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
 public class FormerState {
 
-	public static ProfileChangeRequest generateProfileDeltaChangeRequest(IProfile current, IProfile target) {
+	public static IProfileChangeRequest generateProfileDeltaChangeRequest(IProfile current, IProfile target) {
 		ProfileChangeRequest request = new ProfileChangeRequest(current);
 
 		synchronizeProfileProperties(request, current, target);
@@ -30,7 +32,7 @@ public class FormerState {
 		return request;
 	}
 
-	private static void synchronizeAllIUProperties(ProfileChangeRequest request, IProfile current, IProfile target) {
+	private static void synchronizeAllIUProperties(IProfileChangeRequest request, IProfile current, IProfile target) {
 		Set<IInstallableUnit> currentIUset = current.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
 		Iterator<IInstallableUnit> targetIUs = target.query(InstallableUnitQuery.ANY, null).iterator();
 		List<IInstallableUnit> iusToAdd = new ArrayList<IInstallableUnit>();
@@ -68,22 +70,22 @@ public class FormerState {
 		}
 	}
 
-	private static void synchronizeMarkedIUs(ProfileChangeRequest request, IProfile current, IProfile target) {
-		IInstallableUnit[] currentPlannerMarkedIUs = SimplePlanner.findPlannerMarkedIUs(current);
-		IInstallableUnit[] targetPlannerMarkedIUs = SimplePlanner.findPlannerMarkedIUs(target);
+	private static void synchronizeMarkedIUs(IProfileChangeRequest request, IProfile current, IProfile target) {
+		Collection<IInstallableUnit> currentPlannerMarkedIUs = SimplePlanner.findPlannerMarkedIUs(current);
+		Collection<IInstallableUnit> targetPlannerMarkedIUs = SimplePlanner.findPlannerMarkedIUs(target);
 
 		//additions
-		List<IInstallableUnit> markedIUsToAdd = new ArrayList<IInstallableUnit>(Arrays.asList(targetPlannerMarkedIUs));
-		markedIUsToAdd.removeAll(Arrays.asList(currentPlannerMarkedIUs));
-		request.addInstallableUnits(markedIUsToAdd);
+		Collection<IInstallableUnit> markedIUsToAdd = new HashSet<IInstallableUnit>(targetPlannerMarkedIUs);
+		markedIUsToAdd.removeAll(currentPlannerMarkedIUs);
+		request.addAll(markedIUsToAdd);
 
 		// removes
-		List<IInstallableUnit> markedIUsToRemove = new ArrayList<IInstallableUnit>(Arrays.asList(currentPlannerMarkedIUs));
-		markedIUsToRemove.removeAll(Arrays.asList(targetPlannerMarkedIUs));
-		request.removeInstallableUnits(markedIUsToRemove);
+		Collection<IInstallableUnit> markedIUsToRemove = new HashSet<IInstallableUnit>(currentPlannerMarkedIUs);
+		markedIUsToRemove.removeAll(targetPlannerMarkedIUs);
+		request.removeAll(markedIUsToRemove);
 	}
 
-	private static void synchronizeProfileProperties(ProfileChangeRequest request, IProfile current, IProfile target) {
+	private static void synchronizeProfileProperties(IProfileChangeRequest request, IProfile current, IProfile target) {
 		Map<String, String> profilePropertiesToSet = new HashMap<String, String>(target.getProperties());
 		for (Entry<String, String> entry : current.getProperties().entrySet()) {
 			String key = entry.getKey();

@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC - added license support
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -31,14 +32,14 @@ public class UpdateWizard extends WizardWithLicenses {
 	boolean skipSelectionsPage = false;
 	IUElementListRoot firstPageRoot;
 
-	public static IInstallableUnit[] getIUsToReplace(Object[] elements) {
+	public static Collection<IInstallableUnit> getIUsToReplace(Object[] elements) {
 		Set<IInstallableUnit> iusToReplace = new HashSet<IInstallableUnit>();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof AvailableUpdateElement) {
 				iusToReplace.add(((AvailableUpdateElement) elements[i]).getIUToBeUpdated());
 			}
 		}
-		return iusToReplace.toArray(new IInstallableUnit[iusToReplace.size()]);
+		return iusToReplace;
 	}
 
 	public static IInstallableUnit[] getReplacementIUs(Object[] elements) {

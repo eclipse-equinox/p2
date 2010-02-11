@@ -7,13 +7,13 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.EventObject;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
@@ -37,7 +37,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	StatusLineCLabelContribution updateAffordance;
 	IStatusLineManager statusLineManager;
-	IInstallableUnit[] iusWithUpdates;
+	Collection<IInstallableUnit> iusWithUpdates;
 	String profileId;
 	ProvisioningListener profileListener;
 	AutomaticUpdatesPopup popup;
@@ -160,18 +160,18 @@ public class AutomaticUpdater implements IUpdateListener {
 	 */
 
 	void validateIusToUpdate() {
-		ArrayList list = new ArrayList();
+		ArrayList<IInstallableUnit> list = new ArrayList<IInstallableUnit>(iusWithUpdates.size());
 		IProfile profile = getSession().getProfileRegistry().getProfile(profileId);
 
-		for (int i = 0; i < iusWithUpdates.length; i++) {
+		for (IInstallableUnit iuWithUpdate : iusWithUpdates) {
 			try {
-				if (validToUpdate(profile, iusWithUpdates[i]))
-					list.add(iusWithUpdates[i]);
+				if (validToUpdate(profile, iuWithUpdate))
+					list.add(iuWithUpdate);
 			} catch (OperationCanceledException e) {
 				// Nothing to report
 			}
 		}
-		iusWithUpdates = (IInstallableUnit[]) list.toArray(new IInstallableUnit[list.size()]);
+		iusWithUpdates = list;
 	}
 
 	// A proposed update is valid if it is still visible to the user as an

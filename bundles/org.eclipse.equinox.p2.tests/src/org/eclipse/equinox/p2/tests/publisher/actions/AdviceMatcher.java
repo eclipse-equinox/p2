@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 
 /**

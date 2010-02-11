@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,8 +7,11 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
+
+import org.eclipse.equinox.p2.planner.IPlanner;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -198,7 +201,7 @@ public class ProvisioningHelper {
 			throw new ProvisionException("No director service found.");
 		ProvisioningContext context = new ProvisioningContext();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits(units);
+		request.addAll(units.toSet());
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}
@@ -297,7 +300,7 @@ public class ProvisioningHelper {
 			throw new ProvisionException("No engine service found.");
 		ProvisioningContext context = new ProvisioningContext();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeInstallableUnits(units);
+		request.removeAll(units.toSet());
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}

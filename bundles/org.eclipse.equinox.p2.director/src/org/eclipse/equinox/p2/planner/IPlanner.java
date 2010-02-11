@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,8 +7,9 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.director;
+package org.eclipse.equinox.p2.planner;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.engine.*;
@@ -27,10 +28,18 @@ public interface IPlanner {
 	 */
 	public static final String SERVICE_NAME = IPlanner.class.getName();
 
-	public IProvisioningPlan getProvisioningPlan(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor);
-
-	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor);
+	/**
+	 * 
+	 * @param profileChangeRequest the request to be evaluated
+	 * @param context the context in which the request is processed
+	 * @param monitor a monitor on which planning
+	 * @return the plan representing the system that needs to be
+	 */
+	public IProvisioningPlan getProvisioningPlan(IProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor);
 
 	public IProvisioningPlan getDiffPlan(IProfile currentProfile, IProfile targetProfile, IProgressMonitor monitor);
 
+	public IProfileChangeRequest createChangeRequest(IProfile profileToChange);
+
+	public IInstallableUnit[] updatesFor(IInstallableUnit iu, ProvisioningContext context, IProgressMonitor monitor);
 }

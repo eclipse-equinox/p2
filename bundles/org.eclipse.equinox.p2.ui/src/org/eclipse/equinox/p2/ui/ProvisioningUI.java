@@ -7,11 +7,13 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
 
 package org.eclipse.equinox.p2.ui;
 
 import java.net.URI;
+import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -132,7 +134,7 @@ public class ProvisioningUI {
 	 * @param repositories the repositories to use for the operation
 	 * @return the install operation
 	 */
-	public InstallOperation getInstallOperation(IInstallableUnit[] iusToInstall, URI[] repositories) {
+	public InstallOperation getInstallOperation(Collection<IInstallableUnit> iusToInstall, URI[] repositories) {
 		InstallOperation op = new InstallOperation(getSession(), iusToInstall);
 		op.setProfileId(getProfileId());
 		op.setProvisioningContext(makeProvisioningContext(repositories));
@@ -147,7 +149,7 @@ public class ProvisioningUI {
 	 * @param repositories the repositories to use for the operation
 	 * @return the update operation
 	 */
-	public UpdateOperation getUpdateOperation(IInstallableUnit[] iusToUpdate, URI[] repositories) {
+	public UpdateOperation getUpdateOperation(Collection<IInstallableUnit> iusToUpdate, URI[] repositories) {
 		UpdateOperation op = new UpdateOperation(getSession(), iusToUpdate);
 		op.setProfileId(getProfileId());
 		op.setProvisioningContext(makeProvisioningContext(repositories));
@@ -162,7 +164,7 @@ public class ProvisioningUI {
 	 * @param repositories the repositories to use for the operation
 	 * @return the uninstall operation
 	 */
-	public UninstallOperation getUninstallOperation(IInstallableUnit[] iusToUninstall, URI[] repositories) {
+	public UninstallOperation getUninstallOperation(Collection<IInstallableUnit> iusToUninstall, URI[] repositories) {
 		UninstallOperation op = new UninstallOperation(getSession(), iusToUninstall);
 		op.setProfileId(getProfileId());
 		op.setProvisioningContext(makeProvisioningContext(repositories));
@@ -192,7 +194,7 @@ public class ProvisioningUI {
 	 * 
 	 * @return the wizard return code
 	 */
-	public int openInstallWizard(Shell shell, IInstallableUnit[] initialSelections, InstallOperation operation, LoadMetadataRepositoryJob job) {
+	public int openInstallWizard(Shell shell, Collection<IInstallableUnit> initialSelections, InstallOperation operation, LoadMetadataRepositoryJob job) {
 		if (operation == null) {
 			InstallWizard wizard = new InstallWizard(this, operation, initialSelections, job);
 			WizardDialog dialog = new ProvisioningWizardDialog(shell, wizard);
@@ -239,7 +241,7 @@ public class ProvisioningUI {
 	 * 
 	 * @return the wizard return code
 	 */
-	public int openUninstallWizard(Shell shell, IInstallableUnit[] initialSelections, UninstallOperation operation, LoadMetadataRepositoryJob job) {
+	public int openUninstallWizard(Shell shell, Collection<IInstallableUnit> initialSelections, UninstallOperation operation, LoadMetadataRepositoryJob job) {
 		UninstallWizard wizard = new UninstallWizard(this, operation, initialSelections, job);
 		WizardDialog dialog = new ProvisioningWizardDialog(shell, wizard);
 		dialog.create();

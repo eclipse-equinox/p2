@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,14 +7,12 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.ui.actions;
 
-import org.eclipse.equinox.p2.ui.LicenseManager;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
@@ -26,6 +24,7 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
+import org.eclipse.equinox.p2.ui.LicenseManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.window.Window;
@@ -47,9 +46,9 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	public void run() {
-		IInstallableUnit[] ius = getSelectedIUs();
+		Collection<IInstallableUnit> ius = getSelectedIUs();
 		// No ius or no profile?
-		if (profileId == null || ius.length == 0) {
+		if (profileId == null || ius.size() == 0) {
 			ProvUI.reportStatus(getNoProfileOrSelectionStatus(profileId, ius), StatusManager.BLOCK);
 			runCanceled();
 			return;
@@ -62,13 +61,13 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		return ui.getSession().getProfileRegistry().getProfile(id);
 	}
 
-	protected IStatus getNoProfileOrSelectionStatus(String id, IInstallableUnit[] ius) {
-		return new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, NLS.bind(ProvUIMessages.ProfileModificationAction_InvalidSelections, id, new Integer(ius.length)));
+	protected IStatus getNoProfileOrSelectionStatus(String id, Collection<IInstallableUnit> ius) {
+		return new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, NLS.bind(ProvUIMessages.ProfileModificationAction_InvalidSelections, id, new Integer(ius.size())));
 	}
 
-	protected abstract ProfileChangeOperation getProfileChangeOperation(IInstallableUnit[] ius);
+	protected abstract ProfileChangeOperation getProfileChangeOperation(Collection<IInstallableUnit> ius);
 
-	protected void run(final IInstallableUnit[] ius, final String id) {
+	protected void run(final Collection<IInstallableUnit> ius, final String id) {
 		final ProfileChangeOperation operation = getProfileChangeOperation(ius);
 		ProvisioningJob job = operation.getResolveJob(null);
 		if (job == null) {
@@ -124,7 +123,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		return false;
 	}
 
-	protected abstract int performAction(ProfileChangeOperation operation, IInstallableUnit[] ius);
+	protected abstract int performAction(ProfileChangeOperation operation, Collection<IInstallableUnit> ius);
 
 	protected IInstallableUnit getIU(Object element) {
 		return ProvUI.getAdapter(element, IInstallableUnit.class);
@@ -141,7 +140,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	 * @return an array of selected IInstallableUnit that meet the
 	 * enablement criteria for the action.  
 	 */
-	protected IInstallableUnit[] getSelectedIUs() {
+	protected List<IInstallableUnit> getSelectedIUs() {
 		List<?> elements = getStructuredSelection().toList();
 		List<IInstallableUnit> iusList = new ArrayList<IInstallableUnit>(elements.size());
 
@@ -156,7 +155,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 					iusList.add(iu);
 			}
 		}
-		return iusList.toArray(new IInstallableUnit[iusList.size()]);
+		return iusList;
 	}
 
 	protected boolean isSelectable(IIUElement element) {

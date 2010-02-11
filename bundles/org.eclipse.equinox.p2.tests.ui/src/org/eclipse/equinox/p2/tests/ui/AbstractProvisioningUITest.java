@@ -114,7 +114,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 
 	protected IStatus install(IInstallableUnit iu, boolean root, boolean lock) throws ProvisionException {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {iu});
+		req.add(iu);
 		if (root) {
 			req.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 		}

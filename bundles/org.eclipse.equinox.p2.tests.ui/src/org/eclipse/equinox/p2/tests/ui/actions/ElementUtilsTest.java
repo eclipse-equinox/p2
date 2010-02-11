@@ -35,27 +35,27 @@ import org.eclipse.ui.PlatformUI;
 public class ElementUtilsTest extends ProfileModificationActionTest {
 
 	public void testEmpty() {
-		assertEquals(getEmptySelection().length, ElementUtils.elementsToIUs(getEmptySelection()).length);
+		assertEquals(getEmptySelection().length, ElementUtils.elementsToIUs(getEmptySelection()).size());
 	}
 
 	public void testInvalid() {
-		assertTrue(ElementUtils.elementsToIUs(getInvalidSelection()).length == 0);
+		assertTrue(ElementUtils.elementsToIUs(getInvalidSelection()).size() == 0);
 	}
 
 	public void testIUs() {
-		assertEquals(getTopLevelIUs().length, ElementUtils.elementsToIUs(getTopLevelIUs()).length);
+		assertEquals(getTopLevelIUs().length, ElementUtils.elementsToIUs(getTopLevelIUs()).size());
 	}
 
 	public void testElements() {
-		assertEquals(getTopLevelIUElements().length, ElementUtils.elementsToIUs(getTopLevelIUElements()).length);
+		assertEquals(getTopLevelIUElements().length, ElementUtils.elementsToIUs(getTopLevelIUElements()).size());
 	}
 
 	public void testMixedIUsAndNonIUs() {
-		assertTrue(getMixedIUsAndNonIUs().length != ElementUtils.elementsToIUs(getMixedIUsAndNonIUs()).length);
+		assertTrue(getMixedIUsAndNonIUs().length != ElementUtils.elementsToIUs(getMixedIUsAndNonIUs()).size());
 	}
 
 	public void testMixedIUsAndElements() {
-		assertEquals(getMixedIUsAndElements().length, ElementUtils.elementsToIUs(getMixedIUsAndElements()).length);
+		assertEquals(getMixedIUsAndElements().length, ElementUtils.elementsToIUs(getMixedIUsAndElements()).size());
 	}
 
 	public void testUpdateUsingElements() throws URISyntaxException {

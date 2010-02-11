@@ -34,7 +34,7 @@ public class TestUpdateListener implements IUpdateListener {
 		if (!(o instanceof UpdateEvent))
 			return false;
 		UpdateEvent actual = (UpdateEvent) o;
-		return Arrays.equals(expectedEvent.getIUs(), actual.getIUs()) && expectedEvent.getProfileId().equals(actual.getProfileId());
+		return Arrays.equals(expectedEvent.getIUs().toArray(), actual.getIUs().toArray()) && expectedEvent.getProfileId().equals(actual.getProfileId());
 	}
 
 	public void updatesAvailable(UpdateEvent event) {

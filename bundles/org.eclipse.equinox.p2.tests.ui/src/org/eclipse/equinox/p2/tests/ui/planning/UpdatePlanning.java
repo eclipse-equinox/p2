@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.planning;
 
-import java.util.Arrays;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
+
+import java.util.ArrayList;
 import java.util.HashSet;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
@@ -56,19 +58,23 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 	public void testChooseUpdateOverPatch() throws ProvisionException {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(a1);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
 		ProfileChangeRequest request = op.getProfileChangeRequest();
-		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
-		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a130));
-		assertTrue("1.2", request.getRemovedInstallableUnits().length == 1);
-		assertTrue("1.3", request.getRemovedInstallableUnits()[0].equals(a1));
+		assertTrue("1.0", request.getAdditions().size() == 1);
+		assertTrue("1.1", request.getAdditions().iterator().next().equals(a130));
+		assertTrue("1.2", request.getRemovals().size() == 1);
+		assertTrue("1.3", request.getRemovals().iterator().next().equals(a1));
 	}
 
 	public void testForcePatchOverUpdate() throws ProvisionException {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(a1);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
 		Update[] updates = op.getPossibleUpdates();
 		Update firstPatch = null;
@@ -82,21 +88,23 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		op.setSelectedUpdates(new Update[] {firstPatch});
 		op.resolveModal(getMonitor());
 		ProfileChangeRequest request = op.getProfileChangeRequest();
-		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
-		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(firstPatchForA1));
-		assertTrue("1.2", request.getRemovedInstallableUnits().length == 0);
+		assertTrue("1.0", request.getAdditions().size() == 1);
+		assertTrue("1.1", request.getAdditions().iterator().next().equals(firstPatchForA1));
+		assertTrue("1.2", request.getRemovals().size() == 0);
 	}
 
 	public void testRecognizePatchIsInstalled() throws ProvisionException {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
 		install(firstPatchForA1, true, false);
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(a1);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
-		ProfileChangeRequest request = op.getProfileChangeRequest();
+		IProfileChangeRequest request = op.getProfileChangeRequest();
 		// update was favored, that would happen even if patch was not installed
-		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
-		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a130));
+		assertTrue("1.0", request.getAdditions().size() == 1);
+		assertTrue("1.1", request.getAdditions().iterator().next().equals(a130));
 		// the patch is not being shown to the user because we figured out it was already installed
 		// The elements showing are a130 and a120WithDifferentId
 		assertEquals("1.2", 2, op.getPossibleUpdates().length);
@@ -105,7 +113,9 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 	public void testChooseNotTheNewest() throws ProvisionException {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a120WithDifferentId, a130, firstPatchForA1, patchFora2});
 		install(a1, true, false);
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(a1);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
 		Update[] updates = op.getPossibleUpdates();
 		Update notNewest = null;
@@ -118,10 +128,10 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		assertNotNull(".99", notNewest);
 		op.setSelectedUpdates(new Update[] {notNewest});
 		op.resolveModal(getMonitor());
-		ProfileChangeRequest request = op.getProfileChangeRequest();
+		IProfileChangeRequest request = op.getProfileChangeRequest();
 		// selected was favored
-		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
-		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a120WithDifferentId));
+		assertTrue("1.0", request.getAdditions().size() == 1);
+		assertTrue("1.1", request.getAdditions().iterator().next().equals(a120WithDifferentId));
 		// The two updates and the patch were recognized
 		assertEquals("1.2", 3, op.getPossibleUpdates().length);
 	}
@@ -129,13 +139,15 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 	public void testChooseLatestPatches() throws ProvisionException {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, firstPatchForA1, secondPatchForA1, thirdPatchForA1});
 		install(a1, true, false);
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(a1);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
-		ProfileChangeRequest request = op.getProfileChangeRequest();
+		IProfileChangeRequest request = op.getProfileChangeRequest();
 		// the latest two patches were selected
 		HashSet chosen = new HashSet();
-		assertTrue("1.0", request.getAddedInstallableUnits().length == 2);
-		chosen.addAll(Arrays.asList(request.getAddedInstallableUnits()));
+		assertTrue("1.0", request.getAdditions().size() == 2);
+		chosen.addAll(request.getAdditions());
 		assertTrue("1.1", chosen.contains(secondPatchForA1));
 		assertTrue("1.2", chosen.contains(thirdPatchForA1));
 
@@ -145,12 +157,14 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 	public void testLatestHasDifferentId() throws ProvisionException {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, firstPatchForA1, secondPatchForA1, thirdPatchForA1, a120WithDifferentId, a130, a140WithDifferentId});
 		install(a1, true, false);
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(a1);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
-		ProfileChangeRequest request = op.getProfileChangeRequest();
+		IProfileChangeRequest request = op.getProfileChangeRequest();
 		// update 140 was recognized as the latest even though it had a different id
-		assertTrue("1.0", request.getAddedInstallableUnits().length == 1);
-		assertTrue("1.1", request.getAddedInstallableUnits()[0].equals(a140WithDifferentId));
+		assertTrue("1.0", request.getAdditions().size() == 1);
+		assertTrue("1.1", request.getAdditions().iterator().next().equals(a140WithDifferentId));
 		// All three patches and all three updates can be chosen
 		assertEquals("1.2", 6, op.getPossibleUpdates().length);
 	}
@@ -159,7 +173,10 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 	public void testRemoveSelectionAfterResolve() throws ProvisionException {
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a130, b1, b12});
 		install(a1, true, false);
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {a1, b1}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(a1);
+		iusInvolved.add(b1);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
 		Update[] updates = op.getSelectedUpdates();
 		assertEquals("1.0", 2, updates.length);

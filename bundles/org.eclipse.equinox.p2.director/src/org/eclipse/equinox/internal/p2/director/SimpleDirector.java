@@ -1,13 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: IBM Corporation - initial API and implementation
+ * Contributors: 
+ *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.planner.IPlanner;
+
+import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.engine.*;
@@ -43,10 +48,10 @@ public class SimpleDirector implements IDirector {
 		String taskName = NLS.bind(Messages.Director_Task_Installing, request.getProfile().getProperty(IProfile.PROP_INSTALL_FOLDER));
 		SubMonitor sub = SubMonitor.convert(monitor, taskName, PlanWork + EngineWork);
 		try {
-			IInstallableUnit[] installRoots = request.getAddedInstallableUnits();
+			Collection<IInstallableUnit> installRoots = request.getAdditions();
 			// mark the roots as such
-			for (int i = 0; i < installRoots.length; i++) {
-				request.setInstallableUnitProfileProperty(installRoots[i], IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+			for (IInstallableUnit root : installRoots) {
+				request.setInstallableUnitProfileProperty(root, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			}
 			IProvisioningPlan plan = planner.getProvisioningPlan(request, context, sub.newChild(PlanWork));
 			return PlanExecutionHelper.executePlan(plan, engine, context, sub.newChild(EngineWork));

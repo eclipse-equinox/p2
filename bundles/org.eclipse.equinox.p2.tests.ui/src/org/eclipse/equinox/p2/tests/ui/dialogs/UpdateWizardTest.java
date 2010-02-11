@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
+import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.metadata.License;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
@@ -64,7 +65,9 @@ public class UpdateWizardTest extends WizardTest {
 	 * This is the SDK 
 	 */
 	public void testUpdateWizardResolved() {
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(main);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
 		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
@@ -97,7 +100,9 @@ public class UpdateWizardTest extends WizardTest {
 	}
 
 	public void testUpdateWizardResolvedWithLicense() {
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(main);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
 		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
@@ -128,7 +133,9 @@ public class UpdateWizardTest extends WizardTest {
 	 * Tests the wizard when a prior resolution has been done, but is in error.
 	 */
 	public void testUpdateWizardResolvedError() {
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(main);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
 		op.setSelectedUpdates(op.getPossibleUpdates());
 		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
@@ -148,7 +155,9 @@ public class UpdateWizardTest extends WizardTest {
 	 * directly on the resolution page
 	 */
 	public void testUpdateWizardResolvedSkipSelections() {
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(main);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
 		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		wizard.setSkipSelectionsPage(true);
@@ -168,8 +177,9 @@ public class UpdateWizardTest extends WizardTest {
 	 * Tests the wizard when multiple versions are available.
 	 */
 	public void testBug277554MultipleVersions() {
-
-		UpdateOperation op = getProvisioningUI().getUpdateOperation(new IInstallableUnit[] {main}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(main);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
 		UpdateWizard wizard = new UpdateWizard(getProvisioningUI(), op, op.getSelectedUpdates(), null);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);

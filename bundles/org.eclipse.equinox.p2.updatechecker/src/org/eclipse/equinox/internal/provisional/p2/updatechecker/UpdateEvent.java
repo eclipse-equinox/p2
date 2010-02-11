@@ -7,9 +7,11 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.updatechecker;
 
+import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
@@ -18,14 +20,14 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 public class UpdateEvent {
 
 	String profileId;
-	IInstallableUnit[] iusWithUpdates;
+	Collection<IInstallableUnit> iusWithUpdates;
 
-	public UpdateEvent(String profileId, IInstallableUnit[] iusWithUpdates) {
+	public UpdateEvent(String profileId, Collection<IInstallableUnit> iusWithUpdates) {
 		this.profileId = profileId;
 		this.iusWithUpdates = iusWithUpdates;
 	}
 
-	public IInstallableUnit[] getIUs() {
+	public Collection<IInstallableUnit> getIUs() {
 		return iusWithUpdates;
 	}
 

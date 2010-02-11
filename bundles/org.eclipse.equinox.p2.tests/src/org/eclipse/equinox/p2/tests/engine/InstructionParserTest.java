@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.util.List;
 import java.util.Map;
 import junit.framework.Test;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.equinox.p2.metadata.ITouchpointType;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class InstructionParserTest extends AbstractProvisioningTest {

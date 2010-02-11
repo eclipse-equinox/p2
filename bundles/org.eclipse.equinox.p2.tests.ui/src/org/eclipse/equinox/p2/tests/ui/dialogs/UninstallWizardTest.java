@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
+import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -30,8 +31,9 @@ public class UninstallWizardTest extends WizardTest {
 	 * This is the normal SDK workflow.
 	 */
 	public void testUninstallWizardResolved() {
-
-		IInstallableUnit[] iusInvolved = new IInstallableUnit[] {top1, top2};
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(top1);
+		iusInvolved.add(top2);
 		UninstallOperation op = getProvisioningUI().getUninstallOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
 		UninstallWizard wizard = new UninstallWizard(getProvisioningUI(), op, iusInvolved, null);
@@ -71,8 +73,11 @@ public class UninstallWizardTest extends WizardTest {
 	 */
 	public void testUninstallWizardUnresolved() {
 		// This test is pretty useless right now but at least it opens the wizard
-		UninstallOperation operation = getProvisioningUI().getUninstallOperation(new IInstallableUnit[] {top1, top2}, null);
-		UninstallWizard wizard = new UninstallWizard(getProvisioningUI(), operation, new IInstallableUnit[] {top1, top2}, null);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(top1);
+		iusInvolved.add(top2);
+		UninstallOperation operation = getProvisioningUI().getUninstallOperation(iusInvolved, null);
+		UninstallWizard wizard = new UninstallWizard(getProvisioningUI(), operation, iusInvolved, null);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.create();

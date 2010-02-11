@@ -7,9 +7,11 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
@@ -105,7 +107,7 @@ public abstract class StructuredIUGroup {
 		return columnConfig;
 	}
 
-	public IInstallableUnit[] getSelectedIUs() {
+	public List<IInstallableUnit> getSelectedIUs() {
 		return ElementUtils.elementsToIUs(getSelectedIUElements());
 	}
 

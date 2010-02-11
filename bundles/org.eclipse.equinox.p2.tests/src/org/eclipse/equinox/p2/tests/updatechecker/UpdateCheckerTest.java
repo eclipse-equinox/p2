@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatechecker;
 
+import java.util.ArrayList;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
@@ -58,7 +59,9 @@ public class UpdateCheckerTest extends AbstractProvisioningTest {
 
 	public void testAddListener() {
 		IUpdateChecker checker = getChecker();
-		TestUpdateListener listener = new TestUpdateListener(new UpdateEvent(profile.getProfileId(), new IInstallableUnit[] {toInstallIU}));
+		ArrayList<IInstallableUnit> toUpdate = new ArrayList<IInstallableUnit>();
+		toUpdate.add(toInstallIU);
+		TestUpdateListener listener = new TestUpdateListener(new UpdateEvent(profile.getProfileId(), toUpdate));
 		checker.addUpdateCheck(profile.getProfileId(), InstallableUnitQuery.ANY, IUpdateChecker.ONE_TIME_CHECK, 0, listener);
 		listener.waitForEvent();
 		listener.verify(1);

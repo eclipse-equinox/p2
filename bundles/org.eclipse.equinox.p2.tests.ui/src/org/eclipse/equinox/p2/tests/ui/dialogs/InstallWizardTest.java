@@ -10,20 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-
-import org.eclipse.equinox.p2.metadata.ILicense;
-
+import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.metadata.License;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.operations.InstallOperation;
 import org.eclipse.equinox.p2.operations.ProfileModificationJob;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
@@ -58,9 +53,11 @@ public class InstallWizardTest extends WizardTest {
 	}
 
 	public void testInstallWizardResolved() {
-		InstallOperation op = new InstallOperation(getSession(), new IInstallableUnit[] {toInstall});
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(toInstall);
+		InstallOperation op = new InstallOperation(getSession(), iusInvolved);
 		op.setProfileId(TESTPROFILE);
-		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(getProvisioningUI(), op, new IInstallableUnit[] {toInstall}, null);
+		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(getProvisioningUI(), op, iusInvolved, null);
 		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.setBlockOnOpen(false);
 		dialog.open();
@@ -121,7 +118,7 @@ public class InstallWizardTest extends WizardTest {
 			AvailableIUsPage page1 = (AvailableIUsPage) wizard.getPage(AVAILABLE_SOFTWARE_PAGE);
 
 			// test initial wizard state
-			assertTrue("1.0", page1.getSelectedIUs().length == 0);
+			assertTrue("1.0", page1.getSelectedIUs().size() == 0);
 			assertFalse("1.1", page1.isPageComplete());
 
 			// Start reaching in...

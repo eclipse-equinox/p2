@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
@@ -17,13 +18,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
-import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -70,8 +71,8 @@ public class UpdateChecker implements IUpdateChecker {
 				while (!done) {
 
 					trace("Checking for updates for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
-					IInstallableUnit[] iusWithUpdates = checkForUpdates(profileId, query);
-					if (iusWithUpdates.length > 0) {
+					Collection<IInstallableUnit> iusWithUpdates = checkForUpdates(profileId, query);
+					if (iusWithUpdates.size() > 0) {
 						trace("Notifying listener of available updates"); //$NON-NLS-1$
 						UpdateEvent event = new UpdateEvent(profileId, iusWithUpdates);
 						if (!done)
@@ -120,11 +121,11 @@ public class UpdateChecker implements IUpdateChecker {
 	 * Return the array of ius in the profile that have updates
 	 * available.
 	 */
-	IInstallableUnit[] checkForUpdates(String profileId, IQuery<IInstallableUnit> query) {
+	Collection<IInstallableUnit> checkForUpdates(String profileId, IQuery<IInstallableUnit> query) {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 		ArrayList<IInstallableUnit> iusWithUpdates = new ArrayList<IInstallableUnit>();
 		if (profile == null)
-			return new IInstallableUnit[0];
+			return Collections.emptyList();
 		ProvisioningContext context = new ProvisioningContext(getAvailableRepositories());
 		if (query == null)
 			query = InstallableUnitQuery.ANY;
@@ -135,7 +136,7 @@ public class UpdateChecker implements IUpdateChecker {
 			if (replacements.length > 0)
 				iusWithUpdates.add(iu);
 		}
-		return iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]);
+		return iusWithUpdates;
 	}
 
 	/**
