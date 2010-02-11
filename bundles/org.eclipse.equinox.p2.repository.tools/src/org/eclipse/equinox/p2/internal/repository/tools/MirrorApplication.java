@@ -25,8 +25,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.mirroring.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
@@ -39,6 +39,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 	private URI baseline;
 	private String comparatorID;
+	private IQuery<IArtifactDescriptor> compareExclusions = null;
 	private boolean compare = false;
 	private boolean failOnError = true;
 	private boolean raw = true;
@@ -208,6 +209,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		mirror.setComparatorId(comparatorID);
 		mirror.setBaseline(initializeBaseline());
 		mirror.setValidate(validate);
+		mirror.setCompareExclusions(compareExclusions);
 
 		// If IUs have been specified then only they should be mirrored, otherwise mirror everything.
 		if (keys.size() > 0)
@@ -406,5 +408,9 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	 */
 	public void setValidate(boolean value) {
 		validate = value;
+	}
+
+	public void setComparatorExclusions(IQuery<IArtifactDescriptor> exclusions) {
+		compareExclusions = exclusions;
 	}
 }

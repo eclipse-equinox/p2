@@ -207,6 +207,15 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 			this.name = name;
 		}
 
+		public AntTaskElement(String name, String[] attributes) {
+			this.name = name;
+			if (attributes != null && attributes.length > 0) {
+				if (attributes.length % 2 != 0)
+					throw new IllegalStateException();
+				this.attributes.addAll(Arrays.asList(attributes));
+			}
+		}
+
 		public void addAttribute(String attribute, String value) {
 			attributes.add(attribute);
 			attributes.add(value);

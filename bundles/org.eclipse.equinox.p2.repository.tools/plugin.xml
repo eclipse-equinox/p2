@@ -151,5 +151,13 @@
 			</run>
       </application>
    </extension>
+ <extension
+       point="org.eclipse.ant.core.antTypes">
+    <antType
+          class="org.eclipse.equinox.p2.internal.repository.tools.tasks.ArtifactDescription"
+          library="lib/repository-tools-ant.jar"
+          name="artifact">
+    </antType>
+ </extension>
 
 </plugin>

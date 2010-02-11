@@ -11,19 +11,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.mirroring;
 
-import org.eclipse.equinox.p2.repository.tools.comparator.ArtifactComparatorFactory;
-import org.eclipse.equinox.p2.repository.tools.comparator.IArtifactComparator;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.Activator;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.equinox.p2.repository.tools.comparator.ArtifactComparatorFactory;
+import org.eclipse.equinox.p2.repository.tools.comparator.IArtifactComparator;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -37,6 +38,8 @@ public class Mirroring {
 	private boolean compare = false;
 	private boolean validate = false;
 	private IArtifactComparator comparator;
+	private IQuery<IArtifactDescriptor> compareExclusionQuery = null;
+	private Set<IArtifactDescriptor> compareExclusions = CollectionUtils.<IArtifactDescriptor> emptySet();
 	private String comparatorID;
 	private List<IArtifactKey> keysToMirror;
 	private IArtifactMirrorLog comparatorLog;
@@ -86,6 +89,12 @@ public class Mirroring {
 			IQueryResult<IArtifactKey> result = source.query(ArtifactKeyQuery.ALL_KEYS, null);
 			keys = result.iterator();
 		}
+
+		if (compareExclusionQuery != null) {
+			IQueryResult<IArtifactDescriptor> exclusions = source.descriptorQueryable().query(compareExclusionQuery, null);
+			compareExclusions = exclusions.unmodifiableSet();
+		}
+
 		while (keys.hasNext()) {
 			IArtifactKey key = keys.next();
 			IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(key);
@@ -108,44 +117,48 @@ public class Mirroring {
 		return multiStatus;
 	}
 
-	private IStatus mirror(IArtifactDescriptor descriptor, boolean verbose) {
-		IArtifactDescriptor newDescriptor = raw ? descriptor : new ArtifactDescriptor(descriptor);
+	private IStatus mirror(IArtifactDescriptor sourceDescriptor, boolean verbose) {
+		IArtifactDescriptor targetDescriptor = raw ? sourceDescriptor : new ArtifactDescriptor(sourceDescriptor);
+		IArtifactDescriptor baselineDescriptor = getBaselineDescriptor(sourceDescriptor);
 
 		if (verbose)
-			System.out.println("Mirroring: " + descriptor.getArtifactKey() + " (Descriptor: " + descriptor + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			System.out.println("Mirroring: " + sourceDescriptor.getArtifactKey() + " (Descriptor: " + sourceDescriptor + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-		if (compare && baseline != null)
-			if (baseline.contains(descriptor)) {
-				// we have to create an output stream based on the descriptor found in the baseline otherwise all
-				// the properties will be copied over from the wrong descriptor and our repository will be inconsistent.
-				IArtifactDescriptor baselineDescriptor = getBaselineDescriptor(descriptor);
-
-				// if we found a descriptor in the baseline then we'll use it to copy the artifact
-				if (baselineDescriptor != null) {
-					MultiStatus status = new MultiStatus(Activator.ID, IStatus.OK, NLS.bind(Messages.Mirroring_compareAndDownload, descriptor), null);
-					//Compare source against baseline
-					IStatus comparison = getComparator().compare(baseline, baselineDescriptor, source, descriptor);
-					if (comparatorLog != null)
-						comparatorLog.log(baselineDescriptor, comparison);
-					status.add(comparison);
-					if (destination.contains(baselineDescriptor))
-						return compareToDestination(baselineDescriptor);
-
-					//download artifact from baseline
-					status.add(downloadArtifact(baseline, baselineDescriptor, baselineDescriptor));
-					return status;
+		MultiStatus compareStatus = new MultiStatus(Activator.ID, IStatus.OK, null, null);
+		boolean comparing = compare && !compareExclusions.contains(sourceDescriptor);
+		if (comparing) {
+			if (baselineDescriptor != null) {
+				//compare source & baseline
+				compareStatus.add(compare(baseline, baselineDescriptor, source, sourceDescriptor));
+				//compare baseline & destination
+				if (destination.contains(baselineDescriptor)) {
+					compareStatus.add(compareToDestination(baselineDescriptor));
+					return compareStatus;
 				}
+			} else if (destination.contains(targetDescriptor)) {
+				compareStatus.add(compareToDestination(sourceDescriptor));
+				return compareStatus;
 			}
-
-		// Check if the destination already contains the file. 
-		if (destination.contains(newDescriptor)) {
-			if (compare)
-				return compareToDestination(descriptor);
-			String message = NLS.bind(Messages.mirror_alreadyExists, descriptor, destination);
-			return new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, message, null);
 		}
 
-		return downloadArtifact(source, newDescriptor, descriptor);
+		//from source or baseline
+		IArtifactRepository sourceRepository = baselineDescriptor != null ? baseline : source;
+		sourceDescriptor = baselineDescriptor != null ? baselineDescriptor : sourceDescriptor;
+		targetDescriptor = baselineDescriptor != null ? baselineDescriptor : targetDescriptor;
+		IStatus status = null;
+		if (!destination.contains(targetDescriptor))
+			//actual download
+			status = downloadArtifact(sourceRepository, targetDescriptor, sourceDescriptor);
+		else {
+			String message = NLS.bind(Messages.mirror_alreadyExists, sourceDescriptor, destination);
+			status = new Status(IStatus.INFO, Activator.ID, ProvisionException.ARTIFACT_EXISTS, message, null);
+		}
+
+		if (comparing) {
+			compareStatus.add(status);
+			return compareStatus;
+		}
+		return status;
 	}
 
 	/**
@@ -195,6 +208,9 @@ public class Mirroring {
 	 *  Get the equivalent descriptor from the baseline repository
 	 */
 	private IArtifactDescriptor getBaselineDescriptor(IArtifactDescriptor descriptor) {
+		if (baseline == null || !baseline.contains(descriptor))
+			return null;
+
 		IArtifactDescriptor[] baselineDescriptors = baseline.getArtifactDescriptors(descriptor.getArtifactKey());
 		for (int i = 0; i < baselineDescriptors.length; i++) {
 			if (baselineDescriptors[i].equals(descriptor))
@@ -287,5 +303,9 @@ public class Mirroring {
 				return 1;
 			return -1;
 		}
+	}
+
+	public void setCompareExclusions(IQuery<IArtifactDescriptor> excludedKeys) {
+		compareExclusionQuery = excludedKeys;
 	}
 }

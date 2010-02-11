@@ -15,9 +15,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.Messages;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator;
@@ -585,6 +588,51 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		assertEquals("Different number of ArtifactKeys", getArtifactKeyCount(result.query(InstallableUnitQuery.ANY, new NullProgressMonitor())), getArtifactKeyCount(destinationRepo));
 		assertArtifactKeyContentEquals("Different ArtifactKeys", result.query(InstallableUnitQuery.ANY, new NullProgressMonitor()), destinationRepo);
+	}
+
+	public void testMirrorCompareWithIgnore() throws Exception {
+		File testFolder = getTestFolder("mirrorWithIgnore");
+		File base = new File(testFolder, "base");
+		File source = new File(testFolder, "source");
+		File dest = new File(testFolder, "destination");
+
+		//some content for our fake bundles
+		Properties props = new Properties();
+		props.put("key", "value");
+
+		IArtifactKey key = new ArtifactKey("osgi.bundle", "a", Version.parseVersion("1.0.0"));
+		IArtifactRepository[] repos = new IArtifactRepository[] {createArtifactRepository(base.toURI(), null), createArtifactRepository(source.toURI(), null)};
+		for (int i = 0; i < 2; i++) {
+			ZipOutputStream stream = new ZipOutputStream(repos[i].getOutputStream(repos[i].createArtifactDescriptor(key)));
+			ZipEntry entry = new ZipEntry("file.properties");
+			stream.putNextEntry(entry);
+			props.store(stream, String.valueOf(i));
+			stream.closeEntry();
+			stream.close();
+		}
+		key = new ArtifactKey("osgi.bundle", "b", Version.parseVersion("1.0.0"));
+		for (int i = 0; i < 2; i++) {
+			ZipOutputStream stream = new ZipOutputStream(repos[i].getOutputStream(repos[i].createArtifactDescriptor(key)));
+			ZipEntry entry = new ZipEntry("file.properties");
+			stream.putNextEntry(entry);
+			props.put("boo", String.valueOf(i));
+			props.store(stream, String.valueOf(i));
+			stream.closeEntry();
+			stream.close();
+		}
+
+		AntTaskElement mirror = createMirrorTask(TYPE_ARTIFACT);
+		mirror.addElement(new AntTaskElement("source", new String[] {"location", URIUtil.toUnencodedString(source.toURI()), "kind", "artifact"}));
+		mirror.addElement(new AntTaskElement("destination", new String[] {"location", URIUtil.toUnencodedString(dest.toURI()), "kind", "artifact"}));
+		AntTaskElement comparator = new AntTaskElement("comparator");
+		comparator.addAttribute("comparator", "org.eclipse.equinox.p2.repository.tools.jar.comparator");
+		comparator.addAttribute("comparatorLog", new File(testFolder, "log.txt").getAbsolutePath());
+		comparator.addElement(new AntTaskElement("repository", new String[] {"location", URIUtil.toUnencodedString(base.toURI())}));
+		AntTaskElement exclude = new AntTaskElement("exclude");
+		exclude.addElement(new AntTaskElement("artifact", new String[] {"id", "b"}));
+		comparator.addElement(exclude);
+		mirror.addElement(comparator);
+		runAntTask();
 	}
 
 	/*

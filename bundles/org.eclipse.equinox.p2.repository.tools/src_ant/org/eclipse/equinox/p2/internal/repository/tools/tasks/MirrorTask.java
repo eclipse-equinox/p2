@@ -10,15 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.CompoundQuery;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public class MirrorTask extends AbstractRepositoryTask {
 
@@ -48,6 +51,7 @@ public class MirrorTask extends AbstractRepositoryTask {
 				// Set comparator log
 				if (comparator.getComparatorLog() != null)
 					((MirrorApplication) application).setComparatorLog(comparator.getComparatorLog());
+				((MirrorApplication) application).setComparatorExclusions(createCompareExclusions());
 			}
 
 			prepareSourceRepos();
@@ -63,6 +67,23 @@ public class MirrorTask extends AbstractRepositoryTask {
 			// Should not occur
 			throw new BuildException(e);
 		}
+	}
+
+	private IQuery<IArtifactDescriptor> createCompareExclusions() {
+		if (comparator == null || comparator.getExcluded() == null)
+			return null;
+
+		List<ArtifactDescription> artifacts = comparator.getExcluded();
+		List<IQuery<IArtifactDescriptor>> queries = new ArrayList<IQuery<IArtifactDescriptor>>();
+		for (ArtifactDescription artifactDescription : artifacts)
+			queries.add(artifactDescription.createDescriptorQuery());
+
+		if (queries.size() == 1)
+			return queries.get(0);
+
+		@SuppressWarnings("unchecked")
+		IQuery<IArtifactDescriptor>[] array = queries.toArray(new IQuery[queries.size()]);
+		return CompoundQuery.<IArtifactDescriptor> createCompoundQuery(array, false);
 	}
 
 	public SlicingOption createSlicingOptions() {

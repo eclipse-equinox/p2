@@ -11,8 +11,9 @@
 
 package org.eclipse.equinox.p2.repository.artifact;
 
+import java.util.Iterator;
+import java.util.Properties;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
@@ -27,6 +28,7 @@ public class ArtifactDescriptorQuery extends MatchQuery<IArtifactDescriptor> {
 	private String format = null;
 	private ArtifactDescriptor descriptor = null;
 	private IArtifactRepository repository = null;
+	private Properties properties = null;
 
 	/**
 	 * The query will match descriptors with the given id, version and format
@@ -58,6 +60,10 @@ public class ArtifactDescriptorQuery extends MatchQuery<IArtifactDescriptor> {
 		//matches everything
 	}
 
+	public void setProperties(Properties properties) {
+		this.properties = properties;
+	}
+
 	/**
 	 * The query will match candidate descriptors where
 	 *          new ArtifactDescriptor(descriptor).equals(new ArtifactDescriptor(candidate))
@@ -83,6 +89,14 @@ public class ArtifactDescriptorQuery extends MatchQuery<IArtifactDescriptor> {
 		if (repository != null && repository != candidate.getRepository())
 			return false;
 
+		if (properties != null) {
+			for (Iterator<Object> iterator = properties.keySet().iterator(); iterator.hasNext();) {
+				String key = (String) iterator.next();
+				String value = properties.getProperty(key);
+				if (value != null && !value.equals(candidate.getProperty(key)))
+					return false;
+			}
+		}
 		return true;
 	}
 
