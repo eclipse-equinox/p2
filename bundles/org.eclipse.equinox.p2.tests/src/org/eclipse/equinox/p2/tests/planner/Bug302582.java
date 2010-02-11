@@ -149,6 +149,7 @@ public class Bug302582 extends AbstractProvisioningTest {
 				pcr.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
 			}
 		}
+		assertFalse("0.99 Profile change request is empty.", pcr.getAdditions().isEmpty());
 		return pcr;
 	}
 }
