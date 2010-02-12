@@ -1,0 +1,1 @@
+This bundle is obsolete and will be deleted before 3.6 M6.
