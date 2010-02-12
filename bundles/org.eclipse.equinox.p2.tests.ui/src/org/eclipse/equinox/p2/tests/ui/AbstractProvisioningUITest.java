@@ -91,7 +91,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		artifactManager.removeRepository(testRepoLocation);
 	}
 
-	protected boolean managerContains(IRepositoryManager manager, URI location) {
+	protected boolean managerContains(IRepositoryManager<?> manager, URI location) {
 		URI[] locations = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < locations.length; i++) {
 			if (locations[i].equals(location))
