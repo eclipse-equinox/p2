@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,12 +12,11 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.IOException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.internal.p2.operations.*;
@@ -30,6 +29,7 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -45,7 +45,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 public class ProvisioningSession {
 	private IProvisioningAgent agent;
 
-	private Set<Job> scheduledJobs = Collections.synchronizedSet(new HashSet<Job>());
+	Set<Job> scheduledJobs = Collections.synchronizedSet(new HashSet<Job>());
 
 	/**
 	 * A constant indicating that there was nothing to size (there
@@ -306,7 +306,7 @@ public class ProvisioningSession {
 	public Collection<IInstallableUnit> getInstalledIUs(String profileId, boolean all) {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 		if (profile == null)
-			return Collections.EMPTY_LIST;
+			return CollectionUtils.emptyList();
 		IQuery<IInstallableUnit> query;
 		if (all)
 			query = InstallableUnitQuery.ANY;
@@ -315,5 +315,4 @@ public class ProvisioningSession {
 		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
 		return queryResult.toSet();
 	}
-
 }
