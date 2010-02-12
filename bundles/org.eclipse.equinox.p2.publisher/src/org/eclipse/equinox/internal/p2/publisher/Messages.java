@@ -31,6 +31,8 @@ public class Messages extends NLS {
 	public static String message_generationCompleted;
 	public static String message_noSimpleconfigurator;
 
+	public static String exception_artifactRepoNoAppendDestroysInput;
+
 	public static String error_rootIU_generation;
 	static {
 		// load message values from bundle file

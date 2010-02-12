@@ -411,9 +411,14 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		if (destination == null || destination.contains(descriptor))
 			return;
 
+		// if all we are doing is indexing things then add the descriptor and get on with it
+		if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
+			destination.addDescriptor(descriptor);
+			return;
+		}
+
+		// if the file is already in the same location the repo will put it, just add the descriptor and exit
 		if (destination instanceof IFileArtifactRepository) {
-			// TODO  need to review this logic to ensure it makes sense.
-			// if the file is already in the same location the repo will put it, just add the descriptor and exit
 			File descriptorFile = ((IFileArtifactRepository) destination).getArtifactFile(descriptor);
 			if (inclusion.equals(descriptorFile)) {
 				destination.addDescriptor(descriptor);
@@ -421,24 +426,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			}
 		}
 
-		// if all we are doing is indexing things then add the descriptor and get on with it
-		if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
-			destination.addDescriptor(descriptor);
-			return;
-		}
 		try {
-			if (destination instanceof IFileArtifactRepository) {
-				// TODO  need to review this logic to ensure it makes sense.
-				// if the file is already in the same location the repo will put it, just add the descriptor and exit
-				File descriptorFile = ((IFileArtifactRepository) destination).getArtifactFile(descriptor);
-				if (inclusion.equals(descriptorFile)) {
-					destination.addDescriptor(descriptor);
-					return;
-				}
-			}
-
-			// TODO need to implement the overwrite story in the repos
-			//			boolean overwrite = (info.getArtifactOptions() & IPublisherInfo.A_OVERWRITE) > 0;
 			OutputStream output = destination.getOutputStream(descriptor);
 			if (output == null)
 				return;

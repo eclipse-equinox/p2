@@ -22,6 +22,10 @@ import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepo
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.LimitQuery;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
@@ -84,10 +88,26 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		return new Status(IStatus.ERROR, "org.eclipse.equinox.p2.publisher", message); //$NON-NLS-1$
 	}
 
+	private boolean isEmpty(IArtifactRepository repo) {
+		IQueryResult<IArtifactKey> result = repo.query(new LimitQuery<IArtifactKey>(ArtifactKeyQuery.ALL_KEYS, 1), null);
+		return result.isEmpty();
+	}
+
 	protected void initializeRepositories(PublisherInfo publisherInfo) throws ProvisionException {
-		if (artifactLocation != null)
-			publisherInfo.setArtifactRepository(Publisher.createArtifactRepository(agent, artifactLocation, artifactRepoName, append, compress, reusePackedFiles));
-		else if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0)
+		if (artifactLocation != null) {
+			IArtifactRepository repo = Publisher.createArtifactRepository(agent, artifactLocation, artifactRepoName, compress, reusePackedFiles);
+			if (!append && !isEmpty(repo)) {
+				File repoLocation = URIUtil.toFile(artifactLocation);
+				if (repoLocation != null && source != null) {
+					if (repoLocation.isFile())
+						repoLocation = repoLocation.getParentFile();
+					if (repoLocation.equals(new File(source)))
+						throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput, URIUtil.toUnencodedString(artifactLocation)));
+				}
+				repo.removeAll();
+			}
+			publisherInfo.setArtifactRepository(repo);
+		} else if ((publisherInfo.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0)
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noArtifactRepo));
 		if (metadataLocation == null)
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noMetadataRepo));
@@ -129,6 +149,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {
 		try {
 			if (arg.equalsIgnoreCase("-metadataRepository") || arg.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$

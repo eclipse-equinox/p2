@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.ant;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -21,7 +22,13 @@ import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.LimitQuery;
+import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.osgi.util.NLS;
 
 public abstract class AbstractPublishTask extends Task {
 	protected static final String ANT_PROPERTY_PREFIX = "${"; //$NON-NLS-1$
@@ -81,6 +88,7 @@ public abstract class AbstractPublishTask extends Task {
 	protected boolean reusePackedFiles = false;
 	protected boolean append = true;
 	protected boolean publish = true;
+	protected String source = null;
 	protected URI metadataLocation;
 	protected String metadataRepoName;
 	protected URI artifactLocation;
@@ -96,10 +104,26 @@ public abstract class AbstractPublishTask extends Task {
 		return new Status(IStatus.ERROR, "org.eclipse.equinox.p2.publisher", message); //$NON-NLS-1$
 	}
 
+	private boolean isEmpty(IArtifactRepository repo) {
+		IQueryResult<IArtifactKey> result = repo.query(new LimitQuery<IArtifactKey>(ArtifactKeyQuery.ALL_KEYS, 1), null);
+		return result.isEmpty();
+	}
+
 	protected void initializeRepositories(PublisherInfo info) throws ProvisionException {
-		if (artifactLocation != null)
-			info.setArtifactRepository(Publisher.createArtifactRepository(getProvisioningAgent(), artifactLocation, artifactRepoName, append, compress, reusePackedFiles));
-		else if ((info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0)
+		if (artifactLocation != null) {
+			IArtifactRepository repo = Publisher.createArtifactRepository(getProvisioningAgent(), artifactLocation, artifactRepoName, compress, reusePackedFiles);
+			if (!append && !isEmpty(repo)) {
+				File repoLocation = URIUtil.toFile(artifactLocation);
+				if (repoLocation != null && source != null) {
+					if (repoLocation.isFile())
+						repoLocation = repoLocation.getParentFile();
+					if (repoLocation.equals(new File(source)))
+						throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput, URIUtil.toUnencodedString(artifactLocation)));
+				}
+				repo.removeAll();
+			}
+			info.setArtifactRepository(repo);
+		} else if ((info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0)
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noArtifactRepo));
 		if (metadataLocation == null)
 			throw new ProvisionException(createConfigurationEror(Messages.exception_noMetadataRepo));

@@ -61,7 +61,6 @@ public class ProductPublisherTask extends AbstractPublishTask {
 	private String flavor;
 	private String productFile;
 	private String executables;
-	private String source;
 	private List<ConfigElement> configurations = new ArrayList<ConfigElement>(3);
 	private List<AdviceElement> advice = new ArrayList<AdviceElement>(3);
 
@@ -125,7 +124,7 @@ public class ProductPublisherTask extends AbstractPublishTask {
 	}
 
 	public void setSource(String source) {
-		this.source = source;
+		super.source = source;
 	}
 
 	public void addConfiguredConfig(ConfigElement config) {

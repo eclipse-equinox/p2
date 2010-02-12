@@ -39,6 +39,7 @@ Import-Package: javax.xml.parsers,
  org.eclipse.osgi.service.resolver;version="1.2.0",
  org.eclipse.osgi.util;version="1.1.0",
  org.osgi.framework;version="1.4.0",
+ org.osgi.service.application;version="1.1.0",
  org.osgi.service.packageadmin;version="1.2.0",
  org.xml.sax,
  org.xml.sax.helpers
@@ -49,6 +50,7 @@ Export-Package: org.eclipse.equinox.internal.p2.publisher;
    org.eclipse.equinox.p2.directorywatcher,
    org.eclipse.equinox.p2.touchpoint.eclipse,
    org.eclipse.equinox.p2.ui.sdk",
+ org.eclipse.equinox.internal.p2.publisher.compatibility,
  org.eclipse.equinox.internal.p2.publisher.eclipse;
   x-friends:="org.eclipse.equinox.p2.updatesite,
    org.eclipse.equinox.p2.directorywatcher,

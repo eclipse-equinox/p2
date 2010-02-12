@@ -100,15 +100,13 @@ public class Publisher {
 	 * @return the discovered or created repository
 	 * @throws ProvisionException
 	 */
-	public static IArtifactRepository createArtifactRepository(IProvisioningAgent agent, URI location, String name, boolean append, boolean compress, boolean reusePackedFiles) throws ProvisionException {
+	public static IArtifactRepository createArtifactRepository(IProvisioningAgent agent, URI location, String name, boolean compress, boolean reusePackedFiles) throws ProvisionException {
 		try {
 			IArtifactRepository result = loadArtifactRepository(agent, location, true, true);
 			if (result != null && result.isModifiable()) {
 				result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
 				if (reusePackedFiles)
 					result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-				if (!append)
-					result.removeAll();
 				return result;
 			}
 		} catch (ProvisionException e) {

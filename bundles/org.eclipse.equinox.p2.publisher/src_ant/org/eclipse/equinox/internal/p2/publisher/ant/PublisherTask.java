@@ -110,6 +110,7 @@ public class PublisherTask extends AbstractPublishTask {
 	}
 
 	public void setSource(String location) {
+		super.source = location;
 		operation = "-source"; //$NON-NLS-1$
 		operationValue = location;
 	}

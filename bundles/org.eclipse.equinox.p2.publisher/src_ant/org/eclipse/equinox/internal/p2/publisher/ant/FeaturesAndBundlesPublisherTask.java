@@ -78,6 +78,7 @@ public class FeaturesAndBundlesPublisherTask extends AbstractPublishTask {
 	}
 
 	public void setSource(String source) {
+		super.source = source;
 		features.add(new File(source, "features")); //$NON-NLS-1$
 		bundles.add(new File(source, "plugins")); //$NON-NLS-1$
 	}
