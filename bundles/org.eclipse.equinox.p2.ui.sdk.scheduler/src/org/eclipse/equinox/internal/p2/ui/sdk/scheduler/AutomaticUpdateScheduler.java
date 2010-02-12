@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -168,7 +168,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	}
 
-	private IQuery getProfileQuery() {
+	private IQuery<IInstallableUnit> getProfileQuery() {
 		// We specifically avoid using the default policy's root property so that we don't load all the
 		// p2 UI classes in doing so.  
 		return new IUProfilePropertyByIdQuery(IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
