@@ -113,9 +113,9 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		synchronized (agentServices) {
 			if (agentServices.get(serviceName) == service)
 				agentServices.remove(serviceName);
-			if (service instanceof IAgentService)
-				((IAgentService) service).stop();
 		}
+		if (service instanceof IAgentService)
+			((IAgentService) service).stop();
 	}
 
 	public void stop() {
