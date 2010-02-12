@@ -25,7 +25,7 @@ public class EngineComponent implements IAgentServiceFactory {
 	 */
 	public Object createService(IProvisioningAgent agent) {
 		//ensure there is a garbage collector created for this agent if available
-		Object gc = agent.getService("org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector"); //$NON-NLS-1$
+		agent.getService("org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector"); //$NON-NLS-1$
 		//various parts of the engine may need an open-ended set of services, so we pass the agent to the engine directly
 		return new Engine(agent);
 	}
