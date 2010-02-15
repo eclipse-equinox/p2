@@ -23,7 +23,6 @@ import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
@@ -91,13 +90,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	}
 
 	private void initializeProvisioningUI() {
-		// TODO for now we need to manually start up the provisioning infrastructure
-		// because the Eclipse Application launch config won't let me specify bundles to start.
-		try {
-			getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-		} catch (BundleException e) {
-			ProvUI.handleException(e, "Error initializing provisioning UI", StatusManager.LOG); //$NON-NLS-1$
-		}
 		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
 		session = new ProvisioningSession(agent);
 

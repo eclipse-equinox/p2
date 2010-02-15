@@ -50,31 +50,10 @@ public class VerifierApplication implements IApplication {
 		return new Status(IStatus.ERROR, Activator.PLUGIN_ID, message);
 	}
 
-	/*
-	 * Return the bundle with the given symbolic name, or <code>null</code> if it does not exist.
-	 */
-	public static Bundle getBundle(String symbolicName) {
-		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(Activator.getBundleContext(), PackageAdmin.class.getName());
-		if (packageAdmin == null)
-			return null;
-		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
-		if (bundles == null)
-			return null;
-		// Return the first bundle that is not installed or uninstalled
-		for (int i = 0; i < bundles.length; i++) {
-			if ((bundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
-				return bundles[i];
-			}
-		}
-		return null;
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) throws Exception {
-		// start this bundle to registry a bunch of things we need
-		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		String[] args = (String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS);
 		processArguments(args);
 

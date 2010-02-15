@@ -66,7 +66,6 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	private void restart() {
 		try {
 			ungetServices();
-			restartBundle(TestActivator.getBundle("org.eclipse.equinox.p2.exemplarysetup"));
 			getServices();
 		} catch (Exception e) {
 			fail();

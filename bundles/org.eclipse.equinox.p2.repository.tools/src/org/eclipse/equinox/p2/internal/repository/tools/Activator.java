@@ -21,8 +21,8 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.*;
-import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
@@ -41,12 +41,6 @@ public class Activator implements BundleActivator {
 	 */
 	public void start(BundleContext context) throws Exception {
 		bundleContext = context;
-
-		// TODO needed to do this to ensure the profile registry was registered
-		Bundle bundle = getBundle("org.eclipse.equinox.p2.exemplarysetup"); //$NON-NLS-1$
-		if (bundle == null)
-			throw new ProvisionException(Messages.unable_to_start_exemplarysetup);
-		bundle.start(Bundle.START_TRANSIENT);
 	}
 
 	/* (non-Javadoc)
@@ -99,24 +93,6 @@ public class Activator implements BundleActivator {
 		if (registry == null)
 			throw new ProvisionException(Messages.no_profile_registry);
 		return registry;
-	}
-
-	/*
-	 * Return the bundle with the given symbolic name, or null if it cannot be found.
-	 */
-	public static synchronized Bundle getBundle(String symbolicName) throws ProvisionException {
-		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(getBundleContext(), PackageAdmin.class.getName());
-		if (packageAdmin == null)
-			throw new ProvisionException(Messages.no_package_admin);
-		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
-		if (bundles == null)
-			return null;
-		//Return the first bundle that is not installed or uninstalled
-		for (int i = 0; i < bundles.length; i++) {
-			if ((bundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0)
-				return bundles[i];
-		}
-		return null;
 	}
 
 	/*

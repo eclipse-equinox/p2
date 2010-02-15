@@ -105,7 +105,6 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 		// infrastructure and the update checker, because the Eclipse
 		// Application launch config won't let me specify bundles to start.
 		// TODO how should we react if we are unable to start one of these bundles?
-		startEarly("org.eclipse.equinox.p2.exemplarysetup"); //$NON-NLS-1$
 		startEarly("org.eclipse.equinox.p2.updatechecker"); //$NON-NLS-1$
 
 		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);

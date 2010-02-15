@@ -38,7 +38,6 @@ public class Messages extends NLS {
 	public static String no_profile_registry;
 	public static String no_provisioning_agent;
 	public static String unable_to_process_uri;
-	public static String unable_to_start_exemplarysetup;
 	public static String unknown_repository_type;
 
 	public static String MirrorApplication_artifactDestinationNoSource;

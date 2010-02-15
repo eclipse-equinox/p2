@@ -31,8 +31,8 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.datalocation.Location;
-import org.osgi.framework.*;
-import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
@@ -48,9 +48,7 @@ public class Activator implements BundleActivator {
 	private static final String DIR_PLUGINS = "plugins"; //$NON-NLS-1$
 	private static final String DIR_FEATURES = "features"; //$NON-NLS-1$
 	private static final String EXT_LINK = ".link"; //$NON-NLS-1$
-	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
-	private ServiceReference packageAdminRef;
 	private final static Set<IMetadataRepository> repositories = new HashSet<IMetadataRepository>();
 	private Collection<File> filesToCheck = null;
 
@@ -146,8 +144,6 @@ public class Activator implements BundleActivator {
 	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
 	 */
 	public void start(BundleContext context) throws Exception {
-		packageAdminRef = context.getServiceReference(PackageAdmin.class.getName());
-		setPackageAdmin((PackageAdmin) context.getService(packageAdminRef));
 		bundleContext = context;
 
 		// check to see if there is really any work to do. Do this after setting the context, and
@@ -157,9 +153,6 @@ public class Activator implements BundleActivator {
 			filesToCheck = null;
 			return;
 		}
-
-		if (!startEarly("org.eclipse.equinox.p2.exemplarysetup")) //$NON-NLS-1$
-			return;
 
 		checkConfigIni();
 
@@ -402,14 +395,6 @@ public class Activator implements BundleActivator {
 		}
 	}
 
-	private boolean startEarly(String bundleName) throws BundleException {
-		Bundle bundle = getBundle(bundleName);
-		if (bundle == null)
-			return false;
-		bundle.start(Bundle.START_TRANSIENT);
-		return true;
-	}
-
 	/*
 	 * Synchronize the profile.
 	 */
@@ -497,8 +482,6 @@ public class Activator implements BundleActivator {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		bundleContext = null;
-		setPackageAdmin(null);
-		context.ungetService(packageAdminRef);
 	}
 
 	/*
@@ -626,27 +609,5 @@ public class Activator implements BundleActivator {
 		if (profileRegistry == null)
 			return null;
 		return profileRegistry.getProfile(IProfileRegistry.SELF);
-	}
-
-	private static synchronized void setPackageAdmin(PackageAdmin service) {
-		packageAdmin = service;
-	}
-
-	/*
-	 * Return the bundle with the given symbolic name, or null if it cannot be found.
-	 */
-	static synchronized Bundle getBundle(String symbolicName) {
-		if (packageAdmin == null)
-			return null;
-		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
-		if (bundles == null)
-			return null;
-		//Return the first bundle that is not installed or uninstalled
-		for (int i = 0; i < bundles.length; i++) {
-			if ((bundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
-				return bundles[i];
-			}
-		}
-		return null;
 	}
 }

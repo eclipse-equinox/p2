@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,16 +28,15 @@ import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.*;
-import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.framework.ServiceReference;
 
 /**
  * This is the original p2 director application created for the p2 1.0 release. There
@@ -51,7 +48,6 @@ public class Application implements IApplication {
 	private static final Integer EXIT_ERROR = new Integer(13);
 	static private final String ANT_PROPERTY_PREFIX = "${"; //$NON-NLS-1$
 	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
-	static private final String EXEMPLARY_SETUP = "org.eclipse.equinox.p2.exemplarysetup"; //$NON-NLS-1$
 
 	public static final int COMMAND_INSTALL = 0;
 	public static final int COMMAND_UNINSTALL = 1;
@@ -85,9 +81,6 @@ public class Application implements IApplication {
 	private boolean noProfileId = false;
 
 	private int command = -1;
-
-	private ServiceReference packageAdminRef;
-	private PackageAdmin packageAdmin;
 	protected IProvisioningAgent agent;
 
 	private void ambigousCommand(int cmd1, int cmd2) throws CoreException {
@@ -103,22 +96,6 @@ public class Application implements IApplication {
 			request.removeAll(roots.toSet());
 		}
 		return request;
-	}
-
-	synchronized Bundle getBundle(String symbolicName) {
-		if (packageAdmin == null)
-			return null;
-
-		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
-		if (bundles == null)
-			return null;
-		//Return the first bundle that is not installed or uninstalled
-		for (int i = 0; i < bundles.length; i++) {
-			if ((bundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
-				return bundles[i];
-			}
-		}
-		return null;
 	}
 
 	private String getEnvironmentProperty() {
@@ -506,32 +483,12 @@ public class Application implements IApplication {
 		return new CompoundQueryable<IInstallableUnit>(locationQueryables).query(query, nullMonitor);
 	}
 
-	private synchronized void setPackageAdmin(PackageAdmin service) {
-		packageAdmin = service;
-	}
-
-	private boolean startEarly(String bundleName) throws BundleException {
-		Bundle bundle = getBundle(bundleName);
-		if (bundle == null)
-			return false;
-		bundle.start(Bundle.START_ACTIVATION_POLICY);
-		bundle.start(Bundle.START_TRANSIENT);
-		return true;
-	}
-
 	public Object start(IApplicationContext context) throws Exception {
-		packageAdminRef = Activator.getContext().getServiceReference(PackageAdmin.class.getName());
-		setPackageAdmin((PackageAdmin) Activator.getContext().getService(packageAdminRef));
-		if (!startEarly(EXEMPLARY_SETUP)) {
-			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, EXEMPLARY_SETUP)));
-			return EXIT_ERROR;
-		}
 		return run((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 	}
 
 	public void stop() {
-		setPackageAdmin(null);
-		Activator.getContext().ungetService(packageAdminRef);
+		//nothing to do
 	}
 
 	private String toString(Map<String, String> context) {
