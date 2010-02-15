@@ -60,7 +60,8 @@ public class PlannerStatus implements IStatus {
 	 * that are incompatible with the software being installed.
 	 * This includes additional software that will be installed as a result of the change,
 	 * or optional changes and their corresponding explanation.
-	 * @return A map of {@link IInstallableUnit} to {@link IStatus} of the additional 
+	 * @return A map of {@link IInstallableUnit} to {@link IStatus} of the additional side effect
+	 * status, or <code>null</code> if there are no side effects.
 	 */
 	public Map<IInstallableUnit, RequestStatus> getRequestSideEffects() {
 		return requestSideEffects;

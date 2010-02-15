@@ -131,13 +131,15 @@ public class PlanAnalyzer {
 		}
 
 		// Now process the side effects
-		for (Entry<IInstallableUnit, RequestStatus> entry : plannerStatus.getRequestSideEffects().entrySet()) {
-			IInstallableUnit iu = entry.getKey();
-			RequestStatus rs = entry.getValue();
-			if (rs.getInitialRequestType() == RequestStatus.ADDED) {
-				report.addStatus(iu, new Status(rs.getSeverity(), Activator.ID, IStatusCodes.ALTERED_SIDE_EFFECT_INSTALL, NLS.bind(Messages.PlanAnalyzer_SideEffectInstall, getIUString(iu)), null));
-			} else {
-				report.addStatus(iu, new Status(rs.getSeverity(), Activator.ID, IStatusCodes.ALTERED_SIDE_EFFECT_REMOVE, NLS.bind(Messages.PlanAnalyzer_SideEffectUninstall, getIUString(iu)), null));
+		if (plannerStatus.getRequestSideEffects() != null) {
+			for (Entry<IInstallableUnit, RequestStatus> entry : plannerStatus.getRequestSideEffects().entrySet()) {
+				IInstallableUnit iu = entry.getKey();
+				RequestStatus rs = entry.getValue();
+				if (rs.getInitialRequestType() == RequestStatus.ADDED) {
+					report.addStatus(iu, new Status(rs.getSeverity(), Activator.ID, IStatusCodes.ALTERED_SIDE_EFFECT_INSTALL, NLS.bind(Messages.PlanAnalyzer_SideEffectInstall, getIUString(iu)), null));
+				} else {
+					report.addStatus(iu, new Status(rs.getSeverity(), Activator.ID, IStatusCodes.ALTERED_SIDE_EFFECT_REMOVE, NLS.bind(Messages.PlanAnalyzer_SideEffectUninstall, getIUString(iu)), null));
+				}
 			}
 		}
 
