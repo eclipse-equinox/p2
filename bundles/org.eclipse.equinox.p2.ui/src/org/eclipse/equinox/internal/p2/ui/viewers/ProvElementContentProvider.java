@@ -29,6 +29,7 @@ import org.eclipse.ui.progress.*;
  */
 public class ProvElementContentProvider implements ITreeContentProvider {
 
+	private boolean fetchInBackground = false;
 	private Viewer viewer;
 	private Job fetchJob;
 	// family is used by test cases
@@ -47,13 +48,13 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 	 */
 	public Object[] getElements(final Object input) {
 		// Simple deferred fetch handling for table viewers
-		if (input instanceof IDeferredWorkbenchAdapter && viewer instanceof AbstractTableViewer) {
+		if (fetchInBackground && input instanceof IDeferredWorkbenchAdapter && viewer instanceof AbstractTableViewer) {
 			final Display display = viewer.getControl().getDisplay();
 			final Object pending = new PendingUpdateAdapter();
 			if (fetchJob != null)
 				fetchJob.cancel();
 			fetchJob = new Job(ProvUIMessages.ProvElementContentProvider_FetchJobTitle) {
-				protected IStatus run(IProgressMonitor monitor) {
+				protected IStatus run(final IProgressMonitor monitor) {
 					IDeferredWorkbenchAdapter parent = (IDeferredWorkbenchAdapter) input;
 					final ArrayList<Object> children = new ArrayList<Object>();
 					parent.fetchDeferredChildren(parent, new IElementCollector() {
@@ -74,18 +75,20 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 						}
 
 					}, monitor);
-					display.asyncExec(new Runnable() {
-						public void run() {
-							AbstractTableViewer tableViewer = (AbstractTableViewer) viewer;
-							if (viewer == null || viewer.getControl().isDisposed())
-								return;
-							tableViewer.getControl().setRedraw(false);
-							tableViewer.remove(pending);
-							tableViewer.add(children.toArray());
-							finishedFetchingElements(input);
-							tableViewer.getControl().setRedraw(true);
-						}
-					});
+					if (!monitor.isCanceled()) {
+						display.asyncExec(new Runnable() {
+							public void run() {
+								AbstractTableViewer tableViewer = (AbstractTableViewer) viewer;
+								if (monitor.isCanceled() || tableViewer == null || tableViewer.getControl().isDisposed())
+									return;
+								tableViewer.getControl().setRedraw(false);
+								tableViewer.remove(pending);
+								tableViewer.add(children.toArray());
+								finishedFetchingElements(input);
+								tableViewer.getControl().setRedraw(true);
+							}
+						});
+					}
 					return Status.OK_STATUS;
 				}
 
@@ -158,5 +161,9 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 
 	protected void finishedFetchingElements(Object parent) {
 		// do nothing
+	}
+
+	public void setFetchInBackground(boolean fetchInBackground) {
+		this.fetchInBackground = fetchInBackground;
 	}
 }

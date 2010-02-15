@@ -144,6 +144,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 					configsViewer.setSelection(new StructuredSelection(element));
 			}
 		};
+		// Use deferred fetch because getting snapshots is expensive.
+		provider.setFetchInBackground(true);
 		configsViewer.setContentProvider(provider);
 		configsViewer.setLabelProvider(new ProvElementLabelProvider());
 		configsViewer.setComparator(new ViewerComparator() {

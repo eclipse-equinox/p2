@@ -42,7 +42,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.*;
 import org.eclipse.ui.dialogs.PatternFilter;
-import org.eclipse.ui.progress.IElementCollector;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -118,20 +117,16 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			return QueryProvider.METADATA_REPOS;
 		}
 
-		public void fetchDeferredChildren(Object o, IElementCollector collector, IProgressMonitor monitor) {
+		public Object[] fetchChildren(Object o, IProgressMonitor monitor) {
 			if (cachedElements == null) {
-				super.fetchDeferredChildren(o, collector, monitor);
-				// now we know we have children
-				Object[] children = getChildren(o);
+				Object[] children = super.fetchChildren(o, monitor);
 				cachedElements = new Hashtable<String, Object>(children.length);
 				for (int i = 0; i < children.length; i++) {
 					if (children[i] instanceof MetadataRepositoryElement)
 						cachedElements.put(URIUtil.toUnencodedString(((MetadataRepositoryElement) children[i]).getLocation()), children[i]);
 				}
-				return;
 			}
-			// Use the cache rather than fetching children
-			collector.add(cachedElements.values().toArray(), monitor);
+			return cachedElements.values().toArray();
 		}
 
 	}
