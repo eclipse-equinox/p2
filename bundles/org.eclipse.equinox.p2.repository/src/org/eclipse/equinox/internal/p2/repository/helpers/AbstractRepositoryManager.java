@@ -642,7 +642,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			ByteArrayOutputStream index = new ByteArrayOutputStream();
 			LocationProperties locationProperties = null;
 			try {
-				getTransport().download(getIndexFile(location), index, new NullProgressMonitor());
+				getTransport().download(getIndexFile(location), index, monitor);
 			} catch (Throwable e) {
 				// If any exceptions are thrown, just ignore the index file
 			}
