@@ -17,6 +17,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  *  A profile change request is a description of a set of changes to be performed on a profile.
  *  A profile change request is then 
  * @noimplement This interface is not intended to be implemented by clients.
+ * @since 1.0
  */
 public interface IProfileChangeRequest {
 
@@ -34,8 +35,7 @@ public interface IProfileChangeRequest {
 
 	/**
 	 * Causes the removals of all the IUs mentioned
-	 * @param toInstall the installableunits to be added to the profile
-	 * @param soft indicate whether a attempt to completly remove this IU should be made.
+	 * @param toUninstall the installableunits to be remove from the profile
 	 */
 	public abstract void remove(IInstallableUnit toUninstall);
 
@@ -64,7 +64,6 @@ public interface IProfileChangeRequest {
 	/** 
 	 * Remove a global property on the profile
 	 * @param key key of the property
-	 * @param value value of the property
 	 */
 	public abstract void removeProfileProperty(String key);
 
@@ -77,8 +76,8 @@ public interface IProfileChangeRequest {
 
 	/** 
 	 * Remove a property with a given IU. 
+	 * @param iu The installable until to remove a property for
 	 * @param key key of the property
-	 * @param value value of the property
 	 */
 	public abstract void removeInstallableUnitProfileProperty(IInstallableUnit iu, String key);
 
