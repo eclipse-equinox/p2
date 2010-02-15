@@ -11,13 +11,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository.helpers;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.lang.ref.SoftReference;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.p2.repository.Activator;
+import org.eclipse.equinox.internal.p2.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
@@ -66,6 +68,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	public static final String KEY_VERSION = "version"; //$NON-NLS-1$
 
 	public static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
+	private static final String INDEX_FILE = "index.p2"; //$NON-NLS-1$
 
 	/**
 	 * Map of String->RepositoryInfo, where String is the repository key
@@ -598,6 +601,11 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 */
 	protected abstract int getRepositoryType();
 
+	/**
+	 * Returns the preferred search order for this location
+	 */
+	protected abstract String[] getPreferredRepositorySearchOrder(LocationProperties properties);
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#isEnabled(java.net.URI)
 	 */
@@ -629,7 +637,20 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 				fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 			//add the repository first so that it will be enabled, but don't send add event until after the load
 			added = addRepository(location, true, false);
-			String[] suffixes = sortSuffixes(getAllSuffixes(), location);
+
+			// get the search order from the server, if it's available
+			ByteArrayOutputStream index = new ByteArrayOutputStream();
+			LocationProperties locationProperties = null;
+			try {
+				getTransport().download(getIndexFile(location), index, new NullProgressMonitor());
+			} catch (Throwable e) {
+				// If any exceptions are thrown, just ignore the index file
+			}
+
+			locationProperties = LocationProperties.create(new ByteArrayInputStream(index.toByteArray()));
+			String[] preferredOrder = getPreferredRepositorySearchOrder(locationProperties);
+			String[] suffixes = sortSuffixes(getAllSuffixes(), location, preferredOrder);
+
 			SubMonitor sub = SubMonitor.convert(monitor, NLS.bind(Messages.repoMan_adding, location), suffixes.length * 100);
 			ProvisionException failure = null;
 			try {
@@ -1009,25 +1030,53 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	/**
 	 * Optimize the order in which repository suffixes are searched by trying 
 	 * the last successfully loaded suffix first.
+	 * @nooverride This method is not intended to be re-implemented or extended by clients.
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	private String[] sortSuffixes(String[] suffixes, URI location) {
+	protected String[] sortSuffixes(String[] suffixes, URI location, String[] preferredOrder) {
+		String[] result = new String[suffixes.length];
+		System.arraycopy(suffixes, 0, result, 0, suffixes.length);
+
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
 			RepositoryInfo<T> info = repositories.get(getKey(location));
-			if (info == null || info.suffix == null)
-				return suffixes;
-			//move lastSuffix to the front of the list but preserve order of remaining entries
-			String lastSuffix = info.suffix;
-			for (int i = 0; i < suffixes.length; i++) {
-				if (lastSuffix.equals(suffixes[i])) {
-					System.arraycopy(suffixes, 0, suffixes, 1, i);
-					suffixes[0] = lastSuffix;
-					return suffixes;
+			if (info != null && info.suffix != null) {
+				//move lastSuffix to the front of the list but preserve order of remaining entries
+				String lastSuffix = info.suffix;
+				for (int i = 0; i < result.length; i++) {
+					if (lastSuffix.equals(result[i])) {
+						System.arraycopy(result, 0, result, 1, i);
+						result[0] = lastSuffix;
+						break;
+					}
+				}
+			}
+			// Now make sure that anything in the "preferredOrder" is at the top
+			if (preferredOrder != null) {
+				int priority = 0;
+				for (int i = 0; i < preferredOrder.length; i++) {
+					String currentSuffix = preferredOrder[i];
+					if (LocationProperties.END.equals(currentSuffix.trim())) {
+						// All suffixes from here on should be ignored
+						String[] tmp = new String[priority];
+						System.arraycopy(result, 0, tmp, 0, priority);
+						return tmp;
+					}
+					for (int j = priority; j < result.length; j++) {
+						if (result[j].equalsIgnoreCase(currentSuffix.trim())) {
+							String tmp = result[j];
+							System.arraycopy(result, priority, result, priority + 1, j - priority);
+							result[priority] = tmp;
+							priority++;
+							break;
+						}
+					}
 				}
 			}
 		}
-		return suffixes;
+
+		return result;
 	}
 
 	/**
@@ -1068,5 +1117,21 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		} finally {
 			sub.done();
 		}
+	}
+
+	private static URI getIndexFile(URI base) throws URISyntaxException {
+		final String name = INDEX_FILE;
+		String spec = base.toString();
+		if (spec.endsWith(name))
+			return base;
+		if (spec.endsWith("/")) //$NON-NLS-1$
+			spec += name;
+		else
+			spec += "/" + name; //$NON-NLS-1$
+		return new URI(spec);
+	}
+
+	private Transport getTransport() {
+		return RepositoryTransport.getInstance();
 	}
 }

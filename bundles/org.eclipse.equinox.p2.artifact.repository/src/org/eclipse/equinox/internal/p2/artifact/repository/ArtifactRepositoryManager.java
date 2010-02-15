@@ -17,6 +17,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
+import org.eclipse.equinox.internal.p2.repository.helpers.LocationProperties;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -100,6 +101,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 
 	public IArtifactRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException {
 		return (IArtifactRepository) basicRefreshRepository(location, monitor);
+	}
+
+	protected String[] getPreferredRepositorySearchOrder(LocationProperties properties) {
+		return properties.getArtifactFactorySearchOrder();
 	}
 
 	/**

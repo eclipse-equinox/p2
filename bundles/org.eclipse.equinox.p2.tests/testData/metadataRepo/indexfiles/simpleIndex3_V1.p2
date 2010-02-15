@@ -1,0 +1,3 @@
+version = 1
+artifact.repository.factory.order = foo, bar, !
+metadata.repository.factory.order = bar, foo, !
