@@ -33,12 +33,13 @@ public class Publisher {
 	private IPublisherResult results;
 
 	/**
-	 * Returns a metadata repository that corresponds to the given settings.  If a repo at the 
+	 * Returns a metadata repository that corresponds to the given settings.  If a repository at the 
 	 * given location already exists, it is updated with the settings and returned.  If no repository
 	 * is found then a new Simple repository is created, configured and returned
-	 * @param location the URL location of the repo
-	 * @param name the name of the repo
-	 * @param append whether or not the repo should appended or cleared
+	 * @param agent the provisioning agent to use when creating the repository
+	 * @param location the URL location of the repository
+	 * @param name the name of the repository
+	 * @param append whether or not the repository should appended or cleared
 	 * @param compress whether or not to compress the repository index
 	 * @return the discovered or created repository
 	 * @throws ProvisionException
@@ -89,12 +90,12 @@ public class Publisher {
 	}
 
 	/**
-	 * Returns an artifact repository that corresponds to the given settings.  If a repo at the 
+	 * Returns an artifact repository that corresponds to the given settings.  If a repository at the 
 	 * given location already exists, it is updated with the settings and returned.  If no repository
 	 * is found then a new Simple repository is created, configured and returned
-	 * @param location the URL location of the repo
-	 * @param name the name of the repo
-	 * @param append whether or not the repo should appended or cleared
+	 * @param agent the provisioning agent to use when creating the repository
+	 * @param location the URL location of the repository
+	 * @param name the name of the repository
 	 * @param compress whether or not to compress the repository index
 	 * @param reusePackedFiles whether or not to include discovered Pack200 files in the repository
 	 * @return the discovered or created repository
