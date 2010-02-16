@@ -63,6 +63,8 @@ public class Projector {
 	private IInstallableUnit entryPoint;
 	private Map<IInstallableUnitFragment, Set<IInstallableUnit>> fragments = new HashMap<IInstallableUnitFragment, Set<IInstallableUnit>>();
 
+	private int numberOfInstalledIUs;
+
 	static class AbstractVariable {
 		public String toString() {
 			return "AbstractVariable: " + hashCode(); //$NON-NLS-1$
@@ -143,6 +145,7 @@ public class Projector {
 
 	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IQueryable<IInstallableUnit> installedIUs, Collection<IInstallableUnit> newRoots, IProgressMonitor monitor) {
 		alreadyInstalledIUs = Arrays.asList(alreadyExistingRoots);
+		numberOfInstalledIUs = installedIUs.query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class).length;
 		lastState = installedIUs;
 		this.entryPoint = entryPointIU;
 		try {
@@ -159,8 +162,11 @@ public class Projector {
 			}
 			solver.setTimeoutOnConflicts(1000);
 			IQueryResult<IInstallableUnit> queryResult = picker.query(InstallableUnitQuery.ANY, null);
-			dependencyHelper = new DependencyHelper<Object, Explanation>(solver);
-
+			if (DEBUG_ENCODING) {
+				dependencyHelper = new DependencyHelper<Object, Explanation>(solver, false);
+			} else {
+				dependencyHelper = new DependencyHelper<Object, Explanation>(solver);
+			}
 			Iterator<IInstallableUnit> iusToEncode = queryResult.iterator();
 			if (DEBUG) {
 				List<IInstallableUnit> iusToOrder = new ArrayList<IInstallableUnit>();
@@ -205,7 +211,7 @@ public class Projector {
 		List<WeightedObject<? extends Object>> weightedObjects = new ArrayList<WeightedObject<? extends Object>>();
 
 		Set<Entry<String, Map<Version, IInstallableUnit>>> s = slice.entrySet();
-		final BigInteger POWER = BigInteger.valueOf(2);
+		final BigInteger POWER = BigInteger.valueOf(numberOfInstalledIUs > 0 ? numberOfInstalledIUs + 1 : 2);
 
 		BigInteger maxWeight = POWER;
 		for (Entry<String, Map<Version, IInstallableUnit>> entry : s) {
@@ -236,12 +242,8 @@ public class Projector {
 				maxWeight = weight;
 		}
 
-		maxWeight = maxWeight.multiply(POWER);
-
-		// Weight the no-op variables beneath the abstract variables
-		for (AbstractVariable var : noopVariables.values())
-			weightedObjects.add(WeightedObject.newWO(var, maxWeight));
-
+		// no need to add one here, since maxWeight is strickly greater than the
+		// maximal weight used so far.
 		maxWeight = maxWeight.multiply(POWER);
 
 		// Add the abstract variables
@@ -250,7 +252,7 @@ public class Projector {
 			weightedObjects.add(WeightedObject.newWO(var, abstractWeight));
 		}
 
-		maxWeight = maxWeight.multiply(POWER);
+		maxWeight = maxWeight.multiply(POWER).add(BigInteger.ONE);
 
 		BigInteger optionalWeight = maxWeight.negate();
 		long countOptional = 1;
@@ -398,7 +400,6 @@ public class Projector {
 
 	public void processIU(IInstallableUnit iu, boolean isRootIU) throws ContradictionException {
 		iu = iu.unresolved();
-
 		Map<Version, IInstallableUnit> iuSlice = slice.get(iu.getId());
 		if (iuSlice == null) {
 			iuSlice = new HashMap<Version, IInstallableUnit>();
