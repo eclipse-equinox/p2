@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
- * @since 1.0
+ * Install into a Platform Runtime profile.
  */
 public class Bug302582c extends Bug302582 {
 	/* (non-Javadoc)
@@ -38,6 +38,12 @@ public class Bug302582c extends Bug302582 {
 		return "testData/bug302582c";
 	}
 
+	/*
+	 * Profile already contains IUs from a Platform Runtime drop as well as "aaa_v1.0.1" which was installed via the dropins.
+	 * 
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.tests.planner.Bug302582#testInstall()
+	 */
 	public void testInstall() {
 		IPlanner planner = createPlanner();
 
