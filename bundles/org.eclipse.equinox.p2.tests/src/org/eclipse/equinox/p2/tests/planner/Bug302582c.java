@@ -18,9 +18,6 @@ import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
-/**
- * Install into a Platform Runtime profile.
- */
 public class Bug302582c extends Bug302582 {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.tests.planner.Bug302582#getProfileId()
@@ -39,7 +36,8 @@ public class Bug302582c extends Bug302582 {
 	}
 
 	/*
-	 * Profile already contains IUs from a Platform Runtime drop as well as "aaa_v1.0.1" which was installed via the dropins.
+	 * Profile already contains a single optional singleton IU. Try to install 3 versions of that IU into it. (including the lower
+	 * version which is already installed)
 	 * 
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.tests.planner.Bug302582#testInstall()
