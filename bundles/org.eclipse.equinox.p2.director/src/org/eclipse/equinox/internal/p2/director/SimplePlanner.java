@@ -606,7 +606,7 @@ public class SimplePlanner implements IPlanner {
 		return actionsIU;
 	}
 
-	private IInstallableUnit createIURepresentingTheProfile(ArrayList<IRequirement> allRequirements) {
+	private IInstallableUnit createIURepresentingTheProfile(Set<IRequirement> allRequirements) {
 		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		String time = Long.toString(System.currentTimeMillis());
 		iud.setId(time);
@@ -641,7 +641,7 @@ public class SimplePlanner implements IPlanner {
 				}
 			}
 		}
-		ArrayList<IRequirement> gatheredRequirements = new ArrayList<IRequirement>();
+		Set<IRequirement> gatheredRequirements = new HashSet<IRequirement>();
 
 		//Process all the IUs being added
 		Map<IInstallableUnit, Map<String, String>> iuPropertiesToAdd = profileChangeRequest.getInstallableUnitProfilePropertiesToAdd();
