@@ -91,6 +91,8 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 				IInstallableUnit iu = (IInstallableUnit) iter.next();
 				result.add(iu);
 				result.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
+				result.setInstallableUnitProfileProperty(iu, "org.eclipse.equinox.p2.type.lock", "1");
+				result.setInstallableUnitProfileProperty(iu, "org.eclipse.equinox.p2.reconciler.dropins", "true");
 			}
 		}
 
