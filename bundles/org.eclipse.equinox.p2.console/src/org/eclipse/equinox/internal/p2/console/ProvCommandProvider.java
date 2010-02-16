@@ -171,8 +171,18 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println("Installation complete for " + iu + " " + version);
 		else {
 			interpreter.println("Installation failed for " + iu + " " + version);
-			printErrorStatus(interpreter, s);
+			interpreter.println(flattenStatus(s.getChildren(), "  "));
 		}
+	}
+
+	private String flattenStatus(IStatus[] childs, String indent) {
+		StringBuffer sb = new StringBuffer();
+
+		for (int i = 0; (childs != null) && (i < childs.length); i++) {
+			sb.append(indent).append(childs[i].getMessage()).append(NEW_LINE);
+			sb.append(flattenStatus(childs[i].getChildren(), indent + "  "));
+		}
+		return sb.toString();
 	}
 
 	/**
