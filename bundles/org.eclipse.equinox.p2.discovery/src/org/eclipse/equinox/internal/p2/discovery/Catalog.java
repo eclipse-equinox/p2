@@ -90,16 +90,20 @@ public class Catalog {
 		if (discoveryStrategies.isEmpty()) {
 			throw new IllegalStateException();
 		}
-		items = new ArrayList<CatalogItem>();
-		filteredItems = new ArrayList<CatalogItem>();
-		categories = new ArrayList<CatalogCategory>();
-		certifications = new ArrayList<Certification>();
+		List<CatalogItem> items = new ArrayList<CatalogItem>();
+		List<CatalogCategory> categories = new ArrayList<CatalogCategory>();
+		List<Certification> certifications = new ArrayList<Certification>();
+		List<Tag> tags = new ArrayList<Tag>();
 
 		final int totalTicks = 100000;
 		final int discoveryTicks = totalTicks - (totalTicks / 10);
 		monitor.beginTask(Messages.Catalog_task_discovering_connectors, totalTicks);
 		try {
 			for (AbstractDiscoveryStrategy discoveryStrategy : discoveryStrategies) {
+				if (monitor.isCanceled()) {
+					status.add(Status.CANCEL_STATUS);
+					break;
+				}
 				discoveryStrategy.setCategories(categories);
 				discoveryStrategy.setItems(items);
 				discoveryStrategy.setCertifications(certifications);
@@ -113,13 +117,24 @@ public class Catalog {
 				}
 			}
 
-			filterDescriptors();
-			connectCategoriesToDescriptors();
-			connectCertificationsToDescriptors();
+			update(categories, items, certifications, tags);
 		} finally {
 			monitor.done();
 		}
 		return status;
+	}
+
+	protected void update(List<CatalogCategory> categories, List<CatalogItem> items,
+			List<Certification> certifications, List<Tag> tags) {
+		this.categories = categories;
+		this.items = items;
+		this.certifications = certifications;
+		this.tags = tags;
+		this.filteredItems = new ArrayList<CatalogItem>();
+
+		filterDescriptors();
+		connectCategoriesToDescriptors();
+		connectCertificationsToDescriptors();
 	}
 
 	/**
@@ -151,6 +166,15 @@ public class Catalog {
 	 */
 	public List<CatalogItem> getFilteredItems() {
 		return filteredItems;
+	}
+
+	/**
+	 * get a list of known certifications
+	 * 
+	 * @return the certifications, or an ampty list if there are none.
+	 */
+	public List<Certification> getCertifications() {
+		return certifications;
 	}
 
 	/**
