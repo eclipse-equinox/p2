@@ -85,6 +85,8 @@ public abstract class FilteredViewer {
 
 	private WorkbenchJob refreshJob;
 
+	private long refreshJobDelay = 200L;
+
 	private PatternFilter searchFilter;
 
 	protected StructuredViewer viewer;
@@ -208,41 +210,6 @@ public abstract class FilteredViewer {
 		};
 	}
 
-	private void doCreateHeader() {
-		Composite header = new Composite(container, SWT.NONE);
-		GridLayoutFactory.fillDefaults().applyTo(header);
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(header);
-
-		doCreateFindControl(header);
-		doCreateHeaderControls(header);
-
-		// arrange all header controls horizontally
-		GridLayoutFactory.fillDefaults().numColumns(header.getChildren().length).applyTo(header);
-	}
-
-	protected void doCreateHeaderControls(Composite header) {
-		// ignore
-	}
-
-	protected WorkbenchJob doCreateRefreshJob() {
-		return new WorkbenchJob("filter") { //$NON-NLS-1$
-			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-				if (filterText.isDisposed()) {
-					return Status.CANCEL_STATUS;
-				}
-				String text = filterText.getText();
-				text = text.trim();
-
-				if (!previousFilterText.equals(text)) {
-					previousFilterText = text;
-					doFind(text);
-				}
-				return Status.OK_STATUS;
-			}
-		};
-	}
-
 	private void doCreateFindControl(Composite header) {
 		Label label = new Label(header, SWT.NONE);
 		label.setText(Messages.ConnectorDiscoveryWizardMainPage_filterLabel);
@@ -286,6 +253,41 @@ public abstract class FilteredViewer {
 		}
 	}
 
+	private void doCreateHeader() {
+		Composite header = new Composite(container, SWT.NONE);
+		GridLayoutFactory.fillDefaults().applyTo(header);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(header);
+
+		doCreateFindControl(header);
+		doCreateHeaderControls(header);
+
+		// arrange all header controls horizontally
+		GridLayoutFactory.fillDefaults().numColumns(header.getChildren().length).applyTo(header);
+	}
+
+	protected void doCreateHeaderControls(Composite header) {
+		// ignore
+	}
+
+	protected WorkbenchJob doCreateRefreshJob() {
+		return new WorkbenchJob("filter") { //$NON-NLS-1$
+			@Override
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				if (filterText.isDisposed()) {
+					return Status.CANCEL_STATUS;
+				}
+				String text = filterText.getText();
+				text = text.trim();
+
+				if (!previousFilterText.equals(text)) {
+					previousFilterText = text;
+					doFind(text);
+				}
+				return Status.OK_STATUS;
+			}
+		};
+	}
+
 	protected abstract StructuredViewer doCreateViewer(Composite container);
 
 	protected void doFind(String text) {
@@ -302,7 +304,7 @@ public abstract class FilteredViewer {
 		} else {
 			refreshJob.cancel();
 		}
-		refreshJob.schedule(200L);
+		refreshJob.schedule(refreshJobDelay);
 	}
 
 	public Control getControl() {
@@ -311,6 +313,10 @@ public abstract class FilteredViewer {
 
 	public int getMinimumHeight() {
 		return minimumHeight;
+	}
+
+	protected long getRefreshJobDelay() {
+		return refreshJobDelay;
 	}
 
 	public StructuredViewer getViewer() {
@@ -323,6 +329,10 @@ public abstract class FilteredViewer {
 			GridDataFactory.fillDefaults().grab(true, true).hint(SWT.DEFAULT, minimumHeight).applyTo(
 					viewer.getControl());
 		}
+	}
+
+	protected void setRefreshJobDelay(long refreshJobDelay) {
+		this.refreshJobDelay = refreshJobDelay;
 	}
 
 }
