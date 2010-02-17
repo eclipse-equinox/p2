@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
-import org.osgi.framework.*;
-import org.osgi.service.packageadmin.PackageAdmin;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -23,10 +23,6 @@ public class InstallerActivator implements BundleActivator {
 	private static InstallerActivator plugin;
 
 	private BundleContext context;
-
-	private PackageAdmin packageAdmin = null;
-
-	private ServiceReference packageAdminRef = null;
 
 	/**
 	 * Returns the shared instance
@@ -44,21 +40,6 @@ public class InstallerActivator implements BundleActivator {
 		//nothing to do
 	}
 
-	public Bundle getBundle(String symbolicName) {
-		if (packageAdmin == null)
-			return null;
-		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
-		if (bundles == null)
-			return null;
-		//Return the first bundle that is not installed or uninstalled
-		for (int i = 0; i < bundles.length; i++) {
-			if ((bundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
-				return bundles[i];
-			}
-		}
-		return null;
-	}
-
 	/**
 	 * Returns the bundle context for this bundle.
 	 * @return the bundle context
@@ -74,8 +55,6 @@ public class InstallerActivator implements BundleActivator {
 	public void start(BundleContext aContext) throws Exception {
 		this.context = aContext;
 		plugin = this;
-		packageAdminRef = context.getServiceReference(PackageAdmin.class.getName());
-		packageAdmin = (PackageAdmin) context.getService(packageAdminRef);
 	}
 
 	/*
@@ -83,9 +62,6 @@ public class InstallerActivator implements BundleActivator {
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext aContext) throws Exception {
-		context.ungetService(packageAdminRef);
-		packageAdmin = null;
-		packageAdminRef = null;
 		plugin = null;
 	}
 
