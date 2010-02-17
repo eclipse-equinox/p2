@@ -606,7 +606,7 @@ public class SimplePlanner implements IPlanner {
 		return actionsIU;
 	}
 
-	private IInstallableUnit createIURepresentingTheProfile(Set<IRequirement> allRequirements) {
+	private IInstallableUnit createIURepresentingTheProfile(ArrayList<IRequirement> allRequirements) {
 		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		String time = Long.toString(System.currentTimeMillis());
 		iud.setId(time);
@@ -641,7 +641,7 @@ public class SimplePlanner implements IPlanner {
 				}
 			}
 		}
-		Set<IRequirement> gatheredRequirements = new HashSet<IRequirement>();
+		ArrayList<IRequirement> gatheredRequirements = new ArrayList<IRequirement>();
 
 		//Process all the IUs being added
 		Map<IInstallableUnit, Map<String, String>> iuPropertiesToAdd = profileChangeRequest.getInstallableUnitProfilePropertiesToAdd();
@@ -670,7 +670,8 @@ public class SimplePlanner implements IPlanner {
 			if (profileRequirement == null) {
 				profileRequirement = createRequirement(iu, profileChangeRequest.getProfile().getInstallableUnitProperty(iu, INCLUSION_RULES));
 			}
-			gatheredRequirements.add(profileRequirement);
+			if (!gatheredRequirements.contains(profileRequirement))
+				gatheredRequirements.add(profileRequirement);
 		}
 
 		//Now add any other requirement that we need to see satisfied
