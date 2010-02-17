@@ -12,8 +12,6 @@ package org.eclipse.equinox.p2.ui;
 
 import org.eclipse.equinox.p2.metadata.ILicense;
 
-import java.io.*;
-
 /**
  * LicenseManager defines a service which records the licenses that have been
  * accepted in the course of installing or updating software. It can be used to determine
@@ -67,19 +65,4 @@ public abstract class LicenseManager {
 
 	 */
 	public abstract boolean hasAcceptedLicenses();
-
-	/**
-	 * Write the accepted licenses list to the specified stream.
-	 * @param stream the stream to which licenses should be written
-	 * @throws IOException 
-	 */
-	public abstract void write(OutputStream stream) throws IOException;
-
-	/**
-	 * Read the accepted licenses list from the specified stream.
-	 * @param stream the stream from which to read the licenses
-	 * @throws IOException 
-	 */
-	public abstract void read(InputStream stream) throws IOException;
-
 }

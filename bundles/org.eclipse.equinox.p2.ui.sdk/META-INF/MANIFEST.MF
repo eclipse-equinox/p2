@@ -7,8 +7,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.ui.sdk;singleton:=true
 Bundle-Version: 1.0.100.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator
 Import-Package: javax.xml.parsers,
- org.eclipse.equinox.internal.p2.core.helpers,
- org.eclipse.equinox.internal.provisional.p2.core.eventbus,
+ org.eclipse.equinox.p2.core,
  org.eclipse.equinox.p2.engine,
  org.eclipse.equinox.p2.engine.query,
  org.eclipse.equinox.p2.metadata,

@@ -11,34 +11,46 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import java.io.*;
-import java.util.*;
-import javax.xml.parsers.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import java.util.HashSet;
+import java.util.StringTokenizer;
+import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
+import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.equinox.p2.metadata.ILicense;
 import org.eclipse.equinox.p2.ui.LicenseManager;
-import org.eclipse.ui.statushandlers.StatusManager;
-import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.osgi.service.prefs.Preferences;
 
 /**
  * SimpleLicenseManager is a license manager that keeps track of 
- * IInstallableUnit licenses by using the digests of the IU's licenses.
- * It can read and write its accepted list to a stream.
+ * IInstallableUnit licenses using their UUID.  The licenses ids
+ * are stored in the profile's preferences.
  * 
- * @since 3.4
+ * @since 3.6
  */
 public class SimpleLicenseManager extends LicenseManager {
 	java.util.Set accepted = new HashSet();
+	String profileId;
+
+	public SimpleLicenseManager(String profileId) {
+		super();
+		this.profileId = profileId;
+		initializeFromPreferences();
+	}
+
+	public SimpleLicenseManager() {
+		this(IProfileRegistry.SELF);
+	}
 
 	public boolean accept(ILicense license) {
 		accepted.add(license.getUUID());
+		updatePreferences();
 		return true;
 	}
 
 	public boolean reject(ILicense license) {
 		accepted.remove(license.getUUID());
+		updatePreferences();
 		return true;
 	}
 
@@ -50,69 +62,31 @@ public class SimpleLicenseManager extends LicenseManager {
 		return !accepted.isEmpty();
 	}
 
-	public void read(InputStream stream) throws IOException {
-		try {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setNamespaceAware(true);
-			DocumentBuilder parser = factory.newDocumentBuilder();
-			Document doc = parser.parse(stream);
-			Node root = doc.getDocumentElement();
-			processRoot(root, accepted);
-		} catch (ParserConfigurationException e) {
-			handleException(e, ProvSDKMessages.ProvUILicenseManager_ParsingError, StatusManager.LOG);
-		} catch (SAXException e) {
-			handleException(e, ProvSDKMessages.ProvUILicenseManager_ParsingError, StatusManager.LOG);
-		}
+	private Preferences getPreferences() {
+		IAgentLocation location = (IAgentLocation) ProvSDKUIActivator.getDefault().getProvisioningAgent().getService(IAgentLocation.SERVICE_NAME);
+		return new ProfileScope(location, profileId).getNode(ProvSDKUIActivator.PLUGIN_ID);
 	}
 
-	private void handleException(Throwable t, String message, int style) {
-		if (message == null && t != null) {
-			message = t.getMessage();
-		}
-		IStatus status = new Status(IStatus.ERROR, ProvSDKUIActivator.PLUGIN_ID, 0, message, t);
-		StatusManager.getManager().handle(status, style);
-	}
-
-	public void write(OutputStream stream) throws IOException {
-		OutputStreamWriter osw = null;
-		PrintWriter writer = null;
-		try {
-			osw = new OutputStreamWriter(stream, "UTF8"); //$NON-NLS-1$
-			writer = new PrintWriter(osw);
-			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"); //$NON-NLS-1$
-			writer.println("<licenses>"); //$NON-NLS-1$
-			for (Iterator i = accepted.iterator(); i.hasNext();) {
-				String digest = (String) i.next();
-				writer.print("    " + "<license digest=\"" + digest + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-			}
-		} finally {
-			writer.println("</licenses>"); //$NON-NLS-1$
-			writer.flush();
-			writer.close();
-			if (osw != null)
-				osw.close();
-		}
-	}
-
-	private void processRoot(Node root, Set licenses) {
-		if (root.getNodeName().equals("licenses")) { //$NON-NLS-1$
-			NodeList children = root.getChildNodes();
-			processChildren(children, licenses);
-		}
-	}
-
-	private void processChildren(NodeList children, Set licenses) {
-		for (int i = 0; i < children.getLength(); i++) {
-			Node child = children.item(i);
-			if (child.getNodeType() == Node.ELEMENT_NODE) {
-				if (child.getNodeName().equals("license")) { //$NON-NLS-1$
-					NamedNodeMap atts = child.getAttributes();
-					Node digestAtt = atts.getNamedItem("digest"); //$NON-NLS-1$
-					if (digestAtt != null) {
-						licenses.add(digestAtt.getNodeValue());
-					}
-				}
+	private void initializeFromPreferences() {
+		Preferences pref = getPreferences();
+		if (pref != null) {
+			String digestList = pref.get(PreferenceConstants.PREF_LICENSE_DIGESTS, ""); //$NON-NLS-1$
+			StringTokenizer tokenizer = new StringTokenizer(digestList, ","); //$NON-NLS-1$
+			while (tokenizer.hasMoreTokens()) {
+				accepted.add(tokenizer.nextToken().trim());
 			}
 		}
+	}
+
+	private void updatePreferences() {
+		Preferences pref = getPreferences();
+		StringBuffer result = new StringBuffer();
+		Object[] indexedList = accepted.toArray();
+		for (int i = 0; i < indexedList.length; i++) {
+			if (i != 0)
+				result.append(","); //$NON-NLS-1$
+			result.append((String) indexedList[i]);
+		}
+		pref.put(PreferenceConstants.PREF_LICENSE_DIGESTS, result.toString());
 	}
 }

@@ -12,23 +12,27 @@ package org.eclipse.equinox.p2.tests.ui;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.ColocatedRepositoryTracker;
 import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
+import org.eclipse.equinox.internal.p2.ui.sdk.SimpleLicenseManager;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.operations.ProfileModificationJob;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.eclipse.equinox.p2.ui.Policy;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
+import org.eclipse.equinox.p2.ui.*;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * Abstract class to set up the colocated UI test repo
@@ -56,15 +60,27 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 	protected IInstallableUnit uninstalled;
 	protected IInstallableUnit category;
 	private ProvisioningUI ui;
+	private ServiceRegistration regLicenseManager, regTracker;
 
 	protected void setUp() throws Exception {
 		super.setUp();
+		// create test profile
+		profile = createProfile(TESTPROFILE);
+
+		// copy of provisioning UI that uses a different profile
 		ui = ProvisioningUI.getDefaultUI();
 		ui = new ProvisioningUI(ui.getSession(), TESTPROFILE, ui.getPolicy());
 		ui.getOperationRunner().suppressRestart(true);
-		// to squelch repo error reporting
 		ui.getPolicy().setRepositoriesVisible(false);
-		profile = createProfile(TESTPROFILE);
+
+		// register alternate services
+		SimpleLicenseManager manager = new SimpleLicenseManager(TESTPROFILE);
+		RepositoryTracker tracker = new ColocatedRepositoryTracker(ui);
+		Dictionary<String, Object> properties = new Hashtable<String, Object>(5);
+		properties.put(Constants.SERVICE_RANKING, new Integer(1));
+		regLicenseManager = TestActivator.getContext().registerService(LicenseManager.class.getName(), manager, properties);
+		regTracker = TestActivator.getContext().registerService(RepositoryTracker.class.getName(), tracker, properties);
+
 		profileElement = new ProfileElement(null, TESTPROFILE);
 		install((top1 = createIU(TOPLEVELIU, Version.create("1.0.0"))), true, false);
 		install((top2 = createIU(TOPLEVELIU2)), true, false);
@@ -89,6 +105,8 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		super.tearDown();
 		metaManager.removeRepository(testRepoLocation);
 		artifactManager.removeRepository(testRepoLocation);
+		regLicenseManager.unregister();
+		regTracker.unregister();
 	}
 
 	protected boolean managerContains(IRepositoryManager<?> manager, URI location) {

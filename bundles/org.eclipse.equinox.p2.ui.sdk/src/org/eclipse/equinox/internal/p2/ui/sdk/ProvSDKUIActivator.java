@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import org.eclipse.equinox.p2.ui.LicenseManager;
-
-import java.io.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import java.io.IOException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.equinox.p2.ui.Policy;
@@ -30,14 +28,12 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 /**
  * Activator class for the p2 UI.
  */
 public class ProvSDKUIActivator extends AbstractUIPlugin {
 
-	private static final String LICENSE_STORAGE = "licenses.xml"; //$NON-NLS-1$
 	private static ProvSDKUIActivator plugin;
 	private static BundleContext context;
 	private ScopedPreferenceStore preferenceStore;
@@ -84,7 +80,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		super.start(bundleContext);
 		plugin = this;
 		ProvSDKUIActivator.context = bundleContext;
-		readLicenseRegistry();
 		PreferenceInitializer.migratePreferences();
 		getPreferenceStore().addPropertyChangeListener(getPreferenceListener());
 	}
@@ -108,56 +103,14 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		return getProvisioningUI().getPolicy();
 	}
 
-	private LicenseManager getLicenseManager() {
-		return (LicenseManager) ServiceHelper.getService(getContext(), LicenseManager.class.getName());
-	}
-
-	private void readLicenseRegistry() {
-		if (getLicenseManager() == null)
-			return;
-		IPath location = getStateLocation().append(LICENSE_STORAGE);
-		File f = location.toFile();
-		BufferedInputStream stream = null;
-		if (f.exists()) {
-			try {
-				stream = new BufferedInputStream(new FileInputStream(f));
-				getLicenseManager().read(stream);
-				stream.close();
-			} catch (IOException e) {
-				StatusManager.getManager().handle(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_LicenseManagerReadError, e), StatusManager.LOG);
-			}
-		}
-	}
-
-	private void writeLicenseRegistry() {
-		if (getLicenseManager() == null)
-			return;
-		if (!getLicenseManager().hasAcceptedLicenses())
-			return;
-		IPath location = getStateLocation().append(LICENSE_STORAGE);
-		File f = location.toFile();
-		BufferedOutputStream stream = null;
-		try {
-			stream = new BufferedOutputStream(new FileOutputStream(f, false));
-			getLicenseManager().write(stream);
-			stream.close();
-		} catch (IOException e) {
-			StatusManager.getManager().handle(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_ErrorWritingLicenseRegistry, e), StatusManager.LOG);
-		}
+	public IProvisioningAgent getProvisioningAgent() {
+		return getProvisioningUI().getSession().getProvisioningAgent();
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
-		writeLicenseRegistry();
 		plugin = null;
 		getPreferenceStore().removePropertyChangeListener(preferenceListener);
 		super.stop(bundleContext);
-	}
-
-	public IProvisioningEventBus getProvisioningEventBus() {
-		ServiceReference busReference = context.getServiceReference(IProvisioningEventBus.SERVICE_NAME);
-		if (busReference == null)
-			return null;
-		return (IProvisioningEventBus) context.getService(busReference);
 	}
 
 	static IStatus getNoSelfProfileStatus() {

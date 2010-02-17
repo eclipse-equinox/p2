@@ -15,10 +15,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
@@ -28,7 +30,7 @@ import org.osgi.service.prefs.Preferences;
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
 	public static void migratePreferences() {
-		Preferences pref = new ProfileScope(IProfileRegistry.SELF).getNode(ProvSDKUIActivator.PLUGIN_ID);
+		Preferences pref = new ProfileScope(getDefaultAgentLocation(), IProfileRegistry.SELF).getNode(ProvSDKUIActivator.PLUGIN_ID);
 		try {
 			if (pref.keys().length == 0) {
 				// migrate preferences from instance scope to profile scope
@@ -52,5 +54,14 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		// default values
 		node.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, true);
 		node.put(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.PROMPT);
+	}
+
+	private static IAgentLocation getDefaultAgentLocation() {
+		ServiceReference reference = ProvSDKUIActivator.getContext().getServiceReference(IAgentLocation.SERVICE_NAME);
+		if (reference == null)
+			return null;
+		IAgentLocation result = (IAgentLocation) ProvSDKUIActivator.getContext().getService(reference);
+		ProvSDKUIActivator.getContext().ungetService(reference);
+		return result;
 	}
 }
