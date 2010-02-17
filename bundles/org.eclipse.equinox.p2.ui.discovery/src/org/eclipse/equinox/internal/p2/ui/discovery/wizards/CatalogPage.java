@@ -66,6 +66,19 @@ public class CatalogPage extends WizardPage implements IShellProvider {
 		return viewer;
 	}
 
+	protected void doUpdateCatalog() {
+		if (!updated) {
+			updated = true;
+			Display.getCurrent().asyncExec(new Runnable() {
+				public void run() {
+					if (!getControl().isDisposed() && isCurrentPage()) {
+						viewer.updateCatalog();
+					}
+				}
+			});
+		}
+	}
+
 	public Catalog getCatalog() {
 		return catalog;
 	}
@@ -82,19 +95,8 @@ public class CatalogPage extends WizardPage implements IShellProvider {
 	@Override
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
-		if (!updated) {
-			updated = true;
-			Display.getCurrent().asyncExec(new Runnable() {
-				public void run() {
-					updateCatalog();
-				}
-			});
-		}
-	}
-
-	private void updateCatalog() {
-		if (!getControl().isDisposed() && isCurrentPage()) {
-			viewer.updateCatalog();
+		if (visible) {
+			doUpdateCatalog();
 		}
 	}
 

@@ -139,7 +139,7 @@ public class CatalogViewer extends FilteredViewer {
 
 	private final CatalogConfiguration configuration;
 
-	private final IRunnableContext context;
+	protected final IRunnableContext context;
 
 	private boolean ignoreUpdates;
 
@@ -198,7 +198,7 @@ public class CatalogViewer extends FilteredViewer {
 		selectionProvider.setSelection(StructuredSelection.EMPTY);
 	}
 
-	private IStatus computeStatus(InvocationTargetException e, String message) {
+	protected IStatus computeStatus(InvocationTargetException e, String message) {
 		Throwable cause = e.getCause();
 		IStatus statusCause;
 		if (cause instanceof CoreException) {
