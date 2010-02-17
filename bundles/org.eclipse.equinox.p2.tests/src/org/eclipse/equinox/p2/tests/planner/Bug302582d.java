@@ -10,24 +10,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.File;
 import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
-public class Bug300104bis extends AbstractProvisioningTest {
+public class Bug302582d extends AbstractProvisioningTest {
 	String profileLoadedId = "bootProfile";
 	IMetadataRepository repo = null;
 	IProvisioningAgent agent = null;
@@ -35,7 +35,7 @@ public class Bug300104bis extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		File reporegistry1 = getTestData("test data bug 300104bis", "testData/bug300104bis/p2");
+		File reporegistry1 = getTestData("test data bug 302582d", "testData/bug302582d/p2");
 		File tempFolder = new File(getTempFolder(), "p2");
 		copy("0.2", reporegistry1, tempFolder);
 
@@ -54,7 +54,7 @@ public class Bug300104bis extends AbstractProvisioningTest {
 	public void testInstall() {
 		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		try {
-			repo = mgr.loadRepository(getTestData("test data bug 300104bis repo", "testData/bug300104bis/repo").toURI(), null);
+			repo = mgr.loadRepository(getTestData("test data bug bug302582d repo", "testData/bug302582d/repo").toURI(), null);
 		} catch (ProvisionException e) {
 			assertNull(e); //This guarantees that the error does not go unnoticed
 		}
