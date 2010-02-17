@@ -54,8 +54,7 @@ public abstract class GradientToolTip extends ToolTip {
 		headLayout.numColumns = 1;
 		gradient.setLayout(headLayout);
 
-		gradient.setBackgroundGradient(new Color[] { colors.getGradientBegin(), colors.getGradientEnd() },
-				new int[] { 100 }, true);
+		gradient.setBackgroundGradient(new Color[] {colors.getGradientBegin(), colors.getGradientEnd()}, new int[] {100}, true);
 
 		createToolTipArea(event, gradient);
 

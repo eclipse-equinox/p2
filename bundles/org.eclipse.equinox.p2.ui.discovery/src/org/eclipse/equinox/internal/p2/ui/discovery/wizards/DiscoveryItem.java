@@ -69,8 +69,7 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 
 	private final CatalogViewer viewer;
 
-	public DiscoveryItem(Composite parent, int style, DiscoveryResources resources, IShellProvider shellProvider,
-			final T connector, CatalogViewer viewer) {
+	public DiscoveryItem(Composite parent, int style, DiscoveryResources resources, IShellProvider shellProvider, final T connector, CatalogViewer viewer) {
 		super(parent, style, resources, connector);
 		this.shellProvider = shellProvider;
 		this.connector = connector;
@@ -102,12 +101,12 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 		// help UI tests
 		checkbox.setData("connectorId", connector.getId()); //$NON-NLS-1$
 		// FIXME
-//		checkbox.addFocusListener(new FocusAdapter() {
-//			@Override
-//			public void focusGained(FocusEvent e) {
-//				bodyScrolledComposite.showControl(this);
-//			}
-//		});
+		//		checkbox.addFocusListener(new FocusAdapter() {
+		//			@Override
+		//			public void focusGained(FocusEvent e) {
+		//				bodyScrolledComposite.showControl(this);
+		//			}
+		//		});
 		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).applyTo(checkbox);
 
 		iconLabel = new Label(checkboxContainer, SWT.NONE);
@@ -126,26 +125,22 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 		// always disabled color to make it less prominent
 		providerLabel.setForeground(resources.getColorDisabled());
 		if (connector.getCertification() != null) {
-			providerLabel.setText(NLS.bind(Messages.DiscoveryViewer_Certification_Label0, new String[] {
-					connector.getProvider(), connector.getLicense(), connector.getCertification().getName() }));
+			providerLabel.setText(NLS.bind(Messages.DiscoveryViewer_Certification_Label0, new String[] {connector.getProvider(), connector.getLicense(), connector.getCertification().getName()}));
 			if (connector.getCertification().getUrl() != null) {
 				providerLabel.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						WorkbenchUtil.openUrl(connector.getCertification().getUrl(),
-								IWorkbenchBrowserSupport.AS_EXTERNAL);
+						WorkbenchUtil.openUrl(connector.getCertification().getUrl(), IWorkbenchBrowserSupport.AS_EXTERNAL);
 					}
 				});
 			}
 			Overview overview = new Overview();
 			overview.setSummary(connector.getCertification().getDescription());
 			overview.setUrl(connector.getCertification().getUrl());
-			Image image = resources.getIconImage(connector.getSource(), connector.getCertification().getIcon(), 48,
-					true);
+			Image image = resources.getIconImage(connector.getSource(), connector.getCertification().getIcon(), 48, true);
 			hookTooltip(providerLabel, providerLabel, this, providerLabel, connector.getSource(), overview, image);
 		} else {
-			providerLabel.setText(NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_provider_and_license,
-					connector.getProvider(), connector.getLicense()));
+			providerLabel.setText(NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_provider_and_license, connector.getProvider(), connector.getLicense()));
 		}
 
 		if (hasTooltip(connector) || connector.isInstalled()) {
@@ -183,8 +178,7 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 	}
 
 	protected boolean hasTooltip(final CatalogItem connector) {
-		return connector.getOverview() != null && connector.getOverview().getSummary() != null
-				&& connector.getOverview().getSummary().length() > 0;
+		return connector.getOverview() != null && connector.getOverview().getSummary() != null && connector.getOverview().getSummary().length() > 0;
 	}
 
 	public void initializeListeners() {
@@ -219,15 +213,11 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 	protected boolean maybeModifySelection(boolean selected) {
 		if (selected) {
 			if (connector.isInstalled()) {
-				MessageDialog.openWarning(shellProvider.getShell(), "Install Connector", NLS.bind(
-						"{0} is already installed.", connector.getName()));
+				MessageDialog.openWarning(shellProvider.getShell(), "Install Connector", NLS.bind("{0} is already installed.", connector.getName()));
 				return false;
 			}
 			if (connector.getAvailable() != null && !connector.getAvailable()) {
-				MessageDialog.openWarning(shellProvider.getShell(),
-						Messages.ConnectorDiscoveryWizardMainPage_warningTitleConnectorUnavailable, NLS.bind(
-								Messages.ConnectorDiscoveryWizardMainPage_warningMessageConnectorUnavailable,
-								connector.getName()));
+				MessageDialog.openWarning(shellProvider.getShell(), Messages.ConnectorDiscoveryWizardMainPage_warningTitleConnectorUnavailable, NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_warningMessageConnectorUnavailable, connector.getName()));
 				return false;
 			}
 		}

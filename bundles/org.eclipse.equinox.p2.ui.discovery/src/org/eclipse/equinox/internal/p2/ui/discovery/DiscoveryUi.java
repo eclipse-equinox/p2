@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.ui.discovery;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
@@ -36,6 +35,7 @@ public abstract class DiscoveryUi {
 	private static CommonColors commonColors;
 
 	private DiscoveryUi() {
+		// don't allow clients to instantiate
 	}
 
 	public static boolean install(List<CatalogItem> descriptors, IRunnableContext context) {
@@ -43,9 +43,7 @@ public abstract class DiscoveryUi {
 			IRunnableWithProgress runner = new DiscoveryInstallOperation(descriptors);
 			context.run(true, true, runner);
 		} catch (InvocationTargetException e) {
-			IStatus status = new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, NLS.bind(
-					Messages.ConnectorDiscoveryWizard_installProblems, new Object[] { e.getCause().getMessage() }),
-					e.getCause());
+			IStatus status = new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, NLS.bind(Messages.ConnectorDiscoveryWizard_installProblems, new Object[] {e.getCause().getMessage()}), e.getCause());
 			StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.BLOCK | StatusManager.LOG);
 			return false;
 		} catch (InterruptedException e) {

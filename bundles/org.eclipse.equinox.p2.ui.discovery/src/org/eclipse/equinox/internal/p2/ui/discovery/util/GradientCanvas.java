@@ -13,16 +13,9 @@ package org.eclipse.equinox.internal.p2.ui.discovery.util;
 
 import java.util.Hashtable;
 import java.util.Map;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.widgets.*;
 
 /**
  * Based on {@link org.eclipse.ui.internal.forms.widgets.FormHeading}.
@@ -232,8 +225,8 @@ public class GradientCanvas extends Canvas {
 		}
 		if (gradientInfo != null) {
 			// TODO e3.4 use FormImages
-//			gradientImage = FormImages.getInstance().getGradient(gradientInfo.gradientColors, gradientInfo.percents,
-//					gradientInfo.vertical ? rect.height : rect.width, gradientInfo.vertical, getColor(COLOR_BASE_BG));
+			//			gradientImage = FormImages.getInstance().getGradient(gradientInfo.gradientColors, gradientInfo.percents,
+			//					gradientInfo.vertical ? rect.height : rect.width, gradientInfo.vertical, getColor(COLOR_BASE_BG));
 			boolean vertical = gradientInfo.vertical;
 			int width = vertical ? 1 : rect.width;
 			int height = vertical ? rect.height : 1;

@@ -122,62 +122,62 @@ public abstract class ControlListViewer extends StructuredViewer {
 					return;
 				}
 				switch (event.detail) {
-				case SWT.TRAVERSE_ARROW_PREVIOUS: {
-					Control[] children = control.getChildren();
-					if (children.length > 0) {
-						boolean selected = false;
-						for (int i = 0; i < children.length; i++) {
-							ControlListItem item = (ControlListItem) children[i];
-							if (item.isSelected()) {
-								selected = true;
-								if (i > 0) {
-									setSelection(new StructuredSelection(children[i - 1].getData()), true);
+					case SWT.TRAVERSE_ARROW_PREVIOUS : {
+						Control[] children = control.getChildren();
+						if (children.length > 0) {
+							boolean selected = false;
+							for (int i = 0; i < children.length; i++) {
+								ControlListItem item = (ControlListItem) children[i];
+								if (item.isSelected()) {
+									selected = true;
+									if (i > 0) {
+										setSelection(new StructuredSelection(children[i - 1].getData()), true);
+									}
+									break;
 								}
-								break;
+							}
+							if (!selected) {
+								setSelection(new StructuredSelection(children[children.length - 1].getData()), true);
 							}
 						}
-						if (!selected) {
-							setSelection(new StructuredSelection(children[children.length - 1].getData()), true);
-						}
+						break;
 					}
-					break;
-				}
-				case SWT.TRAVERSE_ARROW_NEXT: {
-					Control[] children = control.getChildren();
-					if (children.length > 0) {
-						boolean selected = false;
-						for (int i = 0; i < children.length; i++) {
-							ControlListItem item = (ControlListItem) children[i];
-							if (item.isSelected()) {
-								selected = true;
-								if (i < children.length - 1) {
-									setSelection(new StructuredSelection(children[i + 1].getData()), true);
+					case SWT.TRAVERSE_ARROW_NEXT : {
+						Control[] children = control.getChildren();
+						if (children.length > 0) {
+							boolean selected = false;
+							for (int i = 0; i < children.length; i++) {
+								ControlListItem item = (ControlListItem) children[i];
+								if (item.isSelected()) {
+									selected = true;
+									if (i < children.length - 1) {
+										setSelection(new StructuredSelection(children[i + 1].getData()), true);
+									}
+									break;
 								}
-								break;
+							}
+							if (!selected) {
+								setSelection(new StructuredSelection(children[0].getData()), true);
 							}
 						}
-						if (!selected) {
-							setSelection(new StructuredSelection(children[0].getData()), true);
-						}
+						break;
 					}
-					break;
-				}
-				default:
-					handleEvent = false;
-					event.doit = true;
-					Control control = ControlListViewer.this.control;
-					Shell shell = control.getShell();
-					while (control != null) {
-						if (control.traverse(event.detail)) {
-							break;
+					default :
+						handleEvent = false;
+						event.doit = true;
+						Control control = ControlListViewer.this.control;
+						Shell shell = control.getShell();
+						while (control != null) {
+							if (control.traverse(event.detail)) {
+								break;
+							}
+							if (!event.doit || control == shell) {
+								break;
+							}
+							control = control.getParent();
 						}
-						if (!event.doit || control == shell) {
-							break;
-						}
-						control = control.getParent();
-					}
-					handleEvent = true;
-					break;
+						handleEvent = true;
+						break;
 				}
 			}
 		});
@@ -254,16 +254,16 @@ public abstract class ControlListViewer extends StructuredViewer {
 	 */
 	private ControlListItem createNewItem(Object element) {
 		final ControlListItem item = doCreateItem(control, element);
-//		item.getChildren()[0].addPaintListener(new PaintListener() {
-//			public void paintControl(PaintEvent e) {
-//				if (hasFocus && item.isSelected()) {
-//					Point size = item.getSize();
-//					e.gc.setForeground(e.gc.getDevice().getSystemColor(SWT.COLOR_DARK_GRAY));
-//					e.gc.setLineDash(new int[] { 1, 2 });
-//					e.gc.drawRoundRectangle(0, 0, size.x - 1, size.y - 1, 5, 5);
-//				}
-//			}
-//		});
+		//		item.getChildren()[0].addPaintListener(new PaintListener() {
+		//			public void paintControl(PaintEvent e) {
+		//				if (hasFocus && item.isSelected()) {
+		//					Point size = item.getSize();
+		//					e.gc.setForeground(e.gc.getDevice().getSystemColor(SWT.COLOR_DARK_GRAY));
+		//					e.gc.setLineDash(new int[] { 1, 2 });
+		//					e.gc.drawRoundRectangle(0, 0, size.x - 1, size.y - 1, 5, 5);
+		//				}
+		//			}
+		//		});
 		item.setIndexListener(new ControlListItem.IndexListener() {
 			public void selectNext() {
 				Control[] children = control.getChildren();
@@ -331,7 +331,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 			unmapElement(item);
 		}
 		item.dispose();
-		add(new Object[] { element });
+		add(new Object[] {element});
 	}
 
 	@Override
@@ -379,7 +379,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 		}
 		Widget widget = findItem(element);
 		if (widget == null) {
-			add(new Object[] { element });
+			add(new Object[] {element});
 			return;
 		}
 		((ControlListItem) widget).refresh();
@@ -426,7 +426,7 @@ public abstract class ControlListViewer extends StructuredViewer {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	protected void setSelectionToWidget(List list, boolean reveal) {
 		if (list != null) {
@@ -461,14 +461,14 @@ public abstract class ControlListViewer extends StructuredViewer {
 		Control[] children = control.getChildren();
 		if (children.length > 0) {
 			// causes the item's tool bar to get focus when clicked which is undesirable 
-//			for (Control element : children) {
-//				ControlListItem item = (ControlListItem) element;
-//				if (item.isSelected()) {
-//					if (item.setFocus()) {
-//						return;
-//					}
-//				}
-//			}
+			//			for (Control element : children) {
+			//				ControlListItem item = (ControlListItem) element;
+			//				if (item.isSelected()) {
+			//					if (item.setFocus()) {
+			//						return;
+			//					}
+			//				}
+			//			}
 			control.forceFocus();
 		} else {
 			noEntryArea.setFocus();

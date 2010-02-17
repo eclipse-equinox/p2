@@ -51,7 +51,7 @@ public class ConnectorDiscoveryExtensionReader {
 
 	public static Tag VCS = new Tag("vcs", Messages.ConnectorDiscoveryExtensionReader_Version_Control); //$NON-NLS-1$
 
-	public static final Tag[] TAGS = new Tag[] { DOCUMENT, TASK, VCS };
+	public static final Tag[] TAGS = new Tag[] {DOCUMENT, TASK, VCS};
 
 	/**
 	 * return the enum constant whose {@link #getValue() value} is the same as the given value.
@@ -78,8 +78,7 @@ public class ConnectorDiscoveryExtensionReader {
 		return readConnectorDescriptor(element, CatalogItem.class);
 	}
 
-	public <T extends CatalogItem> T readConnectorDescriptor(IConfigurationElement element, Class<T> clazz)
-			throws ValidationException {
+	public <T extends CatalogItem> T readConnectorDescriptor(IConfigurationElement element, Class<T> clazz) throws ValidationException {
 		T connectorDescriptor;
 		try {
 			connectorDescriptor = clazz.newInstance();
@@ -148,8 +147,7 @@ public class ConnectorDiscoveryExtensionReader {
 		return readConnectorCategory(element, CatalogCategory.class);
 	}
 
-	public <T extends CatalogCategory> T readConnectorCategory(IConfigurationElement element, Class<T> clazz)
-			throws ValidationException {
+	public <T extends CatalogCategory> T readConnectorCategory(IConfigurationElement element, Class<T> clazz) throws ValidationException {
 		T connectorCategory;
 		try {
 			connectorCategory = clazz.newInstance();
@@ -188,8 +186,7 @@ public class ConnectorDiscoveryExtensionReader {
 		return connectorCategory;
 	}
 
-	public <T extends Certification> T readCertification(IConfigurationElement element, Class<T> clazz)
-			throws ValidationException {
+	public <T extends Certification> T readCertification(IConfigurationElement element, Class<T> clazz) throws ValidationException {
 		T certification;
 		try {
 			certification = clazz.newInstance();

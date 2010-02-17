@@ -13,9 +13,7 @@ package org.eclipse.equinox.p2.discovery.tests.core;
 
 import java.io.IOException;
 import java.io.StringReader;
-
 import junit.framework.TestCase;
-
 import org.eclipse.equinox.internal.p2.discovery.compatibility.Directory;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.DirectoryParser;
 
@@ -33,84 +31,74 @@ public class DirectoryParserTest extends TestCase {
 	}
 
 	public void testParse() throws IOException {
-		Directory directory = parser.parse(new StringReader(
-				"<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\"/></directory>"));
+		Directory directory = parser.parse(new StringReader("<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\"/></directory>")); //$NON-NLS-1$
 		assertNotNull(directory);
 		assertEquals(1, directory.getEntries().size());
-		assertEquals("http://foo.bar.nodomain/baz.jar", directory.getEntries().get(0).getLocation());
+		assertEquals("http://foo.bar.nodomain/baz.jar", directory.getEntries().get(0).getLocation()); //$NON-NLS-1$
 	}
 
-	public void testParseBadFormat() throws IOException {
+	public void testParseBadFormat() {
 		try {
-			parser.parse(new StringReader(
-					"<directory2 xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\"/></directory2>"));
-			fail("Expected exception");
+			parser.parse(new StringReader("<directory2 xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\"/></directory2>")); //$NON-NLS-1$
+			fail("Expected exception"); //$NON-NLS-1$
 		} catch (IOException e) {
 			// expected
 		}
 	}
 
-	public void testParseMalformed() throws IOException {
+	public void testParseMalformed() {
 		try {
-			parser.parse(new StringReader(
-					"<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\">"));
-			fail("Expected exception");
+			parser.parse(new StringReader("<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\">")); //$NON-NLS-1$
+			fail("Expected exception"); //$NON-NLS-1$
 		} catch (IOException e) {
 			// expected
 		}
 	}
 
 	public void testParseUnexpectedElementsAndAttributes() throws IOException {
-		Directory directory = parser.parse(new StringReader(
-				"<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\" id=\"asdf\"><baz/></entry><foo/></directory>"));
+		Directory directory = parser.parse(new StringReader("<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\" id=\"asdf\"><baz/></entry><foo/></directory>")); //$NON-NLS-1$
 		assertNotNull(directory);
 		assertEquals(1, directory.getEntries().size());
-		assertEquals("http://foo.bar.nodomain/baz.jar", directory.getEntries().get(0).getLocation());
+		assertEquals("http://foo.bar.nodomain/baz.jar", directory.getEntries().get(0).getLocation()); //$NON-NLS-1$
 	}
 
 	public void testParseNoNS() throws IOException {
-		Directory directory = parser.parse(new StringReader(
-				"<directory><entry url=\"http://foo.bar.nodomain/baz.jar\"/></directory>"));
+		Directory directory = parser.parse(new StringReader("<directory><entry url=\"http://foo.bar.nodomain/baz.jar\"/></directory>")); //$NON-NLS-1$
 		assertNotNull(directory);
 		assertEquals(1, directory.getEntries().size());
-		assertEquals("http://foo.bar.nodomain/baz.jar", directory.getEntries().get(0).getLocation());
+		assertEquals("http://foo.bar.nodomain/baz.jar", directory.getEntries().get(0).getLocation()); //$NON-NLS-1$
 	}
 
 	public void testParsePermitCategoriesTrue() throws IOException {
-		Directory directory = parser.parse(new StringReader(
-				"<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\" permitCategories=\"true\"/></directory>"));
+		Directory directory = parser.parse(new StringReader("<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\" permitCategories=\"true\"/></directory>")); //$NON-NLS-1$
 		assertNotNull(directory);
 		assertEquals(1, directory.getEntries().size());
 		assertEquals(true, directory.getEntries().get(0).isPermitCategories());
 	}
 
 	public void testParsePermitCategoriesFalse() throws IOException {
-		Directory directory = parser.parse(new StringReader(
-				"<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\" permitCategories=\"false\"/></directory>"));
+		Directory directory = parser.parse(new StringReader("<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\" permitCategories=\"false\"/></directory>")); //$NON-NLS-1$
 		assertNotNull(directory);
 		assertEquals(1, directory.getEntries().size());
 		assertEquals(false, directory.getEntries().get(0).isPermitCategories());
 	}
 
 	public void testParsePermitCategoriesNotSpecified() throws IOException {
-		Directory directory = parser.parse(new StringReader(
-				"<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\"/></directory>"));
+		Directory directory = parser.parse(new StringReader("<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\"/></directory>")); //$NON-NLS-1$
 		assertNotNull(directory);
 		assertEquals(1, directory.getEntries().size());
 		assertEquals(false, directory.getEntries().get(0).isPermitCategories());
 	}
 
 	public void testParsePermitCategoriesSpecifiedBadly() throws IOException {
-		Directory directory = parser.parse(new StringReader(
-				"<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\" permitCategories=\"\"/></directory>"));
+		Directory directory = parser.parse(new StringReader("<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\" permitCategories=\"\"/></directory>")); //$NON-NLS-1$
 		assertNotNull(directory);
 		assertEquals(1, directory.getEntries().size());
 		assertEquals(false, directory.getEntries().get(0).isPermitCategories());
 	}
 
 	public void testParsePermitCategoriesSpecifiedBadly2() throws IOException {
-		Directory directory = parser.parse(new StringReader(
-				"<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\" permitCategories=\"asdf\"/></directory>"));
+		Directory directory = parser.parse(new StringReader("<directory xmlns=\"http://www.eclipse.org/mylyn/discovery/directory/\"><entry url=\"http://foo.bar.nodomain/baz.jar\" permitCategories=\"asdf\"/></directory>")); //$NON-NLS-1$
 		assertNotNull(directory);
 		assertEquals(1, directory.getEntries().size());
 		assertEquals(false, directory.getEntries().get(0).isPermitCategories());

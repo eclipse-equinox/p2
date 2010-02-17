@@ -11,15 +11,11 @@
 package org.eclipse.equinox.internal.p2.ui.discovery.commands;
 
 import java.util.Arrays;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.equinox.internal.p2.discovery.Catalog;
 import org.eclipse.equinox.internal.p2.discovery.DiscoveryCore;
-import org.eclipse.equinox.internal.p2.discovery.compatibility.BundleDiscoveryStrategy;
-import org.eclipse.equinox.internal.p2.discovery.compatibility.ConnectorDiscoveryExtensionReader;
-import org.eclipse.equinox.internal.p2.discovery.compatibility.RemoteBundleDiscoveryStrategy;
+import org.eclipse.equinox.internal.p2.discovery.compatibility.*;
 import org.eclipse.equinox.internal.p2.ui.discovery.util.WorkbenchUtil;
 import org.eclipse.equinox.internal.p2.ui.discovery.wizards.CatalogConfiguration;
 import org.eclipse.equinox.internal.p2.ui.discovery.wizards.DiscoveryWizard;
@@ -39,7 +35,7 @@ public class ShowBundleCatalogCommandHandler extends AbstractHandler {
 
 	private static final String ID_P2_INSTALL_UI = "org.eclipse.equinox.p2.ui.sdk/org.eclipse.equinox.p2.ui.sdk.install"; //$NON-NLS-1$
 
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+	public Object execute(ExecutionEvent event) {
 		// check to make sure that the p2 install ui is enabled
 		if (WorkbenchUtil.allowUseOf(ID_P2_INSTALL_UI)) {
 			Catalog catalog = new Catalog();
@@ -67,9 +63,7 @@ public class ShowBundleCatalogCommandHandler extends AbstractHandler {
 			WizardDialog dialog = new WizardDialog(WorkbenchUtil.getShell(), wizard);
 			dialog.open();
 		} else {
-			MessageDialog.openWarning(WorkbenchUtil.getShell(),
-					Messages.ShowConnectorDiscoveryWizardCommandHandler_Install_Connectors,
-					Messages.ShowConnectorDiscoveryWizardCommandHandler_Unable_To_Install_No_P2);
+			MessageDialog.openWarning(WorkbenchUtil.getShell(), Messages.ShowConnectorDiscoveryWizardCommandHandler_Install_Connectors, Messages.ShowConnectorDiscoveryWizardCommandHandler_Unable_To_Install_No_P2);
 		}
 
 		return null;

@@ -127,8 +127,7 @@ public class WorkbenchUtil {
 			IPluginContribution contribution = (IPluginContribution) object;
 			if (contribution.getPluginId() != null) {
 				IWorkbenchActivitySupport workbenchActivitySupport = PlatformUI.getWorkbench().getActivitySupport();
-				IIdentifier identifier = workbenchActivitySupport.getActivityManager().getIdentifier(
-						createUnifiedId(contribution));
+				IIdentifier identifier = workbenchActivitySupport.getActivityManager().getIdentifier(createUnifiedId(contribution));
 				return identifier.isEnabled();
 			}
 		}
@@ -173,25 +172,21 @@ public class WorkbenchUtil {
 			if (location != null) {
 				url = new URL(location);
 			}
-			if (WebBrowserPreference.getBrowserChoice() == WebBrowserPreference.EXTERNAL
-					|| (customFlags & IWorkbenchBrowserSupport.AS_EXTERNAL) != 0) {
+			if (WebBrowserPreference.getBrowserChoice() == WebBrowserPreference.EXTERNAL || (customFlags & IWorkbenchBrowserSupport.AS_EXTERNAL) != 0) {
 				try {
 					IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
 					support.getExternalBrowser().openURL(url);
 				} catch (PartInitException e) {
-					Status status = new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
-							Messages.WorkbenchUtil_Browser_Initialization_Failed);
+					Status status = new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, Messages.WorkbenchUtil_Browser_Initialization_Failed);
 					MessageDialog.openError(getShell(), Messages.WorkbenchUtil_Open_Location_Title, status.getMessage());
 				}
 			} else {
 				IWebBrowser browser = null;
 				int flags = customFlags;
 				if (WorkbenchBrowserSupport.getInstance().isInternalWebBrowserAvailable()) {
-					flags |= IWorkbenchBrowserSupport.AS_EDITOR | IWorkbenchBrowserSupport.LOCATION_BAR
-							| IWorkbenchBrowserSupport.NAVIGATION_BAR;
+					flags |= IWorkbenchBrowserSupport.AS_EDITOR | IWorkbenchBrowserSupport.LOCATION_BAR | IWorkbenchBrowserSupport.NAVIGATION_BAR;
 				} else {
-					flags |= IWorkbenchBrowserSupport.AS_EXTERNAL | IWorkbenchBrowserSupport.LOCATION_BAR
-							| IWorkbenchBrowserSupport.NAVIGATION_BAR;
+					flags |= IWorkbenchBrowserSupport.AS_EXTERNAL | IWorkbenchBrowserSupport.LOCATION_BAR | IWorkbenchBrowserSupport.NAVIGATION_BAR;
 				}
 
 				String generatedId = "org.eclipse.mylyn.web.browser-" + Calendar.getInstance().getTimeInMillis(); //$NON-NLS-1$
@@ -199,18 +194,15 @@ public class WorkbenchUtil {
 				browser.openURL(url);
 			}
 		} catch (PartInitException e) {
-			Status status = new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
-					Messages.WorkbenchUtil_Browser_Initialization_Failed, e);
+			Status status = new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, Messages.WorkbenchUtil_Browser_Initialization_Failed, e);
 			LogHelper.log(status);
 			MessageDialog.openError(getShell(), Messages.WorkbenchUtil_Open_Location_Title, status.getMessage());
 		} catch (MalformedURLException e) {
 			if (location != null && location.trim().equals("")) { //$NON-NLS-1$
-				Status status = new Status(IStatus.WARNING, DiscoveryUi.ID_PLUGIN, Messages.WorkbenchUtil_No_URL_Error,
-						e);
+				Status status = new Status(IStatus.WARNING, DiscoveryUi.ID_PLUGIN, Messages.WorkbenchUtil_No_URL_Error, e);
 				MessageDialog.openWarning(getShell(), Messages.WorkbenchUtil_Open_Location_Title, status.getMessage());
 			} else {
-				Status status = new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, NLS.bind(
-						Messages.WorkbenchUtil_Invalid_URL_Error, location), e);
+				Status status = new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, NLS.bind(Messages.WorkbenchUtil_Invalid_URL_Error, location), e);
 				MessageDialog.openError(getShell(), Messages.WorkbenchUtil_Open_Location_Title, status.getMessage());
 			}
 		}

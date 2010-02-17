@@ -80,8 +80,7 @@ public class TransportUtil {
 	 *             if a network or IO problem occurs
 	 * @throws CoreException
 	 */
-	public static void readResource(URI uri, TextContentProcessor processor, IProgressMonitor monitor)
-			throws IOException, CoreException {
+	public static void readResource(URI uri, TextContentProcessor processor, IProgressMonitor monitor) throws IOException, CoreException {
 		InputStream in = RepositoryTransport.getInstance().stream(uri, monitor);
 		try {
 			// FIXME how can the charset be determined?
@@ -105,8 +104,7 @@ public class TransportUtil {
 	 * @throws CoreException
 	 * @throws AuthenticationFailedException
 	 */
-	public static boolean verifyAvailability(List<? extends URI> locations, boolean one, IProgressMonitor monitor)
-			throws IOException, CoreException {
+	public static boolean verifyAvailability(List<? extends URI> locations, boolean one, IProgressMonitor monitor) throws IOException, CoreException {
 		if (locations.isEmpty() || locations.size() > 5) {
 			throw new IllegalArgumentException();
 		}

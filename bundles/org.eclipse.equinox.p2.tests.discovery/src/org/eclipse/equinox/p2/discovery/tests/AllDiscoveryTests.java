@@ -13,12 +13,7 @@ package org.eclipse.equinox.p2.discovery.tests;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import org.eclipse.equinox.p2.discovery.tests.core.BundleDiscoveryStrategyTest;
-import org.eclipse.equinox.p2.discovery.tests.core.ConnectorDiscoveryRemoteTest;
-import org.eclipse.equinox.p2.discovery.tests.core.ConnectorDiscoveryTest;
-import org.eclipse.equinox.p2.discovery.tests.core.DirectoryParserTest;
-import org.eclipse.equinox.p2.discovery.tests.core.RemoteBundleDiscoveryStrategyTest;
+import org.eclipse.equinox.p2.discovery.tests.core.*;
 
 /**
  * @author Steffen Pingel
@@ -26,7 +21,7 @@ import org.eclipse.equinox.p2.discovery.tests.core.RemoteBundleDiscoveryStrategy
 public class AllDiscoveryTests {
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Tests for org.eclipse.mylyn.discovery");
+		TestSuite suite = new TestSuite("Tests for org.eclipse.mylyn.discovery"); //$NON-NLS-1$
 		suite.addTestSuite(ConnectorDiscoveryTest.class);
 		suite.addTestSuite(DirectoryParserTest.class);
 		suite.addTestSuite(BundleDiscoveryStrategyTest.class);

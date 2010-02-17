@@ -87,21 +87,21 @@ public class DiscoveryResources {
 	public Image getIconImage(AbstractCatalogSource discoverySource, Icon icon, int dimension, boolean fallback) {
 		String imagePath;
 		switch (dimension) {
-		case 64:
-			imagePath = icon.getImage64();
-			if (imagePath != null || !fallback) {
+			case 64 :
+				imagePath = icon.getImage64();
+				if (imagePath != null || !fallback) {
+					break;
+				}
+			case 48 :
+				imagePath = icon.getImage48();
+				if (imagePath != null || !fallback) {
+					break;
+				}
+			case 32 :
+				imagePath = icon.getImage32();
 				break;
-			}
-		case 48:
-			imagePath = icon.getImage48();
-			if (imagePath != null || !fallback) {
-				break;
-			}
-		case 32:
-			imagePath = icon.getImage32();
-			break;
-		default:
-			throw new IllegalArgumentException();
+			default :
+				throw new IllegalArgumentException();
 		}
 		if (imagePath != null && imagePath.length() > 0) {
 			URL resource = discoverySource.getResource(imagePath);

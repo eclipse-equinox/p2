@@ -12,10 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.discovery.commands;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.*;
 import org.eclipse.equinox.internal.p2.discovery.Catalog;
 import org.eclipse.equinox.internal.p2.discovery.DiscoveryCore;
 import org.eclipse.equinox.internal.p2.ui.discovery.repository.RepositoryDiscoveryStrategy;
@@ -46,7 +43,7 @@ public class ShowRepositoryCatalogCommandHandler extends AbstractHandler {
 			try {
 				strategy.addLocation(new URI(DEFAULT_REPOSITORY_URL));
 			} catch (URISyntaxException e) {
-				throw new ExecutionException("Invalid location format", e);
+				throw new ExecutionException("Invalid location format", e); //$NON-NLS-1$
 			}
 			catalog.getDiscoveryStrategies().add(strategy);
 
@@ -60,9 +57,7 @@ public class ShowRepositoryCatalogCommandHandler extends AbstractHandler {
 			WizardDialog dialog = new WizardDialog(WorkbenchUtil.getShell(), wizard);
 			dialog.open();
 		} else {
-			MessageDialog.openWarning(WorkbenchUtil.getShell(),
-					Messages.ShowConnectorDiscoveryWizardCommandHandler_Install_Connectors,
-					Messages.ShowConnectorDiscoveryWizardCommandHandler_Unable_To_Install_No_P2);
+			MessageDialog.openWarning(WorkbenchUtil.getShell(), Messages.ShowConnectorDiscoveryWizardCommandHandler_Install_Connectors, Messages.ShowConnectorDiscoveryWizardCommandHandler_Unable_To_Install_No_P2);
 		}
 
 		return null;

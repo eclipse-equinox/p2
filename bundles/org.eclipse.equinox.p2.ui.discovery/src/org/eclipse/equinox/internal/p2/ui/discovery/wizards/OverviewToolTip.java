@@ -95,21 +95,15 @@ class OverviewToolTip extends GradientToolTip {
 		final int containerWidthHintWithImage = 650;
 		final int containerWidthHintWithoutImage = 500;
 
-		GridDataFactory.fillDefaults().grab(true, true).hint(
-				image == null ? containerWidthHintWithoutImage : containerWidthHintWithImage, SWT.DEFAULT).applyTo(
-				container);
+		GridDataFactory.fillDefaults().grab(true, true).hint(image == null ? containerWidthHintWithoutImage : containerWidthHintWithImage, SWT.DEFAULT).applyTo(container);
 
-		GridLayoutFactory.fillDefaults().numColumns((leftImage != null) ? 3 : 2).margins(5, 5).spacing(3, 0).applyTo(
-				container);
+		GridLayoutFactory.fillDefaults().numColumns((leftImage != null) ? 3 : 2).margins(5, 5).spacing(3, 0).applyTo(container);
 
 		if (leftImage != null) {
 			Label imageLabel = new Label(container, SWT.NONE);
 			imageLabel.setImage(leftImage);
 			int imageWidthHint = leftImage.getBounds().width + 5;
-			GridDataFactory.fillDefaults()
-					.align(SWT.BEGINNING, SWT.BEGINNING)
-					.hint(imageWidthHint, SWT.DEFAULT)
-					.applyTo(imageLabel);
+			GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.BEGINNING).hint(imageWidthHint, SWT.DEFAULT).applyTo(imageLabel);
 		}
 
 		String summary = overview.getSummary();
@@ -118,9 +112,7 @@ class OverviewToolTip extends GradientToolTip {
 		summaryContainer.setBackground(null);
 		GridLayoutFactory.fillDefaults().applyTo(summaryContainer);
 
-		GridDataFactory gridDataFactory = GridDataFactory.fillDefaults()
-				.grab(true, true)
-				.span(image == null ? 2 : 1, 1);
+		GridDataFactory gridDataFactory = GridDataFactory.fillDefaults().grab(true, true).span(image == null ? 2 : 1, 1);
 		if (image != null) {
 			gridDataFactory.hint(widthHint, heightHint);
 		}
@@ -142,12 +134,10 @@ class OverviewToolTip extends GradientToolTip {
 			final Composite imageContainer = new Composite(container, SWT.BORDER);
 			GridLayoutFactory.fillDefaults().applyTo(imageContainer);
 
-			GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.BEGINNING).hint(
-					widthHint + (borderWidth * 2), heightHint).applyTo(imageContainer);
+			GridDataFactory.fillDefaults().grab(false, false).align(SWT.CENTER, SWT.BEGINNING).hint(widthHint + (borderWidth * 2), heightHint).applyTo(imageContainer);
 
 			Label imageLabel = new Label(imageContainer, SWT.NULL);
-			GridDataFactory.fillDefaults().hint(widthHint, fixedImageHeight).indent(borderWidth, borderWidth).applyTo(
-					imageLabel);
+			GridDataFactory.fillDefaults().hint(widthHint, fixedImageHeight).indent(borderWidth, borderWidth).applyTo(imageLabel);
 			imageLabel.setImage(image);
 			imageLabel.setBackground(null);
 			imageLabel.setSize(widthHint, fixedImageHeight);

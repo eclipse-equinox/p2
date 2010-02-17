@@ -14,15 +14,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-
 import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.RemoteBundleDiscoveryStrategy;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
-import org.eclipse.equinox.internal.p2.discovery.model.Certification;
+import org.eclipse.equinox.internal.p2.discovery.model.*;
 import org.eclipse.equinox.p2.discovery.tests.DiscoveryTestConstants;
 
 /**
@@ -45,16 +41,16 @@ public class RemoteBundleDiscoveryStrategyTest extends TestCase {
 		discoveryStrategy.performDiscovery(new NullProgressMonitor());
 		assertFalse(discoveryStrategy.getCategories().isEmpty());
 		for (CatalogCategory category : discoveryStrategy.getCategories()) {
-//			System.out.println(String.format("%s: %s: %s", category.getId(), category.getName(),
-//					category.getDescription()));
+			//			System.out.println(String.format("%s: %s: %s", category.getId(), category.getName(),
+			//					category.getDescription()));
 			assertNotNull(category.getId());
 			assertNotNull(category.getName());
 			assertNotNull(category.getDescription());
 		}
 		assertFalse(discoveryStrategy.getItems().isEmpty());
 		for (CatalogItem connector : discoveryStrategy.getItems()) {
-//			System.out.println(String.format("%s: %s: %s", connector.getId(), connector.getName(),
-//					connector.getDescription()));
+			//			System.out.println(String.format("%s: %s: %s", connector.getId(), connector.getName(),
+			//					connector.getDescription()));
 			assertNotNull(connector.getId());
 			assertNotNull(connector.getTags());
 			assertNotNull(connector.getName());
@@ -62,8 +58,8 @@ public class RemoteBundleDiscoveryStrategyTest extends TestCase {
 
 			// we _know_ that the bundle must have a plugin.xml... so verify that the source is working correctly
 			assertNotNull(connector.getSource());
-			URL pluginXmlUrl = connector.getSource().getResource("plugin.xml");
-//			System.out.println("URL: " + pluginXmlUrl);
+			URL pluginXmlUrl = connector.getSource().getResource("plugin.xml"); //$NON-NLS-1$
+			//			System.out.println("URL: " + pluginXmlUrl);
 			InputStream in = pluginXmlUrl.openStream();
 			assertNotNull(in);
 			in.close();

@@ -34,8 +34,7 @@ public class CategoryItem<T extends CatalogCategory> extends AbstractDiscoveryIt
 	}
 
 	protected boolean hasTooltip(final CatalogCategory category) {
-		return category.getOverview() != null && category.getOverview().getSummary() != null
-				&& category.getOverview().getSummary().length() > 0;
+		return category.getOverview() != null && category.getOverview().getSummary() != null && category.getOverview().getSummary().length() > 0;
 	}
 
 	private void createContent(T category) {
@@ -44,8 +43,7 @@ public class CategoryItem<T extends CatalogCategory> extends AbstractDiscoveryIt
 		final GradientCanvas categoryHeaderContainer = new GradientCanvas(this, SWT.NONE);
 		categoryHeaderContainer.setSeparatorVisible(true);
 		categoryHeaderContainer.setSeparatorAlignment(SWT.TOP);
-		categoryHeaderContainer.setBackgroundGradient(new Color[] { resources.getGradientBeginColor(),
-				resources.getGradientEndColor() }, new int[] { 100 }, true);
+		categoryHeaderContainer.setBackgroundGradient(new Color[] {resources.getGradientBeginColor(), resources.getGradientEndColor()}, new int[] {100}, true);
 		categoryHeaderContainer.putColor(GradientCanvas.H_BOTTOM_KEYLINE1, resources.getGradientBeginColor());
 		categoryHeaderContainer.putColor(GradientCanvas.H_BOTTOM_KEYLINE2, resources.getGradientEndColor());
 
@@ -71,8 +69,7 @@ public class CategoryItem<T extends CatalogCategory> extends AbstractDiscoveryIt
 			ToolItem infoButton = new ToolItem(toolBar, SWT.PUSH);
 			infoButton.setImage(resources.getInfoImage());
 			infoButton.setToolTipText(Messages.ConnectorDiscoveryWizardMainPage_tooltip_showOverview);
-			hookTooltip(toolBar, infoButton, categoryHeaderContainer, nameLabel, category.getSource(),
-					category.getOverview(), null);
+			hookTooltip(toolBar, infoButton, categoryHeaderContainer, nameLabel, category.getSource(), category.getOverview(), null);
 			GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).applyTo(toolBar);
 		} else {
 			new Label(categoryHeaderContainer, SWT.NULL).setText(" "); //$NON-NLS-1$

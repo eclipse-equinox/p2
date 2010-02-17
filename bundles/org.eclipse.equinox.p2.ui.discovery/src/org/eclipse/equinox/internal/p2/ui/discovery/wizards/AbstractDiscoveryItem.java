@@ -51,19 +51,18 @@ public abstract class AbstractDiscoveryItem<T> extends ControlListItem<T> {
 		}
 	}
 
-	protected void hookTooltip(final Control parent, final Widget tipActivator, final Control exitControl,
-			final Control titleControl, AbstractCatalogSource source, Overview overview, Image image) {
+	protected void hookTooltip(final Control parent, final Widget tipActivator, final Control exitControl, final Control titleControl, AbstractCatalogSource source, Overview overview, Image image) {
 		final OverviewToolTip toolTip = new OverviewToolTip(parent, source, overview, image);
 		Listener listener = new Listener() {
 			public void handleEvent(Event event) {
 				switch (event.type) {
-				case SWT.MouseHover:
-					toolTip.show(titleControl);
-					break;
-				case SWT.Dispose:
-				case SWT.MouseWheel:
-					toolTip.hide();
-					break;
+					case SWT.MouseHover :
+						toolTip.show(titleControl);
+						break;
+					case SWT.Dispose :
+					case SWT.MouseWheel :
+						toolTip.hide();
+						break;
 				}
 
 			}
@@ -82,23 +81,23 @@ public abstract class AbstractDiscoveryItem<T> extends ControlListItem<T> {
 		Listener exitListener = new Listener() {
 			public void handleEvent(Event event) {
 				switch (event.type) {
-				case SWT.MouseWheel:
-					toolTip.hide();
-					break;
-				case SWT.MouseExit:
-					/*
-					 * Check if the mouse exit happened because we move over the
-					 * tooltip
-					 */
-					Rectangle containerBounds = exitControl.getBounds();
-					Point displayLocation = exitControl.getParent().toDisplay(containerBounds.x, containerBounds.y);
-					containerBounds.x = displayLocation.x;
-					containerBounds.y = displayLocation.y;
-					if (containerBounds.contains(Display.getCurrent().getCursorLocation())) {
+					case SWT.MouseWheel :
+						toolTip.hide();
 						break;
-					}
-					toolTip.hide();
-					break;
+					case SWT.MouseExit :
+						/*
+						 * Check if the mouse exit happened because we move over the
+						 * tooltip
+						 */
+						Rectangle containerBounds = exitControl.getBounds();
+						Point displayLocation = exitControl.getParent().toDisplay(containerBounds.x, containerBounds.y);
+						containerBounds.x = displayLocation.x;
+						containerBounds.y = displayLocation.y;
+						if (containerBounds.contains(Display.getCurrent().getCursorLocation())) {
+							break;
+						}
+						toolTip.hide();
+						break;
 				}
 			}
 		};

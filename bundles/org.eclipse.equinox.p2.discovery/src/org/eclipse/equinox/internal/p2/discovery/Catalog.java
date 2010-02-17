@@ -10,38 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.discovery;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IBundleGroup;
-import org.eclipse.core.runtime.IBundleGroupProvider;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.ISafeRunnable;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.SafeRunner;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import java.util.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.discovery.model.AbstractCatalogItem;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
-import org.eclipse.equinox.internal.p2.discovery.model.Certification;
-import org.eclipse.equinox.internal.p2.discovery.model.FeatureFilter;
-import org.eclipse.equinox.internal.p2.discovery.model.Tag;
+import org.eclipse.equinox.internal.p2.discovery.model.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.Filter;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.Version;
+import org.osgi.framework.*;
 
 /**
  * A means of discovering connectors.
@@ -69,6 +44,7 @@ public class Catalog {
 	private Map<String, Version> featureToVersion = null;
 
 	public Catalog() {
+		// constructor
 	}
 
 	/**
@@ -81,19 +57,16 @@ public class Catalog {
 	/**
 	 * Initialize this by performing discovery. Discovery may take a long time as it involves network access.
 	 * PRECONDITION: must add at least one {@link #getDiscoveryStrategies() discovery strategy} prior to calling.
-	 * 
-	 * @return
 	 */
 	public IStatus performDiscovery(IProgressMonitor monitor) {
-		MultiStatus status = new MultiStatus(DiscoveryCore.ID_PLUGIN, 0,
-				Messages.Catalog_Failed_to_discovery_all_Error, null);
+		MultiStatus status = new MultiStatus(DiscoveryCore.ID_PLUGIN, 0, Messages.Catalog_Failed_to_discovery_all_Error, null);
 		if (discoveryStrategies.isEmpty()) {
 			throw new IllegalStateException();
 		}
-		List<CatalogItem> items = new ArrayList<CatalogItem>();
-		List<CatalogCategory> categories = new ArrayList<CatalogCategory>();
-		List<Certification> certifications = new ArrayList<Certification>();
-		List<Tag> tags = new ArrayList<Tag>();
+		List<CatalogItem> newItems = new ArrayList<CatalogItem>();
+		List<CatalogCategory> newCategories = new ArrayList<CatalogCategory>();
+		List<Certification> newCertifications = new ArrayList<Certification>();
+		List<Tag> newTags = new ArrayList<Tag>();
 
 		final int totalTicks = 100000;
 		final int discoveryTicks = totalTicks - (totalTicks / 10);
@@ -104,32 +77,29 @@ public class Catalog {
 					status.add(Status.CANCEL_STATUS);
 					break;
 				}
-				discoveryStrategy.setCategories(categories);
-				discoveryStrategy.setItems(items);
-				discoveryStrategy.setCertifications(certifications);
-				discoveryStrategy.setTags(tags);
+				discoveryStrategy.setCategories(newCategories);
+				discoveryStrategy.setItems(newItems);
+				discoveryStrategy.setCertifications(newCertifications);
+				discoveryStrategy.setTags(newTags);
 				try {
-					discoveryStrategy.performDiscovery(new SubProgressMonitor(monitor, discoveryTicks
-							/ discoveryStrategies.size()));
+					discoveryStrategy.performDiscovery(new SubProgressMonitor(monitor, discoveryTicks / discoveryStrategies.size()));
 				} catch (CoreException e) {
-					status.add(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(
-							Messages.Catalog_Strategy_failed_Error, discoveryStrategy.getClass().getSimpleName()), e));
+					status.add(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.Catalog_Strategy_failed_Error, discoveryStrategy.getClass().getSimpleName()), e));
 				}
 			}
 
-			update(categories, items, certifications, tags);
+			update(newCategories, newItems, newCertifications, newTags);
 		} finally {
 			monitor.done();
 		}
 		return status;
 	}
 
-	protected void update(List<CatalogCategory> categories, List<CatalogItem> items,
-			List<Certification> certifications, List<Tag> tags) {
-		this.categories = categories;
-		this.items = items;
-		this.certifications = certifications;
-		this.tags = tags;
+	protected void update(List<CatalogCategory> newCategories, List<CatalogItem> newItems, List<Certification> newCertifications, List<Tag> newTags) {
+		this.categories = newCategories;
+		this.items = newItems;
+		this.certifications = newCertifications;
+		this.tags = newTags;
 		this.filteredItems = new ArrayList<CatalogItem>();
 
 		filterDescriptors();
@@ -237,10 +207,8 @@ public class Catalog {
 		for (Certification certification : certifications) {
 			Certification previous = idToCertification.put(certification.getId(), certification);
 			if (previous != null) {
-				LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(
-						"Duplicate certification id ''{0}'': declaring sources: {1}, {2}", //$NON-NLS-1$
-						new Object[] { certification.getId(), certification.getSource().getId(),
-								previous.getSource().getId() })));
+				LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind("Duplicate certification id ''{0}'': declaring sources: {1}, {2}", //$NON-NLS-1$
+						new Object[] {certification.getId(), certification.getSource().getId(), previous.getSource().getId()})));
 			}
 		}
 
@@ -250,9 +218,8 @@ public class Catalog {
 				if (certification != null) {
 					connector.setCertification(certification);
 				} else {
-					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(
-							"Unknown category ''{0}'' referenced by connector ''{1}'' declared in {2}", new Object[] { //$NON-NLS-1$
-							connector.getCertificationId(), connector.getId(), connector.getSource().getId() })));
+					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind("Unknown category ''{0}'' referenced by connector ''{1}'' declared in {2}", new Object[] { //$NON-NLS-1$
+							connector.getCertificationId(), connector.getId(), connector.getSource().getId()})));
 				}
 			}
 		}
@@ -263,9 +230,7 @@ public class Catalog {
 		for (CatalogCategory category : categories) {
 			CatalogCategory previous = idToCategory.put(category.getId(), category);
 			if (previous != null) {
-				LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(
-						Messages.Catalog_duplicate_category_id, new Object[] { category.getId(),
-								category.getSource().getId(), previous.getSource().getId() })));
+				LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.Catalog_duplicate_category_id, new Object[] {category.getId(), category.getSource().getId(), previous.getSource().getId()})));
 			}
 		}
 
@@ -275,9 +240,7 @@ public class Catalog {
 				category.getItems().add(connector);
 				connector.setCategory(category);
 			} else {
-				LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(
-						Messages.Catalog_bundle_references_unknown_category, new Object[] { connector.getCategoryId(),
-								connector.getId(), connector.getSource().getId() })));
+				LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.Catalog_bundle_references_unknown_category, new Object[] {connector.getCategoryId(), connector.getId(), connector.getSource().getId()})));
 			}
 		}
 	}
@@ -293,9 +256,7 @@ public class Catalog {
 					Filter filter = FrameworkUtil.createFilter(connector.getPlatformFilter());
 					match = filter.match(environment);
 				} catch (InvalidSyntaxException e) {
-					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(
-							Messages.Catalog_illegal_filter_syntax, new Object[] { connector.getPlatformFilter(),
-									connector.getId(), connector.getSource().getId() })));
+					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.Catalog_illegal_filter_syntax, new Object[] {connector.getPlatformFilter(), connector.getId(), connector.getSource().getId()})));
 				}
 				if (!match) {
 					items.remove(connector);
@@ -324,15 +285,15 @@ public class Catalog {
 	}
 
 	private Map<String, Version> computeFeatureToVersion() {
-		Map<String, Version> featureToVersion = new HashMap<String, Version>();
+		Map<String, Version> map = new HashMap<String, Version>();
 		for (IBundleGroupProvider provider : Platform.getBundleGroupProviders()) {
 			for (IBundleGroup bundleGroup : provider.getBundleGroups()) {
 				for (Bundle bundle : bundleGroup.getBundles()) {
-					featureToVersion.put(bundle.getSymbolicName(), bundle.getVersion());
+					map.put(bundle.getSymbolicName(), bundle.getVersion());
 				}
 			}
 		}
-		return featureToVersion;
+		return map;
 	}
 
 	public void dispose() {
@@ -344,8 +305,7 @@ public class Catalog {
 				}
 
 				public void handleException(Throwable exception) {
-					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN,
-							Messages.Catalog_exception_disposing + strategy.getClass().getName(), exception));
+					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.Catalog_exception_disposing + strategy.getClass().getName(), exception));
 				}
 			});
 		}

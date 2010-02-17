@@ -76,8 +76,7 @@ public abstract class ControlListItem<T> extends Composite {
 		Color lightColor = PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
 
 		// Determine a dark color by shifting the list color
-		RGB darkRGB = new RGB(Math.max(0, lightColor.getRed() + shift), Math.max(0, lightColor.getGreen() + shift),
-				Math.max(0, lightColor.getBlue() + shift));
+		RGB darkRGB = new RGB(Math.max(0, lightColor.getRed() + shift), Math.max(0, lightColor.getGreen() + shift), Math.max(0, lightColor.getBlue() + shift));
 		JFaceResources.getColorRegistry().put(DARK_COLOR_KEY, darkRGB);
 	}
 
@@ -96,10 +95,10 @@ public abstract class ControlListItem<T> extends Composite {
 		mouseListener = doCreateMouseListener();
 		mouseTrackListener = doCreateMouseTrackListener();
 		registerChild(this);
-//		Control[] children = getChildren();
-//		for (Control child : children) {
-//			registerChild(child);
-//		}
+		//		Control[] children = getChildren();
+		//		for (Control child : children) {
+		//			registerChild(child);
+		//		}
 		setHot(false);
 	}
 

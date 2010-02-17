@@ -10,14 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.discovery.tests.core;
 
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
+import java.util.*;
 import junit.framework.TestCase;
-
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.discovery.Catalog;
 import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
@@ -42,42 +36,42 @@ public class ConnectorDiscoveryTest extends TestCase {
 		connectorDiscovery.getDiscoveryStrategies().add(mockDiscoveryStrategy);
 	}
 
-	public void testPlatformFilter_None() throws CoreException {
+	public void testPlatformFilter_None() {
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 		assertEquals(mockDiscoveryStrategy.getConnectorCount(), connectorDiscovery.getItems().size());
 	}
 
-	public void testPlatformFilter_NegativeMatch() throws CoreException {
+	public void testPlatformFilter_NegativeMatch() {
 		mockDiscoveryStrategy.setConnectorMockFactory(new CatalogItemMockFactory() {
 			@Override
 			protected void populateMockData() {
 				super.populateMockData();
-				platformFilter("(& (osgi.os=macosx) (osgi.ws=carbon))");
+				platformFilter("(& (osgi.os=macosx) (osgi.ws=carbon))"); //$NON-NLS-1$
 			}
 		});
 		// test to ensure that all non-matching platform filters are not discovered
 		Dictionary<Object, Object> environment = new Properties();
-		environment.put("osgi.os", "win32");
-		environment.put("osgi.ws", "windows");
+		environment.put("osgi.os", "win32"); //$NON-NLS-1$ //$NON-NLS-2$
+		environment.put("osgi.ws", "windows"); //$NON-NLS-1$ //$NON-NLS-2$
 		connectorDiscovery.setEnvironment(environment);
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 
 		assertTrue(connectorDiscovery.getItems().isEmpty());
 	}
 
-	public void testPlatformFilter_PositiveMatch() throws CoreException {
+	public void testPlatformFilter_PositiveMatch() {
 		mockDiscoveryStrategy.setConnectorMockFactory(new CatalogItemMockFactory() {
 			@Override
 			protected void populateMockData() {
 				super.populateMockData();
-				platformFilter("(& (osgi.os=macosx) (osgi.ws=carbon))");
+				platformFilter("(& (osgi.os=macosx) (osgi.ws=carbon))"); //$NON-NLS-1$
 			}
 		});
 		Dictionary<Object, Object> environment = new Properties();
 
 		// test to ensure that all matching platform filters are discovered
-		environment.put("osgi.os", "macosx");
-		environment.put("osgi.ws", "carbon");
+		environment.put("osgi.os", "macosx"); //$NON-NLS-1$//$NON-NLS-2$
+		environment.put("osgi.ws", "carbon"); //$NON-NLS-1$ //$NON-NLS-2$
 		connectorDiscovery.setEnvironment(environment);
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 
@@ -85,16 +79,16 @@ public class ConnectorDiscoveryTest extends TestCase {
 		assertEquals(mockDiscoveryStrategy.getConnectorCount(), connectorDiscovery.getItems().size());
 	}
 
-	public void testFeatureFilter_PositiveMatch() throws CoreException {
+	public void testFeatureFilter_PositiveMatch() {
 		mockDiscoveryStrategy.setConnectorMockFactory(new CatalogItemMockFactory() {
 			@Override
 			protected void populateMockData() {
 				super.populateMockData();
-				featureFilter("com.foo.bar.feature", "[1.0,2.0)");
+				featureFilter("com.foo.bar.feature", "[1.0,2.0)"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
 		Map<String, Version> featureToVersion = new HashMap<String, Version>();
-		featureToVersion.put("com.foo.bar.feature", new Version("1.1"));
+		featureToVersion.put("com.foo.bar.feature", new Version("1.1")); //$NON-NLS-1$ //$NON-NLS-2$
 		connectorDiscovery.setFeatureToVersion(featureToVersion);
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 
@@ -102,28 +96,28 @@ public class ConnectorDiscoveryTest extends TestCase {
 		assertEquals(mockDiscoveryStrategy.getConnectorCount(), connectorDiscovery.getItems().size());
 	}
 
-	public void testFeatureFilter_NegativeMatch_VersionMismatch() throws CoreException {
+	public void testFeatureFilter_NegativeMatch_VersionMismatch() {
 		mockDiscoveryStrategy.setConnectorMockFactory(new CatalogItemMockFactory() {
 			@Override
 			protected void populateMockData() {
 				super.populateMockData();
-				featureFilter("com.foo.bar.feature", "[1.2,2.0)");
+				featureFilter("com.foo.bar.feature", "[1.2,2.0)"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
 		Map<String, Version> featureToVersion = new HashMap<String, Version>();
-		featureToVersion.put("com.foo.bar.feature", new Version("1.1"));
+		featureToVersion.put("com.foo.bar.feature", new Version("1.1")); //$NON-NLS-1$ //$NON-NLS-2$
 		connectorDiscovery.setFeatureToVersion(featureToVersion);
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 
 		assertTrue(connectorDiscovery.getItems().isEmpty());
 	}
 
-	public void testFeatureFilter_NegativeMatch_NotPresent() throws CoreException {
+	public void testFeatureFilter_NegativeMatch_NotPresent() {
 		mockDiscoveryStrategy.setConnectorMockFactory(new CatalogItemMockFactory() {
 			@Override
 			protected void populateMockData() {
 				super.populateMockData();
-				featureFilter("com.foo.bar.feature", "[1.2,2.0)");
+				featureFilter("com.foo.bar.feature", "[1.2,2.0)"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		});
 		Map<String, Version> featureToVersion = new HashMap<String, Version>();
@@ -133,7 +127,7 @@ public class ConnectorDiscoveryTest extends TestCase {
 		assertTrue(connectorDiscovery.getItems().isEmpty());
 	}
 
-	public void testCategorization() throws CoreException {
+	public void testCategorization() {
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 		assertTrue(!connectorDiscovery.getItems().isEmpty());
 		assertTrue(!connectorDiscovery.getCategories().isEmpty());
@@ -145,7 +139,7 @@ public class ConnectorDiscoveryTest extends TestCase {
 		}
 	}
 
-	public void testMultipleStrategies() throws CoreException {
+	public void testMultipleStrategies() {
 		MockDiscoveryStrategy strategy = new MockDiscoveryStrategy();
 		strategy.setConnectorMockFactory(mockDiscoveryStrategy.getConnectorMockFactory());
 		strategy.setCategoryMockFactory(mockDiscoveryStrategy.getCategoryMockFactory());
@@ -153,9 +147,7 @@ public class ConnectorDiscoveryTest extends TestCase {
 
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 
-		assertEquals(mockDiscoveryStrategy.getConnectorMockFactory().getCreatedCount(),
-				connectorDiscovery.getItems().size());
-		assertEquals(mockDiscoveryStrategy.getCategoryMockFactory().getCreatedCount(),
-				connectorDiscovery.getCategories().size());
+		assertEquals(mockDiscoveryStrategy.getConnectorMockFactory().getCreatedCount(), connectorDiscovery.getItems().size());
+		assertEquals(mockDiscoveryStrategy.getCategoryMockFactory().getCreatedCount(), connectorDiscovery.getCategories().size());
 	}
 }

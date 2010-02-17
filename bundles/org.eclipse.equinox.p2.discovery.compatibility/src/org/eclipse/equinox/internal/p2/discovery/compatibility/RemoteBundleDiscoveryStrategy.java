@@ -94,8 +94,7 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 					throw new IOException();
 				}
 			} catch (IOException e) {
-				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN,
-						Messages.RemoteBundleDiscoveryStrategy_io_failure_temp_storage, e));
+				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_io_failure_temp_storage, e));
 			}
 			if (monitor.isCanceled()) {
 				return;
@@ -115,21 +114,17 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 					throw new IllegalStateException();
 				}
 			} catch (UnknownHostException e) {
-				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(
-						Messages.RemoteBundleDiscoveryStrategy_unknown_host_discovery_directory, e.getMessage()), e));
+				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.RemoteBundleDiscoveryStrategy_unknown_host_discovery_directory, e.getMessage()), e));
 			} catch (URISyntaxException e) {
-				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(
-						Messages.RemoteBundleDiscoveryStrategy_Invalid_source_specified_Error, directoryUrl), e));
+				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.RemoteBundleDiscoveryStrategy_Invalid_source_specified_Error, directoryUrl), e));
 			} catch (IOException e) {
-				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN,
-						Messages.RemoteBundleDiscoveryStrategy_io_failure_discovery_directory, e));
+				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_io_failure_discovery_directory, e));
 			}
 			if (monitor.isCanceled()) {
 				return;
 			}
 			if (directory.getEntries().isEmpty()) {
-				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN,
-						Messages.RemoteBundleDiscoveryStrategy_empty_directory));
+				throw new CoreException(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_empty_directory));
 			}
 
 			Map<File, Directory.Entry> bundleFileToDirectoryEntry = new HashMap<File, Directory.Entry>();
@@ -170,8 +165,7 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 						if (cause instanceof CoreException) {
 							status = ((CoreException) cause).getStatus();
 						} else {
-							status = new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN,
-									Messages.RemoteBundleDiscoveryStrategy_unexpectedError, cause);
+							status = new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, Messages.RemoteBundleDiscoveryStrategy_unexpectedError, cause);
 						}
 						// log errors but continue on
 						LogHelper.log(status);
@@ -185,8 +179,7 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 			}
 
 			try {
-				registryStrategy = new DiscoveryRegistryStrategy(new File[] { registryCacheFolder },
-						new boolean[] { false }, this);
+				registryStrategy = new DiscoveryRegistryStrategy(new File[] {registryCacheFolder}, new boolean[] {false}, this);
 				registryStrategy.setBundles(bundleFileToDirectoryEntry);
 				IExtensionRegistry extensionRegistry = new ExtensionRegistry(registryStrategy, this, this);
 				try {
@@ -226,14 +219,11 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 			for (int attemptCount = 0; attemptCount < maxDiscoveryJarDownloadAttempts; ++attemptCount) {
 				try {
 					if (!bundleUrl.startsWith("http://") && !bundleUrl.startsWith("https://")) { //$NON-NLS-1$//$NON-NLS-2$
-						LogHelper.log(new Status(IStatus.WARNING, DiscoveryCore.ID_PLUGIN, NLS.bind(
-								Messages.RemoteBundleDiscoveryStrategy_unrecognized_discovery_url, bundleUrl)));
+						LogHelper.log(new Status(IStatus.WARNING, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.RemoteBundleDiscoveryStrategy_unrecognized_discovery_url, bundleUrl)));
 						continue;
 					}
-					String lastPathElement = bundleUrl.lastIndexOf('/') == -1 ? bundleUrl
-							: bundleUrl.substring(bundleUrl.lastIndexOf('/'));
-					File target = File.createTempFile(
-							lastPathElement.replaceAll("^[a-zA-Z0-9_.]", "_") + "_", ".jar", temporaryStorage); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+					String lastPathElement = bundleUrl.lastIndexOf('/') == -1 ? bundleUrl : bundleUrl.substring(bundleUrl.lastIndexOf('/'));
+					File target = File.createTempFile(lastPathElement.replaceAll("^[a-zA-Z0-9_.]", "_") + "_", ".jar", temporaryStorage); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 
 					if (monitor.isCanceled()) {
 						break;
@@ -247,12 +237,9 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 					}/*don't use sub progress monitor here*/);
 					file = target;
 				} catch (URISyntaxException e) {
-					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(
-							Messages.RemoteBundleDiscoveryStrategy_Invalid_source_specified_Error, bundleUrl), e));
+					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.RemoteBundleDiscoveryStrategy_Invalid_source_specified_Error, bundleUrl), e));
 				} catch (IOException e) {
-					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(
-							Messages.RemoteBundleDiscoveryStrategy_cannot_download_bundle, bundleUrl, e.getMessage()),
-							e));
+					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.RemoteBundleDiscoveryStrategy_cannot_download_bundle, bundleUrl, e.getMessage()), e));
 					if (isUnknownHostException(e)) {
 						break;
 					}
@@ -323,8 +310,7 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 	protected AbstractCatalogSource computeDiscoverySource(IContributor contributor) {
 		Entry directoryEntry = registryStrategy.getDirectoryEntry(contributor);
 		Policy policy = new Policy(directoryEntry.isPermitCategories());
-		JarDiscoverySource discoverySource = new JarDiscoverySource(contributor.getName(),
-				registryStrategy.getJarFile(contributor));
+		JarDiscoverySource discoverySource = new JarDiscoverySource(contributor.getName(), registryStrategy.getJarFile(contributor));
 		discoverySource.setPolicy(policy);
 		return discoverySource;
 	}

@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.discovery;
 
 import java.net.URL;
 
-
 /**
  * @author David Green
  */

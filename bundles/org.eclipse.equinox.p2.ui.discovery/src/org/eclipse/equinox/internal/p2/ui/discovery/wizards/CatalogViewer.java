@@ -108,8 +108,7 @@ public class CatalogViewer extends FilteredViewer {
 		protected boolean isLeafMatch(Viewer viewer, Object element) {
 			if (element instanceof CatalogItem) {
 				CatalogItem descriptor = (CatalogItem) element;
-				if (!(filterMatches(descriptor.getName()) || filterMatches(descriptor.getDescription())
-						|| filterMatches(descriptor.getProvider()) || filterMatches(descriptor.getLicense()))) {
+				if (!(filterMatches(descriptor.getName()) || filterMatches(descriptor.getDescription()) || filterMatches(descriptor.getProvider()) || filterMatches(descriptor.getLicense()))) {
 					return false;
 				}
 				return true;
@@ -119,15 +118,15 @@ public class CatalogViewer extends FilteredViewer {
 
 	}
 
-//	private class ConnectorBorderPaintListener implements PaintListener {
-//		public void paintControl(PaintEvent e) {
-//			Composite composite = (Composite) e.widget;
-//			Rectangle bounds = composite.getBounds();
-//			GC gc = e.gc;
-//			gc.setLineStyle(SWT.LINE_DOT);
-//			gc.drawLine(bounds.x, bounds.y, bounds.x + bounds.width, bounds.y);
-//		}
-//	}
+	//	private class ConnectorBorderPaintListener implements PaintListener {
+	//		public void paintControl(PaintEvent e) {
+	//			Composite composite = (Composite) e.widget;
+	//			Rectangle bounds = composite.getBounds();
+	//			GC gc = e.gc;
+	//			gc.setLineStyle(SWT.LINE_DOT);
+	//			gc.drawLine(bounds.x, bounds.y, bounds.x + bounds.width, bounds.y);
+	//		}
+	//	}
 
 	private static final int DEFAULT_HEIGHT = 250;
 
@@ -157,8 +156,7 @@ public class CatalogViewer extends FilteredViewer {
 
 	private Set<Tag> visibleTags;
 
-	public CatalogViewer(Catalog catalog, IShellProvider shellProvider, IRunnableContext context,
-			CatalogConfiguration configuration) {
+	public CatalogViewer(Catalog catalog, IShellProvider shellProvider, IRunnableContext context, CatalogConfiguration configuration) {
 		Assert.isNotNull(catalog);
 		Assert.isNotNull(shellProvider);
 		Assert.isNotNull(context);
@@ -190,8 +188,7 @@ public class CatalogViewer extends FilteredViewer {
 			}
 			if (categoryWithConnectorCount == 0) {
 				// nothing was discovered: notify the user
-				MessageDialog.openWarning(getShell(), Messages.ConnectorDiscoveryWizardMainPage_noConnectorsFound,
-						Messages.ConnectorDiscoveryWizardMainPage_noConnectorsFound_description);
+				MessageDialog.openWarning(getShell(), Messages.ConnectorDiscoveryWizardMainPage_noConnectorsFound, Messages.ConnectorDiscoveryWizardMainPage_noConnectorsFound_description);
 			}
 		}
 		viewer.setInput(catalog);
@@ -207,10 +204,9 @@ public class CatalogViewer extends FilteredViewer {
 			statusCause = new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, cause.getMessage(), cause);
 		}
 		if (statusCause.getMessage() != null) {
-			message = NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_message_with_cause, message,
-					statusCause.getMessage());
+			message = NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_message_with_cause, message, statusCause.getMessage());
 		}
-		IStatus status = new MultiStatus(DiscoveryUi.ID_PLUGIN, 0, new IStatus[] { statusCause }, message, cause);
+		IStatus status = new MultiStatus(DiscoveryUi.ID_PLUGIN, 0, new IStatus[] {statusCause}, message, cause);
 		return status;
 	}
 
@@ -368,14 +364,14 @@ public class CatalogViewer extends FilteredViewer {
 				return i;
 			}
 
-//					private int compare(Comparator<Object> comparator, Object key1, Object key2) {
-//						if (key1 == null) {
-//							return (key2 != null) ? 1 : 0;
-//						} else if (key2 == null) {
-//							return -1;
-//						}
-//						return comparator.compare(key1, key2);
-//					}
+			//					private int compare(Comparator<Object> comparator, Object key1, Object key2) {
+			//						if (key1 == null) {
+			//							return (key2 != null) ? 1 : 0;
+			//						} else if (key2 == null) {
+			//							return -1;
+			//						}
+			//						return comparator.compare(key1, key2);
+			//					}
 			private CatalogCategory getCategory(Object o) {
 				if (o instanceof CatalogCategory) {
 					return (CatalogCategory) o;
@@ -397,7 +393,7 @@ public class CatalogViewer extends FilteredViewer {
 		return viewer;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	protected ControlListItem<?> doCreateViewerItem(Composite parent, Object element) {
 		if (element instanceof CatalogItem) {
 			return new DiscoveryItem(parent, SWT.NONE, resources, shellProvider, (CatalogItem) element, this);
@@ -498,8 +494,7 @@ public class CatalogViewer extends FilteredViewer {
 
 	protected void postDiscovery() {
 		for (CatalogItem connector : catalog.getItems()) {
-			connector.setInstalled(installedFeatures != null
-					&& installedFeatures.containsAll(connector.getInstallableUnits()));
+			connector.setInstalled(installedFeatures != null && installedFeatures.containsAll(connector.getInstallableUnits()));
 		}
 	}
 
@@ -556,8 +551,7 @@ public class CatalogViewer extends FilteredViewer {
 			});
 
 			if (result[0] != null && !result[0].isOK()) {
-				StatusManager.getManager().handle(result[0],
-						StatusManager.SHOW | StatusManager.BLOCK | StatusManager.LOG);
+				StatusManager.getManager().handle(result[0], StatusManager.SHOW | StatusManager.BLOCK | StatusManager.LOG);
 			}
 		} catch (InvocationTargetException e) {
 			IStatus status = computeStatus(e, Messages.ConnectorDiscoveryWizardMainPage_unexpectedException);
@@ -571,15 +565,13 @@ public class CatalogViewer extends FilteredViewer {
 			if (configuration.isVerifyUpdateSiteAvailability() && !catalog.getItems().isEmpty()) {
 				try {
 					context.run(true, true, new IRunnableWithProgress() {
-						public void run(IProgressMonitor monitor) throws InvocationTargetException,
-								InterruptedException {
+						public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 							//discovery.verifySiteAvailability(monitor);
 						}
 					});
 				} catch (InvocationTargetException e) {
 					IStatus status = computeStatus(e, Messages.ConnectorDiscoveryWizardMainPage_unexpectedException);
-					StatusManager.getManager().handle(status,
-							StatusManager.SHOW | StatusManager.BLOCK | StatusManager.LOG);
+					StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.BLOCK | StatusManager.LOG);
 				} catch (InterruptedException e) {
 					// cancelled by user so nothing to do here.
 					wasCancelled = true;

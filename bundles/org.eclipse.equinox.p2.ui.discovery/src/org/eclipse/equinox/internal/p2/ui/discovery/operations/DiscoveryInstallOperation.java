@@ -81,22 +81,19 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 
 	public void run(IProgressMonitor progressMonitor) throws InvocationTargetException, InterruptedException {
 		try {
-			SubMonitor monitor = SubMonitor.convert(progressMonitor, Messages.InstallConnectorsJob_task_configuring,
-					100);
+			SubMonitor monitor = SubMonitor.convert(progressMonitor, Messages.InstallConnectorsJob_task_configuring, 100);
 			try {
 				final IInstallableUnit[] ius = computeInstallableUnits(monitor.newChild(50));
 
 				checkCancelled(monitor);
 
-				final InstallOperation installOperation = resolve(monitor.newChild(50), ius,
-						repositoryLocations.toArray(new URI[0]));
+				final InstallOperation installOperation = resolve(monitor.newChild(50), ius, repositoryLocations.toArray(new URI[0]));
 
 				checkCancelled(monitor);
 
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
-						provisioningUI.openInstallWizard(WorkbenchUtil.getShell(), Arrays.asList(ius),
-								installOperation, null);
+						provisioningUI.openInstallWizard(WorkbenchUtil.getShell(), Arrays.asList(ius), installOperation, null);
 					}
 				});
 			} finally {
@@ -115,11 +112,9 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		}
 	}
 
-	private InstallOperation resolve(IProgressMonitor monitor, final IInstallableUnit[] ius, URI[] repositories)
-			throws CoreException {
+	private InstallOperation resolve(IProgressMonitor monitor, final IInstallableUnit[] ius, URI[] repositories) throws CoreException {
 		final InstallOperation installOperation = provisioningUI.getInstallOperation(Arrays.asList(ius), repositories);
-		IStatus operationStatus = installOperation.resolveModal(new SubProgressMonitor(monitor,
-				installableConnectors.size()));
+		IStatus operationStatus = installOperation.resolveModal(new SubProgressMonitor(monitor, installableConnectors.size()));
 		if (operationStatus.getSeverity() > IStatus.WARNING) {
 			throw new CoreException(operationStatus);
 		}
@@ -136,36 +131,34 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			checkForUnavailable(installableUnits);
 			return installableUnits.toArray(new IInstallableUnit[installableUnits.size()]);
 
-//			MultiStatus status = new MultiStatus(DiscoveryUi.ID_PLUGIN, 0, Messages.PrepareInstallProfileJob_ok, null);
-//			ius = installableUnits.toArray(new IInstallableUnit[installableUnits.size()]);
-//			ProfileChangeRequest profileChangeRequest = InstallAction.computeProfileChangeRequest(ius, profileId,
-//					status, new SubProgressMonitor(monitor, installableConnectors.size()));
-//			if (status.getSeverity() > IStatus.WARNING) {
-//				throw new CoreException(status);
-//			}
-//			if (profileChangeRequest == null) {
-//				// failed but no indication as to why
-//				throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
-//						Messages.PrepareInstallProfileJob_computeProfileChangeRequestFailed, null));
-//			}
-//			PlannerResolutionOperation operation = new PlannerResolutionOperation(
-//					Messages.PrepareInstallProfileJob_calculatingRequirements, profileId, profileChangeRequest, null,
-//					status, true);
-//			IStatus operationStatus = operation.execute(new SubProgressMonitor(monitor, installableConnectors.size()));
-//			if (operationStatus.getSeverity() > IStatus.WARNING) {
-//				throw new CoreException(operationStatus);
-//			}
-//
-//			plannerResolutionOperation = operation;
+			//			MultiStatus status = new MultiStatus(DiscoveryUi.ID_PLUGIN, 0, Messages.PrepareInstallProfileJob_ok, null);
+			//			ius = installableUnits.toArray(new IInstallableUnit[installableUnits.size()]);
+			//			ProfileChangeRequest profileChangeRequest = InstallAction.computeProfileChangeRequest(ius, profileId,
+			//					status, new SubProgressMonitor(monitor, installableConnectors.size()));
+			//			if (status.getSeverity() > IStatus.WARNING) {
+			//				throw new CoreException(status);
+			//			}
+			//			if (profileChangeRequest == null) {
+			//				// failed but no indication as to why
+			//				throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
+			//						Messages.PrepareInstallProfileJob_computeProfileChangeRequestFailed, null));
+			//			}
+			//			PlannerResolutionOperation operation = new PlannerResolutionOperation(
+			//					Messages.PrepareInstallProfileJob_calculatingRequirements, profileId, profileChangeRequest, null,
+			//					status, true);
+			//			IStatus operationStatus = operation.execute(new SubProgressMonitor(monitor, installableConnectors.size()));
+			//			if (operationStatus.getSeverity() > IStatus.WARNING) {
+			//				throw new CoreException(operationStatus);
+			//			}
+			//
+			//			plannerResolutionOperation = operation;
 
 		} catch (URISyntaxException e) {
 			// should never happen, since we already validated URLs.
-			throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
-					Messages.InstallConnectorsJob_unexpectedError_url, e));
+			throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, Messages.InstallConnectorsJob_unexpectedError_url, e));
 		} catch (MalformedURLException e) {
 			// should never happen, since we already validated URLs.
-			throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN,
-					Messages.InstallConnectorsJob_unexpectedError_url, e));
+			throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, Messages.InstallConnectorsJob_unexpectedError_url, e));
 		} finally {
 			monitor.done();
 		}
@@ -210,8 +203,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 				if (detailedMessage.length() > 0) {
 					detailedMessage += Messages.InstallConnectorsJob_commaSeparator;
 				}
-				detailedMessage += NLS.bind(Messages.PrepareInstallProfileJob_notFoundDescriptorDetail, new Object[] {
-						descriptor.getName(), unavailableIds.toString(), descriptor.getSiteUrl() });
+				detailedMessage += NLS.bind(Messages.PrepareInstallProfileJob_notFoundDescriptorDetail, new Object[] {descriptor.getName(), unavailableIds.toString(), descriptor.getSiteUrl()});
 			}
 		}
 
@@ -221,14 +213,11 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			final String finalMessage = message;
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
-					okayToProceed[0] = MessageDialog.openQuestion(WorkbenchUtil.getShell(),
-							Messages.InstallConnectorsJob_questionProceed, NLS.bind(
-									Messages.InstallConnectorsJob_questionProceed_long, new Object[] { finalMessage }));
+					okayToProceed[0] = MessageDialog.openQuestion(WorkbenchUtil.getShell(), Messages.InstallConnectorsJob_questionProceed, NLS.bind(Messages.InstallConnectorsJob_questionProceed_long, new Object[] {finalMessage}));
 				}
 			});
 			if (!okayToProceed[0]) {
-				throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, NLS.bind(
-						Messages.InstallConnectorsJob_connectorsNotAvailable, detailedMessage), null));
+				throw new CoreException(new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, NLS.bind(Messages.InstallConnectorsJob_connectorsNotAvailable, detailedMessage), null));
 			}
 		}
 	}
@@ -262,8 +251,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 	 * unlikely that the same feature id is available from more than one of the selected repositories, and we must
 	 * ensure that the user gets the one that they asked for.
 	 */
-	private List<IInstallableUnit> queryInstallableUnits(SubMonitor monitor, List<IMetadataRepository> repositories)
-			throws URISyntaxException {
+	private List<IInstallableUnit> queryInstallableUnits(SubMonitor monitor, List<IMetadataRepository> repositories) throws URISyntaxException {
 		final List<IInstallableUnit> installableUnits = new ArrayList<IInstallableUnit>();
 
 		monitor.setWorkRemaining(repositories.size());
@@ -293,9 +281,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 				}
 
 				private boolean isQualifyingFeature(final Set<String> installableUnitIdsThisRepository, String id) {
-					return id.endsWith(P2_FEATURE_GROUP_SUFFIX)
-							&& installableUnitIdsThisRepository.contains(id.substring(0,
-									id.indexOf(P2_FEATURE_GROUP_SUFFIX)));
+					return id.endsWith(P2_FEATURE_GROUP_SUFFIX) && installableUnitIdsThisRepository.contains(id.substring(0, id.indexOf(P2_FEATURE_GROUP_SUFFIX)));
 				}
 			};
 			IQueryResult<IInstallableUnit> result = repository.query(query, monitor.newChild(1));
@@ -304,8 +290,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		return installableUnits;
 	}
 
-	private List<IMetadataRepository> addRepositories(SubMonitor monitor) throws MalformedURLException,
-			URISyntaxException, ProvisionException {
+	private List<IMetadataRepository> addRepositories(SubMonitor monitor) throws MalformedURLException, URISyntaxException, ProvisionException {
 		// tell p2 that it's okay to use these repositories
 		ProvisioningSession session = ProvisioningUI.getDefaultUI().getSession();
 		RepositoryTracker repositoryTracker = ProvisioningUI.getDefaultUI().getRepositoryTracker();
@@ -316,9 +301,9 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			if (repositoryLocations.add(uri)) {
 				checkCancelled(monitor);
 				repositoryTracker.addRepository(uri, null, session);
-//					ProvisioningUtil.addMetaDataRepository(url.toURI(), true);
-//					ProvisioningUtil.addArtifactRepository(url.toURI(), true);
-//					ProvisioningUtil.setColocatedRepositoryEnablement(url.toURI(), true);
+				//					ProvisioningUtil.addMetaDataRepository(url.toURI(), true);
+				//					ProvisioningUtil.addArtifactRepository(url.toURI(), true);
+				//					ProvisioningUtil.setColocatedRepositoryEnablement(url.toURI(), true);
 			}
 			monitor.worked(1);
 		}
@@ -328,8 +313,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		monitor.setWorkRemaining(repositories.size());
 		for (URI uri : repositoryLocations) {
 			checkCancelled(monitor);
-			IMetadataRepository repository = session.getMetadataRepositoryManager().loadRepository(uri,
-					monitor.newChild(1));
+			IMetadataRepository repository = session.getMetadataRepositoryManager().loadRepository(uri, monitor.newChild(1));
 			repositories.add(repository);
 		}
 		return repositories;

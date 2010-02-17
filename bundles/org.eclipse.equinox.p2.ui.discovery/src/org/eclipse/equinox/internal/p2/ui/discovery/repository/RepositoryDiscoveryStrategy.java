@@ -12,18 +12,8 @@
 package org.eclipse.equinox.internal.p2.ui.discovery.repository;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
+import java.util.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.discovery.AbstractCatalogSource;
 import org.eclipse.equinox.internal.p2.discovery.AbstractDiscoveryStrategy;
 import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
@@ -31,9 +21,7 @@ import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.query.IQuery;
@@ -85,7 +73,7 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 			queryInstallableUnits(monitor.newChild(50), repositories);
 			connectCategories();
 		} catch (ProvisionException e) {
-			throw new CoreException(new Status(IStatus.ERROR, PLUGIN_ID, "Failed to process repository contents", e));
+			throw new CoreException(new Status(IStatus.ERROR, PLUGIN_ID, "Failed to process repository contents", e)); //$NON-NLS-1$
 		}
 	}
 
@@ -122,8 +110,7 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 		// fetch meta-data for these repositories
 		ArrayList<IMetadataRepository> repositories = new ArrayList<IMetadataRepository>();
 		for (URI uri : locations) {
-			IMetadataRepository repository = session.getMetadataRepositoryManager().loadRepository(uri,
-					monitor.newChild(1));
+			IMetadataRepository repository = session.getMetadataRepositoryManager().loadRepository(uri, monitor.newChild(1));
 			repositories.add(repository);
 		}
 		return repositories;

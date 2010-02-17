@@ -12,12 +12,9 @@
 package org.eclipse.equinox.p2.discovery.tests.core;
 
 import junit.framework.TestCase;
-
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.discovery.Catalog;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.RemoteBundleDiscoveryStrategy;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
 import org.eclipse.equinox.p2.discovery.tests.DiscoveryTestConstants;
 
 /**
@@ -42,44 +39,45 @@ public class ConnectorDiscoveryRemoteTest extends TestCase {
 		connectorDiscovery.getDiscoveryStrategies().add(remoteStrategy);
 	}
 
-	public void testRemoteDirectory() throws CoreException {
+	public void testRemoteDirectory() {
 		connectorDiscovery.performDiscovery(new NullProgressMonitor());
 
 		assertFalse(connectorDiscovery.getCategories().isEmpty());
 		assertFalse(connectorDiscovery.getItems().isEmpty());
 	}
 
-//	public void testVerifyAvailability() throws CoreException {
-//		connectorDiscovery.performDiscovery(new NullProgressMonitor());
-//		for (CatalogItem connector : connectorDiscovery.getConnectors()) {
-//			assertNull(connector.getAvailable());
-//		}
-//		connectorDiscovery.verifySiteAvailability(new NullProgressMonitor());
-//
-//		assertFalse(connectorDiscovery.getConnectors().isEmpty());
-//
-//		int unavailableCount = 0;
-//		for (CatalogItem connector : connectorDiscovery.getConnectors()) {
-//			assertNotNull(connector.getAvailable());
-//			if (!connector.getAvailable()) {
-//				++unavailableCount;
-//			}
-//		}
-//		if (unavailableCount > 0) {
-//			fail(String.format("%s unavailable: %s", unavailableCount, computeUnavailableConnetorDescriptorNames()));
-//		}
-//	}
+	//	public void testVerifyAvailability() throws CoreException {
+	//		connectorDiscovery.performDiscovery(new NullProgressMonitor());
+	//		for (CatalogItem connector : connectorDiscovery.getConnectors()) {
+	//			assertNull(connector.getAvailable());
+	//		}
+	//		connectorDiscovery.verifySiteAvailability(new NullProgressMonitor());
+	//
+	//		assertFalse(connectorDiscovery.getConnectors().isEmpty());
+	//
+	//		int unavailableCount = 0;
+	//		for (CatalogItem connector : connectorDiscovery.getConnectors()) {
+	//			assertNotNull(connector.getAvailable());
+	//			if (!connector.getAvailable()) {
+	//				++unavailableCount;
+	//			}
+	//		}
+	//		if (unavailableCount > 0) {
+	//			fail(String.format("%s unavailable: %s", unavailableCount, computeUnavailableConnetorDescriptorNames()));
+	//		}
+	//	}
 
-	private String computeUnavailableConnetorDescriptorNames() {
-		String message = "";
-		for (CatalogItem connector : connectorDiscovery.getItems()) {
-			if (!connector.getAvailable()) {
-				if (message.length() > 0) {
-					message += ", ";
-				}
-				message += connector.getName();
-			}
-		}
-		return message;
-	}
+	//	private String computeUnavailableConnetorDescriptorNames() {
+	//		String message = "";
+	//		for (CatalogItem connector : connectorDiscovery.getItems()) {
+	//			if (!connector.getAvailable()) {
+	//				if (message.length() > 0) {
+	//					message += ", ";
+	//				}
+	//				message += connector.getName();
+	//			}
+	//		}
+	//		return message;
+	//	}
+
 }
