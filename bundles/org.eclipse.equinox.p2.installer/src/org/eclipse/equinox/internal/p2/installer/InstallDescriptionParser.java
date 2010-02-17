@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.VersionedId;
+import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 
@@ -64,7 +65,7 @@ public class InstallDescriptionParser {
 		}
 		Map<String, String> properties;
 		try {
-			in = propsURI.toURL().openStream();
+			in = RepositoryTransport.getInstance().stream(propsURI, monitor);
 			properties = CollectionUtils.loadProperties(in);
 		} finally {
 			safeClose(in);
