@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.discovery.tests.core.mock;
 
 import java.net.URL;
-
 import org.eclipse.equinox.internal.p2.discovery.AbstractCatalogSource;
 
 /**

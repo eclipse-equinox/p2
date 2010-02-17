@@ -14,7 +14,6 @@
 package org.eclipse.equinox.internal.p2.ui.discovery.wizards;
 
 import java.util.List;
-
 import org.eclipse.equinox.internal.p2.discovery.Catalog;
 import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
 import org.eclipse.jface.viewers.ISelectionChangedListener;

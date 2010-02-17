@@ -14,10 +14,7 @@ package org.eclipse.equinox.internal.p2.ui.discovery.util;
 import org.eclipse.core.commands.common.EventManager;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.util.SafeRunnable;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.*;
 
 /**
  * Provides an simple implementation of {@link ISelectionProvider} that propagates selection events to registered

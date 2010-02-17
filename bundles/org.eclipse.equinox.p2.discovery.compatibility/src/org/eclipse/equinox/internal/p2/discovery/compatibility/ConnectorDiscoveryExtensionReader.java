@@ -11,15 +11,7 @@
 package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
-import org.eclipse.equinox.internal.p2.discovery.model.Certification;
-import org.eclipse.equinox.internal.p2.discovery.model.FeatureFilter;
-import org.eclipse.equinox.internal.p2.discovery.model.Group;
-import org.eclipse.equinox.internal.p2.discovery.model.Icon;
-import org.eclipse.equinox.internal.p2.discovery.model.Overview;
-import org.eclipse.equinox.internal.p2.discovery.model.Tag;
-import org.eclipse.equinox.internal.p2.discovery.model.ValidationException;
+import org.eclipse.equinox.internal.p2.discovery.model.*;
 
 /**
  * Connector Discovery extension point reader, for extension points of type

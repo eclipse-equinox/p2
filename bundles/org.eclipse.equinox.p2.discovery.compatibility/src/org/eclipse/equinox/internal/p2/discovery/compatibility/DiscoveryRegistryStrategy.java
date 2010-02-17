@@ -10,27 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
+import java.io.*;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-
-import org.eclipse.core.runtime.IContributor;
-import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.spi.IDynamicExtensionRegistry;
-import org.eclipse.core.runtime.spi.RegistryContributor;
-import org.eclipse.core.runtime.spi.RegistryStrategy;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.spi.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.discovery.DiscoveryCore;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.Directory.Entry;

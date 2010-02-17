@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.discovery;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
-
 import org.eclipse.core.runtime.IProduct;
 import org.eclipse.core.runtime.Platform;
 

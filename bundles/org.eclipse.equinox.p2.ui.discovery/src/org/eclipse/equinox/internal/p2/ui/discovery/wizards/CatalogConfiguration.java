@@ -11,12 +11,7 @@
 
 package org.eclipse.equinox.internal.p2.ui.discovery.wizards;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import java.util.*;
 import org.eclipse.equinox.internal.p2.discovery.model.Tag;
 
 /**

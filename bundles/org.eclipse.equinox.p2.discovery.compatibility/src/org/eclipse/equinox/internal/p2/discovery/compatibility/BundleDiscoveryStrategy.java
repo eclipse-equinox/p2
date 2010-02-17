@@ -10,26 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IContributor;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.discovery.AbstractCatalogSource;
-import org.eclipse.equinox.internal.p2.discovery.AbstractDiscoveryStrategy;
-import org.eclipse.equinox.internal.p2.discovery.DiscoveryCore;
-import org.eclipse.equinox.internal.p2.discovery.Policy;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
-import org.eclipse.equinox.internal.p2.discovery.model.Certification;
-import org.eclipse.equinox.internal.p2.discovery.model.ValidationException;
+import org.eclipse.equinox.internal.p2.discovery.*;
+import org.eclipse.equinox.internal.p2.discovery.model.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Bundle;
 

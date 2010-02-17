@@ -13,15 +13,11 @@ package org.eclipse.equinox.p2.discovery.tests.core;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.discovery.Policy;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
-import org.eclipse.equinox.internal.p2.discovery.model.Certification;
+import org.eclipse.equinox.internal.p2.discovery.model.*;
 import org.eclipse.equinox.p2.discovery.tests.core.mock.MockBundleDiscoveryStrategy;
 
 /**

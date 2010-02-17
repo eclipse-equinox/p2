@@ -12,10 +12,7 @@
 package org.eclipse.equinox.p2.discovery.tests.core.util;
 
 import junit.framework.TestCase;
-
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
-import org.eclipse.equinox.internal.p2.discovery.model.Group;
+import org.eclipse.equinox.internal.p2.discovery.model.*;
 import org.eclipse.equinox.internal.p2.discovery.util.CatalogItemComparator;
 
 public class CatalogConnectorComparatorTest extends TestCase {

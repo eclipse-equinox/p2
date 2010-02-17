@@ -12,23 +12,13 @@
 package org.eclipse.equinox.internal.p2.ui.discovery.wizards;
 
 import java.net.URL;
-
 import org.eclipse.equinox.internal.p2.discovery.AbstractCatalogSource;
 import org.eclipse.equinox.internal.p2.discovery.model.Icon;
 import org.eclipse.equinox.internal.p2.ui.discovery.DiscoveryImages;
 import org.eclipse.equinox.internal.p2.ui.discovery.DiscoveryUi;
-import org.eclipse.jface.resource.FontDescriptor;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.resource.LocalResourceManager;
-import org.eclipse.jface.resource.ResourceManager;
+import org.eclipse.jface.resource.*;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.Display;
 
 /**

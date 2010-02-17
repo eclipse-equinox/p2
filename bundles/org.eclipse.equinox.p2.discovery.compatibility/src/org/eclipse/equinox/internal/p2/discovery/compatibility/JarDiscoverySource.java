@@ -12,10 +12,7 @@ package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-
+import java.net.*;
 import org.eclipse.equinox.internal.p2.discovery.AbstractCatalogSource;
 
 /**

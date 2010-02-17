@@ -11,13 +11,9 @@
 package org.eclipse.equinox.internal.p2.discovery;
 
 import java.util.List;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
-import org.eclipse.equinox.internal.p2.discovery.model.Certification;
-import org.eclipse.equinox.internal.p2.discovery.model.Tag;
+import org.eclipse.equinox.internal.p2.discovery.model.*;
 
 /**
  * An abstraction of a strategy for discovering connectors and categories. Strategy design pattern. Note that strategies

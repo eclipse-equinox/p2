@@ -13,10 +13,7 @@ package org.eclipse.equinox.internal.p2.discovery.model;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.MalformedURLException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.*;
 import org.eclipse.equinox.internal.p2.discovery.AbstractCatalogSource;
 
 /**

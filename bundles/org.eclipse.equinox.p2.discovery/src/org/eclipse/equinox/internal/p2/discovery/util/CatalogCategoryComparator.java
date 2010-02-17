@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.discovery.util;
 
 import java.util.Comparator;
-
 import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
 
 /**

@@ -11,18 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.discovery.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.StructuredViewer;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerFilter;
-import org.eclipse.ui.internal.misc.StringMatcher;
-
 import com.ibm.icu.text.BreakIterator;
+import java.util.*;
+import org.eclipse.jface.viewers.*;
+import org.eclipse.ui.internal.misc.StringMatcher;
 
 /**
  * A filter used in conjunction with <code>FilteredTree</code>. In order to determine if a node should be filtered it

@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.p2.ui.discovery.repository;
 
 import java.net.URL;
-
 import org.eclipse.equinox.internal.p2.discovery.AbstractCatalogSource;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 

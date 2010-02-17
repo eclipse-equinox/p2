@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
 import java.net.URL;
-
 import org.eclipse.equinox.internal.p2.discovery.AbstractCatalogSource;
 import org.osgi.framework.Bundle;
 

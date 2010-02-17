@@ -10,40 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.*;
 import org.eclipse.core.internal.registry.ExtensionRegistry;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IContributor;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.discovery.AbstractCatalogSource;
-import org.eclipse.equinox.internal.p2.discovery.DiscoveryCore;
-import org.eclipse.equinox.internal.p2.discovery.Policy;
+import org.eclipse.equinox.internal.p2.discovery.*;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.Directory.Entry;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.util.TransportUtil;
 import org.eclipse.equinox.internal.p2.discovery.compatibility.util.TransportUtil.TextContentProcessor;

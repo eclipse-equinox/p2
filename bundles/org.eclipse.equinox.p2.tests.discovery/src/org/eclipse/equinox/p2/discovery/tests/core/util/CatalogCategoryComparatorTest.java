@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.discovery.tests.core.util;
 
 import junit.framework.TestCase;
-
 import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
 import org.eclipse.equinox.internal.p2.discovery.util.CatalogCategoryComparator;
 

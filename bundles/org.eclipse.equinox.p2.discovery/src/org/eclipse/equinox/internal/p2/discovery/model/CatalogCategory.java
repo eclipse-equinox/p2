@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.discovery.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.equinox.internal.p2.discovery.AbstractCatalogSource;
 
 /**

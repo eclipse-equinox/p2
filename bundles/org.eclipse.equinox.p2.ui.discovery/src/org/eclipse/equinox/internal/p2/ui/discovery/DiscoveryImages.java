@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.ui.discovery;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;

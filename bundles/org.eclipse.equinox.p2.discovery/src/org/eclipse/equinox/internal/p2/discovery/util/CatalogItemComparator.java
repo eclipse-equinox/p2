@@ -12,10 +12,7 @@
 package org.eclipse.equinox.internal.p2.discovery.util;
 
 import java.util.Comparator;
-
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
-import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
-import org.eclipse.equinox.internal.p2.discovery.model.Group;
+import org.eclipse.equinox.internal.p2.discovery.model.*;
 
 /**
  * A comparator that orders connectors by group and alphabetically by their name.
