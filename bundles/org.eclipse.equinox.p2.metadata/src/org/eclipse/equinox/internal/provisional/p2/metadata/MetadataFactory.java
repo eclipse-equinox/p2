@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.osgi.framework.Filter;
 
 /**
@@ -313,6 +314,11 @@ public class MetadataFactory {
 
 	public static IRequirement createRequiredCapability(String namespace, String name, VersionRange range, Filter filter, int minCard, int maxCard, boolean greedy) {
 		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy);
+	}
+
+	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement) {
+		return new RequiredCapability(requirement);
+
 	}
 
 	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {

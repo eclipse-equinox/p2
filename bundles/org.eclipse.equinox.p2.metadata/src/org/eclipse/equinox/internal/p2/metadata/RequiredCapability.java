@@ -86,6 +86,14 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		this(namespace, name, range, filter, optional, multiple, true);
 	}
 
+	public RequiredCapability(IMatchExpression<IInstallableUnit> requirement) {
+		matchExpression = requirement;
+		filter = null;
+		min = 0;
+		max = 1;
+		greedy = true;
+	}
+
 	public RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
 		this(namespace, name, range, filter == null ? (Filter) null : ExpressionUtil.parseLDAP(filter), optional ? 0 : 1, multiple ? 1 : Integer.MAX_VALUE, greedy);
 	}
