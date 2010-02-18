@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,6 @@ import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.osgi.framework.ServiceReference;
 
 /**
  * MarkSetProvider implementation for the Eclipse touchpoint.
@@ -43,7 +42,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		if (repositoryToGC == null)
 			return new MarkSet[0];
 		addArtifactKeys(inProfile);
-		IProfile currentProfile = getCurrentProfile();
+		IProfile currentProfile = getCurrentProfile(agent);
 		if (currentProfile != null && inProfile.getProfileId().equals(currentProfile.getProfileId())) {
 			addRunningBundles(repositoryToGC);
 			addRunningFeatures(inProfile, repositoryToGC);
@@ -78,14 +77,10 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 		return result;
 	}
 
-	private IProfile getCurrentProfile() {
-		ServiceReference sr = Activator.getContext().getServiceReference(IProfileRegistry.SERVICE_NAME);
-		if (sr == null)
-			return null;
-		IProfileRegistry pr = (IProfileRegistry) Activator.getContext().getService(sr);
+	private IProfile getCurrentProfile(IProvisioningAgent agent) {
+		IProfileRegistry pr = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (pr == null)
 			return null;
-		Activator.getContext().ungetService(sr);
 		return pr.getProfile(IProfileRegistry.SELF);
 	}
 
