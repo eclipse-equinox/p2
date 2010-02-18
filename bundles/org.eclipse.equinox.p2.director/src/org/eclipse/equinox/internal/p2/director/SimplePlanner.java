@@ -345,7 +345,8 @@ public class SimplePlanner implements IPlanner {
 			if (profileRequirement == null) {
 				profileRequirement = createRequirement(iu, profileChangeRequest.getProfile().getInstallableUnitProperty(iu, INCLUSION_RULES));
 			}
-			gatheredRequirements.add(profileRequirement);
+			if (!gatheredRequirements.contains(profileRequirement))
+				gatheredRequirements.add(profileRequirement);
 		}
 		return new IInstallableUnit[] {createIURepresentingTheProfile(gatheredRequirements)};
 	}
