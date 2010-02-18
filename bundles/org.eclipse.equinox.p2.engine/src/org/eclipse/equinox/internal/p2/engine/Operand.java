@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.p2.engine.*;
 
 /**
  * The common base class for engine operands.
  * 
- * @see IEngine#createCustomPlan(IProfile, Operand[], ProvisioningContext)
  * @since 2.0
  */
 public class Operand {
