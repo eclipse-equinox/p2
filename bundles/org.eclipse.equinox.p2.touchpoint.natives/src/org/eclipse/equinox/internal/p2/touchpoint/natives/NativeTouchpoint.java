@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.Operand;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
@@ -36,7 +35,7 @@ public class NativeTouchpoint extends Touchpoint {
 
 	private static Map<IProfile, IBackupStore> backups = new WeakHashMap<IProfile, IBackupStore>();
 
-	public IStatus initializeOperand(IProfile profile, Operand operand, Map<String, Object> parameters) {
+	public IStatus initializeOperand(IProfile profile, Map<String, Object> parameters) {
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IArtifactKey artifactKey = (IArtifactKey) parameters.get(PARM_ARTIFACT);
 		if (!parameters.containsKey(PARM_ARTIFACT_LOCATION) && artifactKey != null) {

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
@@ -18,7 +20,6 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.CollectAction;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
@@ -67,8 +68,7 @@ public class CollectActionTest extends AbstractProvisioningTest {
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
 		parameters.put("iu", operand.second());
-		touchpoint.initializeOperand(profile, operand, parameters);
-		parameters.put(ActionConstants.PARM_OPERAND, operand);
+		touchpoint.initializeOperand(profile, parameters);
 		parameters = Collections.unmodifiableMap(parameters);
 
 		List<IArtifactRequest[]> requests = (List<IArtifactRequest[]>) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);

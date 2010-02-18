@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+
 import java.io.File;
 import java.net.URI;
 import java.util.*;
@@ -18,7 +20,6 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.InstallFeatureAction;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
@@ -70,7 +71,7 @@ public class InstallFeatureActionTest extends AbstractProvisioningTest {
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
 		parameters.put("iu", operand.second());
-		touchpoint.initializeOperand(profile, operand, parameters);
+		touchpoint.initializeOperand(profile, parameters);
 
 		parameters.put(ActionConstants.PARM_FEATURE, key.toString());
 		parameters.put(ActionConstants.PARM_FEATURE_ID, ActionConstants.PARM_DEFAULT_VALUE);
@@ -121,7 +122,7 @@ public class InstallFeatureActionTest extends AbstractProvisioningTest {
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
 		parameters.put("iu", operand.second());
-		touchpoint.initializeOperand(profile, operand, parameters);
+		touchpoint.initializeOperand(profile, parameters);
 
 		parameters.put(ActionConstants.PARM_FEATURE, key.toString());
 		parameters.put(ActionConstants.PARM_FEATURE_ID, ActionConstants.PARM_DEFAULT_VALUE);

@@ -35,17 +35,17 @@ public interface IEngine {
 	public static final String SERVICE_NAME = IEngine.class.getName();
 
 	/**
-	 * Creates a customized provisioning plan describing a set of changes that have already been validated.
+	 * Creates a provisioning plan whose methods can be use to provide pre-validated changes.
 	 * This is an advanced method for clients that know they are creating changes that do
 	 * not require validation by a planner. Most clients should instead obtain a validated plan
 	 * from a planner.
 	 * 
 	 * @param profile The profile to operate against
-	 * @param operands The operands to perform
 	 * @param context The provisioning context for the plan
 	 * @return A provisioning plan
 	 */
-	public IProvisioningPlan createCustomPlan(IProfile profile, Operand[] operands, ProvisioningContext context);
+
+	public IProvisioningPlan createPlan(IProfile profile, ProvisioningContext context);
 
 	/**
 	 * Creates a phase set with a default set of phases, excluding the specified phases.

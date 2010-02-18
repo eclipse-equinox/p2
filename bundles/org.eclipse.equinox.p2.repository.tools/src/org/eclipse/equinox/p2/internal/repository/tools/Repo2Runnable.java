@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+
 import org.eclipse.equinox.p2.planner.IPlanner;
 
 import java.net.URISyntaxException;

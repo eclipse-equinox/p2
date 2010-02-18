@@ -8,13 +8,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+
 import java.util.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.RemoveJVMArgumentAction;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class RemoveJVMArgumentActionTest extends AbstractProvisioningTest {
@@ -37,7 +38,7 @@ public class RemoveJVMArgumentActionTest extends AbstractProvisioningTest {
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		parameters.put("iu", operand.second());
-		touchpoint.initializeOperand(profile, operand, parameters);
+		touchpoint.initializeOperand(profile, parameters);
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);
 		assertNotNull(manipulator);
 		String jvmArg = "-Dtest=true";

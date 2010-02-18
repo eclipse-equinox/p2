@@ -12,10 +12,10 @@ package org.eclipse.equinox.p2.tests.director;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.director.OperationGenerator;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.metadata.ResolvedInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -35,7 +35,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(a1);
 		to.add(a3);
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 		// 1 x install
 		// 1 x uninstall
 		assertEquals(2, operands.size());
@@ -57,7 +59,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(a3);
 		to.add(a2);
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 		// 1 x install
 		assertEquals(1, operands.size());
 	}
@@ -78,7 +82,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(a1);
 		to.add(a3);
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 		// 1 x uninstall
 		assertEquals(1, operands.size());
 	}
@@ -99,7 +105,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to = new ArrayList();
 		to.add(MetadataFactory.createInstallableUnit(b));
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 		// 1 x upgrade
 		assertEquals(1, operands.size());
 	}
@@ -122,7 +130,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to = new ArrayList();
 		to.add(MetadataFactory.createInstallableUnit(b));
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 		// 1 x install
 		// 2 x uninstall
 		assertEquals(3, operands.size());
@@ -152,7 +162,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(MetadataFactory.createInstallableUnit(b));
 		to.add(MetadataFactory.createInstallableUnit(c));
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 		// 2 x update
 		assertEquals(2, operands.size());
 	}
@@ -179,7 +191,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(a2);
 		to.add(MetadataFactory.createInstallableUnit(b2));
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 		// 1 x update
 		assertEquals(1, operands.size());
 	}
@@ -205,7 +219,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(a1);
 		to.add(MetadataFactory.createInstallableUnit(b2));
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 		// 1 x update
 		// 1 x uninstall
 		assertEquals(2, operands.size());
@@ -229,16 +245,18 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		Collection to = new ArrayList();
 		to.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 		//We are uninstalling myBundle 1.0 and 2.0. 3.0 stays unchanged.
 		for (int i = 0; i < operands.size(); i++) {
-			assertNotSame("3.0", three, operands.get(i).first());
-			assertNotSame("3.0.1", three, operands.get(i).second());
+			assertNotSame("3.0", three, ((InstallableUnitOperand) operands.get(i)).first());
+			assertNotSame("3.0.1", three, ((InstallableUnitOperand) operands.get(i)).second());
 		}
-		assertEquals("3.1", one, operands.get(0).first());
-		assertNull("3.2", operands.get(0).second());
-		assertEquals("3.3", two, operands.get(1).first());
-		assertNull("3.4", operands.get(1).second());
+		assertEquals("3.1", one, ((InstallableUnitOperand) operands.get(0)).first());
+		assertNull("3.2", ((InstallableUnitOperand) operands.get(0)).second());
+		assertEquals("3.3", two, ((InstallableUnitOperand) operands.get(1)).first());
+		assertNull("3.4", ((InstallableUnitOperand) operands.get(1)).second());
 	}
 
 	public void test248468d() {
@@ -259,16 +277,18 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 		to.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 		//Two is already in the system therefore it will not be in the operands
 		for (int i = 0; i < operands.size(); i++) {
-			assertNotSame("2.0", two, operands.get(i).first());
-			assertNotSame("2.1", two, operands.get(i).second());
+			assertNotSame("2.0", two, ((InstallableUnitOperand) operands.get(i)).first());
+			assertNotSame("2.1", two, ((InstallableUnitOperand) operands.get(i)).second());
 		}
 		//three is an update of one
 		assertEquals("2.2", 1, operands.size());
-		assertEquals("2.4", one, operands.get(0).first());
-		assertEquals("2.5", three, operands.get(0).second());
+		assertEquals("2.4", one, ((InstallableUnitOperand) operands.get(0)).first());
+		assertEquals("2.5", three, ((InstallableUnitOperand) operands.get(0)).second());
 	}
 
 	public void test248468c() {
@@ -290,18 +310,20 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 		to.add(MetadataFactory.createResolvedInstallableUnit(three, new IInstallableUnitFragment[0]));
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 		//Two is already in the system therefore it will not be in the operands
 		for (int i = 0; i < operands.size(); i++) {
-			assertNotSame("2.0", two, operands.get(i).first());
-			assertNotSame("2.1", two, operands.get(i).second());
+			assertNotSame("2.0", two, ((InstallableUnitOperand) operands.get(i)).first());
+			assertNotSame("2.1", two, ((InstallableUnitOperand) operands.get(i)).second());
 		}
 		//We install three and uninstall one
 		assertEquals("2.2", 2, operands.size());
-		assertNull("2.3", operands.get(0).first());
-		assertEquals("2.4", three, operands.get(0).second());
-		assertEquals("2.5", one, operands.get(1).first());
-		assertNull("2.6", operands.get(1).second());
+		assertNull("2.3", ((InstallableUnitOperand) operands.get(0)).first());
+		assertEquals("2.4", three, ((InstallableUnitOperand) operands.get(0)).second());
+		assertEquals("2.5", one, ((InstallableUnitOperand) operands.get(1)).first());
+		assertNull("2.6", ((InstallableUnitOperand) operands.get(1)).second());
 	}
 
 	public void test248468() {
@@ -318,10 +340,12 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		Collection to = new ArrayList();
 		to.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 		assertEquals("1.0", 1, operands.size());
-		assertEquals("1.1", one, operands.get(0).first());
-		assertNull("1.2", operands.get(0).second());
+		assertEquals("1.1", one, ((InstallableUnitOperand) operands.get(0)).first());
+		assertNull("1.2", ((InstallableUnitOperand) operands.get(0)).second());
 	}
 
 	public void testConfigurationChange1() {
@@ -343,16 +367,20 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		to.add(toResolved);
 		to.add(MetadataFactory.createResolvedInstallableUnit(anotherIU2, new IInstallableUnitFragment[0]));
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 
 		assertEquals("1.0", 3, operands.size());
 		assertContainsConfigurationChange("2.0", operands);
 		assertContainsInstallableUnitOperand("3.0", operands, new InstallableUnitOperand(fromResolved, toResolved));
 	}
 
-	private void assertContainsInstallableUnitOperand(String message, List<InstallableUnitOperand> operands, InstallableUnitOperand operand) {
+	private void assertContainsInstallableUnitOperand(String message, List<Operand> operands, InstallableUnitOperand operand) {
 		for (int i = 0; i < operands.size(); i++) {
-			InstallableUnitOperand cmp = operands.get(i);
+			if (!(operands.get(i) instanceof InstallableUnitOperand))
+				continue;
+			InstallableUnitOperand cmp = (InstallableUnitOperand) operands.get(i);
 			if (cmp.first() != null && cmp.first().equals(operand.first()) && cmp.second() != null && cmp.second().equals(operand.second()))
 				return;
 		}
@@ -373,7 +401,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
 		to.add(toResolved);
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 
 		assertEquals("1.0", 1, operands.size());
 		assertContainsInstallableUnitOperand("3.0", operands, new InstallableUnitOperand(fromResolved, toResolved));
@@ -393,7 +423,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[0]);
 		to.add(toResolved);
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 
 		assertEquals("1.0", 1, operands.size());
 		assertContainsInstallableUnitOperand("3.0", operands, new InstallableUnitOperand(fromResolved, toResolved));
@@ -413,7 +445,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2});
 		to.add(toResolved);
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 
 		assertEquals("1.0", 0, operands.size());
 	}
@@ -433,7 +467,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu2, cu1});
 		to.add(toResolved);
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 
 		assertEquals("1.0", 0, operands.size());
 	}
@@ -454,7 +490,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		IInstallableUnit toResolved = MetadataFactory.createResolvedInstallableUnit(anIU, new IInstallableUnitFragment[] {cu1, cu3});
 		to.add(toResolved);
 
-		List<InstallableUnitOperand> operands = new OperationGenerator().generateOperation(from, to);
+		ProvisioningPlan plan = (ProvisioningPlan) getEngine().createPlan(createProfile("temp"), null);
+		new OperationGenerator(plan).generateOperation(from, to);
+		List<Operand> operands = Arrays.asList(plan.getOperands());
 
 		assertEquals("1.0", 1, operands.size());
 		assertContainsInstallableUnitOperand("3.0", operands, new InstallableUnitOperand(fromResolved, toResolved));
@@ -468,9 +506,11 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		fail(message + "Can't find " + expected);
 	}
 
-	public void assertContainsConfigurationChange(String message, List<InstallableUnitOperand> ops) {
-		for (int i = 0; i < ops.size(); i++) {
-			InstallableUnitOperand op = ops.get(i);
+	public void assertContainsConfigurationChange(String message, List<Operand> operands) {
+		for (int i = 0; i < operands.size(); i++) {
+			if (!(operands.get(i) instanceof InstallableUnitOperand))
+				continue;
+			InstallableUnitOperand op = (InstallableUnitOperand) operands.get(i);
 			if (op.first() != null && op.first().equals(op.second())) {
 				return;
 			}

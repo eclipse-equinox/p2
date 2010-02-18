@@ -48,12 +48,7 @@ public interface IProvisioningPlan {
 	 */
 	public abstract IProvisioningPlan getInstallerPlan();
 
-	/**
-	 * The operands to pass to the engine.
-	 * @return the operands to be executed. This may be an empty array if the
-	 * plan has errors or if there is nothing to do.
-	 */
-	public abstract Operand[] getOperands();
+	public abstract void setInstallerPlan(IProvisioningPlan installerPlan);
 
 	/**
 	 * Returns the profile that this plan will operate on.
@@ -86,4 +81,15 @@ public interface IProvisioningPlan {
 	 */
 	public abstract IStatus getStatus();
 
+	public abstract void setStatus(IStatus status);
+
+	public void addInstallableUnit(IInstallableUnit iu);
+
+	public void removeInstallableUnit(IInstallableUnit iu);
+
+	public void updateInstallableUnit(IInstallableUnit iu1, IInstallableUnit iu2);
+
+	public void setProfileProperty(String name, String value);
+
+	public void setInstallableUnitProfileProperty(IInstallableUnit iu, String name, String value);
 }

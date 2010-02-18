@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.ProvisioningPlan;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -48,7 +48,7 @@ public class ORTesting extends AbstractProvisioningTest {
 
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.add(iuA);
-		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, null);
 		System.out.println(plan);
 	}
 }

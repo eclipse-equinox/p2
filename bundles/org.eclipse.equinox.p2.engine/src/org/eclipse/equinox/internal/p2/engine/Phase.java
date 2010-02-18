@@ -195,7 +195,7 @@ public abstract class Phase {
 
 		Map<String, Object> touchpointOperandParameters = new HashMap<String, Object>(touchpointPhaseParameters);
 		touchpointOperandParameters.putAll(operandParameters);
-		IStatus status = touchpoint.initializeOperand(profile, operand, touchpointOperandParameters);
+		IStatus status = touchpoint.initializeOperand(profile, touchpointOperandParameters);
 		if (status != null && status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return status;
 		touchpointToTouchpointOperandParameters.put(touchpoint, touchpointOperandParameters);
@@ -303,7 +303,7 @@ public abstract class Phase {
 		for (Entry<Touchpoint, Map<String, Object>> entry : touchpointToTouchpointOperandParameters.entrySet()) {
 			Touchpoint touchpoint = entry.getKey();
 			Map<String, Object> touchpointParameters = entry.getValue();
-			mergeStatus(status, touchpoint.completeOperand(profile, operand, touchpointParameters));
+			mergeStatus(status, touchpoint.completeOperand(profile, touchpointParameters));
 		}
 		touchpointToTouchpointOperandParameters.clear();
 		return status;

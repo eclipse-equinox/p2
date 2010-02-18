@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;

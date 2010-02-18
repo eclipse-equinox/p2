@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
@@ -19,7 +21,6 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ChmodAction;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
@@ -132,7 +133,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
 		parameters.put("iu", operand.second());
 		parameters.put("artifact", key);
-		touchpoint.initializeOperand(profile, operand, parameters);
+		touchpoint.initializeOperand(profile, parameters);
 
 		parameters.put(ActionConstants.PARM_TARGET_DIR, "@artifact");
 		parameters.put(ActionConstants.PARM_TARGET_FILE, "plugin.xml");
@@ -210,7 +211,7 @@ public class ChmodActionTest extends AbstractProvisioningTest {
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
 		parameters.put("iu", operand.second());
 		parameters.put("artifact", key);
-		touchpoint.initializeOperand(profile, operand, parameters);
+		touchpoint.initializeOperand(profile, parameters);
 
 		parameters.put(ActionConstants.PARM_TARGET_DIR, parameters.get("artifact.location"));
 		parameters.put(ActionConstants.PARM_TARGET_FILE, "plugin.xml");

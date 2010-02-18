@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,7 +19,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
@@ -29,6 +28,7 @@ import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.GroupQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -368,17 +368,17 @@ public class ProfileSynchronizer {
 		// get the request
 		List<IInstallableUnit> toAdd = new ArrayList<IInstallableUnit>(request.getAdditions());
 		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>(request.getRemovals());
-		// remove from the request everything what is in the plan
-		Operand[] ops = plan.getOperands();
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				InstallableUnitOperand iuo = (InstallableUnitOperand) ops[i];
-				if (iuo.first() == null && iuo.second() != null)
-					toAdd.remove(iuo.second());
-				if (iuo.first() != null && iuo.second() == null)
-					toRemove.remove(iuo.first());
-			}
+		// remove from the request everything that is in the plan
+
+		for (Iterator<IInstallableUnit> iterator = plan.getRemovals().query(InstallableUnitQuery.ANY, null).iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
+			toRemove.remove(iu);
 		}
+		for (Iterator<IInstallableUnit> iterator = plan.getAdditions().query(InstallableUnitQuery.ANY, null).iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
+			toAdd.remove(iu);
+		}
+
 		// if anything is left in the request, then something is wrong with the plan
 		if (toAdd.size() == 0 && toRemove.size() == 0)
 			Tracing.debug(PREFIX + "Plan matches the request."); //$NON-NLS-1$

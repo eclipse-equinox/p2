@@ -19,8 +19,8 @@ public class ActionConstants {
 	public static final String PARM_FEATURE_ID = "featureId"; //$NON-NLS-1$
 	public static final String PARM_FEATURE_VERSION = "featureVersion"; //$NON-NLS-1$
 	public static final String PARM_IGNORE = "@ignore"; //$NON-NLS-1$
+	public static final String PARM_IU = "iu"; //$NON-NLS-1$
 	public static final String PARM_JVM_ARG = "jvmArg"; //$NON-NLS-1$
-	public static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
 	public static final String PARM_PREVIOUS_START_LEVEL = "previousStartLevel"; //$NON-NLS-1$
 	public static final String PARM_PREVIOUS_STARTED = "previousStarted"; //$NON-NLS-1$
 	public static final String PARM_PREVIOUS_VALUE = "previousValue"; //$NON-NLS-1$

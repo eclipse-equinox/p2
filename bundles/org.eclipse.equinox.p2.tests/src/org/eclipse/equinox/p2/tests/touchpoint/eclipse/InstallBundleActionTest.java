@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+
 import java.io.File;
 import java.net.URI;
 import java.util.*;
@@ -20,7 +22,6 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.InstallBundleA
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
@@ -67,7 +68,7 @@ public class InstallBundleActionTest extends AbstractProvisioningTest {
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
 		parameters.put("iu", operand.second());
-		touchpoint.initializeOperand(profile, operand, parameters);
+		touchpoint.initializeOperand(profile, parameters);
 
 		parameters.put(ActionConstants.PARM_BUNDLE, key.toString());
 		parameters = Collections.unmodifiableMap(parameters);

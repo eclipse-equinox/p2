@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+
 import org.eclipse.equinox.internal.p2.engine.phases.*;
-import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;

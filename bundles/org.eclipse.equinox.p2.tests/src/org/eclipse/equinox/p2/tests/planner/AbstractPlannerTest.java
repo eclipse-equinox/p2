@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
+
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.internal.p2.engine.Operand;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -120,8 +125,8 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 	 * Assert that all the IU operands in the expected plan are contained in the actual plan.
 	 */
 	protected void assertContains(String message, IProvisioningPlan expectedPlan, IProvisioningPlan actualPlan) {
-		Operand[] expectedOperands = expectedPlan.getOperands();
-		Operand[] actualOperands = actualPlan.getOperands();
+		Operand[] expectedOperands = ((ProvisioningPlan) expectedPlan).getOperands();
+		Operand[] actualOperands = ((ProvisioningPlan) actualPlan).getOperands();
 
 		// make sure the expected plan isn't empty
 		assertFalse("0.9 Plan is empty.", expectedOperands.length == 0);

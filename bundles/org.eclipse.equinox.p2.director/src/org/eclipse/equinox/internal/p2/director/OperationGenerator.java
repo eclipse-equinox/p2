@@ -10,19 +10,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
-
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 
 public class OperationGenerator {
 	private static final IInstallableUnit NULL_IU = MetadataFactory.createResolvedInstallableUnit(MetadataFactory.createInstallableUnit(new InstallableUnitDescription()), new IInstallableUnitFragment[0]);
+	private final IProvisioningPlan plan;
 
-	public List<InstallableUnitOperand> generateOperation(Collection<IInstallableUnit> from_, Collection<IInstallableUnit> to_) {
+	public OperationGenerator(IProvisioningPlan plan) {
+		this.plan = plan;
+	}
+
+	public void generateOperation(Collection<IInstallableUnit> from_, Collection<IInstallableUnit> to_) {
 		Collection<IInstallableUnit> intersection = new HashSet<IInstallableUnit>(from_);
 		intersection.retainAll(to_);
 
@@ -37,15 +41,13 @@ public class OperationGenerator {
 		List<IInstallableUnit> to = new ArrayList<IInstallableUnit>(tmpTo);
 		Collections.sort(to);
 
-		ArrayList<InstallableUnitOperand> operations = new ArrayList<InstallableUnitOperand>();
-		generateUpdates(from, to, operations);
-		generateInstallUninstall(from, to, operations);
-		generateConfigurationChanges(to_, intersection, operations);
-		return operations;
+		generateUpdates(from, to);
+		generateInstallUninstall(from, to);
+		generateConfigurationChanges(to_, intersection);
 	}
 
 	//This generates operations that are causing the IUs to be reconfigured.
-	private void generateConfigurationChanges(Collection<IInstallableUnit> to_, Collection<IInstallableUnit> intersection, ArrayList<InstallableUnitOperand> operations) {
+	private void generateConfigurationChanges(Collection<IInstallableUnit> to_, Collection<IInstallableUnit> intersection) {
 		if (intersection.size() == 0)
 			return;
 		//We retain from each set the things that are the same.
@@ -54,12 +56,12 @@ public class OperationGenerator {
 		TreeSet<IInstallableUnit> to = new TreeSet<IInstallableUnit>(to_);
 		for (IInstallableUnit fromIU : intersection) {
 			IInstallableUnit toIU = to.tailSet(fromIU).first();
-			generateConfigurationOperation(fromIU, toIU, operations);
+			generateConfigurationOperation(fromIU, toIU);
 		}
 
 	}
 
-	private void generateConfigurationOperation(IInstallableUnit fromIU, IInstallableUnit toIU, ArrayList<InstallableUnitOperand> operations) {
+	private void generateConfigurationOperation(IInstallableUnit fromIU, IInstallableUnit toIU) {
 		List<IInstallableUnitFragment> fromFragments = fromIU.getFragments();
 		List<IInstallableUnitFragment> toFragments = toIU.getFragments();
 		if (fromFragments == toFragments)
@@ -67,10 +69,10 @@ public class OperationGenerator {
 		//Check to see if the two arrays are equals independently of the order of the fragments
 		if (fromFragments.size() == toFragments.size() && fromFragments.containsAll(toFragments))
 			return;
-		operations.add(new InstallableUnitOperand(fromIU, toIU));
+		plan.updateInstallableUnit(fromIU, toIU);
 	}
 
-	private void generateInstallUninstall(List<IInstallableUnit> from, List<IInstallableUnit> to, ArrayList<InstallableUnitOperand> operations) {
+	private void generateInstallUninstall(List<IInstallableUnit> from, List<IInstallableUnit> to) {
 		int toIdx = 0;
 		int fromIdx = 0;
 		while (fromIdx != from.size() && toIdx != to.size()) {
@@ -78,30 +80,30 @@ public class OperationGenerator {
 			IInstallableUnit toIU = to.get(toIdx);
 			int comparison = toIU.compareTo(fromIU);
 			if (comparison < 0) {
-				operations.add(createInstallOperation(toIU));
+				plan.addInstallableUnit(toIU);
 				toIdx++;
 			} else if (comparison == 0) {
 				toIdx++;
 				fromIdx++;
 				//				System.out.println("same " + fromIU);
 			} else {
-				operations.add(createUninstallOperation(fromIU));
+				plan.removeInstallableUnit(fromIU);
 				fromIdx++;
 			}
 		}
 		if (fromIdx != from.size()) {
 			for (int i = fromIdx; i < from.size(); i++) {
-				operations.add(createUninstallOperation(from.get(i)));
+				plan.removeInstallableUnit(from.get(i));
 			}
 		}
 		if (toIdx != to.size()) {
 			for (int i = toIdx; i < to.size(); i++) {
-				operations.add(createInstallOperation(to.get(i)));
+				plan.addInstallableUnit(to.get(i));
 			}
 		}
 	}
 
-	private void generateUpdates(List<IInstallableUnit> from, List<IInstallableUnit> to, ArrayList<InstallableUnitOperand> operations) {
+	private void generateUpdates(List<IInstallableUnit> from, List<IInstallableUnit> to) {
 		if (to.isEmpty() || from.isEmpty())
 			return;
 
@@ -150,25 +152,13 @@ public class OperationGenerator {
 				removedFromTo.add(iuTo);
 				continue;
 			}
-			operations.add(createUpdateOperation(iuFrom, iuTo));
+			plan.updateInstallableUnit(iuFrom, iuTo);
 			from.remove(iuFrom);
 			fromIdIndexList.remove(iuFrom);
 			processed.add(iuTo);
 		}
 		to.removeAll(processed);
 		to.removeAll(removedFromTo);
-	}
-
-	private InstallableUnitOperand createUninstallOperation(IInstallableUnit iu) {
-		return new InstallableUnitOperand(iu, null);
-	}
-
-	private InstallableUnitOperand createInstallOperation(IInstallableUnit iu) {
-		return new InstallableUnitOperand(null, iu);
-	}
-
-	private InstallableUnitOperand createUpdateOperation(IInstallableUnit from, IInstallableUnit to) {
-		return new InstallableUnitOperand(from, to);
 	}
 
 	private IInstallableUnit next(List<IInstallableUnit> l, int i) {

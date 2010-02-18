@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -134,5 +136,13 @@ public class Sizing extends InstallableUnitPhase {
 	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map<String, Object> parameters) {
 		parameters.put(Collect.PARM_ARTIFACT_REQUESTS, new ArrayList<IArtifactRequest[]>());
 		return null;
+	}
+
+	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map<String, Object> parameters, IProgressMonitor monitor) {
+		IStatus status = super.initializeOperand(profile, operand, parameters, monitor);
+		// defer setting the IU until after the super method to avoid triggering touchpoint initialization
+		IInstallableUnit iu = operand.second();
+		parameters.put(PARM_IU, iu);
+		return status;
 	}
 }

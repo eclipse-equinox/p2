@@ -23,7 +23,6 @@ public class ActionConstants {
 	public static final String PIPE = "|"; //$NON-NLS-1$
 	public static final String PARM_AT_ARTIFACT = "@artifact"; //$NON-NLS-1$
 	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
-	public static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
 	public static final String PARM_PROFILE = "profile"; //$NON-NLS-1$
 	public static final String PARM_LINK_NAME = "linkName"; //$NON-NLS-1$
 	public static final String PARM_LINK_TARGET = "linkTarget"; //$NON-NLS-1$

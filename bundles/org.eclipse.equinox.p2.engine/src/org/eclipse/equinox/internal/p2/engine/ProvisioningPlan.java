@@ -8,11 +8,11 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.engine;
+package org.eclipse.equinox.internal.p2.engine;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
 
@@ -20,10 +20,11 @@ import org.eclipse.equinox.p2.query.*;
  * @since 2.0
  */
 public class ProvisioningPlan implements IProvisioningPlan {
-	final IStatus status;
+
 	final IProfile profile;
-	final Operand[] operands;
+	final List<Operand> operands = new ArrayList<Operand>();
 	final ProvisioningContext context;
+	IStatus status;
 	private IProvisioningPlan installerPlan;
 
 	public ProvisioningPlan(IProfile profile, Operand[] operands, ProvisioningContext context) {
@@ -31,13 +32,14 @@ public class ProvisioningPlan implements IProvisioningPlan {
 	}
 
 	public ProvisioningPlan(IStatus status, IProfile profile, ProvisioningContext context, IProvisioningPlan installerPlan) {
-		this(status, profile, new Operand[0], context, installerPlan);
+		this(status, profile, null, context, installerPlan);
 	}
 
 	public ProvisioningPlan(IStatus status, IProfile profile, Operand[] operands, ProvisioningContext context, IProvisioningPlan installerPlan) {
 		this.status = status;
 		this.profile = profile;
-		this.operands = (operands == null) ? new Operand[0] : operands;
+		if (operands != null)
+			this.operands.addAll(Arrays.asList(operands));
 		this.context = (context == null) ? new ProvisioningContext() : context;
 		this.installerPlan = installerPlan;
 	}
@@ -47,6 +49,10 @@ public class ProvisioningPlan implements IProvisioningPlan {
 	 */
 	public IStatus getStatus() {
 		return status;
+	}
+
+	public void setStatus(IStatus status) {
+		this.status = status;
 	}
 
 	/* (non-Javadoc)
@@ -60,7 +66,7 @@ public class ProvisioningPlan implements IProvisioningPlan {
 	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getOperands()
 	 */
 	public Operand[] getOperands() {
-		return operands;
+		return operands.toArray(new Operand[operands.size()]);
 	}
 
 	/* (non-Javadoc)
@@ -88,10 +94,10 @@ public class ProvisioningPlan implements IProvisioningPlan {
 			if (operands == null || status.getSeverity() == IStatus.ERROR)
 				return Collector.emptyCollector();
 			Collection<IInstallableUnit> list = new ArrayList<IInstallableUnit>();
-			for (int i = 0; i < operands.length; i++) {
-				if (!(operands[i] instanceof InstallableUnitOperand))
+			for (Operand operand : operands) {
+				if (!(operand instanceof InstallableUnitOperand))
 					continue;
-				InstallableUnitOperand op = ((InstallableUnitOperand) operands[i]);
+				InstallableUnitOperand op = ((InstallableUnitOperand) operand);
 				IInstallableUnit iu = addition ? op.second() : op.first();
 				if (iu != null)
 					list.add(iu);
@@ -113,5 +119,31 @@ public class ProvisioningPlan implements IProvisioningPlan {
 
 	public void setInstallerPlan(IProvisioningPlan p) {
 		installerPlan = p;
+	}
+
+	public void addInstallableUnit(IInstallableUnit iu) {
+		operands.add(new InstallableUnitOperand(null, iu));
+	}
+
+	public void removeInstallableUnit(IInstallableUnit iu) {
+		operands.add(new InstallableUnitOperand(iu, null));
+	}
+
+	public void updateInstallableUnit(IInstallableUnit iu1, IInstallableUnit iu2) {
+		operands.add(new InstallableUnitOperand(iu1, iu2));
+	}
+
+	public void setProfileProperty(String name, String value) {
+		String currentValue = profile.getProperty(name);
+		if (value == null && currentValue == null)
+			return;
+		operands.add(new PropertyOperand(name, currentValue, value));
+	}
+
+	public void setInstallableUnitProfileProperty(IInstallableUnit iu, String name, String value) {
+		String currentValue = profile.getInstallableUnitProperty(iu, name);
+		if (value == null && currentValue == null)
+			return;
+		operands.add(new InstallableUnitPropertyOperand(iu, name, currentValue, value));
 	}
 }

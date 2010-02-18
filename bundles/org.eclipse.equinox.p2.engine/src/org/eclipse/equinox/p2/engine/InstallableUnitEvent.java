@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * @since 2.0
@@ -28,21 +29,21 @@ public class InstallableUnitEvent extends EventObject {
 	private boolean prePhase;
 
 	private IProfile profile;
-	private InstallableUnitOperand operand;
+	private IInstallableUnit iu;
 	private Touchpoint touchpoint;
 	private IStatus result;
 	private int type;
 
-	public InstallableUnitEvent(String phaseId, boolean prePhase, IProfile profile, InstallableUnitOperand operand, int type, Touchpoint touchpoint) {
-		this(phaseId, prePhase, profile, operand, type, touchpoint, null);
+	public InstallableUnitEvent(String phaseId, boolean prePhase, IProfile profile, IInstallableUnit iu, int type, Touchpoint touchpoint) {
+		this(phaseId, prePhase, profile, iu, type, touchpoint, null);
 	}
 
-	public InstallableUnitEvent(String phaseId, boolean prePhase, IProfile profile, InstallableUnitOperand operand, int type, Touchpoint touchpoint, IStatus result) {
+	public InstallableUnitEvent(String phaseId, boolean prePhase, IProfile profile, IInstallableUnit iu, int type, Touchpoint touchpoint, IStatus result) {
 		super(profile);
 		this.phaseId = phaseId;
 		this.prePhase = prePhase;
 		this.profile = profile;
-		this.operand = operand;
+		this.iu = iu;
 		if (type != UNINSTALL && type != INSTALL)
 			throw new IllegalArgumentException(Messages.InstallableUnitEvent_type_not_install_or_uninstall);
 		this.type = type;
@@ -59,8 +60,8 @@ public class InstallableUnitEvent extends EventObject {
 		return profile;
 	}
 
-	public InstallableUnitOperand getOperand() {
-		return operand;
+	public IInstallableUnit getInstallableUnit() {
+		return iu;
 	}
 
 	public String getPhase() {

@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import junit.framework.Assert;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -42,7 +42,7 @@ public class Bug302580 extends AbstractPlannerTest {
 	public void testInstall() {
 		IQueryResult<IInstallableUnit> ius = repo.query(InstallableUnitQuery.ANY, new NullProgressMonitor());
 		IPlanner planner = createPlanner();
-		IProvisioningPlan plan = planner.getProvisioningPlan(createProfileChangeRequest(ius.toSet(), null, null), null, new NullProgressMonitor());
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(createProfileChangeRequest(ius.toSet(), null, null), null, new NullProgressMonitor());
 
 		Operand ops[] = plan.getOperands();
 

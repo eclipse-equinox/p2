@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.File;
 import java.net.*;
 import java.util.*;
@@ -25,6 +23,7 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
@@ -109,11 +108,10 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		EclipseTouchpoint touchpoint = new EclipseTouchpoint();
 		Map parameters = new HashMap();
 		IProfile profile = createProfile("test");
-		Operand operand = new InstallableUnitOperand(null, createIU("test"));
 
 		// need a partial iu test here
-		touchpoint.initializeOperand(profile, operand, parameters);
-		touchpoint.completeOperand(profile, operand, parameters);
+		touchpoint.initializeOperand(profile, parameters);
+		touchpoint.completeOperand(profile, parameters);
 	}
 
 	public void testPrepareIU() {
@@ -191,11 +189,11 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		Iterator iterator = profile.query(new InstallableUnitQuery(iu.getId()), null).iterator();
 		assertFalse(iterator.hasNext());
 
-		InstallableUnitOperand op = new InstallableUnitOperand(null, iu);
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {op};
 		IEngine engine = getEngine();
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.addInstallableUnit(iu);
 
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		IStatus result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		engine = null;
 

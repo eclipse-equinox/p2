@@ -10,16 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives.actions;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.util.Collection;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.Util;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -33,9 +31,9 @@ public class CollectAction extends ProvisioningAction {
 	public IStatus execute(Map<String, Object> parameters) {
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
-		InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(ActionConstants.PARM_OPERAND);
+		IInstallableUnit iu = (IInstallableUnit) parameters.get(ActionConstants.PARM_IU);
 		try {
-			IArtifactRequest[] requests = collect(agent, operand.second(), profile);
+			IArtifactRequest[] requests = collect(agent, iu, profile);
 			@SuppressWarnings("unchecked")
 			Collection<IArtifactRequest[]> artifactRequests = (Collection<IArtifactRequest[]>) parameters.get(ActionConstants.PARM_ARTIFACT_REQUESTS);
 			artifactRequests.add(requests);

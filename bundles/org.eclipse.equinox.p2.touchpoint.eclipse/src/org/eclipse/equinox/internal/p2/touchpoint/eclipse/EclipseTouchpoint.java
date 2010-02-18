@@ -22,7 +22,6 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRun
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.Operand;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -178,7 +177,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		return null;
 	}
 
-	public IStatus initializeOperand(IProfile profile, Operand operand, Map<String, Object> parameters) {
+	public IStatus initializeOperand(IProfile profile, Map<String, Object> parameters) {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		IArtifactKey artifactKey = (IArtifactKey) parameters.get(PARM_ARTIFACT);
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);

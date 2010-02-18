@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import org.eclipse.equinox.internal.p2.engine.Operand;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.Phase;
+import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.internal.p2.engine.phases.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -165,9 +168,8 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testNullProfile() {
 
 		IProfile profile = null;
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};
 		try {
-			engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+			engine.perform(engine.createPlan(profile, null), new NullProgressMonitor());
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
@@ -178,9 +180,8 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		IProfile profile = createProfile("test");
 		PhaseSet phaseSet = null;
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};
 		try {
-			engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
+			engine.perform(engine.createPlan(profile, null), phaseSet, new NullProgressMonitor());
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
@@ -261,8 +262,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testEmptyOperands() {
 
 		IProfile profile = createProfile("test");
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		IStatus result = engine.perform(engine.createPlan(profile, null), new NullProgressMonitor());
 		assertTrue(result.isOK());
 	}
 
@@ -273,16 +273,18 @@ public class EngineTest extends AbstractProvisioningTest {
 			// empty PhaseSet
 		};
 
-		InstallableUnitOperand op = new InstallableUnitOperand(createResolvedIU(createIU("name")), null);
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {op};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.removeInstallableUnit(createResolvedIU(createIU("name")));
+		IStatus result = engine.perform(plan, phaseSet, new NullProgressMonitor());
 		assertTrue(result.isOK());
 	}
 
-	public void testPerformSingleNullOperand() {
+	public void testPerformAddSingleNullIU() {
 		try {
-			new InstallableUnitOperand(null, null);
-			fail("Should not allow null operand");
+			IProfile profile = createProfile("testPerformAddSingleNullIU");
+			IProvisioningPlan plan = engine.createPlan(profile, null);
+			plan.addInstallableUnit(null);
+			fail("Should not allow null iu");
 		} catch (RuntimeException e) {
 			//expected
 		}
@@ -292,21 +294,23 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		IProfile profile = createProfile("testPerformPropertyInstallUninstall");
 
-		PropertyOperand propOp = new PropertyOperand("test", null, "test");
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.setProfileProperty("test", "test");
 		IInstallableUnit testIU = createResolvedIU(createIU("test"));
-		InstallableUnitOperand iuOp = new InstallableUnitOperand(null, testIU);
-		InstallableUnitPropertyOperand iuPropOp = new InstallableUnitPropertyOperand(testIU, "test", null, "test");
+		plan.addInstallableUnit(testIU);
+		plan.setInstallableUnitProfileProperty(testIU, "test", "test");
 
-		Operand[] operands = new Operand[] {propOp, iuOp, iuPropOp};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		IStatus result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		assertEquals("test", profile.getProperty("test"));
 		assertEquals("test", profile.getInstallableUnitProperty(testIU, "test"));
 
-		PropertyOperand uninstallPropOp = new PropertyOperand("test", "test", null);
-		InstallableUnitPropertyOperand uninstallIuPropOp = new InstallableUnitPropertyOperand(testIU, "test", "test", null);
-		operands = new Operand[] {uninstallPropOp, uninstallIuPropOp};
-		result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		plan = engine.createPlan(profile, null);
+		plan.setProfileProperty("test", null);
+
+		plan.removeInstallableUnit(testIU);
+		plan.setInstallableUnitProfileProperty(testIU, "test", null);
+		result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		assertNull("test", profile.getProperty("test"));
 		assertNull("test", profile.getInstallableUnitProperty(testIU, "test"));
@@ -319,35 +323,38 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		IProfile profile = createProfile("testPerformSizing", properties);
 		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
+			IProvisioningPlan plan = engine.createPlan(profile, null);
 			IInstallableUnit doomed = (IInstallableUnit) it.next();
-			InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createResolvedIU(doomed), null)};
-			engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+			plan.removeInstallableUnit(doomed);
+			engine.perform(plan, new NullProgressMonitor());
 		}
 		final Sizing sizingPhase = new Sizing(100, "sizing");
-		PhaseSet phaseSet = new PhaseSet(new Phase[] {sizingPhase}) {};
+		PhaseSet phaseSet = new PhaseSet(new Phase[] {sizingPhase});
 
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.addInstallableUnit(createOSGiIU());
+		IStatus result = engine.perform(plan, phaseSet, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		assertTrue(sizingPhase.getDiskSize() == 0);
 		assertTrue(sizingPhase.getDlSize() == 0);
 	}
 
-	public void testValidateInstallOSGiFramework() {
-		Map properties = new HashMap();
-		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-
-		IProfile profile = createProfile("testPerformInstallOSGiFramework", properties);
-		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
-			IInstallableUnit doomed = (IInstallableUnit) it.next();
-			InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createResolvedIU(doomed), null)};
-			engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
-		}
-		PhaseSet phaseSet = new DefaultPhaseSet();
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
-		IStatus result = ((Engine) engine).validate(profile, phaseSet, operands, null, new NullProgressMonitor());
-		assertTrue(result.isOK());
-	}
+	// removing validate from engine api
+	//	public void testValidateInstallOSGiFramework() {
+	//		Map properties = new HashMap();
+	//		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
+	//
+	//		IProfile profile = createProfile("testPerformInstallOSGiFramework", properties);
+	//		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
+	//			IInstallableUnit doomed = (IInstallableUnit) it.next();
+	//			InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createResolvedIU(doomed), null)};
+	//			engine.perform(engine.createPlan(profile, null), new NullProgressMonitor());
+	//		}
+	//		PhaseSet phaseSet = new DefaultPhaseSet();
+	//		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
+	//		IStatus result = ((Engine) engine).validate(profile, phaseSet, operands, null, new NullProgressMonitor());
+	//		assertTrue(result.isOK());
+	//	}
 
 	public void testPerformInstallOSGiFramework() {
 		Map properties = new HashMap();
@@ -355,12 +362,14 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		IProfile profile = createProfile("testPerformInstallOSGiFramework", properties);
 		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
+			IProvisioningPlan plan = engine.createPlan(profile, null);
 			IInstallableUnit doomed = (IInstallableUnit) it.next();
-			InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createResolvedIU(doomed), null)};
-			engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+			plan.removeInstallableUnit(doomed);
+			engine.perform(plan, new NullProgressMonitor());
 		}
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.addInstallableUnit(createOSGiIU());
+		IStatus result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		Iterator ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
@@ -374,14 +383,16 @@ public class EngineTest extends AbstractProvisioningTest {
 		IInstallableUnit iu33 = createOSGiIU("3.3");
 		IInstallableUnit iu34 = createOSGiIU("3.4");
 
-		InstallableUnitOperand[] installOperands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, iu33)};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, installOperands, null), new NullProgressMonitor());
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.addInstallableUnit(iu33);
+		IStatus result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		Iterator ius = profile.query(new InstallableUnitQuery(iu33), null).iterator();
 		assertTrue(ius.hasNext());
 
-		InstallableUnitOperand[] updateOperands = new InstallableUnitOperand[] {new InstallableUnitOperand(iu33, iu34)};
-		result = engine.perform(engine.createCustomPlan(profile, updateOperands, null), new NullProgressMonitor());
+		plan = engine.createPlan(profile, null);
+		plan.updateInstallableUnit(iu33, iu34);
+		result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		ius = profile.query(new InstallableUnitQuery(iu34), null).iterator();
 		assertTrue(ius.hasNext());
@@ -393,8 +404,9 @@ public class EngineTest extends AbstractProvisioningTest {
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 
 		IProfile profile = createProfile("testPerformUninstallOSGiFramework", properties);
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createOSGiIU(), null)};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.removeInstallableUnit(createOSGiIU());
+		IStatus result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		assertEmptyProfile(profile);
 	}
@@ -408,33 +420,36 @@ public class EngineTest extends AbstractProvisioningTest {
 		Iterator ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU()), new InstallableUnitOperand(null, createBadIU())};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.addInstallableUnit(createOSGiIU());
+		plan.addInstallableUnit(createBadIU());
+		IStatus result = engine.perform(plan, new NullProgressMonitor());
 		assertFalse(result.isOK());
 
 		ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 	}
 
-	public void testValidateMissingAction() {
-
-		Map properties = new HashMap();
-		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		IProfile profile = createProfile("testPerformRollback", properties);
-		PhaseSet phaseSet = new DefaultPhaseSet();
-
-		Iterator ius = getInstallableUnits(profile);
-		assertFalse(ius.hasNext());
-
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU()), new InstallableUnitOperand(null, createMissingActionIU())};
-		IStatus result = ((Engine) engine).validate(profile, phaseSet, operands, null, new NullProgressMonitor());
-		assertFalse(result.isOK());
-
-		Throwable t = result.getException();
-		assertTrue(t instanceof MissingActionsException);
-		MissingActionsException e = (MissingActionsException) t;
-		assertEquals("org.eclipse.equinox.p2.touchpoint.eclipse.thisactionismissing", e.getMissingActions()[0].getActionId());
-	}
+	// removing validate from engine api
+	//	public void testValidateMissingAction() {
+	//
+	//		Map properties = new HashMap();
+	//		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
+	//		IProfile profile = createProfile("testPerformRollback", properties);
+	//		PhaseSet phaseSet = new DefaultPhaseSet();
+	//
+	//		Iterator ius = getInstallableUnits(profile);
+	//		assertFalse(ius.hasNext());
+	//
+	//		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU()), new InstallableUnitOperand(null, createMissingActionIU())};
+	//		IStatus result = ((Engine) engine).validate(profile, phaseSet, operands, null, new NullProgressMonitor());
+	//		assertFalse(result.isOK());
+	//
+	//		Throwable t = result.getException();
+	//		assertTrue(t instanceof MissingActionsException);
+	//		MissingActionsException e = (MissingActionsException) t;
+	//		assertEquals("org.eclipse.equinox.p2.touchpoint.eclipse.thisactionismissing", e.getMissingActions()[0].getActionId());
+	//	}
 
 	public void testPerformMissingAction() {
 
@@ -445,8 +460,10 @@ public class EngineTest extends AbstractProvisioningTest {
 		Iterator ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU()), new InstallableUnitOperand(null, createMissingActionIU())};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.addInstallableUnit(createOSGiIU());
+		plan.addInstallableUnit(createMissingActionIU());
+		IStatus result = engine.perform(plan, new NullProgressMonitor());
 		assertFalse(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
@@ -463,8 +480,9 @@ public class EngineTest extends AbstractProvisioningTest {
 		Iterator ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.addInstallableUnit(createOSGiIU());
+		IStatus result = engine.perform(plan, phaseSet, new NullProgressMonitor());
 		assertFalse(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
@@ -482,8 +500,9 @@ public class EngineTest extends AbstractProvisioningTest {
 		Iterator ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.addInstallableUnit(createOSGiIU());
+		IStatus result = engine.perform(plan, phaseSet, new NullProgressMonitor());
 		assertFalse(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
@@ -500,8 +519,9 @@ public class EngineTest extends AbstractProvisioningTest {
 		Iterator ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.addInstallableUnit(createOSGiIU());
+		IStatus result = engine.perform(plan, phaseSet, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
@@ -519,22 +539,26 @@ public class EngineTest extends AbstractProvisioningTest {
 		Iterator ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
+		IProvisioningPlan plan = engine.createPlan(profile, null);
 		IInstallableUnit badUninstallIU = createBadUninstallIUThrowsException();
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, badUninstallIU)};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		plan.addInstallableUnit(badUninstallIU);
+		IStatus result = engine.perform(plan, phaseSet, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
 
-		operands = new InstallableUnitOperand[] {new InstallableUnitOperand(badUninstallIU, null)};
-		result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		plan = engine.createPlan(profile, null);
+		plan.removeInstallableUnit(badUninstallIU);
+		result = engine.perform(plan, phaseSet, new NullProgressMonitor());
 		assertFalse(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
 
 		// this simulates a DefaultPhaseSet with forcedUninstall set
 		phaseSet = new TestPhaseSet(true);
-		result = engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
+		plan = engine.createPlan(profile, null);
+		plan.removeInstallableUnit(badUninstallIU);
+		result = engine.perform(plan, phaseSet, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
@@ -550,22 +574,27 @@ public class EngineTest extends AbstractProvisioningTest {
 		Iterator ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
+		IProvisioningPlan plan = engine.createPlan(profile, null);
 		IInstallableUnit badUninstallIU = createBadUninstallIUReturnsError();
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, badUninstallIU)};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		plan.addInstallableUnit(badUninstallIU);
+
+		IStatus result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
 
-		operands = new InstallableUnitOperand[] {new InstallableUnitOperand(badUninstallIU, null)};
-		result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		plan = engine.createPlan(profile, null);
+		plan.removeInstallableUnit(badUninstallIU);
+		result = engine.perform(plan, new NullProgressMonitor());
 		assertFalse(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
 
 		// this simulates a DefaultPhaseSet with forcedUninstall set
 		IPhaseSet phaseSet = new TestPhaseSet(true);
-		result = engine.perform(engine.createCustomPlan(profile, operands, null), phaseSet, new NullProgressMonitor());
+		plan = engine.createPlan(profile, null);
+		plan.removeInstallableUnit(badUninstallIU);
+		result = engine.perform(plan, phaseSet, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
@@ -574,13 +603,16 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testOrphanedIUProperty() {
 		IProfile profile = createProfile("testOrphanedIUProperty");
 		IInstallableUnit iu = createIU("someIU");
-		Operand[] operands = new InstallableUnitPropertyOperand[] {new InstallableUnitPropertyOperand(iu, "key", null, "value")};
-		IStatus result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		IProvisioningPlan plan = engine.createPlan(profile, null);
+		plan.setInstallableUnitProfileProperty(iu, "key", "value");
+		IStatus result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		assertFalse(profile.getInstallableUnitProperties(iu).containsKey("key"));
 
-		operands = new Operand[] {new InstallableUnitOperand(null, iu), new InstallableUnitPropertyOperand(iu, "adifferentkey", null, "value")};
-		result = engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+		plan = engine.createPlan(profile, null);
+		plan.addInstallableUnit(iu);
+		plan.setInstallableUnitProfileProperty(iu, "adifferentkey", "value");
+		result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		assertTrue(profile.getInstallableUnitProperties(iu).containsKey("adifferentkey"));
 		assertFalse(profile.getInstallableUnitProperties(iu).containsKey("key"));
@@ -761,9 +793,8 @@ public class EngineTest extends AbstractProvisioningTest {
 				return new Collector<IInstallableUnit>();
 			}
 		};
-		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};
 		try {
-			engine.perform(engine.createCustomPlan(profile, operands, null), new NullProgressMonitor());
+			engine.perform(engine.createPlan(profile, null), new NullProgressMonitor());
 		} catch (IllegalArgumentException expected) {
 			return;
 		}

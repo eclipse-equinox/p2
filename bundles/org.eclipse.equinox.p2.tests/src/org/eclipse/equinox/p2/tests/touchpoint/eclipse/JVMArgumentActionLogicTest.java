@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
@@ -18,7 +20,6 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class JVMArgumentActionLogicTest extends AbstractProvisioningTest {
@@ -41,7 +42,7 @@ public class JVMArgumentActionLogicTest extends AbstractProvisioningTest {
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, createIU("test"));
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		parameters.put("iu", operand.second());
-		touchpoint.initializeOperand(profile, operand, parameters);
+		touchpoint.initializeOperand(profile, parameters);
 		parameters.put(ActionConstants.PARM_PROFILE_DATA_DIRECTORY, tempDir);
 
 		Manipulator manipulator = (Manipulator) parameters.get(EclipseTouchpoint.PARM_MANIPULATOR);

@@ -14,7 +14,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.Operand;
 
 /**
  * A touchpoint is responsible for executing a given phase for a given 
@@ -36,11 +35,11 @@ public abstract class Touchpoint {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus initializeOperand(IProfile profile, Operand operand, Map<String, Object> parameters) {
+	public IStatus initializeOperand(IProfile profile, Map<String, Object> parameters) {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus completeOperand(IProfile profile, Operand operand, Map<String, Object> parameters) {
+	public IStatus completeOperand(IProfile profile, Map<String, Object> parameters) {
 		return Status.OK_STATUS;
 	}
 

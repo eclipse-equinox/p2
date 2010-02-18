@@ -1,5 +1,7 @@
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
+
 import org.eclipse.equinox.p2.planner.IPlanner;
 
 import java.util.*;

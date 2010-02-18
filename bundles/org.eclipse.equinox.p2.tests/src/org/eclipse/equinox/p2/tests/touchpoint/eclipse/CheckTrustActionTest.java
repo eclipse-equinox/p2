@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.engine.phases.CheckTrust;
@@ -18,7 +20,6 @@ import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.CheckTrustAction;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
@@ -66,7 +67,7 @@ public class CheckTrustActionTest extends AbstractProvisioningTest {
 		touchpoint.initializePhase(null, profile, "test", parameters);
 		InstallableUnitOperand operand = new InstallableUnitOperand(null, iu);
 		parameters.put("iu", operand.second());
-		touchpoint.initializeOperand(profile, operand, parameters);
+		touchpoint.initializeOperand(profile, parameters);
 		parameters = Collections.unmodifiableMap(parameters);
 
 		assertFalse(((List) parameters.get(CheckTrust.PARM_ARTIFACT_FILES)).contains(osgiTarget));

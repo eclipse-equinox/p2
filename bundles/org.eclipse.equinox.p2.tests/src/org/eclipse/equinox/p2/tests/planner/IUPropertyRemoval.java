@@ -8,13 +8,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -54,7 +55,7 @@ public class IUPropertyRemoval extends AbstractProvisioningTest {
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
 		req2.removeInstallableUnitProfileProperty(b1, "FOO");
-		IProvisioningPlan pp2 = planner.getProvisioningPlan(req2, null, null);
+		ProvisioningPlan pp2 = (ProvisioningPlan) planner.getProvisioningPlan(req2, null, null);
 		assertEquals(1, pp2.getOperands().length);
 		engine.perform(pp2, null);
 		IQueryResult res2 = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), null);

@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.director;
 
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
+import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
@@ -21,8 +22,9 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 public class PlannerComponent implements IAgentServiceFactory {
 
 	public Object createService(IProvisioningAgent agent) {
+		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-		return new SimplePlanner(profileRegistry, repoManager);
+		return new SimplePlanner(engine, profileRegistry, repoManager);
 	}
 }

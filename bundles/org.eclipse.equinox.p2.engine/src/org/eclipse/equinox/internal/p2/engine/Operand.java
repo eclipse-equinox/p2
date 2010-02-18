@@ -8,7 +8,9 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.engine;
+package org.eclipse.equinox.internal.p2.engine;
+
+import org.eclipse.equinox.p2.engine.*;
 
 /**
  * The common base class for engine operands.

@@ -41,11 +41,11 @@ public class Engine implements IEngine {
 	}
 
 	public IStatus perform(IProvisioningPlan plan, IPhaseSet phaseSet, IProgressMonitor monitor) {
-		return perform(plan.getProfile(), phaseSet, plan.getOperands(), plan.getContext(), monitor);
+		return perform(plan.getProfile(), phaseSet, ((ProvisioningPlan) plan).getOperands(), plan.getContext(), monitor);
 	}
 
 	public IStatus perform(IProvisioningPlan plan, IProgressMonitor monitor) {
-		return perform(plan.getProfile(), new DefaultPhaseSet(), plan.getOperands(), plan.getContext(), monitor);
+		return perform(plan, new DefaultPhaseSet(), monitor);
 	}
 
 	public IStatus perform(IProfile iprofile, IPhaseSet phases, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
@@ -102,7 +102,7 @@ public class Engine implements IEngine {
 		}
 	}
 
-	public IStatus validate(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+	protected IStatus validate(IProfile iprofile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		checkArguments(iprofile, phaseSet, operands, context, monitor);
 
 		if (context == null)
@@ -123,7 +123,7 @@ public class Engine implements IEngine {
 		return PhaseSet.createPhaseSetIncluding(includes);
 	}
 
-	public IProvisioningPlan createCustomPlan(IProfile profile, Operand[] operands, ProvisioningContext context) {
-		return new ProvisioningPlan(profile, operands, context);
+	public IProvisioningPlan createPlan(IProfile profile, ProvisioningContext context) {
+		return new ProvisioningPlan(profile, null, context);
 	}
 }
