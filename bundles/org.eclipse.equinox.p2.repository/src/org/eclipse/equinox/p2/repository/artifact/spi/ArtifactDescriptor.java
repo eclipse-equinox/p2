@@ -30,8 +30,15 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 	protected IProcessingStepDescriptor[] processingSteps = EMPTY_STEPS;
 
 	protected Map<String, String> properties = new OrderedProperties();
-	protected transient IArtifactRepository repository;
 
+	private transient IArtifactRepository repository;
+
+	/**
+	 * Creates a new artifact descriptor with the same key, properties, repository,
+	 * and processing steps as the provided base descriptor.
+	 * 
+	 * @param base the descriptor to use as a template for this new descriptor
+	 */
 	public ArtifactDescriptor(IArtifactDescriptor base) {
 		super();
 		key = base.getArtifactKey();
@@ -40,19 +47,19 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		repository = base.getRepository();
 	}
 
-	public ArtifactDescriptor(ArtifactDescriptor base) {
-		super();
-		key = base.key;
-		processingSteps = base.processingSteps;
-		properties.putAll(base.properties);
-		repository = base.repository;
-	}
-
+	/**
+	 * Returns a new artifact descriptor that uses the provided artifact key
+	 * 
+	 * @param key The artifact key corresponding to this descriptor
+	 */
 	public ArtifactDescriptor(IArtifactKey key) {
 		super();
 		this.key = key;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor#getArtifactKey()
+	 */
 	public IArtifactKey getArtifactKey() {
 		return key;
 	}

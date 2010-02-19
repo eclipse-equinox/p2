@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,9 @@ import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
- * An IArtifactQuery returning matching IArtifactKey objects.
+ * A general purpose query for matching {@link IArtifactKey} instances
+ * that satisfy various criteria.
+ * 
  * @since 2.0
  */
 public class ArtifactKeyQuery extends ExpressionQuery<IArtifactKey> {
@@ -52,7 +54,7 @@ public class ArtifactKeyQuery extends ExpressionQuery<IArtifactKey> {
 		super(IArtifactKey.class, createMatchExpression(classifier, id, range));
 	}
 
-	public ArtifactKeyQuery() {
+	private ArtifactKeyQuery() {
 		super(IArtifactKey.class, MATCH_ALL_KEYS);
 	}
 

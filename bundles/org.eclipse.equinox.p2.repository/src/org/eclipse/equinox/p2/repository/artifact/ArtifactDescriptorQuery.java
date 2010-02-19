@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,24 +18,52 @@ import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 /**
- * An implementation of IArtifactQuery that matches IArtifactDescriptors
+ * A general purpose query for matching {@link IArtifactDescriptor} instances
+ * that satisfy various criteria.
+ * 
  * @since 2.0
  */
 public class ArtifactDescriptorQuery extends MatchQuery<IArtifactDescriptor> {
+
+	/**
+	 * A singleton query that will match all instances of {@link IArtifactDescriptor}.
+	 */
 	public static final ArtifactDescriptorQuery ALL_DESCRIPTORS = new ArtifactDescriptorQuery();
-	private VersionRange range = null;
-	private String id = null;
-	private String format = null;
+
 	private ArtifactDescriptor descriptor = null;
-	private IArtifactRepository repository = null;
+	private String format = null;
+	private String id = null;
 	private Properties properties = null;
+	private VersionRange range = null;
+	private IArtifactRepository repository = null;
+
+	/**
+	 * Clients must use {@link #ALL_DESCRIPTORS}.
+	 */
+	private ArtifactDescriptorQuery() {
+		//matches everything
+	}
+
+	/**
+	 * The query will match candidate descriptors where:
+	 * <pre>
+	 *     new ArtifactDescriptor(descriptor).equals(new ArtifactDescriptor(candidate))
+	 * </pre>
+	 * @param descriptor The descriptor to match
+	 */
+	public ArtifactDescriptorQuery(IArtifactDescriptor descriptor) {
+		this.descriptor = (descriptor.getClass() == ArtifactDescriptor.class) ? (ArtifactDescriptor) descriptor : new ArtifactDescriptor(descriptor);
+	}
 
 	/**
 	 * The query will match descriptors with the given id, version and format
-	 * If any parameter is null, that attribute will be ignored
-	 * @param id - the id to match, or null
-	 * @param versionRange - the version range to match or null
-	 * @param format - {@link IArtifactDescriptor#FORMAT} value to match, or null
+	 * If any parameter is null, that attribute will be ignored.
+	 * 
+	 * @param id the descriptor id to match, or <code>null</code> to match any id
+	 * @param versionRange the descriptor version range to match or <code>null</code> to match
+	 * any version range
+	 * @param format the descriptor {@link IArtifactDescriptor#FORMAT} value to match, or <code>null</code> to
+	 * match any descriptor format
 	 */
 	public ArtifactDescriptorQuery(String id, VersionRange versionRange, String format) {
 		this(id, versionRange, format, null);
@@ -43,11 +71,15 @@ public class ArtifactDescriptorQuery extends MatchQuery<IArtifactDescriptor> {
 
 	/**
 	 * The query will match descriptors with the given id, version range, format and repository
-	 * if any parameter is null, that attribute will be ignored
-	 * @param id - the id to match, or null
-	 * @param versionRange - the version range to match or null
-	 * @param format - {@link IArtifactDescriptor#FORMAT} value to match, or null
-	 * @param repository
+	 * if any parameter is null, that attribute will be ignored.
+	 * 
+	 * @param id the descriptor id to match, or <code>null</code> to match any id
+	 * @param versionRange the descriptor version range to match or <code>null</code> to match
+	 * any version range
+	 * @param format the descriptor {@link IArtifactDescriptor#FORMAT} value to match, or <code>null</code> to
+	 * match any descriptor format
+	 * @param repository The repository of the descriptor to match, or <code>null</code>
+	 * to match descriptors from any repository
 	 */
 	public ArtifactDescriptorQuery(String id, VersionRange versionRange, String format, IArtifactRepository repository) {
 		this.id = id;
@@ -56,23 +88,9 @@ public class ArtifactDescriptorQuery extends MatchQuery<IArtifactDescriptor> {
 		this.repository = repository;
 	}
 
-	public ArtifactDescriptorQuery() {
-		//matches everything
-	}
-
-	public void setProperties(Properties properties) {
-		this.properties = properties;
-	}
-
-	/**
-	 * The query will match candidate descriptors where
-	 *          new ArtifactDescriptor(descriptor).equals(new ArtifactDescriptor(candidate))
-	 * @param descriptor
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.p2.query.MatchQuery#isMatch(java.lang.Object)
 	 */
-	public ArtifactDescriptorQuery(IArtifactDescriptor descriptor) {
-		this.descriptor = (descriptor.getClass() == ArtifactDescriptor.class) ? (ArtifactDescriptor) descriptor : new ArtifactDescriptor(descriptor);
-	}
-
 	public boolean isMatch(IArtifactDescriptor candidate) {
 		if (descriptor != null)
 			return matchDescriptor(candidate);
@@ -100,16 +118,17 @@ public class ArtifactDescriptorQuery extends MatchQuery<IArtifactDescriptor> {
 		return true;
 	}
 
-	protected boolean matchDescriptor(IArtifactDescriptor candidate) {
+	private boolean matchDescriptor(IArtifactDescriptor candidate) {
 		ArtifactDescriptor candidateDescriptor = (candidate.getClass() == ArtifactDescriptor.class) ? (ArtifactDescriptor) candidate : new ArtifactDescriptor(candidate);
 		return descriptor.equals(candidateDescriptor);
 	}
 
-	public Boolean getExcludeArtifactDescriptors() {
-		return Boolean.FALSE;
-	}
-
-	public Boolean getExcludeArtifactKeys() {
-		return Boolean.TRUE;
+	/**
+	 * Sets the properties that this query should match against. This query will only match
+	 * descriptors that have property keys and values matching those provided here.
+	 * @param properties The properties to query for
+	 */
+	public void setProperties(Properties properties) {
+		this.properties = properties;
 	}
 }
