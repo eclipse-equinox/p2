@@ -14,7 +14,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
+import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
@@ -26,27 +26,31 @@ public class CoreGarbageCollector {
 	/**
 	 * When set to true, information will be logged every time an artifact is removed 
 	 */
-	private static boolean debugMode = false;
+	static boolean debugMode = false;
 
 	/**
 	 * Given a list of IArtifactKeys and an IArtifactRepository, removes all artifacts
 	 * in aRepository that are not mapped to by an IArtifactKey in markSet
 	 */
-	public synchronized void clean(IArtifactKey[] markSet, IArtifactRepository aRepository) {
+	public synchronized void clean(IArtifactKey[] markSet, final IArtifactRepository aRepository) {
 		final Set<IArtifactKey> set = new HashSet<IArtifactKey>(Arrays.asList(markSet));
-		ArtifactKeyQuery query = new ArtifactKeyQuery() {
+		MatchQuery<IArtifactKey> query = new MatchQuery<IArtifactKey>() {
 			public boolean isMatch(IArtifactKey candidate) {
 				return !set.contains(candidate);
 			}
 		};
-		IQueryResult<IArtifactKey> inactive = aRepository.query(query, null);
-		for (Iterator<IArtifactKey> iterator = inactive.iterator(); iterator.hasNext();) {
-			IArtifactKey key = iterator.next();
-			aRepository.removeDescriptor(key);
-			if (debugMode) {
-				Tracing.debug("Key removed:" + key); //$NON-NLS-1$
+		final IQueryResult<IArtifactKey> inactive = aRepository.query(query, null);
+		aRepository.executeBatch(new Runnable() {
+			public void run() {
+				for (Iterator<IArtifactKey> iterator = inactive.iterator(); iterator.hasNext();) {
+					IArtifactKey key = iterator.next();
+					aRepository.removeDescriptor(key);
+					if (debugMode) {
+						Tracing.debug("Key removed:" + key); //$NON-NLS-1$
+					}
+				}
 			}
-		}
+		});
 	}
 
 	/*
