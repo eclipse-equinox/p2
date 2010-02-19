@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.repository;
 
 import java.net.URI;
-import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.query.IQueryable;
 
@@ -20,8 +19,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
  * <p>
  * A repository manager keeps track of a set of known repositories, and provides 
  * caching of these known repositories to avoid unnecessary loading of repositories 
- * from the disk or network.  The manager fires {@link RepositoryEvent}s when the 
- * set of known repositories changes.
+ * from the disk or network.
  * </p>
  * <p>
  * All {@link URI} instances provided to a repository manager must be absolute.
@@ -95,7 +93,7 @@ public interface IRepositoryManager<T> extends IQueryable<T> {
 	public boolean contains(URI location);
 
 	/**
-	 * Returns the provisioning agent in charge of this reposiotry manager
+	 * Returns the provisioning agent in charge of this repository manager
 	 * @return The provisioning agent.
 	 */
 	public IProvisioningAgent getAgent();

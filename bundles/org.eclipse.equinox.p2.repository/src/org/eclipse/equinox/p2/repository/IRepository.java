@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -17,8 +17,9 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
- * Base interface that defines common properties that may be provided by 
- * various kinds of repositories.
+ * A p2 repository contains either metadata or artifacts related to software
+ * provisioning. This base interface defines properties common to all types
+ * of repositories.
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
@@ -114,10 +115,8 @@ public interface IRepository<T> extends IAdaptable, IQueryable<T> {
 	public static final int ENABLED = 1;
 
 	/**
-	 * Returns the URL of the repository.
-	 * TODO: Should we use URL or URI? URL requires a protocol handler
-	 * to be installed in Java.  Can the URL have any protocol?
-	 * @return the URL of the repository.
+	 * Returns the location of this repository.
+	 * @return the URI representing the repository location.
 	 */
 	public URI getLocation();
 
@@ -128,7 +127,9 @@ public interface IRepository<T> extends IAdaptable, IQueryable<T> {
 	public String getName();
 
 	/**
-	 * Returns a string representing the type of the repository.
+	 * Returns a string representing the type of the repository. Note this method
+	 * does not indicate the type of repository contents (metadata or artifacts),
+	 * but instead the unique fully qualified id representing the repository implementation.
 	 * @return the type of the repository.
 	 */
 	public String getType();
@@ -164,7 +165,9 @@ public interface IRepository<T> extends IAdaptable, IQueryable<T> {
 	public IProvisioningAgent getProvisioningAgent();
 
 	/**
-	 * Returns <code>true</code> if this repository can be modified.
+	 * Returns <code>true</code> if this repository can be modified, and
+	 * <code>false</code> otherwise. Attempts to change the contents of
+	 * an unmodifiable repository will fail.
 	 * @return whether or not this repository can be modified
 	 */
 	public boolean isModifiable();
