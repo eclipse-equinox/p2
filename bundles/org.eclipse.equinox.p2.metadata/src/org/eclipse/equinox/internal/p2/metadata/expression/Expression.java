@@ -11,6 +11,8 @@
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.*;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.*;
 
 /**
@@ -91,6 +93,12 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 				appendOperand(bld, rootVariable, elements[idx], PRIORITY_MAX);
 			}
 		}
+	}
+
+	public static Collection<String> getIndexCandidateMembers(Class<?> elementClass, Variable itemVariable, Expression operand) {
+		MembersFinder finder = new MembersFinder(elementClass, itemVariable);
+		operand.accept(finder);
+		return finder.getMembers();
 	}
 
 	/**
@@ -261,6 +269,45 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 			if (!parts.contains(bf))
 				parts.add(bf);
 			return true;
+		}
+	}
+
+	private static class MembersFinder implements IExpressionVisitor {
+		private final ArrayList<String> members = new ArrayList<String>();
+		private final Class<?> elementClass;
+		private final IExpression operand;
+
+		MembersFinder(Class<?> elementClass, IExpression operand) {
+			this.elementClass = elementClass;
+			this.operand = operand;
+		}
+
+		public boolean visit(IExpression expression) {
+			if (expression instanceof Member) {
+				Member member = (Member) expression;
+				if (member.getOperand() == operand) {
+					String name = member.getName();
+					if (!members.contains(name))
+						members.add(member.getName());
+					return false;
+				}
+			} else if (expression instanceof Matches && IInstallableUnit.class.isAssignableFrom(elementClass)) {
+				// This one is a bit special since an
+				// IInstallableUnit ~= IRequirement often
+				// means that we can reuse the requirement
+				// expression.
+				Matches matches = (Matches) expression;
+				if (matches.lhs == operand) {
+					if (!members.contains(InstallableUnit.MEMBER_PROVIDED_CAPABILITIES))
+						members.add(InstallableUnit.MEMBER_PROVIDED_CAPABILITIES);
+					return false;
+				}
+			}
+			return true;
+		}
+
+		Collection<String> getMembers() {
+			return members;
 		}
 	}
 

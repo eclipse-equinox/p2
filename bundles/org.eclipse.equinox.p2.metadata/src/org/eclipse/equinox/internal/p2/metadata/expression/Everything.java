@@ -8,15 +8,14 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql;
-
-import org.eclipse.equinox.internal.p2.metadata.expression.IRepeatableIterator;
-
-import org.eclipse.equinox.internal.p2.metadata.expression.RepeatableIterator;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Collection;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionVisitor;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 
 /**
  * The immutable context used when evaluating an expression.
@@ -31,7 +30,16 @@ public final class Everything<T> extends MatchIteratorFilter<T> implements IRepe
 		this.elementClass = elementClass;
 	}
 
-	public Everything(Class<T> elementClass, Iterator<? extends T> iterator, boolean needsRepeat) {
+	public Everything(Class<T> elementClass, Iterator<? extends T> iterator, Expression expression) {
+		this(elementClass, iterator, needsRepeadedAccessToEverything(expression));
+	}
+
+	public Everything(Class<T> elementClass, IIndexProvider<? extends T> indexProvider) {
+		super(RepeatableIterator.<T> create(indexProvider));
+		this.elementClass = elementClass;
+	}
+
+	Everything(Class<T> elementClass, Iterator<? extends T> iterator, boolean needsRepeat) {
 		super(needsRepeat ? RepeatableIterator.create(iterator) : iterator);
 		this.elementClass = elementClass;
 	}
@@ -50,6 +58,10 @@ public final class Everything<T> extends MatchIteratorFilter<T> implements IRepe
 		return super.next();
 	}
 
+	public Class<T> getElementClass() {
+		return elementClass;
+	}
+
 	public Object getIteratorProvider() {
 		Iterator<? extends T> iterator = getInnerIterator();
 		if (iterator instanceof IRepeatableIterator<?>)
@@ -59,5 +71,25 @@ public final class Everything<T> extends MatchIteratorFilter<T> implements IRepe
 
 	protected boolean isMatch(T val) {
 		return elementClass.isInstance(val);
+	}
+
+	/**
+	 * Checks if the expression will make repeated requests for the 'everything' iterator.
+	 * @return <code>true</code> if repeated requests will be made, <code>false</code> if not.
+	 */
+	private static boolean needsRepeadedAccessToEverything(Expression expression) {
+		final boolean[] repeatedAccessNeeded = new boolean[] {false};
+		expression.accept(new IExpressionVisitor() {
+			public boolean visit(IExpression expr) {
+				// FIXME Needs proper counting
+				if (expr == ExpressionFactory.EVERYTHING) {
+					repeatedAccessNeeded[0] = true;
+					return false;
+				}
+				return true;
+			}
+		});
+		// return repeatedAccessNeeded[0];
+		return true;
 	}
 }

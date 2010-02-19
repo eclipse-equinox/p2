@@ -64,7 +64,7 @@ public abstract class CoercingComparator<T> {
 				return (Class<?>) v;
 			if (v instanceof String) {
 				try {
-					return MetadataActivator.context.getBundle().loadClass(((String) v).trim());
+					return MetadataActivator.getContext().getBundle().loadClass(((String) v).trim());
 				} catch (Exception e) {
 					//
 				}

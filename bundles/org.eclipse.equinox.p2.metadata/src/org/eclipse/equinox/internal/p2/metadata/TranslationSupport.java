@@ -193,7 +193,7 @@ public class TranslationSupport {
 
 		SoftReference<IQueryResult<IInstallableUnit>> queryResultReference = localeCollectorCache.get(locale);
 		if (queryResultReference != null) {
-			Collector<IInstallableUnit> cached = (Collector<IInstallableUnit>) queryResultReference.get();
+			IQueryResult<IInstallableUnit> cached = queryResultReference.get();
 			if (cached != null)
 				return cached;
 		}

@@ -17,7 +17,6 @@ import org.eclipse.equinox.p2.query.IQuery;
  * An IQuery 'context query' implementation that is based on the p2 query language.
  */
 public abstract class QLQuery<T> implements IQuery<T> {
-	static final IQLParser parser = QL.newParser();
 	final Class<T> elementClass;
 	private Locale locale;
 

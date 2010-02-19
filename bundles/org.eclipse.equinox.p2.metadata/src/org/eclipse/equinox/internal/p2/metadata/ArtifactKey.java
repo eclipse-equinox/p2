@@ -10,20 +10,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 
 /** 
  * The concrete type for representing IArtifactKey's.
  * <p>
  * See {link IArtifact for a description of the lifecycle of artifact keys) 
  */
-public class ArtifactKey implements IArtifactKey {
+public class ArtifactKey implements IArtifactKey, IMemberProvider {
 	private static final String SEPARATOR = ","; //$NON-NLS-1$
+
+	public static final String MEMBER_ID = "id"; //$NON-NLS-1$
+	public static final String MEMBER_CLASSIFIER = "classifier"; //$NON-NLS-1$
+	public static final String MEMBER_VERSION = "version"; //$NON-NLS-1$
 
 	private final String id;
 	private final String classifier;
@@ -123,4 +127,17 @@ public class ArtifactKey implements IArtifactKey {
 		return data.toString();
 	}
 
+	public Object getMember(String memberName) {
+		// It is OK to use identity comparisons here since
+		// a) All constant valued strings are always interned
+		// b) The Member constructor always interns the name
+		//
+		if (MEMBER_ID == memberName)
+			return id;
+		if (MEMBER_VERSION == memberName)
+			return version;
+		if (MEMBER_CLASSIFIER == memberName)
+			return classifier;
+		throw new IllegalArgumentException();
+	}
 }

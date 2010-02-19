@@ -19,10 +19,23 @@ import org.eclipse.equinox.p2.query.*;
  */
 public class LatestIUVersionQuery<T extends IVersionedId> extends ContextQuery<T> {
 
+	private final IQuery<T> query;
+
+	public LatestIUVersionQuery() {
+		this.query = null;
+	}
+
+	public LatestIUVersionQuery(IQuery<T> query) {
+		this.query = query;
+	}
+
 	/**
 	 * Performs the LatestIUVersionQuery
 	 */
 	public IQueryResult<T> perform(Iterator<T> iterator) {
+		if (query != null)
+			iterator = query.perform(iterator).iterator();
+
 		HashMap<String, T> greatestIUVersion = new HashMap<String, T>();
 		while (iterator.hasNext()) {
 			T versionedID = iterator.next();

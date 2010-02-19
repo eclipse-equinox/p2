@@ -10,26 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.query;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
-
-import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
 
 /**
  * A query matching every {@link IInstallableUnit} that is a category.
  * @since 2.0
  */
-public final class FragmentQuery extends MatchQuery<IInstallableUnit> {
-	private static final String PROP_TYPE_FRAGMENT = "org.eclipse.equinox.p2.type.fragment"; //$NON-NLS-1$
-	private IUPropertyQuery query;
-
+public final class FragmentQuery extends ExpressionQuery<IInstallableUnit> {
 	public FragmentQuery() {
-		query = new IUPropertyQuery(PROP_TYPE_FRAGMENT, null);
-	}
-
-	public boolean isMatch(IInstallableUnit candidate) {
-		return query.isMatch(candidate);
+		super(IInstallableUnitFragment.class, MATCH_ALL_UNITS);
 	}
 
 	/**
@@ -38,11 +28,8 @@ public final class FragmentQuery extends MatchQuery<IInstallableUnit> {
 	 * @return <tt>true</tt> if the parameter is a fragment.
 	 */
 	public static boolean isFragment(IInstallableUnit iu) {
-		if (iu instanceof IInstallableUnitFragment)
-			return true;
+		return iu instanceof IInstallableUnitFragment;
 		//		String value = iu.getProperty(PROP_TYPE_FRAGMENT);
-		//		if (value != null && (value.equals(Boolean.TRUE.toString())))
-		//			return true;
-		return false;
+		//		return value != null && (value.equals(Boolean.TRUE.toString()));
 	}
 }

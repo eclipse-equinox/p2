@@ -8,10 +8,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
@@ -59,7 +58,7 @@ public class IUProperties extends AbstractProvisioningTest {
 		IStatus s = engine.perform(pp1, null);
 		if (!s.isOK())
 			LogHelper.log(s);
-		IQueryResult queryResult = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", null), null);
+		IQueryResult queryResult = getProfile(profileId).query(new IUProfilePropertyQuery("FOO", IUProfilePropertyQuery.ANY), null);
 		assertEquals(1, queryResultSize(queryResult));
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);

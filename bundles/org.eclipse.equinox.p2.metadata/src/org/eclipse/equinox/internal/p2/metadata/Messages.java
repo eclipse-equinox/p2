@@ -131,6 +131,10 @@ public class Messages extends NLS {
 
 	public static String unbalanced_format_parenthesis;
 
+	public static String no_expression_factory;
+
+	public static String no_expression_parser;
+
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.metadata.messages"; //$NON-NLS-1$
 
 	static {

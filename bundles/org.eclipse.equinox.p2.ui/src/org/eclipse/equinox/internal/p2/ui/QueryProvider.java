@@ -92,7 +92,7 @@ public class QueryProvider {
 					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT || !context.getUseCategories()) {
 						AvailableIUWrapper wrapper = new AvailableIUWrapper(queryable, element, false, context.getShowAvailableChildren());
 						if (showLatest)
-							topLevelQuery = new PipedQuery<IInstallableUnit>(topLevelQuery, new LatestIUVersionQuery<IInstallableUnit>());
+							topLevelQuery = new LatestIUVersionQuery<IInstallableUnit>(topLevelQuery);
 						if (targetProfile != null)
 							wrapper.markInstalledIUs(targetProfile, hideInstalled);
 						return new ElementQueryDescriptor(queryable, topLevelQuery, new Collector<Object>(), wrapper);
@@ -114,14 +114,14 @@ public class QueryProvider {
 					// if it's a category, there is a special query.
 					if (element instanceof CategoryElement) {
 						if (showLatest)
-							memberOfCategoryQuery = new PipedQuery<IInstallableUnit>(memberOfCategoryQuery, new LatestIUVersionQuery<IInstallableUnit>());
+							memberOfCategoryQuery = new LatestIUVersionQuery<IInstallableUnit>(memberOfCategoryQuery);
 						return new ElementQueryDescriptor(queryable, memberOfCategoryQuery, new Collector<Object>(), availableIUWrapper);
 					}
 					// It is not a category, we want to traverse the requirements that are groups.
 					@SuppressWarnings("unchecked")
 					IQuery<IInstallableUnit> query = CompoundQuery.createCompoundQuery(new IQuery[] {topLevelQuery, new RequiredIUsQuery(((IIUElement) element).getIU())}, true);
 					if (showLatest)
-						query = new PipedQuery<IInstallableUnit>(query, new LatestIUVersionQuery<IInstallableUnit>());
+						query = new LatestIUVersionQuery<IInstallableUnit>(query);
 					// If it's not a category, these are generic requirements and should be filtered by the visibility property (topLevelQuery)
 					return new ElementQueryDescriptor(queryable, query, new Collector<Object>(), availableIUWrapper);
 				}

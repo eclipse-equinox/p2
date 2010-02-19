@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.repository.FlatteningIterator;
+import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.*;
@@ -244,7 +244,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		final Collection<List<IArtifactDescriptor>> descs = artifactMap.values();
 		IQueryable<IArtifactDescriptor> cached = new IQueryable<IArtifactDescriptor>() {
 			public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
-				return query.perform(new FlatteningIterator<IArtifactDescriptor>(descs.iterator()));
+				return query.perform(new CompoundIterator<IArtifactDescriptor>(descs.iterator()));
 			}
 		};
 

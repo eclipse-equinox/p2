@@ -114,7 +114,7 @@ public class SimplePlanner implements IPlanner {
 		}
 
 		//Compute the side effect changes (e.g. things installed optionally going away)
-		Iterator<IInstallableUnit> includedIUs = changeRequest.getProfile().query(new IUProfilePropertyQuery(INCLUSION_RULES, null), null).iterator();
+		Iterator<IInstallableUnit> includedIUs = changeRequest.getProfile().query(new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY), null).iterator();
 		Map<IInstallableUnit, RequestStatus> sideEffectStatus = new HashMap<IInstallableUnit, RequestStatus>();
 		while (includedIUs.hasNext()) {
 			IInstallableUnit removal = includedIUs.next();
@@ -205,8 +205,8 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	public static Collection<IInstallableUnit> findPlannerMarkedIUs(final IProfile profile) {
-		IQuery<IInstallableUnit> markerQuery = new IUProfilePropertyQuery(INCLUSION_RULES, null);
-		return profile.query(markerQuery, null).toSet();
+		IQuery<IInstallableUnit> markerQuery = new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY);
+		return profile.query(markerQuery, null).unmodifiableSet();
 	}
 
 	public static Dictionary<String, String> createSelectionContext(Map<String, String> properties) {
@@ -652,7 +652,7 @@ public class SimplePlanner implements IPlanner {
 	//It returns at index 0 a meta IU representing everything that needs to be installed
 	//It returns at index 1 all the IUs that are in the profile after the removal have been done, but before the addition have been done 
 	private Object[] updatePlannerInfo(ProfileChangeRequest profileChangeRequest, ProvisioningContext context) {
-		IQueryResult<IInstallableUnit> alreadyInstalled = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(INCLUSION_RULES, null), null);
+		IQueryResult<IInstallableUnit> alreadyInstalled = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY), null);
 
 		Collection<IInstallableUnit> additionRequested = profileChangeRequest.getAdditions();
 		Collection<IInstallableUnit> removalRequested = profileChangeRequest.getRemovals();

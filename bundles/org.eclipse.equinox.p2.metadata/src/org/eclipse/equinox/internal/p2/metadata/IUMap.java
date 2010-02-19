@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
@@ -142,22 +141,26 @@ public class IUMap {
 		Iterator<IInstallableUnit> candidates;
 		if (query.getId() == null)
 			candidates = iterator();
-		else {
-			Object bucket = units.get(query.getId());
-			if (bucket == null)
-				return Collector.emptyCollector();
-
-			if (bucket.getClass().isArray())
-				candidates = CollectionUtils.unmodifiableList((IInstallableUnit[]) bucket).iterator();
-			else
-				candidates = Collections.<IInstallableUnit> singletonList((IInstallableUnit) bucket).iterator();
-		}
+		else
+			candidates = getUnits(query.getId()).iterator();
 		return query.perform(candidates);
 
 	}
 
 	public boolean contains(IInstallableUnit unit) {
 		return get(unit.getId(), unit.getVersion()) != null;
+	}
+
+	/**
+	 * Returns a collection of units that has the given <code>id</code>.
+	 * @param id The id of the desired units. Must not be <code>null</code>.
+	 * @return The units corresponding to the given <code>id</code>.
+	 */
+	public Collection<IInstallableUnit> getUnits(String id) {
+		Object bucket = units.get(id);
+		if (bucket == null)
+			return CollectionUtils.emptyList();
+		return bucket.getClass().isArray() ? CollectionUtils.unmodifiableList((IInstallableUnit[]) bucket) : Collections.<IInstallableUnit> singletonList((IInstallableUnit) bucket);
 	}
 
 	public IQueryResult<IInstallableUnit> get(String id) {

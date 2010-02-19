@@ -134,8 +134,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IInstallableUnit[] roots = new IInstallableUnit[] {(IInstallableUnit) itor.next()};
 
 		IQuery query = new QLContextQuery(IInstallableUnit.class, "" + //
-				"$0.traverse(set(), capabilityIndex(everything), _, {rqCache, index, parent | " + //
-				"index.satisfiesAny(parent.requiredCapabilities.unique(rqCache).select(rc | rc.filter == null || $1 ~= rc.filter))})", roots, env);
+				"$0.traverse(set(), _, { cache, parent | parent.requiredCapabilities.unique(cache).select(rc | rc.filter == null || $1 ~= rc.filter).collect(rc | everything.select(iu | iu ~= rc)).flatten()})", roots, env);
 
 		long sliceTime = 0;
 		long traverseTime = 0;

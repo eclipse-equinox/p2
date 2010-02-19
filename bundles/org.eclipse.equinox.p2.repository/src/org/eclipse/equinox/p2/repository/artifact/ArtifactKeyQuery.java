@@ -11,22 +11,35 @@
 
 package org.eclipse.equinox.p2.repository.artifact;
 
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.VersionRange;
+import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * An IArtifactQuery returning matching IArtifactKey objects.
  * @since 2.0
  */
-public class ArtifactKeyQuery extends MatchQuery<IArtifactKey> {
-	public static final ArtifactKeyQuery ALL_KEYS = new ArtifactKeyQuery();
+public class ArtifactKeyQuery extends ExpressionQuery<IArtifactKey> {
+	private static IMatchExpression<IArtifactKey> MATCH_ALL_KEYS = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.TRUE_EXPRESSION);
+	private static final IExpression matchKey = ExpressionUtil.parse("this == $0"); //$NON-NLS-1$
+	private static final IExpression matchID = ExpressionUtil.parse("id == $0"); //$NON-NLS-1$
+	private static final IExpression matchIDClassifierRange = ExpressionUtil.parse("id == $0 && version ~= $2 && (null == $1 || classifier == $1)"); //$NON-NLS-1$
 
-	private String id;
-	private String classifier;
-	private VersionRange range;
-	private IArtifactKey artifactKey;
+	private static IMatchExpression<IArtifactKey> createMatchExpression(IArtifactKey key) {
+		return key == null ? MATCH_ALL_KEYS : ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchKey, key);
+	}
+
+	private static IMatchExpression<IArtifactKey> createMatchExpression(String classifier, String id, VersionRange range) {
+		if (range == null) {
+			if (classifier == null)
+				return id == null ? MATCH_ALL_KEYS : ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchID, id);
+			range = VersionRange.emptyRange;
+		}
+		return ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchIDClassifierRange, id, classifier, range);
+	}
+
+	public static final ArtifactKeyQuery ALL_KEYS = new ArtifactKeyQuery();
 
 	/**
 	 * Pass the id and/or version range to match IArtifactKeys against.
@@ -36,46 +49,14 @@ public class ArtifactKeyQuery extends MatchQuery<IArtifactKey> {
 	 * @param range A version range, or <code>null</code>
 	 */
 	public ArtifactKeyQuery(String classifier, String id, VersionRange range) {
-		this.id = id;
-		this.classifier = classifier;
-		this.range = range;
+		super(IArtifactKey.class, createMatchExpression(classifier, id, range));
 	}
 
 	public ArtifactKeyQuery() {
-		//matches everything
+		super(IArtifactKey.class, MATCH_ALL_KEYS);
 	}
 
 	public ArtifactKeyQuery(IArtifactKey key) {
-		this.artifactKey = key;
-	}
-
-	public boolean isMatch(IArtifactKey key) {
-		if (artifactKey != null)
-			return matchKey(key);
-
-		if (classifier != null && !key.getClassifier().equals(classifier))
-			return false;
-
-		if (id != null && !key.getId().equals(id))
-			return false;
-
-		if (range != null && !range.isIncluded(key.getVersion()))
-			return false;
-
-		return true;
-	}
-
-	protected boolean matchKey(IArtifactKey candidate) {
-		return artifactKey.equals(candidate);
-	}
-
-	// We are interested in IArtifactKey objects
-	public Boolean getExcludeArtifactKeys() {
-		return Boolean.FALSE;
-	}
-
-	// We are not interested in IArtifactDescriptor objects
-	public Boolean getExcludeArtifactDescriptors() {
-		return Boolean.TRUE;
+		super(IArtifactKey.class, createMatchExpression(key));
 	}
 }

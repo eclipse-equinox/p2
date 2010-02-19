@@ -73,24 +73,4 @@ public abstract class QLUtil implements IExpression, IQLConstants {
 		});
 		return translationSupportNeeded[0];
 	}
-
-	/**
-	 * Checks if the expression will make repeated requests for the 'everything' iterator.
-	 * @return <code>true</code> if repeated requests will be made, <code>false</code> if not.
-	 */
-	static boolean needsRepeadedAccessToEverything(Expression expression) {
-		final boolean[] repeatedAccessNeeded = new boolean[] {false};
-		expression.accept(new IExpressionVisitor() {
-			public boolean visit(IExpression expr) {
-				// FIXME Needs proper counting
-				if (expr == QLFactory.EVERYTHING) {
-					repeatedAccessNeeded[0] = true;
-					return false;
-				}
-				return true;
-			}
-		});
-		// return repeatedAccessNeeded[0];
-		return true;
-	}
 }

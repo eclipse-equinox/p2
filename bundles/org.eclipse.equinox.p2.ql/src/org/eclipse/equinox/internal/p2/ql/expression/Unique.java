@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
-import org.eclipse.equinox.internal.p2.ql.MatchIteratorFilter;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.ql.IQLExpression;
 
@@ -21,8 +20,12 @@ import org.eclipse.equinox.p2.ql.IQLExpression;
  * once throughout the whole query.
  */
 final class Unique extends Binary implements IQLConstants, IQLExpression {
+	/**
+	 * A UniqueIterator that uses a set as a discriminator, ensuring that
+	 * no element is returned twice.
+	 */
 	static class UniqueIterator<T> extends MatchIteratorFilter<T> {
-		private final Set<T> uniqueSet;
+		final Set<T> uniqueSet;
 
 		public UniqueIterator(Iterator<? extends T> iterator, Set<T> uniqueSet) {
 			super(iterator);

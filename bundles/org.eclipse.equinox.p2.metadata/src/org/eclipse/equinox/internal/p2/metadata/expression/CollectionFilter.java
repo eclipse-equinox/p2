@@ -13,6 +13,8 @@ package org.eclipse.equinox.internal.p2.metadata.expression;
 import java.util.Iterator;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.metadata.expression.IExpressionVisitor;
+import org.eclipse.equinox.p2.metadata.index.IIndex;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 
 /**
  * Some kind of operation that is performed for each element of a collection. I.e.
@@ -51,13 +53,13 @@ public abstract class CollectionFilter extends Unary {
 	}
 
 	public final Object evaluate(IEvaluationContext context) {
-		Iterator<?> lval = operand.evaluateAsIterator(context);
+		Iterator<?> lval = getInnerIterator(context);
 		context = lambda.prolog(context);
 		return evaluate(context, lval);
 	}
 
 	public final Iterator<?> evaluateAsIterator(IEvaluationContext context) {
-		Iterator<?> lval = operand.evaluateAsIterator(context);
+		Iterator<?> lval = getInnerIterator(context);
 		context = lambda.prolog(context);
 		return evaluateAsIterator(context, lval);
 	}
@@ -81,5 +83,48 @@ public abstract class CollectionFilter extends Unary {
 
 	protected Iterator<?> evaluateAsIterator(IEvaluationContext context, Iterator<?> iterator) {
 		throw new UnsupportedOperationException();
+	}
+
+	private transient IIndexProvider<?> lastIndexProvider;
+	private transient IIndex<?> lastIndex;
+
+	private IIndex<?> getIndex(Class<?> elementClass, IIndexProvider<?> indexProvider) {
+		if (lastIndexProvider == indexProvider)
+			return lastIndex;
+
+		for (String member : getIndexCandidateMembers(elementClass, lambda.getItemVariable(), lambda.getOperand())) {
+			IIndex<?> index = indexProvider.getIndex(member);
+			if (index != null)
+				lastIndex = index;
+		}
+		lastIndexProvider = indexProvider;
+		return lastIndex;
+	}
+
+	protected Iterator<?> getInnerIterator(IEvaluationContext context) {
+		Object collection = operand.evaluate(context);
+		if (collection instanceof Everything<?>) {
+			// Try to find an index
+			//
+			IIndexProvider<?> indexProvider = context.getIndexProvider();
+			if (indexProvider != null) {
+				Class<?> elementClass = ((Everything<?>) collection).getElementClass();
+				IIndex<?> index = getIndex(elementClass, indexProvider);
+				if (index != null) {
+					Iterator<?> indexed = index.getCandidates(context, lambda.getItemVariable(), lambda.getOperand());
+					if (indexed != null)
+						return indexed;
+				}
+			}
+		}
+
+		// No index. We need every element
+		if (collection instanceof IRepeatableIterator<?>)
+			return ((IRepeatableIterator<?>) collection).getCopy();
+
+		Iterator<?> itor = RepeatableIterator.create(collection);
+		if (operand instanceof Variable)
+			((Variable) operand).setValue(context, itor);
+		return itor;
 	}
 }

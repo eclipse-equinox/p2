@@ -89,7 +89,7 @@ public class AddIUProperty extends AbstractProvisioningTest {
 		allProfileIUs = profile.query(InstallableUnitQuery.ANY, null);
 		assertEquals(queryResultSize(allProfileIUs), 1);
 
-		IQueryResult iuProfileProperties = profile.query(new IUProfilePropertyQuery(SimplePlanner.INCLUSION_RULES, null), null);
+		IQueryResult iuProfileProperties = profile.query(new IUProfilePropertyQuery(SimplePlanner.INCLUSION_RULES, IUProfilePropertyQuery.ANY), null);
 		assertEquals(queryResultSize(iuProfileProperties), 1);
 
 		//Remove a1 optionality - should be a no-op

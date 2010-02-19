@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.ql.parser;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.expression.IExpressionConstants;
 import org.eclipse.equinox.internal.p2.metadata.expression.Variable;
 import org.eclipse.equinox.internal.p2.metadata.expression.parser.ExpressionParser;
 import org.eclipse.equinox.internal.p2.ql.expression.IQLConstants;
@@ -54,28 +53,6 @@ public class QLParser extends ExpressionParser implements IQLParser, IQLConstant
 		qlKeywords.put(KEYWORD_INTERSECT, new Integer(TOKEN_INTERSECT));
 		qlKeywords.put(KEYWORD_UNION, new Integer(TOKEN_UNION));
 		qlKeywords.put(OPERATOR_EACH, new Integer(TOKEN_ANY));
-	}
-
-	public QLParser(IQLFactory factory) {
-		super(factory);
-	}
-
-	public synchronized IExpression parseQuery(String exprString) {
-		expression = exprString;
-		tokenPos = 0;
-		currentToken = 0;
-		tokenValue = null;
-		rootVariable = IExpressionConstants.VARIABLE_EVERYTHING;
-		IExpression everythingVariable = factory.variable(IExpressionConstants.VARIABLE_EVERYTHING);
-		push(everythingVariable);
-		try {
-			nextToken();
-			IExpression expr = parseCondition();
-			assertToken(TOKEN_END);
-			return expr;
-		} finally {
-			popVariable(); // pop context
-		}
 	}
 
 	protected Map<String, Integer> keywordToTokenMap() {

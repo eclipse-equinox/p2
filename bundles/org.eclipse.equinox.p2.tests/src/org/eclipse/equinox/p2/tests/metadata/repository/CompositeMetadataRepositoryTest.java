@@ -474,7 +474,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
-		PipedQuery cQuery = new PipedQuery(new MatchQuery() {
+		IQuery cQuery = new LatestIUVersionQuery(new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iInstallableUnit = (IInstallableUnit) candidate;
@@ -483,7 +483,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 				}
 				return false;
 			}
-		}, new LatestIUVersionQuery());
+		});
 		IQueryResult queryResult = compositeRepo.query(cQuery, monitor);
 		assertEquals("1.0", 1, queryResultSize(queryResult));
 		assertEquals("1.1", Version.createOSGi(2, 2, 0), ((IInstallableUnit) queryResult.iterator().next()).getVersion());

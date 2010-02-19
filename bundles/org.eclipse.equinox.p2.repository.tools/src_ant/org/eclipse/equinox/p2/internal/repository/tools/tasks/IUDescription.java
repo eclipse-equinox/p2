@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.util.*;
 import org.apache.tools.ant.types.DataType;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
@@ -19,6 +17,7 @@ import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.p2.internal.repository.tools.Activator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.PipedQuery;
@@ -112,8 +111,7 @@ public class IUDescription extends DataType {
 		if (id != null) {
 			if (version == null || version.length() == 0) {
 				// Get the latest version of the iu
-				queries.add(new InstallableUnitQuery(id));
-				queries.add(new LatestIUVersionQuery<IInstallableUnit>());
+				queries.add(new LatestIUVersionQuery<IInstallableUnit>(new InstallableUnitQuery(id)));
 			} else {
 				Version iuVersion = Version.parseVersion(version);
 				queries.add(new InstallableUnitQuery(id, iuVersion));
@@ -146,6 +144,8 @@ public class IUDescription extends DataType {
 			String value = attributes.get(QUERY_VALUE);
 			if (name == null)
 				return null;
+			if (value == null)
+				value = IUPropertyQuery.ANY;
 			return new IUPropertyQuery(name, value);
 		}
 

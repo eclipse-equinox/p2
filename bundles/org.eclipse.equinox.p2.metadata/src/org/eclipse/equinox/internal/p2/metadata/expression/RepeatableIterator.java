@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.*;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
 public class RepeatableIterator<T> implements IRepeatableIterator<T> {
@@ -121,14 +122,33 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 		}
 	}
 
-	static class CollectionIterator<T> implements IRepeatableIterator<T> {
-		private final Collection<T> collection;
+	static abstract class DeferredIterator<T> implements IRepeatableIterator<T> {
+		private Iterator<T> iterator;
 
-		private final Iterator<T> iterator;
+		public boolean hasNext() {
+			if (iterator == null)
+				iterator = getIterator();
+			return iterator.hasNext();
+		}
+
+		public T next() {
+			if (iterator == null)
+				iterator = getIterator();
+			return iterator.next();
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+
+		abstract Iterator<T> getIterator();
+	}
+
+	static class CollectionIterator<T> extends DeferredIterator<T> {
+		private final Collection<T> collection;
 
 		CollectionIterator(Collection<T> collection) {
 			this.collection = collection;
-			this.iterator = collection.iterator();
 		}
 
 		public IRepeatableIterator<T> getCopy() {
@@ -139,16 +159,28 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 			return collection;
 		}
 
-		public boolean hasNext() {
-			return iterator.hasNext();
+		Iterator<T> getIterator() {
+			return collection.iterator();
+		}
+	}
+
+	static class IndexProviderIterator<T> extends DeferredIterator<T> {
+		private final IIndexProvider<T> indexProvider;
+
+		IndexProviderIterator(IIndexProvider<T> indexProvider) {
+			this.indexProvider = indexProvider;
 		}
 
-		public T next() {
-			return iterator.next();
+		public IRepeatableIterator<T> getCopy() {
+			return new IndexProviderIterator<T>(indexProvider);
 		}
 
-		public void remove() {
-			throw new UnsupportedOperationException();
+		public Object getIteratorProvider() {
+			return indexProvider;
+		}
+
+		Iterator<T> getIterator() {
+			return indexProvider.everything();
 		}
 	}
 

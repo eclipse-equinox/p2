@@ -17,6 +17,7 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.provisional.p2.metadata,
  org.eclipse.equinox.p2.metadata,
  org.eclipse.equinox.p2.metadata.expression,
+ org.eclipse.equinox.p2.metadata.index,
  org.eclipse.equinox.p2.metadata.query,
  org.eclipse.equinox.p2.query,
  org.eclipse.equinox.p2.repository.artifact,
@@ -26,3 +27,4 @@ Export-Package: org.eclipse.equinox.internal.p2.ql.expression;x-internal:=true,
  org.eclipse.equinox.p2.ql
 Bundle-Activator: org.eclipse.equinox.internal.p2.ql.QLActivator
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.5.1"
+Service-Component: OSGI-INF/qlFactory.xml, OSGI-INF/qlParser.xml

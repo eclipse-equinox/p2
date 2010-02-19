@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Cloudsmith Inc. and others.
+ * Copyright (c) 2009 - 2010 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,26 +8,34 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql;
-
-import org.eclipse.equinox.internal.p2.metadata.expression.RepeatableIterator;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A FlattenIterator will assume that its operand is an iterator that will produce
- * elements that can be represented as iterators. The elements of those iterators
- * will be returned in sequence, thus removing one iterator dimension.
+ * A CompoundIterator will assume that its contained iterator that will produce
+ * elements that in turn can be represented as iterators. The elements of those
+ * iterators will be returned in sequence, thus removing one iterator dimension.
+ * Elements of the contained iterator that are not iterators will be coerced
+ * into iterators using {@link RepeatableIterator#create(Object)}.
  */
-public class FlattenIterator<T> implements Iterator<T> {
+public class CompoundIterator<T> implements Iterator<T> {
 	private static final Object NO_ELEMENT = new Object();
 	private final Iterator<? extends Object> iteratorIterator;
 	private Iterator<T> currentIterator;
 
 	private T nextObject = noElement();
 
-	public FlattenIterator(Iterator<? extends Object> iterator) {
+	/**
+	 * Creates a compound iterator that will iterated over the elements
+	 * of the provided <code>iterator</code>. Each element will be coerced
+	 * into an iterator and its elements in turn are returned
+	 * in succession by the compound iterator.
+	 *
+	 * @param iterator
+	 */
+	public CompoundIterator(Iterator<? extends Object> iterator) {
 		this.iteratorIterator = iterator;
 	}
 
@@ -44,6 +52,11 @@ public class FlattenIterator<T> implements Iterator<T> {
 		return nxt;
 	}
 
+	/**
+	 * Remove is not supported by this iterator so calling this method
+	 * will always yield an exception.
+	 * @throws UnsupportedOperationException
+	 */
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}

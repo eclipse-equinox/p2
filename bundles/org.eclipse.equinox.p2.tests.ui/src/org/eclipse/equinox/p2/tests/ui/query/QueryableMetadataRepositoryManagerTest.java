@@ -193,7 +193,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		// null IUPropertyQuery collects all IUs
 		result = manager.query(new InstallableUnitQuery((String) null), getMonitor());
 		int iuCount = queryResultSize(result);
-		result = manager.query(new IUPropertyQuery(null, null), getMonitor());
+		result = manager.query(new IUPropertyQuery(null, IUPropertyQuery.ANY), getMonitor());
 		assertEquals("2.2", iuCount, queryResultSize(result));
 	}
 

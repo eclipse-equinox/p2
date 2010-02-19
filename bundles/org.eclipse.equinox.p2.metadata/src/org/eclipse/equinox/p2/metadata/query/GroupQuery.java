@@ -12,22 +12,16 @@ package org.eclipse.equinox.p2.metadata.query;
 
 import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.MatchQuery;
 
 /**
  * A query matching every {@link IInstallableUnit} that is a group. 
  * @since 2.0
  */
-public final class GroupQuery extends MatchQuery<IInstallableUnit> {
+public final class GroupQuery extends ExpressionQuery<IInstallableUnit> {
 	private static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
-	private IUPropertyQuery query;
 
 	public GroupQuery() {
-		query = new IUPropertyQuery(PROP_TYPE_GROUP, null);
-	}
-
-	public boolean isMatch(IInstallableUnit candidate) {
-		return query.isMatch(candidate);
+		super(IInstallableUnit.class, IUPropertyQuery.createMatchExpression(PROP_TYPE_GROUP, Boolean.TRUE.toString()));
 	}
 
 	/**

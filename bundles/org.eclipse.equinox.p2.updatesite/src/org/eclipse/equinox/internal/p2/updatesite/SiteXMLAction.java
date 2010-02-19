@@ -23,6 +23,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
@@ -125,13 +127,15 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		return Status.OK_STATUS;
 	}
 
+	private static final IExpression qualifierMatchExpr = ExpressionUtil.parse("id == $0 && version ~= $1"); //$NON-NLS-1$
+
 	private IInstallableUnit getFeatureIU(SiteFeature feature, IPublisherInfo publisherInfo, IPublisherResult results) {
 		String id = feature.getFeatureIdentifier() + ".feature.group"; //$NON-NLS-1$
 		String versionString = feature.getFeatureVersion();
 		Version version = versionString != null && versionString.length() > 0 ? Version.create(versionString) : Version.emptyVersion;
 		IQuery<IInstallableUnit> query = null;
 		if (version.equals(Version.emptyVersion)) {
-			query = new PipedQuery<IInstallableUnit>(new InstallableUnitQuery(id), new LatestIUVersionQuery<IInstallableUnit>());
+			query = new LatestIUVersionQuery<IInstallableUnit>(new InstallableUnitQuery(id));
 		} else {
 			String qualifier;
 			try {
@@ -140,18 +144,10 @@ public class SiteXMLAction extends AbstractPublisherAction {
 				qualifier = null;
 			}
 			if (qualifier != null && qualifier.endsWith(QUALIFIER)) {
-				final String v = versionString.substring(0, versionString.indexOf(QUALIFIER));
-				IQuery<IInstallableUnit> qualifierQuery = new InstallableUnitQuery(id) {
-					private String qualifierVersion = v.endsWith(".") ? v.substring(0, v.length() - 1) : v; //$NON-NLS-1$
-
-					public boolean isMatch(IInstallableUnit candidate) {
-						if (super.isMatch(candidate)) {
-							return candidate.getVersion().toString().startsWith(qualifierVersion);
-						}
-						return false;
-					}
-				};
-				query = new PipedQuery<IInstallableUnit>(qualifierQuery, new LatestIUVersionQuery<IInstallableUnit>());
+				String v = versionString.substring(0, versionString.indexOf(QUALIFIER));
+				String qualifierVersion = v.endsWith(".") ? v.substring(0, v.length() - 1) : v; //$NON-NLS-1$
+				IQuery<IInstallableUnit> qualifierQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, qualifierMatchExpr, id, SimplePattern.compile(qualifierVersion + '*'));
+				query = new LatestIUVersionQuery<IInstallableUnit>(qualifierQuery);
 			} else {
 				query = new LimitQuery<IInstallableUnit>(new InstallableUnitQuery(id, version), 1);
 			}

@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression.parser;
 
-import org.eclipse.equinox.internal.p2.metadata.expression.LDAPApproximation;
-
 import java.util.*;
+import org.eclipse.equinox.internal.p2.metadata.MetadataActivator;
 import org.eclipse.equinox.internal.p2.metadata.expression.IExpressionConstants;
+import org.eclipse.equinox.internal.p2.metadata.expression.LDAPApproximation;
 import org.eclipse.equinox.p2.metadata.expression.*;
 
 public class ExpressionParser extends Stack<IExpression> implements IExpressionConstants, IExpressionParser {
@@ -77,8 +77,8 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 	protected Object tokenValue;
 	protected String rootVariable;
 
-	public ExpressionParser(IExpressionFactory factory) {
-		this.factory = factory;
+	public ExpressionParser() {
+		factory = MetadataActivator.getExpressionFactory();
 	}
 
 	public synchronized IExpression parse(String exprString) {
@@ -97,6 +97,24 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 		} finally {
 			if (thisVariable != null)
 				popVariable(); // pop item
+		}
+	}
+
+	public synchronized IExpression parseQuery(String exprString) {
+		expression = exprString;
+		tokenPos = 0;
+		currentToken = 0;
+		tokenValue = null;
+		rootVariable = VARIABLE_EVERYTHING;
+		IExpression everythingVariable = factory.variable(VARIABLE_EVERYTHING);
+		push(everythingVariable);
+		try {
+			nextToken();
+			IExpression expr = parseCondition();
+			assertToken(TOKEN_END);
+			return expr;
+		} finally {
+			popVariable(); // pop context
 		}
 	}
 

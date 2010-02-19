@@ -43,7 +43,7 @@ public class QLMatchQuery<T> extends QLQuery<T> implements IMatchQuery<T> {
 	 * @param parameters Parameters to use for the query.
 	 */
 	public QLMatchQuery(Class<T> instanceClass, String expression, Object... parameters) {
-		this(instanceClass, QL.getFactory().<T> matchExpression(parser.parse(expression), parameters));
+		this(instanceClass, ExpressionUtil.getFactory().<T> matchExpression(ExpressionUtil.getParser().parse(expression), parameters));
 	}
 
 	/**

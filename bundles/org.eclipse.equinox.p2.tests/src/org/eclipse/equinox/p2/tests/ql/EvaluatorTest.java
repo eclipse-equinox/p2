@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.expression.IContextExpression;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
@@ -34,8 +35,8 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Filter;
 
 public class EvaluatorTest extends AbstractProvisioningTest {
-	private static final IQLParser parser = QL.newParser();
-	private static final IQLFactory factory = QL.getFactory();
+	private static final IExpressionParser parser = ExpressionUtil.getParser();
+	private static final IExpressionFactory factory = ExpressionUtil.getFactory();
 
 	public void testArguments() throws Exception {
 		IExpression expr = parser.parse("'a' == $0 && 'b' == $1 && 'c' == $2");
@@ -100,7 +101,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				"parent.requiredCapabilities.unique(requirementsCache).select(rc | rc.filter == null || $2 ~= filter(rc.filter)), _, " + //
 				"{rcs, child | rcs.exists(rc | child ~= rc)})}).limit(10)";
 
-		IContextExpression expr = factory.contextExpression(IInstallableUnit.class, parser.parseQuery(exprString));
+		IContextExpression expr = factory.contextExpression(parser.parseQuery(exprString));
 		System.out.println(expr.toString());
 		assertEquals(exprString, expr.toString());
 	}
@@ -114,12 +115,12 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		IExpression cmp2 = factory.equals(factory.at(factory.member(item, "properties"), factory.indexedParameter(1)), factory.indexedParameter(2));
 
 		IExpression lambda = factory.lambda(item, factory.and(cmp1, cmp2));
-		IExpression latest = factory.latest(factory.select(factory.variable("everything"), lambda));
+		IExpression latest = ((IQLFactory) factory).latest(((IQLFactory) factory).select(factory.variable("everything"), lambda));
 
 		// Create the query
-		IContextExpression e3 = factory.contextExpression(IInstallableUnit.class, latest, "test.bundle", "org.eclipse.equinox.p2.type.group", "true");
+		IContextExpression<IInstallableUnit> e3 = factory.contextExpression(latest, "test.bundle", "org.eclipse.equinox.p2.type.group", "true");
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		IQueryResult result = repo.query(new QLContextQuery(e3), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLContextQuery(IInstallableUnit.class, e3), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 1);
 	}
 
@@ -213,11 +214,11 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		env.put("osgi.ws", "gtk");
 		env.put("osgi.arch", "x86");
 
-		IContextExpression expr = factory.contextExpression(IInstallableUnit.class, parser.parseQuery("" + //
+		IContextExpression<IInstallableUnit> expr = factory.contextExpression(parser.parseQuery("" + //
 				"select(x | x.id == $0 && x.version == $1).traverse(capabilityIndex(everything), _, { index, parent |" + //
 				"index.satisfiesAny(parent.requiredCapabilities.select(rc | rc.filter == null || $2 ~= rc.filter))})"), "org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2"), env);
 
-		QLContextQuery query = new QLContextQuery(expr);
+		QLContextQuery query = new QLContextQuery(IInstallableUnit.class, expr);
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 		IQueryResult result = repo.query(query, new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 411);
@@ -235,7 +236,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		env.put("osgi.ws", "gtk");
 		env.put("osgi.arch", "x86");
 
-		IContextExpression expr = factory.contextExpression(IInstallableUnit.class, parser.parseQuery("" + //
+		IContextExpression<IInstallableUnit> expr = factory.contextExpression(parser.parseQuery("" + //
 				"select(x | x.id == $0 && x.version == $1).traverse(parent |" + //
 				"$5.satisfiesAny(parent.requiredCapabilities.select(rc | rc.filter == null || $4 ~= rc.filter))).intersect(" + //
 				"select(x | x.id == $2 && x.version == $3).traverse(parent |" + //
@@ -247,7 +248,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				env,//
 				index);
 
-		QLContextQuery query = new QLContextQuery(expr);
+		QLContextQuery query = new QLContextQuery(IInstallableUnit.class, expr);
 		IQueryResult result = repo.query(query, new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 184);
 	}
@@ -301,10 +302,10 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		IExpression everything = factory.variable("everything");
 		IExpression lambda = factory.lambda(item, cmp1);
 
-		IContextExpression e3 = factory.contextExpression(Object.class, factory.select(everything, lambda));
+		IContextExpression e3 = factory.contextExpression(((IQLFactory) factory).select(everything, lambda));
 
-		IContextExpression<Object> contextExpression = factory.contextExpression(Object.class, parser.parseQuery(e3.toString()), "ian bull");
-		QLContextQuery qlContextQuery = new QLContextQuery(contextExpression);
+		IContextExpression<Object> contextExpression = factory.contextExpression(parser.parseQuery(e3.toString()), "ian bull");
+		QLContextQuery qlContextQuery = new QLContextQuery(IInstallableUnit.class, contextExpression);
 		System.out.println(e3);
 
 		IQueryResult queryResult = qlContextQuery.perform(items.iterator());
@@ -317,7 +318,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testMatchQueryInjectionInContext() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		IContextExpression expr = factory.contextExpression(IInstallableUnit.class, parser.parseQuery("select(x | iquery($0, x) || iquery($1, x)).latest()"), new MatchQuery() {
+		IContextExpression<IInstallableUnit> expr = factory.contextExpression(parser.parseQuery("select(x | iquery($0, x) || iquery($1, x)).latest()"), new MatchQuery() {
 			@Override
 			public boolean isMatch(Object candidate) {
 				return "true".equals(((IInstallableUnit) candidate).getProperty("org.eclipse.equinox.p2.type.category"));
@@ -328,7 +329,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				return "true".equals(((IInstallableUnit) candidate).getProperty("org.eclipse.equinox.p2.type.group"));
 			}
 		});
-		IQueryResult result = repo.query(new QLContextQuery(expr), new NullProgressMonitor());
+		IQueryResult result = repo.query(new QLContextQuery(IInstallableUnit.class, expr), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 497);
 	}
 

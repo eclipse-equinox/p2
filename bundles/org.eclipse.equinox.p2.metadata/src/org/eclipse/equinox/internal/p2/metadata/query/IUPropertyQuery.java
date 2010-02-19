@@ -11,38 +11,39 @@
 package org.eclipse.equinox.internal.p2.metadata.query;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A query that searches for {@link IInstallableUnit} instances that have
  * a property whose value matches the provided value.  If no property name is 
  * specified, then all {@link IInstallableUnit} instances are accepted.
  */
-public class IUPropertyQuery extends MatchQuery<IInstallableUnit> {
-	private String propertyName;
-	private String propertyValue;
+public final class IUPropertyQuery extends ExpressionQuery<IInstallableUnit> {
+	public static final String ANY = "*"; //$NON-NLS-1$
+
+	private static final IExpression matchTrueExpression = ExpressionUtil.parse("properties[$0] == true"); //$NON-NLS-1$
+	private static final IExpression matchNullExpression = ExpressionUtil.parse("properties[$0] == null"); //$NON-NLS-1$
+	private static final IExpression matchAnyExpression = ExpressionUtil.parse("properties[$0] != null"); //$NON-NLS-1$
+	private static final IExpression matchValueExpression = ExpressionUtil.parse("properties[$0] == $1"); //$NON-NLS-1$
+
+	public static IMatchExpression<IInstallableUnit> createMatchExpression(String propertyName, String propertyValue) {
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		if (propertyName == null)
+			return MATCH_ALL_UNITS;
+		if (propertyValue == null)
+			return factory.<IInstallableUnit> matchExpression(matchNullExpression, propertyName);
+		if (ANY.equals(propertyValue))
+			return factory.<IInstallableUnit> matchExpression(matchAnyExpression, propertyName);
+		if (Boolean.valueOf(propertyValue).booleanValue())
+			return factory.<IInstallableUnit> matchExpression(matchTrueExpression, propertyName);
+		return factory.<IInstallableUnit> matchExpression(matchValueExpression, propertyName, propertyValue);
+	}
 
 	/**
 	 * Creates a new query on the given property name and value.
 	 */
 	public IUPropertyQuery(String propertyName, String propertyValue) {
-		this.propertyName = propertyName;
-		this.propertyValue = propertyValue;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query2.Query#isMatch(java.lang.Object)
-	 */
-	public boolean isMatch(IInstallableUnit candidate) {
-		if (propertyName == null)
-			return true;
-		String value = getProperty(candidate, propertyName);
-		if (value != null && (value.equals(propertyValue) || propertyValue == null))
-			return true;
-		return false;
-	}
-
-	protected String getProperty(IInstallableUnit iu, String name) {
-		return iu.getProperty(name);
+		super(IInstallableUnit.class, createMatchExpression(propertyName, propertyValue));
 	}
 }

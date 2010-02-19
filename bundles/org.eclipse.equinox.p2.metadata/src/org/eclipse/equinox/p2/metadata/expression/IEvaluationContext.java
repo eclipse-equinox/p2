@@ -10,12 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.expression;
 
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
+
 /**
  * The evaluation context. Contexts can be nested and new contexts are pushed for each closure
  * during an evaluation of an expression.
  * @since 2.0
  */
 public interface IEvaluationContext {
+	IIndexProvider<?> getIndexProvider();
+
+	void setIndexProvider(IIndexProvider<?> indexProvider);
+
 	/**
 	 * Retrieve the value of the given <code>variable</code> from this context
 	 * @param variable The variable who's value should be retrieved

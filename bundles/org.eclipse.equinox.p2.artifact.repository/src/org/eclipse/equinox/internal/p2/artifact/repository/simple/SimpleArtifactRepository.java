@@ -24,6 +24,8 @@ import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
@@ -31,6 +33,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.index.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -38,7 +41,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.util.NLS;
 
-public class SimpleArtifactRepository extends AbstractArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
+public class SimpleArtifactRepository extends AbstractArtifactRepository implements IArtifactRepository, IFileArtifactRepository, IIndexProvider<IArtifactKey> {
 	/** 
 	 * A boolean property controlling whether mirroring is enabled.
 	 */
@@ -204,9 +207,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	/**
 	 * Map<IArtifactKey,List<IArtifactDescriptor>> containing the index of artifacts in the repository.
 	 */
-	protected Map<IArtifactKey, List<IArtifactDescriptor>> artifactMap = new HashMap<IArtifactKey, List<IArtifactDescriptor>>();
+	protected final Map<IArtifactKey, List<IArtifactDescriptor>> artifactMap = new HashMap<IArtifactKey, List<IArtifactDescriptor>>();
 	private transient BlobStore blobStore;
 	transient private Mapper mapper = new Mapper();
+	private KeyIndex keyIndex;
 
 	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 
@@ -271,6 +275,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (descriptors == null) {
 			descriptors = new ArrayList<IArtifactDescriptor>();
 			artifactMap.put(key, descriptors);
+			keyIndex = null;
 		}
 		descriptors.add(descriptor);
 	}
@@ -282,8 +287,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			return;
 
 		descriptors.remove(descriptor);
-		if (descriptors.isEmpty())
+		if (descriptors.isEmpty()) {
 			artifactMap.remove(key);
+			keyIndex = null;
+		}
 	}
 
 	public SimpleArtifactRepository(IProvisioningAgent agent, String repositoryName, URI location, Map<String, String> properties) {
@@ -906,7 +913,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public void save() {
 		if (disableSave)
 			return;
-		boolean compress = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		boolean compress = "true".equalsIgnoreCase(properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
 		save(compress);
 	}
 
@@ -988,13 +995,17 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return new IQueryable<IArtifactDescriptor>() {
 
 			public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
-				return query.perform(new FlatteningIterator<IArtifactDescriptor>(descs.iterator()));
+				return query.perform(new CompoundIterator<IArtifactDescriptor>(descs.iterator()));
 			}
 		};
 	}
 
-	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
-		return query.perform(artifactMap.keySet().iterator());
+	public synchronized IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
+		return query instanceof IQueryWithIndex<?> ? ((IQueryWithIndex<IArtifactKey>) query).perform(this) : query.perform(artifactMap.keySet().iterator());
+	}
+
+	public Iterator<IArtifactKey> everything() {
+		return artifactMap.keySet().iterator();
 	}
 
 	public IStatus executeBatch(Runnable runnable) {
@@ -1020,5 +1031,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (result == null)
 			result = Status.OK_STATUS;
 		return result;
+	}
+
+	public synchronized IIndex<IArtifactKey> getIndex(String memberName) {
+		if (ArtifactKey.MEMBER_ID.equals(memberName)) {
+			if (keyIndex == null)
+				keyIndex = new KeyIndex(artifactMap.keySet());
+			return keyIndex;
+		}
+		return null;
 	}
 }

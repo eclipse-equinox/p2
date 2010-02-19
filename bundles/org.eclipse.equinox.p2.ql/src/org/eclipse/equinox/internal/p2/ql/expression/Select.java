@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
-import org.eclipse.equinox.internal.p2.ql.MatchIteratorFilter;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.ql.IQLExpression;
 

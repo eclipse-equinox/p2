@@ -387,7 +387,7 @@ public class Application implements IApplication {
 
 					IProfile profile = initializeProfile();
 					query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
-					roots = collectRootIUs(metadataRepositoryLocations, new PipedQuery<IInstallableUnit>(query, new LatestIUVersionQuery<IInstallableUnit>()));
+					roots = collectRootIUs(metadataRepositoryLocations, new LatestIUVersionQuery<IInstallableUnit>(query));
 					if (roots.isEmpty())
 						roots = profile.query(query, new NullProgressMonitor());
 					if (roots.isEmpty()) {

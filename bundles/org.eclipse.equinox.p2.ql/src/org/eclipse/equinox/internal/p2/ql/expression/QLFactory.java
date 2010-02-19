@@ -5,14 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.ql.IContextExpression;
 import org.eclipse.equinox.p2.ql.IQLFactory;
 
 public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConstants {
 	@SuppressWarnings("hiding")
 	public static final IQLFactory INSTANCE = new QLFactory();
-
-	public static final Variable EVERYTHING = new Variable(IExpressionConstants.VARIABLE_EVERYTHING);
 
 	public static final Variable TRANSLATIONS = new Variable(VARIABLE_TRANSLATIONS);
 
@@ -60,8 +57,8 @@ public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConst
 		return new Condition((Expression) test, (Expression) ifTrue, (Expression) ifFalse);
 	}
 
-	public <T> IContextExpression<T> contextExpression(Class<T> elementClass, IExpression expr, Object... parameters) {
-		return new ContextExpression<T>(elementClass, (Expression) expr, parameters);
+	public <T> org.eclipse.equinox.p2.metadata.expression.IContextExpression<T> contextExpression(IExpression expr, Object... parameters) {
+		return new ContextExpression<T>((Expression) expr, parameters);
 	}
 
 	public IExpression first(IExpression collection, IExpression lambda) {

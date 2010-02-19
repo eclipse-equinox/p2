@@ -20,12 +20,15 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.IUMap;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.index.CapabilityIndex;
+import org.eclipse.equinox.internal.p2.metadata.index.IdIndex;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.index.*;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -38,7 +41,7 @@ import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
  * location is a directory, this implementation will traverse the directory structure
  * and combine any metadata repository files that are found.
  */
-public class LocalMetadataRepository extends AbstractMetadataRepository {
+public class LocalMetadataRepository extends AbstractMetadataRepository implements IIndexProvider<IInstallableUnit> {
 
 	static final private String CONTENT_FILENAME = "content"; //$NON-NLS-1$
 	static final private String REPOSITORY_TYPE = LocalMetadataRepository.class.getName();
@@ -48,6 +51,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 
 	protected IUMap units = new IUMap();
 	protected HashSet<RepositoryReference> repositories = new HashSet<RepositoryReference>();
+	private IIndex<IInstallableUnit> idIndex;
+	private IIndex<IInstallableUnit> capabilityIndex;
 
 	private static File getActualLocation(URI location, String extension) {
 		File spec = URIUtil.toFile(location);
@@ -92,12 +97,28 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		if (installableUnits == null || installableUnits.length == 0)
 			return;
 		units.addAll(installableUnits);
+		capabilityIndex = null; // Generated, not backed by units
 		save();
 	}
 
 	public synchronized void addReference(URI repositoryLocation, String nickname, int repositoryType, int options) {
 		assertModifiable();
 		repositories.add(new RepositoryReference(repositoryLocation, nickname, repositoryType, options));
+	}
+
+	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
+		if (InstallableUnit.MEMBER_ID.equals(memberName)) {
+			if (idIndex == null)
+				idIndex = new IdIndex(units);
+			return idIndex;
+		}
+
+		if (InstallableUnit.MEMBER_PROVIDED_CAPABILITIES.equals(memberName)) {
+			if (capabilityIndex == null)
+				capabilityIndex = new CapabilityIndex(units.iterator());
+			return capabilityIndex;
+		}
+		return null;
 	}
 
 	public void initialize(RepositoryState state) {
@@ -146,13 +167,16 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public synchronized IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		if (query instanceof InstallableUnitQuery)
-			return units.query((InstallableUnitQuery) query);
-		return query.perform(units.iterator());
+		return query instanceof IQueryWithIndex<?> ? ((IQueryWithIndex<IInstallableUnit>) query).perform(this) : query.perform(units.iterator());
+	}
+
+	public Iterator<IInstallableUnit> everything() {
+		return units.iterator();
 	}
 
 	public synchronized void removeAll() {
 		units.clear();
+		capabilityIndex = null; // Generated, not backed by units.
 		save();
 	}
 
@@ -161,6 +185,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		if (installableUnits != null && installableUnits.length > 0) {
 			changed = true;
 			units.removeAll(Arrays.asList(installableUnits));
+			capabilityIndex = null; // Generated, not backed by units.
 		}
 		if (changed)
 			save();
@@ -219,4 +244,5 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 			manager.addRepository(this);
 		return oldValue;
 	}
+
 }

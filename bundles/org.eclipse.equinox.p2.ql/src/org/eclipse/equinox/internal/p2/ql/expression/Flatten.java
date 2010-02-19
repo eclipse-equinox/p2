@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql.expression;
 
+import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
+
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
-import org.eclipse.equinox.internal.p2.ql.FlattenIterator;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
 /**
@@ -25,7 +26,7 @@ final class Flatten extends UnaryCollectionFilter {
 	}
 
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
-		return new FlattenIterator<Object>(operand.evaluateAsIterator(context));
+		return new CompoundIterator<Object>(operand.evaluateAsIterator(context));
 	}
 
 	public int getExpressionType() {

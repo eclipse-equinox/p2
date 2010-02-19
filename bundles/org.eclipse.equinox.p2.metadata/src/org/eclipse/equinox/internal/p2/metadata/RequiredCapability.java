@@ -256,11 +256,19 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		return new VersionRange(v, expr == range_II_Expression || expr == range_IN_Expression, h, expr == range_II_Expression || expr == range_NI_Expression);
 	}
 
+	public static boolean isSimpleRequirement(IMatchExpression<IInstallableUnit> matchExpression) {
+		return isPredefined(ExpressionUtil.getOperand(matchExpression));
+	}
+
 	private static IExpression assertValid(IMatchExpression<IInstallableUnit> matchExpression) {
 		IExpression expr = ExpressionUtil.getOperand(matchExpression);
-		if (!(expr == allVersionsExpression || expr == range_II_Expression || expr == range_IN_Expression || expr == range_NI_Expression || expr == range_NN_Expression || expr == strictVersionExpression || expr == openEndedExpression || expr == openEndedNonInclusiveExpression))
+		if (!isPredefined(expr))
 			throw new IllegalArgumentException();
 		return expr;
+	}
+
+	private static boolean isPredefined(IExpression expr) {
+		return expr == allVersionsExpression || expr == range_II_Expression || expr == range_IN_Expression || expr == range_NI_Expression || expr == range_NN_Expression || expr == strictVersionExpression || expr == openEndedExpression || expr == openEndedNonInclusiveExpression;
 	}
 
 	public Object getMember(String memberName) {

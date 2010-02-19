@@ -18,8 +18,9 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata;
    org.eclipse.equinox.p2.director,
    org.eclipse.equinox.p2.director.app,
    org.eclipse.equinox.p2.installer",
- org.eclipse.equinox.internal.p2.metadata.expression;x-friends:="org.eclipse.equinox.p2.ql",
+ org.eclipse.equinox.internal.p2.metadata.expression;x-friends:="org.eclipse.equinox.p2.ql,org.eclipse.equinox.p2.artifact.repository,org.eclipse.equinox.p2.directorywatcher",
  org.eclipse.equinox.internal.p2.metadata.expression.parser;x-friends:="org.eclipse.equinox.p2.ql",
+ org.eclipse.equinox.internal.p2.metadata.index;x-friends:="org.eclipse.equinox.p2.director,org.eclipse.equinox.p2.metadata.repository,org.eclipse.equinox.p2.artifact.repository",
  org.eclipse.equinox.internal.p2.metadata.query;
   x-friends:="org.eclipse.equinox.p2.artifact.optimizers,
    org.eclipse.equinox.p2.artifact.processors,
@@ -89,6 +90,7 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata;
    org.eclipse.pde.core",
  org.eclipse.equinox.p2.metadata,
  org.eclipse.equinox.p2.metadata.expression,
+ org.eclipse.equinox.p2.metadata.index,
  org.eclipse.equinox.p2.metadata.query,
  org.eclipse.equinox.p2.query
 Import-Package: org.eclipse.osgi.service.localization;version="1.0.0",
@@ -102,3 +104,4 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5,
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.p2.core,
  org.eclipse.osgi;bundle-version="3.5.0"
+Service-Component: OSGI-INF/expressionFactory.xml, OSGI-INF/expressionParser.xml

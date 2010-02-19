@@ -10,16 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine.query;
 
-import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.MatchQuery;
 
 /**
  * A query that searches for {@link IInstallableUnit} instances that have
  * a property associated with the specified profile, whose value matches the provided value.
  * @since 2.0
  */
-public class IUProfilePropertyQuery extends IUPropertyQuery {
+public class IUProfilePropertyQuery extends MatchQuery<IInstallableUnit> {
+	public static final String ANY = "*"; //$NON-NLS-1$
+
+	private final String propertyName;
+	private final String propertyValue;
 	private IProfile profile;
 
 	/**
@@ -34,14 +38,19 @@ public class IUProfilePropertyQuery extends IUPropertyQuery {
 	 * Because the queryable for this query is typically the profile
 	 * instance, we use a reference to the profile rather than the
 	 * profile id for performance reasons.
+	 * @param propertyName The name of the property to match
+	 * @param propertyValue The value to compare to. A value of &quot;*&quot; means any value.
 	 */
 	public IUProfilePropertyQuery(String propertyName, String propertyValue) {
-		super(propertyName, propertyValue);
+		this.propertyName = propertyName;
+		this.propertyValue = propertyValue;
 	}
 
-	protected String getProperty(IInstallableUnit iu, String name) {
+	@Override
+	public boolean isMatch(IInstallableUnit candidate) {
 		if (profile == null)
-			return null;
-		return profile.getInstallableUnitProperty(iu, name);
+			return false;
+		String foundValue = profile.getInstallableUnitProperty(candidate, propertyName);
+		return foundValue == null ? propertyValue == null : (ANY.equals(propertyValue) || foundValue.equals(propertyValue));
 	}
 }

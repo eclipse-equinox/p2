@@ -12,22 +12,26 @@ package org.eclipse.equinox.p2.ql;
 
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.ql.expression.QLUtil;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
+import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
  * An IQuery 'context query' implementation that is based on the p2 query language.
  */
-public class QLContextQuery<T> extends QLQuery<T> {
+public class QLContextQuery<T> extends QLQuery<T> implements IQueryWithIndex<T> {
 	private final IContextExpression<T> expression;
+	private IIndexProvider indexProvider;
 
 	/**
 	 * Creates a new query instance with indexed parameters.
 	 * @param expression The expression to use for the query.
 	 */
-	public QLContextQuery(IContextExpression<T> expression) {
-		super(expression.getElementClass());
-		this.expression = expression;
+	public QLContextQuery(Class<T> elementClass, org.eclipse.equinox.p2.metadata.expression.IContextExpression<T> expression) {
+		super(elementClass);
+		this.expression = (IContextExpression<T>) expression;
 	}
 
 	/**
@@ -37,7 +41,14 @@ public class QLContextQuery<T> extends QLQuery<T> {
 	 * @param parameters Parameters to use for the query.
 	 */
 	public QLContextQuery(Class<T> elementClass, String expression, Object... parameters) {
-		this(QL.getFactory().contextExpression(elementClass, parser.parseQuery(expression), parameters));
+		this(elementClass, ExpressionUtil.getFactory().<T> contextExpression(ExpressionUtil.getParser().parseQuery(expression), parameters));
+	}
+
+	public IQueryResult<T> perform(IIndexProvider<T> idxProvider) {
+		indexProvider = idxProvider;
+
+		// TODO Fix so that we don't request everything here.
+		return new QueryResult<T>(evaluate(idxProvider.everything()));
 	}
 
 	public IQueryResult<T> perform(Iterator<T> iterator) {
@@ -48,9 +59,10 @@ public class QLContextQuery<T> extends QLQuery<T> {
 		IEvaluationContext ctx;
 		if (QLUtil.needsTranslationSupport(expression)) {
 			IQueryContext<T> queryContext = QL.newQueryContext(iterator);
-			ctx = expression.createContext(iterator, queryContext.getTranslationSupport(getLocale()));
+			ctx = expression.createContext(elementClass, iterator, queryContext.getTranslationSupport(getLocale()));
 		} else
-			ctx = expression.createContext(iterator);
+			ctx = expression.createContext(elementClass, iterator);
+		ctx.setIndexProvider(indexProvider);
 		Iterator<T> result = expression.iterator(ctx);
 		return result;
 	}
@@ -65,9 +77,14 @@ public class QLContextQuery<T> extends QLQuery<T> {
 		//
 		IEvaluationContext ctx;
 		if (QLUtil.needsTranslationSupport(expression))
-			ctx = expression.createContext(queryContext.iterator(), queryContext.getTranslationSupport(getLocale()));
+			ctx = expression.createContext(elementClass, queryContext.iterator(), queryContext.getTranslationSupport(getLocale()));
 		else
-			ctx = expression.createContext(queryContext.iterator());
+			ctx = expression.createContext(elementClass, queryContext.iterator());
+		ctx.setIndexProvider(indexProvider);
 		return expression.evaluate(ctx);
+	}
+
+	public void setIndexProvider(IIndexProvider indexProvider) {
+		this.indexProvider = indexProvider;
 	}
 }

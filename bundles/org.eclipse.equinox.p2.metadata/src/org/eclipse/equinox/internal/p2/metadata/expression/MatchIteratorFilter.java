@@ -1,30 +1,30 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009 - 2010 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
-package org.eclipse.equinox.internal.p2.artifact.repository;
-
-import java.util.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
- * An iterator over values that are provided by iterating over collections.
+ * An iterator filter using a boolean {@link #isMatch(Object)} method.
  */
-public class FlatteningIterator<T> implements Iterator<T> {
+public abstract class MatchIteratorFilter<T> implements Iterator<T> {
 	private static final Object NO_ELEMENT = new Object();
-	private final Iterator<? extends Collection<T>> collectionIterator;
-	private Iterator<T> currentIterator;
+
+	private final Iterator<? extends T> innerIterator;
 
 	private T nextObject = noElement();
 
-	public FlatteningIterator(Iterator<? extends Collection<T>> collectionIterator) {
-		this.collectionIterator = collectionIterator;
+	public MatchIteratorFilter(Iterator<? extends T> iterator) {
+		this.innerIterator = iterator;
 	}
 
 	public boolean hasNext() {
@@ -44,17 +44,24 @@ public class FlatteningIterator<T> implements Iterator<T> {
 		throw new UnsupportedOperationException();
 	}
 
+	protected Iterator<? extends T> getInnerIterator() {
+		return innerIterator;
+	}
+
+	protected abstract boolean isMatch(T val);
+
 	private boolean positionNext() {
 		if (nextObject != NO_ELEMENT)
 			return true;
 
-		while (currentIterator == null || !currentIterator.hasNext()) {
-			if (!collectionIterator.hasNext())
-				return false;
-			currentIterator = collectionIterator.next().iterator();
+		while (innerIterator.hasNext()) {
+			T nxt = innerIterator.next();
+			if (isMatch(nxt)) {
+				nextObject = nxt;
+				return true;
+			}
 		}
-		nextObject = currentIterator.next();
-		return true;
+		return false;
 	}
 
 	@SuppressWarnings("unchecked")

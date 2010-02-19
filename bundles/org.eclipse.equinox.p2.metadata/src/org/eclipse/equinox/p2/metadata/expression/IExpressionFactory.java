@@ -74,6 +74,14 @@ public interface IExpressionFactory {
 	IExpression constant(Object value);
 
 	/**
+	 * Creates a top level expression that represents a full query.
+	 * @param expr The query
+	 * @param parameters The parameters of the query
+	 * @return A top level query expression
+	 */
+	<T> IContextExpression<T> contextExpression(IExpression expr, Object... parameters);
+
+	/**
 	 * Create an expression that tests if <code>lhs</code> is equal to <code>rhs</code>.
 	 * @param lhs The left hand side value.
 	 * @param rhs The right hand side value.

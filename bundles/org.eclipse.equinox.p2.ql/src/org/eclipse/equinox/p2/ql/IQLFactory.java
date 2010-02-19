@@ -55,15 +55,6 @@ public interface IQLFactory extends IExpressionFactory {
 	IExpression condition(IExpression test, IExpression ifTrue, IExpression ifFalse);
 
 	/**
-	 * Creates a top level expression that represents a full query.
-	 * @param elementClass The element class of the queried material
-	 * @param expr The query
-	 * @param parameters The parameters of the query
-	 * @return A top level query expression
-	 */
-	<T> IContextExpression<T> contextExpression(Class<T> elementClass, IExpression expr, Object... parameters);
-
-	/**
 	 * Create an expression that yields the first element of the
 	 * <code>collection</code> for which the <code>lambda</code> yields <code>true</code>.
 	 * @param collection The collection providing the elements to test

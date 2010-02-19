@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.expression;
 
+import org.eclipse.equinox.internal.p2.metadata.MetadataActivator;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
-import org.eclipse.equinox.internal.p2.metadata.expression.parser.ExpressionParser;
 import org.eclipse.equinox.internal.p2.metadata.expression.parser.LDAPFilterParser;
 
 /**
@@ -20,22 +20,23 @@ import org.eclipse.equinox.internal.p2.metadata.expression.parser.LDAPFilterPars
  */
 public abstract class ExpressionUtil {
 	private static final LDAPFilterParser ldapFilterParser = new LDAPFilterParser(ExpressionFactory.INSTANCE);
-	private static final ExpressionParser expressionParser = new ExpressionParser(ExpressionFactory.INSTANCE);
+	public static final IExpression TRUE_EXPRESSION = getFactory().constant(Boolean.TRUE);
+	public static final IExpression FALSE_EXPRESSION = getFactory().constant(Boolean.FALSE);
 
 	/**
 	 * Returns the global expression factory
 	 * @return The global expression factory.
 	 */
 	public static IExpressionFactory getFactory() {
-		return ExpressionFactory.INSTANCE;
+		return MetadataActivator.getExpressionFactory();
 	}
 
 	/**
 	 * Creates and returns a new expression parser
 	 * @return The new parser
 	 */
-	public static IExpressionParser newParser() {
-		return new ExpressionParser(getFactory());
+	public static IExpressionParser getParser() {
+		return MetadataActivator.getExpressionParser();
 	}
 
 	/**
@@ -59,7 +60,7 @@ public abstract class ExpressionUtil {
 	 */
 	public static IExpression parse(String expression) {
 		expression = trimmedOrNull(expression);
-		return expression == null ? null : expressionParser.parse(expression);
+		return expression == null ? null : getParser().parse(expression);
 	}
 
 	/**

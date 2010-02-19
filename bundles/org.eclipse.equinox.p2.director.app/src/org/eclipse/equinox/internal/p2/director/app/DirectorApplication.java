@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -33,6 +31,7 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -255,7 +254,7 @@ public class DirectorApplication implements IApplication {
 			IQuery<IInstallableUnit> query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
 			IQueryResult<IInstallableUnit> roots = null;
 			if (forInstall)
-				roots = collectRootIUs(new PipedQuery<IInstallableUnit>(query, new LatestIUVersionQuery<IInstallableUnit>()));
+				roots = collectRootIUs(new LatestIUVersionQuery<IInstallableUnit>(query));
 
 			if (roots == null || roots.isEmpty())
 				roots = profile.query(query, new NullProgressMonitor());

@@ -6,15 +6,12 @@ import org.eclipse.equinox.p2.metadata.expression.*;
 public class ExpressionFactory implements IExpressionFactory, IExpressionConstants {
 	public static final IExpressionFactory INSTANCE = new ExpressionFactory();
 	public static final Variable THIS = new Variable(VARIABLE_THIS);
+	public static final Variable EVERYTHING = new Variable(VARIABLE_EVERYTHING);
 
 	protected static Expression[] convertArray(IExpression[] operands) {
 		Expression[] ops = new Expression[operands.length];
 		System.arraycopy(operands, 0, ops, 0, operands.length);
 		return ops;
-	}
-
-	protected ExpressionFactory() {
-		// Maintain singleton
 	}
 
 	public IExpression all(IExpression collection, IExpression lambda) {
@@ -48,6 +45,10 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 
 	public IEvaluationContext createContext(IExpression[] variables, Object... parameters) {
 		return EvaluationContext.create(parameters, variables);
+	}
+
+	public <T> IContextExpression<T> contextExpression(IExpression expr, Object... parameters) {
+		return new ContextExpression<T>((Expression) expr, parameters);
 	}
 
 	public IFilterExpression filterExpression(IExpression expression) {

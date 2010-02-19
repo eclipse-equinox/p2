@@ -10,26 +10,39 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.query;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IVersionedId;
-import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.*;
 
 /**
  * A query that matches on the id and version of an {@link IInstallableUnit}.
  * @since 2.0
  */
-public class InstallableUnitQuery extends MatchQuery<IInstallableUnit> {
+public final class InstallableUnitQuery extends ExpressionQuery<IInstallableUnit> {
 	/**
 	 * A convenience query that will match any {@link IInstallableUnit}
 	 * it encounters.
 	 */
 	public static final InstallableUnitQuery ANY = new InstallableUnitQuery((String) null);
 
-	private String id;
-	private final VersionRange range;
+	private static final IExpression matchID = ExpressionUtil.parse("id == $0"); //$NON-NLS-1$
+	private static final IExpression matchIDAndVersion = ExpressionUtil.parse("id == $0 && version == $1"); //$NON-NLS-1$
+	private static final IExpression matchIDAndRange = ExpressionUtil.parse("id == $0 && version ~= $1"); //$NON-NLS-1$
+
+	private static IMatchExpression<IInstallableUnit> createMatchExpression(String id) {
+		return id == null ? ExpressionQuery.MATCH_ALL_UNITS : ExpressionUtil.getFactory().<IInstallableUnit> matchExpression(matchID, id);
+	}
+
+	private static IMatchExpression<IInstallableUnit> createMatchExpression(String id, VersionRange range) {
+		if (range == null || range.equals(VersionRange.emptyRange))
+			return createMatchExpression(id);
+		if (range.getMinimum().equals(range.getMaximum()))
+			return createMatchExpression(id, range.getMinimum());
+		return id == null ? ExpressionQuery.MATCH_ALL_UNITS : ExpressionUtil.getFactory().<IInstallableUnit> matchExpression(matchIDAndRange, id, range);
+	}
+
+	private static IMatchExpression<IInstallableUnit> createMatchExpression(String id, Version version) {
+		return version == null || version.equals(Version.emptyVersion) ? createMatchExpression(id) : ExpressionUtil.getFactory().<IInstallableUnit> matchExpression(matchIDAndVersion, id, version);
+	}
 
 	/**
 	 * Creates a query that will match any {@link IInstallableUnit} with the given
@@ -38,8 +51,7 @@ public class InstallableUnitQuery extends MatchQuery<IInstallableUnit> {
 	 * @param id The installable unit id to match, or <code>null</code> to match any id
 	 */
 	public InstallableUnitQuery(String id) {
-		this.id = id;
-		this.range = null;
+		super(IInstallableUnit.class, createMatchExpression(id));
 	}
 
 	/**
@@ -50,8 +62,7 @@ public class InstallableUnitQuery extends MatchQuery<IInstallableUnit> {
 	 * @param range The version range to match
 	 */
 	public InstallableUnitQuery(String id, VersionRange range) {
-		this.id = id;
-		this.range = range;
+		super(IInstallableUnit.class, createMatchExpression(id, range));
 	}
 
 	/**
@@ -62,8 +73,7 @@ public class InstallableUnitQuery extends MatchQuery<IInstallableUnit> {
 	 * @param version The precise version that a matching unit must have
 	 */
 	public InstallableUnitQuery(String id, Version version) {
-		this.id = id;
-		this.range = (version == null || Version.emptyVersion.equals(version)) ? null : new VersionRange(version, true, version, true);
+		super(IInstallableUnit.class, createMatchExpression(id, version));
 	}
 
 	/**
@@ -81,26 +91,7 @@ public class InstallableUnitQuery extends MatchQuery<IInstallableUnit> {
 	 * @return The installable unit it
 	 */
 	public String getId() {
-		return id;
+		Object[] params = getExpression().getParameters();
+		return params.length > 0 ? (String) params[0] : null;
 	}
-
-	/**
-	 * Returns the version range that this query will match against.
-	 * @return The installable unit version range.
-	 */
-	public VersionRange getRange() {
-		return range;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query2.Query#isMatch(java.lang.Object)
-	 */
-	public boolean isMatch(IInstallableUnit candidate) {
-		if (id != null && !id.equals(candidate.getId()))
-			return false;
-		if (range != null && !range.isIncluded(candidate.getVersion()))
-			return false;
-		return true;
-	}
-
 }

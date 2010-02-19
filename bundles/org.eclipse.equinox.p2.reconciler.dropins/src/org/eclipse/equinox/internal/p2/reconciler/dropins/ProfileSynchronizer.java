@@ -327,7 +327,7 @@ public class ProfileSynchronizer {
 		}
 
 		// get all IUs from profile with marked property (existing)
-		IQueryResult<IInstallableUnit> dropinIUs = profile.query(new IUProfilePropertyQuery(PROP_FROM_DROPINS, Boolean.toString(true)), null);
+		IQueryResult<IInstallableUnit> dropinIUs = profile.query(new IUProfilePropertyQuery(PROP_FROM_DROPINS, Boolean.TRUE.toString()), null);
 		Set<IInstallableUnit> all = allIUs.unmodifiableSet();
 		for (Iterator<IInstallableUnit> iter = dropinIUs.iterator(); iter.hasNext();) {
 			IInstallableUnit iu = iter.next();

@@ -12,22 +12,16 @@ package org.eclipse.equinox.p2.metadata.query;
 
 import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.MatchQuery;
 
 /**
  * A query matching every {@link IInstallableUnit} that is a patch. 
  * @since 2.0
  */
-public final class PatchQuery extends MatchQuery<IInstallableUnit> {
+public final class PatchQuery extends ExpressionQuery<IInstallableUnit> {
 	private static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
-	private IUPropertyQuery query;
 
 	public PatchQuery() {
-		query = new IUPropertyQuery(PROP_TYPE_PATCH, Boolean.TRUE.toString());
-	}
-
-	public boolean isMatch(IInstallableUnit candidate) {
-		return query.isMatch(candidate);
+		super(IInstallableUnit.class, IUPropertyQuery.createMatchExpression(PROP_TYPE_PATCH, Boolean.TRUE.toString()));
 	}
 
 	/**

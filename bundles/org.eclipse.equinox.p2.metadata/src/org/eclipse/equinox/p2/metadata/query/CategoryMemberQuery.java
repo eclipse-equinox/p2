@@ -10,11 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.query;
 
-import java.util.Collection;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.expression.*;
 
 /**
  * A query matching every {@link IInstallableUnit} that is a member
@@ -22,8 +19,13 @@ import org.eclipse.equinox.p2.query.MatchQuery;
  * 
  * @since 2.0 
  */
-public class CategoryMemberQuery extends MatchQuery<IInstallableUnit> {
-	private final Collection<IRequirement> required;
+public final class CategoryMemberQuery extends ExpressionQuery<IInstallableUnit> {
+	private static final IExpression expression = ExpressionUtil.parse("$0.exists(r | $0 ~= this"); //$NON-NLS-1$
+
+	private static IMatchExpression<IInstallableUnit> createExpression(IInstallableUnit category) {
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		return CategoryQuery.isCategory(category) ? factory.<IInstallableUnit> matchExpression(expression, category.getRequiredCapabilities()) : MATCH_NO_UNIT;
+	}
 
 	/**
 	 * Creates a new query that will return the members of the
@@ -33,23 +35,6 @@ public class CategoryMemberQuery extends MatchQuery<IInstallableUnit> {
 	 * @param category The category
 	 */
 	public CategoryMemberQuery(IInstallableUnit category) {
-		if (CategoryQuery.isCategory(category))
-			this.required = category.getRequiredCapabilities();
-		else
-			this.required = CollectionUtils.emptyList();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery#isMatch(java.lang.Object)
-	 */
-	public boolean isMatch(IInstallableUnit candidate) {
-		// since a category lists its members as requirements, then meeting
-		// any requirement means the candidate is a member of the category.
-		for (IRequirement req : required) {
-			if (candidate.satisfies(req))
-				return true;
-		}
-		return false;
+		super(IInstallableUnit.class, createExpression(category));
 	}
 }

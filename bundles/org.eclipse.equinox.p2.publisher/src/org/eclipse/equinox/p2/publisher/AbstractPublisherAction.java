@@ -495,8 +495,10 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	protected IInstallableUnit queryForIU(IPublisherResult publisherResult, String iuId, Version version) {
 		IQuery<IInstallableUnit> query = new InstallableUnitQuery(iuId, version);
-		IQueryResult<IInstallableUnit> collector = Collector.emptyCollector();
+		if (version == null || Version.emptyVersion.equals(version))
+			query = new LatestIUVersionQuery<IInstallableUnit>(query);
 
+		IQueryResult<IInstallableUnit> collector = Collector.emptyCollector();
 		NullProgressMonitor progress = new NullProgressMonitor();
 		if (publisherResult != null)
 			collector = publisherResult.query(query, progress);
@@ -504,11 +506,6 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			collector = info.getMetadataRepository().query(query, progress);
 		if (collector.isEmpty() && info.getContextMetadataRepository() != null)
 			collector = info.getContextMetadataRepository().query(query, progress);
-
-		if (version == null || Version.emptyVersion.equals(version)) {
-			query = new LatestIUVersionQuery<IInstallableUnit>();
-			collector = collector.query(query, null);
-		}
 		if (!collector.isEmpty())
 			return collector.iterator().next();
 		return null;

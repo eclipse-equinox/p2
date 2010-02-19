@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Cloudsmith Inc. and others.
+ * Copyright (c) 2010 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,15 +8,12 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.metadata.query;
+package org.eclipse.equinox.p2.metadata.index;
 
-import org.eclipse.equinox.p2.query.MatchQuery;
+import java.util.Iterator;
 
-/**
- * Special implementation for use without generic support
- */
-public abstract class ObjectMatchQuery extends MatchQuery<Object> {
-	public boolean isMatch(Object candidate) {
-		return true;
-	}
+public interface IIndexProvider<T> {
+	IIndex<T> getIndex(String memberName);
+
+	Iterator<T> everything();
 }
