@@ -184,7 +184,6 @@ public class ProvUIMessages extends NLS {
 	public static String AvailableIUsPage_Title;
 	public static String AvailableIUWrapper_AllAreInstalled;
 	public static String IUViewQueryContext_AllAreInstalledDescription;
-	public static String DeferredFetchFilteredTree_RetrievingList;
 	public static String ElementUtils_UpdateJobTitle;
 	public static String Label_Profiles;
 	public static String Label_Repositories;
@@ -214,9 +213,7 @@ public class ProvUIMessages extends NLS {
 	public static String QueriedElementWrapper_NoItemsExplanation;
 	public static String QueriedElementWrapper_SiteNotFound;
 	public static String QueryableMetadataRepositoryManager_LoadRepositoryProgress;
-	public static String QueryableMetadataRepositoryManager_MultipleRepositoriesNotFound;
 	public static String QueryableProfileRegistry_QueryProfileProgress;
-	public static String QueryableRepositoryManager_LoadFailure;
 	public static String QueryableUpdates_UpdateListProgress;
 	public static String SizeComputingWizardPage_SizeJobTitle;
 	public static String RevertDialog_ConfigContentsLabel;

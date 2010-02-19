@@ -33,12 +33,9 @@ public class ProvSDKMessages extends NLS {
 	public static String ProvisioningPreferencePage_OpenWizardIfInvalid;
 	public static String ProvisioningPreferencePage_PromptToOpenWizard;
 	public static String ProvSDKUIActivator_ErrorSavingPrefs;
-	public static String ProvSDKUIActivator_ErrorWritingLicenseRegistry;
-	public static String ProvSDKUIActivator_LicenseManagerReadError;
 	public static String ProvSDKUIActivator_NoSelfProfile;
 	public static String ProvSDKUIActivator_OpenWizardAnyway;
 	public static String ProvSDKUIActivator_Question;
-	public static String ProvUILicenseManager_ParsingError;
 	public static String SDKPolicy_PrefPageName;
 	public static String UpdateHandler_NoSitesMessage;
 	public static String UpdateHandler_NoSitesTitle;
