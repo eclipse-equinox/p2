@@ -13,6 +13,9 @@ package org.eclipse.equinox.p2.metadata.index;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
+/**
+ * @since 2.0
+ */
 public interface IQueryWithIndex<T> extends IQuery<T> {
 	IQueryResult<T> perform(IIndexProvider<T> indexProvider);
 }

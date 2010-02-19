@@ -15,6 +15,7 @@ import java.util.Iterator;
 /**
  * This is an expression that will need access to the global variable
  * <code>everything</code>.
+ * @since 2.0
  */
 public interface IContextExpression<T> extends IExpression {
 	/**

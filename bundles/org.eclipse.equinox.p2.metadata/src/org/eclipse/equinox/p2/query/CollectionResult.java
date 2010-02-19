@@ -15,6 +15,9 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 
+/**
+ * @since 2.0
+ */
 public class CollectionResult<T> implements IQueryResult<T> {
 	private final Collection<T> collection;
 

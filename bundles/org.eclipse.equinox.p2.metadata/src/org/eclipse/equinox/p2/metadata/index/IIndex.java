@@ -16,6 +16,7 @@ import org.eclipse.equinox.p2.metadata.expression.IExpression;
 
 /**
  * Indexed access to the elements provided by an IQueryable
+ * @since 2.0
  */
 public interface IIndex<T> {
 	/**
