@@ -42,13 +42,6 @@ public class Activator extends AbstractUIPlugin {
 		
 		packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class.getName());
 		packageAdmin = (PackageAdmin) bundleContext.getService(packageAdminRef);
-
-		// XXX start up the p2 infrastructure.  Normally the p2 UI does
-		// this, but we are running without UI.
-		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-
 	}
 	
 	private static Bundle getBundle(String symbolicName) {
