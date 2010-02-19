@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.metadata.expression.*;
  * @since 2.0 
  */
 public final class CategoryMemberQuery extends ExpressionQuery<IInstallableUnit> {
-	private static final IExpression expression = ExpressionUtil.parse("$0.exists(r | $0 ~= this"); //$NON-NLS-1$
+	private static final IExpression expression = ExpressionUtil.parse("$0.exists(r | this ~= r)"); //$NON-NLS-1$
 
 	private static IMatchExpression<IInstallableUnit> createExpression(IInstallableUnit category) {
 		IExpressionFactory factory = ExpressionUtil.getFactory();
