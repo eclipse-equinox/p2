@@ -34,7 +34,6 @@ public class Messages extends NLS {
 
 	public static String no_artifactRepo_manager;
 	public static String no_metadataRepo_manager;
-	public static String no_package_admin;
 	public static String no_profile_registry;
 	public static String no_provisioning_agent;
 	public static String unable_to_process_uri;
@@ -51,14 +50,12 @@ public class Messages extends NLS {
 	public static String SlicingOption_invalid_platform;
 	public static String exception_invalidDestination;
 	public static String exception_invalidSource;
-	public static String CompositeRepositoryApplication_failedComparator;
 	public static String Repo2RunnableTask_errorTransforming;
 	public static String SlicingOption_invalidFilterFormat;
 
 	public static String skippingInvalidFilter;
 
 	public static String message_mirroringStatus;
-	public static String Mirroring_compareAndDownload;
 	public static String mirror_alreadyExists;
 	public static String Mirroring_noMatchingDescriptor;
 	public static String Mirroring_ValidationError;

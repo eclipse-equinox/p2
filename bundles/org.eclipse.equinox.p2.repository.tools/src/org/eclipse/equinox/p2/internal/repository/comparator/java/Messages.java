@@ -18,7 +18,6 @@ public class Messages extends NLS {
 	public static String binaryDifferentLength;
 	public static String classesDifferent;
 	public static String propertiesSizesDifferent;
-	public static String differentPropertyValueShort;
 	public static String differentPropertyValueFull;
 	public static String missingProperty;
 	public static String manifestDifferentSize;

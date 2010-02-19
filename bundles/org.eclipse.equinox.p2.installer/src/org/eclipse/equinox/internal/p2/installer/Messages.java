@@ -50,7 +50,6 @@ public class Messages extends NLS {
 	public static String Op_Installing;
 	public static String Op_IUNotFound;
 	public static String Op_NoId;
-	public static String Op_NoService;
 	public static String Op_NoServiceImpl;
 	public static String Op_Preparing;
 	public static String Op_UpdateComplete;

@@ -19,8 +19,6 @@ public class Messages extends NLS {
 	public static String Error_invalid_hash;
 	public static String Error_MD5_unavailable;
 	public static String Error_unexpected_hash;
-	public static String info_noMD5Infomation;
-	public static String info_noMD5InRepository;
 	public static String warning_differentMD5;
 
 	static {

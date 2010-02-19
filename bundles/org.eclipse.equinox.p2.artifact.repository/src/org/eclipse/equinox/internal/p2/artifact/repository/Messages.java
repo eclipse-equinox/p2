@@ -40,24 +40,13 @@ public class Messages extends NLS {
 	public static String sar_reportStatus;
 
 	public static String mirror_alreadyExists;
-	public static String message_mirroringStatus;
 	public static String message_childrenRepos;
 	public static String exception_comparatorNotFound;
 	public static String exception_noComparators;
-	public static String exception_destinationNotModifiable;
-	public static String exception_needSourceDestination;
-	public static String exception_malformedRepoURI;
 	public static String exception_unsupportedAddToComposite;
 
 	public static String exception_unsupportedGetOutputStream;
 	public static String exception_unsupportedRemoveFromComposite;
-
-	public static String Mirroring_NO_MATCHING_DESCRIPTOR;
-	public static String Mirroring_MISSING_DESCRIPTOR;
-	public static String Mirroring_DIFFERENT_DESCRIPTOR_PROPERTY;
-
-	public static String Mirroring_ValidationError;
-	public static String Mirroring_compareAndDownload;
 
 	public static String MirrorLog_Console_Log;
 	public static String MirrorLog_Exception_Occurred;
