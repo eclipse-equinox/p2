@@ -29,6 +29,8 @@ import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
+import org.eclipse.equinox.p2.ql.QLContextQuery;
+import org.eclipse.equinox.p2.ql.QLMatchQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -103,7 +105,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	}
 
 	private IStatus generateCategories(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
-		Map<SiteCategory, Set<IInstallableUnit>> categoriesToFeatureIUs = new HashMap<SiteCategory, Set<IInstallableUnit>>();
+		Map<SiteCategory, Set<IInstallableUnit>> categoriesToIUs = new HashMap<SiteCategory, Set<IInstallableUnit>>();
 		Map<SiteFeature, Set<SiteCategory>> featuresToCategories = getFeatureToCategoryMappings(publisherInfo);
 		for (SiteFeature feature : featuresToCategories.keySet()) {
 			if (monitor.isCanceled())
@@ -116,16 +118,72 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			if (categories == null || categories.isEmpty())
 				categories = defaultCategorySet;
 			for (SiteCategory category : categories) {
-				Set<IInstallableUnit> featureIUs = categoriesToFeatureIUs.get(category);
+				Set<IInstallableUnit> featureIUs = categoriesToIUs.get(category);
 				if (featureIUs == null) {
 					featureIUs = new HashSet<IInstallableUnit>();
-					categoriesToFeatureIUs.put(category, featureIUs);
+					categoriesToIUs.put(category, featureIUs);
 				}
 				featureIUs.add(iu);
 			}
 		}
-		generateCategoryIUs(categoriesToFeatureIUs, results);
+		addSiteIUsToCategories(categoriesToIUs, publisherInfo, results);
+		generateCategoryIUs(categoriesToIUs, results);
 		return Status.OK_STATUS;
+	}
+
+	private void addSiteIUsToCategories(Map<SiteCategory, Set<IInstallableUnit>> categoriesToIUs, IPublisherInfo publisherInfo, IPublisherResult results) {
+		if (updateSite == null)
+			return;
+		SiteModel site = updateSite.getSite();
+		if (site == null)
+			return;
+		SiteIU[] siteIUs = site.getIUs();
+		for (SiteIU siteIU : siteIUs) {
+			String[] categoryNames = siteIU.getCategoryNames();
+			if (categoryNames.length == 0)
+				continue;
+			Collection<IInstallableUnit> ius = getIUs(siteIU, publisherInfo, results);
+			if (ius.size() == 0)
+				continue;
+			for (String categoryName : categoryNames) {
+				SiteCategory category = site.getCategory(categoryName);
+				if (category == null)
+					continue;
+				Set<IInstallableUnit> categoryIUs = categoriesToIUs.get(category);
+				if (categoryIUs == null) {
+					categoryIUs = new HashSet<IInstallableUnit>();
+					categoriesToIUs.put(category, categoryIUs);
+				}
+				categoryIUs.addAll(ius);
+			}
+		}
+	}
+
+	private Collection<IInstallableUnit> getIUs(SiteIU siteIU, IPublisherInfo publisherInfo, IPublisherResult results) {
+		String id = siteIU.getID();
+		String range = siteIU.getRange();
+		String type = siteIU.getQueryType();
+		String expression = siteIU.getQueryExpression();
+		Object[] params = siteIU.getQueryParams();
+		if (id == null && (type == null || expression == null))
+			return CollectionUtils.emptyList();
+		IQuery<IInstallableUnit> query = null;
+		if (id != null) {
+			VersionRange vRange = new VersionRange(range);
+			query = new InstallableUnitQuery(id, vRange);
+		} else if (type.equals("context")) { //$NON-NLS-1$
+			query = new QLContextQuery<IInstallableUnit>(IInstallableUnit.class, expression, params);
+		} else if (type.equals("match")) //$NON-NLS-1$
+			query = new QLMatchQuery<IInstallableUnit>(IInstallableUnit.class, expression, params);
+		if (query == null)
+			return CollectionUtils.emptyList();
+		IQueryResult<IInstallableUnit> queryResult = results.query(query, null);
+		if (queryResult.isEmpty())
+			queryResult = publisherInfo.getMetadataRepository().query(query, null);
+		if (queryResult.isEmpty() && publisherInfo.getContextMetadataRepository() != null)
+			queryResult = publisherInfo.getContextMetadataRepository().query(query, null);
+
+		return queryResult.toSet();
 	}
 
 	private static final IExpression qualifierMatchExpr = ExpressionUtil.parse("id == $0 && version ~= $1"); //$NON-NLS-1$

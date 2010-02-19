@@ -32,6 +32,7 @@ public class SiteModel {
 	 * Map of String (feature id) -> SiteFeature
 	 */
 	private List<SiteFeature> features;
+	private List<SiteIU> ius;
 	private URI locationURI;
 	private String locationURIString;
 	private String mirrorsURIString;
@@ -92,6 +93,17 @@ public class SiteModel {
 	}
 
 	/**
+	 * Adds a iu model to site.
+	 * 
+	 * @param iu iu model
+	 */
+	public void addIU(SiteIU iu) {
+		if (this.ius == null)
+			this.ius = new ArrayList<SiteIU>();
+		this.ius.add(iu);
+	}
+
+	/**
 	 * Returns an array of plug-in and non-plug-in archive reference models
 	 * on this site
 	 * 
@@ -148,6 +160,17 @@ public class SiteModel {
 		if (features == null || features.size() == 0)
 			return new SiteFeature[0];
 		return features.toArray(new SiteFeature[0]);
+	}
+
+	/**
+	 * Returns an array of IU models on this site.
+	 * 
+	 * @return an array of IU models, or an empty array.
+	 */
+	public SiteIU[] getIUs() {
+		if (ius == null || ius.size() == 0)
+			return new SiteIU[0];
+		return ius.toArray(new SiteIU[0]);
 	}
 
 	/**

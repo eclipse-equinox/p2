@@ -49,6 +49,8 @@ public class UpdateSite {
 	 */
 	// map of String (URI.toString()) to UpdateSite
 	private static Map<String, UpdateSite> siteCache = new HashMap<String, UpdateSite>();
+	// map of String (URI.toString()) to UpdateSite (for category xmls)
+	private static Map<String, UpdateSite> categoryCache = new HashMap<String, UpdateSite>();
 	// map of String (featureID_featureVersion) to Feature
 	private Map<String, Feature> featureCache = new HashMap<String, Feature>();
 
@@ -79,19 +81,19 @@ public class UpdateSite {
 	public static synchronized UpdateSite loadCategoryFile(URI location, IProgressMonitor monitor) throws ProvisionException {
 		if (location == null)
 			return null;
-		UpdateSite result = siteCache.get(location.toString());
+		UpdateSite result = categoryCache.get(location.toString());
 		if (result != null)
 			return result;
 		InputStream input = null;
 		File siteFile = loadActualSiteFile(location, location, monitor);
 		try {
-			DefaultSiteParser siteParser = new DefaultSiteParser(location);
+			CategoryParser siteParser = new CategoryParser(location);
 			Checksum checksum = new CRC32();
 			input = new CheckedInputStream(new BufferedInputStream(new FileInputStream(siteFile)), checksum);
 			SiteModel siteModel = siteParser.parse(input);
 			String checksumString = Long.toString(checksum.getValue());
 			result = new UpdateSite(siteModel, location, checksumString);
-			siteCache.put(location.toString(), result);
+			categoryCache.put(location.toString(), result);
 			return result;
 		} catch (SAXException e) {
 			String msg = NLS.bind(Messages.ErrorReadingSite, location);
