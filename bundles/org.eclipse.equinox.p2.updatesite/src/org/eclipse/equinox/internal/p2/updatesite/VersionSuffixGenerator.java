@@ -25,7 +25,27 @@ public class VersionSuffixGenerator {
 	private static final int QUALIFIER_SUFFIX_VERSION = 1;
 
 	// The 64 characters that are legal in a version qualifier, in lexicographical order.
-	private static final String BASE_64_ENCODING = "-0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; //$NON-NLS-1$
+	public static final String BASE_64_ENCODING = "-0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; //$NON-NLS-1$
+
+	public static String incrementQualifier(String qualifier) {
+		int idx = qualifier.length() - 1;
+
+		for (; idx >= 0; idx--) {
+			//finding last non-'z' character
+			if (qualifier.charAt(idx) != 'z')
+				break;
+		}
+
+		if (idx >= 0) {
+			// charAt(idx) is < 'z', so don't need to check bounds
+			int c = BASE_64_ENCODING.indexOf(qualifier.charAt(idx)) + 1;
+			String newQualifier = qualifier.substring(0, idx);
+			newQualifier += BASE_64_ENCODING.charAt(c);
+			return newQualifier;
+		}
+
+		return null;
+	}
 
 	private static void appendEncodedCharacter(StringBuffer buffer, int c) {
 		while (c > 62) {

@@ -23,7 +23,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.*;
@@ -144,9 +145,8 @@ public class SiteXMLAction extends AbstractPublisherAction {
 				qualifier = null;
 			}
 			if (qualifier != null && qualifier.endsWith(QUALIFIER)) {
-				String v = versionString.substring(0, versionString.indexOf(QUALIFIER));
-				String qualifierVersion = v.endsWith(".") ? v.substring(0, v.length() - 1) : v; //$NON-NLS-1$
-				IQuery<IInstallableUnit> qualifierQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, qualifierMatchExpr, id, SimplePattern.compile(qualifierVersion + '*'));
+				VersionRange range = createVersionRange(version.toString());
+				IQuery<IInstallableUnit> qualifierQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, qualifierMatchExpr, id, range);
 				query = new LatestIUVersionQuery<IInstallableUnit>(qualifierQuery);
 			} else {
 				query = new LimitQuery<IInstallableUnit>(new InstallableUnitQuery(id, version), 1);
@@ -162,6 +162,33 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		if (!queryResult.isEmpty())
 			return queryResult.iterator().next();
 		return null;
+	}
+
+	protected VersionRange createVersionRange(String versionId) {
+		VersionRange range = null;
+		if (versionId == null || "0.0.0".equals(versionId)) //$NON-NLS-1$
+			range = VersionRange.emptyRange;
+		else {
+			int qualifierIdx = versionId.indexOf(QUALIFIER);
+			if (qualifierIdx != -1) {
+				String newVersion = versionId.substring(0, qualifierIdx);
+				if (newVersion.endsWith(".")) //$NON-NLS-1$
+					newVersion = newVersion.substring(0, newVersion.length() - 1);
+
+				Version lower = Version.parseVersion(newVersion);
+				Version upper = null;
+				String newQualifier = VersionSuffixGenerator.incrementQualifier(Version.toOSGiVersion(lower).getQualifier());
+				org.osgi.framework.Version osgiVersion = Version.toOSGiVersion(lower);
+				if (newQualifier == null)
+					upper = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor(), osgiVersion.getMicro() + 1);
+				else
+					upper = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor(), osgiVersion.getMicro(), newQualifier);
+				range = new VersionRange(lower, true, upper, false);
+			} else {
+				range = new VersionRange(Version.parseVersion(versionId), true, Version.parseVersion(versionId), true);
+			}
+		}
+		return range;
 	}
 
 	/**
