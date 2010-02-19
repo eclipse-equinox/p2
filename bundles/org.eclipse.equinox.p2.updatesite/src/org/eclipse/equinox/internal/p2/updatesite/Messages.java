@@ -42,6 +42,8 @@ public class Messages extends NLS {
 	public static String DefaultSiteParser_InvalidXMLStream;
 	public static String DefaultSiteParser_mirrors;
 
+	public static String Unexpected_exception;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
