@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Iterator;
 import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 
 /**
  * The context expression is the top expression in context queries. It introduces the
@@ -28,11 +29,19 @@ public class ContextExpression<T> extends Unary implements IContextExpression<T>
 	}
 
 	public boolean accept(IExpressionVisitor visitor) {
-		return visitor.visit(operand);
+		return super.accept(visitor) && operand.accept(visitor);
 	}
 
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		operand.toString(bld, rootVariable);
+	}
+
+	public IEvaluationContext createContext(Class<T> elementClass, IIndexProvider<T> indexProvider) {
+		Variable everything = ExpressionFactory.EVERYTHING;
+		IEvaluationContext context = EvaluationContext.create(parameters, everything);
+		context.setValue(everything, new Everything<T>(elementClass, indexProvider));
+		context.setIndexProvider(indexProvider);
+		return context;
 	}
 
 	public IEvaluationContext createContext(Class<T> elementClass, Iterator<T> iterator) {

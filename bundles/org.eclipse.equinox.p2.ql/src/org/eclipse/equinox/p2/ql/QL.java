@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.ql;
 
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.ql.QueryContext;
-import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 
 /**
  * The public access point to all QL functionality.
@@ -23,8 +23,8 @@ public abstract class QL {
 	 * @param queryable The queryable to use for the creation of the context
 	 * @return A new context
 	 */
-	public static <T> IQueryContext<T> newQueryContext(IQueryable<T> queryable) {
-		return new QueryContext<T>(queryable);
+	public static <T> IQueryContext<T> newQueryContext(IIndexProvider<T> indexProvider) {
+		return new QueryContext<T>(indexProvider);
 	}
 
 	/**

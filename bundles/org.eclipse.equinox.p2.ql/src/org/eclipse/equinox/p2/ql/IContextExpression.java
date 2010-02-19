@@ -12,12 +12,26 @@ package org.eclipse.equinox.p2.ql;
 
 import java.util.Iterator;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 
 /**
  * This is an expression that will need access to the global variable
  * <code>everything</code>.
  */
 public interface IContextExpression<T> extends org.eclipse.equinox.p2.metadata.expression.IContextExpression<T> {
+
+	/**
+	 * <p>Creates a new context to be passed to a subsequent evaluation. The context
+	 * will have the variable 'everything' set to an expression that represents
+	 * the <code>everything</code> iterator filtered for instances of <code>elementClass</code>.</p>
+	 * <p>The values of the iterator will be copied if necessary (when everything is referenced
+	 * more then once).</p>
+	 * @param indexProvider The index provider that represents all queried material.
+	 * @param translations A translation support object to be assigned to the variable 'translations'
+	 * @return A new evaluation context.
+	 */
+	IEvaluationContext createContext(Class<T> elementClass, IIndexProvider<T> indexProvider, ITranslationSupport ts);
+
 	/**
 	 * <p>Creates a new context to be passed to a subsequent evaluation. The context
 	 * will have the variable 'everything' set to an expression that represents

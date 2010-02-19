@@ -14,6 +14,7 @@ import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.ql.IContextExpression;
 import org.eclipse.equinox.p2.ql.ITranslationSupport;
 
@@ -25,6 +26,16 @@ import org.eclipse.equinox.p2.ql.ITranslationSupport;
 public final class ContextExpression<T> extends org.eclipse.equinox.internal.p2.metadata.expression.ContextExpression<T> implements IContextExpression<T> {
 	public ContextExpression(Expression expression, Object[] parameters) {
 		super(expression, parameters);
+	}
+
+	public IEvaluationContext createContext(Class<T> elementClass, IIndexProvider<T> indexProvider, ITranslationSupport ts) {
+		Variable everything = ExpressionFactory.EVERYTHING;
+		IExpression translations = QLFactory.TRANSLATIONS;
+		IEvaluationContext context = EvaluationContext.create(parameters, new IExpression[] {everything, translations});
+		context.setValue(everything, new Everything<T>(elementClass, indexProvider));
+		context.setValue(translations, ts);
+		context.setIndexProvider(indexProvider);
+		return context;
 	}
 
 	public IEvaluationContext createContext(Class<T> elementClass, Iterator<T> iterator, ITranslationSupport ts) {

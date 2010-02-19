@@ -12,7 +12,8 @@ package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionVisitor;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
@@ -56,21 +57,30 @@ public abstract class QLUtil implements IExpression, IQLConstants {
 		return result;
 	}
 
+	private static class TranslationSupportFinder implements IExpressionVisitor {
+		private boolean found;
+
+		TranslationSupportFinder() { //
+		}
+
+		public boolean visit(IExpression expression) {
+			if (expression.getExpressionType() == TYPE_MEMBER && VARIABLE_TRANSLATIONS.equals(((Member) expression).getName()))
+				found = true;
+			return !found;
+		}
+
+		boolean isFound() {
+			return found;
+		}
+	}
+
 	/**
 	 * Checks if the expression will make repeated requests for the 'everything' iterator.
 	 * @return <code>true</code> if repeated requests will be made, <code>false</code> if not.
 	 */
 	public static boolean needsTranslationSupport(IExpression expression) {
-		final boolean[] translationSupportNeeded = new boolean[] {false};
-		((Expression) expression).accept(new IExpressionVisitor() {
-			public boolean visit(IExpression expr) {
-				if (expr.getExpressionType() == TYPE_MEMBER && VARIABLE_TRANSLATIONS.equals(ExpressionUtil.getName(expr))) {
-					translationSupportNeeded[0] = true;
-					return false;
-				}
-				return true;
-			}
-		});
-		return translationSupportNeeded[0];
+		TranslationSupportFinder tsFinder = new TranslationSupportFinder();
+		((Expression) expression).accept(tsFinder);
+		return tsFinder.isFound();
 	}
 }

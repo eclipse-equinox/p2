@@ -19,13 +19,13 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.expression.IContextExpression;
 import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
-import org.eclipse.equinox.p2.ql.*;
+import org.eclipse.equinox.p2.ql.IQLFactory;
+import org.eclipse.equinox.p2.ql.QLContextQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -229,9 +229,6 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		// Add some filtering of requirements
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		QLContextQuery indexQuery = new QLContextQuery(IInstallableUnit.class, "capabilityIndex(everything)");
-		Object index = indexQuery.query(QL.newQueryContext(repo));
-
 		Map env = new Hashtable();
 		env.put("osgi.os", "linux");
 		env.put("osgi.ws", "gtk");
@@ -239,15 +236,14 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 		IContextExpression<IInstallableUnit> expr = factory.contextExpression(parser.parseQuery("" + //
 				"select(x | x.id == $0 && x.version == $1).traverse(parent |" + //
-				"$5.satisfiesAny(parent.requiredCapabilities.select(rc | rc.filter == null || $4 ~= rc.filter))).intersect(" + //
+				"parent.requiredCapabilities.select(rc | rc.filter == null || $4 ~= rc.filter).collect(rc | select(iu | iu ~= rc)).flatten()).intersect(" + //
 				"select(x | x.id == $2 && x.version == $3).traverse(parent |" + //
-				"$5.satisfiesAny(parent.requiredCapabilities.select(rc | rc.filter == null || $4 ~= rc.filter))))"), //
+				"parent.requiredCapabilities.select(rc | rc.filter == null || $4 ~= rc.filter).collect(rc | select(iu | iu ~= rc)).flatten()))"), //
 				"org.eclipse.pde.feature.group", //
 				Version.create("3.5.0.v20090123-7Z7YF8NFE-z0VXhWU26Hu8gY"), //
 				"org.eclipse.gmf.feature.group", //
 				Version.create("1.1.1.v20090114-0940-7d8B0FXwkKwFanGNHeHHq8ymBgZ"), //
-				env,//
-				index);
+				env);
 
 		QLContextQuery query = new QLContextQuery(IInstallableUnit.class, expr);
 		IQueryResult result = repo.query(query, new NullProgressMonitor());

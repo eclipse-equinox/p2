@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.query.IQueryResult;
  */
 public class QLContextQuery<T> extends QLQuery<T> implements IQueryWithIndex<T> {
 	private final IContextExpression<T> expression;
-	private IIndexProvider indexProvider;
 
 	/**
 	 * Creates a new query instance with indexed parameters.
@@ -44,14 +43,22 @@ public class QLContextQuery<T> extends QLQuery<T> implements IQueryWithIndex<T> 
 	}
 
 	public IQueryResult<T> perform(IIndexProvider<T> idxProvider) {
-		indexProvider = idxProvider;
-
-		// TODO Fix so that we don't request everything here.
-		return new QueryResult<T>(evaluate(idxProvider.everything()));
+		return new QueryResult<T>(evaluate(idxProvider));
 	}
 
 	public IQueryResult<T> perform(Iterator<T> iterator) {
 		return new QueryResult<T>(evaluate(iterator));
+	}
+
+	public Iterator<T> evaluate(IIndexProvider<T> idxProvider) {
+		IEvaluationContext ctx;
+		if (QLUtil.needsTranslationSupport(expression)) {
+			IQueryContext<T> queryContext = QL.newQueryContext(idxProvider);
+			ctx = expression.createContext(elementClass, idxProvider, queryContext.getTranslationSupport(getLocale()));
+		} else
+			ctx = expression.createContext(elementClass, idxProvider);
+		Iterator<T> result = expression.iterator(ctx);
+		return result;
 	}
 
 	public Iterator<T> evaluate(Iterator<T> iterator) {
@@ -61,33 +68,11 @@ public class QLContextQuery<T> extends QLQuery<T> implements IQueryWithIndex<T> 
 			ctx = expression.createContext(elementClass, iterator, queryContext.getTranslationSupport(getLocale()));
 		} else
 			ctx = expression.createContext(elementClass, iterator);
-		ctx.setIndexProvider(indexProvider);
 		Iterator<T> result = expression.iterator(ctx);
 		return result;
 	}
 
 	public IExpression getExpression() {
 		return expression;
-	}
-
-	/**
-	 * Query without using a collector. Instead, return the result of the query directly.
-	 * @param queryContext The context for the query.
-	 * @return The result of the query.
-	 */
-	public Object query(IQueryContext<T> queryContext) {
-		// Check if we need translation support
-		//
-		IEvaluationContext ctx;
-		if (QLUtil.needsTranslationSupport(expression))
-			ctx = expression.createContext(elementClass, queryContext.iterator(), queryContext.getTranslationSupport(getLocale()));
-		else
-			ctx = expression.createContext(elementClass, queryContext.iterator());
-		ctx.setIndexProvider(indexProvider);
-		return expression.evaluate(ctx);
-	}
-
-	public void setIndexProvider(IIndexProvider indexProvider) {
-		this.indexProvider = indexProvider;
 	}
 }

@@ -1,31 +1,35 @@
 package org.eclipse.equinox.internal.p2.ql;
 
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.expression.IRepeatableIterator;
 import org.eclipse.equinox.internal.p2.metadata.expression.RepeatableIterator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.index.IIndex;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.ql.IQueryContext;
 import org.eclipse.equinox.p2.ql.ITranslationSupport;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.osgi.service.localization.LocaleProvider;
 
 public class QueryContext<T> implements IQueryContext<T> {
 
-	private final IQueryable<T> queryable;
+	private final IIndexProvider<T> indexProvider;
 
 	private Map<Locale, TranslationSupport> translationSupports;
 
-	public QueryContext(IQueryable<T> queryable) {
-		this.queryable = queryable;
+	public QueryContext(IIndexProvider<T> indexProvider) {
+		this.indexProvider = indexProvider;
 	}
 
 	public QueryContext(Iterator<T> iterator) {
 		final IRepeatableIterator<T> repeatable = RepeatableIterator.create(iterator);
-		this.queryable = new IQueryable<T>() {
-			public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
-				return query.perform(repeatable.getCopy());
+		this.indexProvider = new IIndexProvider<T>() {
+			public Iterator<T> everything() {
+				return repeatable.getCopy();
+			}
+
+			public IIndex<T> getIndex(String memberName) {
+				return null;
 			}
 		};
 	}
@@ -38,7 +42,7 @@ public class QueryContext<T> implements IQueryContext<T> {
 		TranslationSupport ts = translationSupports.get(locale);
 		if (ts == null) {
 			ts = new TranslationSupport();
-			ts.setTranslationSource((IQueryable<IInstallableUnit>) queryable);
+			ts.setTranslationSource((IQueryable<IInstallableUnit>) indexProvider);
 			ts.setLocaleProvider(new LocaleProvider() {
 				public Locale getLocale() {
 					// TODO Auto-generated method stub
@@ -51,14 +55,6 @@ public class QueryContext<T> implements IQueryContext<T> {
 	}
 
 	public Iterator<T> iterator() {
-		@SuppressWarnings("unchecked")
-		final Iterator<T>[] iteratorCatcher = new Iterator[1];
-		queryable.query(new ContextQuery<T>() {
-			public IQueryResult<T> perform(Iterator<T> iterator) {
-				iteratorCatcher[0] = iterator;
-				return null;
-			}
-		}, new NullProgressMonitor());
-		return iteratorCatcher[0];
+		return indexProvider.everything();
 	}
 }

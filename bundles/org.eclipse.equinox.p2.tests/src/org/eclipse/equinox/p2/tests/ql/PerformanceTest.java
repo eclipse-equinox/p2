@@ -20,7 +20,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.ql.QL;
 import org.eclipse.equinox.p2.ql.QLContextQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -50,39 +49,6 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
 				result = repo.query(predicateQuery, new NullProgressMonitor());
-				assertEquals(queryResultSize(result), 487);
-			}
-			exprQueryMS += (System.currentTimeMillis() - start);
-		}
-		System.out.println("CapabilityQuery took: " + tradQueryMS + " milliseconds");
-		System.out.println("PredicateQuery took: " + exprQueryMS + " milliseconds");
-		System.out.println();
-	}
-
-	public void testCapabilityQueryPerformance2() throws Exception {
-
-		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		IQueryable qaRepo = new QueryableArray(gatherAvailableInstallableUnits(repo));
-
-		IRequirement capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
-		QLContextQuery exprQuery = new QLContextQuery(IInstallableUnit.class, "capabilityIndex(everything)");
-		IQuery capabilityQuery = new ExpressionQuery(IInstallableUnit.class, capability.getMatches());
-		exprQuery = new QLContextQuery(IInstallableUnit.class, "$0.satisfiesAny([$1])", exprQuery.query(QL.newQueryContext(qaRepo)), capability);
-		IQueryResult result;
-		long tradQueryMS = 0;
-		long exprQueryMS = 0;
-
-		for (int i = 0; i < 5; ++i) {
-			long start = System.currentTimeMillis();
-			for (int idx = 0; idx < 80; ++idx) {
-				result = qaRepo.query(capabilityQuery, new NullProgressMonitor());
-				assertEquals(queryResultSize(result), 487);
-			}
-			tradQueryMS += (System.currentTimeMillis() - start);
-
-			start = System.currentTimeMillis();
-			for (int idx = 0; idx < 80; ++idx) {
-				result = qaRepo.query(exprQuery, new NullProgressMonitor());
 				assertEquals(queryResultSize(result), 487);
 			}
 			exprQueryMS += (System.currentTimeMillis() - start);

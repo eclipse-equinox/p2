@@ -32,6 +32,8 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 			return create((Set<T>) ((Map<?, ?>) unknown).entrySet());
 		if (unknown instanceof IQueryResult<?>)
 			return create((IQueryResult<T>) unknown);
+		if (unknown instanceof IIndexProvider<?>)
+			return create((IIndexProvider<T>) unknown);
 		throw new IllegalArgumentException("Cannot convert a " + unknown.getClass().getName() + " into an iterator"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -53,6 +55,10 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 
 	public static <T> IRepeatableIterator<T> create(T[] values) {
 		return new ArrayIterator<T>(values);
+	}
+
+	public static <T> IRepeatableIterator<T> create(IIndexProvider<T> values) {
+		return new IndexProviderIterator<T>(values);
 	}
 
 	RepeatableIterator(List<T> values) {
