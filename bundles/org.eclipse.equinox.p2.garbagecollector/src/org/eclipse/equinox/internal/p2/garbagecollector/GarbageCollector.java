@@ -81,15 +81,6 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 	 */
 	private Map<IArtifactRepository, Collection<IArtifactKey>> markSet;
 
-	/**
-	 * @deprecated obtain the garbage collector directly from the agent instead.
-	 * This method will be removed by 3.6 M6
-	 */
-	public GarbageCollector() {
-		// we need to use DS to create an Agent Listener here
-		agent = (IProvisioningAgent) GCActivator.getService(IProvisioningAgent.SERVICE_NAME);
-	}
-
 	public GarbageCollector(IProvisioningAgent agent) {
 		this.agent = agent;
 	}
