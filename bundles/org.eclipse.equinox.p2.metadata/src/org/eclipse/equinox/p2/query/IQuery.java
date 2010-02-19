@@ -12,6 +12,7 @@
 package org.eclipse.equinox.p2.query;
 
 import java.util.Iterator;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
 
 /**
  * The root interface for all queries that can be performed on an {@link IQueryable}.
@@ -30,13 +31,18 @@ import java.util.Iterator;
  * @since 2.0
  */
 public interface IQuery<T> {
-
 	/**
 	 * Evaluates the query for a specific input.  
 	 * 
 	 * @param iterator The elements for which to evaluate the query on
 	 * @return The results of the query.
 	 */
-	public abstract IQueryResult<T> perform(Iterator<T> iterator);
+	IQueryResult<T> perform(Iterator<T> iterator);
 
+	/**
+	 * Returns the IExpression backing this query of <code>null</code> if
+	 * this is not an expression query.
+	 * @return An expression or <code>null</code>.
+	 */
+	IExpression getExpression();
 }

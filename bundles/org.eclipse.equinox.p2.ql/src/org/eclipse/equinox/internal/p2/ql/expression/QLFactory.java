@@ -6,6 +6,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.ql.IQLFactory;
+import org.eclipse.equinox.p2.query.IQuery;
 
 public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConstants {
 	@SuppressWarnings("hiding")
@@ -102,6 +103,10 @@ public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConst
 		return new Latest((Expression) collection);
 	}
 
+	public IExpression limit(IExpression collection, int count) {
+		return new Limit((Expression) collection, Literal.create(new Integer(count)));
+	}
+
 	public IExpression limit(IExpression collection, IExpression limit) {
 		return new Limit((Expression) collection, (Expression) limit);
 	}
@@ -149,6 +154,11 @@ public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConst
 		if (name.equals(VARIABLE_TRANSLATIONS))
 			return TRANSLATIONS;
 		return super.variable(name);
+	}
+
+	public IExpression toExpression(IQuery<?> query) {
+		Literal queryConstant = Literal.create(query);
+		return new WrappedIQuery(new Expression[] {queryConstant});
 	}
 
 	public IExpression unique(IExpression collection, IExpression cache) {

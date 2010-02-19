@@ -30,7 +30,6 @@ import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 import org.eclipse.equinox.p2.ql.QLContextQuery;
-import org.eclipse.equinox.p2.ql.QLMatchQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -174,7 +173,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		} else if (type.equals("context")) { //$NON-NLS-1$
 			query = new QLContextQuery<IInstallableUnit>(IInstallableUnit.class, expression, params);
 		} else if (type.equals("match")) //$NON-NLS-1$
-			query = new QLMatchQuery<IInstallableUnit>(IInstallableUnit.class, expression, params);
+			query = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, expression, params);
 		if (query == null)
 			return CollectionUtils.emptyList();
 		IQueryResult<IInstallableUnit> queryResult = results.query(query, null);

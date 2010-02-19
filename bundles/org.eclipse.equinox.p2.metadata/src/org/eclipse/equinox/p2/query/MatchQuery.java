@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.query;
 
 import java.util.Iterator;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
 
 /**
  * This class represents the superclass of most of p2's queries.  Every element
@@ -87,5 +88,9 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 	 */
 	public void postPerform() {
 		// nothing to do by default
+	}
+
+	public IExpression getExpression() {
+		return null;
 	}
 }

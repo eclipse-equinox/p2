@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URI;
 import java.util.Iterator;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 
@@ -43,6 +44,10 @@ public class RepositoryLocationQuery implements IQuery<URI> {
 			return (URI) o;
 		if (o instanceof IRepository<?>)
 			return ((IRepository<?>) o).getLocation();
+		return null;
+	}
+
+	public IExpression getExpression() {
 		return null;
 	}
 }

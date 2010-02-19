@@ -20,7 +20,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.ql.*;
+import org.eclipse.equinox.p2.ql.QL;
+import org.eclipse.equinox.p2.ql.QLContextQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -32,7 +33,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		IRequirement capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
-		QLMatchQuery predicateQuery = new QLMatchQuery(IInstallableUnit.class, "this ~= $0", capability);
+		ExpressionQuery predicateQuery = new ExpressionQuery(IInstallableUnit.class, "this ~= $0", capability);
 		IQuery capabilityQuery = new ExpressionQuery(IInstallableUnit.class, capability.getMatches());
 		IQueryResult result;
 		long tradQueryMS = 0;
@@ -96,7 +97,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		IUPropertyQuery propertyQuery = new IUPropertyQuery("df_LT.providerName", "Eclipse.org");
-		QLMatchQuery predicateQuery = new QLMatchQuery(IInstallableUnit.class, "properties[$0] == $1", "df_LT.providerName", "Eclipse.org");
+		ExpressionQuery predicateQuery = new ExpressionQuery(IInstallableUnit.class, "properties[$0] == $1", "df_LT.providerName", "Eclipse.org");
 		IQueryResult result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;

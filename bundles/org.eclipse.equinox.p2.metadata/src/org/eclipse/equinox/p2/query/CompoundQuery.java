@@ -14,6 +14,7 @@ package org.eclipse.equinox.p2.query;
 import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
 
 /**
  * A query that combines a group of sub-queries.<P>
@@ -234,5 +235,9 @@ public abstract class CompoundQuery<T> implements ICompositeQuery<T> {
 			}
 			return new SetCollector<T>(result);
 		}
+	}
+
+	public IExpression getExpression() {
+		return null;
 	}
 }

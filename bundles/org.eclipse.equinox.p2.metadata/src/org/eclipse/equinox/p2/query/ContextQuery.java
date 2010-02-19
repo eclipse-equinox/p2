@@ -10,6 +10,7 @@
 package org.eclipse.equinox.p2.query;
 
 import java.util.Iterator;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
 
 /**
  * ContextQuery is the abstract superclass for Queries that require the entire
@@ -42,4 +43,7 @@ public abstract class ContextQuery<T> implements IQuery<T> {
 	 */
 	public abstract IQueryResult<T> perform(Iterator<T> iterator);
 
+	public IExpression getExpression() {
+		return null;
+	}
 }

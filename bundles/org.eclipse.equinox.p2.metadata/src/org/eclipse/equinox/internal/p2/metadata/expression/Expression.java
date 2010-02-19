@@ -272,6 +272,29 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		}
 	}
 
+	public static class VariableFinder implements IExpressionVisitor {
+		private boolean found = false;
+		private final Variable variable;
+
+		public VariableFinder(Variable variable) {
+			this.variable = variable;
+		}
+
+		public boolean visit(IExpression expression) {
+			if (variable.equals(expression))
+				found = true;
+			return !found;
+		}
+
+		public void reset() {
+			found = false;
+		}
+
+		public boolean isFound() {
+			return found;
+		}
+	}
+
 	private static class MembersFinder implements IExpressionVisitor {
 		private final ArrayList<String> members = new ArrayList<String>();
 		private final Class<?> elementClass;

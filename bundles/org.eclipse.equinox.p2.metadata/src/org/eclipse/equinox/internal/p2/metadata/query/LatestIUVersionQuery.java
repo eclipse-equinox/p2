@@ -11,13 +11,15 @@ package org.eclipse.equinox.internal.p2.metadata.query;
 
 import java.util.*;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
+import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
 import org.eclipse.equinox.p2.query.*;
 
 /**
  * This query returns the latest version for each unique VersionedID.  
  * All other elements are discarded.
  */
-public class LatestIUVersionQuery<T extends IVersionedId> extends ContextQuery<T> {
+public class LatestIUVersionQuery<T extends IVersionedId> extends ContextQuery<T> implements IQueryWithIndex<T> {
 
 	private final IQuery<T> query;
 
@@ -35,7 +37,22 @@ public class LatestIUVersionQuery<T extends IVersionedId> extends ContextQuery<T
 	public IQueryResult<T> perform(Iterator<T> iterator) {
 		if (query != null)
 			iterator = query.perform(iterator).iterator();
+		return latest(iterator);
+	}
 
+	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
+		Iterator<T> iterator;
+		if (query != null) {
+			if (query instanceof IQueryWithIndex<?>)
+				iterator = ((IQueryWithIndex<T>) query).perform(indexProvider).iterator();
+			else
+				iterator = query.perform(indexProvider.everything()).iterator();
+		} else
+			iterator = indexProvider.everything();
+		return latest(iterator);
+	}
+
+	private IQueryResult<T> latest(Iterator<T> iterator) {
 		HashMap<String, T> greatestIUVersion = new HashMap<String, T>();
 		while (iterator.hasNext()) {
 			T versionedID = iterator.next();

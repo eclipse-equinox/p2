@@ -14,6 +14,7 @@ import java.util.Map;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
+import org.eclipse.equinox.p2.query.IQuery;
 
 /**
  * This inteface provides all the factory methods needed to create the all possible
@@ -175,4 +176,11 @@ public interface IQLFactory extends IExpressionFactory {
 	 * @return A collection expression
 	 */
 	IExpression unique(IExpression collection, IExpression cache);
+
+	/**
+	 * Wrap an {@link IQuery} as an expression.
+	 * @param query
+	 * @return An expression that wraps the query
+	 */
+	IExpression toExpression(IQuery<?> query);
 }

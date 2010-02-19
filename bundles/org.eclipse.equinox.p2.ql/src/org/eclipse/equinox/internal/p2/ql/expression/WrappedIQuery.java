@@ -19,6 +19,19 @@ import org.eclipse.equinox.p2.query.IQuery;
 
 public final class WrappedIQuery extends Function implements IQLConstants {
 
+	/**
+	 * <p>The WrappedIQuery constructor takes an array with one or two arguments.
+	 * The first argument must evaluate to an instance of {@link IQuery}. The second
+	 * argument is optional. The following applies:</p><ul>
+	 * <li>If first argument evaluates to an instance of {@link IMatchQuery}, then
+	 * a provided second argument assumed to be the candidate to match. The
+	 * variable <code>this</code> will be used if no second argument is not provided.</li>
+	 * <li>For all other types of queries the second argument must evaluate
+	 * to an iterator. If it is not provided, it defaults to the variable
+	 * <code>everything</code>.
+	 * </ul>
+	 * @param operands
+	 */
 	public WrappedIQuery(Expression[] operands) {
 		super(assertLength(operands, 1, 2, KEYWORD_IQUERY));
 	}
@@ -43,7 +56,7 @@ public final class WrappedIQuery extends Function implements IQLConstants {
 		if (operands.length > 1)
 			iterator = operands[1].evaluateAsIterator(context);
 		else
-			iterator = QLFactory.EVERYTHING.evaluateAsIterator(context);
+			iterator = ExpressionFactory.EVERYTHING.evaluateAsIterator(context);
 
 		return ((IQuery<Object>) query).perform((Iterator<Object>) iterator);
 	}

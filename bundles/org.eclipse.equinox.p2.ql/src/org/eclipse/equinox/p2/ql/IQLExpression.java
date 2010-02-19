@@ -13,8 +13,9 @@ public interface IQLExpression extends IExpression {
 	int TYPE_INTERSECT = 27;
 	int TYPE_LATEST = 28;
 	int TYPE_LIMIT = 29;
-	int TYPE_SELECT = 30;
-	int TYPE_TRAVERSE = 31;
-	int TYPE_UNION = 32;
-	int TYPE_UNIQUE = 33;
+	int TYPE_PIPE = 30;
+	int TYPE_SELECT = 31;
+	int TYPE_TRAVERSE = 32;
+	int TYPE_UNION = 33;
+	int TYPE_UNIQUE = 34;
 }

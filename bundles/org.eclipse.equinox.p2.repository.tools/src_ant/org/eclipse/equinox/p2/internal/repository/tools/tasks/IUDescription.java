@@ -126,7 +126,7 @@ public class IUDescription extends DataType {
 			return queries.get(0);
 
 		@SuppressWarnings("unchecked")
-		IQuery<IInstallableUnit> query = new PipedQuery<IInstallableUnit>(queries.toArray(new IQuery[queries.size()]));
+		IQuery<IInstallableUnit> query = PipedQuery.createPipe(queries.toArray(new IQuery[queries.size()]));
 		return query;
 	}
 

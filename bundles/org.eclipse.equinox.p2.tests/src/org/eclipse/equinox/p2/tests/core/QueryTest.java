@@ -154,7 +154,7 @@ public class QueryTest extends TestCase {
 		List items = Arrays.asList("red", "green", "blue");
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
-		PipedQuery cQuery = new PipedQuery(query1, query2);
+		IQuery cQuery = PipedQuery.createPipe(query1, query2);
 		assertFalse("1.0", query1.isComplete());
 		assertFalse("1.1", query1.isPrepared());
 		assertFalse("1.2", query2.isComplete());
@@ -195,7 +195,7 @@ public class QueryTest extends TestCase {
 		List items = Arrays.asList("red", new Object());
 		PerformHookQuery query1 = new PerformHookQuery();
 		PerformHookQuery query2 = new PerformHookQuery();
-		PipedQuery cQuery = new PipedQuery(query1, query2);
+		IQuery cQuery = PipedQuery.createPipe(query1, query2);
 		assertFalse("1.0", query1.isComplete());
 		assertFalse("1.1", query1.isPrepared());
 		assertFalse("1.2", query2.isComplete());

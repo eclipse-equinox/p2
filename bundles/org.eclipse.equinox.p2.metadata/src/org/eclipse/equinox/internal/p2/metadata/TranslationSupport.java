@@ -206,7 +206,7 @@ public class TranslationSupport {
 			localeQuery[j] = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, capabilityMatch, locales.get(j), NAMESPACE_IU_LOCALIZATION);
 		}
 
-		IQuery<IInstallableUnit> iuQuery = new PipedQuery<IInstallableUnit>(new FragmentQuery(), CompoundQuery.createCompoundQuery(localeQuery, false));
+		IQuery<IInstallableUnit> iuQuery = PipedQuery.createPipe(new FragmentQuery(), CompoundQuery.createCompoundQuery(localeQuery, false));
 		IQueryResult<IInstallableUnit> collected = fragmentSource.query(iuQuery, null);
 		localeCollectorCache.put(locale, new SoftReference<IQueryResult<IInstallableUnit>>(collected));
 		return collected;
@@ -247,7 +247,7 @@ public class TranslationSupport {
 			}
 		};
 
-		IQuery<IInstallableUnit> iuQuery = new PipedQuery<IInstallableUnit>(new FragmentQuery(), hostLocalizationQuery);
+		IQuery<IInstallableUnit> iuQuery = PipedQuery.createPipe(new FragmentQuery(), hostLocalizationQuery);
 		IQueryResult<IInstallableUnit> collected = iuQuery.perform(localizationFragments.iterator());
 		if (!collected.isEmpty()) {
 			String translation = null;

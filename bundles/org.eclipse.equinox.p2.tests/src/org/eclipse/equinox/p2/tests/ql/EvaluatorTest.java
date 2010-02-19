@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IContextExpression;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
@@ -78,21 +79,21 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testRange() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnit.class, "version ~= $0", new VersionRange("2.0.0")), new NullProgressMonitor());
+		IQueryResult result = repo.query(new ExpressionQuery(IInstallableUnit.class, "version ~= $0", new VersionRange("2.0.0")), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 2);
 	}
 
 	public void testProperty() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
 
-		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnit.class, "properties.exists(p | boolean(p.value))"), new NullProgressMonitor());
+		IQueryResult result = repo.query(new ExpressionQuery(IInstallableUnit.class, "properties.exists(p | boolean(p.value))"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 
-		result = repo.query(new QLMatchQuery(IInstallableUnit.class, "boolean(properties['org.eclipse.equinox.p2.type.group'])"), new NullProgressMonitor());
+		result = repo.query(new ExpressionQuery(IInstallableUnit.class, "boolean(properties['org.eclipse.equinox.p2.type.group'])"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 
 		Filter filter = TestActivator.context.createFilter("(org.eclipse.equinox.p2.type.group=true)");
-		result = repo.query(new QLMatchQuery(IInstallableUnit.class, "properties ~= $0", filter), new NullProgressMonitor());
+		result = repo.query(new ExpressionQuery(IInstallableUnit.class, "properties ~= $0", filter), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 	}
 
@@ -132,14 +133,14 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		applicability[1][1] = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.flavor", "tooling", null, null, false, false);
 
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnit.class, "$0.exists(rcs | rcs.all(rc | this ~= rc))", (Object) applicability), new NullProgressMonitor());
+		IQueryResult result = repo.query(new ExpressionQuery(IInstallableUnit.class, "$0.exists(rcs | rcs.all(rc | this ~= rc))", (Object) applicability), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 	}
 
 	public void testPattern() throws Exception {
 		IProvidedCapability pc = MetadataFactory.createProvidedCapability("org.eclipse.equinox.p2.eclipse.type", "source", null);
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnit.class, "id ~= /tooling.*.default/", pc), new NullProgressMonitor());
+		IQueryResult result = repo.query(new ExpressionQuery(IInstallableUnit.class, "id ~= /tooling.*.default/", pc), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 	}
 
@@ -154,7 +155,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testNot() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnit.class, "!(id ~= /tooling.*/)"), new NullProgressMonitor());
+		IQueryResult result = repo.query(new ExpressionQuery(IInstallableUnit.class, "!(id ~= /tooling.*/)"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 4);
 	}
 
@@ -165,13 +166,13 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		assertNotNull(artifactManager);
 
 		IArtifactRepository repo = artifactManager.loadRepository(artifactRepo, new NullProgressMonitor());
-		IQueryResult result = repo.query(new QLMatchQuery(IArtifactKey.class, "classifier ~= /*/"), new NullProgressMonitor());
+		IQueryResult result = repo.query(new ExpressionQuery(IArtifactKey.class, "classifier ~= /*/"), new NullProgressMonitor());
 		assertTrue(queryResultSize(result) > 1);
 		Iterator itor = result.iterator();
 		while (itor.hasNext())
 			assertTrue(itor.next() instanceof IArtifactKey);
 
-		result = repo.descriptorQueryable().query(new QLMatchQuery(IArtifactDescriptor.class, "artifactKey.classifier ~= /*/"), new NullProgressMonitor());
+		result = repo.descriptorQueryable().query(new ExpressionQuery(IArtifactDescriptor.class, "artifactKey.classifier ~= /*/"), new NullProgressMonitor());
 		assertTrue(queryResultSize(result) > 1);
 		itor = result.iterator();
 		while (itor.hasNext())
@@ -266,7 +267,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				return "true".equals(((IInstallableUnit) candidate).getProperty("org.eclipse.equinox.p2.type.group"));
 			}
 		});
-		IQueryResult result = repo.query(new QLMatchQuery(IInstallableUnit.class, expr), new NullProgressMonitor());
+		IQueryResult result = repo.query(new ExpressionQuery(IInstallableUnit.class, expr), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 497);
 	}
 
@@ -357,7 +358,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		IQueryResult result = queryableArray.query(new InstallableUnitQuery("foo"), null);
 		assertEquals("2.1", 1, queryResultSize(result));
 
-		QLMatchQuery lq = new QLMatchQuery(IInstallableUnit.class, "translations['org.eclipse.equinox.p2.name'] ~= /German*/");
+		QLContextQuery lq = new QLContextQuery<IInstallableUnit>(IInstallableUnit.class, "select(x | x.translations['org.eclipse.equinox.p2.name'] ~= /German*/)");
 		lq.setLocale(Locale.GERMAN);
 		Iterator itr = queryableArray.query(lq, new NullProgressMonitor()).iterator();
 		assertTrue(itr.hasNext());

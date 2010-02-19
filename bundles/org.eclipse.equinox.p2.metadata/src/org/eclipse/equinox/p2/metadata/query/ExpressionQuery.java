@@ -42,6 +42,14 @@ public class ExpressionQuery<T> implements IQueryWithIndex<T> {
 		this.context = expression.createContext();
 	}
 
+	public ExpressionQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {
+		this(matchingClass, ExpressionUtil.getFactory().<T> matchExpression(ExpressionUtil.getParser().parse(expression), parameters));
+	}
+
+	public IEvaluationContext getContext() {
+		return context;
+	}
+
 	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
 		Iterator<T> iterator = null;
 		for (String member : Expression.getIndexCandidateMembers(IArtifactKey.class, ExpressionFactory.THIS, (Expression) expression)) {

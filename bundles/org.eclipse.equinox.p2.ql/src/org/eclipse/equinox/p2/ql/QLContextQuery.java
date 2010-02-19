@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.ql;
 
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.ql.expression.QLUtil;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
-import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -65,6 +64,10 @@ public class QLContextQuery<T> extends QLQuery<T> implements IQueryWithIndex<T> 
 		ctx.setIndexProvider(indexProvider);
 		Iterator<T> result = expression.iterator(ctx);
 		return result;
+	}
+
+	public IExpression getExpression() {
+		return expression;
 	}
 
 	/**

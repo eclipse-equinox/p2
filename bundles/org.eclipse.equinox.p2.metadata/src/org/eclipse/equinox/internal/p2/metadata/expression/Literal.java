@@ -25,7 +25,7 @@ public final class Literal extends Expression {
 
 	public static final Literal TRUE_CONSTANT = new Literal(Boolean.TRUE);
 
-	static Literal create(Object value) {
+	public static Literal create(Object value) {
 		if (value == null)
 			return NULL_CONSTANT;
 		if (value == Boolean.TRUE)

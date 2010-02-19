@@ -29,7 +29,7 @@ public class AggregateQueryTest extends TestCase {
 	}
 
 	public void testEmptyCompositeQuery() {
-		PipedQuery query = new PipedQuery(new IQuery[0]);
+		IQuery query = PipedQuery.createPipe(new IQuery[0]);
 		query.perform(getABCDE().iterator());
 		// We should not throw an exception.  No guarantee on what perform
 		// will return in this case
@@ -114,11 +114,11 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		PipedQuery compoundQuery = new PipedQuery(getLatest, getAllBut3);
+		IQuery compoundQuery = PipedQuery.createPipe(getLatest, getAllBut3);
 		IQueryResult result = compoundQuery.perform(get123().iterator());
 		assertEquals(0, AbstractProvisioningTest.queryResultSize(result));
 
-		compoundQuery = new PipedQuery(getAllBut3, getLatest);
+		compoundQuery = PipedQuery.createPipe(getAllBut3, getLatest);
 		result = compoundQuery.perform(get123().iterator());
 		assertEquals(1, AbstractProvisioningTest.queryResultSize(result));
 		assertEquals("2", result.iterator().next());
