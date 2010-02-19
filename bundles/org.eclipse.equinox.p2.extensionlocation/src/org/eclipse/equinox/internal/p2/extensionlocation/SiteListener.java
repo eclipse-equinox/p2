@@ -227,8 +227,16 @@ public class SiteListener extends DirectoryChangeListener {
 			String line = (String) e.nextElement();
 			StringTokenizer tokenizer = new StringTokenizer(line, ";"); //$NON-NLS-1$
 			String targetSite = tokenizer.nextToken();
-			if (!urlString.equals(targetSite))
+			try {
+				// the urlString is coming from the site location which is an encoded URI
+				// so we need to encode the targetSite string before we check for equality
+				if (!urlString.equals(URIUtil.fromString(targetSite).toString()))
+					continue;
+			} catch (URISyntaxException e1) {
+				// shouldn't happen
+				e1.printStackTrace();
 				continue;
+			}
 			result.add(tokenizer.nextToken());
 		}
 		toBeRemoved = result.toArray(new String[result.size()]);
