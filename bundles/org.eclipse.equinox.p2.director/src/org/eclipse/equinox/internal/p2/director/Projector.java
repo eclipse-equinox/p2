@@ -22,8 +22,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.*;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Filter;
 import org.sat4j.pb.IPBSolver;
@@ -145,7 +144,7 @@ public class Projector {
 
 	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IQueryable<IInstallableUnit> installedIUs, Collection<IInstallableUnit> newRoots, IProgressMonitor monitor) {
 		alreadyInstalledIUs = Arrays.asList(alreadyExistingRoots);
-		numberOfInstalledIUs = installedIUs.query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class).length;
+		numberOfInstalledIUs = sizeOf(installedIUs);
 		lastState = installedIUs;
 		this.entryPoint = entryPointIU;
 		try {
@@ -203,6 +202,16 @@ public class Projector {
 		} catch (ContradictionException e) {
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Unsatisfiable_problem));
 		}
+	}
+
+	/**
+	 * Efficiently compute the size of a queryable
+	 */
+	private int sizeOf(IQueryable<IInstallableUnit> installedIUs) {
+		IQueryResult<IInstallableUnit> qr = installedIUs.query(InstallableUnitQuery.ANY, null);
+		if (qr instanceof Collector<?>)
+			return ((Collector<?>) qr).size();
+		return qr.unmodifiableSet().size();
 	}
 
 	//Create an optimization function favoring the highest version of each IU
