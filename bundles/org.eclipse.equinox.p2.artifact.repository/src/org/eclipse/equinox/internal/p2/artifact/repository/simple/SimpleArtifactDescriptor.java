@@ -29,10 +29,6 @@ public class SimpleArtifactDescriptor extends ArtifactDescriptor {
 		super(base);
 	}
 
-	public SimpleArtifactDescriptor(SimpleArtifactDescriptor base) {
-		super(base);
-	}
-
 	public String getRepositoryProperty(String propertyKey) {
 		return repositoryProperties.get(propertyKey);
 	}
