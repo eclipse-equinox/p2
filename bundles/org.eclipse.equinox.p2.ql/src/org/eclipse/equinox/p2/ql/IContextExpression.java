@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Cloudsmith Inc. and others.
+ * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,7 @@ public interface IContextExpression<T> extends org.eclipse.equinox.p2.metadata.e
 	 * @param translations A translation support object to be assigned to the variable 'translations'
 	 * @return A new evaluation context.
 	 */
-	IEvaluationContext createContext(Class<T> elementClass, IIndexProvider<T> indexProvider, ITranslationSupport ts);
+	IEvaluationContext createContext(Class<T> elementClass, IIndexProvider<T> indexProvider, ITranslationSupport translations);
 
 	/**
 	 * <p>Creates a new context to be passed to a subsequent evaluation. The context
