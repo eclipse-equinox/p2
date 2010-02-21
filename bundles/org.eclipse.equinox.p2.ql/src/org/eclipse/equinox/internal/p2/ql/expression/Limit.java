@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.ql.IQLExpression;
@@ -67,9 +68,9 @@ final class Limit extends Binary implements IQLConstants, IQLExpression {
 		int limit = -1;
 		if (rval instanceof Integer)
 			limit = ((Integer) rval).intValue();
-		if (limit <= 0)
+		if (limit < 0)
 			throw new IllegalArgumentException("limit expression did not evalutate to a positive integer"); //$NON-NLS-1$
-		return new CountingIterator<Object>(lhs.evaluateAsIterator(context), limit);
+		return limit == 0 ? CollectionUtils.emptySet().iterator() : new CountingIterator<Object>(lhs.evaluateAsIterator(context), limit);
 	}
 
 	public int getExpressionType() {

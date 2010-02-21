@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.metadata.expression;
 
 import java.util.List;
+import org.eclipse.equinox.p2.query.IQuery;
 
 /**
  * This interface provides all the factory methods needed to create the
@@ -154,6 +155,24 @@ public interface IExpressionFactory {
 	IExpression lessEqual(IExpression lhs, IExpression rhs);
 
 	/**
+	 * Create an expression that yields a new collection consisting of the <i>count</i>
+	 * first elements of the source collection.
+	 * @param collection The source collection
+	 * @param count The element count limit
+	 * @return A collection expression
+	 */
+	IExpression limit(IExpression collection, int count);
+
+	/**
+	 * Create an expression that yields a new collection consisting of the <i>n</i> first
+	 * elements of the source collection where <i>n</i> is determined by <code>limit</code>.
+	 * @param collection The source collection
+	 * @param limit The expression that evaluates to the element count limit
+	 * @return A collection expression
+	 */
+	IExpression limit(IExpression collection, IExpression limit);
+
+	/**
 	 * Performs boolean normalization on the expression to create a canonical form.
 	 * @param operands The operands to normalize
 	 * @param expressionType The type (must be either {@link IExpression#TYPE_AND}
@@ -201,10 +220,33 @@ public interface IExpressionFactory {
 	IExpression or(IExpression... operands);
 
 	/**
+	 * Create a pipe of expressions.
+	 * @param expressions The expressions that make out the pipe
+	 * @return A pipe expression
+	 */
+	IExpression pipe(IExpression... expressions);
+
+	/**
+	 * Create an expression that yields a new collection consisting of all elements of the
+	 * <code>collection</code> for which the <code>lambda</code> yields <code>true</code>.
+	 * @param collection The collection providing the elements to test
+	 * @param lambda The lambda that performs the test
+	 * @return A collection expression
+	 */
+	IExpression select(IExpression collection, IExpression lambda);
+
+	/**
 	 * Returns the variable that represents <code>this</this> in an expression
 	 * @return The <code>this</this> variable.
 	 */
 	IExpression thisVariable();
+
+	/**
+	 * Wrap an {@link IQuery} as an expression.
+	 * @param query
+	 * @return An expression that wraps the query
+	 */
+	IExpression toExpression(IQuery<?> query);
 
 	/**
 	 * Creates an expression that represents a variable

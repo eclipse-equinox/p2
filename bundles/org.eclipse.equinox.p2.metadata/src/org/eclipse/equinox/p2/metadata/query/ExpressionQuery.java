@@ -1,12 +1,12 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
- *  All rights reserved. This program and the accompanying materials
- *  are made available under the terms of the Eclipse Public License v1.0
- *  which accompanies this distribution, and is available at
- *  http://www.eclipse.org/legal/epl-v10.html
- * 
- *  Contributors:
- *     IBM Corporation - initial API and implementation
+ * Copyright (c) 2009, 2010 Cloudsmith Inc. and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.query;
 
@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.query.*;
  * A query that matches candidates against an expression.
  * @since 2.0
  */
-public class ExpressionQuery<T> implements IQueryWithIndex<T> {
+public class ExpressionQuery<T> implements IMatchQuery<T>, IQueryWithIndex<T> {
 	public static final IMatchExpression<IInstallableUnit> MATCH_ALL_UNITS = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.TRUE_EXPRESSION);
 	public static final IMatchExpression<IInstallableUnit> MATCH_NO_UNIT = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.FALSE_EXPRESSION);
 
@@ -50,6 +50,10 @@ public class ExpressionQuery<T> implements IQueryWithIndex<T> {
 		return context;
 	}
 
+	public Class<? extends T> getMatchingClass() {
+		return matchingClass;
+	}
+
 	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
 		Iterator<T> iterator = null;
 		for (String member : Expression.getIndexCandidateMembers(IArtifactKey.class, ExpressionFactory.THIS, (Expression) expression)) {
@@ -62,6 +66,7 @@ public class ExpressionQuery<T> implements IQueryWithIndex<T> {
 		}
 		if (iterator == null)
 			iterator = indexProvider.everything();
+		context.setIndexProvider(indexProvider);
 		return perform(iterator);
 	}
 
@@ -91,5 +96,11 @@ public class ExpressionQuery<T> implements IQueryWithIndex<T> {
 
 	public void setIndexProvider(IIndexProvider<T> indexProvider) {
 		context.setIndexProvider(indexProvider);
+	}
+
+	public void prePerform() { //
+	}
+
+	public void postPerform() { //
 	}
 }

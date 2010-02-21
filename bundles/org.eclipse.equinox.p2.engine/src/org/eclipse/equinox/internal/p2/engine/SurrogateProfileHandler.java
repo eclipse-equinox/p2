@@ -23,6 +23,7 @@ import org.eclipse.equinox.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -49,11 +50,9 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private SoftReference<IProfile> cachedProfile;
 
 	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile) {
-		IQuery<IInstallableUnit> rootIUQuery = CompoundQuery.createCompoundQuery(new UserVisibleRootQuery(), new MatchQuery<IInstallableUnit>() {
-			public boolean isMatch(IInstallableUnit iu) {
-				return iu.getTouchpointType().getId().equals(NATIVE_TOUCHPOINT_TYPE);
-			}
-		}, false);
+		IQuery<IInstallableUnit> rootIUQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, //
+				"profileProperties[$0] == 'true' || touchpointType.id == $1",//$NON-NLS-1$
+				IProfile.PROP_PROFILE_ROOT_IU, NATIVE_TOUCHPOINT_TYPE);
 		IQueryResult<IInstallableUnit> rootIUs = sharedProfile.query(rootIUQuery, null);
 		for (Iterator<IInstallableUnit> iterator = rootIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();

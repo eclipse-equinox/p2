@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.metadata.expression.*;
  * to return a boolean value. The wrapper provides the evaluation context needed
  * to evaluate the expression.
  */
-class MatchExpression<T> extends Unary implements IMatchExpression<T> {
+public class MatchExpression<T> extends Unary implements IMatchExpression<T> {
 	private static final Object[] noParams = new Object[0];
 	private final Object[] parameters;
 
@@ -54,6 +54,14 @@ class MatchExpression<T> extends Unary implements IMatchExpression<T> {
 
 	public Object[] getParameters() {
 		return parameters;
+	}
+
+	/**
+	 * Returns the predicate expression that is used for the match
+	 * @return The predicate expression
+	 */
+	IExpression getPredicate() {
+		return operand;
 	}
 
 	public int getPriority() {

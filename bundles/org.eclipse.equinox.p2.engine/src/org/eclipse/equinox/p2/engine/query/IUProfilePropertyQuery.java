@@ -10,27 +10,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine.query;
 
-import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A query that searches for {@link IInstallableUnit} instances that have
  * a property associated with the specified profile, whose value matches the provided value.
  * @since 2.0
  */
-public class IUProfilePropertyQuery extends MatchQuery<IInstallableUnit> {
+public class IUProfilePropertyQuery extends ExpressionQuery<IInstallableUnit> {
 	public static final String ANY = "*"; //$NON-NLS-1$
 
-	private final String propertyName;
-	private final String propertyValue;
-	private IProfile profile;
+	private static final IExpression matchValue = ExpressionUtil.parse("profileProperties[$0] == $1"); //$NON-NLS-1$
+	private static final IExpression matchAny = ExpressionUtil.parse("profileProperties[$0] != null"); //$NON-NLS-1$
 
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
-	public void setProfile(IProfile profile) {
-		this.profile = profile;
+	private static IMatchExpression<IInstallableUnit> createMatch(String propertyName, String propertyValue) {
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		return ANY.equals(propertyValue) ? factory.<IInstallableUnit> matchExpression(matchAny, propertyName) : factory.<IInstallableUnit> matchExpression(matchValue, propertyName, propertyValue);
 	}
 
 	/**
@@ -42,15 +39,6 @@ public class IUProfilePropertyQuery extends MatchQuery<IInstallableUnit> {
 	 * @param propertyValue The value to compare to. A value of &quot;*&quot; means any value.
 	 */
 	public IUProfilePropertyQuery(String propertyName, String propertyValue) {
-		this.propertyName = propertyName;
-		this.propertyValue = propertyValue;
-	}
-
-	@Override
-	public boolean isMatch(IInstallableUnit candidate) {
-		if (profile == null)
-			return false;
-		String foundValue = profile.getInstallableUnitProperty(candidate, propertyName);
-		return foundValue == null ? propertyValue == null : (ANY.equals(propertyValue) || foundValue.equals(propertyValue));
+		super(IInstallableUnit.class, createMatch(propertyName, propertyValue));
 	}
 }

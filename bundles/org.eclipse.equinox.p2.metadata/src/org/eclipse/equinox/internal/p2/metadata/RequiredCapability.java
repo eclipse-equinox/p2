@@ -286,6 +286,6 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 			return Boolean.valueOf(greedy);
 		if (MEMBER_MATCH == memberName)
 			return matchExpression;
-		throw new IllegalArgumentException();
+		throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
 	}
 }

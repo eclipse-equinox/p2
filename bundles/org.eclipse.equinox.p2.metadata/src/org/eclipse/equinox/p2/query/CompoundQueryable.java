@@ -9,17 +9,37 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
-import java.lang.reflect.Array;
 import java.util.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
+import org.eclipse.equinox.internal.p2.metadata.index.CompoundIndex;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.KeyWithLocale;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.index.*;
 
 /**
  * A queryable that holds a number of other IQueryables and provides
  * a mechanism for querying the entire set.
  * @since 2.0
  */
-public class CompoundQueryable<T> implements IQueryable<T> {
+public class CompoundQueryable<T> implements IQueryable<T>, IIndexProvider<T> {
+
+	static class PassThroughIndex<T> implements IIndex<T> {
+		private final Iterator<T> iterator;
+
+		public PassThroughIndex(Iterator<T> iterator) {
+			this.iterator = iterator;
+		}
+
+		public Iterator<T> getCandidates(IEvaluationContext ctx, IExpression variable, IExpression booleanExpr) {
+			return iterator;
+		}
+	}
 
 	private IQueryable<T>[] queryables;
 
@@ -60,104 +80,110 @@ public class CompoundQueryable<T> implements IQueryable<T> {
 		this(new IQueryable[] {query1, query2, query3});
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.IQuery, org.eclipse.core.runtime.IProgressMonitor)
-	 */
 	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
-		IQueryResult<T> subResults = null;
-		if (monitor == null) {
-			monitor = new NullProgressMonitor();
-		}
-		boolean isMatchQuery = query instanceof IMatchQuery<?>;
-		int totalWork = isMatchQuery ? queryables.length : queryables.length + 1;
-
-		try {
-			SubMonitor subMonitor = SubMonitor.convert(monitor, totalWork * 10);
-			Collector<T> results;
-			if (!isMatchQuery) {
-				// If it is not a match query, then collect the results
-				// as a list, we will query this list for the final results
-				results = new ListCollector<T>();
-			} else
-				results = new Collector<T>();
-
-			for (int i = 0; i < queryables.length; i++) {
-				if (subMonitor.isCanceled())
-					break;
-				subResults = queryables[i].query(query, subMonitor.newChild(10));
-				results.addAll(subResults);
-			}
-
-			if (isMatchQuery)
-				return results;
-
-			// If it is not a MatchQuery then we must query the results.
-			return results.query(query, subMonitor.newChild(10));
-		} finally {
+		if (monitor != null)
+			monitor.beginTask(null, IProgressMonitor.UNKNOWN);
+		IQueryResult<T> result = (query instanceof IQueryWithIndex<?>) ? ((IQueryWithIndex<T>) query).perform(this) : query.perform(everything());
+		if (monitor != null) {
+			monitor.worked(1);
 			monitor.done();
+		}
+		return result;
+	}
+
+	public IIndex<T> getIndex(String memberName) {
+		// Check that at least one of the queryable can present an index
+		// for the given member.
+		boolean found = false;
+		for (IQueryable<T> queryable : queryables) {
+			if (queryable instanceof IIndexProvider<?>) {
+				@SuppressWarnings("unchecked")
+				IIndexProvider<T> ip = (IIndexProvider<T>) queryable;
+				if (ip.getIndex(memberName) != null) {
+					found = true;
+					break;
+				}
+			}
+		}
+
+		if (!found)
+			// Nobody had an index for this member
+			return null;
+
+		ArrayList<IIndex<T>> indexes = new ArrayList<IIndex<T>>(queryables.length);
+		for (IQueryable<T> queryable : queryables) {
+			if (queryable instanceof IIndexProvider<?>) {
+				@SuppressWarnings("unchecked")
+				IIndexProvider<T> ip = (IIndexProvider<T>) queryable;
+				IIndex<T> index = ip.getIndex(memberName);
+				if (index != null)
+					indexes.add(index);
+				else
+					indexes.add(new PassThroughIndex<T>(ip.everything()));
+			} else {
+				indexes.add(new PassThroughIndex<T>(getIteratorFromQueryable(queryable)));
+			}
+		}
+		return indexes.size() == 1 ? indexes.get(0) : new CompoundIndex<T>(indexes);
+	}
+
+	public Iterator<T> everything() {
+		if (queryables.length == 0)
+			return CollectionUtils.<T> emptySet().iterator();
+
+		if (queryables.length == 1)
+			return getIteratorFromQueryable(queryables[0]);
+
+		ArrayList<Iterator<T>> iterators = new ArrayList<Iterator<T>>(queryables.length);
+		for (IQueryable<T> queryable : queryables)
+			iterators.add(getIteratorFromQueryable(queryable));
+		return new CompoundIterator<T>(iterators.iterator());
+	}
+
+	public Object getManagedProperty(Object client, String memberName, Object key) {
+		for (IQueryable<T> queryable : queryables) {
+			if (queryable instanceof IIndexProvider<?>) {
+				@SuppressWarnings("unchecked")
+				IIndexProvider<T> ip = (IIndexProvider<T>) queryable;
+				Object value = ip.getManagedProperty(client, memberName, key);
+				if (value != null)
+					return value;
+			}
+		}
+
+		// When asked for translatedProperties we should return from the IU when the property is not found.
+		if (client instanceof IInstallableUnit && memberName.equals(InstallableUnit.MEMBER_TRANSLATED_PROPERTIES)) {
+			IInstallableUnit iu = (IInstallableUnit) client;
+			return key instanceof KeyWithLocale ? iu.getProperty(((KeyWithLocale) key).getKey()) : iu.getProperty(key.toString());
+		}
+		return null;
+	}
+
+	static class IteratorCapture<T> implements IQuery<T> {
+		private Iterator<T> capturedIterator;
+
+		public IQueryResult<T> perform(Iterator<T> iterator) {
+			capturedIterator = iterator;
+			return Collector.emptyCollector();
+		}
+
+		public IExpression getExpression() {
+			return null;
+		}
+
+		Iterator<T> getCapturedIterator() {
+			return capturedIterator == null ? CollectionUtils.<T> emptySet().iterator() : capturedIterator;
 		}
 	}
 
-	/**
-	 * A list collector.
-	 * 
-	 * This is a collector backed as a list.
-	 * 
-	 * The list collector is not intended to be used outside of this class.  It is only public
-	 * for testing purposes.
-	 * 
-	 * @noinstantiate This class is not intended to be instantiated by clients.
-	 * @noextend This class is not intended to be subclassed by clients.
-	 * 
-	 */
-	public static class ListCollector<T> extends Collector<T> {
-		private List<T> collected;
-
-		public ListCollector() {
-			super();
+	private static <T> Iterator<T> getIteratorFromQueryable(IQueryable<T> queryable) {
+		if (queryable instanceof IIndexProvider<?>) {
+			@SuppressWarnings("unchecked")
+			IIndexProvider<T> ip = (IIndexProvider<T>) queryable;
+			return ip.everything();
 		}
-
-		protected Collection<T> getCollection() {
-			if (collected == null)
-				collected = new ArrayList<T>();
-			return collected;
-		}
-
-		public boolean isEmpty() {
-			return collected == null || collected.isEmpty();
-		}
-
-		@SuppressWarnings("unchecked")
-		public T[] toArray(Class<? extends T> clazz) {
-			int size = collected == null ? 0 : collected.size();
-			T[] result = (T[]) Array.newInstance(clazz, size);
-			if (size != 0)
-				collected.toArray(result);
-			return result;
-		}
-
-		public boolean accept(T object) {
-			if (collected == null)
-				collected = new ArrayList<T>();
-			collected.add(object);
-			return true;
-		}
-
-		/**
-		 * Returns the collected objects as an immutable collection.
-		 * 
-		 * @return An unmodifiable collection of the collected objects
-		 */
-		public Set<T> toSet() {
-			return collected == null ? new HashSet<T>() : new HashSet<T>(collected);
-		}
-
-		public Iterator<T> iterator() {
-			return collected == null ? CollectionUtils.<T> emptyList().iterator() : collected.iterator();
-		}
-
-		public int size() {
-			return collected == null ? 0 : collected.size();
-		}
+		IteratorCapture<T> capture = new IteratorCapture<T>();
+		queryable.query(capture, new NullProgressMonitor());
+		return capture.getCapturedIterator();
 	}
 }

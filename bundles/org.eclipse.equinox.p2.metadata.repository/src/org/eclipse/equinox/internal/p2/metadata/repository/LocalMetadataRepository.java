@@ -19,8 +19,7 @@ import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.metadata.IUMap;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.index.CapabilityIndex;
 import org.eclipse.equinox.internal.p2.metadata.index.IdIndex;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -28,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.KeyWithLocale;
 import org.eclipse.equinox.p2.metadata.index.*;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -53,6 +53,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	protected HashSet<RepositoryReference> repositories = new HashSet<RepositoryReference>();
 	private IIndex<IInstallableUnit> idIndex;
 	private IIndex<IInstallableUnit> capabilityIndex;
+	private TranslationSupport translationSupport;
 
 	private static File getActualLocation(URI location, String extension) {
 		File spec = URIUtil.toFile(location);
@@ -117,6 +118,18 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			if (capabilityIndex == null)
 				capabilityIndex = new CapabilityIndex(units.iterator());
 			return capabilityIndex;
+		}
+		return null;
+	}
+
+	public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
+		if (!(client instanceof IInstallableUnit))
+			return null;
+		IInstallableUnit iu = (IInstallableUnit) client;
+		if (InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(memberName)) {
+			if (translationSupport == null)
+				translationSupport = new TranslationSupport(this);
+			return key instanceof KeyWithLocale ? translationSupport.getIUProperty(iu, (KeyWithLocale) key) : translationSupport.getIUProperty(iu, key.toString());
 		}
 		return null;
 	}
@@ -244,5 +257,4 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			manager.addRepository(this);
 		return oldValue;
 	}
-
 }

@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Prashant Deva - Bug 194674 [prov] Provide write access to metadata repository
+ *     Cloudsmith Inc. - query indexes
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
@@ -16,12 +17,12 @@ import java.util.Iterator;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.metadata.IUMap;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.index.CapabilityIndex;
 import org.eclipse.equinox.internal.p2.metadata.index.IdIndex;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.KeyWithLocale;
 import org.eclipse.equinox.p2.metadata.index.*;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -41,6 +42,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 	protected IUMap units = new IUMap();
 	private IIndex<IInstallableUnit> idIndex;
 	private IIndex<IInstallableUnit> capabilityIndex;
+	private TranslationSupport translationSupport;
 
 	public static URI getActualLocation(URI base) {
 		return getActualLocation(base, XML_EXTENSION);
@@ -102,6 +104,18 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 			if (capabilityIndex == null)
 				capabilityIndex = new CapabilityIndex(units.iterator());
 			return capabilityIndex;
+		}
+		return null;
+	}
+
+	public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
+		if (!(client instanceof IInstallableUnit))
+			return null;
+		IInstallableUnit iu = (IInstallableUnit) client;
+		if (InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(memberName)) {
+			if (translationSupport == null)
+				translationSupport = new TranslationSupport(this);
+			return key instanceof KeyWithLocale ? translationSupport.getIUProperty(iu, (KeyWithLocale) key) : translationSupport.getIUProperty(iu, key.toString());
 		}
 		return null;
 	}

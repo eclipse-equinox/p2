@@ -31,30 +31,4 @@ public interface IMatchQuery<T> extends IQuery<T> {
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public boolean isMatch(T candidate);
-
-	/**
-	 * Execute any pre-processing that must be done before this query is performed against
-	 * a particular iterator.  This method may be used by subclasses to do any calculations,
-	 * caching, or other preparation for the query.
-	 * <p>
-	 * This method is internal to the framework.  Subclasses may override this method, but
-	 * should not call this method.
-	 * 
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
-	public void prePerform();
-
-	/**
-	 * Execute any post-processing that must be done after this query has been performed against
-	 * a particular iterator.  This method may be used by subclasses to clear caches or any other
-	 * cleanup that should occur after a query.  
-	 * <p>
-	 * This method will be called even if the query does not complete successfully.
-	 * <p>
-	 * This method is internal to the framework.  Subclasses may override this method, but
-	 * should not call this method.
-	 * 
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
-	public void postPerform();
 }

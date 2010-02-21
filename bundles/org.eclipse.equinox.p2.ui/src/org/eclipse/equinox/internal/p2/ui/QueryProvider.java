@@ -160,7 +160,7 @@ public class QueryProvider {
 					IQuery<IInstallableUnit> meetsAnyRequirementQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, factory.or(requirementExpressions));
 					IQuery<IInstallableUnit> visibleAsAvailableQuery = policy.getVisibleAvailableIUQuery();
 					@SuppressWarnings("unchecked")
-					CompoundQuery<IInstallableUnit> createCompoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true);
+					IQuery<IInstallableUnit> createCompoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true);
 					return new ElementQueryDescriptor(queryable, createCompoundQuery, new Collector<IInstallableUnit>(), new InstalledIUElementWrapper(queryable, element));
 				}
 				profile = ProvUI.getAdapter(element, IProfile.class);

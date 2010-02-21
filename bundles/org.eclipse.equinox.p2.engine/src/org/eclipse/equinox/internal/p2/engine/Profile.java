@@ -4,7 +4,10 @@
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: IBM Corporation - initial API and implementation
+ * Contributors:
+ *    IBM Corporation - initial API and implementation
+ *    Cloudsmith Inc. - query indexes
+ * 
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -14,22 +17,45 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.metadata.IUMap;
+import org.eclipse.equinox.internal.p2.metadata.*;
+import org.eclipse.equinox.internal.p2.metadata.index.CapabilityIndex;
+import org.eclipse.equinox.internal.p2.metadata.index.IdIndex;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ISurrogateProfileHandler;
-import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.KeyWithLocale;
+import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.index.*;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.osgi.util.NLS;
 
-public class Profile implements IProfile {
+public class Profile implements IProfile, IIndexProvider<IInstallableUnit> {
+
+	/**
+	 * An index that limits the candidates to those units that has profile properties
+	 */
+	class ProfilePropertyIndex implements IIndex<IInstallableUnit> {
+		public Iterator<IInstallableUnit> getCandidates(IEvaluationContext ctx, IExpression variable, IExpression booleanExpr) {
+			return iuProperties.keySet().iterator();
+		}
+	}
+
 	private final IProvisioningAgent agent;
 	//Internal id of the profile
 	private final String profileId;
 
 	private Profile parentProfile;
+
+	private IIndex<IInstallableUnit> idIndex;
+
+	private IIndex<IInstallableUnit> propertiesIndex;
+
+	private IIndex<IInstallableUnit> capabilityIndex;
+
+	private TranslationSupport translationSupport;
 
 	/**
 	 * 	A collection of child profiles.
@@ -42,7 +68,7 @@ public class Profile implements IProfile {
 	private OrderedProperties storage = new OrderedProperties();
 
 	private IUMap ius = new IUMap();
-	private Map<IInstallableUnit, OrderedProperties> iuProperties = new HashMap<IInstallableUnit, OrderedProperties>();
+	final Map<IInstallableUnit, OrderedProperties> iuProperties = new HashMap<IInstallableUnit, OrderedProperties>();
 	private boolean changed = false;
 
 	private long timestamp;
@@ -161,31 +187,49 @@ public class Profile implements IProfile {
 		changed = true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
-	 */
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		propagateProfileContext(query);
-		if (query instanceof IUProfilePropertyQuery) {
-			return query.perform(iuProperties.keySet().iterator());
-		} else if (query instanceof InstallableUnitQuery) {
-			return ius.query((InstallableUnitQuery) query);
-		}
-		return query.perform(ius.iterator());
+		return (query instanceof IQueryWithIndex<?>) ? ((IQueryWithIndex<IInstallableUnit>) query).perform(this) : query.perform(everything());
 	}
 
-	private <T> void propagateProfileContext(IQuery<T> query) {
-		// FIXME
-		if (query instanceof IUProfilePropertyQuery) {
-			((IUProfilePropertyQuery) query).setProfile(this);
-			return;
+	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
+		if (InstallableUnit.MEMBER_ID.equals(memberName)) {
+			if (idIndex == null)
+				idIndex = new IdIndex(ius);
+			return idIndex;
 		}
-		if (query instanceof ICompositeQuery<?>) {
-			List<IQuery<T>> queries = ((ICompositeQuery<T>) query).getQueries();
-			for (int i = 0; i < queries.size(); i++) {
-				propagateProfileContext(queries.get(i));
+
+		if (InstallableUnit.MEMBER_PROVIDED_CAPABILITIES.equals(memberName)) {
+			if (capabilityIndex == null)
+				capabilityIndex = new CapabilityIndex(ius.iterator());
+			return capabilityIndex;
+		}
+
+		if (InstallableUnit.MEMBER_PROFILE_PROPERTIES.equals(memberName)) {
+			if (propertiesIndex == null)
+				propertiesIndex = new ProfilePropertyIndex();
+			return propertiesIndex;
+		}
+		return null;
+	}
+
+	public Iterator<IInstallableUnit> everything() {
+		return ius.iterator();
+	}
+
+	public Object getManagedProperty(Object client, String memberName, Object key) {
+		if (!(client instanceof IInstallableUnit))
+			return null;
+		IInstallableUnit iu = (IInstallableUnit) client;
+		if (InstallableUnit.MEMBER_PROFILE_PROPERTIES.equals(memberName) && key instanceof String)
+			return getInstallableUnitProperty(iu, (String) key);
+		if (InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(memberName)) {
+			synchronized (this) {
+				if (translationSupport == null)
+					translationSupport = new TranslationSupport(this);
+				return key instanceof KeyWithLocale ? translationSupport.getIUProperty(iu, (KeyWithLocale) key) : translationSupport.getIUProperty(iu, key.toString());
 			}
 		}
+		return null;
 	}
 
 	public IQueryResult<IInstallableUnit> available(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {

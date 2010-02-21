@@ -17,9 +17,8 @@ import org.eclipse.equinox.internal.p2.ql.expression.IQLConstants;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
 import org.eclipse.equinox.p2.ql.IQLFactory;
-import org.eclipse.equinox.p2.ql.IQLParser;
 
-public class QLParser extends ExpressionParser implements IQLParser, IQLConstants {
+public class QLParser extends ExpressionParser implements IQLConstants {
 	private static final long serialVersionUID = 882034383978853143L;
 
 	private static final int TOKEN_ANY = 42;

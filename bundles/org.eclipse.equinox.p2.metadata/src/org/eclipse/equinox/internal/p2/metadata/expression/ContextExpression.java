@@ -36,7 +36,7 @@ public class ContextExpression<T> extends Unary implements IContextExpression<T>
 		operand.toString(bld, rootVariable);
 	}
 
-	public IEvaluationContext createContext(Class<T> elementClass, IIndexProvider<T> indexProvider) {
+	public IEvaluationContext createContext(Class<? extends T> elementClass, IIndexProvider<T> indexProvider) {
 		Variable everything = ExpressionFactory.EVERYTHING;
 		IEvaluationContext context = EvaluationContext.create(parameters, everything);
 		context.setValue(everything, new Everything<T>(elementClass, indexProvider));
@@ -44,7 +44,7 @@ public class ContextExpression<T> extends Unary implements IContextExpression<T>
 		return context;
 	}
 
-	public IEvaluationContext createContext(Class<T> elementClass, Iterator<T> iterator) {
+	public IEvaluationContext createContext(Class<? extends T> elementClass, Iterator<T> iterator) {
 		Variable everything = ExpressionFactory.EVERYTHING;
 		IEvaluationContext context = EvaluationContext.create(parameters, everything);
 		context.setValue(everything, new Everything<T>(elementClass, iterator, operand));

@@ -47,10 +47,15 @@ public abstract class Index<T> implements IIndex<T> {
 	}
 
 	protected Object getQueriedIDs(IEvaluationContext ctx, IExpression variable, String memberName, IExpression booleanExpr, Object queriedKeys) {
-		int type = booleanExpr.getExpressionType();
+		IExpression targetExpr = booleanExpr;
+		if (booleanExpr instanceof IMatchExpression<?>) {
+			targetExpr = ((Unary) targetExpr).operand;
+			ctx = ((IMatchExpression<?>) booleanExpr).createContext();
+		}
+		int type = targetExpr.getExpressionType();
 		switch (type) {
 			case IExpression.TYPE_EQUALS :
-				Binary eqExpr = (Binary) booleanExpr;
+				Binary eqExpr = (Binary) targetExpr;
 				IExpression lhs = eqExpr.lhs;
 				IExpression rhs = eqExpr.rhs;
 				if (isIndexedMember(lhs, variable, memberName))
@@ -63,7 +68,7 @@ public abstract class Index<T> implements IIndex<T> {
 
 			case IExpression.TYPE_AND :
 				// AND is OK if at least one of the branches require the queried key
-				for (IExpression expr : ExpressionUtil.getOperands(booleanExpr)) {
+				for (IExpression expr : ExpressionUtil.getOperands(targetExpr)) {
 					Object test = getQueriedIDs(ctx, variable, memberName, expr, queriedKeys);
 					if (test != null) {
 						if (test == Boolean.FALSE)
@@ -79,7 +84,7 @@ public abstract class Index<T> implements IIndex<T> {
 
 			case IExpression.TYPE_OR :
 				// OR is OK if all the branches require the queried key
-				for (IExpression expr : ExpressionUtil.getOperands(booleanExpr)) {
+				for (IExpression expr : ExpressionUtil.getOperands(targetExpr)) {
 					Object test = getQueriedIDs(ctx, variable, memberName, expr, queriedKeys);
 					if (test == null)
 						// This branch did not require the key so index cannot be used
@@ -97,7 +102,7 @@ public abstract class Index<T> implements IIndex<T> {
 			case IExpression.TYPE_ALL :
 				// We must evaluate the lhs to find the referenced keys
 				//
-				CollectionFilter cf = (CollectionFilter) booleanExpr;
+				CollectionFilter cf = (CollectionFilter) targetExpr;
 				Iterator<?> values = cf.getOperand().evaluateAsIterator(ctx);
 				if (!values.hasNext())
 					// No keys are requested but we know that an exists must

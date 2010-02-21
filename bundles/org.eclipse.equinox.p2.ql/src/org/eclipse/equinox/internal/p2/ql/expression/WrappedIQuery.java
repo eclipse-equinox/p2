@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
-import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.query.IMatchQuery;
 import org.eclipse.equinox.p2.query.IQuery;
@@ -63,5 +62,15 @@ public final class WrappedIQuery extends Function implements IQLConstants {
 
 	public String getOperator() {
 		return KEYWORD_IQUERY;
+	}
+
+	@Override
+	public boolean isReferenceTo(Variable variable) {
+		Object firstOp = operands[0];
+		if (firstOp instanceof Literal) {
+			Object query = ((Literal) firstOp).value;
+			return (query instanceof IMatchQuery<?>) ? variable == ExpressionFactory.THIS : variable == ExpressionFactory.EVERYTHING;
+		}
+		return false;
 	}
 }

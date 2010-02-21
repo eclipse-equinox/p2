@@ -138,6 +138,6 @@ public class ArtifactKey implements IArtifactKey, IMemberProvider {
 			return version;
 		if (MEMBER_CLASSIFIER == memberName)
 			return classifier;
-		throw new IllegalArgumentException();
+		throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
 	}
 }

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ql.expression;
 
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
@@ -64,7 +66,7 @@ public abstract class QLUtil implements IExpression, IQLConstants {
 		}
 
 		public boolean visit(IExpression expression) {
-			if (expression.getExpressionType() == TYPE_MEMBER && VARIABLE_TRANSLATIONS.equals(((Member) expression).getName()))
+			if (expression.getExpressionType() == TYPE_MEMBER && InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(((Member) expression).getName()))
 				found = true;
 			return !found;
 		}

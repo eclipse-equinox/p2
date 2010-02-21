@@ -10,10 +10,11 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
-import java.util.*;
-import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
-import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
+import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
+import org.eclipse.equinox.internal.p2.metadata.expression.Expression.VariableFinder;
+import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionContextQuery;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A PipedQuery is a composite query in which each sub-query is executed in succession.  
@@ -21,9 +22,7 @@ import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
  * query will short-circuit if any query returns an empty result set.
  * @since 2.0
  */
-public class PipedQuery<T> implements ICompositeQuery<T>, IQueryWithIndex<T> {
-	protected final IQuery<T>[] queries;
-
+public abstract class PipedQuery<T> {
 	/**
 	 * Creates a piped query based on the two provided input queries. The full
 	 * query input will be passed into the first query in the provided array. The
@@ -34,7 +33,7 @@ public class PipedQuery<T> implements ICompositeQuery<T>, IQueryWithIndex<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <E> IQuery<E> createPipe(IQuery<? extends E> query1, IQuery<? extends E> query2) {
-		return new PipedQuery<E>(new IQuery[] {query1, query2});
+		return createPipe(new IQuery[] {query1, query2});
 	}
 
 	/**
@@ -44,66 +43,21 @@ public class PipedQuery<T> implements ICompositeQuery<T>, IQueryWithIndex<T> {
 	 * 
 	 * @param queries the ordered list of queries to perform
 	 */
+	@SuppressWarnings("unchecked")
 	public static <E> IQuery<E> createPipe(IQuery<E>[] queries) {
-		return new PipedQuery<E>(queries);
-	}
-
-	/**
-	 * Creates a piped query based on the provided input queries. The full
-	 * query input will be passed into the first query in the provided array. Subsequent
-	 * queries will obtain as input the result of execution of the previous query. 
-	 * 
-	 * @param queries the ordered list of queries to perform
-	 */
-	private PipedQuery(IQuery<T>[] queries) {
-		this.queries = queries;
-	}
-
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query.ICompositeQuery#getQueries()
-	 */
-	public List<IQuery<T>> getQueries() {
-		return Arrays.asList(queries);
-	}
-
-	/*(non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query.IQuery#perform(java.util.Iterator)
-	 */
-	public IQueryResult<T> perform(Iterator<T> iterator) {
-		IQueryResult<T> last = Collector.emptyCollector();
-		if (queries.length > 0) {
-			last = queries[0].perform(iterator);
-			for (int i = 1; i < queries.length; i++) {
-				if (last.isEmpty())
-					break;
-				// Take the results of the previous query and use them
-				// to drive the next one (i.e. composing queries)
-				last = queries[i].perform(last.iterator());
-			}
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		int idx = queries.length;
+		IExpression[] expressions = new IExpression[idx];
+		while (--idx >= 0) {
+			IQuery<E> query = queries[idx];
+			IExpression expr = query.getExpression();
+			if (expr == null)
+				expr = factory.toExpression(query);
+			expressions[idx] = expr;
 		}
-		return last;
-	}
-
-	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
-		IQueryResult<T> last = Collector.emptyCollector();
-		if (queries.length > 0) {
-			IQuery<T> firstQuery = queries[0];
-			if (firstQuery instanceof IQueryWithIndex<?>)
-				last = ((IQueryWithIndex<T>) firstQuery).perform(indexProvider);
-			else
-				last = firstQuery.perform(indexProvider.everything());
-			for (int i = 1; i < queries.length; i++) {
-				if (last.isEmpty())
-					break;
-				// Take the results of the previous query and use them
-				// to drive the next one (i.e. composing queries)
-				last = queries[i].perform(last.iterator());
-			}
-		}
-		return last;
-	}
-
-	public IExpression getExpression() {
-		return null;
+		IExpression pipe = factory.pipe(expressions);
+		VariableFinder finder = new VariableFinder(ExpressionFactory.EVERYTHING);
+		pipe.accept(finder);
+		return finder.isFound() ? new ExpressionContextQuery<E>((Class<E>) Object.class, pipe) : new ExpressionQuery<E>((Class<E>) Object.class, pipe);
 	}
 }

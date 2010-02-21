@@ -12,8 +12,6 @@ public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConst
 	@SuppressWarnings("hiding")
 	public static final IQLFactory INSTANCE = new QLFactory();
 
-	public static final Variable TRANSLATIONS = new Variable(VARIABLE_TRANSLATIONS);
-
 	protected static final Map<String, Constructor<?>> functionMap;
 
 	static {
@@ -27,7 +25,6 @@ public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConst
 			f.put(KEYWORD_CLASS, ClassFunction.class.getConstructor(args));
 			f.put(KEYWORD_SET, SetFunction.class.getConstructor(args));
 			f.put(KEYWORD_IQUERY, WrappedIQuery.class.getConstructor(args));
-			f.put(KEYWORD_CAPABILITY_INDEX, CapabilityIndexFunction.class.getConstructor(args));
 			functionMap = Collections.unmodifiableMap(f);
 		} catch (Exception e) {
 			throw new ExceptionInInitializerError(e);
@@ -42,7 +39,7 @@ public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConst
 		return new Intersect((Expression) c1, (Expression) c2);
 	}
 
-	public IExpression array(IExpression[] operands) {
+	public IExpression array(IExpression... operands) {
 		return new Array(convertArray(operands));
 	}
 
@@ -120,13 +117,10 @@ public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConst
 			return member(target, name);
 
 		Expression[] eargs = convertArray(args);
-		if (args.length > 0) {
-			if (KEYWORD_SATISFIES_ANY.equals(name))
-				return new CapabilityIndexFunction.SatisfiesAny((Expression) target, eargs);
-			if (KEYWORD_SATISFIES_ALL.equals(name))
-				return new CapabilityIndexFunction.SatisfiesAll((Expression) target, eargs);
-		}
 
+		// Insert functions that takes arguments here
+
+		//
 		StringBuffer bld = new StringBuffer();
 		bld.append("Don't know how to do a member call with "); //$NON-NLS-1$
 		bld.append(name);
@@ -140,20 +134,16 @@ public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConst
 		return new Union((Expression) c1, (Expression) c2);
 	}
 
+	public IExpression pipe(IExpression... operands) {
+		return Pipe.createPipe(convertArray(operands));
+	}
+
 	public IExpression select(IExpression collection, IExpression lambda) {
 		return new Select((Expression) collection, (LambdaExpression) lambda);
 	}
 
 	public IExpression traverse(IExpression collection, IExpression lambda) {
 		return new Traverse((Expression) collection, (LambdaExpression) lambda);
-	}
-
-	public IExpression variable(String name) {
-		if (name.equals(IExpressionConstants.VARIABLE_EVERYTHING))
-			return EVERYTHING;
-		if (name.equals(VARIABLE_TRANSLATIONS))
-			return TRANSLATIONS;
-		return super.variable(name);
 	}
 
 	public IExpression toExpression(IQuery<?> query) {

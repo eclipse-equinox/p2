@@ -80,6 +80,6 @@ public class ProvidedCapability implements IProvidedCapability, IMemberProvider 
 			return version;
 		if (MEMBER_NAMESPACE == memberName)
 			return namespace;
-		throw new IllegalArgumentException();
+		throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
 	}
 }

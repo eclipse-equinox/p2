@@ -7,21 +7,29 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
+ *   Cloudsmith Inc. - query indexes
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IUMap;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
+import org.eclipse.equinox.internal.p2.metadata.index.CompoundIndex;
+import org.eclipse.equinox.internal.p2.metadata.index.IdIndex;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.index.*;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 
-public class PublisherResult implements IPublisherResult {
+public class PublisherResult implements IPublisherResult, IIndexProvider<IInstallableUnit> {
 
 	final IUMap rootIUs = new IUMap();
 	final IUMap nonRootIUs = new IUMap();
+
+	private IIndex<IInstallableUnit> idIndex;
 
 	public void addIU(IInstallableUnit iu, String type) {
 		if (type == ROOT)
@@ -100,55 +108,30 @@ public class PublisherResult implements IPublisherResult {
 	 * Queries both the root and non root IUs
 	 */
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		//optimize for installable unit query
-		if (query instanceof InstallableUnitQuery) {
-			return queryIU((InstallableUnitQuery) query, monitor);
-		} else if (query instanceof LimitQuery<?>) {
-			return doLimitQuery((LimitQuery<IInstallableUnit>) query, monitor);
-		} else if (query instanceof PipedQuery<?>) {
-			return doPipedQuery((PipedQuery<IInstallableUnit>) query, monitor);
-		}
-		IQueryResult<IInstallableUnit> nonRootQueryable = nonRootIUs.query(InstallableUnitQuery.ANY);
-		IQueryResult<IInstallableUnit> rootQueryable = rootIUs.query(InstallableUnitQuery.ANY);
-		return new CompoundQueryable<IInstallableUnit>(nonRootQueryable, rootQueryable).query(query, monitor);
+		return (query instanceof IQueryWithIndex<?>) ? ((IQueryWithIndex<IInstallableUnit>) query).perform(this) : query.perform(everything());
 	}
 
-	/**
-	 * Optimize performance of LimitQuery for cases where we know how to optimize
-	 * the child query.
-	 */
-	private IQueryResult<IInstallableUnit> doLimitQuery(LimitQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		//perform the child query first so it can be optimized
-		IQuery<IInstallableUnit> child = query.getQueries().get(0);
-		return query(child, monitor).query(query, monitor);
-	}
-
-	/**
-	 * Optimize performance of PipedQuery for cases where we know how to optimize
-	 * the child query.
-	 */
-	private IQueryResult<IInstallableUnit> doPipedQuery(PipedQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		IQueryResult<IInstallableUnit> last = Collector.emptyCollector();
-		List<IQuery<IInstallableUnit>> queries = query.getQueries();
-		if (!queries.isEmpty()) {
-			//call our method to do optimized execution of first query
-			last = query(queries.get(0), monitor);
-			for (int i = 1; i < queries.size(); i++) {
-				if (last.isEmpty())
-					break;
-				//Can't optimize the rest, but likely at this point the result set is much smaller
-				last = queries.get(i).perform(last.iterator());
+	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
+		if (InstallableUnit.MEMBER_ID.equals(memberName)) {
+			if (idIndex == null) {
+				ArrayList<IIndex<IInstallableUnit>> indexes = new ArrayList<IIndex<IInstallableUnit>>();
+				indexes.add(new IdIndex(nonRootIUs));
+				indexes.add(new IdIndex(rootIUs));
+				idIndex = new CompoundIndex<IInstallableUnit>(indexes);
 			}
+			return idIndex;
 		}
-		return last;
+		return null;
 	}
 
-	private IQueryResult<IInstallableUnit> queryIU(InstallableUnitQuery query, IProgressMonitor monitor) {
-		IQueryResult<IInstallableUnit> rootResult = rootIUs.query(query);
-		IQueryResult<IInstallableUnit> nonRootResult = nonRootIUs.query(query);
-		Collector<IInstallableUnit> result = new Collector<IInstallableUnit>();
-		result.addAll(rootResult);
-		result.addAll(nonRootResult);
-		return result;
+	public Iterator<IInstallableUnit> everything() {
+		ArrayList<Iterator<IInstallableUnit>> iterators = new ArrayList<Iterator<IInstallableUnit>>();
+		iterators.add(nonRootIUs.iterator());
+		iterators.add(rootIUs.iterator());
+		return new CompoundIterator<IInstallableUnit>(iterators.iterator());
+	}
+
+	public Object getManagedProperty(Object client, String memberName, Object key) {
+		return null;
 	}
 }

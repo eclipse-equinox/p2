@@ -38,7 +38,7 @@ public class CompoundQueryableTest extends TestCase {
 		}
 
 		public boolean isWorkDone() {
-			return amountWorked == assignedWork;
+			return amountWorked > 0 && (assignedWork == IProgressMonitor.UNKNOWN || amountWorked == assignedWork);
 		}
 
 		public boolean isDone() {

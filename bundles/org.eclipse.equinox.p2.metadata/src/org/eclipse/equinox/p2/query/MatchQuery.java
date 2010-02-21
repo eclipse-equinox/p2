@@ -46,16 +46,11 @@ public abstract class MatchQuery<T> implements IMatchQuery<T> {
 	 */
 	public final IQueryResult<T> perform(Iterator<T> iterator) {
 		Collector<T> result = new Collector<T>();
-		prePerform();
-		try {
-			while (iterator.hasNext()) {
-				T candidate = iterator.next();
-				if (candidate != null && isMatch(candidate))
-					if (!result.accept(candidate))
-						break;
-			}
-		} finally {
-			postPerform();
+		while (iterator.hasNext()) {
+			T candidate = iterator.next();
+			if (candidate != null && isMatch(candidate))
+				if (!result.accept(candidate))
+					break;
 		}
 		return result;
 	}

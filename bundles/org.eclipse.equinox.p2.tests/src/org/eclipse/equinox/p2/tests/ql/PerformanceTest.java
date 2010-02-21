@@ -18,9 +18,7 @@ import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.ql.QLContextQuery;
+import org.eclipse.equinox.p2.metadata.query.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -100,7 +98,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		assertTrue(itor.hasNext());
 		IInstallableUnit[] roots = new IInstallableUnit[] {(IInstallableUnit) itor.next()};
 
-		IQuery query = new QLContextQuery(IInstallableUnit.class, "" + //
+		IQuery query = new ExpressionContextQuery(IInstallableUnit.class, "" + //
 				"$0.traverse(set(), _, { cache, parent | parent.requiredCapabilities.unique(cache).select(rc | rc.filter == null || $1 ~= rc.filter).collect(rc | everything.select(iu | iu ~= rc)).flatten()})", roots, env);
 
 		long sliceTime = 0;

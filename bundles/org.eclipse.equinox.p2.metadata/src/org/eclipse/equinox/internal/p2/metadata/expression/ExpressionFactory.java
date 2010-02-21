@@ -2,6 +2,7 @@ package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.List;
 import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.query.IQuery;
 
 public class ExpressionFactory implements IExpressionFactory, IExpressionConstants {
 	public static final IExpressionFactory INSTANCE = new ExpressionFactory();
@@ -87,6 +88,14 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		return new Compare((Expression) lhs, (Expression) rhs, true, true);
 	}
 
+	public IExpression limit(IExpression collection, int count) {
+		throw failNoQL();
+	}
+
+	public IExpression limit(IExpression collection, IExpression limit) {
+		throw failNoQL();
+	}
+
 	public IExpression matches(IExpression lhs, IExpression rhs) {
 		return new Matches((Expression) lhs, (Expression) rhs);
 	}
@@ -122,13 +131,31 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		return new Or(convertArray(operands));
 	}
 
+	public IExpression pipe(IExpression... operands) {
+		throw failNoQL();
+	}
+
+	public IExpression select(IExpression collection, IExpression lambda) {
+		throw failNoQL();
+	}
+
 	public IExpression thisVariable() {
 		return THIS;
 	}
 
+	public IExpression toExpression(IQuery<?> query) {
+		throw failNoQL();
+	}
+
 	public IExpression variable(String name) {
+		if (VARIABLE_EVERYTHING.equals(name))
+			return EVERYTHING;
 		if (VARIABLE_THIS.equals(name))
 			return THIS;
 		return new Variable(name);
+	}
+
+	private static UnsupportedOperationException failNoQL() {
+		return new UnsupportedOperationException("org.eclipse.equinox.p2.ql not installed"); //$NON-NLS-1$		
 	}
 }

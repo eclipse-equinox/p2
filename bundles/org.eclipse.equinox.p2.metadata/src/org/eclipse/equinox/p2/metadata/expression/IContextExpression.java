@@ -30,7 +30,7 @@ public interface IContextExpression<T> extends IExpression {
 	 * @param indexProvider The index provider that represents all queried material.
 	 * @return A new evaluation context.
 	 */
-	IEvaluationContext createContext(Class<T> elementClass, IIndexProvider<T> indexProvider);
+	IEvaluationContext createContext(Class<? extends T> elementClass, IIndexProvider<T> indexProvider);
 
 	/**
 	 * <p>Creates a new context to be passed to a subsequent evaluation. The context
@@ -42,7 +42,7 @@ public interface IContextExpression<T> extends IExpression {
 	 * @param everything The iterator that represents all queried material.
 	 * @return A new evaluation context.
 	 */
-	IEvaluationContext createContext(Class<T> elementClass, Iterator<T> everything);
+	IEvaluationContext createContext(Class<? extends T> elementClass, Iterator<T> everything);
 
 	/**
 	 * Returns the parameters that this context expression was created with.

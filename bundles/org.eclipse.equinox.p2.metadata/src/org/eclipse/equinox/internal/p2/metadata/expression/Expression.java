@@ -147,8 +147,8 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 
 	public abstract int getPriority();
 
-	public boolean isRootVariable() {
-		return false;
+	public boolean isReferenceTo(Variable variable) {
+		return this == variable;
 	}
 
 	public final String toLDAPString() {
@@ -281,7 +281,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		}
 
 		public boolean visit(IExpression expression) {
-			if (variable.equals(expression))
+			if (((Expression) expression).isReferenceTo(variable))
 				found = true;
 			return !found;
 		}

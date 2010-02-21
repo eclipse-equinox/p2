@@ -14,7 +14,6 @@ import java.util.Map;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
-import org.eclipse.equinox.p2.query.IQuery;
 
 /**
  * This inteface provides all the factory methods needed to create the all possible
@@ -26,7 +25,7 @@ public interface IQLFactory extends IExpressionFactory {
 	 * @param elements The elements of the array
 	 * @return An array expression
 	 */
-	IExpression array(IExpression[] elements);
+	IExpression array(IExpression... elements);
 
 	/**
 	 * Creates an expression that represents a variable assignment
@@ -117,14 +116,6 @@ public interface IQLFactory extends IExpressionFactory {
 	IExpression latest(IExpression collection);
 
 	/**
-	 * Create an expression that yields a new collection consisting of the <i>n</i> first
-	 * elements of the source collection where <i>n</i> is determined by <code>limit</code>.
-	 * @param collection The source collection
-	 * @return A collection expression
-	 */
-	IExpression limit(IExpression collection, IExpression limit);
-
-	/**
 	 * Creates a member call expression.
 	 * @param target The target for the member call
 	 * @param name The name of the member
@@ -132,15 +123,6 @@ public interface IQLFactory extends IExpressionFactory {
 	 * @return A member expression
 	 */
 	IExpression memberCall(IExpression target, String name, IExpression... args);
-
-	/**
-	 * Create an expression that yields a new collection consisting of all elements of the
-	 * <code>collection</code> for which the <code>lambda</code> yields <code>true</code>.
-	 * @param collection The collection providing the elements to test
-	 * @param lambda The lambda that performs the test
-	 * @return A collection expression
-	 */
-	IExpression select(IExpression collection, IExpression lambda);
 
 	/**
 	 * <p>Recursively traverse and collect elements based on a condition</p>
@@ -176,11 +158,4 @@ public interface IQLFactory extends IExpressionFactory {
 	 * @return A collection expression
 	 */
 	IExpression unique(IExpression collection, IExpression cache);
-
-	/**
-	 * Wrap an {@link IQuery} as an expression.
-	 * @param query
-	 * @return An expression that wraps the query
-	 */
-	IExpression toExpression(IQuery<?> query);
 }

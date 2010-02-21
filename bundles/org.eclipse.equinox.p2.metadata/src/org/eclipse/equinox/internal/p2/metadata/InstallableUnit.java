@@ -64,6 +64,8 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	private IUpdateDescriptor updateInfo;
 	private ILicense[] licenses = NO_LICENSE;
 	private ICopyright copyright;
+	public static final String MEMBER_TRANSLATED_PROPERTIES = "translatedProperties"; //$NON-NLS-1$
+	public static final String MEMBER_PROFILE_PROPERTIES = "profileProperties"; //$NON-NLS-1$
 
 	public InstallableUnit() {
 		super();
@@ -347,6 +349,6 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 			return updateInfo;
 		if (MEMBER_SINGLETON == memberName)
 			return Boolean.valueOf(singleton);
-		throw new IllegalArgumentException();
+		throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
 	}
 }

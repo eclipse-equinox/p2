@@ -8,6 +8,7 @@
  * Contributors:
  * 	IBM Corporation - initial API and implementation
  * 	Genuitec, LLC - support for multi-threaded downloads
+ *  Cloudsmith Inc. - query indexes
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
@@ -1039,6 +1040,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				keyIndex = new KeyIndex(artifactMap.keySet());
 			return keyIndex;
 		}
+		return null;
+	}
+
+	public Object getManagedProperty(Object client, String memberName, Object key) {
 		return null;
 	}
 }

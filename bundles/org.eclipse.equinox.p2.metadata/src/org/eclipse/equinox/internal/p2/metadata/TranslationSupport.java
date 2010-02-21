@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
+ *     Cloudsmith Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
@@ -45,7 +46,7 @@ public class TranslationSupport {
 
 	// Cache the IU fragments that provide localizations for a given locale.
 	// Map<String,SoftReference<IQueryResult>>: locale => soft reference to a queryResult
-	private Map<String, SoftReference<IQueryResult<IInstallableUnit>>> localeCollectorCache = new HashMap<String, SoftReference<IQueryResult<IInstallableUnit>>>(2);
+	private final Map<String, SoftReference<IQueryResult<IInstallableUnit>>> localeCollectorCache = new HashMap<String, SoftReference<IQueryResult<IInstallableUnit>>>(2);
 
 	private LocaleProvider localeProvider;
 
@@ -64,6 +65,16 @@ public class TranslationSupport {
 	 */
 	public TranslationSupport() {
 		super();
+	}
+
+	/**
+	 * Create an instance of TranslationSupport for the current locale.
+	 * using the <code>fragmentSource</code> as the source of the translation fragments.
+	 * 
+	 * @since 2.0
+	 */
+	public TranslationSupport(IQueryable<IInstallableUnit> fragmentSource) {
+		this.fragmentSource = fragmentSource;
 	}
 
 	/**
@@ -139,6 +150,19 @@ public class TranslationSupport {
 		// else have a localizable property
 		final String actualKey = value.substring(1); // Strip off the %
 		return getLocalizedIUProperty(iu, actualKey, locale);
+	}
+
+	/**
+	 * Return the localized value for the specified IInstallableUnit
+	 * property using the locale specified in the <code>propertyKey</code>.
+	 * 
+	 * @param iu the IInstallableUnit in question
+	 * @param propertyKey the name and locale of the property to be retrieved
+	 * @return the localized property value, or <code>null</code> if no
+	 * such property is defined.
+	 */
+	public String getIUProperty(IInstallableUnit iu, KeyWithLocale propertyKey) {
+		return getIUProperty(iu, propertyKey.getKey(), propertyKey.getLocale().toString());
 	}
 
 	/**
@@ -280,8 +304,11 @@ public class TranslationSupport {
 	 * Set the locale that should be used when obtaining translations.
 	 * @param provider the locale for which translations should be retrieved.
 	 */
-	public void setLocaleProvider(LocaleProvider provider) {
-		this.localeProvider = provider;
+	public synchronized void setLocaleProvider(LocaleProvider provider) {
+		if (provider != this.localeProvider) {
+			this.localeProvider = provider;
+			localeCollectorCache.clear();
+		}
 	}
 
 	/**
@@ -291,9 +318,12 @@ public class TranslationSupport {
 	 * @param queryable an {@link IQueryable} that can supply the appropriate NLS
 	 * translation fragments
 	 */
-	public IQueryable<IInstallableUnit> setTranslationSource(IQueryable<IInstallableUnit> queryable) {
+	public synchronized IQueryable<IInstallableUnit> setTranslationSource(IQueryable<IInstallableUnit> queryable) {
 		IQueryable<IInstallableUnit> previous = fragmentSource;
-		this.fragmentSource = queryable;
+		if (previous != queryable) {
+			this.fragmentSource = queryable;
+			localeCollectorCache.clear();
+		}
 		return previous;
 	}
 }

@@ -1,7 +1,6 @@
 package org.eclipse.equinox.internal.p2.ql.expression;
 
 public interface IQLConstants {
-	String KEYWORD_CAPABILITY_INDEX = "capabilityIndex"; //$NON-NLS-1$
 	String KEYWORD_COLLECT = "collect"; //$NON-NLS-1$
 	String KEYWORD_FIRST = "first"; //$NON-NLS-1$
 	String KEYWORD_FLATTEN = "flatten"; //$NON-NLS-1$
@@ -19,8 +18,6 @@ public interface IQLConstants {
 	String KEYWORD_TRAVERSE = "traverse"; //$NON-NLS-1$
 	String KEYWORD_UNION = "union"; //$NON-NLS-1$
 	String KEYWORD_UNIQUE = "unique"; //$NON-NLS-1$
-
-	String VARIABLE_TRANSLATIONS = "translations"; //$NON-NLS-1$
 
 	String OPERATOR_ARRAY = "[]"; //$NON-NLS-1$
 	String OPERATOR_ASSIGN = "="; //$NON-NLS-1$

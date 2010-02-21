@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Cloudsmith Inc. - query indexes
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
@@ -15,14 +16,17 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.internal.p2.metadata.index.CapabilityIndex;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.KeyWithLocale;
 import org.eclipse.equinox.p2.metadata.index.*;
 import org.eclipse.equinox.p2.query.*;
 
 public class QueryableArray implements IQueryable<IInstallableUnit>, IIndexProvider<IInstallableUnit> {
 	private final List<IInstallableUnit> dataSet;
 	private IIndex<IInstallableUnit> capabilityIndex;
+	private TranslationSupport translationSupport;
 
 	public QueryableArray(IInstallableUnit[] ius) {
 		dataSet = CollectionUtils.unmodifiableList(ius);
@@ -41,6 +45,18 @@ public class QueryableArray implements IQueryable<IInstallableUnit>, IIndexProvi
 			if (capabilityIndex == null)
 				capabilityIndex = new CapabilityIndex(dataSet.iterator());
 			return capabilityIndex;
+		}
+		return null;
+	}
+
+	public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
+		if (!(client instanceof IInstallableUnit))
+			return null;
+		IInstallableUnit iu = (IInstallableUnit) client;
+		if (InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(memberName)) {
+			if (translationSupport == null)
+				translationSupport = new TranslationSupport(this);
+			return key instanceof KeyWithLocale ? translationSupport.getIUProperty(iu, (KeyWithLocale) key) : translationSupport.getIUProperty(iu, key.toString());
 		}
 		return null;
 	}

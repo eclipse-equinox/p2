@@ -12,7 +12,10 @@ package org.eclipse.equinox.internal.p2.ql.expression;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.KeyWithLocale;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.index.IIndex;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
@@ -22,9 +25,11 @@ import org.eclipse.equinox.p2.ql.IQLFactory;
 public class Pipe extends NAry implements IQLExpression {
 
 	private class NoIndexProvider implements IIndexProvider<Object> {
+		private final IIndexProvider<?> indexProvider;
 		private Iterator<Object> everything;
 
-		NoIndexProvider() { //
+		NoIndexProvider(IIndexProvider<?> indexProvider) { //
+			this.indexProvider = indexProvider;
 		}
 
 		public IIndex<Object> getIndex(String memberName) {
@@ -35,13 +40,23 @@ public class Pipe extends NAry implements IQLExpression {
 			return everything;
 		}
 
+		public Object getManagedProperty(Object client, String memberName, Object key) {
+			if (indexProvider != null)
+				return indexProvider.getManagedProperty(client, memberName, key);
+			if (client instanceof IInstallableUnit && memberName.equals(InstallableUnit.MEMBER_TRANSLATED_PROPERTIES)) {
+				IInstallableUnit iu = (IInstallableUnit) client;
+				return key instanceof KeyWithLocale ? iu.getProperty(((KeyWithLocale) key).getKey()) : iu.getProperty(key.toString());
+			}
+			return null;
+		}
+
 		@SuppressWarnings("unchecked")
 		void setEverything(Iterator<?> everything) {
 			this.everything = (Iterator<Object>) everything;
 		}
 	}
 
-	private static Expression[] makePipeable(Expression[] operands) {
+	public static Expression createPipe(Expression[] operands) {
 		// We expect two types of expressions. The ones that act on THIS
 		// i.e. boolean match expressions or the ones that act EVERYTHING
 		// by iterating a collection.
@@ -54,6 +69,7 @@ public class Pipe extends NAry implements IQLExpression {
 		// make one more optimization:
 		//  <expr1>, <expr2> becomes select(x | <expr1> && <expr2>)
 
+		IQLFactory factory = (IQLFactory) ExpressionUtil.getFactory();
 		ArrayList<Expression> pipeables = new ArrayList<Expression>();
 		ArrayList<Expression> booleans = new ArrayList<Expression>();
 		VariableFinder finder = new VariableFinder(ExpressionFactory.EVERYTHING);
@@ -64,29 +80,44 @@ public class Pipe extends NAry implements IQLExpression {
 			if (finder.isFound()) {
 				if (!booleans.isEmpty()) {
 					// Concatenate all found booleans.
-					pipeables.add(makePipeableOfBooleans(booleans));
+					pipeables.add(makePipeableOfBooleans(factory, booleans));
 					booleans.clear();
 				}
 				pipeables.add(operand);
 			} else
 				booleans.add(operand);
 		}
-		if (!booleans.isEmpty())
-			pipeables.add(makePipeableOfBooleans(booleans));
-		return pipeables.toArray(new Expression[pipeables.size()]);
+
+		if (!booleans.isEmpty()) {
+			if (pipeables.isEmpty())
+				return normalizeBoolean(factory, booleans);
+			pipeables.add(makePipeableOfBooleans(factory, booleans));
+		}
+		int top = pipeables.size();
+		if (top > 1)
+			return new Pipe(pipeables.toArray(new Expression[top]));
+		return (top == 1) ? pipeables.get(0) : Literal.TRUE_CONSTANT;
 	}
 
-	private static Expression makePipeableOfBooleans(ArrayList<Expression> booleans) {
-		IQLFactory factory = (IQLFactory) ExpressionUtil.getFactory();
-		Expression boolExpr = booleans.get(0);
+	private static Expression normalizeBoolean(IExpressionFactory factory, ArrayList<Expression> booleans) {
 		int top = booleans.size();
+		Expression boolExpr;
 		if (top > 1)
 			boolExpr = (Expression) factory.and(booleans.toArray(new IExpression[top]));
+		else if (top == 1)
+			boolExpr = booleans.get(0);
+		else
+			boolExpr = Literal.TRUE_CONSTANT;
+		return boolExpr;
+	}
+
+	private static Expression makePipeableOfBooleans(IQLFactory factory, ArrayList<Expression> booleans) {
+		Expression boolExpr = normalizeBoolean(factory, booleans);
 		return (Expression) factory.select(ExpressionFactory.EVERYTHING, factory.lambda(ExpressionFactory.THIS, boolExpr));
 	}
 
-	protected Pipe(Expression[] operands) {
-		super(makePipeable(assertLength(operands, 2, "pipe"))); //$NON-NLS-1$
+	private Pipe(Expression[] operands) {
+		super(operands);
 	}
 
 	public int getExpressionType() {
@@ -112,7 +143,7 @@ public class Pipe extends NAry implements IQLExpression {
 		Class<Object> elementClass = Object.class;
 		Variable everything = ExpressionFactory.EVERYTHING;
 		IEvaluationContext nextContext = EvaluationContext.create(context, everything);
-		NoIndexProvider noIndexProvider = new NoIndexProvider();
+		NoIndexProvider noIndexProvider = new NoIndexProvider(context.getIndexProvider());
 		nextContext.setIndexProvider(noIndexProvider);
 		for (int idx = 1; idx < operands.length; ++idx) {
 			Expression expr = operands[idx];

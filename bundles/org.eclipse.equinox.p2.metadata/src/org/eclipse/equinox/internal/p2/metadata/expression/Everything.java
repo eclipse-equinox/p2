@@ -23,23 +23,23 @@ import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 public final class Everything<T> extends MatchIteratorFilter<T> implements IRepeatableIterator<T> {
 	private boolean atStart = true;
 
-	private final Class<T> elementClass;
+	private final Class<? extends T> elementClass;
 
-	public Everything(Class<T> elementClass, Collection<T> collection) {
+	public Everything(Class<? extends T> elementClass, Collection<T> collection) {
 		super(RepeatableIterator.<T> create(collection == null ? CollectionUtils.<T> emptyList() : collection));
 		this.elementClass = elementClass;
 	}
 
-	public Everything(Class<T> elementClass, Iterator<? extends T> iterator, Expression expression) {
+	public Everything(Class<? extends T> elementClass, Iterator<? extends T> iterator, Expression expression) {
 		this(elementClass, iterator, needsRepeadedAccessToEverything(expression));
 	}
 
-	public Everything(Class<T> elementClass, IIndexProvider<? extends T> indexProvider) {
+	public Everything(Class<? extends T> elementClass, IIndexProvider<? extends T> indexProvider) {
 		super(RepeatableIterator.<T> create(indexProvider));
 		this.elementClass = elementClass;
 	}
 
-	Everything(Class<T> elementClass, Iterator<? extends T> iterator, boolean needsRepeat) {
+	Everything(Class<? extends T> elementClass, Iterator<? extends T> iterator, boolean needsRepeat) {
 		super(needsRepeat ? RepeatableIterator.create(iterator) : iterator);
 		this.elementClass = elementClass;
 	}
@@ -58,7 +58,7 @@ public final class Everything<T> extends MatchIteratorFilter<T> implements IRepe
 		return super.next();
 	}
 
-	public Class<T> getElementClass() {
+	public Class<? extends T> getElementClass() {
 		return elementClass;
 	}
 

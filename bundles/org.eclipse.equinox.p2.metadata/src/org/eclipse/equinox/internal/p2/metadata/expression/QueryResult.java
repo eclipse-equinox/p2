@@ -1,21 +1,33 @@
-package org.eclipse.equinox.p2.ql;
+/*******************************************************************************
+ * Copyright (c) 2009 - 2010 Cloudsmith Inc. and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Cloudsmith Inc. - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.lang.reflect.Array;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.expression.IRepeatableIterator;
-import org.eclipse.equinox.internal.p2.metadata.expression.RepeatableIterator;
 import org.eclipse.equinox.p2.query.*;
 
-class QueryResult<T> implements IQueryResult<T> {
+/**
+ * A result optimized for dealing with iterators returned from
+ * expression evaluation.
+ */
+public class QueryResult<T> implements IQueryResult<T> {
 
 	private final IRepeatableIterator<T> iterator;
 
-	QueryResult(Iterator<T> iterator) {
+	public QueryResult(Iterator<T> iterator) {
 		this.iterator = RepeatableIterator.create(iterator);
 	}
 
-	QueryResult(Collection<T> collection) {
+	public QueryResult(Collection<T> collection) {
 		this.iterator = RepeatableIterator.create(collection);
 	}
 
