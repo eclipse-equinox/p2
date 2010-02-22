@@ -10,13 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.p2.engine.Operand;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.Phase;
-import org.eclipse.equinox.internal.p2.engine.PhaseSet;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.engine.phases.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -203,23 +200,23 @@ public class EngineTest extends AbstractProvisioningTest {
 	 */
 	public void testCreatePhaseSetExcluding() {
 		//null argument
-		IPhaseSet set = engine.createPhaseSetExcluding(null);
+		IPhaseSet set = DefaultPhaseSet.createExcluding(null);
 		assertEquals("1.0", 7, set.getPhaseIds().length);
 
 		//empty argument
-		set = engine.createPhaseSetExcluding(new String[0]);
+		set = DefaultPhaseSet.createExcluding(new String[0]);
 		assertEquals("2.0", 7, set.getPhaseIds().length);
 
 		//bogus argument
-		set = engine.createPhaseSetExcluding(new String[] {"blort"});
+		set = DefaultPhaseSet.createExcluding(new String[] {"blort"});
 		assertEquals("3.0", 7, set.getPhaseIds().length);
 
 		//valid argument
-		set = engine.createPhaseSetExcluding(new String[] {IPhaseSet.PHASE_CHECK_TRUST});
+		set = DefaultPhaseSet.createExcluding(new String[] {DefaultPhaseSet.PHASE_CHECK_TRUST});
 		final String[] phases = set.getPhaseIds();
 		assertEquals("4.0", 6, phases.length);
 		for (int i = 0; i < phases.length; i++)
-			if (phases[i].equals(IPhaseSet.PHASE_CHECK_TRUST))
+			if (phases[i].equals(DefaultPhaseSet.PHASE_CHECK_TRUST))
 				fail("4.1." + i);
 
 	}
@@ -229,33 +226,31 @@ public class EngineTest extends AbstractProvisioningTest {
 	 */
 	public void testCreatePhaseSetIncluding() {
 		//null argument
-		try {
-			engine.createPhaseSetIncluding(null);
-			fail("1.0");
-		} catch (RuntimeException e) {
-			//expected
-		}
+		IPhaseSet set = DefaultPhaseSet.createIncluding(null);
+		assertNotNull("1.0", set);
+		assertEquals("1.1", 0, set.getPhaseIds().length);
+		//expected
 		//empty argument
-		IPhaseSet set = engine.createPhaseSetIncluding(new String[0]);
+		set = DefaultPhaseSet.createIncluding(new String[0]);
 		assertNotNull("2.0", set);
 		assertEquals("2.1", 0, set.getPhaseIds().length);
 
 		//unknown argument
-		set = engine.createPhaseSetIncluding(new String[] {"blort", "not a phase", "bad input"});
+		set = DefaultPhaseSet.createIncluding(new String[] {"blort", "not a phase", "bad input"});
 		assertNotNull("3.0", set);
 		assertEquals("3.1", 0, set.getPhaseIds().length);
 
 		//one valid phase
-		set = engine.createPhaseSetIncluding(new String[] {IPhaseSet.PHASE_COLLECT});
+		set = DefaultPhaseSet.createIncluding(new String[] {DefaultPhaseSet.PHASE_COLLECT});
 		assertNotNull("4.0", set);
 		assertEquals("4.1", 1, set.getPhaseIds().length);
-		assertEquals("4.2", IPhaseSet.PHASE_COLLECT, set.getPhaseIds()[0]);
+		assertEquals("4.2", DefaultPhaseSet.PHASE_COLLECT, set.getPhaseIds()[0]);
 
 		//one valid phase and one bogus
-		set = engine.createPhaseSetIncluding(new String[] {IPhaseSet.PHASE_COLLECT, "bogus"});
+		set = DefaultPhaseSet.createIncluding(new String[] {DefaultPhaseSet.PHASE_COLLECT, "bogus"});
 		assertNotNull("4.0", set);
 		assertEquals("4.1", 1, set.getPhaseIds().length);
-		assertEquals("4.2", IPhaseSet.PHASE_COLLECT, set.getPhaseIds()[0]);
+		assertEquals("4.2", DefaultPhaseSet.PHASE_COLLECT, set.getPhaseIds()[0]);
 
 	}
 
@@ -328,7 +323,7 @@ public class EngineTest extends AbstractProvisioningTest {
 			plan.removeInstallableUnit(doomed);
 			engine.perform(plan, new NullProgressMonitor());
 		}
-		final Sizing sizingPhase = new Sizing(100, "sizing");
+		final Sizing sizingPhase = new Sizing(100);
 		PhaseSet phaseSet = new PhaseSet(new Phase[] {sizingPhase});
 
 		IProvisioningPlan plan = engine.createPlan(profile, null);
@@ -336,7 +331,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		IStatus result = engine.perform(plan, phaseSet, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		assertTrue(sizingPhase.getDiskSize() == 0);
-		assertTrue(sizingPhase.getDlSize() == 0);
+		assertTrue(sizingPhase.getDownloadSize() == 0);
 	}
 
 	// removing validate from engine api

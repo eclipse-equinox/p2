@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.p2.director.Messages;
-import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.p2.engine.*;
 
@@ -24,7 +23,7 @@ public class PlanExecutionHelper {
 		return executePlan(result, engine, new DefaultPhaseSet(), context, progress);
 	}
 
-	public static IStatus executePlan(IProvisioningPlan result, IEngine engine, PhaseSet phaseSet, ProvisioningContext context, IProgressMonitor progress) {
+	public static IStatus executePlan(IProvisioningPlan result, IEngine engine, IPhaseSet phaseSet, ProvisioningContext context, IProgressMonitor progress) {
 		if (!result.getStatus().isOK())
 			return result.getStatus();
 

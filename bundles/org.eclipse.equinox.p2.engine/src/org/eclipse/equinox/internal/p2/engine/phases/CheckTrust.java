@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.DefaultPhaseSet;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.ITouchpointType;
@@ -29,11 +29,10 @@ import org.eclipse.equinox.p2.metadata.ITouchpointType;
  */
 public class CheckTrust extends InstallableUnitPhase {
 
-	private static final String PHASE_ID = IPhaseSet.PHASE_CHECK_TRUST;
 	public static final String PARM_ARTIFACT_FILES = "artifactFiles"; //$NON-NLS-1$
 
 	public CheckTrust(int weight) {
-		super(PHASE_ID, weight);
+		super(DefaultPhaseSet.PHASE_CHECK_TRUST, weight);
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {

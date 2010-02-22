@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -169,17 +168,17 @@ public class ProvisioningSession {
 		long installPlanSize = 0;
 		SubMonitor mon = SubMonitor.convert(monitor, 300);
 		if (plan.getInstallerPlan() != null) {
-			SizingPhaseSet set = new SizingPhaseSet();
-			IStatus status = getEngine().perform(plan.getInstallerPlan(), set, mon.newChild(100));
+			SizingPhaseSet sizingPhaseSet = new SizingPhaseSet();
+			IStatus status = getEngine().perform(plan.getInstallerPlan(), sizingPhaseSet, mon.newChild(100));
 			if (status.isOK())
-				installPlanSize = set.getSizing().getDiskSize();
+				installPlanSize = sizingPhaseSet.getDiskSize();
 		} else {
 			mon.worked(100);
 		}
-		SizingPhaseSet set = new SizingPhaseSet();
-		IStatus status = getEngine().perform(plan, set, mon.newChild(200));
+		SizingPhaseSet sizingPhaseSet = new SizingPhaseSet();
+		IStatus status = getEngine().perform(plan, sizingPhaseSet, mon.newChild(200));
 		if (status.isOK())
-			return installPlanSize + set.getSizing().getDiskSize();
+			return installPlanSize + sizingPhaseSet.getDiskSize();
 		return SIZE_UNAVAILABLE;
 	}
 
@@ -221,7 +220,7 @@ public class ProvisioningSession {
 				downloadRequest.setAbsoluteMode(true);
 				downloadRequest.addAll(new CompoundQueryable<IInstallableUnit>(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(InstallableUnitQuery.ANY, null).unmodifiableSet());
 
-				PhaseSet download = new DownloadPhaseSet();
+				IPhaseSet download = DefaultPhaseSet.createIncluding(new String[] {DefaultPhaseSet.PHASE_COLLECT});
 				IProvisioningPlan downloadPlan = getPlanner().getProvisioningPlan(downloadRequest, context, mon.newChild(100));
 				IStatus downloadStatus = getEngine().perform(downloadPlan, download, mon.newChild(300));
 				if (!downloadStatus.isOK()) {

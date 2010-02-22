@@ -48,22 +48,6 @@ public interface IEngine {
 	public IProvisioningPlan createPlan(IProfile profile, ProvisioningContext context);
 
 	/**
-	 * Creates a phase set with a default set of phases, excluding the specified phases.
-	 * @param excludes The phases to exclude, or <code>null</code> to include
-	 * all default phases.
-	 * 
-	 * @return A new phase set
-	 */
-	public IPhaseSet createPhaseSetExcluding(String[] excludes);
-
-	/**
-	 * Creates and returns a phase set including only the specified phases.
-	 * @param includes The phases to include
-	 * @return A new phase set
-	 */
-	public IPhaseSet createPhaseSetIncluding(String[] includes);
-
-	/**
 	 * Executes a provisioning plan.
 	 * 
 	 * @param plan The plan describing the changes to be made

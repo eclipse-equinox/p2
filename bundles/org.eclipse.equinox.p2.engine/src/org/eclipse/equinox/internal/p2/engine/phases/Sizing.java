@@ -10,15 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.ITouchpointType;
@@ -32,7 +31,7 @@ public class Sizing extends InstallableUnitPhase {
 	private long sizeOnDisk;
 	private long dlSize;
 
-	public Sizing(int weight, String phaseName) {
+	public Sizing(int weight) {
 		super(PHASE_ID, weight);
 	}
 
@@ -44,7 +43,7 @@ public class Sizing extends InstallableUnitPhase {
 		return sizeOnDisk;
 	}
 
-	public long getDlSize() {
+	public long getDownloadSize() {
 		return dlSize;
 	}
 

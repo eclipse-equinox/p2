@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
@@ -69,7 +67,7 @@ public class Uninstall extends InstallableUnitPhase {
 	}
 
 	public Uninstall(int weight, boolean forced) {
-		super(IPhaseSet.PHASE_UNINSTALL, weight, forced);
+		super(DefaultPhaseSet.PHASE_UNINSTALL, weight, forced);
 	}
 
 	public Uninstall(int weight) {

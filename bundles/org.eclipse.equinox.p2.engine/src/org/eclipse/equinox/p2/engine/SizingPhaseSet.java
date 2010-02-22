@@ -11,15 +11,25 @@
 /**
  * 
  */
-package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
+package org.eclipse.equinox.p2.engine;
 
 import org.eclipse.equinox.internal.p2.engine.Phase;
 import org.eclipse.equinox.internal.p2.engine.PhaseSet;
-import org.eclipse.equinox.internal.p2.engine.phases.Collect;
+import org.eclipse.equinox.internal.p2.engine.phases.Sizing;
 
+public class SizingPhaseSet extends PhaseSet {
 
-public class DownloadPhaseSet extends PhaseSet {
-	public DownloadPhaseSet() {
-		super(new Phase[] {new Collect(10)});
+	private static Sizing sizing;
+
+	public SizingPhaseSet() {
+		super(new Phase[] {sizing = new Sizing(100)});
+	}
+
+	public long getDiskSize() {
+		return sizing.getDiskSize();
+	}
+
+	public long getDownloadSize() {
+		return sizing.getDownloadSize();
 	}
 }

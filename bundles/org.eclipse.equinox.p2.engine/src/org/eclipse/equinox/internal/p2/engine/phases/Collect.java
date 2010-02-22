@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
-
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -29,12 +27,11 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
  * The goal of the collect phase is to ask the touchpoints if the artifacts associated with an IU need to be downloaded.
  */
 public class Collect extends InstallableUnitPhase {
-	private static final String PHASE_ID = IPhaseSet.PHASE_COLLECT;
 	public static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 	public static final String NO_ARTIFACT_REPOSITORIES_AVAILABLE = "noArtifactRepositoriesAvailable"; //$NON-NLS-1$
 
 	public Collect(int weight) {
-		super(PHASE_ID, weight);
+		super(DefaultPhaseSet.PHASE_COLLECT, weight);
 		//re-balance work since postPerform will do almost all the time-consuming work
 		prePerformWork = 0;
 		mainPerformWork = 100;

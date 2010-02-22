@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
-import org.eclipse.equinox.internal.p2.engine.Messages;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.p2.engine.DefaultPhaseSet;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -26,7 +24,7 @@ import org.eclipse.osgi.util.NLS;
 public class Configure extends InstallableUnitPhase {
 
 	public Configure(int weight) {
-		super(IPhaseSet.PHASE_CONFIGURE, weight);
+		super(DefaultPhaseSet.PHASE_CONFIGURE, weight);
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {

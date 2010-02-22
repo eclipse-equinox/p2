@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
-
 import org.eclipse.equinox.internal.p2.engine.phases.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -51,7 +50,7 @@ public class PhaseApplicabilityTest extends AbstractProvisioningTest {
 		IInstallableUnit iuXv1 = createIU("iuX", Version.create("1.0.0"));
 		IInstallableUnit iuXv2 = createIU("iuX", Version.create("2.0.0"));
 
-		Sizing sizingPhase = new Sizing(1, "collect") {
+		Sizing sizingPhase = new Sizing(1) {
 			protected boolean isApplicable(InstallableUnitOperand op) {
 				return super.isApplicable(op);
 			}

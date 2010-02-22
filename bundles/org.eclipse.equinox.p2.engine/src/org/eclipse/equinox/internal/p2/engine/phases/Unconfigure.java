@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
-import org.eclipse.equinox.internal.p2.engine.Messages;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.p2.engine.DefaultPhaseSet;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -25,7 +23,7 @@ import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 public class Unconfigure extends InstallableUnitPhase {
 
 	public Unconfigure(int weight, boolean forced) {
-		super(IPhaseSet.PHASE_UNCONFIGURE, weight, forced);
+		super(DefaultPhaseSet.PHASE_UNCONFIGURE, weight, forced);
 	}
 
 	public Unconfigure(int weight) {

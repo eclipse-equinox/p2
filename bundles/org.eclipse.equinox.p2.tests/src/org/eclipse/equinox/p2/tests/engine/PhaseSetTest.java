@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.*;
@@ -42,8 +40,8 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 	}
 
 	public void testNoTrustCheck() {
-		PhaseSet set1 = new DefaultPhaseSet();
-		PhaseSet set2 = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_CHECK_TRUST);
+		IPhaseSet set1 = new DefaultPhaseSet();
+		IPhaseSet set2 = DefaultPhaseSet.createExcluding(new String[] {DefaultPhaseSet.PHASE_CHECK_TRUST});
 		assertTrue("1.0", !set1.equals(set2));
 	}
 

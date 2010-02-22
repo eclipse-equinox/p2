@@ -6,16 +6,12 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 2.0.0.qualifier
 Export-Package: org.eclipse.equinox.internal.p2.engine;
-  x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse,
+   x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse,
    org.eclipse.equinox.p2.touchpoint.natives,
-   org.eclipse.equinox.p2.operations,
-   org.eclipse.equinox.p2.director,
    org.eclipse.equinox.p2.ui.sdk.scheduler,
-   org.eclipse.pde.build,
-   org.eclipse.pde.core",
+   org.eclipse.pde.build",
  org.eclipse.equinox.internal.p2.engine.phases;
-  x-friends:="org.eclipse.equinox.p2.operations,
-   org.eclipse.equinox.p2.ui.sdk.scheduler,
+   x-friends:="org.eclipse.equinox.p2.ui.sdk.scheduler,
    org.eclipse.equinox.p2.repository.tools,
    org.eclipse.equinox.p2.director.app",
  org.eclipse.equinox.p2.engine,

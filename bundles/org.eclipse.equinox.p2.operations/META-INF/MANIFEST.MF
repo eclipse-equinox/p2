@@ -7,8 +7,6 @@ Bundle-Localization: plugin
 Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.operations.Activator
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
- org.eclipse.equinox.internal.p2.engine,
- org.eclipse.equinox.internal.p2.engine.phases,
  org.eclipse.equinox.internal.p2.metadata,
  org.eclipse.equinox.internal.p2.repository.helpers,
  org.eclipse.equinox.internal.provisional.configurator,

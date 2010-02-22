@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.internal.p2.metadata.VersionedId;
 import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -121,6 +120,7 @@ public class DirectorApplication implements IApplication {
 	private static final Integer EXIT_ERROR = new Integer(13);
 	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
 	static private final String PROP_P2_PROFILE = "eclipse.p2.profile"; //$NON-NLS-1$
+	static private final String NO_ARTIFACT_REPOSITORIES_AVAILABLE = "noArtifactRepositoriesAvailable"; //$NON-NLS-1$
 
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 
@@ -546,7 +546,7 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private boolean hasNoRepositoryFound(IStatus status) {
-		if (status.getException() != null && Collect.NO_ARTIFACT_REPOSITORIES_AVAILABLE.equals(status.getException().getMessage()))
+		if (status.getException() != null && NO_ARTIFACT_REPOSITORIES_AVAILABLE.equals(status.getException().getMessage()))
 			return true;
 		if (status.isMultiStatus()) {
 			for (IStatus child : status.getChildren()) {

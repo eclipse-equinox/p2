@@ -12,10 +12,10 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 
 /**
@@ -30,7 +30,7 @@ public class RemoveRepositoryAction extends RepositoryAction {
 			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 			IAgentLocation agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 			RepositoryEvent event = createEvent(parameters);
-			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
+			IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)
 				removeRepositoryFromProfile(agentLocation, profile, event.getRepositoryLocation(), event.getRepositoryType());
 			//if we are provisioning into the self profile, update the current set of repositories in this configuration
@@ -48,7 +48,7 @@ public class RemoveRepositoryAction extends RepositoryAction {
 			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 			IAgentLocation agentLocation = (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 			RepositoryEvent event = createEvent(parameters);
-			Profile profile = (Profile) parameters.get(ActionConstants.PARM_PROFILE);
+			IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 			if (profile != null)
 				addRepositoryToProfile(agentLocation, profile, event.getRepositoryLocation(), event.getRepositoryNickname(), event.getRepositoryType(), event.isRepositoryEnabled());
 			//if we are provisioning into the self profile, update the current set of repositories in this configuration

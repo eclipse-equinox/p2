@@ -8,7 +8,6 @@ Bundle-Version: 1.0.200.qualifier
 Import-Package: org.eclipse.equinox.app,
  org.eclipse.equinox.internal.p2.console,
  org.eclipse.equinox.internal.p2.core.helpers,
- org.eclipse.equinox.internal.p2.engine.phases,
  org.eclipse.equinox.internal.p2.metadata,
  org.eclipse.equinox.internal.p2.metadata.query,
  org.eclipse.equinox.internal.provisional.p2.core,

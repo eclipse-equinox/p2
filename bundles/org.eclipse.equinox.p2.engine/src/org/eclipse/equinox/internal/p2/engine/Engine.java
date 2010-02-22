@@ -115,14 +115,6 @@ public class Engine implements IEngine {
 		return phaseSet.validate(actionManager, iprofile, operands, context, monitor);
 	}
 
-	public IPhaseSet createPhaseSetExcluding(String[] excludes) {
-		return PhaseSet.createPhaseSetExcluding(excludes);
-	}
-
-	public IPhaseSet createPhaseSetIncluding(String[] includes) {
-		return PhaseSet.createPhaseSetIncluding(includes);
-	}
-
 	public IProvisioningPlan createPlan(IProfile profile, ProvisioningContext context) {
 		return new ProvisioningPlan(profile, null, context);
 	}

@@ -58,7 +58,7 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
-		Sizing sizing = new Sizing(100, "");
+		Sizing sizing = new Sizing(100);
 		PhaseSet set = new SPhaseSet(sizing);
 
 		IStatus status = engine.perform(plan, set, new NullProgressMonitor());
@@ -76,7 +76,7 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
-		Sizing sizing = new Sizing(100, "");
+		Sizing sizing = new Sizing(100);
 		PhaseSet set = new SPhaseSet(sizing);
 
 		IStatus status = engine.perform(plan, set, new NullProgressMonitor());

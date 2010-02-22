@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
@@ -71,10 +69,8 @@ public class Install extends InstallableUnitPhase {
 		}
 	}
 
-	private static final String PHASE_ID = IPhaseSet.PHASE_INSTALL;
-
 	public Install(int weight) {
-		super(PHASE_ID, weight);
+		super(DefaultPhaseSet.PHASE_INSTALL, weight);
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {

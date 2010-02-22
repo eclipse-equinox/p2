@@ -14,7 +14,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
@@ -64,7 +63,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * Associates the repository described by the given event with the given profile.
 	 * Has no effect if the repository is already associated with this profile.
 	 */
-	protected void addRepositoryToProfile(IAgentLocation agentLocation, Profile profile, URI location, String nickname, int type, boolean enabled) {
+	protected void addRepositoryToProfile(IAgentLocation agentLocation, IProfile profile, URI location, String nickname, int type, boolean enabled) {
 		Preferences node = getRepositoryPreferenceNode(agentLocation, profile, location, type);
 		int count = 0;
 
@@ -150,7 +149,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * Return <code>true</code> if the given profile is the currently running profile,
 	 * and <code>false</code> otherwise.
 	 */
-	protected boolean isSelfProfile(IProfileRegistry registry, Profile profile) {
+	protected boolean isSelfProfile(IProfileRegistry registry, IProfile profile) {
 		//if we can't determine the current profile, assume we are running on self
 		if (profile == null)
 			return true;
@@ -180,7 +179,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 	 * and the given profile. Has no effect if the location is not already associated with
 	 * this profile.
 	 */
-	protected void removeRepositoryFromProfile(IAgentLocation agentLocation, Profile profile, URI location, int type) {
+	protected void removeRepositoryFromProfile(IAgentLocation agentLocation, IProfile profile, URI location, int type) {
 		Preferences node = getRepositoryPreferenceNode(agentLocation, profile, location, type);
 
 		int count = getRepositoryCount(node);
@@ -234,7 +233,7 @@ abstract class RepositoryAction extends ProvisioningAction {
 	/*
 	 * Get the preference node associated with profile & location 
 	 */
-	protected Preferences getRepositoryPreferenceNode(IAgentLocation agentLocation, Profile profile, URI location, int type) {
+	protected Preferences getRepositoryPreferenceNode(IAgentLocation agentLocation, IProfile profile, URI location, int type) {
 		String key = type == IRepository.TYPE_METADATA ? METADATA_REPOSITORY : ARTIFACT_REPOSITORY;
 		String profileId = profile == null ? IProfileRegistry.SELF : profile.getProfileId();
 		return new ProfileScope(agentLocation, profileId).getNode(key + '/' + NODE_REPOSITORIES + '/' + getKey(location));
