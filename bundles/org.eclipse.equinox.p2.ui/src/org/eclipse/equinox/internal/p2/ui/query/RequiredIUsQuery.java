@@ -39,6 +39,6 @@ public class RequiredIUsQuery extends ExpressionQuery<IInstallableUnit> {
 	 * @param iu The IU whose requirements are to be checked
 	 */
 	public RequiredIUsQuery(IInstallableUnit iu) {
-		super(IInstallableUnit.class, ExpressionUtil.getFactory().matchExpression(expression, iu.getRequiredCapabilities()));
+		super(IInstallableUnit.class, expression, iu.getRequiredCapabilities());
 	}
 }

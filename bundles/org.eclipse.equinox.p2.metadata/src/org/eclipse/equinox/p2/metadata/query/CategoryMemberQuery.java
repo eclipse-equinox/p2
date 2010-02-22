@@ -25,7 +25,7 @@ public final class CategoryMemberQuery extends ExpressionQuery<IInstallableUnit>
 
 	private static IMatchExpression<IInstallableUnit> createExpression(IInstallableUnit category) {
 		IExpressionFactory factory = ExpressionUtil.getFactory();
-		return CategoryQuery.isCategory(category) ? factory.<IInstallableUnit> matchExpression(expression, category.getRequiredCapabilities()) : MATCH_NO_UNIT;
+		return CategoryQuery.isCategory(category) ? factory.<IInstallableUnit> matchExpression(expression, category.getRequiredCapabilities()) : ExpressionQuery.<IInstallableUnit> matchNothing();
 	}
 
 	/**

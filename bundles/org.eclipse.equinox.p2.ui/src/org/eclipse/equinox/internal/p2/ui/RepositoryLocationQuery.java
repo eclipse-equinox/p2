@@ -12,42 +12,16 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URI;
-import java.util.Iterator;
-import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.query.*;
-import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
- * RepositoryLocationQuery is a query that gathers repository
- * locations rather than repositories.  It is used when composing
- * queries against a QueryableRepositoryManager to indicate that the
- * repository need not be loaded to run the query.  
+ * RepositoryLocationQuery yields true for all URI elements.  
  * 
  * @since 3.5
  */
-public class RepositoryLocationQuery implements IQuery<URI> {
+public class RepositoryLocationQuery extends ExpressionQuery<URI> {
 
-	public IQueryResult<URI> perform(Iterator<URI> iterator) {
-		Collector<URI> result = new Collector<URI>();
-		while (iterator.hasNext()) {
-			Object candidate = iterator.next();
-			URI location = getLocation(candidate);
-			if (location != null)
-				if (!result.accept(location))
-					break;
-		}
-		return result;
-	}
-
-	private URI getLocation(Object o) {
-		if (o instanceof URI)
-			return (URI) o;
-		if (o instanceof IRepository<?>)
-			return ((IRepository<?>) o).getLocation();
-		return null;
-	}
-
-	public IExpression getExpression() {
-		return null;
+	public RepositoryLocationQuery() {
+		super(URI.class, matchAll());
 	}
 }

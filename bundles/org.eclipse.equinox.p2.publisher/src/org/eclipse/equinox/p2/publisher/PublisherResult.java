@@ -80,14 +80,14 @@ public class PublisherResult implements IPublisherResult, IIndexProvider<IInstal
 		if (type == null) {
 			// TODO can this be optimized?
 			ArrayList<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
-			result.addAll(rootIUs.get(id).toSet());
-			result.addAll(nonRootIUs.get(id).toSet());
+			result.addAll(rootIUs.get(id).unmodifiableSet());
+			result.addAll(nonRootIUs.get(id).unmodifiableSet());
 			return result;
 		}
 		if (type == ROOT)
-			return rootIUs.get(id).toSet();
+			return rootIUs.get(id).unmodifiableSet();
 		if (type == NON_ROOT)
-			return nonRootIUs.get(id).toSet();
+			return nonRootIUs.get(id).unmodifiableSet();
 		return null;
 	}
 

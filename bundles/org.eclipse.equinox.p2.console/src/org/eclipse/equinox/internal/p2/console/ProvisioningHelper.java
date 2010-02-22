@@ -11,20 +11,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlanExecutionHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -201,7 +201,7 @@ public class ProvisioningHelper {
 			throw new ProvisionException("No director service found.");
 		ProvisioningContext context = new ProvisioningContext();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addAll(units.toSet());
+		request.addAll(units.unmodifiableSet());
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}
@@ -300,7 +300,7 @@ public class ProvisioningHelper {
 			throw new ProvisionException("No engine service found.");
 		ProvisioningContext context = new ProvisioningContext();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeAll(units.toSet());
+		request.removeAll(units.unmodifiableSet());
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}

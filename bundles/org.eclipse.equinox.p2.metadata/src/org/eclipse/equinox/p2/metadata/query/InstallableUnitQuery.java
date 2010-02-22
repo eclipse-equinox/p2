@@ -30,7 +30,7 @@ public final class InstallableUnitQuery extends ExpressionQuery<IInstallableUnit
 	private static final IExpression matchIDAndRange = ExpressionUtil.parse("id == $0 && version ~= $1"); //$NON-NLS-1$
 
 	private static IMatchExpression<IInstallableUnit> createMatchExpression(String id) {
-		return id == null ? ExpressionQuery.MATCH_ALL_UNITS : ExpressionUtil.getFactory().<IInstallableUnit> matchExpression(matchID, id);
+		return id == null ? ExpressionQuery.<IInstallableUnit> matchAll() : ExpressionUtil.getFactory().<IInstallableUnit> matchExpression(matchID, id);
 	}
 
 	private static IMatchExpression<IInstallableUnit> createMatchExpression(String id, VersionRange range) {
@@ -38,7 +38,7 @@ public final class InstallableUnitQuery extends ExpressionQuery<IInstallableUnit
 			return createMatchExpression(id);
 		if (range.getMinimum().equals(range.getMaximum()))
 			return createMatchExpression(id, range.getMinimum());
-		return id == null ? ExpressionQuery.MATCH_ALL_UNITS : ExpressionUtil.getFactory().<IInstallableUnit> matchExpression(matchIDAndRange, id, range);
+		return id == null ? ExpressionQuery.<IInstallableUnit> matchAll() : ExpressionUtil.getFactory().<IInstallableUnit> matchExpression(matchIDAndRange, id, range);
 	}
 
 	private static IMatchExpression<IInstallableUnit> createMatchExpression(String id, Version version) {

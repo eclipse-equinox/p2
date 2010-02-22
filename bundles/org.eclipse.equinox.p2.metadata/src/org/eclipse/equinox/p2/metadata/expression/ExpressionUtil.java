@@ -52,15 +52,27 @@ public abstract class ExpressionUtil {
 	}
 
 	/**
-	 * Parse a boolean Expression from the <code>expression</code> string. If <code>expression</code> is <code>null</code>
-	 * or a string that is empty or only consists of whitespace, then this method returns <code>null</code>.
-	 * @param expression The expression to parse. Can be <code>null</code> or empty.
-	 * @return An expression tree or <code>null</code>.
+	 * Create a new expression. The expression will have access to the global
+	 * variable 'this' and to the context parameters.
+	 * @param expression The string representing the boolean expression.
+	 * @return The resulting expression tree.
 	 * @throws ExpressionParseException If the syntax was invalid
 	 */
 	public static IExpression parse(String expression) {
 		expression = trimmedOrNull(expression);
 		return expression == null ? null : getParser().parse(expression);
+	}
+
+	/**
+	 * Create an arbitrary expression. The expression will have access to the global
+	 * variable 'everything' and to the context parameters.
+	 * @param expression The string representing the boolean expression.
+	 * @return The resulting expression tree.
+	 * @throws ExpressionParseException If the syntax was invalid
+	 */
+	public static IExpression parseQuery(String expression) {
+		expression = trimmedOrNull(expression);
+		return expression == null ? null : getParser().parseQuery(expression);
 	}
 
 	/**

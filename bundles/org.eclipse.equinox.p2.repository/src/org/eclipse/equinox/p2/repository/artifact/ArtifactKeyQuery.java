@@ -24,19 +24,23 @@ import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
  * @since 2.0
  */
 public class ArtifactKeyQuery extends ExpressionQuery<IArtifactKey> {
-	private static IMatchExpression<IArtifactKey> MATCH_ALL_KEYS = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.TRUE_EXPRESSION);
 	private static final IExpression matchKey = ExpressionUtil.parse("this == $0"); //$NON-NLS-1$
 	private static final IExpression matchID = ExpressionUtil.parse("id == $0"); //$NON-NLS-1$
 	private static final IExpression matchIDClassifierRange = ExpressionUtil.parse("id == $0 && version ~= $2 && (null == $1 || classifier == $1)"); //$NON-NLS-1$
 
 	private static IMatchExpression<IArtifactKey> createMatchExpression(IArtifactKey key) {
-		return key == null ? MATCH_ALL_KEYS : ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchKey, key);
+		if (key == null)
+			return matchAll();
+		return ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchKey, key);
 	}
 
 	private static IMatchExpression<IArtifactKey> createMatchExpression(String classifier, String id, VersionRange range) {
 		if (range == null) {
-			if (classifier == null)
-				return id == null ? MATCH_ALL_KEYS : ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchID, id);
+			if (classifier == null) {
+				if (id == null)
+					return matchAll();
+				return ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchID, id);
+			}
 			range = VersionRange.emptyRange;
 		}
 		return ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchIDClassifierRange, id, classifier, range);
@@ -56,7 +60,7 @@ public class ArtifactKeyQuery extends ExpressionQuery<IArtifactKey> {
 	}
 
 	private ArtifactKeyQuery() {
-		super(IArtifactKey.class, MATCH_ALL_KEYS);
+		super(IArtifactKey.class, matchAll());
 	}
 
 	public ArtifactKeyQuery(IArtifactKey key) {

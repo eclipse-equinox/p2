@@ -45,7 +45,7 @@ public class QueryProvider {
 	public static final int INSTALLED_IUS = 6;
 	public static final int AVAILABLE_ARTIFACTS = 7;
 
-	private IQuery<IInstallableUnit> allQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, ExpressionQuery.MATCH_ALL_UNITS);
+	private IQuery<IInstallableUnit> allQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, ExpressionQuery.matchAll());
 
 	public QueryProvider(ProvisioningUI ui) {
 		this.ui = ui;
@@ -176,11 +176,7 @@ public class QueryProvider {
 
 			case PROFILES :
 				queryable = new QueryableProfileRegistry(ui);
-				return new ElementQueryDescriptor(queryable, new MatchQuery<Object>() {
-					public boolean isMatch(Object candidate) {
-						return ProvUI.getAdapter(candidate, IProfile.class) != null;
-					}
-				}, new Collector<Object>(), new ProfileElementWrapper(null, element));
+				return new ElementQueryDescriptor(queryable, new ExpressionQuery<IProfile>(IProfile.class, ExpressionQuery.matchAll()), new Collector<Object>(), new ProfileElementWrapper(null, element));
 
 			case AVAILABLE_ARTIFACTS :
 				if (!(queryable instanceof IArtifactRepository))

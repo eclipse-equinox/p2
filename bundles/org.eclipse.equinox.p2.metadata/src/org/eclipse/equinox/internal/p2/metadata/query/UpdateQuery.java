@@ -40,6 +40,6 @@ public final class UpdateQuery extends ExpressionQuery<IInstallableUnit> {
 	}
 
 	public UpdateQuery(IInstallableUnit updateFrom) {
-		super(IInstallableUnit.class, ExpressionUtil.getFactory().matchExpression(updateFrom instanceof IInstallableUnitPatch ? expr1 : expr2, updateFrom, IInstallableUnitPatch.class));
+		super(IInstallableUnit.class, updateFrom instanceof IInstallableUnitPatch ? expr1 : expr2, updateFrom, IInstallableUnitPatch.class);
 	}
 }

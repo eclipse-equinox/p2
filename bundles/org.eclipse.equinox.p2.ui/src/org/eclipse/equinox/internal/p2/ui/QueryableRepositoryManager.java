@@ -74,18 +74,18 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 		return new IQueryable<URI>() {
 
 			public IQueryResult<URI> query(IQuery<URI> query, IProgressMonitor monitor) {
-				return query.perform(Arrays.asList(getRepoLocations(getRepositoryManager())).iterator());
+				return query.perform(getRepoLocations(getRepositoryManager()).iterator());
 			}
 		};
 	}
 
-	protected URI[] getRepoLocations(IRepositoryManager<T> manager) {
+	protected Collection<URI> getRepoLocations(IRepositoryManager<T> manager) {
 		Set<URI> locations = new HashSet<URI>();
 		locations.addAll(Arrays.asList(manager.getKnownRepositories(repositoryFlags)));
 		if (includeDisabledRepos) {
 			locations.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | repositoryFlags)));
 		}
-		return locations.toArray(new URI[locations.size()]);
+		return locations;
 	}
 
 	/**
@@ -102,11 +102,10 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 		IRepositoryManager<T> mgr = getRepositoryManager();
 		if (mgr == null)
 			return false;
-		URI[] repoURIs = getRepoLocations(mgr);
-		for (int i = 0; i < repoURIs.length; i++) {
-			IRepository<T> repo = getRepository(mgr, repoURIs[i]);
+		for (URI repoURI : getRepoLocations(mgr)) {
+			IRepository<T> repo = getRepository(mgr, repoURI);
 			// A not-loaded repo doesn't count if it's considered missing (not found)
-			if (repo == null && !tracker.hasNotFoundStatusBeenReported(repoURIs[i]))
+			if (repo == null && !tracker.hasNotFoundStatusBeenReported(repoURI))
 				return false;
 		}
 		return true;
@@ -144,18 +143,18 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 	protected abstract IRepository<T> doLoadRepository(IRepositoryManager<T> manager, URI location, IProgressMonitor monitor) throws ProvisionException;
 
 	@SuppressWarnings("unchecked")
-	protected IQueryResult<T> query(URI uris[], IQuery<T> query, IProgressMonitor monitor) {
+	protected IQueryResult<T> query(Collection<URI> uris, IQuery<T> query, IProgressMonitor monitor) {
 		if (query instanceof RepositoryLocationQuery) {
 			return (IQueryResult<T>) locationsQueriable().query((IQuery<URI>) query, monitor);
 		}
-		SubMonitor sub = SubMonitor.convert(monitor, (uris.length + 1) * 100);
-		ArrayList<IRepository<T>> loadedRepos = new ArrayList<IRepository<T>>(uris.length);
-		for (int i = 0; i < uris.length; i++) {
+		SubMonitor sub = SubMonitor.convert(monitor, (uris.size() + 1) * 100);
+		ArrayList<IRepository<T>> loadedRepos = new ArrayList<IRepository<T>>(uris.size());
+		for (URI uri : uris) {
 			IRepository<T> repo = null;
 			try {
-				repo = loadRepository(getRepositoryManager(), uris[i], sub.newChild(100));
+				repo = loadRepository(getRepositoryManager(), uri, sub.newChild(100));
 			} catch (ProvisionException e) {
-				tracker.reportLoadFailure(uris[i], e);
+				tracker.reportLoadFailure(uri, e);
 			} catch (OperationCanceledException e) {
 				// user has canceled
 				repo = null;

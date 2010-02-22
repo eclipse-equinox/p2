@@ -15,7 +15,6 @@ import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
 import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.index.*;
 import org.eclipse.equinox.p2.query.*;
@@ -25,12 +24,17 @@ import org.eclipse.equinox.p2.query.*;
  * @since 2.0
  */
 public class ExpressionQuery<T> implements IMatchQuery<T>, IQueryWithIndex<T> {
-	public static final IMatchExpression<IInstallableUnit> MATCH_ALL_UNITS = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.TRUE_EXPRESSION);
-	public static final IMatchExpression<IInstallableUnit> MATCH_NO_UNIT = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.FALSE_EXPRESSION);
-
 	private final IMatchExpression<T> expression;
 	private final Class<? extends T> matchingClass;
 	private IEvaluationContext context;
+
+	public static <T> IMatchExpression<T> matchAll() {
+		return ExpressionUtil.getFactory().matchExpression(ExpressionUtil.TRUE_EXPRESSION);
+	}
+
+	public static <T> IMatchExpression<T> matchNothing() {
+		return ExpressionUtil.getFactory().matchExpression(ExpressionUtil.FALSE_EXPRESSION);
+	}
 
 	public ExpressionQuery(Class<? extends T> matchingClass, IExpression expression, Object... parameters) {
 		this(matchingClass, ExpressionUtil.getFactory().<T> matchExpression(expression, parameters));
@@ -43,7 +47,7 @@ public class ExpressionQuery<T> implements IMatchQuery<T>, IQueryWithIndex<T> {
 	}
 
 	public ExpressionQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {
-		this(matchingClass, ExpressionUtil.getFactory().<T> matchExpression(ExpressionUtil.getParser().parse(expression), parameters));
+		this(matchingClass, ExpressionUtil.getFactory().<T> matchExpression(ExpressionUtil.parse(expression), parameters));
 	}
 
 	public IEvaluationContext getContext() {

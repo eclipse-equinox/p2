@@ -56,7 +56,7 @@ public class ArtifactDescriptorQuery extends ExpressionQuery<IArtifactDescriptor
 	 */
 	private ArtifactDescriptorQuery() {
 		//matches everything
-		super(IArtifactDescriptor.class, ExpressionUtil.TRUE_EXPRESSION);
+		super(IArtifactDescriptor.class, matchAll());
 	}
 
 	/**

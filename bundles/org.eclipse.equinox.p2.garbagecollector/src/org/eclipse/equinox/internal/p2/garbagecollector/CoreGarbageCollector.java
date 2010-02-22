@@ -13,8 +13,9 @@ package org.eclipse.equinox.internal.p2.garbagecollector;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.query.ExpressionContextQuery;
+import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
@@ -33,12 +34,8 @@ public class CoreGarbageCollector {
 	 * in aRepository that are not mapped to by an IArtifactKey in markSet
 	 */
 	public synchronized void clean(IArtifactKey[] markSet, final IArtifactRepository aRepository) {
-		final Set<IArtifactKey> set = new HashSet<IArtifactKey>(Arrays.asList(markSet));
-		MatchQuery<IArtifactKey> query = new MatchQuery<IArtifactKey>() {
-			public boolean isMatch(IArtifactKey candidate) {
-				return !set.contains(candidate);
-			}
-		};
+		Set<IArtifactKey> set = new HashSet<IArtifactKey>(Arrays.asList(markSet));
+		IQuery<IArtifactKey> query = new ExpressionContextQuery<IArtifactKey>(IArtifactKey.class, "unique($0)", set); //$NON-NLS-1$
 		final IQueryResult<IArtifactKey> inactive = aRepository.query(query, null);
 		aRepository.executeBatch(new Runnable() {
 			public void run() {

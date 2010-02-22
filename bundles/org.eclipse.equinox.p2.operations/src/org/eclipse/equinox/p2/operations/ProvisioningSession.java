@@ -219,7 +219,7 @@ public class ProvisioningSession {
 				// we will be able to get everything else.
 				ProfileChangeRequest downloadRequest = new ProfileChangeRequest(profile);
 				downloadRequest.setAbsoluteMode(true);
-				downloadRequest.addAll(new CompoundQueryable<IInstallableUnit>(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(InstallableUnitQuery.ANY, null).toSet());
+				downloadRequest.addAll(new CompoundQueryable<IInstallableUnit>(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(InstallableUnitQuery.ANY, null).unmodifiableSet());
 
 				PhaseSet download = new DownloadPhaseSet();
 				IProvisioningPlan downloadPlan = getPlanner().getProvisioningPlan(downloadRequest, context, mon.newChild(100));

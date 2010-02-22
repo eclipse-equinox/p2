@@ -91,9 +91,9 @@ public class Application implements IApplication {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		markRoots(request, roots);
 		if (install) {
-			request.addAll(roots.toSet());
+			request.addAll(roots.unmodifiableSet());
 		} else {
-			request.removeAll(roots.toSet());
+			request.removeAll(roots.unmodifiableSet());
 		}
 		return request;
 	}

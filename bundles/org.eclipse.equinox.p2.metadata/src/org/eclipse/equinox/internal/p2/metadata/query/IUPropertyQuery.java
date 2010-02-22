@@ -31,7 +31,7 @@ public final class IUPropertyQuery extends ExpressionQuery<IInstallableUnit> {
 	public static IMatchExpression<IInstallableUnit> createMatchExpression(String propertyName, String propertyValue) {
 		IExpressionFactory factory = ExpressionUtil.getFactory();
 		if (propertyName == null)
-			return MATCH_ALL_UNITS;
+			return ExpressionQuery.matchAll();
 		if (propertyValue == null)
 			return factory.<IInstallableUnit> matchExpression(matchNullExpression, propertyName);
 		if (ANY.equals(propertyValue))

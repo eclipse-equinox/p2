@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.metadata.query;
 
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
@@ -23,9 +22,6 @@ import org.eclipse.equinox.p2.query.*;
  * @since 2.0
  */
 public class ExpressionContextQuery<T> extends ContextQuery<T> implements IQueryWithIndex<T> {
-	public static final IMatchExpression<IInstallableUnit> MATCH_ALL_UNITS = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.TRUE_EXPRESSION);
-	public static final IMatchExpression<IInstallableUnit> MATCH_NO_UNIT = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.FALSE_EXPRESSION);
-
 	private final IContextExpression<T> expression;
 	private final Class<? extends T> elementClass;
 
@@ -39,7 +35,7 @@ public class ExpressionContextQuery<T> extends ContextQuery<T> implements IQuery
 	}
 
 	public ExpressionContextQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {
-		this(matchingClass, ExpressionUtil.getFactory().<T> contextExpression(ExpressionUtil.getParser().parseQuery(expression), parameters));
+		this(matchingClass, ExpressionUtil.getFactory().<T> contextExpression(ExpressionUtil.parseQuery(expression), parameters));
 	}
 
 	public Class<? extends T> getElementClass() {

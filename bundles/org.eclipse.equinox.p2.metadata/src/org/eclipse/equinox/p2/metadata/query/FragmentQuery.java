@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
  */
 public final class FragmentQuery extends ExpressionQuery<IInstallableUnit> {
 	public FragmentQuery() {
-		super(IInstallableUnitFragment.class, MATCH_ALL_UNITS);
+		super(IInstallableUnitFragment.class, matchAll());
 	}
 
 	/**
