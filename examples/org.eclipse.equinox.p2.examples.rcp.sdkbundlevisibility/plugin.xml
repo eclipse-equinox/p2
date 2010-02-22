@@ -154,16 +154,16 @@
          point="org.eclipse.ui.preferencePages">
               <page
             name="%provisioningPrefPage"
-            class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.ProvisioningPreferencePage"
-            id="org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage">
+            class="org.eclipse.equinox.p2.ui.ProvisioningPreferencePage"
+            id="org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility.ProvisioningPreferencePage">
             <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
       </page>
       
        <page
             name="%sitesPrefPage"
-            category="org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage"
-            class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RepositoryManipulationPage"
-            id="org.eclipse.equinox.internal.p2.ui.sdk.SitesPreferencePage">
+            category="org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility.ProvisioningPreferencePage"
+            class="org.eclipse.equinox.p2.ui.RepositoryManipulationPage"
+            id="org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility.SitesPreferencePage">
             <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
       </page>
  

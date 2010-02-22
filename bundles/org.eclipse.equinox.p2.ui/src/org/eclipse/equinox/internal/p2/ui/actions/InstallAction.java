@@ -58,7 +58,7 @@ public class InstallAction extends ProfileModificationAction {
 	}
 
 	protected int performAction(ProfileChangeOperation operation, Collection<IInstallableUnit> ius) {
-		return getProvisioningUI().openInstallWizard(getShell(), ius, (InstallOperation) operation, null);
+		return getProvisioningUI().openInstallWizard(ius, (InstallOperation) operation, null);
 	}
 
 	protected ProfileChangeOperation getProfileChangeOperation(Collection<IInstallableUnit> ius) {

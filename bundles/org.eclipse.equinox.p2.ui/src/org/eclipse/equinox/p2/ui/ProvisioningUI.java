@@ -184,7 +184,6 @@ public class ProvisioningUI {
 	/**
 	 * Open an install wizard for installing the specified IInstallableUnits
 	 * 
-	 * @param shell the shell to parent the wizard
 	 * @param initialSelections the IInstallableUnits that should be selected when the wizard opens.  May be <code>null</code>.
 	 * @param operation the operation describing the proposed install.  If this operation is not <code>null</code>, then a wizard showing
 	 * only the IInstallableUnits described in the operation will be shown.  If the operation is <code>null</code>, then a
@@ -194,16 +193,16 @@ public class ProvisioningUI {
 	 * 
 	 * @return the wizard return code
 	 */
-	public int openInstallWizard(Shell shell, Collection<IInstallableUnit> initialSelections, InstallOperation operation, LoadMetadataRepositoryJob job) {
+	public int openInstallWizard(Collection<IInstallableUnit> initialSelections, InstallOperation operation, LoadMetadataRepositoryJob job) {
 		if (operation == null) {
 			InstallWizard wizard = new InstallWizard(this, operation, initialSelections, job);
-			WizardDialog dialog = new ProvisioningWizardDialog(shell, wizard);
+			WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 			dialog.create();
 			PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.INSTALL_WIZARD);
 			return dialog.open();
 		}
 		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(this, operation, initialSelections, job);
-		WizardDialog dialog = new ProvisioningWizardDialog(shell, wizard);
+		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.INSTALL_WIZARD);
 		return dialog.open();
@@ -212,7 +211,6 @@ public class ProvisioningUI {
 	/**
 	 * Open an update wizard for the specified update operation.
 	 * 
-	 * @param shell the shell to parent the wizard
 	 * @param skipSelectionsPage <code>true</code> if the selection page should be skipped so that the user is 
 	 * viewing the resolution results.  <code>false</code> if the update selection page should be shown first.
 	 * @param operation the operation describing the proposed update.  Must not be <code>null</code>.
@@ -221,10 +219,10 @@ public class ProvisioningUI {
 	 * 
 	 * @return the wizard return code
 	 */
-	public int openUpdateWizard(Shell shell, boolean skipSelectionsPage, UpdateOperation operation, LoadMetadataRepositoryJob job) {
+	public int openUpdateWizard(boolean skipSelectionsPage, UpdateOperation operation, LoadMetadataRepositoryJob job) {
 		UpdateWizard wizard = new UpdateWizard(this, operation, operation.getSelectedUpdates(), job);
 		wizard.setSkipSelectionsPage(skipSelectionsPage);
-		WizardDialog dialog = new ProvisioningWizardDialog(shell, wizard);
+		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);
 		return dialog.open();
@@ -233,7 +231,6 @@ public class ProvisioningUI {
 	/**
 	 * Open an uninstall wizard for the specified uninstall operation.
 	 * 
-	 * @param shell the shell to parent the wizard
 	 * @param initialSelections the IInstallableUnits that should be selected when the wizard opens.  May be <code>null</code>.
 	 * @param operation the operation describing the proposed uninstall.  Must not be <code>null</code>.
 	 * @param job a repository load job that is loading or has already loaded the repositories.  Can be used to pass along
@@ -241,9 +238,9 @@ public class ProvisioningUI {
 	 * 
 	 * @return the wizard return code
 	 */
-	public int openUninstallWizard(Shell shell, Collection<IInstallableUnit> initialSelections, UninstallOperation operation, LoadMetadataRepositoryJob job) {
+	public int openUninstallWizard(Collection<IInstallableUnit> initialSelections, UninstallOperation operation, LoadMetadataRepositoryJob job) {
 		UninstallWizard wizard = new UninstallWizard(this, operation, initialSelections, job);
-		WizardDialog dialog = new ProvisioningWizardDialog(shell, wizard);
+		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UNINSTALL_WIZARD);
 		return dialog.open();
@@ -287,14 +284,6 @@ public class ProvisioningUI {
 			};
 			dialog.open();
 		}
-	}
-
-	/**
-	 * Return a shell appropriate for parenting a dialog.
-	 * @return a shell that can be used to parent a dialog.
-	 */
-	public Shell getDefaultParentShell() {
-		return ProvUI.getDefaultParentShell();
 	}
 
 	/**

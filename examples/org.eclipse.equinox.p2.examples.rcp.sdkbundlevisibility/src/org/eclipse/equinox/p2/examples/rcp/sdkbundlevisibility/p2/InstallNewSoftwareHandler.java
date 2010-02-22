@@ -28,7 +28,7 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 	}
 
 	protected void doExecute(LoadMetadataRepositoryJob job) {
-		getProvisioningUI().openInstallWizard(getShell(), null, null, job);
+		getProvisioningUI().openInstallWizard(null, null, job);
 	}
 
 	protected boolean waitForPreload() {

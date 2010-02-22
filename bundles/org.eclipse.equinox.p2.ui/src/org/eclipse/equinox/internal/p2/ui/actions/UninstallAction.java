@@ -51,6 +51,6 @@ public class UninstallAction extends ExistingIUInProfileAction {
 	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#performAction(org.eclipse.equinox.p2.operations.ProfileChangeOperation, org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
 	 */
 	protected int performAction(ProfileChangeOperation operation, Collection<IInstallableUnit> ius) {
-		return ui.openUninstallWizard(getShell(), ius, (UninstallOperation) operation, null);
+		return ui.openUninstallWizard(ius, (UninstallOperation) operation, null);
 	}
 }

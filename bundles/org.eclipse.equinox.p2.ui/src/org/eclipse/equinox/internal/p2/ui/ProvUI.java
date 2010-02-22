@@ -22,10 +22,9 @@ import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.*;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -123,63 +122,10 @@ public class ProvUI {
 
 	/**
 	 * Returns a shell that is appropriate to use as the parent
-	 * for a modal dialog. This returns the existing modal dialog, if any,
-	 * or a workbench window if no modal dialogs open. Returns <code>null</code>
-	 * if there is no appropriate default parent.
-	 * 
-	 * This method is copied from ProgressManagerUtil#getDefaultParent()
+	 * for a modal dialog. 
 	 */
 	public static Shell getDefaultParentShell() {
-		IWorkbench workbench = PlatformUI.getWorkbench();
-
-		//look first for the topmost modal shell
-		Shell shell = getDefaultParentShell(workbench.getDisplay().getShells());
-
-		if (shell != null) {
-			return shell;
-		}
-
-		//try the active workbench window
-		IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-		if (window != null)
-			return window.getShell();
-		IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
-		if (windows.length > 0)
-			return windows[0].getShell();
-		//there is no modal shell and no active window, so just return a null parent shell
-		return null;
-	}
-
-	/**
-	 * Return the modal shell that is currently open. If there isn't one then
-	 * return null.
-	 * 
-	 * @param shells shells to search for modal children
-	 * @return the most specific modal child, or null if none
-	 *
-	 * This method is copied from ProgressManagerUtil#getDefaultParent()
-	 */
-
-	private static Shell getDefaultParentShell(Shell[] shells) {
-		//first look for a modal shell
-		for (int i = shells.length - 1; i >= 0; i--) {
-			Shell shell = shells[i];
-
-			// Check if this shell has a modal child
-			Shell modalChild = getDefaultParentShell(shell.getShells());
-			if (modalChild != null) {
-				return modalChild;
-			}
-
-			// Do not worry about shells that will not block the user.
-			if (shell.isVisible()) {
-				int modal = SWT.APPLICATION_MODAL | SWT.SYSTEM_MODAL | SWT.PRIMARY_MODAL;
-				if ((shell.getStyle() & modal) != 0) {
-					return shell;
-				}
-			}
-		}
-		return null;
+		return PlatformUI.getWorkbench().getModalDialogShellProvider().getShell();
 	}
 
 	public static void addProvisioningListener(ProvUIProvisioningListener listener) {

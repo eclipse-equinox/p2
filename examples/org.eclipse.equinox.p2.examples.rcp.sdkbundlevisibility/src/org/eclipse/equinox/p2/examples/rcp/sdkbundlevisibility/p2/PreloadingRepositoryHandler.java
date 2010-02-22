@@ -99,6 +99,6 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	 * @return a Shell
 	 */
 	protected Shell getShell() {
-		return getProvisioningUI().getDefaultParentShell();
+		return PlatformUI.getWorkbench().getModalDialogShellProvider().getShell();
 	}
 }

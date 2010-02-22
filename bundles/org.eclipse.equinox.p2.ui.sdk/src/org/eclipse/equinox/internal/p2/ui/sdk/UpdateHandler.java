@@ -38,7 +38,7 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 		// check for updates
 		operation.resolveModal(null);
 		if (getProvisioningUI().getPolicy().continueWorkingWithOperation(operation, getShell())) {
-			getProvisioningUI().openUpdateWizard(getShell(), false, operation, job);
+			getProvisioningUI().openUpdateWizard(false, operation, job);
 		}
 	}
 

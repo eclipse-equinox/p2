@@ -20,7 +20,7 @@ Import-Package: javax.xml.parsers,
  org.xml.sax
 Export-Package: org.eclipse.equinox.internal.p2.ui.sdk;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.sdk.prefs;x-internal:=true
-Require-Bundle: org.eclipse.ui,
+Require-Bundle: org.eclipse.ui;bundle-version="3.6.0",
  org.eclipse.core.runtime,
  org.eclipse.equinox.p2.ui
 Bundle-ActivationPolicy: lazy

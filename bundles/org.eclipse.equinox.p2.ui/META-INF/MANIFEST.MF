@@ -44,7 +44,7 @@ Export-Package: org.eclipse.equinox.internal.p2.ui;x-friends:="org.eclipse.equin
  org.eclipse.equinox.internal.p2.ui.query;x-friends:="org.eclipse.equinox.p2.ui.admin, org.eclipse.equinox.internal.p2.ui.analysis",
  org.eclipse.equinox.internal.p2.ui.viewers;x-friends:="org.eclipse.equinox.p2.ui.admin, org.eclipse.equinox.p2.ui.sdk.scheduler",
  org.eclipse.equinox.p2.ui
-Require-Bundle: org.eclipse.ui,
+Require-Bundle: org.eclipse.ui;bundle-version="3.6.0",
  org.eclipse.core.runtime,
  org.eclipse.core.expressions,
  org.eclipse.equinox.security.ui;bundle-version="[1.0.0,2.0.0)",

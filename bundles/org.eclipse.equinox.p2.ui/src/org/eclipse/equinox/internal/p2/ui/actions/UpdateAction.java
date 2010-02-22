@@ -67,6 +67,6 @@ public class UpdateAction extends ExistingIUInProfileAction {
 	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#performAction(org.eclipse.equinox.p2.operations.ProfileChangeOperation, org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
 	 */
 	protected int performAction(ProfileChangeOperation operation, Collection<IInstallableUnit> ius) {
-		return ui.openUpdateWizard(getShell(), skipSelectionPage, (UpdateOperation) operation, null);
+		return ui.openUpdateWizard(skipSelectionPage, (UpdateOperation) operation, null);
 	}
 }
