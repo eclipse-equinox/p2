@@ -96,7 +96,7 @@ public class DefaultPhaseSet extends PhaseSet {
 	 * Creates a default phase set that covers all the provisioning operations.
 	 * Phases can be specified for inclusion.
 	 * 
-	 * @param exclude - A set of bit options that specify the phases to include.
+	 * @param include - A set of bit options that specify the phases to include.
 	 * See {@link DefaultPhaseSet} for possible options
 	 * @return the {@link PhaseSet}
 	 */
