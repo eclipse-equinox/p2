@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,7 @@ public class CoreGarbageCollector {
 	 */
 	public synchronized void clean(IArtifactKey[] markSet, final IArtifactRepository aRepository) {
 		Set<IArtifactKey> set = new HashSet<IArtifactKey>(Arrays.asList(markSet));
+		//this query will match all artifact keys in the given set
 		IQuery<IArtifactKey> query = new ExpressionContextQuery<IArtifactKey>(IArtifactKey.class, "unique($0)", set); //$NON-NLS-1$
 		final IQueryResult<IArtifactKey> inactive = aRepository.query(query, null);
 		aRepository.executeBatch(new Runnable() {
