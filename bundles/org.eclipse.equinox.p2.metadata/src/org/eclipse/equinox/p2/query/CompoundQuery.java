@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     EclipseSource - ongoing development
+ *     Cloudsmith Inc. - added index capabilities
  *******************************************************************************/
 package org.eclipse.equinox.p2.query;
 

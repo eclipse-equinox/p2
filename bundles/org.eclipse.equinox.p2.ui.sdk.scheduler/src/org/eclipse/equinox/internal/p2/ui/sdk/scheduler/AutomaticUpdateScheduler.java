@@ -18,9 +18,9 @@ import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -57,47 +57,6 @@ public class AutomaticUpdateScheduler implements IStartup {
 		}
 		for (int i = 1; i < firstDay; i++) {
 			DAYS[++countDays] = daysAsStrings[i];
-		}
-	}
-
-	/**
-	 * A query that searches for {@link IInstallableUnit} instances that have
-	 * a property associated with the specified profile, whose value matches the provided value.
-	 * Uses the profile id instead of the profile to reference the profile.
-	 * The profile instance is cached only during the duration of the query.
-	 * This query is used instead of IUProfilePropertyQuery because we pass
-	 * this query to the automatic update checker and it will be referenced during
-	 * the life of the platform.  
-	 */
-	private class IUProfilePropertyByIdQuery extends MatchQuery<IInstallableUnit> {
-		private final String propertyName;
-		private IProfile cachedProfile;
-
-		/**
-		 * Creates a new query on the given property name and value.
-		 */
-		public IUProfilePropertyByIdQuery(String propertyName) {
-			this.propertyName = propertyName;
-		}
-
-		private IProfile getProfile() {
-			if (cachedProfile == null) {
-				IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
-				IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
-				if (profileRegistry != null)
-					cachedProfile = profileRegistry.getProfile(profileId);
-			}
-			return cachedProfile;
-		}
-
-		// overridden to release profile cache
-		public void postPerform() {
-			cachedProfile = null;
-		}
-
-		public boolean isMatch(IInstallableUnit candidate) {
-			IProfile profile = getProfile();
-			return profile != null && Boolean.valueOf(profile.getInstallableUnitProperty(candidate, propertyName)).booleanValue();
 		}
 	}
 
@@ -170,7 +129,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 	private IQuery<IInstallableUnit> getProfileQuery() {
 		// We specifically avoid using the default policy's root property so that we don't load all the
 		// p2 UI classes in doing so.  
-		return new IUProfilePropertyByIdQuery(IProfile.PROP_PROFILE_ROOT_IU);
+		return new IUProfilePropertyQuery(IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 	}
 
 	private int getDay(IPreferenceStore pref) {

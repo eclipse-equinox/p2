@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Cloudsmith Inc. - IMemberProvider access.
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact.spi;
 
@@ -14,13 +15,19 @@ import java.util.Arrays;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 import org.eclipse.equinox.p2.repository.artifact.*;
 
 /**
  * This represents information about a given artifact stored on a particular byte server.
  * @since 2.0
  */
-public class ArtifactDescriptor implements IArtifactDescriptor {
+public class ArtifactDescriptor implements IArtifactDescriptor, IMemberProvider {
+	public static final String MEMBER_ARTIFACT_KEY = "artifactKey"; //$NON-NLS-1$
+	public static final String MEMBER_PROCESSING_STEPS = "processingSteps"; //$NON-NLS-1$
+	public static final String MEMBER_PROPERTIES = "properties"; //$NON-NLS-1$
+	public static final String MEMBER_REPOSITORY = "repository"; //$NON-NLS-1$
+
 	private static final IProcessingStepDescriptor[] EMPTY_STEPS = new ProcessingStepDescriptor[0];
 
 	protected IArtifactKey key; // The key associated with this artifact
@@ -147,6 +154,22 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		if (format == null)
 			return "canonical: " + key.toString(); //$NON-NLS-1$
 		return format + ": " + key.toString(); //$NON-NLS-1$
+	}
+
+	public Object getMember(String memberName) {
+		if (memberName == MEMBER_ARTIFACT_KEY)
+			return key;
+
+		if (memberName == MEMBER_PROPERTIES)
+			return properties;
+
+		if (memberName == MEMBER_PROCESSING_STEPS)
+			return processingSteps;
+
+		if (memberName == MEMBER_REPOSITORY)
+			return repository;
+
+		throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
 	}
 
 }

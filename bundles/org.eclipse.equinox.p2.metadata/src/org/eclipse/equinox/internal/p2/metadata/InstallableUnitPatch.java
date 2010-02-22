@@ -13,6 +13,10 @@ import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.*;
 
 public class InstallableUnitPatch extends InstallableUnit implements IInstallableUnitPatch {
+	public static final String MEMBER_APPLICABILITY_SCOPE = "applicabilityScope"; //$NON-NLS-1$
+	public static final String MEMBER_LIFECYCLE = "lifeCycle"; //$NON-NLS-1$
+	public static final String MEMBER_REQUIREMENTS_CHANGE = "requirementsChange"; //$NON-NLS-1$
+
 	private IRequirementChange[] changes;
 	private IRequirement lifeCycle;
 	private IRequirement[][] scope;
@@ -55,9 +59,11 @@ public class InstallableUnitPatch extends InstallableUnit implements IInstallabl
 	}
 
 	public Object getMember(String memberName) {
-		if ("lifeCycle".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_APPLICABILITY_SCOPE == memberName)
+			return scope;
+		if (MEMBER_LIFECYCLE == memberName)
 			return lifeCycle;
-		if ("requirementsChange".equals(memberName)) //$NON-NLS-1$
+		if (MEMBER_REQUIREMENTS_CHANGE == memberName)
 			return changes;
 		return super.getMember(memberName);
 	}

@@ -11,13 +11,12 @@
 package org.eclipse.equinox.p2.metadata.query;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.metadata.expression.QueryResult;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
-import org.eclipse.equinox.p2.query.ContextQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 
 /**
  * A query that evaluates using an iterator as input and produces a new iterator.
@@ -58,4 +57,39 @@ public class ExpressionContextQuery<T> extends ContextQuery<T> implements IQuery
 	public IContextExpression<T> getExpression() {
 		return expression;
 	}
+
+	protected static <T> Class<? extends T> getElementClass(IQuery<T> query) {
+		@SuppressWarnings("unchecked")
+		Class<? extends T> elementClass = (Class<T>) Object.class;
+		if (query instanceof ExpressionQuery<?>)
+			elementClass = ((ExpressionQuery<T>) query).getMatchingClass();
+		else if (query instanceof ExpressionContextQuery<?>)
+			elementClass = ((ExpressionContextQuery<T>) query).getElementClass();
+		return elementClass;
+	}
+
+	protected static <T> IContextExpression<T> createExpression(IQuery<T> query) {
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		IExpression expr = query.getExpression();
+		Object[] parameters;
+		if (expr == null) {
+			expr = factory.toExpression(query);
+			if (query instanceof IMatchQuery<?>)
+				expr = factory.select(ExpressionFactory.EVERYTHING, factory.lambda(ExpressionFactory.THIS, expr));
+			parameters = new Object[0];
+		} else {
+			if (expr instanceof MatchExpression<?>) {
+				MatchExpression<?> matchExpr = (MatchExpression<?>) expr;
+				parameters = matchExpr.getParameters();
+				expr = factory.select(ExpressionFactory.EVERYTHING, factory.lambda(ExpressionFactory.THIS, matchExpr.operand));
+			} else if (expr instanceof ContextExpression<?>) {
+				ContextExpression<?> contextExpr = (ContextExpression<?>) expr;
+				parameters = contextExpr.getParameters();
+				expr = contextExpr.operand;
+			} else
+				parameters = new Object[0];
+		}
+		return factory.contextExpression(expr, parameters);
+	}
+
 }

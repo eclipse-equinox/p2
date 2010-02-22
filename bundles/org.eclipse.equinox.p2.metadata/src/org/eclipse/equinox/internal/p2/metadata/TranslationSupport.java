@@ -19,10 +19,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
-import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
-import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.service.localization.LocaleProvider;
 
@@ -42,7 +40,8 @@ public class TranslationSupport {
 	static final String NAMESPACE_IU_LOCALIZATION = "org.eclipse.equinox.p2.localization"; //$NON-NLS-1$
 	private IQueryable<IInstallableUnit> fragmentSource;
 
-	private static IExpression capabilityMatch = ExpressionUtil.parse("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1)"); //$NON-NLS-1$
+	private static IExpression capabilityMatch = ExpressionUtil.parse("providedCapabilities.exists(x | x.namespace == $0 && $1.exists(n | x.name == n))"); //$NON-NLS-1$
+	private static IExpression haveHostMatch = ExpressionUtil.parse("host.exists(h | $0 ~= h)"); //$NON-NLS-1$
 
 	// Cache the IU fragments that provide localizations for a given locale.
 	// Map<String,SoftReference<IQueryResult>>: locale => soft reference to a queryResult
@@ -222,15 +221,7 @@ public class TranslationSupport {
 				return cached;
 		}
 
-		final List<String> locales = localeVariants;
-
-		@SuppressWarnings("unchecked")
-		IQuery<IInstallableUnit>[] localeQuery = new IQuery[locales.size()];
-		for (int j = 0; j < locales.size(); j++) {
-			localeQuery[j] = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, capabilityMatch, locales.get(j), NAMESPACE_IU_LOCALIZATION);
-		}
-
-		IQuery<IInstallableUnit> iuQuery = PipedQuery.createPipe(new FragmentQuery(), CompoundQuery.createCompoundQuery(localeQuery, false));
+		IQuery<IInstallableUnit> iuQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnitFragment.class, capabilityMatch, NAMESPACE_IU_LOCALIZATION, localeVariants);
 		IQueryResult<IInstallableUnit> collected = fragmentSource.query(iuQuery, null);
 		localeCollectorCache.put(locale, new SoftReference<IQueryResult<IInstallableUnit>>(collected));
 		return collected;
@@ -254,24 +245,8 @@ public class TranslationSupport {
 
 		IQueryResult<IInstallableUnit> localizationFragments = getLocalizationFragments(locales, locale);
 
-		IQuery<IInstallableUnit> hostLocalizationQuery = new MatchQuery<IInstallableUnit>() {
-			public boolean isMatch(IInstallableUnit object) {
-				boolean haveHost = false;
-				if (object instanceof IInstallableUnitFragment) {
-					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
-					IRequirement[] hosts = fragment.getHost();
-					for (int i = 0; i < hosts.length; i++) {
-						if (theUnit.satisfies(hosts[i])) {
-							haveHost = true;
-							break;
-						}
-					}
-				}
-				return haveHost;
-			}
-		};
-
-		IQuery<IInstallableUnit> iuQuery = PipedQuery.createPipe(new FragmentQuery(), hostLocalizationQuery);
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		IQuery<IInstallableUnit> iuQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnitFragment.class, factory.matchExpression(haveHostMatch, theUnit));
 		IQueryResult<IInstallableUnit> collected = iuQuery.perform(localizationFragments.iterator());
 		if (!collected.isEmpty()) {
 			String translation = null;

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Cloudsmith Inc. - converted into expression based query
  *******************************************************************************/
 
 package org.eclipse.equinox.p2.repository.artifact;

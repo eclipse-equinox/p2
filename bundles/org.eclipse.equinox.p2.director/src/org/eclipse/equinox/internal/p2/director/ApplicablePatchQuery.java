@@ -7,20 +7,22 @@
  * 
  *  Contributors:
  *      IBM Corporation - initial API and implementation
+ *      Cloudsmith Inc. - converted into expression based query
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
-
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A query that accepts any patch that applies to a given installable unit.
  */
-public class ApplicablePatchQuery extends MatchQuery<IInstallableUnit> {
-	IInstallableUnit iu;
+public class ApplicablePatchQuery extends ExpressionQuery<IInstallableUnit> {
+	private static final IExpression applicablePatches = ExpressionUtil.parse(//
+			"applicabilityScope.empty || applicabilityScope.exists(rqArr | rqArr.all(rq | $0 ~= rq))"); //$NON-NLS-1$
 
 	/**
 	 * Creates a new patch query on the given installable unit. Patches that can
@@ -28,26 +30,6 @@ public class ApplicablePatchQuery extends MatchQuery<IInstallableUnit> {
 	 * @param iu The unit to compare patches against
 	 */
 	public ApplicablePatchQuery(IInstallableUnit iu) {
-		this.iu = iu;
-	}
-
-	public boolean isMatch(IInstallableUnit candidate) {
-		if (!(candidate instanceof IInstallableUnitPatch))
-			return false;
-		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) candidate;
-		IRequirement[][] scopeDescription = patchIU.getApplicabilityScope();
-		if (scopeDescription.length == 0)
-			return true;
-
-		for (int i = 0; i < scopeDescription.length; i++) {
-			int matchedScopeEntry = scopeDescription[i].length;
-			for (int j = 0; j < scopeDescription[i].length; j++) {
-				if (iu.satisfies(scopeDescription[i][j]))
-					matchedScopeEntry--;
-			}
-			if (matchedScopeEntry == 0)
-				return true;
-		}
-		return false;
+		super(IInstallableUnitPatch.class, applicablePatches, iu);
 	}
 }

@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.ql;
 
 import java.util.Map;
-import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
 
@@ -105,15 +104,6 @@ public interface IQLFactory extends IExpressionFactory {
 	 * @return A lambda expression with currying
 	 */
 	IExpression lambda(IExpression variable, IExpression[] initialAssignments, IExpression body);
-
-	/**
-	 * Create an expression that yields a new collection consisting of the latest version of
-	 * the elements of the <code>collection</code>. Each element in <code>collection</code>
-	 * must implement the {@link IVersionedId} interface.
-	 * @param collection The collection providing the versioned elements
-	 * @return A collection expression
-	 */
-	IExpression latest(IExpression collection);
 
 	/**
 	 * Creates a member call expression.

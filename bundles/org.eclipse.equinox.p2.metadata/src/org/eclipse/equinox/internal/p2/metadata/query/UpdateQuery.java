@@ -6,38 +6,40 @@
  *  http://www.eclipse.org/legal/epl-v10.html
  * 
  *  Contributors:
- *      IBM Corporation - initial API and implementation
+ *     IBM Corporation - initial API and implementation
+ *     Cloudsmith Inc. - converted into expression based query
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.query;
 
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
+import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A query that finds all IUs that are considered an "Update" of the 
  * specified IU.  
  */
-public final class UpdateQuery extends MatchQuery<IInstallableUnit> {
-	private IInstallableUnit updateFrom;
+public final class UpdateQuery extends ExpressionQuery<IInstallableUnit> {
+	private static final IExpression expr1;
+	private static final IExpression expr2;
 
-	public UpdateQuery(IInstallableUnit updateFrom) {
-		this.updateFrom = updateFrom;
+	static {
+		IExpressionParser parser = ExpressionUtil.getParser();
+
+		// This expression is used in case the updateFrom is an IInstallableUnitPatch
+		//
+		expr1 = parser.parse("$0 ~= updateDescriptor && ($0.id != id || $0.version < version)"); //$NON-NLS-1$
+
+		// When updateFrom is not an IInstallableUnitPatch, we need to do one of two things depending
+		// on if the current item is an InstallableUnitPatch or not.
+		//
+		expr2 = parser.parse("this ~= class('org.eclipse.equinox.p2.metadata.IInstallableUnitPatch')" + // //$NON-NLS-1$
+				"? $0 ~= lifeCycle" + // //$NON-NLS-1$
+				": $0 ~= updateDescriptor && ($0.id != id || $0.version < version)"); //$NON-NLS-1$
 	}
 
-	public boolean isMatch(IInstallableUnit candidate) {
-		if (candidate instanceof IInstallableUnitPatch && !(updateFrom instanceof IInstallableUnitPatch)) {
-			IInstallableUnitPatch potentialPatch = (IInstallableUnitPatch) candidate;
-			IRequirement lifeCycle = potentialPatch.getLifeCycle();
-			if (lifeCycle == null)
-				return false;
-			return updateFrom.satisfies(lifeCycle);
-		}
-		IUpdateDescriptor descriptor = candidate.getUpdateDescriptor();
-		if (descriptor != null && descriptor.isUpdateOf(updateFrom)) {
-			if (!updateFrom.getId().equals(candidate.getId()))
-				return true;
-			return updateFrom.getVersion().compareTo(candidate.getVersion()) < 0;
-		}
-		return false;
+	public UpdateQuery(IInstallableUnit updateFrom) {
+		super(IInstallableUnit.class, ExpressionUtil.getFactory().matchExpression(updateFrom instanceof IInstallableUnitPatch ? expr1 : expr2, updateFrom, IInstallableUnitPatch.class));
 	}
 }

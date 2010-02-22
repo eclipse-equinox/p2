@@ -7,13 +7,14 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Cloudsmith Inc. - converted into expression based query
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
-import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
 /**
@@ -27,9 +28,9 @@ import org.eclipse.equinox.p2.query.MatchQuery;
  * 
  * @since 2.0 
  */
-public class RequiredIUsQuery extends MatchQuery<IInstallableUnit> {
+public class RequiredIUsQuery extends ExpressionQuery<IInstallableUnit> {
 
-	private final Collection<IRequirement> required;
+	private static final IExpression expression = ExpressionUtil.parse("$0.exists(rc | this ~= rc)"); //$NON-NLS-1$
 
 	/**
 	 * Creates a new query that will return any IU that meets any
@@ -38,19 +39,6 @@ public class RequiredIUsQuery extends MatchQuery<IInstallableUnit> {
 	 * @param iu The IU whose requirements are to be checked
 	 */
 	public RequiredIUsQuery(IInstallableUnit iu) {
-		this.required = iu.getRequiredCapabilities();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.query.MatchQuery#isMatch(java.lang.Object)
-	 */
-	public boolean isMatch(IInstallableUnit candidate) {
-		// meeting any requirement is sufficient to match the query.
-		for (IRequirement req : required) {
-			if (candidate.satisfies(req))
-				return true;
-		}
-		return false;
+		super(IInstallableUnit.class, ExpressionUtil.getFactory().matchExpression(expression, iu.getRequiredCapabilities()));
 	}
 }

@@ -367,11 +367,11 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		IQueryResult<IArtifactDescriptor> result = descQueryable.query(new ArtifactDescriptorQuery("a", null, null), null);
 		assertEquals(3, queryResultSize(result));
 
-		result = descQueryable.query(new ArtifactDescriptorQuery(null, new VersionRange("[2.0.0, 3.0.0)"), null), null);
+		result = descQueryable.query(new ArtifactDescriptorQuery("a", new VersionRange("[2.0.0, 3.0.0)"), null), null);
 		assertEquals(2, queryResultSize(result));
 		assertNotContains(result, d1);
 
-		result = descQueryable.query(new ArtifactDescriptorQuery(null, null, IArtifactDescriptor.FORMAT_PACKED), null);
+		result = descQueryable.query(new ArtifactDescriptorQuery("a", null, IArtifactDescriptor.FORMAT_PACKED), null);
 		assertEquals(1, queryResultSize(result));
 		IArtifactDescriptor resultDescriptor = result.iterator().next();
 		assertEquals(d3.getArtifactKey(), resultDescriptor.getArtifactKey());

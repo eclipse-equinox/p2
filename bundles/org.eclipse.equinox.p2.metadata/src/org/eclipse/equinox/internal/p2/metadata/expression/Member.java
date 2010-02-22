@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.lang.reflect.*;
+import java.util.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
 
 /**
@@ -100,6 +101,50 @@ public abstract class Member extends Unary {
 				}
 				throw new RuntimeException("Problem invoking " + methodName + " on a " + self.getClass().getName(), checked); //$NON-NLS-1$ //$NON-NLS-2$
 			}
+		}
+	}
+
+	public static class LengthMember extends Member {
+		private static final Integer ZERO = new Integer(0);
+
+		LengthMember(Expression operand) {
+			super(operand, "length", Expression.emptyArray); //$NON-NLS-1$
+		}
+
+		public Object evaluate(IEvaluationContext context) {
+			int len = getLength(operand.evaluate(context));
+			return len == 0 ? ZERO : new Integer(len);
+		}
+
+		int getLength(Object val) {
+			if (val == null)
+				return 0;
+
+			if (val.getClass().isArray())
+				return Array.getLength(val);
+
+			if (val instanceof Collection<?>)
+				return ((Collection<?>) val).size();
+
+			if (val instanceof String)
+				return ((String) val).length();
+
+			if (val instanceof Map<?, ?>)
+				return ((Map<?, ?>) val).size();
+
+			return 0;
+		}
+	}
+
+	public static class EmptyMember extends LengthMember {
+		EmptyMember(Expression operand) {
+			super(operand);
+		}
+
+		public Object evaluate(IEvaluationContext context) {
+			Object val = operand.evaluate(context);
+			boolean empty = (val instanceof Iterator<?>) ? !((Iterator<?>) val).hasNext() : getLength(val) == 0;
+			return Boolean.valueOf(empty);
 		}
 	}
 

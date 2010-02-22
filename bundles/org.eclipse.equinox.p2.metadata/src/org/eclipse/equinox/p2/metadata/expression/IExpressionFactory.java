@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.metadata.expression;
 
 import java.util.List;
+import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.query.IQuery;
 
 /**
@@ -137,6 +138,15 @@ public interface IExpressionFactory {
 	 * @return A lambda expression
 	 */
 	IExpression lambda(IExpression variable, IExpression body);
+
+	/**
+	 * Create an expression that yields a new collection consisting of the latest version of
+	 * the elements of the <code>collection</code>. Each element in <code>collection</code>
+	 * must implement the {@link IVersionedId} interface.
+	 * @param collection The collection providing the versioned elements
+	 * @return A collection expression
+	 */
+	IExpression latest(IExpression collection);
 
 	/**
 	 * Create an expression that tests if <code>lhs</code> is less than <code>rhs</code>.

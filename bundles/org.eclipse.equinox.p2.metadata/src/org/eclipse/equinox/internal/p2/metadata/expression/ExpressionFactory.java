@@ -80,6 +80,10 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		return new LambdaExpression((Variable) variable, (Expression) body);
 	}
 
+	public IExpression latest(IExpression collection) {
+		throw failNoQL();
+	}
+
 	public IExpression less(IExpression lhs, IExpression rhs) {
 		return new Compare((Expression) lhs, (Expression) rhs, true, false);
 	}
@@ -105,6 +109,10 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 	}
 
 	public IExpression member(IExpression target, String name) {
+		if ("empty".equals(name)) //$NON-NLS-1$
+			return new Member.EmptyMember((Expression) target);
+		if ("length".equals(name)) //$NON-NLS-1$
+			return new Member.LengthMember((Expression) target);
 		return new Member.DynamicMember((Expression) target, name);
 	}
 

@@ -6,73 +6,40 @@
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
+ *  Cloudsmith Inc. - converted into expression based query
 ******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.query;
 
-import java.util.*;
+import org.eclipse.equinox.internal.p2.metadata.expression.ContextExpression;
+import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
-import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
-import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionContextQuery;
+import org.eclipse.equinox.p2.query.IQuery;
 
 /**
  * This query returns the latest version for each unique VersionedID.  
  * All other elements are discarded.
  */
-public class LatestIUVersionQuery<T extends IVersionedId> extends ContextQuery<T> implements IQueryWithIndex<T> {
+public class LatestIUVersionQuery<T extends IVersionedId> extends ExpressionContextQuery<T> {
 
-	private final IQuery<T> query;
+	private static <T> IContextExpression<T> createLatestExpression(IQuery<T> query) {
+		ContextExpression<T> ctxExpr = (ContextExpression<T>) createExpression(query);
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		return factory.contextExpression(factory.latest(ctxExpr.operand), ctxExpr.getParameters());
+	}
 
+	private static IContextExpression<?> createLatestExpression() {
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		return factory.contextExpression(factory.latest(ExpressionFactory.EVERYTHING));
+	}
+
+	@SuppressWarnings("unchecked")
 	public LatestIUVersionQuery() {
-		this.query = null;
+		super((Class<? extends T>) IVersionedId.class, createLatestExpression());
 	}
 
 	public LatestIUVersionQuery(IQuery<T> query) {
-		this.query = query;
-	}
-
-	/**
-	 * Performs the LatestIUVersionQuery
-	 */
-	public IQueryResult<T> perform(Iterator<T> iterator) {
-		if (query != null)
-			iterator = query.perform(iterator).iterator();
-		return latest(iterator);
-	}
-
-	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
-		Iterator<T> iterator;
-		if (query != null) {
-			if (query instanceof IQueryWithIndex<?>)
-				iterator = ((IQueryWithIndex<T>) query).perform(indexProvider).iterator();
-			else
-				iterator = query.perform(indexProvider.everything()).iterator();
-		} else
-			iterator = indexProvider.everything();
-		return latest(iterator);
-	}
-
-	private IQueryResult<T> latest(Iterator<T> iterator) {
-		HashMap<String, T> greatestIUVersion = new HashMap<String, T>();
-		while (iterator.hasNext()) {
-			T versionedID = iterator.next();
-			if (greatestIUVersion.containsKey(versionedID.getId())) {
-				T currentIU = greatestIUVersion.get(versionedID.getId());
-				if (currentIU.getVersion().compareTo(versionedID.getVersion()) < 0)
-					greatestIUVersion.put(versionedID.getId(), versionedID);
-			} else
-				greatestIUVersion.put(versionedID.getId(), versionedID);
-		}
-
-		Collection<T> values = greatestIUVersion.values();
-		Iterator<T> valuesIterator = values.iterator();
-		boolean continueGather = true;
-
-		Collector<T> result = new Collector<T>();
-		while (valuesIterator.hasNext() && continueGather) {
-			T nextIU = valuesIterator.next();
-			continueGather = result.accept(nextIU);
-		}
-		return result;
+		super(getElementClass(query), createLatestExpression(query));
 	}
 }

@@ -6,26 +6,26 @@
  *  http://www.eclipse.org/legal/epl-v10.html
  * 
  *  Contributors:
- *      IBM Corporation - initial API and implementation
+ *     IBM Corporation - initial API and implementation
+ *     Cloudsmith Inc. - converted into expression based query
  *******************************************************************************/
 package org.eclipse.equinox.p2.touchpoint.eclipse.query;
 
-import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A query matching every {@link IInstallableUnit} that describes an OSGi bundle. 
  * @since 2.0
  */
-public class OSGiBundleQuery extends MatchQuery<IInstallableUnit> {
+public class OSGiBundleQuery extends ExpressionQuery<IInstallableUnit> {
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query.MatchQuery#isMatch(java.lang.Object)
-	 */
-	public boolean isMatch(IInstallableUnit candidate) {
-		return isOSGiBundle(candidate);
+	private static final IMatchExpression<IInstallableUnit> bundleTest = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.parse("providedCapabilities.exists(p | p.namespace == 'osgi.bundle')")); //$NON-NLS-1$
+
+	public OSGiBundleQuery() {
+		super(IInstallableUnit.class, bundleTest);
 	}
 
 	/**
@@ -34,12 +34,6 @@ public class OSGiBundleQuery extends MatchQuery<IInstallableUnit> {
 	 * @return <tt>true</tt> if the parameter describes an OSGi bundle.
 	 */
 	public static boolean isOSGiBundle(IInstallableUnit iu) {
-		Collection<IProvidedCapability> provided = iu.getProvidedCapabilities();
-		for (IProvidedCapability capability : provided) {
-			if (capability.getNamespace().equals("osgi.bundle")) { //$NON-NLS-1$
-				return true;
-			}
-		}
-		return false;
+		return bundleTest.isMatch(iu);
 	}
 }

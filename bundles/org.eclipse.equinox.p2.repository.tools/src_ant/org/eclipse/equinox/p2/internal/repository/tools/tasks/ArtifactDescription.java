@@ -1,6 +1,7 @@
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.tools.ant.types.DataType;
 import org.apache.tools.ant.types.Parameter;
 import org.eclipse.equinox.p2.metadata.*;
@@ -13,7 +14,7 @@ public class ArtifactDescription extends DataType {
 	private String id = null;
 	private String version = null;
 	private String range = null;
-	private Properties properties = null;
+	private Map<String, String> properties = null;
 
 	public void setClassifier(String classifier) {
 		this.classifier = classifier;
@@ -33,7 +34,7 @@ public class ArtifactDescription extends DataType {
 
 	public void addConfiguredProperty(Parameter property) {
 		if (properties == null)
-			properties = new Properties();
+			properties = new HashMap<String, String>();
 
 		properties.put(property.getName(), property.getValue());
 	}
@@ -69,9 +70,6 @@ public class ArtifactDescription extends DataType {
 			Version keyVersion = Version.parseVersion(version);
 			keyRange = new VersionRange(keyVersion, true, keyVersion, true);
 		}
-
-		ArtifactDescriptorQuery query = new ArtifactDescriptorQuery(id, keyRange, null);
-		query.setProperties(properties);
-		return query;
+		return new ArtifactDescriptorQuery(id, keyRange, null, properties);
 	}
 }

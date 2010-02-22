@@ -20,11 +20,13 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.IMatchQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -212,19 +214,11 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (!removedFiles.isEmpty() || !changes.isEmpty()) {
 			metadataRepository.removeInstallableUnits(changes.toArray(new IInstallableUnit[changes.size()]), null);
 
-			// create a query that will identify all ius related to removed files
-			IMatchQuery<IInstallableUnit> removeQuery = new MatchQuery<IInstallableUnit>() {
-				public boolean isMatch(IInstallableUnit iu) {
-					String filename = iu.getProperty(FILE_NAME);
-					if (filename == null) {
-						String message = NLS.bind(Messages.filename_missing, "installable unit", iu.getId()); //$NON-NLS-1$
-						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
-						return false;
-					}
-					File iuFile = new File(filename);
-					return removedFiles.contains(iuFile);
-				}
-			};
+			// create a query that will identify all ius related to removed files.
+			// It's safe to compare a String with a File since the auto coercion will
+			// first convert the String into a File.
+			IMatchQuery<IInstallableUnit> removeQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, //
+					"$1.exists(x | properties[$0] == x)", FILE_NAME, removedFiles); //$NON-NLS-1$
 			IQueryResult<IInstallableUnit> toRemove = metadataRepository.query(removeQuery, null);
 			metadataRepository.removeInstallableUnits(toRemove.toArray(IInstallableUnit.class), null);
 		}

@@ -45,11 +45,7 @@ public class QueryProvider {
 	public static final int INSTALLED_IUS = 6;
 	public static final int AVAILABLE_ARTIFACTS = 7;
 
-	private IQuery<IInstallableUnit> allQuery = new MatchQuery<IInstallableUnit>() {
-		public boolean isMatch(IInstallableUnit candidate) {
-			return true;
-		}
-	};
+	private IQuery<IInstallableUnit> allQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, ExpressionQuery.MATCH_ALL_UNITS);
 
 	public QueryProvider(ProvisioningUI ui) {
 		this.ui = ui;
