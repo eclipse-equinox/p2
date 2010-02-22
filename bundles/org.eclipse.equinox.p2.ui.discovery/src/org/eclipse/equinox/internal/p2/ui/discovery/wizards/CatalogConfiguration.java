@@ -23,6 +23,8 @@ public class CatalogConfiguration {
 
 	private final List<CatalogFilter> filters = new ArrayList<CatalogFilter>();
 
+	private boolean showCategories = true;
+
 	private boolean showInstalled = false;
 
 	private boolean showInstalledFilter = true;
@@ -41,6 +43,10 @@ public class CatalogConfiguration {
 
 	public Set<Tag> getSelectedTags() {
 		return selectedTags;
+	}
+
+	public boolean isShowCategories() {
+		return showCategories;
 	}
 
 	public boolean isShowInstalled() {
@@ -64,6 +70,10 @@ public class CatalogConfiguration {
 
 	public boolean isVerifyUpdateSiteAvailability() {
 		return verifyUpdateSiteAvailability;
+	}
+
+	public void setShowCategories(boolean showCategories) {
+		this.showCategories = showCategories;
 	}
 
 	public void setShowInstalled(boolean showInstalled) {
