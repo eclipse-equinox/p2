@@ -15,6 +15,7 @@ import java.util.Locale;
 
 /**
  * A key that can be used to extract a localized property for a specified Locale
+ * @since 2.0
  */
 public class KeyWithLocale implements Serializable {
 	private static final long serialVersionUID = 8818242663547645188L;
