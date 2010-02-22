@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009 IBM Corporation and others.
+ *  Copyright (c) 2009, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -13,8 +13,7 @@ package org.eclipse.equinox.p2.tests.ant;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.Properties;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.eclipse.core.runtime.*;
@@ -807,7 +806,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 		iu.setId(descriptor.getArtifactKey().getId() + "IU");
 		iu.setVersion(descriptor.getArtifactKey().getVersion());
 		iu.setArtifacts(new IArtifactKey[] {descriptor.getArtifactKey()});
-		metaRepo.addInstallableUnits(new IInstallableUnit[] {iu});
+		metaRepo.addInstallableUnits(Arrays.asList((IInstallableUnit) iu));
 
 		return artifactRepository;
 	}

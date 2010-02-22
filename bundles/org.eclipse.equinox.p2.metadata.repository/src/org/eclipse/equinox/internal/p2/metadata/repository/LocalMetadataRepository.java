@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -94,19 +94,36 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		save();
 	}
 
+	// TODO remove
+	@Override
 	public synchronized void addInstallableUnits(IInstallableUnit[] installableUnits) {
-		if (installableUnits == null || installableUnits.length == 0)
+		addInstallableUnits(Arrays.asList(installableUnits));
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addInstallableUnits(java.util.Collection)
+	 */
+	@Override
+	public synchronized void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
+		if (installableUnits == null || installableUnits.isEmpty())
 			return;
 		units.addAll(installableUnits);
 		capabilityIndex = null; // Generated, not backed by units
 		save();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addReference(java.net.URI, java.lang.String, int, int)
+	 */
+	@Override
 	public synchronized void addReference(URI repositoryLocation, String nickname, int repositoryType, int options) {
 		assertModifiable();
 		repositories.add(new RepositoryReference(repositoryLocation, nickname, repositoryType, options));
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.metadata.index.IIndexProvider#getIndex(java.lang.String)
+	 */
 	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
 		if (InstallableUnit.MEMBER_ID.equals(memberName)) {
 			if (idIndex == null)
@@ -121,7 +138,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		}
 		return null;
 	}
-
+	
 	public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
 		if (!(client instanceof IInstallableUnit))
 			return null;
@@ -134,6 +151,10 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#initialize(org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository.RepositoryState)
+	 */
+	@Override
 	public void initialize(RepositoryState state) {
 		synchronized (this) {
 			this.name = state.Name;
@@ -175,29 +196,53 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		this.location = aLocation;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.spi.AbstractRepository#isModifiable()
+	 */
+	@Override
 	public boolean isModifiable() {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.IQuery, org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	public synchronized IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		return query instanceof IQueryWithIndex<?> ? ((IQueryWithIndex<IInstallableUnit>) query).perform(this) : query.perform(units.iterator());
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.metadata.index.IIndexProvider#everything()
+	 */
 	public Iterator<IInstallableUnit> everything() {
 		return units.iterator();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#removeAll()
+	 */
+	@Override
 	public synchronized void removeAll() {
 		units.clear();
 		capabilityIndex = null; // Generated, not backed by units.
 		save();
 	}
 
+	// TODO remove
+	@Override
 	public synchronized boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
+		return removeInstallableUnits(Arrays.asList(installableUnits));
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#removeInstallableUnits(java.util.Collection)
+	 */
+	@Override
+	public synchronized boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		boolean changed = false;
-		if (installableUnits != null && installableUnits.length > 0) {
+		if (installableUnits != null && !installableUnits.isEmpty()) {
 			changed = true;
-			units.removeAll(Arrays.asList(installableUnits));
+			units.removeAll(installableUnits);
 			capabilityIndex = null; // Generated, not backed by units.
 		}
 		if (changed)
@@ -243,6 +288,10 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.spi.AbstractRepository#setProperty(java.lang.String, java.lang.String)
+	 */
+	@Override
 	public String setProperty(String key, String newValue) {
 		String oldValue = null;
 		synchronized (this) {
@@ -257,4 +306,5 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			manager.addRepository(this);
 		return oldValue;
 	}
+
 }

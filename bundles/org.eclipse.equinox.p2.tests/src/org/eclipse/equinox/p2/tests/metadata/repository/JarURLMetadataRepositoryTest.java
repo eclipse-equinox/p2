@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -14,8 +14,7 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -57,7 +56,7 @@ public class JarURLMetadataRepositoryTest extends AbstractProvisioningTest {
 		descriptor.setId("testIuId");
 		descriptor.setVersion(Version.create("3.2.1"));
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
-		repo.addInstallableUnits(new IInstallableUnit[] {iu});
+		repo.addInstallableUnits(Arrays.asList(iu));
 
 		testRepoJar = new File(testRepo, "content.jar");
 		assertTrue(testRepoJar.exists());

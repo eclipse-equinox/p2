@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.repository.metadata;
 
 import java.net.URI;
+import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -28,11 +29,17 @@ import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository
  */
 public interface IMetadataRepository extends IRepository<IInstallableUnit> {
 
-	/** 
-	 * Add the given installable units to this repository
-	 * @param installableUnits the installable units to add
+	/**
+	 * @deprecated use {@link #addInstallableUnits(Collection)}
 	 */
 	public void addInstallableUnits(IInstallableUnit[] installableUnits);
+
+	/** 
+	 * Add the given installable units to this repository.
+	 * 
+	 * @param installableUnits the installable units to add
+	 */
+	public void addInstallableUnits(Collection<IInstallableUnit> installableUnits);
 
 	/**
 	 * Adds a reference to another repository to this repository. When a repository
@@ -60,15 +67,18 @@ public interface IMetadataRepository extends IRepository<IInstallableUnit> {
 	public void addReference(URI location, String nickname, int type, int options);
 
 	/**
-	 * Removes all installable units that match the given query from this repository.
+	 * @deprecated use {@link #removeInstallableUnits(Collection)}
+	 */
+	public boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor);
+
+	/**
+	 * Removes all installable units in the given collection from this repository.
 	 * 
 	 * @param installableUnits the installable units to remove
-	 * @param monitor a progress monitor, or <code>null</code> if progress
-	 *    reporting is not desired
 	 * @return <code>true</code> if any units were actually removed, and
 	 * <code>false</code> otherwise
 	 */
-	public boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor);
+	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits);
 
 	/**
 	 * Remove all installable units from this repository.  

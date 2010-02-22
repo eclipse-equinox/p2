@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -212,7 +212,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		final Collection<IInstallableUnit> changes = iusToChange.getIUs(null, null);
 		// first remove any IUs that have changed or that are associated with removed files
 		if (!removedFiles.isEmpty() || !changes.isEmpty()) {
-			metadataRepository.removeInstallableUnits(changes.toArray(new IInstallableUnit[changes.size()]), null);
+			metadataRepository.removeInstallableUnits(changes);
 
 			// create a query that will identify all ius related to removed files.
 			// It's safe to compare a String with a File since the auto coercion will
@@ -220,13 +220,13 @@ public class RepositoryListener extends DirectoryChangeListener {
 			IMatchQuery<IInstallableUnit> removeQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, //
 					"$1.exists(x | properties[$0] == x)", FILE_NAME, removedFiles); //$NON-NLS-1$
 			IQueryResult<IInstallableUnit> toRemove = metadataRepository.query(removeQuery, null);
-			metadataRepository.removeInstallableUnits(toRemove.toArray(IInstallableUnit.class), null);
+			metadataRepository.removeInstallableUnits(toRemove.toSet());
 		}
 		// Then add all the new IUs as well as the new copies of the ones that have changed
 		Collection<IInstallableUnit> additions = iusToAdd.getIUs(null, null);
 		additions.addAll(changes);
 		if (!additions.isEmpty())
-			metadataRepository.addInstallableUnits(additions.toArray(new IInstallableUnit[additions.size()]));
+			metadataRepository.addInstallableUnits(additions);
 	}
 
 	/**

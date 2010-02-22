@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -82,29 +82,44 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		state = value;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository#addInstallableUnits(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
-	 */
+	// TODO remove
+	@Override
 	public void addInstallableUnits(IInstallableUnit[] installableUnits) {
 		throw new UnsupportedOperationException();
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository#removeAll()
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#addInstallableUnits(java.util.Collection)
 	 */
-	public void removeAll() {
+	@Override
+	public void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		throw new UnsupportedOperationException();
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository#removeInstallableUnits(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#removeAll()
 	 */
+	@Override
+	public void removeAll() {
+		throw new UnsupportedOperationException();
+	}
+
+	// TODO remove
+	@Override
 	public boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException();
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.query.IQueryable#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#removeInstallableUnits(java.util.Collection)
+	 */
+	@Override
+	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
+		throw new UnsupportedOperationException();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.IQuery, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		ensureInitialized();
@@ -177,15 +192,24 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.repository.spi.AbstractRepository#getProperties()
 	 */
+	@Override
 	public Map<String, String> getProperties() {
 		ensureInitialized();
 		return metadataRepository.getProperties();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#initialize(org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository.RepositoryState)
+	 */
+	@Override
 	public void initialize(RepositoryState repositoryState) {
 		//nothing to do
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.spi.AbstractRepository#setProperty(java.lang.String, java.lang.String)
+	 */
+	@Override
 	public String setProperty(String key, String value) {
 		ensureInitialized();
 		String oldValue = metadataRepository.setProperty(key, value);

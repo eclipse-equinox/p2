@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.repository.metadata.spi;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -53,19 +54,42 @@ public abstract class AbstractMetadataRepository extends AbstractRepository<IIns
 		super(agent, name, type, version, location, description, provider, properties);
 	}
 
+	// TODO remove
 	public void addInstallableUnits(IInstallableUnit[] installableUnit) {
 		assertModifiable();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#addInstallableUnits(java.util.Collection)
+	 */
+	public void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
+		assertModifiable();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#addReference(java.net.URI, java.lang.String, int, int)
+	 */
 	public void addReference(URI repositoryLocation, String nickname, int repositoryType, int options) {
 		assertModifiable();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#removeAll()
+	 */
 	public void removeAll() {
 		assertModifiable();
 	}
 
+	// TODO remove
 	public boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
+		assertModifiable();
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#removeInstallableUnits(java.util.Collection)
+	 */
+	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		assertModifiable();
 		return false;
 	}

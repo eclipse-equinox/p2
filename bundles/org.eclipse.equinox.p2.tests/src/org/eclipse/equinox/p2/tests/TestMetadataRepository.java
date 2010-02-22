@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -55,8 +55,18 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		units.addAll(Arrays.asList(ius));
 	}
 
+	// TODO remove
+	@Override
 	public void addInstallableUnits(IInstallableUnit[] toAdd) {
-		units.addAll(Arrays.asList(toAdd));
+		addInstallableUnits(Arrays.asList(toAdd));
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addInstallableUnits(java.util.Collection)
+	 */
+	@Override
+	public void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
+		units.addAll(installableUnits);
 	}
 
 	public IInstallableUnit find(String id, String versionString) {
@@ -79,11 +89,20 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		units.clear();
 	}
 
-	public boolean removeInstallableUnits(IInstallableUnit[] toRemove) {
+	// TODO remove
+	@Override
+	public boolean removeInstallableUnits(IInstallableUnit[] toRemove, IProgressMonitor monitor) {
+		return removeInstallableUnits(Arrays.asList(toRemove));
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#removeInstallableUnits(java.util.Collection)
+	 */
+	@Override
+	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		boolean modified = false;
-		for (int i = 0; i < toRemove.length; i++) {
-			modified |= units.remove(toRemove[i]);
-		}
+		for (IInstallableUnit iu : installableUnits)
+			modified |= units.remove(iu);
 		return modified;
 	}
 

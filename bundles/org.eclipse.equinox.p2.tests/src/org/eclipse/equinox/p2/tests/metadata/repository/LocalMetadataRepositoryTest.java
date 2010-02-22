@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -60,7 +60,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		descriptor.setId("testIuId");
 		descriptor.setVersion(Version.create("3.2.1"));
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
-		repo.addInstallableUnits(new IInstallableUnit[] {iu});
+		repo.addInstallableUnits(Arrays.asList(iu));
 
 		File[] files = repoLocation.listFiles();
 		boolean jarFilePresent = false;
@@ -122,7 +122,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		IInstallableUnit iu = createIU("foo");
-		repo.addInstallableUnits(new IInstallableUnit[] {iu});
+		repo.addInstallableUnits(Arrays.asList(iu));
 		IQueryResult result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
 		repo.removeAll();
@@ -135,13 +135,13 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		IInstallableUnit iu = createIU("foo");
 		IInstallableUnit iu2 = createIU("bar");
-		repo.addInstallableUnits(new IInstallableUnit[] {iu, iu2});
+		repo.addInstallableUnits(Arrays.asList(iu, iu2));
 		IQueryResult result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
 		assertEquals("1.0", 2, queryResultSize(result));
-		repo.removeInstallableUnits(new IInstallableUnit[] {iu}, getMonitor());
+		repo.removeInstallableUnits(Arrays.asList(iu));
 		result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
 		assertEquals("1.1", 1, queryResultSize(result));
-		repo.removeInstallableUnits(new IInstallableUnit[] {iu2}, getMonitor());
+		repo.removeInstallableUnits(Arrays.asList(iu2));
 		result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
 		assertTrue("1.2", result.isEmpty());
 
@@ -157,7 +157,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		descriptor.setId("testIuId");
 		descriptor.setVersion(Version.create("3.2.1"));
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
-		repo.addInstallableUnits(new IInstallableUnit[] {iu});
+		repo.addInstallableUnits(Arrays.asList(iu));
 
 		File[] files = repoLocation.listFiles();
 		boolean jarFilePresent = false;

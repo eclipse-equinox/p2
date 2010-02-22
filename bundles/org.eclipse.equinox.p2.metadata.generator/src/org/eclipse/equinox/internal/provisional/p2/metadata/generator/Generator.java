@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -369,7 +369,7 @@ public class Generator {
 		IMetadataRepository metadataRepository = info.getMetadataRepository();
 		if (metadataRepository != null) {
 			Set allGeneratedUnits = result.allGeneratedIUs();
-			metadataRepository.addInstallableUnits((IInstallableUnit[]) allGeneratedUnits.toArray(new IInstallableUnit[allGeneratedUnits.size()]));
+			metadataRepository.addInstallableUnits(allGeneratedUnits);
 		}
 
 		return Status.OK_STATUS;
@@ -602,7 +602,7 @@ public class Generator {
 		IMetadataRepository metadataRepository = info.getMetadataRepository();
 		if (metadataRepository != null && !allCUs.isEmpty()) {
 			// Product Query will run against the repo later in createProductIU, make sure these CUs are in before then
-			metadataRepository.addInstallableUnits((IInstallableUnit[]) allCUs.toArray(new IInstallableUnit[allCUs.size()]));
+			metadataRepository.addInstallableUnits(allCUs);
 		}
 
 	}
@@ -687,7 +687,7 @@ public class Generator {
 		IMetadataRepository metadataRepository = info.getMetadataRepository();
 		if (metadataRepository != null && !defaults.isEmpty()) {
 			// Product Query will run against the repo later in createProductIU, make sure these CUs are in before then
-			metadataRepository.addInstallableUnits((IInstallableUnit[]) defaults.toArray(new IInstallableUnit[defaults.size()]));
+			metadataRepository.addInstallableUnits(defaults);
 		}
 	}
 

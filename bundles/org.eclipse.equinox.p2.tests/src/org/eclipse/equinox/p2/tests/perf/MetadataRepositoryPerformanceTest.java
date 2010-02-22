@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
 package org.eclipse.equinox.p2.tests.perf;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.core.tests.harness.PerformanceTestRunner;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -48,10 +50,11 @@ public class MetadataRepositoryPerformanceTest extends ProvisioningPerformanceTe
 			IQuery[] queries = new IQuery[IU_COUNT];
 
 			protected void setUp() {
-				IInstallableUnit[] ius = new IInstallableUnit[IU_COUNT];
-				for (int i = 0; i < ius.length; i++) {
-					ius[i] = generateIU(i);
-					queries[i] = new InstallableUnitQuery(ius[i].getId(), ius[i].getVersion());
+				List<IInstallableUnit> ius = new ArrayList(IU_COUNT);
+				for (int i = 0; i < IU_COUNT; i++) {
+					IInstallableUnit iu = generateIU(i);
+					queries[i] = new InstallableUnitQuery(iu.getId(), iu.getVersion());
+					ius.add(iu);
 				}
 				repository.addInstallableUnits(ius);
 			}

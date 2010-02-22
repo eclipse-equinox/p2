@@ -1,11 +1,12 @@
 /******************************************************************************* 
-* Copyright (c) 2008, 2009 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2008, 2010 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
+*   IBM - Ongoing development and bug fixes
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
@@ -640,7 +641,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 
-		repo.addInstallableUnits(new IInstallableUnit[] {new SPIInstallableUnit("foo", Version.createOSGi(1, 1, 1))});
+		repo.addInstallableUnits(Arrays.asList((IInstallableUnit) new SPIInstallableUnit("foo", Version.createOSGi(1, 1, 1))));
 
 		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
@@ -673,7 +674,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		SPIInstallableUnit spiInstallableUnit = new SPIInstallableUnit("foo", Version.createOSGi(1, 1, 1));
 		spiInstallableUnit.addProvidedCapability(providedCapability);
-		repo.addInstallableUnits(new IInstallableUnit[] {spiInstallableUnit});
+		repo.addInstallableUnits(Arrays.asList((IInstallableUnit) spiInstallableUnit));
 
 		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
@@ -716,7 +717,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		list.add(spiRequiredCapability);
 		iuDescription.addRequiredCapabilities(list);
 
-		repo.addInstallableUnits(new IInstallableUnit[] {MetadataFactory.createInstallableUnit(iuDescription)});
+		repo.addInstallableUnits(Arrays.asList(MetadataFactory.createInstallableUnit(iuDescription)));
 
 		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
@@ -781,7 +782,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		providedCapabilityList.add(spiProvidedCapability);
 		iuDescription.addProvidedCapabilities(providedCapabilityList);
 
-		repo.addInstallableUnits(new IInstallableUnit[] {MetadataFactory.createInstallableUnit(iuDescription), MetadataFactory.createInstallableUnitPatch(iuPatchDescription)});
+		repo.addInstallableUnits(Arrays.asList(MetadataFactory.createInstallableUnit(iuDescription), MetadataFactory.createInstallableUnitPatch(iuPatchDescription)));
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
 		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());

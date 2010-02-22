@@ -252,7 +252,7 @@ public class Publisher {
 		IMetadataRepository metadataRepository = info.getMetadataRepository();
 		if (metadataRepository != null) {
 			Collection<IInstallableUnit> ius = results.getIUs(null, null);
-			metadataRepository.addInstallableUnits(ius.toArray(new IInstallableUnit[ius.size()]));
+			metadataRepository.addInstallableUnits(ius);
 		}
 		return Status.OK_STATUS;
 	}

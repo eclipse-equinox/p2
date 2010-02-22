@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -105,7 +105,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			descriptor.setId("testIuId");
 			descriptor.setVersion(Version.create("3.2.1"));
 			IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
-			compRepo.addInstallableUnits(new IInstallableUnit[] {iu});
+			compRepo.addInstallableUnits(Arrays.asList(iu));
 			fail("Should not be able to insert InstallableUnit");
 		} catch (UnsupportedOperationException e) {
 			//expected. fall through
@@ -119,7 +119,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		//Try to remove an InstallableUnit.
 		try {
 			IQueryResult queryResult = compRepo.query(InstallableUnitQuery.ANY, null);
-			compRepo.removeInstallableUnits((IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class), null);
+			compRepo.removeInstallableUnits(queryResult.toSet());
 			fail("Should not be able to remove InstallableUnit");
 		} catch (UnsupportedOperationException e) {
 			//expected. fall through

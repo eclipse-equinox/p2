@@ -123,6 +123,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.IQuery, org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
@@ -161,10 +164,16 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.ICompositeRepository#addChild(java.net.URI)
+	 */
 	public void addChild(URI childURI) {
 		addChild(childURI, true);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.ICompositeRepository#removeChild(java.net.URI)
+	 */
 	public void removeChild(URI childURI) {
 		boolean removed = childrenURIs.remove(childURI);
 		// if the child wasn't there make sure and try the other permutation
@@ -189,22 +198,49 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.ICompositeRepository#removeAllChildren()
+	 */
 	public void removeAllChildren() {
 		childrenURIs.clear();
 		loadedRepos.clear();
 		save();
 	}
 
+	// TODO remove
+	@Override
 	public synchronized void addInstallableUnits(IInstallableUnit[] installableUnits) {
-		throw new UnsupportedOperationException("Cannot add IUs to a composite repository");
+		throw new UnsupportedOperationException("Cannot add IUs to a composite repository"); //$NON-NLS-1$
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addInstallableUnits(java.util.Collection)
+	 */
+	@Override
+	public void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
+		throw new UnsupportedOperationException("Cannot add IUs to a composite repository"); //$NON-NLS-1$
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#removeAll()
+	 */
+	@Override
 	public synchronized void removeAll() {
-		throw new UnsupportedOperationException("Cannot remove IUs to a composite repository");
+		throw new UnsupportedOperationException("Cannot remove IUs from a composite repository"); //$NON-NLS-1$
 	}
 
+	// TODO remove
+	@Override
 	public synchronized boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
-		throw new UnsupportedOperationException("Cannot remove IUs to a composite repository");
+		throw new UnsupportedOperationException("Cannot remove IUs from a composite repository"); //$NON-NLS-1$
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#removeInstallableUnits(java.util.Collection)
+	 */
+	@Override
+	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
+		throw new UnsupportedOperationException("Cannot remove IUs from a composite repository"); //$NON-NLS-1$
 	}
 
 	private static File getActualLocation(URI location, String extension) {
@@ -227,7 +263,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	}
 
 	public synchronized void addReference(URI repositoryLocation, int repositoryType, int options) {
-		throw new UnsupportedOperationException("Cannot add References to a composite repository");
+		throw new UnsupportedOperationException("Cannot add References to a composite repository"); //$NON-NLS-1$
 	}
 
 	// caller should be synchronized
@@ -270,6 +306,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.ICompositeRepository#getChildren()
+	 */
 	public List<URI> getChildren() {
 		List<URI> result = new ArrayList<URI>();
 		for (URI childURI : childrenURIs)
