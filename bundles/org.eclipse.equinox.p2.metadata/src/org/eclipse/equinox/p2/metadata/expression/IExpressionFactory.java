@@ -131,6 +131,14 @@ public interface IExpressionFactory {
 	IExpression indexedParameter(int index);
 
 	/**
+	 * Create an <i>intersection</i> of <code>c1</code> and <code>c2</code> 
+	 * @param c1 first collection
+	 * @param c2 second collection
+	 * @return An intersect expression
+	 */
+	IExpression intersect(IExpression c1, IExpression c2);
+
+	/**
 	 * Creates a lambda expression that takes exactly one variable. Suitable for use
 	 * in most collection expressions.
 	 * @param variable The element variable that the lambda uses
@@ -257,6 +265,14 @@ public interface IExpressionFactory {
 	 * @return An expression that wraps the query
 	 */
 	IExpression toExpression(IQuery<?> query);
+
+	/**
+	 * Create a <i>union</i> of <code>c1</code> and <code>c2</code> 
+	 * @param c1 first collection
+	 * @param c2 second collection
+	 * @return A union expression
+	 */
+	IExpression union(IExpression c1, IExpression c2);
 
 	/**
 	 * Creates an expression that represents a variable

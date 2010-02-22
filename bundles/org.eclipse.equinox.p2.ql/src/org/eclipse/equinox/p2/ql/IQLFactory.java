@@ -88,14 +88,6 @@ public interface IQLFactory extends IExpressionFactory {
 	Map<String, ? extends Object> getFunctionMap();
 
 	/**
-	 * Create an <i>intersection</i> of <code>c1</code> and <code>c2</code> 
-	 * @param c1 first collection
-	 * @param c2 second collection
-	 * @return An intersect expression
-	 */
-	IExpression intersect(IExpression c1, IExpression c2);
-
-	/**
 	 * Creates a lambda expression that takes more then one variable (currying). Suitable for use
 	 * in most collection expressions.
 	 * @param variable The element variable that the lambda uses
@@ -130,14 +122,6 @@ public interface IQLFactory extends IExpressionFactory {
 	 * @return A collection expression
 	 */
 	IExpression traverse(IExpression collection, IExpression lambda);
-
-	/**
-	 * Create a <i>union</i> of <code>c1</code> and <code>c2</code> 
-	 * @param c1 first collection
-	 * @param c2 second collection
-	 * @return A union expression
-	 */
-	IExpression union(IExpression c1, IExpression c2);
 
 	/**
 	 * Create an expression that yields a new collection where each element is unique. An

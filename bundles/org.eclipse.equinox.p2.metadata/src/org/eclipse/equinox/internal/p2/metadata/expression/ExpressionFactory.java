@@ -80,6 +80,10 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		return new LambdaExpression((Variable) variable, (Expression) body);
 	}
 
+	public IExpression intersect(IExpression c1, IExpression c2) {
+		throw failNoQL();
+	}
+
 	public IExpression latest(IExpression collection) {
 		throw failNoQL();
 	}
@@ -152,6 +156,10 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 	}
 
 	public IExpression toExpression(IQuery<?> query) {
+		throw failNoQL();
+	}
+
+	public IExpression union(IExpression c1, IExpression c2) {
 		throw failNoQL();
 	}
 

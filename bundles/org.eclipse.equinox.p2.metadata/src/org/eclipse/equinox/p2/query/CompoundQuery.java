@@ -12,10 +12,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
-import java.util.*;
-import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
-import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
+import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
+import org.eclipse.equinox.internal.p2.metadata.expression.Expression.VariableFinder;
+import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.query.ExpressionContextQuery;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A query that combines a group of sub-queries.<P>
@@ -26,15 +27,12 @@ import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
  * Clients are expected to call {@link CompoundQuery#createCompoundQuery(IQuery[], boolean)}
  * to create a concrete instance of a CompoundQuery.  If all Queries are instances of 
  * {@link IMatchQuery} then the resulting compound query will be an {@link IMatchQuery}, otherwise the
- * resulting query will be a {@link ContextQuery}.
+ * resulting query will be a context query}.
  * 
  * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
-public abstract class CompoundQuery<T> implements ICompositeQuery<T>, IQueryWithIndex<T> {
-	IQuery<T>[] queries;
-	boolean and;
-
+public abstract class CompoundQuery<T> {
 	/**
 	 * Creates a compound query that combines the given queries. The queries
 	 * will be performed by the compound query in the given order. This method
@@ -49,11 +47,63 @@ public abstract class CompoundQuery<T> implements ICompositeQuery<T>, IQueryWith
 	 * @param and <code>true</code> if this query represents a logical 'and', and
 	 * <code>false</code> if this query represents a logical 'or'.
 	 */
-	public static <T> IQuery<T> createCompoundQuery(IQuery<T>[] queries, boolean and) {
-		if (isMatchQueries(queries)) {
-			return new CompoundQuery.MatchCompoundQuery<T>(queries, and);
+	@SuppressWarnings("unchecked")
+	public static <E> IQuery<E> createCompoundQuery(IQuery<E>[] queries, boolean and) {
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		int idx = queries.length;
+		if (idx == 1)
+			return queries[0];
+
+		Class<? extends E> elementClass = (Class<E>) Object.class;
+		if (idx == 0)
+			return new ExpressionQuery<E>(elementClass, ExpressionQuery.matchAll());
+
+		IExpression[] expressions = new IExpression[idx];
+		boolean justBooleans = true;
+		boolean justContexts = true;
+		while (--idx >= 0) {
+			IQuery<E> query = queries[idx];
+			if (query instanceof IMatchQuery<?>)
+				justContexts = false;
+			else
+				justBooleans = false;
+
+			IExpression expr = query.getExpression();
+			if (expr == null)
+				expr = factory.toExpression(query);
+
+			Class<? extends E> ec = ExpressionContextQuery.getElementClass(query);
+			if (elementClass == null)
+				elementClass = ec;
+			else if (elementClass != ec) {
+				if (elementClass.isAssignableFrom(ec)) {
+					if (and)
+						// Use most restrictive class
+						elementClass = ec;
+				} else if (ec.isAssignableFrom(elementClass)) {
+					if (!and)
+						// Use least restrictive class
+						elementClass = ec;
+				}
+			}
+			expressions[idx] = expr;
 		}
-		return new CompoundQuery.ContextCompoundQuery<T>(queries, and);
+
+		if (justBooleans) {
+			IExpression compound = and ? factory.and(expressions) : factory.or(expressions);
+			return new ExpressionQuery<E>(elementClass, compound);
+		}
+
+		if (!justContexts) {
+			// Mix of boolean queries and context queries. All must be converted into context then.
+			for (idx = 0; idx < expressions.length; ++idx)
+				expressions[idx] = makeContextExpression(factory, expressions[idx]);
+		}
+
+		IExpression compound = expressions[0];
+		for (idx = 1; idx < expressions.length; ++idx)
+			compound = and ? factory.intersect(compound, expressions[idx]) : factory.union(compound, expressions[idx]);
+		return new ExpressionContextQuery<E>(elementClass, compound);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -61,167 +111,11 @@ public abstract class CompoundQuery<T> implements ICompositeQuery<T>, IQueryWith
 		return createCompoundQuery(new IQuery[] {query1, query2}, and);
 	}
 
-	/**
-	 * Returns the queries that make up this compound query
-	 * 
-	 * @return the queries that make up this compound query
-	 */
-	public List<IQuery<T>> getQueries() {
-		return Arrays.asList(queries);
-	}
-
-	/**
-	 * Returns whether this compound query combines its queries with a logical
-	 * 'and' or 'or'.
-	 * @return <code>true</code> if this query represents a logical 'and', and
-	 * <code>false</code> if this query represents a logical 'or'.
-	 */
-	public boolean isAnd() {
-		return and;
-	}
-
-	protected CompoundQuery(IQuery<T>[] queries, boolean and) {
-		this.queries = queries;
-		this.and = and;
-	}
-
-	/**
-	 * @param queries
-	 */
-	private static boolean isMatchQueries(IQuery<?>[] queries) {
-		for (int i = 0; i < queries.length; i++) {
-			if (!(queries[i] instanceof IMatchQuery<?>)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * The compound query instantiated when all queries are Match Queries.
-	 */
-	private static class MatchCompoundQuery<T> extends CompoundQuery<T> implements IMatchQuery<T> {
-
-		protected MatchCompoundQuery(IQuery<T>[] queries, boolean and) {
-			super(queries, and);
-		}
-
-		public boolean isMatch(T candidate) {
-			for (int i = 0; i < queries.length; i++) {
-				boolean valid = ((IMatchQuery<T>) queries[i]).isMatch(candidate);
-				// if we are OR'ing then the first time we find a requirement that is met, return success
-				if (valid && !and)
-					return true;
-				// if we are AND'ing then the first time we find a requirement that is NOT met, return failure
-				if (!valid && and)
-					return false;
-			}
-			// if we get past the requirements check and we are AND'ing then return true 
-			// since all requirements must have been met.  If we are OR'ing then return false 
-			// since none of the requirements were met.
-			return and;
-		}
-
-		/**
-		 * Performs this query on the given iterator, passing all objects in the iterator 
-		 * that match the criteria of this query to the given result.
-		 */
-		public final IQueryResult<T> perform(Iterator<T> iterator) {
-			Collector<T> result = new Collector<T>();
-			while (iterator.hasNext()) {
-				T candidate = iterator.next();
-				if (isMatch(candidate))
-					if (!result.accept(candidate))
-						break;
-			}
-			return result;
-		}
-	}
-
-	/**
-	 * The compound query instantiated when any of the queries are not 
-	 * match queries.
-	 */
-	private static class ContextCompoundQuery<T> extends CompoundQuery<T> {
-
-		protected ContextCompoundQuery(IQuery<T>[] queries, boolean and) {
-			super(queries, and);
-		}
-
-		public IQueryResult<T> perform(Iterator<T> iterator) {
-			if (queries.length < 1)
-				return Collector.emptyCollector();
-
-			if (queries.length == 1)
-				return queries[0].perform(iterator);
-
-			Collection<T> data = new ArrayList<T>();
-			while (iterator.hasNext())
-				data.add(iterator.next());
-
-			Set<T> result;
-			if (isAnd()) {
-				result = queries[0].perform(data.iterator()).unmodifiableSet();
-				for (int i = 1; i < queries.length && result.size() > 0; i++) {
-					HashSet<T> retained = new HashSet<T>();
-					Iterator<T> itor = queries[i].perform(data.iterator()).iterator();
-					while (itor.hasNext()) {
-						T nxt = itor.next();
-						if (result.contains(nxt))
-							retained.add(nxt);
-					}
-					result = retained;
-				}
-			} else {
-				result = queries[0].perform(data.iterator()).toSet();
-				for (int i = 1; i < queries.length; i++) {
-					Iterator<T> itor = queries[i].perform(data.iterator()).iterator();
-					while (itor.hasNext()) {
-						result.add(itor.next());
-					}
-				}
-			}
-			return new CollectionResult<T>(result);
-		}
-	}
-
-	public IExpression getExpression() {
-		return null;
-	}
-
-	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
-		if (queries.length < 1)
-			return Collector.emptyCollector();
-
-		if (queries.length == 1)
-			return doPerform(queries[0], indexProvider);
-
-		Set<T> result;
-		if (isAnd()) {
-			result = doPerform(queries[0], indexProvider).unmodifiableSet();
-			for (int i = 1; i < queries.length && result.size() > 0; i++) {
-				HashSet<T> retained = new HashSet<T>();
-				Iterator<T> itor = doPerform(queries[i], indexProvider).iterator();
-				while (itor.hasNext()) {
-					T nxt = itor.next();
-					if (result.contains(nxt))
-						retained.add(nxt);
-				}
-				result = retained;
-			}
-		} else {
-			result = doPerform(queries[0], indexProvider).toSet();
-			for (int i = 1; i < queries.length; i++) {
-				Iterator<T> itor = doPerform(queries[i], indexProvider).iterator();
-				while (itor.hasNext()) {
-					result.add(itor.next());
-				}
-			}
-		}
-		return new CollectionResult<T>(result);
-	}
-
-	private static <Q> IQueryResult<Q> doPerform(IQuery<Q> first, IIndexProvider<Q> indexProvider) {
-		return first instanceof IQueryWithIndex<?> ? ((IQueryWithIndex<Q>) first).perform(indexProvider) : first.perform(indexProvider.everything());
+	private static IExpression makeContextExpression(IExpressionFactory factory, IExpression expr) {
+		VariableFinder finder = new VariableFinder(ExpressionFactory.EVERYTHING);
+		expr.accept(finder);
+		if (!finder.isFound())
+			expr = factory.select(ExpressionFactory.EVERYTHING, factory.lambda(ExpressionFactory.THIS, expr));
+		return expr;
 	}
 }

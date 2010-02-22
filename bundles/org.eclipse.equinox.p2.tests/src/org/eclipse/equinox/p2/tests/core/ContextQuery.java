@@ -7,7 +7,9 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.p2.query;
+package org.eclipse.equinox.p2.tests.core;
+
+import org.eclipse.equinox.p2.query.*;
 
 import java.util.Iterator;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;

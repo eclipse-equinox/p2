@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.query.*;
  * A query that evaluates using an iterator as input and produces a new iterator.
  * @since 2.0
  */
-public class ExpressionContextQuery<T> extends ContextQuery<T> implements IQueryWithIndex<T> {
+public class ExpressionContextQuery<T> implements IQueryWithIndex<T> {
 	private final IContextExpression<T> expression;
 	private final Class<? extends T> elementClass;
 
@@ -54,7 +54,7 @@ public class ExpressionContextQuery<T> extends ContextQuery<T> implements IQuery
 		return expression;
 	}
 
-	protected static <T> Class<? extends T> getElementClass(IQuery<T> query) {
+	public static <T> Class<? extends T> getElementClass(IQuery<T> query) {
 		@SuppressWarnings("unchecked")
 		Class<? extends T> elementClass = (Class<T>) Object.class;
 		if (query instanceof ExpressionQuery<?>)
