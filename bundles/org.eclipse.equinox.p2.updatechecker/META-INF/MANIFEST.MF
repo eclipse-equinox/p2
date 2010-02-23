@@ -5,11 +5,11 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 1.1.0.qualifier
-Bundle-Activator: org.eclipse.equinox.internal.p2.updatechecker.Activator
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.provisional.p2.director,
  org.eclipse.equinox.internal.provisional.p2.metadata,
  org.eclipse.equinox.p2.core,
+ org.eclipse.equinox.p2.core.spi,
  org.eclipse.equinox.p2.engine,
  org.eclipse.equinox.p2.metadata,
  org.eclipse.equinox.p2.metadata.query,
@@ -24,3 +24,5 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5,
 Export-Package: org.eclipse.equinox.internal.p2.updatechecker;x-internal:=true,
  org.eclipse.equinox.internal.provisional.p2.updatechecker;x-friends:="org.eclipse.equinox.p2.ui.sdk.scheduler"
 Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.3.0,4.0)"
+Service-Component: OSGI-INF/updatechecker.xml
+Bundle-ActivationPolicy: lazy

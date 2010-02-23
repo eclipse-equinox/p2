@@ -88,7 +88,7 @@ public class UpdateChecker implements IUpdateChecker {
 			} catch (InterruptedException e) {
 				// nothing
 			} catch (Exception e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Exception in update check thread", e)); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.ERROR, UpdateCheckerComponent.BUNDLE_ID, "Exception in update check thread", e)); //$NON-NLS-1$
 			}
 		}
 	}
