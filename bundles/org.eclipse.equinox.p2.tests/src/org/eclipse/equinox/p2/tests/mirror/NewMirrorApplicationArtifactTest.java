@@ -1299,6 +1299,10 @@ public class NewMirrorApplicationArtifactTest extends AbstractProvisioningTest {
 				manager.removeRepository(srcLocation);
 			}
 
+			public Iterator<IArtifactKey> everything() {
+				return ((SimpleArtifactRepository) source).everything();
+			}
+
 			public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 				return source.getArtifactDescriptors(key);
 			}

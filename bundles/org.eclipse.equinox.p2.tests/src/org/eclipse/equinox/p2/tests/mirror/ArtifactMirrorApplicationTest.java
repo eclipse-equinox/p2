@@ -1263,6 +1263,10 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 				return source.getArtifactDescriptors(key);
 			}
 
+			public Iterator<IArtifactKey> everything() {
+				return ((SimpleArtifactRepository) source).everything();
+			}
+
 			public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 				if (firstAttempt) {
 					firstAttempt = false;
