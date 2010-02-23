@@ -70,7 +70,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
-						provisioningUI.openInstallWizard(WorkbenchUtil.getShell(), Arrays.asList(ius), installOperation, null);
+						provisioningUI.openInstallWizard(Arrays.asList(ius), installOperation, null);
 					}
 				});
 			} finally {
