@@ -89,7 +89,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	private final static int FILTER_DELAY = 200;
 
 	StructuredViewerProvisioningListener listener;
-	TableViewer repositoryViewer;
+	CheckboxTableViewer repositoryViewer;
 	Table table;
 	ProvisioningUI ui;
 	Policy policy;
@@ -231,8 +231,8 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			new Label(composite, SWT.NONE);
 
 		// Table of available repositories
-		repositoryViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		table = repositoryViewer.getTable();
+		table = new Table(composite, SWT.CHECK | SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		repositoryViewer = new CheckboxTableViewer(table);
 
 		// Key listener for delete
 		table.addKeyListener(new KeyAdapter() {
@@ -296,6 +296,28 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				if (policy.getRepositoriesVisible())
 					validateButtons();
 				setDetails();
+			}
+		});
+
+		repositoryViewer.setCheckStateProvider(new ICheckStateProvider() {
+			public boolean isChecked(Object element) {
+				return ((MetadataRepositoryElement) element).isEnabled();
+			}
+
+			public boolean isGrayed(Object element) {
+				return false;
+			}
+		});
+
+		repositoryViewer.addCheckStateListener(new ICheckStateListener() {
+			public void checkStateChanged(CheckStateChangedEvent event) {
+				MetadataRepositoryElement element = (MetadataRepositoryElement) event.getElement();
+				element.setEnabled(event.getChecked());
+				// paranoid that an equal but not identical element was passed in as the selection.
+				// update the cache map just in case.
+				input.cachedElements.put(URIUtil.toUnencodedString(element.getLocation()), element);
+				// update the viewer to show the change
+				updateForEnablementChange(new MetadataRepositoryElement[] {element});
 			}
 		});
 
@@ -624,14 +646,18 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				selected[i].setEnabled(enableSites);
 				input.cachedElements.put(URIUtil.toUnencodedString(selected[i].getLocation()), selected[i]);
 			}
-			if (comparator.getSortKey() == RepositoryDetailsLabelProvider.COL_ENABLEMENT)
-				repositoryViewer.refresh(true);
-			else
-				for (int i = 0; i < selected.length; i++)
-					repositoryViewer.update(selected[i], null);
-			changed = true;
+			updateForEnablementChange(selected);
 		}
 		validateButtons();
+	}
+
+	void updateForEnablementChange(MetadataRepositoryElement[] updated) {
+		if (comparator.getSortKey() == RepositoryDetailsLabelProvider.COL_ENABLEMENT)
+			repositoryViewer.refresh(true);
+		else
+			for (int i = 0; i < updated.length; i++)
+				repositoryViewer.update(updated[i], null);
+		changed = true;
 	}
 
 	void importRepositories() {
