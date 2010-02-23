@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionParseException;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.osgi.framework.BundleContext;
@@ -603,9 +604,28 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			if (isValidXML()) {
 				Filter filter = null;
 				if (filterHandler != null)
-					filter = ExpressionUtil.parseLDAP(filterHandler.getText());
+					try {
+						filter = ExpressionUtil.parseLDAP(filterHandler.getText());
+					} catch (ExpressionParseException e) {
+						if (removeWhiteSpace(filterHandler.getText()).equals("(&(|)(|)(|))")) {//$NON-NLS-1$
+							// We could log this I guess
+						} else {
+							throw e;
+						}
+					}
 				capabilities.add(MetadataFactory.createRequiredCapability(namespace, name, range, filter, min, max, greedy));
 			}
+		}
+
+		private String removeWhiteSpace(String s) {
+			if (s == null)
+				return ""; //$NON-NLS-1$
+			StringBuffer builder = new StringBuffer();
+			for (int i = 0; i < s.length(); i++) {
+				if (s.charAt(i) != ' ')
+					builder.append(s.charAt(i));
+			}
+			return builder.toString();
 		}
 	}
 

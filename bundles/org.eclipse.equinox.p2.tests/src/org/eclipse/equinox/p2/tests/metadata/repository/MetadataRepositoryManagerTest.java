@@ -536,6 +536,23 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		}
 	}
 
+	public void testReadableFilter() throws ProvisionException {
+		File site = getTestData("readable", "/testData/metadataRepo/badFilter/readable");
+		IMetadataRepository loadRepository = manager.loadRepository(site.toURI(), null);
+		assertEquals(1, loadRepository.query(InstallableUnitQuery.ANY, null).toSet().size());
+	}
+
+	public void testUnreadableFailingFilter() throws ProvisionException {
+		File site = getTestData("unreadable", "/testData/metadataRepo/badFilter/unreadable");
+		try {
+			manager.loadRepository(site.toURI(), null);
+		} catch (ProvisionException e) {
+			return;
+		}
+		fail("Unexpected code path, the unreadable repo should not have loaded");
+
+	}
+
 	private boolean repoAvailable(URI repoLocation) {
 		try {
 			repoLocation.toURL().openStream().close();
