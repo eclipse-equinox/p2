@@ -45,16 +45,38 @@ public class CategoryIUXMLActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testIUCategoryCreation01() throws Exception {
+		doCategorySetTest();
+	}
+
+	public void testIUCategoryCreation02() throws Exception {
+		doCategorySetTest();
+	}
+
+	public void testIUCategoryCreation03() throws Exception {
+		doCategorySetTest();
+	}
+
+	public void testIUCategoryCreation04() throws Exception {
+		doCategoryNotSetTest();
+	}
+
+	public void testIUCategoryCreation05() throws Exception {
+		doCategoryNotSetTest();
+	}
+
+	public void testIUCategoryCreation06() throws Exception {
+		doCategoryNotSetTest();
+	}
+
+	private void doCategorySetTest() {
 		IQueryResult result = actionResult.query(new CategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "Test Category Label", iu.getProperty(IInstallableUnit.PROP_NAME));
 	}
 
-	public void testIUCategoryCreation02() throws Exception {
+	private void doCategoryNotSetTest() {
 		IQueryResult result = actionResult.query(new CategoryQuery(), new NullProgressMonitor());
-		assertEquals("1.0", 1, queryResultSize(result));
-		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
-		assertEquals("1.1", "Test Category Label", iu.getProperty(IInstallableUnit.PROP_NAME));
+		assertEquals("1.0", 0, queryResultSize(result));
 	}
 }

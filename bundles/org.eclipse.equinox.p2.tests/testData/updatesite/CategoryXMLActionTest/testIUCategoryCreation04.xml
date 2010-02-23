@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <iu>
+     <query> 
+       <expression type="context">
+         <![CDATA[
+           latest(x | x.id == $0 && x.version ~= range($1))
+         ]]>
+       </expression>
+       <param> does.not.exist </param>
+       <param> [0.0, 2.0) </param>
+     </query>
+     <category name="Test Category" />
+   </iu>
+   <category-def label="Test Category Label" name="Test Category">
+      <description>Test Category Description</description>
+   </category-def>
+</site>
