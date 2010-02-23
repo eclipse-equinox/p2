@@ -80,6 +80,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(MultipleProvider.class);
 		suite.addTestSuite(MultipleSingleton.class);
 		suite.addTestSuite(NoRequirements.class);
+		suite.addTestSuite(ORTesting.class);
 		//		suite.addTestSuite(PatchFailingToInstall.class);
 		suite.addTestSuite(PatchTest1.class);
 		suite.addTestSuite(PatchTest10.class);
