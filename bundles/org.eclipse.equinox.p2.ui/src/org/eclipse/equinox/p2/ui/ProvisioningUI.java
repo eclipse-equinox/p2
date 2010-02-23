@@ -32,6 +32,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
@@ -265,6 +266,9 @@ public class ProvisioningUI {
 					page.createControl(parent);
 					this.setTitle(ProvUIMessages.RepositoryManipulationPage_Title);
 					this.setMessage(ProvUIMessages.RepositoryManipulationPage_Description);
+
+					Control control = page.getControl();
+					control.setLayoutData(new GridData(GridData.FILL_BOTH));
 					return page.getControl();
 				}
 
