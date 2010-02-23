@@ -22,8 +22,8 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.*;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
@@ -152,6 +152,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			}
 
 		});
+		Dialog.applyDialogFont(composite);
 	}
 
 	private void createViewControlsArea(Composite parent) {
