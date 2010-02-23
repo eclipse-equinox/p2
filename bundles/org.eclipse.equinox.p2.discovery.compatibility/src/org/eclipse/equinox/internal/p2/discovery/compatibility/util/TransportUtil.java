@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2010 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,7 @@ public class TransportUtil {
 	/**
 	 * Extend to process character content.
 	 * 
-	 * @see TransportUtil#readResource(AbstractWebLocation, TextContentProcessor, IProgressMonitor)
+	 * @see TransportUtil#readResource(URI, TextContentProcessor, IProgressMonitor)
 	 */
 	public interface TextContentProcessor {
 
@@ -48,10 +48,10 @@ public class TransportUtil {
 	 * @throws IOException
 	 *             if a network or IO problem occurs
 	 */
-	public static void downloadResource(URI uri, File target, IProgressMonitor monitor) throws IOException {
+	public static void downloadResource(URI location, File target, IProgressMonitor monitor) throws IOException {
 		OutputStream out = new BufferedOutputStream(new FileOutputStream(target));
 		try {
-			RepositoryTransport.getInstance().download(uri, out, monitor);
+			RepositoryTransport.getInstance().download(location, out, monitor);
 		} finally {
 			out.close();
 		}
@@ -70,8 +70,8 @@ public class TransportUtil {
 	 *             if a network or IO problem occurs
 	 * @throws CoreException
 	 */
-	public static void readResource(URI uri, TextContentProcessor processor, IProgressMonitor monitor) throws IOException, CoreException {
-		InputStream in = RepositoryTransport.getInstance().stream(uri, monitor);
+	public static void readResource(URI location, TextContentProcessor processor, IProgressMonitor monitor) throws IOException, CoreException {
+		InputStream in = RepositoryTransport.getInstance().stream(location, monitor);
 		try {
 			// FIXME how can the charset be determined?
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8")); //$NON-NLS-1$

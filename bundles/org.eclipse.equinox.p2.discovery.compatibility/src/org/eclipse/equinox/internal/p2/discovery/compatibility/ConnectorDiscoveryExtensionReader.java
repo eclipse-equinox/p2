@@ -46,7 +46,7 @@ public class ConnectorDiscoveryExtensionReader {
 	public static final Tag[] TAGS = new Tag[] {DOCUMENT, TASK, VCS};
 
 	/**
-	 * return the enum constant whose {@link #getValue() value} is the same as the given value.
+	 * return the enum constant whose {@link Tag#getValue() value} is the same as the given value.
 	 * 
 	 * @param value
 	 *            the string value, or null

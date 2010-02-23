@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2010 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,7 @@ public abstract class AbstractCatalogSource {
 	/**
 	 * get a resource by an URL relative to the root of the source.
 	 * 
-	 * @param relativeUrl
+	 * @param resourceName
 	 *            the relative resource name
 	 * @return an URL to the resource, or null if it is known that the resource does not exist.
 	 */
