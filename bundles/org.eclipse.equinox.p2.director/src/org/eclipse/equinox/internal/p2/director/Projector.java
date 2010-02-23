@@ -167,14 +167,12 @@ public class Projector {
 				dependencyHelper = new DependencyHelper<Object, Explanation>(solver);
 			}
 			Iterator<IInstallableUnit> iusToEncode = queryResult.iterator();
-			if (DEBUG) {
-				List<IInstallableUnit> iusToOrder = new ArrayList<IInstallableUnit>();
-				while (iusToEncode.hasNext()) {
-					iusToOrder.add(iusToEncode.next());
-				}
-				Collections.sort(iusToOrder);
-				iusToEncode = iusToOrder.iterator();
+			List<IInstallableUnit> iusToOrder = new ArrayList<IInstallableUnit>();
+			while (iusToEncode.hasNext()) {
+				iusToOrder.add(iusToEncode.next());
 			}
+			Collections.sort(iusToOrder);
+			iusToEncode = iusToOrder.iterator();
 			while (iusToEncode.hasNext()) {
 				if (monitor.isCanceled()) {
 					result.merge(Status.CANCEL_STATUS);
