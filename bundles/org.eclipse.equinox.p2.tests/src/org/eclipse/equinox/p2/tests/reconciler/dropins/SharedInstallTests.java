@@ -104,7 +104,8 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 				is.close();
 			}
 			assertTrue("0.5", props.containsKey("osgi.sharedConfiguration.area"));
-			assertTrue("0.6", props.size() == 1);
+			assertTrue("0.51", props.containsKey("eclipse.p2.data.area"));
+			assertTrue("0.6", props.size() == 2);
 		} finally {
 			cleanupReadOnlyInstall();
 		}
