@@ -15,11 +15,11 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.osgi.util.NLS;
 
 /**
  * Element wrapper class for a artifact repository that gets its
@@ -71,9 +71,9 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 			try {
 				repo = ui.getSession().getArtifactRepositoryManager().loadRepository(location, monitor);
 			} catch (ProvisionException e) {
-				handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, location));
+				ui.getRepositoryTracker().reportLoadFailure(location, e);
 			} catch (OperationCanceledException e) {
-				// Nothing to report
+				// nothing to report
 			}
 		return repo;
 	}
@@ -103,7 +103,10 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
 	public String getDescription() {
-		String description = ui.getSession().getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
+		ProvisioningSession session = ui.getSession();
+		if (ui.getRepositoryTracker().hasNotFoundStatusBeenReported(location))
+			return ProvUIMessages.RepositoryElement_NotFound;
+		String description = session.getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
 		if (description == null)
 			return ""; //$NON-NLS-1$
 		return description;

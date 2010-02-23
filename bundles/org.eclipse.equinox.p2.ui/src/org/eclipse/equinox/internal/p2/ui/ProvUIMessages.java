@@ -190,7 +190,7 @@ public class ProvUIMessages extends NLS {
 	public static String LaunchUpdateManagerButton;
 	public static String LoadMetadataRepositoryJob_ContactSitesProgress;
 	public static String LoadMetadataRepositoryJob_SitesMissingError;
-	public static String MetadataRepositoryElement_NotFound;
+	public static String RepositoryElement_NotFound;
 	public static String MetadataRepositoryElement_RepositoryLoadError;
 	public static String UpdateAction_UpdatesAvailableMessage;
 	public static String UpdateAction_UpdatesAvailableTitle;

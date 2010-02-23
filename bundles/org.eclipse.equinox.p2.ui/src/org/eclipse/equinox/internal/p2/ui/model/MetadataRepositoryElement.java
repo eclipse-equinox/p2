@@ -110,6 +110,8 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			return getMetadataRepository(monitor);
 		} catch (ProvisionException e) {
 			getProvisioningUI().getRepositoryTracker().reportLoadFailure(location, e);
+		} catch (OperationCanceledException e) {
+			// nothing to report
 		}
 		return null;
 	}
@@ -171,7 +173,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	public String getDescription() {
 		ProvisioningSession session = getProvisioningUI().getSession();
 		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location))
-			return ProvUIMessages.MetadataRepositoryElement_NotFound;
+			return ProvUIMessages.RepositoryElement_NotFound;
 		String description = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
 		if (description == null)
 			return ""; //$NON-NLS-1$
