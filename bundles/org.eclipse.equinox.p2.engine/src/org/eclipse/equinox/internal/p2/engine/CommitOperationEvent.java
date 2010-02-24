@@ -8,27 +8,20 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.engine;
+package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.internal.p2.engine.Operand;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 
 /**
  * @since 2.0
  */
-public class RollbackOperationEvent extends TransactionEvent {
+public class CommitOperationEvent extends TransactionEvent {
+	private static final long serialVersionUID = -523967775426133720L;
 
-	private static final long serialVersionUID = -2076492953949691215L;
-	private IStatus cause;
-
-	public RollbackOperationEvent(IProfile profile, PhaseSet phaseSet, Operand[] operands, IEngine engine, IStatus cause) {
+	public CommitOperationEvent(IProfile profile, PhaseSet phaseSet, Operand[] operands, IEngine engine) {
 		super(profile, phaseSet, operands, engine);
-		this.cause = cause;
 	}
 
-	public IStatus getStatus() {
-		return cause;
-	}
 }

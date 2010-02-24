@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.engine.IProfileEvent;
+
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URI;
@@ -303,7 +305,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		saveProfile(current);
 		profile.clearOrphanedInstallableUnitProperties();
 		profile.setTimestamp(current.getTimestamp());
-		broadcastChangeEvent(id, ProfileEvent.CHANGED);
+		broadcastChangeEvent(id, IProfileEvent.CHANGED);
 	}
 
 	public IProfile addProfile(String id) throws ProvisionException {
@@ -335,7 +337,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			profile.setSurrogateProfileHandler(surrogateProfileHandler);
 		profileMap.put(id, profile);
 		saveProfile(profile);
-		broadcastChangeEvent(id, ProfileEvent.ADDED);
+		broadcastChangeEvent(id, IProfileEvent.ADDED);
 		return profile.snapshot();
 	}
 
@@ -367,7 +369,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		profileMap.remove(profileId);
 		profileLocks.remove(profileId);
 		deleteProfile(profileId);
-		broadcastChangeEvent(profileId, ProfileEvent.REMOVED);
+		broadcastChangeEvent(profileId, IProfileEvent.REMOVED);
 	}
 
 	public synchronized void removeProfile(String id, long timestamp) throws ProvisionException {

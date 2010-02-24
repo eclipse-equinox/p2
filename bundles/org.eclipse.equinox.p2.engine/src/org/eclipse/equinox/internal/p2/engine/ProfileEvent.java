@@ -8,7 +8,9 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.engine;
+package org.eclipse.equinox.internal.p2.engine;
+
+import org.eclipse.equinox.p2.engine.IProfileEvent;
 
 import java.util.EventObject;
 
@@ -16,12 +18,8 @@ import java.util.EventObject;
  * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
-public class ProfileEvent extends EventObject {
+public class ProfileEvent extends EventObject implements IProfileEvent {
 	private static final long serialVersionUID = 3082402920617281765L;
-
-	public static final byte ADDED = 0;
-	public static final byte REMOVED = 1;
-	public static final byte CHANGED = 2;
 
 	private byte reason;
 
@@ -30,10 +28,16 @@ public class ProfileEvent extends EventObject {
 		this.reason = reason;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfileEvent#getReason()
+	 */
 	public byte getReason() {
 		return reason;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfileEvent#getProfileId()
+	 */
 	public String getProfileId() {
 		return (String) getSource();
 	}

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import org.eclipse.equinox.internal.p2.engine.ISurrogateProfileHandler;
+
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;

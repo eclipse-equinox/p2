@@ -7,7 +7,8 @@ Bundle-Activator: org.eclipse.equinox.internal.p2.engine.EngineActivator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.internal.p2.engine;
-  x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse,
+  x-friends:="org.eclipse.equinox.p2.garbagecollector,
+   org.eclipse.equinox.p2.touchpoint.eclipse,
    org.eclipse.equinox.p2.touchpoint.natives,
    org.eclipse.equinox.p2.ui.sdk.scheduler,
    org.eclipse.pde.build",

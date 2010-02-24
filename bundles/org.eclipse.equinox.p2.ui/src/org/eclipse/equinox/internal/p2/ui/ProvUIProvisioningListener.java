@@ -11,10 +11,11 @@
 
 package org.eclipse.equinox.internal.p2.ui;
 
+import org.eclipse.equinox.p2.engine.IProfileEvent;
+
 import java.util.EventObject;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-import org.eclipse.equinox.p2.engine.ProfileEvent;
 import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
@@ -54,13 +55,13 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 		} else if (batchCount > 0) {
 			// We are in the middle of a batch operation
 			return;
-		} else if (o instanceof ProfileEvent && (((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU) || ((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE))) {
-			ProfileEvent event = (ProfileEvent) o;
-			if (event.getReason() == ProfileEvent.CHANGED) {
+		} else if (o instanceof IProfileEvent && (((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU) || ((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE))) {
+			IProfileEvent event = (IProfileEvent) o;
+			if (event.getReason() == IProfileEvent.CHANGED) {
 				profileChanged(event.getProfileId());
-			} else if (event.getReason() == ProfileEvent.ADDED) {
+			} else if (event.getReason() == IProfileEvent.ADDED) {
 				profileAdded(event.getProfileId());
-			} else if (event.getReason() == ProfileEvent.REMOVED) {
+			} else if (event.getReason() == IProfileEvent.REMOVED) {
 				profileRemoved(event.getProfileId());
 			}
 		} else if (o instanceof RepositoryEvent) {

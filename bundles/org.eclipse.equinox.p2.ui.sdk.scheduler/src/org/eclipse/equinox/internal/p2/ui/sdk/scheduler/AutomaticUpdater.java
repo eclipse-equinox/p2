@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
+import org.eclipse.equinox.p2.engine.IProfileEvent;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -52,9 +54,9 @@ public class AutomaticUpdater implements IUpdateListener {
 	private void createProfileListener() {
 		profileListener = new ProvisioningListener() {
 			public void notify(EventObject o) {
-				if (o instanceof ProfileEvent) {
-					ProfileEvent event = (ProfileEvent) o;
-					if (event.getReason() == ProfileEvent.CHANGED && sameProfile(event.getProfileId())) {
+				if (o instanceof IProfileEvent) {
+					IProfileEvent event = (IProfileEvent) o;
+					if (event.getReason() == IProfileEvent.CHANGED && sameProfile(event.getProfileId())) {
 						triggerNewUpdateNotification();
 					}
 				}

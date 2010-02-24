@@ -8,12 +8,12 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.engine;
+package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.internal.p2.engine.Operand;
+import org.eclipse.equinox.p2.engine.IEngine;
+import org.eclipse.equinox.p2.engine.IProfile;
 
 import java.util.EventObject;
-import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 
 /**
  * @since 2.0

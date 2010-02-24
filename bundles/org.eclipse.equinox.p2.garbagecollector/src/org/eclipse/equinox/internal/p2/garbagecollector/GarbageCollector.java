@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.garbagecollector;
 
+import org.eclipse.equinox.internal.p2.engine.CommitOperationEvent;
+import org.eclipse.equinox.internal.p2.engine.RollbackOperationEvent;
+
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitEvent;
+
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.*;
