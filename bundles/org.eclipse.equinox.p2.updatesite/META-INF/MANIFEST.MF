@@ -1,11 +1,23 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
-Bundle-Vendor: %providerName
 Bundle-SymbolicName: org.eclipse.equinox.p2.updatesite;singleton:=true
-Bundle-Localization: plugin
 Bundle-Version: 1.0.200.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.updatesite.Activator
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Export-Package: org.eclipse.equinox.internal.p2.updatesite;x-friends:="org.eclipse.pde.build",
+ org.eclipse.equinox.internal.p2.updatesite.artifact;x-internal:=true,
+ org.eclipse.equinox.internal.p2.updatesite.metadata;x-internal:=true
+Require-Bundle: org.eclipse.ecf.filetransfer,
+ org.eclipse.ecf,
+ org.eclipse.equinox.common;bundle-version="[3.3.0,4.0.0)",
+ org.eclipse.equinox.p2.metadata.repository;bundle-version="0.1.0",
+ org.eclipse.equinox.p2.artifact.repository;bundle-version="0.1.0",
+ org.eclipse.core.jobs;bundle-version="[3.2.0,4.0.0)"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5,
+ J2SE-1.4,
+ CDC-1.1/Foundation-1.1
 Bundle-ActivationPolicy: lazy
 Import-Package: javax.xml.parsers,
  org.eclipse.equinox.app;version="1.0.0";resolution:=optional,
@@ -18,21 +30,21 @@ Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.p2.repository.helpers,
  org.eclipse.equinox.internal.provisional.p2.core.eventbus,
  org.eclipse.equinox.internal.provisional.p2.metadata,
- org.eclipse.equinox.p2.core,
- org.eclipse.equinox.p2.metadata,
- org.eclipse.equinox.p2.metadata.expression,
- org.eclipse.equinox.p2.metadata.query,
- org.eclipse.equinox.p2.publisher,
- org.eclipse.equinox.p2.publisher.actions,
- org.eclipse.equinox.p2.publisher.eclipse,
- org.eclipse.equinox.p2.ql,
- org.eclipse.equinox.p2.query,
- org.eclipse.equinox.p2.repository,
- org.eclipse.equinox.p2.repository.artifact,
- org.eclipse.equinox.p2.repository.artifact.spi,
- org.eclipse.equinox.p2.repository.metadata,
- org.eclipse.equinox.p2.repository.metadata.spi,
- org.eclipse.equinox.p2.repository.spi,
+ org.eclipse.equinox.p2.core;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.metadata;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.metadata.expression;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.metadata.query;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.publisher;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.publisher.actions;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.publisher.eclipse;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.ql;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.query;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository.artifact;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository.artifact.spi;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository.metadata;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository.metadata.spi;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository.spi;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.security.storage,
  org.eclipse.equinox.spi.p2.publisher,
  org.eclipse.osgi.service.resolver;version="1.2.0",
@@ -43,15 +55,3 @@ Import-Package: javax.xml.parsers,
  org.w3c.dom,
  org.xml.sax,
  org.xml.sax.helpers
-Require-Bundle: org.eclipse.ecf.filetransfer,
- org.eclipse.ecf,
- org.eclipse.equinox.common;bundle-version="[3.3.0,4.0.0)",
- org.eclipse.equinox.p2.metadata.repository;bundle-version="0.1.0",
- org.eclipse.equinox.p2.artifact.repository;bundle-version="0.1.0",
- org.eclipse.core.jobs;bundle-version="[3.2.0,4.0.0)"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5,
- J2SE-1.4,
- CDC-1.1/Foundation-1.1
-Export-Package: org.eclipse.equinox.internal.p2.updatesite;x-friends:="org.eclipse.pde.build",
- org.eclipse.equinox.internal.p2.updatesite.artifact;x-internal:=true,
- org.eclipse.equinox.internal.p2.updatesite.metadata;x-internal:=true

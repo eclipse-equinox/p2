@@ -1,11 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
-Bundle-Vendor: %providerName
-Bundle-Localization: plugin
 Bundle-SymbolicName: org.eclipse.equinox.p2.tests.ui
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.100",
  org.eclipse.ui;bundle-version="3.6.0",
  org.eclipse.equinox.p2.metadata;bundle-version="1.0.0",
@@ -19,5 +18,6 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.100",
  org.junit;bundle-version="3.8.0",
  org.eclipse.equinox.p2.repository;bundle-version="1.0.0",
  org.eclipse.equinox.p2.tests;bundle-version="1.2.0"
-Import-Package: org.eclipse.equinox.p2.operations,
- org.eclipse.equinox.internal.p2.ui.sdk
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: org.eclipse.equinox.internal.p2.ui.sdk,
+ org.eclipse.equinox.p2.operations;version="[2.0.0,3.0.0)"

@@ -4,10 +4,18 @@ Bundle-Name: %bundleName
 Bundle-SymbolicName: org.eclipse.equinox.p2.repository.tools;singleton:=true
 Bundle-Version: 1.0.100.qualifier
 Bundle-Activator: org.eclipse.equinox.p2.internal.repository.tools.Activator
-Bundle-ActivationPolicy: lazy
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Export-Package: org.eclipse.equinox.p2.internal.repository.comparator;version="2.0.0",
+ org.eclipse.equinox.p2.internal.repository.mirroring;version="2.0.0",
+ org.eclipse.equinox.p2.internal.repository.tools;version="2.0.0",
+ org.eclipse.equinox.p2.internal.repository.tools.analyzer;version="2.0.0",
+ org.eclipse.equinox.p2.repository.tools.analyzer;version="2.0.0"
+Require-Bundle: org.eclipse.equinox.common;bundle-version="3.5.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  J2SE-1.4,
  CDC-1.1/Foundation-1.1
+Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.core.runtime;version="3.4.0",
  org.eclipse.equinox.app;version="1.0.0",
  org.eclipse.equinox.internal.p2.artifact.repository,
@@ -25,28 +33,20 @@ Import-Package: org.eclipse.core.runtime;version="3.4.0",
  org.eclipse.equinox.internal.provisional.p2.core,
  org.eclipse.equinox.internal.provisional.p2.director,
  org.eclipse.equinox.internal.provisional.p2.metadata,
- org.eclipse.equinox.p2.core,
- org.eclipse.equinox.p2.engine,
- org.eclipse.equinox.p2.engine.spi,
- org.eclipse.equinox.p2.metadata,
- org.eclipse.equinox.p2.metadata.expression,
- org.eclipse.equinox.p2.metadata.query,
- org.eclipse.equinox.p2.planner,
- org.eclipse.equinox.p2.publisher.eclipse,
- org.eclipse.equinox.p2.query,
- org.eclipse.equinox.p2.repository,
- org.eclipse.equinox.p2.repository.artifact,
- org.eclipse.equinox.p2.repository.artifact.spi,
- org.eclipse.equinox.p2.repository.metadata,
- org.eclipse.equinox.p2.repository.metadata.spi,
+ org.eclipse.equinox.p2.core;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.engine;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.engine.spi;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.metadata;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.metadata.expression;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.metadata.query;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.planner;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.publisher.eclipse;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.query;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository.artifact;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository.artifact.spi;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository.metadata;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository.metadata.spi;version="[2.0.0,3.0.0)",
  org.eclipse.osgi.util;version="1.1.0",
  org.osgi.framework;version="1.4.0",
  org.osgi.service.packageadmin;version="1.2.0"
-Require-Bundle: org.eclipse.equinox.common;bundle-version="3.5.0"
-Export-Package: org.eclipse.equinox.p2.internal.repository.comparator;x-internal:=true,
- org.eclipse.equinox.p2.internal.repository.mirroring;x-internal:=true,
- org.eclipse.equinox.p2.internal.repository.tools;x-internal:=true,
- org.eclipse.equinox.p2.internal.repository.tools.analyzer;x-internal:=true,
- org.eclipse.equinox.p2.repository.tools.analyzer;x-internal:=true
-Bundle-Vendor: %providerName
-Bundle-Localization: plugin

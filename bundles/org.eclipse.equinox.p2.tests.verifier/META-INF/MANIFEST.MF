@@ -4,12 +4,12 @@ Bundle-Name: Test Install Verifier
 Bundle-SymbolicName: org.eclipse.equinox.p2.tests.verifier;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.tests.verifier.Activator
+Export-Package: org.eclipse.equinox.internal.p2.tests.verifier;x-internal:=true
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.equinox.p2.core
-Bundle-ActivationPolicy: lazy
-Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
- org.eclipse.equinox.p2.engine,
- org.eclipse.equinox.p2.metadata.query,
- org.eclipse.equinox.p2.query
 Bundle-RequiredExecutionEnvironment: J2SE-1.4
-Export-Package: org.eclipse.equinox.internal.p2.tests.verifier;x-internal:=true
+Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.p2.engine;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.metadata.query;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.query;version="[2.0.0,3.0.0)"
+Bundle-ActivationPolicy: lazy

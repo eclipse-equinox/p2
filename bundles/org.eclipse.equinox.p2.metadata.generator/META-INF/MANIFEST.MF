@@ -1,13 +1,24 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-SymbolicName: org.eclipse.equinox.p2.metadata.generator;singleton:=true
 Bundle-Name: %pluginName
+Bundle-SymbolicName: org.eclipse.equinox.p2.metadata.generator;singleton:=true
+Bundle-Version: 1.0.200.qualifier
+Bundle-Activator: org.eclipse.equinox.internal.p2.metadata.generator.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 1.0.200.qualifier
+Export-Package: org.eclipse.equinox.internal.p2.metadata.generator;x-internal:=true,
+ org.eclipse.equinox.internal.p2.metadata.generator.features;x-friends:="org.eclipse.equinox.p2.updatesite,org.eclipse.equinox.p2.directorywatcher,org.eclipse.equinox.p2.extensionlocation",
+ org.eclipse.equinox.internal.provisional.p2.metadata.generator;
+  x-friends:="org.eclipse.equinox.p2.ui.sdk,
+   org.eclipse.equinox.p2.touchpoint.eclipse,
+   org.eclipse.equinox.p2.directorywatcher,
+   org.eclipse.equinox.p2.extensionlocation,
+   org.eclipse.equinox.p2.updatesite"
 Require-Bundle: org.eclipse.equinox.p2.core,
  org.eclipse.osgi,
  org.eclipse.equinox.common;bundle-version="[3.5.0,4.0.0)"
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Bundle-ActivationPolicy: lazy
 Import-Package: javax.xml.parsers,
  org.eclipse.equinox.app;version="1.0.0",
  org.eclipse.equinox.internal.frameworkadmin.equinox,
@@ -20,25 +31,14 @@ Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing,
  org.eclipse.equinox.internal.provisional.p2.metadata,
  org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator,
- org.eclipse.equinox.p2.metadata,
- org.eclipse.equinox.p2.metadata.expression,
- org.eclipse.equinox.p2.metadata.query,
- org.eclipse.equinox.p2.query,
- org.eclipse.equinox.p2.repository,
- org.eclipse.equinox.p2.repository.artifact,
- org.eclipse.equinox.p2.repository.artifact.spi,
- org.eclipse.equinox.p2.repository.metadata,
+ org.eclipse.equinox.p2.metadata;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.metadata.expression;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.metadata.query;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.query;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository.artifact;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository.artifact.spi;version="[2.0.0,3.0.0)",
+ org.eclipse.equinox.p2.repository.metadata;version="[2.0.0,3.0.0)",
  org.w3c.dom,
  org.xml.sax,
  org.xml.sax.helpers
-Bundle-Activator: org.eclipse.equinox.internal.p2.metadata.generator.Activator
-Export-Package: org.eclipse.equinox.internal.p2.metadata.generator;x-internal:=true,
- org.eclipse.equinox.internal.p2.metadata.generator.features;x-friends:="org.eclipse.equinox.p2.updatesite,org.eclipse.equinox.p2.directorywatcher,org.eclipse.equinox.p2.extensionlocation",
- org.eclipse.equinox.internal.provisional.p2.metadata.generator;
-  x-friends:="org.eclipse.equinox.p2.ui.sdk,
-   org.eclipse.equinox.p2.touchpoint.eclipse,
-   org.eclipse.equinox.p2.directorywatcher,
-   org.eclipse.equinox.p2.extensionlocation,
-   org.eclipse.equinox.p2.updatesite"
-Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.4
