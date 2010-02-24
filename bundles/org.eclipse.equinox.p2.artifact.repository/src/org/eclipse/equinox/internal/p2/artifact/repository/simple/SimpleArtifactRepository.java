@@ -27,6 +27,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
+import org.eclipse.equinox.internal.p2.metadata.index.IndexProvider;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
@@ -34,7 +35,8 @@ import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.index.*;
+import org.eclipse.equinox.p2.metadata.index.IIndex;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -1002,7 +1004,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
-		return query instanceof IQueryWithIndex<?> ? ((IQueryWithIndex<IArtifactKey>) query).perform(this) : query.perform(artifactMap.keySet().iterator());
+		return IndexProvider.query(this, query, monitor);
 	}
 
 	public Iterator<IArtifactKey> everything() {

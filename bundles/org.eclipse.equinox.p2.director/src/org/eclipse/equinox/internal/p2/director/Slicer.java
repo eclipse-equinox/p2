@@ -159,7 +159,7 @@ public class Slicer {
 	private void expandRequirement(IInstallableUnit iu, IRequirement req) {
 		if (req.getMax() == 0)
 			return;
-		IQueryResult<IInstallableUnit> matches = possibilites.query(new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, req.getMatches()), null);
+		IQueryResult<IInstallableUnit> matches = possibilites.query(ExpressionQuery.create(req.getMatches()), null);
 		int validMatches = 0;
 		for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = iterator.next();

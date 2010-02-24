@@ -18,12 +18,12 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.internal.p2.metadata.index.CapabilityIndex;
-import org.eclipse.equinox.internal.p2.metadata.index.IdIndex;
+import org.eclipse.equinox.internal.p2.metadata.index.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.KeyWithLocale;
-import org.eclipse.equinox.p2.metadata.index.*;
+import org.eclipse.equinox.p2.metadata.index.IIndex;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
@@ -90,7 +90,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 	}
 
 	public synchronized IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		return (query instanceof IQueryWithIndex<?>) ? ((IQueryWithIndex<IInstallableUnit>) query).perform(this) : query.perform(units.iterator());
+		return IndexProvider.query(this, query, monitor);
 	}
 
 	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {

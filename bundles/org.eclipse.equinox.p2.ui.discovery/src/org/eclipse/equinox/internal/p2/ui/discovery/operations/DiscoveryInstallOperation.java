@@ -19,9 +19,12 @@ import org.eclipse.equinox.internal.p2.ui.discovery.DiscoveryUi;
 import org.eclipse.equinox.internal.p2.ui.discovery.util.WorkbenchUtil;
 import org.eclipse.equinox.internal.p2.ui.discovery.wizards.Messages;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.operations.*;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -235,34 +238,17 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		for (final IMetadataRepository repository : repositories) {
 			checkCancelled(monitor);
 			final Set<String> installableUnitIdsThisRepository = getDescriptorIds(repository);
-			IQuery<IInstallableUnit> query = new MatchQuery<IInstallableUnit>() {
-				@Override
-				public boolean isMatch(IInstallableUnit candidate) {
-					if ("true".equalsIgnoreCase(candidate.getProperty("org.eclipse.equinox.p2.type.group"))) { //$NON-NLS-1$ //$NON-NLS-2$
-						String id = candidate.getId();
-						if (isQualifyingFeature(installableUnitIdsThisRepository, id)) {
-							Collection<IProvidedCapability> providedCapabilities = candidate.getProvidedCapabilities();
-							if (providedCapabilities != null && providedCapabilities.size() > 0) {
-								for (IProvidedCapability capability : providedCapabilities) {
-									if ("org.eclipse.equinox.p2.iu".equals(capability.getNamespace())) { //$NON-NLS-1$
-										String name = capability.getName();
-										if (isQualifyingFeature(installableUnitIdsThisRepository, name)) {
-											return true;
-										}
-									}
-								}
-							}
-						}
-					}
-					return false;
-				}
-
-				private boolean isQualifyingFeature(final Set<String> installableUnitIdsThisRepository, String id) {
-					return id.endsWith(P2_FEATURE_GROUP_SUFFIX) && installableUnitIdsThisRepository.contains(id.substring(0, id.indexOf(P2_FEATURE_GROUP_SUFFIX)));
-				}
-			};
+			IQuery<IInstallableUnit> query = ExpressionQuery.create( //
+					"id ~= /*.feature.group/ && " + //$NON-NLS-1$
+							"properties['org.eclipse.equinox.p2.type.group'] == true && " + //$NON-NLS-1$
+							"providedCapabilities.exists(p | p.namespace == 'org.eclipse.equinox.p2.iu' && p.name == id)"); //$NON-NLS-1$
 			IQueryResult<IInstallableUnit> result = repository.query(query, monitor.newChild(1));
-			installableUnits.addAll(result.toSet());
+			for (Iterator<IInstallableUnit> iter = result.iterator(); iter.hasNext();) {
+				IInstallableUnit iu = iter.next();
+				String id = iu.getId();
+				if (installableUnitIdsThisRepository.contains(id.substring(0, id.length() - P2_FEATURE_GROUP_SUFFIX.length())))
+					installableUnits.add(iu);
+			}
 		}
 		return installableUnits;
 	}

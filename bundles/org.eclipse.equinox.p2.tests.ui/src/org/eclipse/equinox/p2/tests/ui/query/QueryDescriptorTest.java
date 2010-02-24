@@ -9,6 +9,8 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
+
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;

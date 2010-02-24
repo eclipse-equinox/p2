@@ -21,11 +21,13 @@ import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.MatchQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
@@ -37,8 +39,6 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 	private static final String IU_PROPERTY_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
 
 	private static final String PLUGIN_ID = "org.eclipse.equinox.p2.discovery.repository"; //$NON-NLS-1$
-
-	private static final String P2_FEATURE_GROUP_SUFFIX = ".feature.group"; //$NON-NLS-1$
 
 	private final List<URI> locations;
 
@@ -126,17 +126,14 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 		monitor.setWorkRemaining(repositories.size());
 		for (final IMetadataRepository repository : repositories) {
 			checkCancelled(monitor);
-			IQuery<IInstallableUnit> query = new MatchQuery<IInstallableUnit>() {
-				@Override
-				public boolean isMatch(IInstallableUnit candidate) {
-					if (isQualifyingFeature(candidate)) {
-						process(repository, candidate);
-						return true;
-					}
-					return false;
-				}
-			};
-			repository.query(query, monitor.newChild(1));
+			IQuery<IInstallableUnit> query = ExpressionQuery.create(//
+					"id ~= /*.feature.group/ " + // //$NON-NLS-1$
+							"? providedCapabilities.exists(p | p.namespace == 'org.eclipse.equinox.p2.iu' && p.name ~= /*.feature.group/) " + // //$NON-NLS-1$
+							": properties['org.eclipse.equinox.p2.type.category'] == true"); //$NON-NLS-1$
+			IQueryResult<IInstallableUnit> result = repository.query(query, monitor.newChild(1));
+			for (Iterator<IInstallableUnit> iter = result.iterator(); iter.hasNext();) {
+				process(repository, iter.next());
+			}
 		}
 	}
 
@@ -199,25 +196,6 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 		categoryById.put(category.getId(), category);
 		categories.add(category);
 		return category;
-	}
-
-	private boolean isQualifyingFeature(IInstallableUnit candidate) {
-		if (candidate.getId().endsWith(P2_FEATURE_GROUP_SUFFIX)) {
-			Collection<IProvidedCapability> providedCapabilities = candidate.getProvidedCapabilities();
-			if (providedCapabilities != null && providedCapabilities.size() > 0) {
-				for (IProvidedCapability capability : providedCapabilities) {
-					if ("org.eclipse.equinox.p2.iu".equals(capability.getNamespace())) { //$NON-NLS-1$
-						String name = capability.getName();
-						if (name.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
-							return true;
-						}
-					}
-				}
-			}
-		} else if (isCategory(candidate)) {
-			return true;
-		}
-		return false;
 	}
 
 	private Boolean isCategory(IInstallableUnit candidate) {

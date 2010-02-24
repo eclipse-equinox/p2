@@ -13,27 +13,22 @@ package org.eclipse.equinox.internal.p2.director;
 
 import java.util.Iterator;
 import java.util.List;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.internal.p2.metadata.index.CapabilityIndex;
+import org.eclipse.equinox.internal.p2.metadata.index.IndexProvider;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.KeyWithLocale;
-import org.eclipse.equinox.p2.metadata.index.*;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.metadata.index.IIndex;
 
-public class QueryableArray implements IQueryable<IInstallableUnit>, IIndexProvider<IInstallableUnit> {
+public class QueryableArray extends IndexProvider<IInstallableUnit> {
 	private final List<IInstallableUnit> dataSet;
 	private IIndex<IInstallableUnit> capabilityIndex;
 	private TranslationSupport translationSupport;
 
 	public QueryableArray(IInstallableUnit[] ius) {
 		dataSet = CollectionUtils.unmodifiableList(ius);
-	}
-
-	public synchronized IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		return query instanceof IQueryWithIndex<?> ? ((IQueryWithIndex<IInstallableUnit>) query).perform(this) : query.perform(dataSet.iterator());
 	}
 
 	public Iterator<IInstallableUnit> everything() {

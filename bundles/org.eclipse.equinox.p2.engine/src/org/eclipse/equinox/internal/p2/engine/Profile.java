@@ -18,8 +18,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.internal.p2.metadata.index.CapabilityIndex;
-import org.eclipse.equinox.internal.p2.metadata.index.IdIndex;
+import org.eclipse.equinox.internal.p2.metadata.index.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ISurrogateProfileHandler;
@@ -27,12 +26,12 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.KeyWithLocale;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.metadata.index.*;
+import org.eclipse.equinox.p2.metadata.index.IIndex;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.osgi.util.NLS;
 
-public class Profile implements IProfile, IIndexProvider<IInstallableUnit> {
+public class Profile extends IndexProvider<IInstallableUnit> implements IProfile {
 
 	/**
 	 * An index that limits the candidates to those units that has profile properties
@@ -185,10 +184,6 @@ public class Profile implements IProfile, IIndexProvider<IInstallableUnit> {
 	public void removeProperty(String key) {
 		storage.remove(key);
 		changed = true;
-	}
-
-	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		return (query instanceof IQueryWithIndex<?>) ? ((IQueryWithIndex<IInstallableUnit>) query).perform(this) : query.perform(everything());
 	}
 
 	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {

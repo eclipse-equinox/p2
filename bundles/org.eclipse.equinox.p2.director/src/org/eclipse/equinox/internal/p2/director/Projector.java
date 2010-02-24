@@ -268,7 +268,7 @@ public class Projector {
 		for (IRequirement req : reqs) {
 			if (req.getMin() > 0)
 				continue;
-			IQueryResult<IInstallableUnit> matches = picker.query(new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, req.getMatches()), null);
+			IQueryResult<IInstallableUnit> matches = picker.query(ExpressionQuery.create(req.getMatches()), null);
 			for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
 				IInstallableUnit match = iterator.next();
 				if (match instanceof IInstallableUnitPatch) {
@@ -654,7 +654,7 @@ public class Projector {
 	 */
 	private List<IInstallableUnit> getApplicableMatches(IRequirement req) {
 		List<IInstallableUnit> target = new ArrayList<IInstallableUnit>();
-		IQueryResult<IInstallableUnit> matches = picker.query(new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, req.getMatches()), null);
+		IQueryResult<IInstallableUnit> matches = picker.query(ExpressionQuery.create(req.getMatches()), null);
 		for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = iterator.next();
 			if (isApplicable(match)) {

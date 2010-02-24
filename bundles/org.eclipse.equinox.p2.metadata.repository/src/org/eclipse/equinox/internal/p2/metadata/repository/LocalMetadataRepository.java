@@ -20,15 +20,15 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.internal.p2.metadata.index.CapabilityIndex;
-import org.eclipse.equinox.internal.p2.metadata.index.IdIndex;
+import org.eclipse.equinox.internal.p2.metadata.index.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.KeyWithLocale;
-import org.eclipse.equinox.p2.metadata.index.*;
+import org.eclipse.equinox.p2.metadata.index.IIndex;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -138,7 +138,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		}
 		return null;
 	}
-	
+
 	public synchronized Object getManagedProperty(Object client, String memberName, Object key) {
 		if (!(client instanceof IInstallableUnit))
 			return null;
@@ -208,7 +208,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.IQuery, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public synchronized IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		return query instanceof IQueryWithIndex<?> ? ((IQueryWithIndex<IInstallableUnit>) query).perform(this) : query.perform(units.iterator());
+		return IndexProvider.query(this, query, monitor);
 	}
 
 	/* (non-Javadoc)

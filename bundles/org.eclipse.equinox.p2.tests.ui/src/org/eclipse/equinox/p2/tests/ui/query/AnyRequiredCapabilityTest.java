@@ -31,7 +31,7 @@ public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 		List items = new ArrayList();
 		items.add(match);
 		items.add(noMatch);
-		IQueryResult result = new ExpressionQuery(IInstallableUnit.class, requires.getMatches()).perform(items.iterator());
+		IQueryResult result = ExpressionQuery.create(requires.getMatches()).perform(items.iterator());
 		assertEquals("1.0", 1, queryResultSize(result));
 		assertEquals("1.1", match, result.iterator().next());
 	}
@@ -48,7 +48,7 @@ public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(location);
 		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(ProvisioningUI.getDefaultUI(), false);
 		IRequirement requires = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.iu", "test.bundle", ANY_VERSION, null, false, false);
-		IQueryResult result = manager.query(new ExpressionQuery(IInstallableUnit.class, requires.getMatches()), getMonitor());
+		IQueryResult result = manager.query(ExpressionQuery.create(requires.getMatches()), getMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "test.bundle", iu.getId());

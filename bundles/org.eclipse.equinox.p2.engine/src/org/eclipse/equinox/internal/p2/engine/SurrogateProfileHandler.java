@@ -50,7 +50,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private SoftReference<IProfile> cachedProfile;
 
 	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile) {
-		IQuery<IInstallableUnit> rootIUQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, //
+		IQuery<IInstallableUnit> rootIUQuery = ExpressionQuery.create( //
 				"profileProperties[$0] == 'true' || touchpointType.id == $1",//$NON-NLS-1$
 				IProfile.PROP_PROFILE_ROOT_IU, NATIVE_TOUCHPOINT_TYPE);
 		IQueryResult<IInstallableUnit> rootIUs = sharedProfile.query(rootIUQuery, null);

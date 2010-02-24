@@ -198,7 +198,7 @@ public class SimplePlanner implements IPlanner {
 			if (context.getProperty(INCLUDE_PROFILE_IUS) == null)
 				context.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
 			context.setExtraIUs(Arrays.asList(targetProfile.available(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class)));
-			return getProvisioningPlan((ProfileChangeRequest) profileChangeRequest, context, sub.newChild(ExpandWork / 2));
+			return getProvisioningPlan(profileChangeRequest, context, sub.newChild(ExpandWork / 2));
 		} finally {
 			sub.done();
 		}
@@ -427,7 +427,7 @@ public class SimplePlanner implements IPlanner {
 	private Collection<IRequirement> areMetaRequirementsSatisfied(IProfile oldProfile, Collection<IInstallableUnit> newProfile, IProvisioningPlan initialPlan) {
 		Collection<IRequirement> allMetaRequirements = extractMetaRequirements(newProfile, initialPlan);
 		for (IRequirement requirement : allMetaRequirements) {
-			if (oldProfile.query(new LimitQuery<IInstallableUnit>(new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, requirement.getMatches()), 1), null).isEmpty())
+			if (oldProfile.query(new LimitQuery<IInstallableUnit>(ExpressionQuery.create(requirement.getMatches()), 1), null).isEmpty())
 				return allMetaRequirements;
 		}
 		return null;

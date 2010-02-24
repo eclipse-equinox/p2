@@ -169,9 +169,9 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			VersionRange vRange = new VersionRange(range);
 			query = new InstallableUnitQuery(id, vRange);
 		} else if (type.equals("context")) { //$NON-NLS-1$
-			query = new ExpressionContextQuery<IInstallableUnit>(IInstallableUnit.class, expression, params);
+			query = ExpressionContextQuery.createQuery(expression, params);
 		} else if (type.equals("match")) //$NON-NLS-1$
-			query = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, expression, params);
+			query = ExpressionQuery.create(expression, params);
 		if (query == null)
 			return CollectionUtils.emptyList();
 		IQueryResult<IInstallableUnit> queryResult = results.query(query, null);
@@ -201,7 +201,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			}
 			if (qualifier != null && qualifier.endsWith(QUALIFIER)) {
 				VersionRange range = createVersionRange(version.toString());
-				IQuery<IInstallableUnit> qualifierQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, qualifierMatchExpr, id, range);
+				IQuery<IInstallableUnit> qualifierQuery = ExpressionQuery.create(qualifierMatchExpr, id, range);
 				query = new LatestIUVersionQuery<IInstallableUnit>(qualifierQuery);
 			} else {
 				query = new LimitQuery<IInstallableUnit>(new InstallableUnitQuery(id, version), 1);

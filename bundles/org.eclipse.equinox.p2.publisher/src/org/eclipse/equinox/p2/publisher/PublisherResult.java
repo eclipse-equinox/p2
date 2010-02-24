@@ -12,19 +12,16 @@
 package org.eclipse.equinox.p2.publisher;
 
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IUMap;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
-import org.eclipse.equinox.internal.p2.metadata.index.CompoundIndex;
-import org.eclipse.equinox.internal.p2.metadata.index.IdIndex;
+import org.eclipse.equinox.internal.p2.metadata.index.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.index.*;
-import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.metadata.index.IIndex;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
-public class PublisherResult implements IPublisherResult, IIndexProvider<IInstallableUnit> {
+public class PublisherResult extends IndexProvider<IInstallableUnit> implements IPublisherResult {
 
 	final IUMap rootIUs = new IUMap();
 	final IUMap nonRootIUs = new IUMap();
@@ -102,13 +99,6 @@ public class PublisherResult implements IPublisherResult, IIndexProvider<IInstal
 			addIUs(result.getIUs(null, ROOT), NON_ROOT);
 			addIUs(result.getIUs(null, NON_ROOT), NON_ROOT);
 		}
-	}
-
-	/**
-	 * Queries both the root and non root IUs
-	 */
-	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
-		return (query instanceof IQueryWithIndex<?>) ? ((IQueryWithIndex<IInstallableUnit>) query).perform(this) : query.perform(everything());
 	}
 
 	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
