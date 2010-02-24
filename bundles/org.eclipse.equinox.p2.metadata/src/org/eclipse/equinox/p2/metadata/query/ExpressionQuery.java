@@ -14,7 +14,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
 import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
+import org.eclipse.equinox.internal.p2.metadata.query.IMatchQuery;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.index.*;
 import org.eclipse.equinox.p2.query.*;
@@ -36,18 +38,30 @@ public class ExpressionQuery<T> implements IMatchQuery<T>, IQueryWithIndex<T> {
 		return ExpressionUtil.getFactory().matchExpression(ExpressionUtil.FALSE_EXPRESSION);
 	}
 
-	public ExpressionQuery(Class<? extends T> matchingClass, IExpression expression, Object... parameters) {
-		this(matchingClass, ExpressionUtil.getFactory().<T> matchExpression(expression, parameters));
+	public static <Q> IQuery<Q> create(Class<? extends Q> elementClass, IExpression expression, Object... parameters) {
+		return new ExpressionQuery<Q>(elementClass, expression, parameters);
 	}
 
-	public ExpressionQuery(Class<? extends T> matchingClass, IMatchExpression<T> expression) {
+	public static <Q> IQuery<Q> create(Class<? extends Q> matchingClass, String expression, Object... parameters) {
+		return new ExpressionQuery<Q>(matchingClass, expression, parameters);
+	}
+
+	public static IQuery<IInstallableUnit> create(IExpression expression, Object... parameters) {
+		return new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, expression, parameters);
+	}
+
+	public static IQuery<IInstallableUnit> create(String expression, Object... parameters) {
+		return new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, expression, parameters);
+	}
+
+	protected ExpressionQuery(Class<? extends T> matchingClass, IExpression expression, Object... parameters) {
 		this.matchingClass = matchingClass;
-		this.expression = expression;
-		this.context = expression.createContext();
+		this.expression = ExpressionUtil.getFactory().<T> matchExpression(expression, parameters);
+		this.context = this.expression.createContext();
 	}
 
-	public ExpressionQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {
-		this(matchingClass, ExpressionUtil.getFactory().<T> matchExpression(ExpressionUtil.parse(expression), parameters));
+	protected ExpressionQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {
+		this(matchingClass, ExpressionUtil.parse(expression), parameters);
 	}
 
 	public IEvaluationContext getContext() {

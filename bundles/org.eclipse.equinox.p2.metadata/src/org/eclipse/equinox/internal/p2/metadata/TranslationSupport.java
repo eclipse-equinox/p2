@@ -221,7 +221,7 @@ public class TranslationSupport {
 				return cached;
 		}
 
-		IQuery<IInstallableUnit> iuQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnitFragment.class, capabilityMatch, NAMESPACE_IU_LOCALIZATION, localeVariants);
+		IQuery<IInstallableUnit> iuQuery = ExpressionQuery.<IInstallableUnit> create(IInstallableUnitFragment.class, capabilityMatch, NAMESPACE_IU_LOCALIZATION, localeVariants);
 		IQueryResult<IInstallableUnit> collected = fragmentSource.query(iuQuery, null);
 		localeCollectorCache.put(locale, new SoftReference<IQueryResult<IInstallableUnit>>(collected));
 		return collected;
@@ -246,7 +246,7 @@ public class TranslationSupport {
 		IQueryResult<IInstallableUnit> localizationFragments = getLocalizationFragments(locales, locale);
 
 		IExpressionFactory factory = ExpressionUtil.getFactory();
-		IQuery<IInstallableUnit> iuQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnitFragment.class, factory.matchExpression(haveHostMatch, theUnit));
+		IQuery<IInstallableUnit> iuQuery = ExpressionQuery.<IInstallableUnit> create(IInstallableUnitFragment.class, factory.matchExpression(haveHostMatch, theUnit));
 		IQueryResult<IInstallableUnit> collected = iuQuery.perform(localizationFragments.iterator());
 		if (!collected.isEmpty()) {
 			String translation = null;

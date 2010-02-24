@@ -14,6 +14,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
+import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -57,7 +58,7 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		 * A convenience query that will match any {@link IInstallableUnit}
 		 * it encounters.
 		 */
-		public static final ExpressionQuery ANY = new ExpressionQuery(IInstallableUnit.class, "");
+		public static final IQuery<IInstallableUnit> ANY = ExpressionQuery.create("");
 
 		private static final IExpression idVersionQuery;
 		private static final IExpression idRangeQuery;

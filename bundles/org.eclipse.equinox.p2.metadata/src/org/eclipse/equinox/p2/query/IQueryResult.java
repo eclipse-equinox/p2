@@ -40,7 +40,7 @@ public interface IQueryResult<T> extends IQueryable<T> {
 	 * @throws ArrayStoreException the runtime type of the specified array is
 	 *         not a super-type of the runtime type of every collected object
 	 */
-	public T[] toArray(Class<? extends T> clazz);
+	public T[] toArray(Class<T> clazz);
 
 	/**
 	 * Creates a new Set copy with the contents of this query result. The

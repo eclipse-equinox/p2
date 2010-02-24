@@ -58,6 +58,6 @@ public abstract class PipedQuery<T> {
 		IExpression pipe = factory.pipe(expressions);
 		VariableFinder finder = new VariableFinder(ExpressionFactory.EVERYTHING);
 		pipe.accept(finder);
-		return finder.isFound() ? new ExpressionContextQuery<E>((Class<E>) Object.class, pipe) : new ExpressionQuery<E>((Class<E>) Object.class, pipe);
+		return finder.isFound() ? ExpressionContextQuery.<E> createQuery((Class<E>) Object.class, pipe) : ExpressionQuery.<E> create((Class<E>) Object.class, pipe);
 	}
 }

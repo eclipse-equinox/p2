@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
+import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.*;
@@ -30,9 +31,9 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		IRequirement capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
-		ExpressionQuery predicateQuery = new ExpressionQuery(IInstallableUnit.class, "this ~= $0", capability);
-		IQuery capabilityQuery = new ExpressionQuery(IInstallableUnit.class, capability.getMatches());
-		IQueryResult result;
+		IQuery<IInstallableUnit> predicateQuery = ExpressionQuery.create("this ~= $0", capability);
+		IQuery<IInstallableUnit> capabilityQuery = ExpressionQuery.create(capability.getMatches());
+		IQueryResult<IInstallableUnit> result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
 
@@ -61,8 +62,8 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
 		IUPropertyQuery propertyQuery = new IUPropertyQuery("df_LT.providerName", "Eclipse.org");
-		ExpressionQuery predicateQuery = new ExpressionQuery(IInstallableUnit.class, "properties[$0] == $1", "df_LT.providerName", "Eclipse.org");
-		IQueryResult result;
+		IQuery<IInstallableUnit> predicateQuery = ExpressionQuery.create("properties[$0] == $1", "df_LT.providerName", "Eclipse.org");
+		IQueryResult<IInstallableUnit> result;
 		long tradQueryMS = 0;
 		long exprQueryMS = 0;
 
@@ -93,12 +94,12 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		env.put("osgi.arch", "x86");
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		IQueryResult r = repo.query(new InstallableUnitQuery("org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> r = repo.query(new InstallableUnitQuery("org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new NullProgressMonitor());
 		Iterator itor = r.iterator();
 		assertTrue(itor.hasNext());
 		IInstallableUnit[] roots = new IInstallableUnit[] {(IInstallableUnit) itor.next()};
 
-		IQuery query = new ExpressionContextQuery(IInstallableUnit.class, "" + //
+		IQuery query = ExpressionContextQuery.createQuery( //
 				"$0.traverse(set(), _, { cache, parent | parent.requiredCapabilities.unique(cache).select(rc | rc.filter == null || $1 ~= rc.filter).collect(rc | everything.select(iu | iu ~= rc)).flatten()})", roots, env);
 
 		long sliceTime = 0;
@@ -140,10 +141,10 @@ public class PerformanceTest extends AbstractProvisioningTest {
 	}
 
 	private IInstallableUnit[] gatherAvailableInstallableUnits(IQueryable queryable) {
-		ArrayList list = new ArrayList();
-		IQueryResult matches = queryable.query(InstallableUnitQuery.ANY, null);
-		for (Iterator it = matches.iterator(); it.hasNext();)
+		ArrayList<IInstallableUnit> list = new ArrayList<IInstallableUnit>();
+		IQueryResult<IInstallableUnit> matches = queryable.query(InstallableUnitQuery.ANY, null);
+		for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();)
 			list.add(it.next());
-		return (IInstallableUnit[]) list.toArray(new IInstallableUnit[list.size()]);
+		return list.toArray(new IInstallableUnit[list.size()]);
 	}
 }

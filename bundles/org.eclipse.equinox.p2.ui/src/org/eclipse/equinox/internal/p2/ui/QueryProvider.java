@@ -45,7 +45,7 @@ public class QueryProvider {
 	public static final int INSTALLED_IUS = 6;
 	public static final int AVAILABLE_ARTIFACTS = 7;
 
-	private IQuery<IInstallableUnit> allQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, ExpressionQuery.matchAll());
+	private IQuery<IInstallableUnit> allQuery = ExpressionQuery.create(ExpressionQuery.matchAll());
 
 	public QueryProvider(ProvisioningUI ui) {
 		this.ui = ui;
@@ -153,7 +153,7 @@ public class QueryProvider {
 						requirementExpressions[i++] = req.getMatches();
 					}
 					IExpressionFactory factory = ExpressionUtil.getFactory();
-					IQuery<IInstallableUnit> meetsAnyRequirementQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, factory.or(requirementExpressions));
+					IQuery<IInstallableUnit> meetsAnyRequirementQuery = ExpressionQuery.create(factory.or(requirementExpressions));
 					IQuery<IInstallableUnit> visibleAsAvailableQuery = policy.getVisibleAvailableIUQuery();
 					@SuppressWarnings("unchecked")
 					IQuery<IInstallableUnit> createCompoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true);
@@ -176,7 +176,7 @@ public class QueryProvider {
 
 			case PROFILES :
 				queryable = new QueryableProfileRegistry(ui);
-				return new ElementQueryDescriptor(queryable, new ExpressionQuery<IProfile>(IProfile.class, ExpressionQuery.matchAll()), new Collector<Object>(), new ProfileElementWrapper(null, element));
+				return new ElementQueryDescriptor(queryable, ExpressionQuery.create(IProfile.class, ExpressionQuery.matchAll()), new Collector<Object>(), new ProfileElementWrapper(null, element));
 
 			case AVAILABLE_ARTIFACTS :
 				if (!(queryable instanceof IArtifactRepository))

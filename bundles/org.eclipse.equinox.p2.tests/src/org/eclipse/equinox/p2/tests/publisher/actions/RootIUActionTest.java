@@ -12,6 +12,8 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
 
+import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
+
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
@@ -20,7 +22,6 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 

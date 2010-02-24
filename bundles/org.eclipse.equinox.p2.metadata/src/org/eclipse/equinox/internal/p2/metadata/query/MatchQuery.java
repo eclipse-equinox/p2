@@ -8,10 +8,12 @@
 *   EclipseSource - initial API and implementation
 *   IBM Corporation - ongoing development
 ******************************************************************************/
-package org.eclipse.equinox.p2.query;
+package org.eclipse.equinox.internal.p2.metadata.query;
 
 import java.util.Iterator;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
+import org.eclipse.equinox.p2.query.*;
 
 /**
  * This class represents the superclass of most of p2's queries.  Every element
@@ -25,6 +27,7 @@ import org.eclipse.equinox.p2.metadata.expression.IExpression;
  * computation, to allow {@link IQueryable} implementations to optimize their
  * execution of the query. 
  * @since 2.0
+ * @deprecated Clients should use {@link ExpressionQuery} instead.
  */
 public abstract class MatchQuery<T> implements IMatchQuery<T> {
 

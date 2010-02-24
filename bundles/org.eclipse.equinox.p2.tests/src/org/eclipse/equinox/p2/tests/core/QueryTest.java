@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
+import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
+
 import java.util.Arrays;
 import java.util.List;
 import junit.framework.TestCase;

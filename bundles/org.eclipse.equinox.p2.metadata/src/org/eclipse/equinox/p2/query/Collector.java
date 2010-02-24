@@ -125,7 +125,7 @@ public class Collector<T> implements IQueryResult<T> {
 	 * @throws ArrayStoreException the runtime type of the specified array is
 	 *         not a super-type of the runtime type of every collected object
 	 */
-	public T[] toArray(Class<? extends T> clazz) {
+	public T[] toArray(Class<T> clazz) {
 		int size = collected == null ? 0 : collected.size();
 		@SuppressWarnings("unchecked")
 		T[] result = (T[]) Array.newInstance(clazz, size);

@@ -40,7 +40,7 @@ public class QueryResult<T> implements IQueryResult<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public T[] toArray(Class<? extends T> clazz) {
+	public T[] toArray(Class<T> clazz) {
 		Object provider = iterator.getIteratorProvider();
 		if (provider.getClass().isArray())
 			return (T[]) provider;

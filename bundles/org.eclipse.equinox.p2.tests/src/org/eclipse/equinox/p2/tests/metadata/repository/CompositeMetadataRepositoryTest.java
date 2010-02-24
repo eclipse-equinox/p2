@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
+import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;

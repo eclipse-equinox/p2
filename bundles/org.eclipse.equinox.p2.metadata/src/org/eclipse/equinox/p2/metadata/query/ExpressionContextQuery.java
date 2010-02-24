@@ -12,10 +12,13 @@ package org.eclipse.equinox.p2.metadata.query;
 
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
+import org.eclipse.equinox.internal.p2.metadata.query.IMatchQuery;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
  * A query that evaluates using an iterator as input and produces a new iterator.
@@ -25,17 +28,29 @@ public class ExpressionContextQuery<T> implements IQueryWithIndex<T> {
 	private final IContextExpression<T> expression;
 	private final Class<? extends T> elementClass;
 
-	public ExpressionContextQuery(Class<? extends T> elementClass, IExpression expression, Object... parameters) {
-		this(elementClass, ExpressionUtil.getFactory().<T> contextExpression(expression, parameters));
+	public static <Q> IQuery<Q> createQuery(Class<? extends Q> elementClass, IExpression expression, Object... parameters) {
+		return new ExpressionContextQuery<Q>(elementClass, expression, parameters);
 	}
 
-	public ExpressionContextQuery(Class<? extends T> elementClass, IContextExpression<T> expression) {
+	public static <Q> IQuery<Q> createQuery(Class<? extends Q> matchingClass, String expression, Object... parameters) {
+		return new ExpressionContextQuery<Q>(matchingClass, expression, parameters);
+	}
+
+	public static IQuery<IInstallableUnit> createQuery(IExpression expression, Object... parameters) {
+		return new ExpressionContextQuery<IInstallableUnit>(IInstallableUnit.class, expression, parameters);
+	}
+
+	public static IQuery<IInstallableUnit> createQuery(String expression, Object... parameters) {
+		return new ExpressionContextQuery<IInstallableUnit>(IInstallableUnit.class, expression, parameters);
+	}
+
+	protected ExpressionContextQuery(Class<? extends T> elementClass, IExpression expression, Object... parameters) {
 		this.elementClass = elementClass;
-		this.expression = expression;
+		this.expression = ExpressionUtil.getFactory().<T> contextExpression(expression, parameters);
 	}
 
-	public ExpressionContextQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {
-		this(matchingClass, ExpressionUtil.getFactory().<T> contextExpression(ExpressionUtil.parseQuery(expression), parameters));
+	protected ExpressionContextQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {
+		this(matchingClass, ExpressionUtil.parseQuery(expression), parameters);
 	}
 
 	public Class<? extends T> getElementClass() {

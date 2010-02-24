@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
+import org.eclipse.equinox.internal.p2.metadata.query.IMatchQuery;
+
 import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
 import org.eclipse.equinox.internal.p2.metadata.expression.Expression.VariableFinder;
 import org.eclipse.equinox.p2.metadata.expression.*;
@@ -56,7 +58,7 @@ public abstract class CompoundQuery<T> {
 
 		Class<? extends E> elementClass = (Class<E>) Object.class;
 		if (idx == 0)
-			return new ExpressionQuery<E>(elementClass, ExpressionQuery.matchAll());
+			return ExpressionQuery.<E> create(elementClass, ExpressionQuery.matchAll());
 
 		IExpression[] expressions = new IExpression[idx];
 		boolean justBooleans = true;
@@ -91,7 +93,7 @@ public abstract class CompoundQuery<T> {
 
 		if (justBooleans) {
 			IExpression compound = and ? factory.and(expressions) : factory.or(expressions);
-			return new ExpressionQuery<E>(elementClass, compound);
+			return ExpressionQuery.<E> create(elementClass, compound);
 		}
 
 		if (!justContexts) {
@@ -103,7 +105,7 @@ public abstract class CompoundQuery<T> {
 		IExpression compound = expressions[0];
 		for (idx = 1; idx < expressions.length; ++idx)
 			compound = and ? factory.intersect(compound, expressions[idx]) : factory.union(compound, expressions[idx]);
-		return new ExpressionContextQuery<E>(elementClass, compound);
+		return ExpressionContextQuery.<E> createQuery(elementClass, compound);
 	}
 
 	@SuppressWarnings("unchecked")

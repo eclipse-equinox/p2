@@ -7,7 +7,11 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.p2.query;
+package org.eclipse.equinox.internal.p2.metadata.query;
+
+import org.eclipse.equinox.p2.query.IQuery;
+
+import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A query in which the elements can be evaluated by calling isMatch on. Each
@@ -16,7 +20,7 @@ package org.eclipse.equinox.p2.query;
  * exclusive from all other calls. <P>
  * 
  * @noimplement This interface is not intended to be implemented by clients. Clients
- * creating custom queries must extend {@link MatchQuery} instead.
+ * creating custom queries must extend {@link ExpressionQuery} instead.
  * @since 2.0
  */
 public interface IMatchQuery<T> extends IQuery<T> {

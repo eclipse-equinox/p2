@@ -48,8 +48,18 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		return EvaluationContext.create(parameters, variables);
 	}
 
-	public <T> IContextExpression<T> contextExpression(IExpression expr, Object... parameters) {
-		return new ContextExpression<T>((Expression) expr, parameters);
+	@SuppressWarnings("unchecked")
+	public <T> IContextExpression<T> contextExpression(IExpression expression, Object... parameters) {
+
+		if (expression instanceof IContextExpression<?>) {
+			if (parameters.length > 0)
+				// Not good.
+				throw new IllegalArgumentException("IContextExpression cannot be parameterized (it already is)"); //$NON-NLS-1$
+			return (IContextExpression<T>) expression;
+		}
+		if (expression instanceof IMatchExpression<?>)
+			throw new IllegalArgumentException("IMatchExpression cannot be turned into a context expression"); //$NON-NLS-1$
+		return new ContextExpression<T>((Expression) expression, parameters);
 	}
 
 	public IFilterExpression filterExpression(IExpression expression) {
@@ -108,7 +118,16 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		return new Matches((Expression) lhs, (Expression) rhs);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> IMatchExpression<T> matchExpression(IExpression expression, Object... parameters) {
+		if (expression instanceof IMatchExpression<?>) {
+			if (parameters.length > 0)
+				// Not good.
+				throw new IllegalArgumentException("IMatchExpression cannot be parameterized (it already is)"); //$NON-NLS-1$
+			return (IMatchExpression<T>) expression;
+		}
+		if (expression instanceof IContextExpression<?>)
+			throw new IllegalArgumentException("IContextExpression cannot be turned into a match expression"); //$NON-NLS-1$
 		return new MatchExpression<T>((Expression) expression, parameters);
 	}
 

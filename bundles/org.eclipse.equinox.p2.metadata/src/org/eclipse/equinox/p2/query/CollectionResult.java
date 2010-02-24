@@ -37,7 +37,7 @@ public class CollectionResult<T> implements IQueryResult<T> {
 		return collection.iterator();
 	}
 
-	public T[] toArray(Class<? extends T> clazz) {
+	public T[] toArray(Class<T> clazz) {
 		int size = collection.size();
 		@SuppressWarnings("unchecked")
 		T[] result = (T[]) Array.newInstance(clazz, size);

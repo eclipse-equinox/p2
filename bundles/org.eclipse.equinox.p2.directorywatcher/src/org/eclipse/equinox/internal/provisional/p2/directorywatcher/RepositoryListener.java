@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
-import org.eclipse.equinox.p2.query.IMatchQuery;
+import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -217,7 +217,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			// create a query that will identify all ius related to removed files.
 			// It's safe to compare a String with a File since the auto coercion will
 			// first convert the String into a File.
-			IMatchQuery<IInstallableUnit> removeQuery = new ExpressionQuery<IInstallableUnit>(IInstallableUnit.class, //
+			IQuery<IInstallableUnit> removeQuery = ExpressionQuery.create( //
 					"$1.exists(x | properties[$0] == x)", FILE_NAME, removedFiles); //$NON-NLS-1$
 			IQueryResult<IInstallableUnit> toRemove = metadataRepository.query(removeQuery, null);
 			metadataRepository.removeInstallableUnits(toRemove.toSet());

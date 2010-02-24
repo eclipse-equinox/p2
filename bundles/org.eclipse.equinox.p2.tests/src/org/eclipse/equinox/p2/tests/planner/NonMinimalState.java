@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.File;
 import java.net.URI;
 import java.util.*;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -99,7 +98,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 	}
 
 	private boolean expandRequirement(IInstallableUnit iu, IRequirement req) {
-		IQueryResult matches = profile.query(new ExpressionQuery(IInstallableUnit.class, req.getMatches()), null);
+		IQueryResult matches = profile.query(ExpressionQuery.create(req.getMatches()), null);
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (match.getId().equals(searchedId))

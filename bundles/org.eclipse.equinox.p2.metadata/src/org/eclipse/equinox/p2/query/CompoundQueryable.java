@@ -10,24 +10,25 @@
 package org.eclipse.equinox.p2.query;
 
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
 import org.eclipse.equinox.internal.p2.metadata.index.CompoundIndex;
+import org.eclipse.equinox.internal.p2.metadata.index.IndexProvider;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.KeyWithLocale;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.metadata.index.*;
+import org.eclipse.equinox.p2.metadata.index.IIndex;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 
 /**
  * A queryable that holds a number of other IQueryables and provides
  * a mechanism for querying the entire set.
  * @since 2.0
  */
-public class CompoundQueryable<T> implements IQueryable<T>, IIndexProvider<T> {
+public class CompoundQueryable<T> extends IndexProvider<T> {
 
 	static class PassThroughIndex<T> implements IIndex<T> {
 		private final Iterator<T> iterator;
@@ -78,17 +79,6 @@ public class CompoundQueryable<T> implements IQueryable<T>, IIndexProvider<T> {
 	@SuppressWarnings("unchecked")
 	public CompoundQueryable(IQueryable<T> query1, IQueryable<T> query2, IQueryable<T> query3) {
 		this(new IQueryable[] {query1, query2, query3});
-	}
-
-	public IQueryResult<T> query(IQuery<T> query, IProgressMonitor monitor) {
-		if (monitor != null)
-			monitor.beginTask(null, IProgressMonitor.UNKNOWN);
-		IQueryResult<T> result = (query instanceof IQueryWithIndex<?>) ? ((IQueryWithIndex<T>) query).perform(this) : query.perform(everything());
-		if (monitor != null) {
-			monitor.worked(1);
-			monitor.done();
-		}
-		return result;
 	}
 
 	public IIndex<T> getIndex(String memberName) {

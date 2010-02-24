@@ -9,20 +9,4 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="src/org/eclipse/equinox/p2/ql/QLMatchQuery.java" type="org.eclipse.equinox.p2.ql.QLMatchQuery">
-        <filter id="574619656">
-            <message_arguments>
-                <message_argument value="IMatchQuery&lt;T&gt;"/>
-                <message_argument value="QLMatchQuery&lt;T&gt;"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="src/org/eclipse/equinox/p2/ql/QLQuery.java" type="org.eclipse.equinox.p2.ql.QLQuery">
-        <filter id="574619656">
-            <message_arguments>
-                <message_argument value="IQuery&lt;T&gt;"/>
-                <message_argument value="QLQuery&lt;T&gt;"/>
-            </message_arguments>
-        </filter>
-    </resource>
 </component>

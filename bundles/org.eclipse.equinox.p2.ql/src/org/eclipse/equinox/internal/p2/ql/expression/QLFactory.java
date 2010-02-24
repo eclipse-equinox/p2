@@ -55,10 +55,6 @@ public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConst
 		return new Condition((Expression) test, (Expression) ifTrue, (Expression) ifFalse);
 	}
 
-	public <T> org.eclipse.equinox.p2.metadata.expression.IContextExpression<T> contextExpression(IExpression expr, Object... parameters) {
-		return new ContextExpression<T>((Expression) expr, parameters);
-	}
-
 	public IExpression first(IExpression collection, IExpression lambda) {
 		return new First((Expression) collection, (LambdaExpression) lambda);
 	}
