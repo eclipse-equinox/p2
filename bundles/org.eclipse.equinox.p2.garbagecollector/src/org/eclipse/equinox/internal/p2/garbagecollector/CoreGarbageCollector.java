@@ -35,8 +35,8 @@ public class CoreGarbageCollector {
 	 */
 	public synchronized void clean(IArtifactKey[] markSet, final IArtifactRepository aRepository) {
 		Set<IArtifactKey> set = new HashSet<IArtifactKey>(Arrays.asList(markSet));
-		//this query will match all artifact keys in the given set
-		IQuery<IArtifactKey> query = new ExpressionContextQuery<IArtifactKey>(IArtifactKey.class, "unique($0)", set); //$NON-NLS-1$
+		//this query will match all artifact keys that are not in the given set
+		IQuery<IArtifactKey> query = ExpressionContextQuery.createQuery(IArtifactKey.class, "unique($0)", set); //$NON-NLS-1$
 		final IQueryResult<IArtifactKey> inactive = aRepository.query(query, null);
 		aRepository.executeBatch(new Runnable() {
 			public void run() {
