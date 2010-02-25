@@ -19,8 +19,8 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug271954 extends AbstractProvisioningTest {
@@ -74,7 +74,7 @@ public class Bug271954 extends AbstractProvisioningTest {
 	}
 
 	public void testUninstallMyBundle() {
-		IQueryResult c = profile.available(new InstallableUnitQuery("A"), new NullProgressMonitor());
+		IQueryResult c = profile.available(QueryUtil.createIUQuery("A"), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.removeInstallableUnits((IInstallableUnit[]) c.toArray(IInstallableUnit.class));
@@ -83,11 +83,11 @@ public class Bug271954 extends AbstractProvisioningTest {
 		ctx.setArtifactRepositories(new URI[0]);
 		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, ctx, new NullProgressMonitor());
 		assertOK("Uninstall plan for myBundle", plan.getStatus());
-		assertEquals(0, queryResultSize(plan.getInstallerPlan().getAdditions().query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
-		assertEquals(0, queryResultSize(plan.getInstallerPlan().getRemovals().query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
+		assertEquals(0, queryResultSize(plan.getInstallerPlan().getAdditions().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
+		assertEquals(0, queryResultSize(plan.getInstallerPlan().getRemovals().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 		assertUninstallOperand(plan, (IInstallableUnit) c.iterator().next());
-		assertEquals(2, queryResultSize(plan.getRemovals().query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
-		assertEquals(1, queryResultSize(plan.getRemovals().query(new InstallableUnitQuery("A", Version.createOSGi(1, 0, 0)), new NullProgressMonitor())));
-		assertEquals(1, queryResultSize(plan.getRemovals().query(new InstallableUnitQuery("Action1", Version.createOSGi(1, 0, 0)), new NullProgressMonitor())));
+		assertEquals(2, queryResultSize(plan.getRemovals().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
+		assertEquals(1, queryResultSize(plan.getRemovals().query(QueryUtil.createIUQuery("A", Version.createOSGi(1, 0, 0)), new NullProgressMonitor())));
+		assertEquals(1, queryResultSize(plan.getRemovals().query(QueryUtil.createIUQuery("Action1", Version.createOSGi(1, 0, 0)), new NullProgressMonitor())));
 	}
 }

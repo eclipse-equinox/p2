@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;

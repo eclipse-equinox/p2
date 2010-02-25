@@ -11,16 +11,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.touchpoint.eclipse.query;
 
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A query matching every {@link IInstallableUnit} that describes an OSGi bundle. 
  * @since 2.0
  */
-public class OSGiBundleQuery extends ExpressionQuery<IInstallableUnit> {
+public class OSGiBundleQuery extends ExpressionMatchQuery<IInstallableUnit> {
 
 	private static final IMatchExpression<IInstallableUnit> bundleTest = ExpressionUtil.getFactory().matchExpression(ExpressionUtil.parse("providedCapabilities.exists(p | p.namespace == 'osgi.bundle')")); //$NON-NLS-1$
 

@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.tests.harness.PerformanceTestRunner;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
@@ -53,7 +53,7 @@ public class MetadataRepositoryPerformanceTest extends ProvisioningPerformanceTe
 				List<IInstallableUnit> ius = new ArrayList(IU_COUNT);
 				for (int i = 0; i < IU_COUNT; i++) {
 					IInstallableUnit iu = generateIU(i);
-					queries[i] = new InstallableUnitQuery(iu.getId(), iu.getVersion());
+					queries[i] = QueryUtil.createIUQuery(iu.getId(), iu.getVersion());
 					ius.add(iu);
 				}
 				repository.addInstallableUnits(ius);

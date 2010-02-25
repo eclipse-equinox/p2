@@ -44,7 +44,7 @@ public class CompoundQueryable<T> extends IndexProvider<T> {
 
 	private IQueryable<T>[] queryables;
 
-	private CompoundQueryable(IQueryable<T>[] queryables) {
+	public CompoundQueryable(IQueryable<T>[] queryables) {
 		this.queryables = queryables;
 	}
 
@@ -54,7 +54,7 @@ public class CompoundQueryable<T> extends IndexProvider<T> {
 	 * @param queryables The collection of queryables to be combined
 	 */
 	@SuppressWarnings("unchecked")
-	public CompoundQueryable(Collection<? extends IQueryable<T>> queryables) {
+	CompoundQueryable(Collection<? extends IQueryable<T>> queryables) {
 		this(queryables.toArray(new IQueryable[queryables.size()]));
 	}
 
@@ -65,20 +65,8 @@ public class CompoundQueryable<T> extends IndexProvider<T> {
 	 * @param query2 The second queryable
 	 */
 	@SuppressWarnings("unchecked")
-	public CompoundQueryable(IQueryable<T> query1, IQueryable<T> query2) {
+	CompoundQueryable(IQueryable<T> query1, IQueryable<T> query2) {
 		this(new IQueryable[] {query1, query2});
-	}
-
-	/**
-	 * Creates a queryable that combines the three provided input queryables
-	 * 
-	 * @param query1 The first queryable
-	 * @param query2 The second queryable
-	 * @param query3 The third queryable
-	 */
-	@SuppressWarnings("unchecked")
-	public CompoundQueryable(IQueryable<T> query1, IQueryable<T> query2, IQueryable<T> query3) {
-		this(new IQueryable[] {query1, query2, query3});
 	}
 
 	public IIndex<T> getIndex(String memberName) {

@@ -22,9 +22,9 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -186,7 +186,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = bundleIUs[0];
 		assertTrue(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
 
-		Iterator iterator = profile.query(new InstallableUnitQuery(iu.getId()), null).iterator();
+		Iterator iterator = profile.query(QueryUtil.createIUQuery(iu.getId()), null).iterator();
 		assertFalse(iterator.hasNext());
 
 		IEngine engine = getEngine();
@@ -197,7 +197,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		assertTrue(result.isOK());
 		engine = null;
 
-		iterator = profile.query(new InstallableUnitQuery(iu.getId()), null).iterator();
+		iterator = profile.query(QueryUtil.createIUQuery(iu.getId()), null).iterator();
 		assertTrue(iterator.hasNext());
 		IInstallableUnit installedIU = (IInstallableUnit) iterator.next();
 		assertTrue(installedIU.getId().equals(iu.getId()));
@@ -217,7 +217,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		getArtifactRepositoryManager().addRepository(site);
 
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(site, getMonitor());
-		IInstallableUnit iu = (IInstallableUnit) repo.query(new InstallableUnitQuery("test.bundle"), getMonitor()).iterator().next();
+		IInstallableUnit iu = (IInstallableUnit) repo.query(QueryUtil.createIUQuery("test.bundle"), getMonitor()).iterator().next();
 		assertNotNull(iu);
 		profile = createProfile("test", profileProperties);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);

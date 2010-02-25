@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,7 +27,6 @@ import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryLi
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -208,7 +209,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 			return;
 		Tracing.debug(PREFIX + "Repository created " + repository.getLocation()); //$NON-NLS-1$
 		// Print out a list of all the IUs in the repository
-		IQueryResult<IInstallableUnit> result = repository.query(InstallableUnitQuery.ANY, new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> result = repository.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		for (Iterator<IInstallableUnit> iter = result.iterator(); iter.hasNext();)
 			Tracing.debug(PREFIX + "\t" + iter.next()); //$NON-NLS-1$
 	}

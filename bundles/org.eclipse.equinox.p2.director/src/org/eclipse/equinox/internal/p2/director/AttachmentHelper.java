@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
 
 import java.util.*;
@@ -17,7 +19,6 @@ import java.util.Map.Entry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 
 public class AttachmentHelper {
 	private static final IInstallableUnitFragment[] NO_FRAGMENTS = new IInstallableUnitFragment[0];
@@ -85,7 +86,7 @@ public class AttachmentHelper {
 			if (iu == null)
 				continue;
 			//just return fragments as they are
-			if (FragmentQuery.isFragment(iu)) {
+			if (QueryUtil.isFragment(iu)) {
 				result.add(iu);
 				continue;
 			}

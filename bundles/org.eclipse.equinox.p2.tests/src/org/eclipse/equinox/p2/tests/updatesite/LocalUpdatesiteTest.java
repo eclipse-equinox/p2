@@ -16,8 +16,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSitePublisherApplication;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -48,7 +48,7 @@ public class LocalUpdatesiteTest extends AbstractProvisioningTest {
 			fail("0.99");
 		}
 		IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repoLocation.toURI(), new NullProgressMonitor());
-		IQueryResult results = repository.query(new CategoryQuery(), new NullProgressMonitor());
+		IQueryResult results = repository.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(results));
 		Iterator iter = results.iterator();
 		while (iter.hasNext()) {

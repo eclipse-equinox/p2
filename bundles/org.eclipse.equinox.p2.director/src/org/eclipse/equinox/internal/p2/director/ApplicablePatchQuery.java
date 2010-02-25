@@ -11,16 +11,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A query that accepts any patch that applies to a given installable unit.
  */
-public class ApplicablePatchQuery extends ExpressionQuery<IInstallableUnit> {
+public class ApplicablePatchQuery extends ExpressionMatchQuery<IInstallableUnit> {
 	private static final IExpression applicablePatches = ExpressionUtil.parse(//
 			"applicabilityScope.empty || applicabilityScope.exists(rqArr | rqArr.all(rq | $0 ~= rq))"); //$NON-NLS-1$
 

@@ -10,10 +10,10 @@
 package org.eclipse.equinox.p2.tests.metadata;
 
 import java.net.URI;
-import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -34,7 +34,7 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		metadataRepositoryManager.addRepository(location);
 
-		IQueryResult query = metadataRepositoryManager.query(new LatestIUVersionQuery(), null);
+		IQueryResult query = metadataRepositoryManager.query(QueryUtil.createLatestIUQuery(), null);
 		assertEquals("1.0", 1, queryResultSize(query));
 		assertEquals("1.1", Version.createOSGi(2, 1, 0), ((IInstallableUnit) query.iterator().next()).getVersion());
 	}
@@ -50,7 +50,7 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		metadataRepositoryManager.addRepository(location);
 
-		IQueryResult query = metadataRepositoryManager.query(new LatestIUVersionQuery(), null);
+		IQueryResult query = metadataRepositoryManager.query(QueryUtil.createLatestIUQuery(), null);
 		assertEquals("1.0", 1, queryResultSize(query));
 		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) query.iterator().next()).getVersion());
 	}
@@ -69,7 +69,7 @@ public class LatestIUTest extends AbstractProvisioningTest {
 		metadataRepositoryManager.addRepository(location1);
 		metadataRepositoryManager.addRepository(location2);
 
-		IQueryResult queryResult = metadataRepositoryManager.query(new LatestIUVersionQuery(), null);
+		IQueryResult queryResult = metadataRepositoryManager.query(QueryUtil.createLatestIUQuery(), null);
 		assertEquals("1.0", 1, queryResultSize(queryResult));
 		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) queryResult.iterator().next()).getVersion());
 	}

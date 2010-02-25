@@ -10,19 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
-
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class MultipleSingleton extends AbstractProvisioningTest {
@@ -75,7 +73,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {x});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
-		assertEquals(1, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(new InstallableUnitQuery("X"), null)));
+		assertEquals(1, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(QueryUtil.createIUQuery("X"), null)));
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 	}

@@ -11,16 +11,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine.query;
 
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A query that searches for {@link IInstallableUnit} instances that have
  * a property associated with the specified profile, whose value matches the provided value.
  * @since 2.0
  */
-public class IUProfilePropertyQuery extends ExpressionQuery<IInstallableUnit> {
+public class IUProfilePropertyQuery extends ExpressionMatchQuery<IInstallableUnit> {
 	public static final String ANY = "*"; //$NON-NLS-1$
 
 	private static final IExpression matchValue = ExpressionUtil.parse("profileProperties[$0] == $1"); //$NON-NLS-1$

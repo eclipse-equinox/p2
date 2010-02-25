@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.p2.engine.Operand;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;

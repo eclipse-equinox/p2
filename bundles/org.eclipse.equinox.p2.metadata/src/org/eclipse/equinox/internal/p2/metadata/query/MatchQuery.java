@@ -10,9 +10,10 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.query;
 
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+
 import java.util.Iterator;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.query.*;
 
 /**
@@ -27,7 +28,7 @@ import org.eclipse.equinox.p2.query.*;
  * computation, to allow {@link IQueryable} implementations to optimize their
  * execution of the query. 
  * @since 2.0
- * @deprecated Clients should use {@link ExpressionQuery} instead.
+ * @deprecated Clients should use {@link ExpressionMatchQuery} instead.
  */
 public abstract class MatchQuery<T> implements IMatchQuery<T> {
 

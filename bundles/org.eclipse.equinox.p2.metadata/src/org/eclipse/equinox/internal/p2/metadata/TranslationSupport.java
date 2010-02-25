@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.lang.ref.SoftReference;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
@@ -20,7 +22,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.service.localization.LocaleProvider;
 
@@ -221,7 +222,7 @@ public class TranslationSupport {
 				return cached;
 		}
 
-		IQuery<IInstallableUnit> iuQuery = ExpressionQuery.<IInstallableUnit> create(IInstallableUnitFragment.class, capabilityMatch, NAMESPACE_IU_LOCALIZATION, localeVariants);
+		IQuery<IInstallableUnit> iuQuery = QueryUtil.<IInstallableUnit> createMatchQuery(IInstallableUnitFragment.class, capabilityMatch, NAMESPACE_IU_LOCALIZATION, localeVariants);
 		IQueryResult<IInstallableUnit> collected = fragmentSource.query(iuQuery, null);
 		localeCollectorCache.put(locale, new SoftReference<IQueryResult<IInstallableUnit>>(collected));
 		return collected;
@@ -246,7 +247,7 @@ public class TranslationSupport {
 		IQueryResult<IInstallableUnit> localizationFragments = getLocalizationFragments(locales, locale);
 
 		IExpressionFactory factory = ExpressionUtil.getFactory();
-		IQuery<IInstallableUnit> iuQuery = ExpressionQuery.<IInstallableUnit> create(IInstallableUnitFragment.class, factory.matchExpression(haveHostMatch, theUnit));
+		IQuery<IInstallableUnit> iuQuery = QueryUtil.<IInstallableUnit> createMatchQuery(IInstallableUnitFragment.class, factory.matchExpression(haveHostMatch, theUnit));
 		IQueryResult<IInstallableUnit> collected = iuQuery.perform(localizationFragments.iterator());
 		if (!collected.isEmpty()) {
 			String translation = null;

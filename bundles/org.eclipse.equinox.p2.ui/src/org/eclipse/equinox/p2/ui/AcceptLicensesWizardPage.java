@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.util.*;
 import java.util.List;
 import org.eclipse.core.runtime.IStatus;
@@ -21,7 +23,6 @@ import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.ILicense;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -375,7 +376,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	private void findUnacceptedLicenses(IInstallableUnit[] selectedIUs, IProvisioningPlan plan) {
 		IInstallableUnit[] iusToCheck = selectedIUs;
 		if (plan != null) {
-			iusToCheck = plan.getAdditions().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class);
+			iusToCheck = plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null).toArray(IInstallableUnit.class);
 		}
 
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=218532

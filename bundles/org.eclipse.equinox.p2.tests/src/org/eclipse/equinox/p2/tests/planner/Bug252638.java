@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 //Failing to install something optionally should indicate the failure in the request status for the IU being installed.

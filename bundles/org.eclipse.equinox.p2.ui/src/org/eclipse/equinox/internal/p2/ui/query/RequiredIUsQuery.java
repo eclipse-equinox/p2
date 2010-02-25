@@ -11,10 +11,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
 /**
@@ -28,7 +29,7 @@ import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
  * 
  * @since 2.0 
  */
-public class RequiredIUsQuery extends ExpressionQuery<IInstallableUnit> {
+public class RequiredIUsQuery extends ExpressionMatchQuery<IInstallableUnit> {
 
 	private static final IExpression expression = ExpressionUtil.parse("$0.exists(rc | this ~= rc)"); //$NON-NLS-1$
 

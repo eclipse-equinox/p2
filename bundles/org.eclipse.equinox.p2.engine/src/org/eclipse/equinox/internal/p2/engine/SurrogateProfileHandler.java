@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.File;
 import java.lang.ref.SoftReference;
 import java.net.MalformedURLException;
@@ -22,8 +24,6 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
@@ -49,7 +49,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private SoftReference<IProfile> cachedProfile;
 
 	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile) {
-		IQuery<IInstallableUnit> rootIUQuery = ExpressionQuery.create( //
+		IQuery<IInstallableUnit> rootIUQuery = QueryUtil.createMatchQuery( //
 				"profileProperties[$0] == 'true' || touchpointType.id == $1",//$NON-NLS-1$
 				IProfile.PROP_PROFILE_ROOT_IU, NATIVE_TOUCHPOINT_TYPE);
 		IQueryResult<IInstallableUnit> rootIUs = sharedProfile.query(rootIUQuery, null);
@@ -202,7 +202,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		Profile writableUserProfile = (Profile) userProfile;
 		updateProperties(sharedProfile, writableUserProfile);
 		removeUserProfileBaseIUs(writableUserProfile);
-		if (!userProfile.query(InstallableUnitQuery.ANY, null).isEmpty()) {
+		if (!userProfile.query(QueryUtil.createIUAnyQuery(), null).isEmpty()) {
 			writableUserProfile.setProperty(PROP_RESOLVE, Boolean.TRUE.toString());
 			markRootsOptional(writableUserProfile);
 		}

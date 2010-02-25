@@ -549,7 +549,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			if (info.isGood())
 				repos.add(info.repo);
 		}
-		CompoundQueryable<IArtifactKey> queryable = new CompoundQueryable<IArtifactKey>(repos);
+		IQueryable<IArtifactKey> queryable = QueryUtil.compoundQueryable(repos);
 		return queryable.query(query, monitor);
 	}
 
@@ -560,8 +560,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			if (info.isGood())
 				repos.add(info.repo.descriptorQueryable());
 		}
-		CompoundQueryable<IArtifactDescriptor> queryable = new CompoundQueryable<IArtifactDescriptor>(repos);
-		return queryable;
+		return QueryUtil.compoundQueryable(repos);
 	}
 
 	public IStatus executeBatch(Runnable runnable) {

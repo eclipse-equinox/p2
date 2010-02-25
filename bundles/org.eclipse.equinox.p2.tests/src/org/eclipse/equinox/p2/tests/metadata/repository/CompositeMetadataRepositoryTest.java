@@ -12,15 +12,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
+import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
@@ -29,7 +27,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -120,7 +117,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		//Try to remove an InstallableUnit.
 		try {
-			IQueryResult queryResult = compRepo.query(InstallableUnitQuery.ANY, null);
+			IQueryResult queryResult = compRepo.query(QueryUtil.createIUAnyQuery(), null);
 			compRepo.removeInstallableUnits(queryResult.toSet());
 			fail("Should not be able to remove InstallableUnit");
 		} catch (UnsupportedOperationException e) {
@@ -270,7 +267,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertContains("Assert child1's content is in composite repo", repo1, compRepo);
 		assertContains("Assert child2's content is in composite repo", repo2, compRepo);
 		//checks that the destination has the correct number of keys (no extras)
-		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, null), repo2.query(InstallableUnitQuery.ANY, null)), queryResultSize(compRepo.query(InstallableUnitQuery.ANY, null)));
+		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(QueryUtil.createIUAnyQuery(), null), repo2.query(QueryUtil.createIUAnyQuery(), null)), queryResultSize(compRepo.query(QueryUtil.createIUAnyQuery(), null)));
 	}
 
 	public void testRemoveNonexistantChild() {
@@ -429,7 +426,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		compRepo.addChild(repo2Location.toURI());
 
 		//force composite repository to load all children
-		compRepo.query(InstallableUnitQuery.ANY, new NullProgressMonitor());
+		compRepo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 
 		assertTrue("Ensuring previously loaded repo is enabled", getMetadataRepositoryManager().isEnabled(repo1Location.toURI()));
 		String repo1System = getMetadataRepositoryManager().getRepositoryProperty(repo1Location.toURI(), IRepository.PROP_SYSTEM);
@@ -455,7 +452,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
-		IQueryResult queryResult = compositeRepo.query(new LatestIUVersionQuery(), monitor);
+		IQueryResult queryResult = compositeRepo.query(QueryUtil.createLatestIUQuery(), monitor);
 		assertEquals("1.0", 1, queryResultSize(queryResult));
 		assertEquals("1.1", Version.createOSGi(3, 0, 0), ((IInstallableUnit) queryResult.iterator().next()).getVersion());
 		assertTrue("1.2", monitor.isDone());
@@ -476,7 +473,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		CompositeMetadataRepository compositeRepo = createRepo(false);
 		compositeRepo.addChild(location1);
 		compositeRepo.addChild(location2);
-		IQuery cQuery = new LatestIUVersionQuery(new MatchQuery() {
+		IQuery cQuery = QueryUtil.createLatestQuery(new MatchQuery() {
 			public boolean isMatch(Object candidate) {
 				if (candidate instanceof IInstallableUnit) {
 					IInstallableUnit iInstallableUnit = (IInstallableUnit) candidate;
@@ -532,7 +529,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertContains("Assert child1's content is in composite repo", repo1, compRepo);
 		assertContains("Assert child2's content is in composite repo", repo2, compRepo);
 		//checks that the destination has the correct number of keys (no extras)
-		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(InstallableUnitQuery.ANY, null), repo2.query(InstallableUnitQuery.ANY, null)), queryResultSize(compRepo.query(InstallableUnitQuery.ANY, null)));
+		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(QueryUtil.createIUAnyQuery(), null), repo2.query(QueryUtil.createIUAnyQuery(), null)), queryResultSize(compRepo.query(QueryUtil.createIUAnyQuery(), null)));
 	}
 
 	private CompositeMetadataRepository createRepo(boolean compressed) {
@@ -630,7 +627,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		// query the number of IUs
 		List children = repository.getChildren();
 		assertEquals("2.0", 2, children.size());
-		IQueryResult queryResult = repository.query(InstallableUnitQuery.ANY, getMonitor());
+		IQueryResult queryResult = repository.query(QueryUtil.createIUAnyQuery(), getMonitor());
 		assertEquals("2.1", 2, queryResultSize(queryResult));
 
 		// ensure the child URIs are stored as relative

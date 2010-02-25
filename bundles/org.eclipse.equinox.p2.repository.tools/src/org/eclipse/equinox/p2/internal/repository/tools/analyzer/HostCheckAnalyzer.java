@@ -13,8 +13,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 
@@ -36,7 +36,7 @@ public class HostCheckAnalyzer extends IUAnalyzer {
 				if ("osgi.bundle".equals(namespace)) {
 					String name = RequiredCapability.extractName(hostMatch);
 					VersionRange range = RequiredCapability.extractRange(hostMatch);
-					IQueryResult<IInstallableUnit> results = repository.query(new InstallableUnitQuery(name, range), new NullProgressMonitor());
+					IQueryResult<IInstallableUnit> results = repository.query(QueryUtil.createIUQuery(name, range), new NullProgressMonitor());
 					if (results.isEmpty()) {
 						error(iu, "IU Fragment: " + iu.getId() + " cannot find host" + name + " : " + range);
 						return;

@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.Properties;
@@ -20,7 +18,8 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AgentPlanTestInExternalInstance extends AbstractProvisioningTest {
@@ -276,7 +275,7 @@ public class AgentPlanTestInExternalInstance extends AbstractProvisioningTest {
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1, act1b, act2});
 		assertOK("install A", engine.perform(planUpdateA, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("installation"), new IInstallableUnit[] {a111, b, c});
-		assertTrue(getProfile("installation").query(new InstallableUnitQuery("Action1", DEFAULT_VERSION), null).isEmpty());
+		assertTrue(getProfile("installation").query(QueryUtil.createIUQuery("Action1", DEFAULT_VERSION), null).isEmpty());
 		assertEquals(getProfile("agent").getProfileId(), plan.getInstallerPlan().getProfile().getProfileId());
 
 		//uninstall A
@@ -302,7 +301,7 @@ public class AgentPlanTestInExternalInstance extends AbstractProvisioningTest {
 		requestForD.addInstallableUnits(new IInstallableUnit[] {d});
 		IProvisioningPlan planForD = planner.getProvisioningPlan(requestForD, ctx, new NullProgressMonitor());
 		assertNotNull(planForD.getInstallerPlan());
-		assertEquals(1, queryResultSize(planForD.getInstallerPlan().getRemovals().query(new InstallableUnitQuery(act1b.getId()), null)));
+		assertEquals(1, queryResultSize(planForD.getInstallerPlan().getRemovals().query(QueryUtil.createIUQuery(act1b.getId()), null)));
 		assertOK("install actions", engine.perform(planForD.getInstallerPlan(), null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1v2});
 		assertOK("install D", engine.perform(planForD, null));

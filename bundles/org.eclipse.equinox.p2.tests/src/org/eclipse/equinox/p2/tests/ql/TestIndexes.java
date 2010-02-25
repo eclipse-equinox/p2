@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ql;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.query.ExpressionContextQuery;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -26,28 +27,28 @@ public class TestIndexes extends AbstractProvisioningTest {
 
 	public void testIdIndexSimple() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		IQuery<IInstallableUnit> query = ExpressionContextQuery.createQuery("select(x | x.id == $0)", "org.eclipse.sdk.feature.group");
+		IQuery<IInstallableUnit> query = QueryUtil.createQuery("select(x | x.id == $0)", "org.eclipse.sdk.feature.group");
 		IQueryResult<IInstallableUnit> result = repo.query(query, getMonitor());
 		assertEquals(queryResultSize(result), 1);
 	}
 
 	public void testIdIndexWithOR() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		IQuery<IInstallableUnit> query = ExpressionContextQuery.createQuery("select(x | x.id == $0 || x.id == $1)", "org.eclipse.sdk.feature.group", "org.eclipse.sdk.feature.jar");
+		IQuery<IInstallableUnit> query = QueryUtil.createQuery("select(x | x.id == $0 || x.id == $1)", "org.eclipse.sdk.feature.group", "org.eclipse.sdk.feature.jar");
 		IQueryResult<IInstallableUnit> result = repo.query(query, getMonitor());
 		assertEquals(queryResultSize(result), 2);
 	}
 
 	public void testIdIndexWithNot() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		IQuery<IInstallableUnit> query = ExpressionContextQuery.createQuery("select(x | x.id == $0 || x.id != $1)", "org.eclipse.sdk.feature.group", "org.eclipse.sdk.feature.jar");
+		IQuery<IInstallableUnit> query = QueryUtil.createQuery("select(x | x.id == $0 || x.id != $1)", "org.eclipse.sdk.feature.group", "org.eclipse.sdk.feature.jar");
 		IQueryResult<IInstallableUnit> result = repo.query(query, getMonitor());
 		assertEquals(queryResultSize(result), 3464);
 	}
 
 	public void testCapabilityIndexSimple() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		IQuery<IInstallableUnit> query = ExpressionContextQuery.createQuery("select(x | x.providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && pc.name == $0))", "org.eclipse.core.resources");
+		IQuery<IInstallableUnit> query = QueryUtil.createQuery("select(x | x.providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && pc.name == $0))", "org.eclipse.core.resources");
 		IQueryResult<IInstallableUnit> result = repo.query(query, getMonitor());
 		assertEquals(queryResultSize(result), 1);
 	}
@@ -55,7 +56,7 @@ public class TestIndexes extends AbstractProvisioningTest {
 	public void testCapabilityIndexMatches() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 		IRequirement requirement = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.iu", "org.eclipse.core.resources", null, null, 1, 2, true);
-		IQuery<IInstallableUnit> query = ExpressionContextQuery.createQuery("select(x | x ~= $0)", requirement);
+		IQuery<IInstallableUnit> query = QueryUtil.createQuery("select(x | x ~= $0)", requirement);
 		IQueryResult<IInstallableUnit> result = repo.query(query, getMonitor());
 		assertEquals(queryResultSize(result), 1);
 	}

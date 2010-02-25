@@ -30,8 +30,7 @@ import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.p2.updatesite.artifact.UpdateSiteArtifactRepository;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -581,7 +580,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Can't load repository missingUpdateURLFeature");
 		}
-		InstallableUnitQuery query = new InstallableUnitQuery("test.featurewithmissingupdateurl.feature.group", Version.create("1.0.0"));
+		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery("test.featurewithmissingupdateurl.feature.group", Version.create("1.0.0"));
 		IQueryResult result = metadataRepo.query(query, null);
 		assertEquals("1.0", 1, queryResultSize(result));
 	}
@@ -599,7 +598,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Can't load repository UpdateSite243422");
 		}
-		InstallableUnitQuery query = new InstallableUnitQuery("org.eclipse.jdt.astview.feature.feature.group", Version.create("1.0.1"));
+		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery("org.eclipse.jdt.astview.feature.feature.group", Version.create("1.0.1"));
 		IQueryResult result = metadataRepo.query(query, null);
 		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit featureIU = (IInstallableUnit) result.iterator().next();
@@ -646,7 +645,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("1.99", e);
 			return;
 		}
-		IQueryResult result = repository.query(new InstallableUnitQuery("test.feature.feature.jar"), getMonitor());
+		IQueryResult result = repository.query(QueryUtil.createIUQuery("test.feature.feature.jar"), getMonitor());
 		assertTrue("1.0", !result.isEmpty());
 		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
 		List<ITouchpointData> data = unit.getTouchpointData();

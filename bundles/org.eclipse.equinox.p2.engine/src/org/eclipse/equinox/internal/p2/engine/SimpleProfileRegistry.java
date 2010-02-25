@@ -27,8 +27,8 @@ import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.core.spi.IAgentService;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
@@ -294,7 +294,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		current.clearInstallableUnits();
 
 		current.addProperties(profile.getLocalProperties());
-		IQueryResult<IInstallableUnit> queryResult = profile.query(InstallableUnitQuery.ANY, null);
+		IQueryResult<IInstallableUnit> queryResult = profile.query(QueryUtil.createIUAnyQuery(), null);
 		for (Iterator<IInstallableUnit> queryResultIt = queryResult.iterator(); queryResultIt.hasNext();) {
 			IInstallableUnit iu = queryResultIt.next();
 			current.addInstallableUnit(iu);
@@ -523,7 +523,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			return false;
 
 		//check whether the profile contains the p2 engine from 3.5.0 or earlier
-		return profile.available(new InstallableUnitQuery("org.eclipse.equinox.p2.engine", new VersionRange("[0.0.0, 1.0.101)")), null).isEmpty(); //$NON-NLS-1$//$NON-NLS-2$
+		return profile.available(QueryUtil.createIUQuery("org.eclipse.equinox.p2.engine", new VersionRange("[0.0.0, 1.0.101)")), null).isEmpty(); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private void deleteProfile(String profileId) {

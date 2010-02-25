@@ -23,13 +23,11 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.metadata.VersionedId;
-import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
@@ -242,7 +240,7 @@ public class DirectorApplication implements IApplication {
 		List<IQueryable<IInstallableUnit>> locationQueryables = new ArrayList<IQueryable<IInstallableUnit>>(top);
 		for (int i = 0; i < top; i++)
 			locationQueryables.add(new LocationQueryable(metadataRepositoryLocations.get(i)));
-		return new CompoundQueryable<IInstallableUnit>(locationQueryables).query(query, nullMonitor);
+		return QueryUtil.compoundQueryable(locationQueryables).query(query, nullMonitor);
 	}
 
 	private Collection<IInstallableUnit> collectRoots(IProfile profile, List<IVersionedId> rootNames, boolean forInstall) throws CoreException {
@@ -251,10 +249,10 @@ public class DirectorApplication implements IApplication {
 		for (int i = 0; i < top; ++i) {
 			IVersionedId rootName = rootNames.get(i);
 			Version v = rootName.getVersion();
-			IQuery<IInstallableUnit> query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
+			IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
 			IQueryResult<IInstallableUnit> roots = null;
 			if (forInstall)
-				roots = collectRootIUs(new LatestIUVersionQuery<IInstallableUnit>(query));
+				roots = collectRootIUs(QueryUtil.createLatestQuery(query));
 
 			if (roots == null || roots.isEmpty())
 				roots = profile.query(query, new NullProgressMonitor());
@@ -485,13 +483,13 @@ public class DirectorApplication implements IApplication {
 
 		ArrayList<IInstallableUnit> allRoots = new ArrayList<IInstallableUnit>();
 		if (rootsToList.size() == 0) {
-			Iterator<IInstallableUnit> roots = collectRootIUs(InstallableUnitQuery.ANY).iterator();
+			Iterator<IInstallableUnit> roots = collectRootIUs(QueryUtil.createIUAnyQuery()).iterator();
 			while (roots.hasNext())
 				allRoots.add(roots.next());
 		} else {
 			for (IVersionedId rootName : rootsToList) {
 				Version v = rootName.getVersion();
-				IQuery<IInstallableUnit> query = new InstallableUnitQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
+				IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
 				Iterator<IInstallableUnit> roots = collectRootIUs(query).iterator();
 				while (roots.hasNext())
 					allRoots.add(roots.next());

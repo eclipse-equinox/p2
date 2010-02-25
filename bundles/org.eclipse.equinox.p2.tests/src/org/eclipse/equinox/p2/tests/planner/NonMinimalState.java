@@ -19,10 +19,9 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -48,7 +47,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
-		assertTrue(plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), null).isEmpty());
+		assertTrue(plan.getAdditions().query(QueryUtil.createIUQuery("org.eclipse.tptp.platform.agentcontroller"), null).isEmpty());
 		why("slf4j.api");
 		why("slf4j.jcl");
 		why("org.eclipse.tptp.platform.iac.administrator");
@@ -61,7 +60,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 		ProvisioningContext ctx = new ProvisioningContext(new URI[0]);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
-		assertTrue(plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.tptp.platform.agentcontroller"), null).isEmpty());
+		assertTrue(plan.getAdditions().query(QueryUtil.createIUQuery("org.eclipse.tptp.platform.agentcontroller"), null).isEmpty());
 	}
 
 	private void why(String id) {
@@ -98,7 +97,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 	}
 
 	private boolean expandRequirement(IInstallableUnit iu, IRequirement req) {
-		IQueryResult matches = profile.query(ExpressionQuery.create(req.getMatches()), null);
+		IQueryResult matches = profile.query(QueryUtil.createMatchQuery(req.getMatches()), null);
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (match.getId().equals(searchedId))

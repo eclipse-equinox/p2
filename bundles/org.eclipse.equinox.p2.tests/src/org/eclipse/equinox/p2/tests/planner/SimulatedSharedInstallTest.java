@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -21,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -54,7 +52,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		final ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		assertEquals(IStatus.OK, engine.perform(plan, new NullProgressMonitor()).getSeverity());
-		assertContains(profile.query(InstallableUnitQuery.ANY, null), a1);
+		assertContains(profile.query(QueryUtil.createIUAnyQuery(), null), a1);
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.removeInstallableUnits(new IInstallableUnit[] {a1});
@@ -62,7 +60,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		assertEquals(IStatus.OK, PlanExecutionHelper.executePlan(plan2, engine, context, new NullProgressMonitor()).getSeverity());
-		assertNotContains(profile.query(InstallableUnitQuery.ANY, null), a1);
+		assertNotContains(profile.query(QueryUtil.createIUAnyQuery(), null), a1);
 	}
 
 	public void testAvailableVsQueryInProfile() {
@@ -73,7 +71,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		final ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		assertEquals(IStatus.OK, engine.perform(plan, new NullProgressMonitor()).getSeverity());
-		assertContains(profile.query(InstallableUnitQuery.ANY, null), c1);
+		assertContains(profile.query(QueryUtil.createIUAnyQuery(), null), c1);
 
 		IProfile availableWrapper = new IProfile() {
 			public IQueryResult<IInstallableUnit> available(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {

@@ -8,16 +8,16 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlanExecutionHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
@@ -259,7 +259,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1, act1b});
 		assertOK("install A", engine.perform(planUpdateA, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile(IProfileRegistry.SELF), new IInstallableUnit[] {act1b, a111, b, c});
-		assertTrue(getProfile(IProfileRegistry.SELF).query(new InstallableUnitQuery("Action1", DEFAULT_VERSION), null).isEmpty());
+		assertTrue(getProfile(IProfileRegistry.SELF).query(QueryUtil.createIUQuery("Action1", DEFAULT_VERSION), null).isEmpty());
 
 		//uninstall A
 		ProfileChangeRequest request3 = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));

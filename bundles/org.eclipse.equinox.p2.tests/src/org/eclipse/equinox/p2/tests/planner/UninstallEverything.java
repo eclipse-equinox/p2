@@ -14,7 +14,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class UninstallEverything extends AbstractProvisioningTest {
@@ -41,7 +41,7 @@ public class UninstallEverything extends AbstractProvisioningTest {
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
 		req2.removeInstallableUnits(new IInstallableUnit[] {a});
 		assertEquals(IStatus.OK, director.provision(req2, null, null).getSeverity());
-		assertNotIUs(new IInstallableUnit[] {a}, profile.query(InstallableUnitQuery.ANY, null).iterator());
+		assertNotIUs(new IInstallableUnit[] {a}, profile.query(QueryUtil.createIUAnyQuery(), null).iterator());
 
 	}
 }

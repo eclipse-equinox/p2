@@ -18,7 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -62,20 +62,20 @@ public class UpdateCheckerTest extends AbstractProvisioningTest {
 		ArrayList<IInstallableUnit> toUpdate = new ArrayList<IInstallableUnit>();
 		toUpdate.add(toInstallIU);
 		TestUpdateListener listener = new TestUpdateListener(new UpdateEvent(profile.getProfileId(), toUpdate));
-		checker.addUpdateCheck(profile.getProfileId(), InstallableUnitQuery.ANY, IUpdateChecker.ONE_TIME_CHECK, 0, listener);
+		checker.addUpdateCheck(profile.getProfileId(), QueryUtil.createIUAnyQuery(), IUpdateChecker.ONE_TIME_CHECK, 0, listener);
 		listener.waitForEvent();
 		listener.verify(1);
 
 		//adding the listener again should not result in an event
 		listener.reset();
-		checker.addUpdateCheck(profile.getProfileId(), InstallableUnitQuery.ANY, IUpdateChecker.ONE_TIME_CHECK, 0, listener);
+		checker.addUpdateCheck(profile.getProfileId(), QueryUtil.createIUAnyQuery(), IUpdateChecker.ONE_TIME_CHECK, 0, listener);
 		listener.waitForEvent();
 		listener.verify(0);
 
 		//removing and re-adding the listener should result in an event
 		listener.reset();
 		checker.removeUpdateCheck(listener);
-		checker.addUpdateCheck(profile.getProfileId(), InstallableUnitQuery.ANY, IUpdateChecker.ONE_TIME_CHECK, 0, listener);
+		checker.addUpdateCheck(profile.getProfileId(), QueryUtil.createIUAnyQuery(), IUpdateChecker.ONE_TIME_CHECK, 0, listener);
 		listener.waitForEvent();
 		listener.verify(1);
 	}

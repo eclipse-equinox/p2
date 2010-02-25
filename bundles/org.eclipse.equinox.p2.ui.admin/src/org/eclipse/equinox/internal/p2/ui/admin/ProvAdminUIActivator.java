@@ -16,9 +16,8 @@ import org.eclipse.equinox.internal.p2.ui.ValidationDialogServiceUI;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
-import org.eclipse.equinox.p2.metadata.query.GroupQuery;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
@@ -110,13 +109,13 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	void updateForPreferences() {
 
 		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY))
-			policy.setVisibleAvailableIUQuery(new GroupQuery());
+			policy.setVisibleAvailableIUQuery(QueryUtil.createIUGroupQuery());
 		else
-			policy.setVisibleAvailableIUQuery(InstallableUnitQuery.ANY);
+			policy.setVisibleAvailableIUQuery(QueryUtil.createIUAnyQuery());
 		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY))
 			policy.setVisibleInstalledIUQuery(new UserVisibleRootQuery());
 		else
-			policy.setVisibleInstalledIUQuery(InstallableUnitQuery.ANY);
+			policy.setVisibleInstalledIUQuery(QueryUtil.createIUAnyQuery());
 
 		RepositoryTracker tracker = getRepositoryTracker();
 		if (getPreferenceStore().getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS)) {

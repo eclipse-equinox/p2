@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -25,7 +27,6 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -199,7 +200,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 	private IQueryResult<IInstallableUnit> getAllIUs(IMetadataRepository repository, IProgressMonitor monitor) {
 		SubMonitor progress = SubMonitor.convert(monitor, 2);
 		try {
-			return repository.query(InstallableUnitQuery.ANY, progress.newChild(1));
+			return repository.query(QueryUtil.createIUAnyQuery(), progress.newChild(1));
 		} finally {
 			progress.done();
 		}

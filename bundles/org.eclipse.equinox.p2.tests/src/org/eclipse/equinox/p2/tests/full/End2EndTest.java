@@ -26,8 +26,7 @@ import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -109,18 +108,18 @@ public class End2EndTest extends AbstractProvisioningTest {
 	}
 
 	private void attemptToUninstallRCP35(IProfile profile2, File installFolder) {
-		IQueryResult collect = profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
+		IQueryResult collect = profile2.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(collect));
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) collect.iterator().next()});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		assertOK("Can not uninstall RCP", s);
-		assertEquals(1, queryResultSize(profile2.query(new InstallableUnitQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor())));
+		assertEquals(1, queryResultSize(profile2.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor())));
 	}
 
 	protected void uninstallPlatform(IProfile profile2, File installFolder) {
 		System.out.println("Uninstall the platform");
-		IQueryResult collect = profile2.query(new InstallableUnitQuery("org.eclipse.platform.ide"), new NullProgressMonitor());
+		IQueryResult collect = profile2.query(QueryUtil.createIUQuery("org.eclipse.platform.ide"), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(collect));
 		//		Collector collect2 = profile2.query(new InstallableUnitQuery("org.eclipse.platform.source.feature.group"), new Collector(), new NullProgressMonitor());
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
@@ -200,7 +199,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 	 * not be found. Never returns null.
 	 */
 	public IInstallableUnit getIU(String id, Version v) {
-		final InstallableUnitQuery query = new InstallableUnitQuery(id, v);
+		final IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id, v);
 		Iterator it = metadataRepoManager.query(query, null).iterator();
 		if (it.hasNext())
 			return (IInstallableUnit) it.next();

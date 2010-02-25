@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.File;
 import java.net.URI;
 import java.util.*;
@@ -20,8 +22,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
@@ -217,7 +217,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			// create a query that will identify all ius related to removed files.
 			// It's safe to compare a String with a File since the auto coercion will
 			// first convert the String into a File.
-			IQuery<IInstallableUnit> removeQuery = ExpressionQuery.create( //
+			IQuery<IInstallableUnit> removeQuery = QueryUtil.createMatchQuery( //
 					"$1.exists(x | properties[$0] == x)", FILE_NAME, removedFiles); //$NON-NLS-1$
 			IQueryResult<IInstallableUnit> toRemove = metadataRepository.query(removeQuery, null);
 			metadataRepository.removeInstallableUnits(toRemove.toSet());
@@ -262,7 +262,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private void synchronizeCurrentFiles() {
 		currentFiles.clear();
 		if (metadataRepository != null) {
-			IQueryResult<IInstallableUnit> ius = metadataRepository.query(InstallableUnitQuery.ANY, null);
+			IQueryResult<IInstallableUnit> ius = metadataRepository.query(QueryUtil.createIUAnyQuery(), null);
 			for (Iterator<IInstallableUnit> it = ius.iterator(); it.hasNext();) {
 				IInstallableUnit iu = it.next();
 				String filename = iu.getProperty(FILE_NAME);

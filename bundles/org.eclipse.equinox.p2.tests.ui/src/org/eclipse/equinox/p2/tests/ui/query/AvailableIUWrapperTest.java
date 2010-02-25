@@ -11,18 +11,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.query.AvailableIUWrapper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.Collector;
-import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.MockQueryable;
 
 /**
@@ -153,6 +150,6 @@ public class AvailableIUWrapperTest extends AbstractQueryTest {
 	}
 
 	protected IQuery getMockQuery() {
-		return new IUPropertyQuery("key", "value");
+		return QueryUtil.createIUPropertyQuery("key", "value");
 	}
 }

@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -133,21 +133,21 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	public void testIUPeristence() throws ProvisionException {
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
-		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
+		assertTrue(profile.query(QueryUtil.createIUAnyQuery(), null).isEmpty());
 		profile.addInstallableUnit(createIU("test"));
-		assertEquals(1, queryResultSize(profile.query(InstallableUnitQuery.ANY, null)));
+		assertEquals(1, queryResultSize(profile.query(QueryUtil.createIUAnyQuery(), null)));
 		saveProfile(registry, profile);
 		restart();
 
 		profile = (Profile) registry.getProfile(PROFILE_NAME);
-		assertEquals(1, queryResultSize(profile.query(InstallableUnitQuery.ANY, null)));
+		assertEquals(1, queryResultSize(profile.query(QueryUtil.createIUAnyQuery(), null)));
 		profile.removeInstallableUnit(createIU("test"));
-		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
+		assertTrue(profile.query(QueryUtil.createIUAnyQuery(), null).isEmpty());
 		saveProfile(registry, profile);
 		restart();
 
 		profile = (Profile) registry.getProfile(PROFILE_NAME);
-		assertTrue(profile.query(InstallableUnitQuery.ANY, null).isEmpty());
+		assertTrue(profile.query(QueryUtil.createIUAnyQuery(), null).isEmpty());
 		registry.removeProfile(PROFILE_NAME);
 		restart();
 		assertNull(registry.getProfile(PROFILE_NAME));

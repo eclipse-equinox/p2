@@ -10,19 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitEvent;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.DefaultPhaseSet;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 
 public class Uninstall extends InstallableUnitPhase {
 
@@ -96,7 +95,7 @@ public class Uninstall extends InstallableUnitPhase {
 		ArrayList<ProvisioningAction> actions = new ArrayList<ProvisioningAction>();
 		actions.add(beforeAction);
 
-		if (FragmentQuery.isFragment(unit)) {
+		if (QueryUtil.isFragment(unit)) {
 			actions.add(afterAction);
 			return actions;
 		}

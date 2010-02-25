@@ -25,9 +25,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
@@ -71,7 +69,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * This profile is being updated; return the units to uninstall from the profile.
 	 */
 	private IQueryResult<IInstallableUnit> computeUnitsToUninstall(IProfile p) {
-		return p.query(InstallableUnitQuery.ANY, null);
+		return p.query(QueryUtil.createIUAnyQuery(), null);
 	}
 
 	/**
@@ -148,7 +146,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		VersionRange range = VersionRange.emptyRange;
 		if (version != null && !version.equals(Version.emptyVersion))
 			range = new VersionRange(version, true, version, true);
-		IQuery<IInstallableUnit> query = new InstallableUnitQuery(id, range);
+		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id, range);
 		Iterator<IInstallableUnit> matches = metadataRepoMan.query(query, null).iterator();
 		// pick the newest match
 		IInstallableUnit newest = null;

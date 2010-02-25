@@ -10,17 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.File;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -43,7 +43,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 	}
 
 	IInstallableUnit getIU(IMetadataRepository source, String id, String version) {
-		IQueryResult c = repo.query(new InstallableUnitQuery(id, Version.create(version)), new NullProgressMonitor());
+		IQueryResult c = repo.query(QueryUtil.createIUQuery(id, Version.create(version)), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
 		return (IInstallableUnit) c.iterator().next();
 	}
@@ -99,7 +99,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 
 		IProvisioningPlan feature1Plan = getPlannerService().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
 		assertOK("installation of feature1", getEngineService().perform(feature1Plan, new NullProgressMonitor()));
-		assertEquals(1, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.0.200911201237")), new NullProgressMonitor())));
+		assertEquals(1, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.0.200911201237")), new NullProgressMonitor())));
 	}
 
 	private IEngine getEngineService() {
@@ -137,8 +137,8 @@ public class Bug300104 extends AbstractProvisioningTest {
 
 		IProvisioningPlan feature1Plan = getPlannerService().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
 		assertOK("installation of feature1", getEngineService().perform(feature1Plan, new NullProgressMonitor()));
-		assertEquals(0, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.0.200911201237")), new NullProgressMonitor())));
-		assertEquals(1, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.1.200911201237")), new NullProgressMonitor())));
+		assertEquals(0, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.0.200911201237")), new NullProgressMonitor())));
+		assertEquals(1, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.1.200911201237")), new NullProgressMonitor())));
 	}
 
 	private void applyHelloPatch2() throws ProvisionException {
@@ -169,10 +169,10 @@ public class Bug300104 extends AbstractProvisioningTest {
 
 		IProvisioningPlan feature1Plan = getPlannerService().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
 		assertOK("installation of feature1", getEngineService().perform(feature1Plan, new NullProgressMonitor()));
-		assertEquals(1, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(new InstallableUnitQuery("hello2", Version.create("1.0.0.200911201358")), new NullProgressMonitor())));
+		assertEquals(1, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello2", Version.create("1.0.0.200911201358")), new NullProgressMonitor())));
 
-		assertEquals(0, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.0.200911201237")), new NullProgressMonitor())));
-		assertEquals(0, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.1.200911201237")), new NullProgressMonitor())));
-		assertEquals(1, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(new InstallableUnitQuery("hello", Version.create("1.0.1.200911201358")), new NullProgressMonitor())));
+		assertEquals(0, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.0.200911201237")), new NullProgressMonitor())));
+		assertEquals(0, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.1.200911201237")), new NullProgressMonitor())));
+		assertEquals(1, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.1.200911201358")), new NullProgressMonitor())));
 	}
 }

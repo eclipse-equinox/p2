@@ -14,8 +14,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
-import org.eclipse.equinox.p2.metadata.query.GroupQuery;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
@@ -34,7 +34,7 @@ public class SDKPolicy extends Policy {
 
 	public SDKPolicy() {
 		// initialize for our values
-		setVisibleAvailableIUQuery(new GroupQuery());
+		setVisibleAvailableIUQuery(QueryUtil.createIUGroupQuery());
 		// If this ever changes, we must change AutomaticUpdateSchedule.getProfileQuery()
 		setVisibleInstalledIUQuery(new UserVisibleRootQuery());
 		setRepositoryPreferencePageId("org.eclipse.equinox.internal.p2.ui.sdk.SitesPreferencePage"); //$NON-NLS-1$

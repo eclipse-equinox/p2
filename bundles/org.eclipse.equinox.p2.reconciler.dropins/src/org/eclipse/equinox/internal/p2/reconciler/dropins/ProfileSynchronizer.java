@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,8 +28,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.GroupQuery;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -104,7 +104,7 @@ public class ProfileSynchronizer {
 				return status;
 			debug(request, plan);
 
-			if (plan.getAdditions().query(InstallableUnitQuery.ANY, null).isEmpty() && plan.getRemovals().query(InstallableUnitQuery.ANY, null).isEmpty()) {
+			if (plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null).isEmpty() && plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null).isEmpty()) {
 				writeTimestamps();
 				return status;
 			}
@@ -299,10 +299,10 @@ public class ProfileSynchronizer {
 		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>();
 
 		boolean foundIUsToAdd = false;
-		Set<IInstallableUnit> profileIUs = profile.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
+		Set<IInstallableUnit> profileIUs = profile.query(QueryUtil.createIUAnyQuery(), null).unmodifiableSet();
 
 		// we use IProfile.available(...) here so that we also gather any shared IUs
-		Set<IInstallableUnit> availableProfileIUs = profile.available(InstallableUnitQuery.ANY, null).unmodifiableSet();
+		Set<IInstallableUnit> availableProfileIUs = profile.available(QueryUtil.createIUAnyQuery(), null).unmodifiableSet();
 
 		// get all IUs from all our repos (toAdd)
 		IQueryResult<IInstallableUnit> allIUs = getAllIUsFromRepos();
@@ -310,7 +310,7 @@ public class ProfileSynchronizer {
 			final IInstallableUnit iu = iter.next();
 			// if the IU is already installed in the profile then skip it
 			if (!profileIUs.contains(iu)) {
-				if (GroupQuery.isGroup(iu))
+				if (QueryUtil.isGroup(iu))
 					request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 				// mark all IUs with special property
 				request.setInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS, Boolean.TRUE.toString());
@@ -370,11 +370,11 @@ public class ProfileSynchronizer {
 		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>(request.getRemovals());
 		// remove from the request everything that is in the plan
 
-		for (Iterator<IInstallableUnit> iterator = plan.getRemovals().query(InstallableUnitQuery.ANY, null).iterator(); iterator.hasNext();) {
+		for (Iterator<IInstallableUnit> iterator = plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null).iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
 			toRemove.remove(iu);
 		}
-		for (Iterator<IInstallableUnit> iterator = plan.getAdditions().query(InstallableUnitQuery.ANY, null).iterator(); iterator.hasNext();) {
+		for (Iterator<IInstallableUnit> iterator = plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null).iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
 			toAdd.remove(iu);
 		}
@@ -440,7 +440,7 @@ public class ProfileSynchronizer {
 		// TODO: Should consider using a sequenced iterator here instead of collecting
 		Collector<IInstallableUnit> allRepos = new Collector<IInstallableUnit>();
 		for (IMetadataRepository repository : repositoryMap.values()) {
-			allRepos.addAll(repository.query(InstallableUnitQuery.ANY, null));
+			allRepos.addAll(repository.query(QueryUtil.createIUAnyQuery(), null));
 		}
 		return allRepos;
 	}

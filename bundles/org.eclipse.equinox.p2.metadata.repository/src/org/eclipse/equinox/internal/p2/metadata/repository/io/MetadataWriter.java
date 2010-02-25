@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -22,7 +24,6 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 
 public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 
@@ -56,7 +57,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		attribute(SINGLETON_ATTRIBUTE, iu.isSingleton(), true);
 		//		attribute(FRAGMENT_ATTRIBUTE, iu.isFragment(), false);
 
-		if (FragmentQuery.isFragment(iu) && iu instanceof IInstallableUnitFragment) {
+		if (QueryUtil.isFragment(iu) && iu instanceof IInstallableUnitFragment) {
 			IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
 			writeHostRequiredCapabilities(fragment.getHost());
 		}

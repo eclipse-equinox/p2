@@ -14,7 +14,6 @@ import java.io.File;
 import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.tests.harness.CancelingProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositories;
@@ -22,10 +21,10 @@ import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -108,7 +107,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(broken);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
-		IQueryResult result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), new CancelingProgressMonitor());
+		IQueryResult result = manager.query(QueryUtil.createIUQuery("test.bundle", Version.createOSGi(1, 0, 0)), new CancelingProgressMonitor());
 		assertTrue("1.0", result.isEmpty());
 	}
 
@@ -177,7 +176,7 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(broken);
 		QueryableMetadataRepositoryManager manager = getQueryableManager();
 
-		IQueryResult result = manager.query(new InstallableUnitQuery("test.bundle", Version.createOSGi(1, 0, 0)), getMonitor());
+		IQueryResult result = manager.query(QueryUtil.createIUQuery("test.bundle", Version.createOSGi(1, 0, 0)), getMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "test.bundle", iu.getId());
@@ -191,9 +190,9 @@ public class QueryableMetadataRepositoryManagerTest extends AbstractQueryTest {
 		assertContains("2.1", result, broken);
 
 		// null IUPropertyQuery collects all IUs
-		result = manager.query(new InstallableUnitQuery((String) null), getMonitor());
+		result = manager.query(QueryUtil.createIUQuery((String) null), getMonitor());
 		int iuCount = queryResultSize(result);
-		result = manager.query(new IUPropertyQuery(null, IUPropertyQuery.ANY), getMonitor());
+		result = manager.query(QueryUtil.createIUPropertyQuery(null, QueryUtil.ANY), getMonitor());
 		assertEquals("2.2", iuCount, queryResultSize(result));
 	}
 

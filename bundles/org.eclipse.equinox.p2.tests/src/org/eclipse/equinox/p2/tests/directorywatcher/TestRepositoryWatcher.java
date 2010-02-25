@@ -17,8 +17,8 @@ import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWat
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -63,7 +63,7 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	 * Return the list of all the IUs known to the metadata repository this watcher's listener.
 	 */
 	public IInstallableUnit[] getInstallableUnits() {
-		return listener.getMetadataRepository().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class);
+		return listener.getMetadataRepository().query(QueryUtil.createIUAnyQuery(), null).toArray(IInstallableUnit.class);
 	}
 
 	/*

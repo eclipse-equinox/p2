@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.discovery.operations;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.util.*;
@@ -21,7 +23,6 @@ import org.eclipse.equinox.internal.p2.ui.discovery.wizards.Messages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
@@ -238,7 +239,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		for (final IMetadataRepository repository : repositories) {
 			checkCancelled(monitor);
 			final Set<String> installableUnitIdsThisRepository = getDescriptorIds(repository);
-			IQuery<IInstallableUnit> query = ExpressionQuery.create( //
+			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery( //
 					"id ~= /*.feature.group/ && " + //$NON-NLS-1$
 							"properties['org.eclipse.equinox.p2.type.group'] == true && " + //$NON-NLS-1$
 							"providedCapabilities.exists(p | p.namespace == 'org.eclipse.equinox.p2.iu' && p.name == id)"); //$NON-NLS-1$

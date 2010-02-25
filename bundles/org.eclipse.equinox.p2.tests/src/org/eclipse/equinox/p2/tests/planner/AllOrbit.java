@@ -8,17 +8,17 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -41,7 +41,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 
 	public void testInstallTwoVersionsOptionaly() {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		IQueryResult allIUs = repo.query(InstallableUnitQuery.ANY, null);
+		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
 		req1.addInstallableUnits((IInstallableUnit[]) allIUs.toArray(IInstallableUnit.class));
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
@@ -55,7 +55,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 	public void test2() {
 		//Install everything except com.ibm.icu
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		IQueryResult allIUs = repo.query(InstallableUnitQuery.ANY, null);
+		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
 		ArrayList toInstall = new ArrayList();
 		int removed = 0;
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
@@ -75,7 +75,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 	public void test3() {
 		//Install everything optionaly (except com.ibm.icu that we don't install at all)
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		IQueryResult allIUs = repo.query(InstallableUnitQuery.ANY, null);
+		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
 		ArrayList toInstall = new ArrayList();
 		int removed = 0;
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {

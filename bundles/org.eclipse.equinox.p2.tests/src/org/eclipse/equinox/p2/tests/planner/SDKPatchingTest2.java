@@ -10,18 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.File;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SDKPatchingTest2 extends AbstractProvisioningTest {
@@ -40,7 +40,7 @@ public class SDKPatchingTest2 extends AbstractProvisioningTest {
 		assertNotNull(profile);
 
 		//create a patch to install a new version of jdt.launching
-		MetadataFactory.InstallableUnitDescription newJDTLaunching = createIUDescriptor((IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.jdt.launching"), new NullProgressMonitor()).iterator().next());
+		MetadataFactory.InstallableUnitDescription newJDTLaunching = createIUDescriptor((IInstallableUnit) profile.query(QueryUtil.createIUQuery("org.eclipse.jdt.launching"), new NullProgressMonitor()).iterator().next());
 		Version newJDTLaunchingVersion = Version.createOSGi(3, 5, 0, "zeNewVersion");
 		changeVersion(newJDTLaunching, newJDTLaunchingVersion);
 		newIUs.add(MetadataFactory.createInstallableUnit(newJDTLaunching));
@@ -52,7 +52,7 @@ public class SDKPatchingTest2 extends AbstractProvisioningTest {
 		newIUs.add(patchInstallingJDTLaunching);
 
 		//create a patch to install a new version of jdt.debug.ui
-		MetadataFactory.InstallableUnitDescription newDebugUI = createIUDescriptor((IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.jdt.debug.ui"), new NullProgressMonitor()).iterator().next());
+		MetadataFactory.InstallableUnitDescription newDebugUI = createIUDescriptor((IInstallableUnit) profile.query(QueryUtil.createIUQuery("org.eclipse.jdt.debug.ui"), new NullProgressMonitor()).iterator().next());
 		Version newDebugVersion = Version.createOSGi(3, 3, 0, "zeNewVersion");
 		changeVersion(newDebugUI, newDebugVersion);
 		newIUs.add(MetadataFactory.createInstallableUnit(newDebugUI));

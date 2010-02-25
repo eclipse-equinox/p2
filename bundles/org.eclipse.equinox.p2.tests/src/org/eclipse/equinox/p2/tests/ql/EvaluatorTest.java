@@ -20,13 +20,11 @@ import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.query.*;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.ql.IQLFactory;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -72,27 +70,27 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testLatest() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		IQueryResult result = repo.query(ExpressionContextQuery.createQuery("latest(x | x.id == $0)", "test.bundle"), new NullProgressMonitor());
+		IQueryResult result = repo.query(QueryUtil.createQuery("latest(x | x.id == $0)", "test.bundle"), new NullProgressMonitor());
 		assertTrue(queryResultSize(result) == 1);
 	}
 
 	public void testRange() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		IQueryResult result = repo.query(ExpressionQuery.create("version ~= $0", new VersionRange("2.0.0")), new NullProgressMonitor());
+		IQueryResult result = repo.query(QueryUtil.createMatchQuery("version ~= $0", new VersionRange("2.0.0")), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 2);
 	}
 
 	public void testProperty() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
 
-		IQueryResult result = repo.query(ExpressionQuery.create("properties.exists(p | boolean(p.value))"), new NullProgressMonitor());
+		IQueryResult result = repo.query(QueryUtil.createMatchQuery("properties.exists(p | boolean(p.value))"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 
-		result = repo.query(ExpressionQuery.create("boolean(properties['org.eclipse.equinox.p2.type.group'])"), new NullProgressMonitor());
+		result = repo.query(QueryUtil.createMatchQuery("boolean(properties['org.eclipse.equinox.p2.type.group'])"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 
 		Filter filter = TestActivator.context.createFilter("(org.eclipse.equinox.p2.type.group=true)");
-		result = repo.query(ExpressionQuery.create("properties ~= $0", filter), new NullProgressMonitor());
+		result = repo.query(QueryUtil.createMatchQuery("properties ~= $0", filter), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 	}
 
@@ -120,7 +118,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		// Create the query
 		IContextExpression<IInstallableUnit> e3 = factory.contextExpression(latest, "test.bundle", "org.eclipse.equinox.p2.type.group", "true");
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/multipleversions1");
-		IQueryResult result = repo.query(ExpressionContextQuery.createQuery(e3), new NullProgressMonitor());
+		IQueryResult result = repo.query(QueryUtil.createQuery(e3), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 1);
 	}
 
@@ -132,29 +130,29 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		applicability[1][1] = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.flavor", "tooling", null, null, false, false);
 
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(ExpressionQuery.create("$0.exists(rcs | rcs.all(rc | this ~= rc))", (Object) applicability), new NullProgressMonitor());
+		IQueryResult result = repo.query(QueryUtil.createMatchQuery("$0.exists(rcs | rcs.all(rc | this ~= rc))", (Object) applicability), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 	}
 
 	public void testPattern() throws Exception {
 		IProvidedCapability pc = MetadataFactory.createProvidedCapability("org.eclipse.equinox.p2.eclipse.type", "source", null);
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(ExpressionQuery.create("id ~= /tooling.*.default/", pc), new NullProgressMonitor());
+		IQueryResult result = repo.query(QueryUtil.createMatchQuery("id ~= /tooling.*.default/", pc), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 3);
 	}
 
 	public void testLimit() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(ExpressionContextQuery.createQuery("select(x | x.id ~= /tooling.*/).limit(1)"), new NullProgressMonitor());
+		IQueryResult result = repo.query(QueryUtil.createQuery("select(x | x.id ~= /tooling.*/).limit(1)"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 1);
 
-		result = repo.query(ExpressionContextQuery.createQuery("select(x | x.id ~= /tooling.*/).limit($0)", new Integer(2)), new NullProgressMonitor());
+		result = repo.query(QueryUtil.createQuery("select(x | x.id ~= /tooling.*/).limit($0)", new Integer(2)), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 2);
 	}
 
 	public void testNot() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(ExpressionQuery.create("!(id ~= /tooling.*/)"), new NullProgressMonitor());
+		IQueryResult result = repo.query(QueryUtil.createMatchQuery("!(id ~= /tooling.*/)"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 4);
 	}
 
@@ -165,13 +163,13 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		assertNotNull(artifactManager);
 
 		IArtifactRepository repo = artifactManager.loadRepository(artifactRepo, new NullProgressMonitor());
-		IQueryResult result = repo.query(ExpressionQuery.create(IArtifactKey.class, "classifier ~= /*/"), new NullProgressMonitor());
+		IQueryResult result = repo.query(QueryUtil.createMatchQuery(IArtifactKey.class, "classifier ~= /*/"), new NullProgressMonitor());
 		assertTrue(queryResultSize(result) > 1);
 		Iterator itor = result.iterator();
 		while (itor.hasNext())
 			assertTrue(itor.next() instanceof IArtifactKey);
 
-		result = repo.descriptorQueryable().query(ExpressionQuery.create(IArtifactDescriptor.class, "artifactKey.classifier ~= /*/"), new NullProgressMonitor());
+		result = repo.descriptorQueryable().query(QueryUtil.createMatchQuery(IArtifactDescriptor.class, "artifactKey.classifier ~= /*/"), new NullProgressMonitor());
 		assertTrue(queryResultSize(result) > 1);
 		itor = result.iterator();
 		while (itor.hasNext())
@@ -180,7 +178,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testClassConstructor() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
-		IQueryResult result = repo.query(ExpressionContextQuery.createQuery(//
+		IQueryResult result = repo.query(QueryUtil.createQuery(//
 				"select(x | x ~= class('org.eclipse.equinox.p2.metadata.IInstallableUnitFragment'))"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 4);
 		repo = getMDR("/testData/galileoM7");
@@ -188,7 +186,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testTraverse() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		IQueryResult result = repo.query(ExpressionContextQuery.createQuery(//
+		IQueryResult result = repo.query(QueryUtil.createQuery(//
 				"select(x | x.id == $0 && x.version == $1).traverse(parent | parent.requiredCapabilities.collect(rc | select(iu | iu ~= rc)).flatten())", //
 				"org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 463);
@@ -205,7 +203,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				"select(x | x.id == $0 && x.version == $1).traverse(parent |" + //
 				"parent.requiredCapabilities.select(rc | rc.filter == null || $2 ~= rc.filter).collect(rc | select(iu | iu ~= rc)).flatten())"), "org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2"), env);
 
-		IQuery<IInstallableUnit> query = ExpressionContextQuery.createQuery(expr);
+		IQuery<IInstallableUnit> query = QueryUtil.createQuery(expr);
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 		IQueryResult<IInstallableUnit> result = repo.query(query, new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 411);
@@ -231,7 +229,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				Version.create("1.1.1.v20090114-0940-7d8B0FXwkKwFanGNHeHHq8ymBgZ"), //
 				env);
 
-		IQuery<IInstallableUnit> query = ExpressionContextQuery.createQuery(expr);
+		IQuery<IInstallableUnit> query = QueryUtil.createQuery(expr);
 		IQueryResult<IInstallableUnit> result = repo.query(query, new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 184);
 	}
@@ -249,7 +247,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				return "true".equals(((IInstallableUnit) candidate).getProperty("org.eclipse.equinox.p2.type.group"));
 			}
 		});
-		IQueryResult<IInstallableUnit> result = repo.query(ExpressionQuery.create(expr), new NullProgressMonitor());
+		IQueryResult<IInstallableUnit> result = repo.query(QueryUtil.createMatchQuery(expr), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 497);
 	}
 
@@ -288,7 +286,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		IContextExpression e3 = factory.contextExpression(((IQLFactory) factory).select(everything, lambda));
 
 		IContextExpression<Object> contextExpression = factory.contextExpression(parser.parseQuery(e3.toString()), "ian bull");
-		IQuery<Object> query = ExpressionContextQuery.createQuery(Object.class, contextExpression);
+		IQuery<Object> query = QueryUtil.createQuery(Object.class, contextExpression);
 		System.out.println(e3);
 
 		IQueryResult<Object> queryResult = query.perform(items.iterator());
@@ -312,7 +310,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				return "true".equals(((IInstallableUnit) candidate).getProperty("org.eclipse.equinox.p2.type.group"));
 			}
 		});
-		IQueryResult result = repo.query(ExpressionContextQuery.createQuery(expr), new NullProgressMonitor());
+		IQueryResult result = repo.query(QueryUtil.createQuery(expr), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 497);
 	}
 
@@ -337,9 +335,9 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		ius = results.getIUs(null, null);
 		assertEquals("2.0", 3, ius.size());
 		QueryableArray queryableArray = new QueryableArray((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
-		IQueryResult result = queryableArray.query(new InstallableUnitQuery("foo"), null);
+		IQueryResult result = queryableArray.query(QueryUtil.createIUQuery("foo"), null);
 		assertEquals("2.1", 1, queryResultSize(result));
-		IQuery<IInstallableUnit> lq = ExpressionQuery.create("translatedProperties[$0] ~= /German*/", new KeyWithLocale("org.eclipse.equinox.p2.name", Locale.GERMAN));
+		IQuery<IInstallableUnit> lq = QueryUtil.createMatchQuery("translatedProperties[$0] ~= /German*/", new KeyWithLocale("org.eclipse.equinox.p2.name", Locale.GERMAN));
 		Iterator itr = queryableArray.query(lq, new NullProgressMonitor()).iterator();
 		assertTrue(itr.hasNext());
 		assertEquals("2.8", "foo", ((IInstallableUnit) itr.next()).getId());

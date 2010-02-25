@@ -18,9 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
@@ -70,7 +68,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public IInstallableUnit find(String id, String versionString) {
-		Iterator result = query(new InstallableUnitQuery(id, Version.create(versionString)), null).iterator();
+		Iterator result = query(QueryUtil.createIUQuery(id, Version.create(versionString)), null).iterator();
 		return (IInstallableUnit) (result.hasNext() ? result.next() : null);
 	}
 

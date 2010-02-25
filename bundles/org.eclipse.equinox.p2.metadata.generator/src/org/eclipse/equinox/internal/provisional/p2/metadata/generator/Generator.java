@@ -23,7 +23,6 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
-import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -32,9 +31,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -190,7 +187,7 @@ public class Generator {
 		GeneratorResult productContents = new GeneratorResult();
 
 		ProductQuery productQuery = new ProductQuery(productFile, info.getFlavor(), result.configurationIUs, info.getVersionAdvice());
-		IQuery query = new LatestIUVersionQuery(productQuery);
+		IQuery query = QueryUtil.createLatestQuery(productQuery);
 		IQueryResult queryResult = info.getMetadataRepository().query(query, null);
 		for (Iterator iterator = queryResult.iterator(); iterator.hasNext();) {
 			productContents.rootIUs.add(iterator.next());
@@ -528,7 +525,7 @@ public class Generator {
 		}
 
 		//Query the repo
-		IQuery query = new InstallableUnitQuery(name);
+		IQuery query = QueryUtil.createIUQuery(name);
 		Iterator matches = info.getMetadataRepository().query(query, null).iterator();
 		//pick the newest match
 		IInstallableUnit newest = null;
@@ -642,7 +639,7 @@ public class Generator {
 			if (configuredIU == null) {
 				if (!generateRootIU && data == null)
 					continue;
-				IQuery query = new InstallableUnitQuery(bundle.getSymbolicName());
+				IQuery query = QueryUtil.createIUQuery(bundle.getSymbolicName());
 				IMetadataRepository metadataRepository = info.getMetadataRepository();
 				if (metadataRepository == null)
 					continue;

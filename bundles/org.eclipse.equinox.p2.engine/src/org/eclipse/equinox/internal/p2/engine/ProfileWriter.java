@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 
 public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants {
 
@@ -29,7 +30,7 @@ public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants
 		attribute(ID_ATTRIBUTE, profile.getProfileId());
 		attribute(TIMESTAMP_ATTRIBUTE, Long.toString(profile.getTimestamp()));
 		writeProperties(profile.getProperties());
-		ArrayList<IInstallableUnit> ius = new ArrayList<IInstallableUnit>(profile.query(InstallableUnitQuery.ANY, null).unmodifiableSet());
+		ArrayList<IInstallableUnit> ius = new ArrayList<IInstallableUnit>(profile.query(QueryUtil.createIUAnyQuery(), null).unmodifiableSet());
 		Collections.sort(ius, new Comparator<IInstallableUnit>() {
 			public int compare(IInstallableUnit iu1, IInstallableUnit iu2) {
 				int IdCompare = iu1.getId().compareTo(iu2.getId());

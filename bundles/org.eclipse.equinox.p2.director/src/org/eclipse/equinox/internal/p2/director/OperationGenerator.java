@@ -16,7 +16,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 
 public class OperationGenerator {
 	private static final IInstallableUnit NULL_IU = MetadataFactory.createResolvedInstallableUnit(MetadataFactory.createInstallableUnit(new InstallableUnitDescription()), new IInstallableUnitFragment[0]);
@@ -135,7 +136,7 @@ public class OperationGenerator {
 				continue;
 
 			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of
-			InstallableUnitQuery updateQuery = new InstallableUnitQuery(iuTo.getUpdateDescriptor().getId(), iuTo.getUpdateDescriptor().getRange());
+			IQuery<IInstallableUnit> updateQuery = QueryUtil.createIUQuery(iuTo.getUpdateDescriptor().getId(), iuTo.getUpdateDescriptor().getRange());
 			Iterator<IInstallableUnit> updates = updateQuery.perform(fromIdIndexList.iterator()).iterator();
 
 			if (!updates.hasNext()) { //Nothing to update from.

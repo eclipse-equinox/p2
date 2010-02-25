@@ -10,18 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.File;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -47,9 +47,9 @@ public class Bug272251 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallFeaturePatch() {
-		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.wst.jsdt.feature.patch.feature.group", Version.create("3.0.4.v200904020304-1-8d7w311_15131415")), new NullProgressMonitor());
+		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.wst.jsdt.feature.patch.feature.group", Version.create("3.0.4.v200904020304-1-8d7w311_15131415")), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
-		IQueryResult expectedIU = repo.query(new InstallableUnitQuery("org.eclipse.wst.jsdt.web.ui", Version.create("1.0.105.v200904020304")), new NullProgressMonitor());
+		IQueryResult expectedIU = repo.query(QueryUtil.createIUQuery("org.eclipse.wst.jsdt.web.ui", Version.create("1.0.105.v200904020304")), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(expectedIU));
 		IInstallableUnit patch = (IInstallableUnit) c.iterator().next();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);

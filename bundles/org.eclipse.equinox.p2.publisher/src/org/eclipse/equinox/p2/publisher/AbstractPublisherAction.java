@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.QuotedTokenizer;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
@@ -26,7 +25,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -494,9 +492,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @return the first matching IU or <code>null</code> if none.
 	 */
 	protected IInstallableUnit queryForIU(IPublisherResult publisherResult, String iuId, Version version) {
-		IQuery<IInstallableUnit> query = new InstallableUnitQuery(iuId, version);
+		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(iuId, version);
 		if (version == null || Version.emptyVersion.equals(version))
-			query = new LatestIUVersionQuery<IInstallableUnit>(query);
+			query = QueryUtil.createLatestQuery(query);
 
 		IQueryResult<IInstallableUnit> collector = Collector.emptyCollector();
 		NullProgressMonitor progress = new NullProgressMonitor();
@@ -521,7 +519,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	protected IQueryResult<IInstallableUnit> queryForIUs(IPublisherResult publisherResult, String iuId, VersionRange versionRange) {
 		IQuery<IInstallableUnit> query = null;
 		IQueryResult<IInstallableUnit> queryResult = Collector.emptyCollector();
-		query = new InstallableUnitQuery(iuId, versionRange);
+		query = QueryUtil.createIUQuery(iuId, versionRange);
 		NullProgressMonitor progress = new NullProgressMonitor();
 		if (publisherResult != null)
 			queryResult = publisherResult.query(query, progress);

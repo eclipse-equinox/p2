@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -22,7 +24,6 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -382,14 +383,14 @@ public class EngineTest extends AbstractProvisioningTest {
 		plan.addInstallableUnit(iu33);
 		IStatus result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
-		Iterator ius = profile.query(new InstallableUnitQuery(iu33), null).iterator();
+		Iterator ius = profile.query(QueryUtil.createIUQuery(iu33), null).iterator();
 		assertTrue(ius.hasNext());
 
 		plan = engine.createPlan(profile, null);
 		plan.updateInstallableUnit(iu33, iu34);
 		result = engine.perform(plan, new NullProgressMonitor());
 		assertTrue(result.isOK());
-		ius = profile.query(new InstallableUnitQuery(iu34), null).iterator();
+		ius = profile.query(QueryUtil.createIUQuery(iu34), null).iterator();
 		assertTrue(ius.hasNext());
 	}
 

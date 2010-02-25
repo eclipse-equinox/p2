@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Filter;
@@ -139,7 +138,7 @@ public class Projector {
 	}
 
 	protected boolean isInstalled(IInstallableUnit iu) {
-		return !lastState.query(new InstallableUnitQuery(iu), null).isEmpty();
+		return !lastState.query(QueryUtil.createIUQuery(iu), null).isEmpty();
 	}
 
 	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IQueryable<IInstallableUnit> installedIUs, Collection<IInstallableUnit> newRoots, IProgressMonitor monitor) {
@@ -160,7 +159,7 @@ public class Projector {
 				solver = SolverFactory.newEclipseP2();
 			}
 			solver.setTimeoutOnConflicts(1000);
-			IQueryResult<IInstallableUnit> queryResult = picker.query(InstallableUnitQuery.ANY, null);
+			IQueryResult<IInstallableUnit> queryResult = picker.query(QueryUtil.createIUAnyQuery(), null);
 			if (DEBUG_ENCODING) {
 				dependencyHelper = new DependencyHelper<Object, Explanation>(solver, false);
 			} else {
@@ -206,7 +205,7 @@ public class Projector {
 	 * Efficiently compute the size of a queryable
 	 */
 	private int sizeOf(IQueryable<IInstallableUnit> installedIUs) {
-		IQueryResult<IInstallableUnit> qr = installedIUs.query(InstallableUnitQuery.ANY, null);
+		IQueryResult<IInstallableUnit> qr = installedIUs.query(QueryUtil.createIUAnyQuery(), null);
 		if (qr instanceof Collector<?>)
 			return ((Collector<?>) qr).size();
 		return qr.unmodifiableSet().size();
@@ -268,7 +267,7 @@ public class Projector {
 		for (IRequirement req : reqs) {
 			if (req.getMin() > 0)
 				continue;
-			IQueryResult<IInstallableUnit> matches = picker.query(ExpressionQuery.create(req.getMatches()), null);
+			IQueryResult<IInstallableUnit> matches = picker.query(QueryUtil.createMatchQuery(req.getMatches()), null);
 			for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
 				IInstallableUnit match = iterator.next();
 				if (match instanceof IInstallableUnitPatch) {
@@ -654,7 +653,7 @@ public class Projector {
 	 */
 	private List<IInstallableUnit> getApplicableMatches(IRequirement req) {
 		List<IInstallableUnit> target = new ArrayList<IInstallableUnit>();
-		IQueryResult<IInstallableUnit> matches = picker.query(ExpressionQuery.create(req.getMatches()), null);
+		IQueryResult<IInstallableUnit> matches = picker.query(QueryUtil.createMatchQuery(req.getMatches()), null);
 		for (Iterator<IInstallableUnit> iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = iterator.next();
 			if (isApplicable(match)) {
@@ -744,7 +743,7 @@ public class Projector {
 	//Return IUPatches that are applicable for the given iu
 	private IQueryResult<IInstallableUnit> getApplicablePatches(IInstallableUnit iu) {
 		if (patches == null)
-			patches = new QueryableArray(picker.query(new PatchQuery(), null).toArray(IInstallableUnit.class));
+			patches = new QueryableArray(picker.query(QueryUtil.createIUPatchQuery(), null).toArray(IInstallableUnit.class));
 
 		return patches.query(new ApplicablePatchQuery(iu), null);
 	}

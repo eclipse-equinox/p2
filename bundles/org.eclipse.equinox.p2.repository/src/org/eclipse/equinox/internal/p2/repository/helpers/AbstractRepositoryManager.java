@@ -1112,7 +1112,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			}
 		}
 		try {
-			CompoundQueryable<T> compoundQueryable = new CompoundQueryable<T>(queryables);
+			IQueryable<T> compoundQueryable = QueryUtil.compoundQueryable(queryables);
 			return compoundQueryable.query(query, sub.newChild(locations.length * 1));
 		} finally {
 			sub.done();

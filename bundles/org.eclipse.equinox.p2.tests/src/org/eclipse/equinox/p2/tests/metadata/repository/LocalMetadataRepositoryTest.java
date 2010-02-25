@@ -21,8 +21,8 @@ import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -123,10 +123,10 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURI(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		IInstallableUnit iu = createIU("foo");
 		repo.addInstallableUnits(Arrays.asList(iu));
-		IQueryResult result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
+		IQueryResult result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
 		repo.removeAll();
-		result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
+		result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
 		assertTrue("1.1", result.isEmpty());
 	}
 
@@ -136,13 +136,13 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createIU("foo");
 		IInstallableUnit iu2 = createIU("bar");
 		repo.addInstallableUnits(Arrays.asList(iu, iu2));
-		IQueryResult result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
+		IQueryResult result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
 		assertEquals("1.0", 2, queryResultSize(result));
 		repo.removeInstallableUnits(Arrays.asList(iu));
-		result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
+		result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
 		assertEquals("1.1", 1, queryResultSize(result));
 		repo.removeInstallableUnits(Arrays.asList(iu2));
-		result = repo.query(new InstallableUnitQuery((String) null), getMonitor());
+		result = repo.query(QueryUtil.createIUQuery((String) null), getMonitor());
 		assertTrue("1.2", result.isEmpty());
 
 	}

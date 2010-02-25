@@ -15,8 +15,7 @@ import junit.framework.AssertionFailedError;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class FragmentTest extends AbstractProvisioningTest {
@@ -27,7 +26,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
 		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2});
-		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, null).iterator();
+		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(QueryUtil.createIUAnyQuery(), null).iterator();
 		//		ResolutionHelper rh = new ResolutionHelper(new Hashtable(), null);
 		//		HashSet set = new HashSet();
 		//		set.add(iu1);
@@ -50,7 +49,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
 		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3});
-		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, null).iterator();
+		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(QueryUtil.createIUAnyQuery(), null).iterator();
 		for (; iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(ID1)) {
@@ -71,7 +70,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
 		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2});
-		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(InstallableUnitQuery.ANY, null).iterator();
+		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(QueryUtil.createIUAnyQuery(), null).iterator();
 		for (; iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(iu1.getId()))
@@ -82,7 +81,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 
 	public void testFragmentCapability() {
 		IInstallableUnit iu = createBundleFragment("iuFragment.test1");
-		assertTrue(FragmentQuery.isFragment(iu));
+		assertTrue(QueryUtil.isFragment(iu));
 	}
 
 	public void testDefaultIUCapability() {

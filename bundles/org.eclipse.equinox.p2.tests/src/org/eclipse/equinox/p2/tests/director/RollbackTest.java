@@ -21,8 +21,8 @@ import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -111,7 +111,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		IStatus status = director.provision(request1, null, new NullProgressMonitor());
 		assertEquals("1.0", IStatus.OK, status.getCode());
 
-		IQueryResult profileIUs = profile.query(InstallableUnitQuery.ANY, null);
+		IQueryResult profileIUs = profile.query(QueryUtil.createIUAnyQuery(), null);
 		assertContains("2.0", profileIUs, a1);
 		assertContains("3.0", profileIUs, b1);
 
@@ -123,7 +123,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		status = director.provision(request2, null, new NullProgressMonitor());
 		assertEquals("5.0", IStatus.OK, status.getCode());
 
-		profileIUs = profile.query(InstallableUnitQuery.ANY, null);
+		profileIUs = profile.query(QueryUtil.createIUAnyQuery(), null);
 		assertNotContains("6.0", profileIUs, a1);
 		assertContains("7.0", profileIUs, b1);
 		assertContains("8.0", profileIUs, c1);
@@ -134,7 +134,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		status = director.revert(profile, revertProfile, new ProvisioningContext(), new NullProgressMonitor());
 		assertEquals("10.0", IStatus.OK, status.getCode());
 
-		profileIUs = profile.query(InstallableUnitQuery.ANY, null);
+		profileIUs = profile.query(QueryUtil.createIUAnyQuery(), null);
 		assertContains("11.0", profileIUs, a1);
 		assertContains("12.0", profileIUs, b1);
 		assertNotContains("13.0", profileIUs, c1);

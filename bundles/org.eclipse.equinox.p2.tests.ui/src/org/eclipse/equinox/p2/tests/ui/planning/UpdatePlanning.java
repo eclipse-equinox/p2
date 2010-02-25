@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.planning;
 
-import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
@@ -21,6 +19,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.operations.Update;
 import org.eclipse.equinox.p2.operations.UpdateOperation;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
 public class UpdatePlanning extends AbstractProvisioningUITest {

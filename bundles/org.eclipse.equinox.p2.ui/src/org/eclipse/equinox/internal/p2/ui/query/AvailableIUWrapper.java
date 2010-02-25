@@ -18,10 +18,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.*;
 
 /**
  * A wrapper that examines available IU's and wraps them in an
@@ -83,7 +80,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 		boolean isUpdate = false;
 		boolean isInstalled = false;
 		if (profile != null && iu != null) {
-			IQueryResult<IInstallableUnit> queryResult = profile.query(new InstallableUnitQuery(iu.getId()), null);
+			IQueryResult<IInstallableUnit> queryResult = profile.query(QueryUtil.createIUQuery(iu.getId()), null);
 			Iterator<IInstallableUnit> iter = queryResult.iterator();
 			// We are typically iterating over only one IU unless it's a non-singleton.
 			while (iter.hasNext()) {
@@ -144,7 +141,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 	}
 
 	protected boolean isCategory(IInstallableUnit iu) {
-		return CategoryQuery.isCategory(iu);
+		return QueryUtil.isCategory(iu);
 	}
 
 	protected boolean makeCategory() {

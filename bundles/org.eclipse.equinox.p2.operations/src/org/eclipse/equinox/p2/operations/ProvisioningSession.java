@@ -12,6 +12,8 @@
 
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.IOException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -27,7 +29,6 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -183,7 +184,7 @@ public class ProvisioningSession {
 	}
 
 	private int countPlanElements(IProvisioningPlan plan) {
-		return new CompoundQueryable<IInstallableUnit>(plan.getAdditions(), plan.getRemovals()).query(InstallableUnitQuery.ANY, null).unmodifiableSet().size();
+		return QueryUtil.compoundQueryable(plan.getAdditions(), plan.getRemovals()).query(QueryUtil.createIUAnyQuery(), null).unmodifiableSet().size();
 	}
 
 	/**
@@ -218,7 +219,7 @@ public class ProvisioningSession {
 				// we will be able to get everything else.
 				ProfileChangeRequest downloadRequest = new ProfileChangeRequest(profile);
 				downloadRequest.setAbsoluteMode(true);
-				downloadRequest.addAll(new CompoundQueryable<IInstallableUnit>(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(InstallableUnitQuery.ANY, null).unmodifiableSet());
+				downloadRequest.addAll(QueryUtil.compoundQueryable(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(QueryUtil.createIUAnyQuery(), null).unmodifiableSet());
 
 				IPhaseSet download = DefaultPhaseSet.createIncluding(new String[] {DefaultPhaseSet.PHASE_COLLECT});
 				IProvisioningPlan downloadPlan = getPlanner().getProvisioningPlan(downloadRequest, context, mon.newChild(100));
@@ -308,7 +309,7 @@ public class ProvisioningSession {
 			return CollectionUtils.emptyList();
 		IQuery<IInstallableUnit> query;
 		if (all)
-			query = InstallableUnitQuery.ANY;
+			query = QueryUtil.createIUAnyQuery();
 		else
 			query = new UserVisibleRootQuery();
 		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);

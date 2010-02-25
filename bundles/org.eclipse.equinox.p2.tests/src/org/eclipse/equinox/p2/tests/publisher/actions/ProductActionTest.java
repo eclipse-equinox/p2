@@ -25,11 +25,11 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.RootIUAdvice;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
 
@@ -178,7 +178,7 @@ public class ProductActionTest extends ActionTest {
 		results.addIU(iu, IPublisherResult.NON_ROOT);
 
 		action2.perform(info, results, new NullProgressMonitor());
-		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + configSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery(flavorArg + configSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(queryResult));
 	}
 
@@ -201,10 +201,10 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 0, queryResultSize(queryResult));
 
-		queryResult = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		queryResult = results.query(QueryUtil.createIUQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("2.0", 0, queryResultSize(queryResult));
 	}
 
@@ -227,10 +227,10 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(queryResult));
 
-		queryResult = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		queryResult = results.query(QueryUtil.createIUQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("2.0", 0, queryResultSize(queryResult));
 	}
 
@@ -252,10 +252,10 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(queryResult));
 
-		queryResult = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		queryResult = results.query(QueryUtil.createIUQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("2.0", 0, queryResultSize(queryResult));
 	}
 
@@ -278,10 +278,10 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(queryResult));
 
-		queryResult = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		queryResult = results.query(QueryUtil.createIUQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("2.0", 0, queryResultSize(queryResult));
 	}
 
@@ -303,7 +303,7 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(queryResult));
 		IInstallableUnitFragment fragment = (IInstallableUnitFragment) queryResult.iterator().next();
 		assertEquals("1.1", "org.eclipse.core.runtime", RequiredCapability.extractName(fragment.getHost()[0].getMatches()));
@@ -324,10 +324,10 @@ public class ProductActionTest extends ActionTest {
 
 		action.perform(info, results, new NullProgressMonitor());
 
-		IQueryResult queryResult = results.query(new InstallableUnitQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery(flavorArg + linuxConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("1.0", 0, queryResultSize(queryResult));
 
-		queryResult = results.query(new InstallableUnitQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		queryResult = results.query(QueryUtil.createIUQuery(flavorArg + windowsConfigSpec + "org.eclipse.core.runtime"), new NullProgressMonitor());
 		assertEquals("2.0", 0, queryResultSize(queryResult));
 	}
 

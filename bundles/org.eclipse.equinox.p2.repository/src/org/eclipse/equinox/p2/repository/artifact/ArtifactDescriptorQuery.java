@@ -12,11 +12,12 @@
 
 package org.eclipse.equinox.p2.repository.artifact;
 
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A general purpose query for matching {@link IArtifactDescriptor} instances
@@ -24,7 +25,7 @@ import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
  * 
  * @since 2.0
  */
-public class ArtifactDescriptorQuery extends ExpressionQuery<IArtifactDescriptor> {
+public class ArtifactDescriptorQuery extends ExpressionMatchQuery<IArtifactDescriptor> {
 
 	private static final IExpression descriptorMatch = ExpressionUtil.parse(//
 			"artifactKey.id == $0 && artifactKey.version ~= $1 && ($2.empty || $2.all(x | properties[x.key] == x.value))"); //$NON-NLS-1$
@@ -56,7 +57,7 @@ public class ArtifactDescriptorQuery extends ExpressionQuery<IArtifactDescriptor
 	 */
 	private ArtifactDescriptorQuery() {
 		//matches everything
-		super(IArtifactDescriptor.class, matchAll());
+		super(IArtifactDescriptor.class, ExpressionUtil.TRUE_EXPRESSION);
 	}
 
 	/**

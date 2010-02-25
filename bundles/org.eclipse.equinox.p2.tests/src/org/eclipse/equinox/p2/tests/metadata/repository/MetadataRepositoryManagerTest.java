@@ -29,8 +29,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProv
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -410,7 +410,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		URI location = site.toURI();
 		try {
 			IMetadataRepository repository = manager.loadRepository(location, getMonitor());
-			IQueryResult result = repository.query(new InstallableUnitQuery("test.bundle"), getMonitor());
+			IQueryResult result = repository.query(QueryUtil.createIUQuery("test.bundle"), getMonitor());
 			assertEquals("1.0", 1, queryResultSize(result));
 		} catch (ProvisionException e) {
 			fail("=.99", e);
@@ -539,7 +539,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	public void testReadableFilter() throws ProvisionException {
 		File site = getTestData("readable", "/testData/metadataRepo/badFilter/readable");
 		IMetadataRepository loadRepository = manager.loadRepository(site.toURI(), null);
-		assertEquals(1, loadRepository.query(InstallableUnitQuery.ANY, null).toSet().size());
+		assertEquals(1, loadRepository.query(QueryUtil.createIUAnyQuery(), null).toSet().size());
 	}
 
 	public void testUnreadableFailingFilter() throws ProvisionException {

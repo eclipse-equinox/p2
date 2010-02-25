@@ -10,16 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SWTFragment extends AbstractProvisioningTest {
@@ -51,8 +50,8 @@ public class SWTFragment extends AbstractProvisioningTest {
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertOK("plan", plan.getStatus());
 		Collector c = new Collector();
-		c.addAll(plan.getAdditions().query(new InstallableUnitQuery("SWT"), null));
-		c.addAll(plan.getAdditions().query(new InstallableUnitQuery("SWT.WIN32"), null));
+		c.addAll(plan.getAdditions().query(QueryUtil.createIUQuery("SWT"), null));
+		c.addAll(plan.getAdditions().query(QueryUtil.createIUQuery("SWT.WIN32"), null));
 		assertEquals(2, c.size());
 	}
 }

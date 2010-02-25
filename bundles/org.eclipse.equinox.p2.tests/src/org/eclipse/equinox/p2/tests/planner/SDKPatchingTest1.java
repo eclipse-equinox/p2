@@ -10,18 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.File;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SDKPatchingTest1 extends AbstractProvisioningTest {
@@ -38,7 +38,7 @@ public class SDKPatchingTest1 extends AbstractProvisioningTest {
 		profile = registry.getProfile("SDKPatchingTest");
 		assertNotNull(profile);
 
-		MetadataFactory.InstallableUnitDescription newCommon = createIUDescriptor((IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.equinox.common"), new NullProgressMonitor()).iterator().next());
+		MetadataFactory.InstallableUnitDescription newCommon = createIUDescriptor((IInstallableUnit) profile.query(QueryUtil.createIUQuery("org.eclipse.equinox.common"), new NullProgressMonitor()).iterator().next());
 		Version newVersionCommon = Version.createOSGi(3, 5, 0, "zeNewVersion");
 		changeVersion(newCommon, newVersionCommon);
 		newIUs.add(MetadataFactory.createInstallableUnit(newCommon));

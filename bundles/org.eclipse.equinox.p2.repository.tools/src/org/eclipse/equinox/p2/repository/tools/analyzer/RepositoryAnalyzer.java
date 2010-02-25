@@ -9,11 +9,12 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.repository.tools.analyzer;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.internal.repository.tools.Activator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
@@ -36,7 +37,7 @@ public class RepositoryAnalyzer {
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(IIUAnalyzer.ID);
 
 		for (int i = 0; i < repositories.length; i++) {
-			IQueryResult<IInstallableUnit> queryResult = repositories[i].query(InstallableUnitQuery.ANY, sub);
+			IQueryResult<IInstallableUnit> queryResult = repositories[i].query(QueryUtil.createIUAnyQuery(), sub);
 
 			SubMonitor repositoryMonitor = SubMonitor.convert(sub, IProgressMonitor.UNKNOWN);
 			for (int j = 0; j < config.length; j++) {

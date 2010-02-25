@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
-import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
-
 import java.util.Arrays;
 import java.util.List;
 import junit.framework.TestCase;
+import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -57,7 +56,7 @@ public class QueryTest extends TestCase {
 	public void testLimitQuery() {
 		List items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
-		IQuery limitQuery = new LimitQuery(query, 1);
+		IQuery limitQuery = QueryUtil.createLimitQuery(query, 1);
 		IQueryResult collector = limitQuery.perform(items.iterator());
 		assertEquals("1.0", 1, AbstractProvisioningTest.queryResultSize(collector));
 		AbstractProvisioningTest.assertContains("1.1", collector, "red");
@@ -66,7 +65,7 @@ public class QueryTest extends TestCase {
 	public void testLimitQuery2() {
 		List items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
-		IQuery limitQuery = new LimitQuery(query, 2);
+		IQuery limitQuery = QueryUtil.createLimitQuery(query, 2);
 		IQueryResult collector = limitQuery.perform(items.iterator());
 		assertEquals("1.0", 2, AbstractProvisioningTest.queryResultSize(collector));
 		AbstractProvisioningTest.assertContains("1.1", collector, "red");
@@ -76,7 +75,7 @@ public class QueryTest extends TestCase {
 	public void testLimitQuery3() {
 		List items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
-		IQuery limitQuery = new LimitQuery(query, 3);
+		IQuery limitQuery = QueryUtil.createLimitQuery(query, 3);
 		IQueryResult collector = limitQuery.perform(items.iterator());
 		assertEquals("1.0", 3, AbstractProvisioningTest.queryResultSize(collector));
 		AbstractProvisioningTest.assertContains("1.1", collector, "red");
@@ -87,7 +86,7 @@ public class QueryTest extends TestCase {
 	public void testLimitQuery0() {
 		List items = Arrays.asList("red", "green", "blue");
 		IQuery query = new AnyStringQuery();
-		IQuery limitQuery = new LimitQuery(query, 0);
+		IQuery limitQuery = QueryUtil.createLimitQuery(query, 0);
 		IQueryResult collector = limitQuery.perform(items.iterator());
 		assertEquals("1.0", 0, AbstractProvisioningTest.queryResultSize(collector));
 	}
@@ -102,7 +101,7 @@ public class QueryTest extends TestCase {
 	//			}
 	//		};
 	//		IQuery pipedQuery = new PipedQuery(new IQuery[] {anyString, containsI});
-	//		IQuery limitQuery = new LimitQuery(pipedQuery, 1);
+	//		IQuery limitQuery = LimitQuery.create(pipedQuery, 1);
 	//		Collector collector = limitQuery.perform(items.iterator(), new Collector());
 	//		Collection result = collector.toCollection();
 	//		assertEquals("1.0", 1, result.size());

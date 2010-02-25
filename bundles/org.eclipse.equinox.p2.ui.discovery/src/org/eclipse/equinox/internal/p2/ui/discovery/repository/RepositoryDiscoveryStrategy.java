@@ -11,6 +11,8 @@
 
 package org.eclipse.equinox.internal.p2.ui.discovery.repository;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -23,7 +25,6 @@ import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.query.IQuery;
@@ -126,7 +127,7 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 		monitor.setWorkRemaining(repositories.size());
 		for (final IMetadataRepository repository : repositories) {
 			checkCancelled(monitor);
-			IQuery<IInstallableUnit> query = ExpressionQuery.create(//
+			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(//
 					"id ~= /*.feature.group/ " + // //$NON-NLS-1$
 							"? providedCapabilities.exists(p | p.namespace == 'org.eclipse.equinox.p2.iu' && p.name ~= /*.feature.group/) " + // //$NON-NLS-1$
 							": properties['org.eclipse.equinox.p2.type.category'] == true"); //$NON-NLS-1$

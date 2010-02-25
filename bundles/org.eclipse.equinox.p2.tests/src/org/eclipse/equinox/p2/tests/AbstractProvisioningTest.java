@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -30,8 +32,6 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
-import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
@@ -591,7 +591,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static Iterator getInstallableUnits(IProfile profile2) {
-		return profile2.query(InstallableUnitQuery.ANY, null).iterator();
+		return profile2.query(QueryUtil.createIUAnyQuery(), null).iterator();
 	}
 
 	/**
@@ -843,7 +843,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected IInstallableUnit getIU(IMetadataRepository repository, String name) {
-		IQueryResult queryResult = repository.query(new InstallableUnitQuery(name), null);
+		IQueryResult queryResult = repository.query(QueryUtil.createIUQuery(name), null);
 
 		IInstallableUnit unit = null;
 		if (!queryResult.isEmpty())
@@ -946,17 +946,17 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected static void assertInstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {
-		if (plan.getAdditions().query(new InstallableUnitQuery(iu), null).isEmpty())
+		if (plan.getAdditions().query(QueryUtil.createIUQuery(iu), null).isEmpty())
 			fail("Can't find " + iu + " in the plan");
 	}
 
 	protected static void assertUninstallOperand(IProvisioningPlan plan, IInstallableUnit iu) {
-		if (plan.getRemovals().query(new InstallableUnitQuery(iu), null).isEmpty())
+		if (plan.getRemovals().query(QueryUtil.createIUQuery(iu), null).isEmpty())
 			fail("Can't find " + iu + " in the plan");
 	}
 
 	protected static void assertNoOperand(IProvisioningPlan plan, IInstallableUnit iu) {
-		if (!(plan.getRemovals().query(new InstallableUnitQuery(iu), null).isEmpty() && plan.getAdditions().query(new InstallableUnitQuery(iu), null).isEmpty()))
+		if (!(plan.getRemovals().query(QueryUtil.createIUQuery(iu), null).isEmpty() && plan.getAdditions().query(QueryUtil.createIUQuery(iu), null).isEmpty()))
 			fail(iu + " should not be present in this plan.");
 	}
 
@@ -1058,15 +1058,15 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (!iu1.equals(iu2))
 			fail(message + " " + iu1 + " is not equal to " + iu2);
 
-		if (FragmentQuery.isFragment(iu1)) {
-			if (!FragmentQuery.isFragment(iu2))
+		if (QueryUtil.isFragment(iu1)) {
+			if (!QueryUtil.isFragment(iu2))
 				fail(message + " " + iu1 + " is not a fragment.");
 			try {
 				assertEquals(message, ((IInstallableUnitFragment) iu1).getHost(), ((IInstallableUnitFragment) iu2).getHost());
 			} catch (AssertionFailedError failure) {
 				fail(message + " Unequal hosts: " + failure.getMessage());
 			}
-		} else if (FragmentQuery.isFragment(iu2)) {
+		} else if (QueryUtil.isFragment(iu2)) {
 			fail(message + " " + iu2 + " is a fragment.");
 		}
 
@@ -1220,12 +1220,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
 	 */
 	protected static void assertContains(String message, IMetadataRepository sourceRepo, IMetadataRepository destinationRepo) {
-		IQueryResult sourceCollector = sourceRepo.query(InstallableUnitQuery.ANY, null);
+		IQueryResult sourceCollector = sourceRepo.query(QueryUtil.createIUAnyQuery(), null);
 		Iterator it = sourceCollector.iterator();
 
 		while (it.hasNext()) {
 			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
-			IQueryResult destinationCollector = destinationRepo.query(new InstallableUnitQuery(sourceIU), null);
+			IQueryResult destinationCollector = destinationRepo.query(QueryUtil.createIUQuery(sourceIU), null);
 			assertEquals(message, 1, queryResultSize(destinationCollector));
 			assertEquals(message, sourceIU, (IInstallableUnit) destinationCollector.iterator().next());
 		}
@@ -1241,12 +1241,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static void assertContains(String message, IQueryable source, IQueryable destination) {
-		IQueryResult sourceCollector = source.query(InstallableUnitQuery.ANY, null);
+		IQueryResult sourceCollector = source.query(QueryUtil.createIUAnyQuery(), null);
 		Iterator it = sourceCollector.iterator();
 
 		while (it.hasNext()) {
 			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
-			IQueryResult destinationCollector = destination.query(new InstallableUnitQuery(sourceIU), null);
+			IQueryResult destinationCollector = destination.query(QueryUtil.createIUQuery(sourceIU), null);
 			assertEquals(message, 1, queryResultSize(destinationCollector));
 			assertTrue(message, sourceIU.equals(destinationCollector.iterator().next()));
 		}
@@ -1465,7 +1465,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public int countPlanElements(IProvisioningPlan plan) {
-		return queryResultSize(new CompoundQueryable(plan.getAdditions(), plan.getRemovals()).query(InstallableUnitQuery.ANY, null));
+		return queryResultSize(QueryUtil.compoundQueryable(plan.getAdditions(), plan.getRemovals()).query(QueryUtil.createIUAnyQuery(), null));
 	}
 
 	/**

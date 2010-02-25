@@ -23,7 +23,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -179,7 +178,7 @@ public class ProvisioningHelper {
 	public static IStatus install(IProvisioningAgent agent, String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
-		IQueryResult<IInstallableUnit> units = getInstallableUnits(agent, (URI) null, new InstallableUnitQuery(unitId, Version.create(version)), progress);
+		IQueryResult<IInstallableUnit> units = getInstallableUnits(agent, (URI) null, QueryUtil.createIUQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuffer error = new StringBuffer();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');
@@ -278,7 +277,7 @@ public class ProvisioningHelper {
 	public static IStatus uninstall(IProvisioningAgent agent, String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
-		IQueryResult<IInstallableUnit> units = profile.query(new InstallableUnitQuery(unitId, Version.create(version)), progress);
+		IQueryResult<IInstallableUnit> units = profile.query(QueryUtil.createIUQuery(unitId, Version.create(version)), progress);
 		if (units.isEmpty()) {
 			StringBuffer error = new StringBuffer();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');

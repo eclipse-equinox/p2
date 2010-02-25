@@ -14,7 +14,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug207319 extends AbstractProvisioningTest {
@@ -39,13 +39,13 @@ public class Bug207319 extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {b});
 		assertEquals(IStatus.OK, director.provision(req, null, null).getSeverity());
 		assertProfileContainsAll("B is missing", profile, new IInstallableUnit[] {b});
-		assertNotIUs(new IInstallableUnit[] {a}, profile.query(InstallableUnitQuery.ANY, null).iterator());
+		assertNotIUs(new IInstallableUnit[] {a}, profile.query(QueryUtil.createIUAnyQuery(), null).iterator());
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
 		req2.addInstallableUnits(new IInstallableUnit[] {c});
 		assertEquals(IStatus.OK, director.provision(req2, null, null).getSeverity());
 		assertProfileContainsAll("B and C are missing", profile, new IInstallableUnit[] {b, c});
-		assertNotIUs(new IInstallableUnit[] {a}, profile.query(InstallableUnitQuery.ANY, null).iterator());
+		assertNotIUs(new IInstallableUnit[] {a}, profile.query(QueryUtil.createIUAnyQuery(), null).iterator());
 
 	}
 }

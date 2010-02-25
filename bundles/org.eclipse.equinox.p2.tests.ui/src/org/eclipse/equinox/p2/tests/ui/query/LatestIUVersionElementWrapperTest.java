@@ -11,17 +11,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.query.*;
 
 /**
- * Tests for {@link LatestIUVersionQuery}. This has all the tests of the superclass,
+ * Tests for latest query. This has all the tests of the superclass,
  * plus some extras for testing the latest IU capabilities.
  */
 public class LatestIUVersionElementWrapperTest extends AvailableIUWrapperTest {
@@ -39,7 +37,7 @@ public class LatestIUVersionElementWrapperTest extends AvailableIUWrapperTest {
 	 * Tests that only the latest version is collected.
 	 */
 	public void testCollectLatestIU() {
-		LatestIUVersionQuery latestIuVersionElementQuery = new LatestIUVersionQuery();
+		IQuery latestIuVersionElementQuery = QueryUtil.createLatestIUQuery();
 		IInstallableUnit unit1 = createIU("f1", Version.createOSGi(1, 0, 0));
 		IInstallableUnit unit2 = createIU("f1", Version.createOSGi(1, 0, 1));
 		List listOfIUs = new ArrayList();
@@ -52,7 +50,7 @@ public class LatestIUVersionElementWrapperTest extends AvailableIUWrapperTest {
 	}
 
 	public void testMultipleIUsAndVersions() {
-		LatestIUVersionQuery latestIuVersionElementQuery = new LatestIUVersionQuery();
+		IQuery latestIuVersionElementQuery = QueryUtil.createLatestIUQuery();
 		IInstallableUnit unit1 = createIU("A", Version.createOSGi(1, 0, 0));
 		IInstallableUnit unit2 = createIU("A", Version.createOSGi(1, 0, 1));
 		IInstallableUnit unit3 = createIU("B", Version.createOSGi(1, 0, 1));

@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -220,7 +220,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		//perform the update and install an ordinary bundle
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(site, getMonitor());
-		IInstallableUnit bundle = (IInstallableUnit) repo.query(new InstallableUnitQuery("aBundle"), getMonitor()).iterator().next();
+		IInstallableUnit bundle = (IInstallableUnit) repo.query(QueryUtil.createIUQuery("aBundle"), getMonitor()).iterator().next();
 		request = new ProfileChangeRequest(profile);
 		final IInstallableUnit[] newIUs = new IInstallableUnit[] {newIU, bundle};
 		request.addInstallableUnits(newIUs);

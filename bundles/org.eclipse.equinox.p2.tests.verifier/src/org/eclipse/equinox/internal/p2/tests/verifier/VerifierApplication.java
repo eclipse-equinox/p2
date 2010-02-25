@@ -22,8 +22,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.osgi.framework.internal.core.Constants;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
@@ -280,7 +280,7 @@ public class VerifierApplication implements IApplication {
 		IProfile profile = registry.getProfile(IProfileRegistry.SELF);
 		if (profile == null)
 			return createError("SELF profile not available in profile registry."); //$NON-NLS-1$
-		IQueryResult results = profile.query(new InstallableUnitQuery(Activator.PLUGIN_ID), null);
+		IQueryResult results = profile.query(QueryUtil.createIUQuery(Activator.PLUGIN_ID), null);
 		if (results.isEmpty())
 			return createError(NLS.bind("IU for {0} not found in SELF profile.", Activator.PLUGIN_ID)); //$NON-NLS-1$
 		return Status.OK_STATUS;

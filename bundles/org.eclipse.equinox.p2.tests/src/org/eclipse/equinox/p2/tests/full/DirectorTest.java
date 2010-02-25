@@ -22,8 +22,8 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -52,7 +52,7 @@ public class DirectorTest extends AbstractProvisioningTest {
 		}
 
 		String autoInstall = System.getProperty("eclipse.p2.autoInstall");
-		IQueryResult allJobs = mgr.query(new InstallableUnitQuery(autoInstall, VersionRange.emptyRange), null);
+		IQueryResult allJobs = mgr.query(QueryUtil.createIUQuery(autoInstall, VersionRange.emptyRange), null);
 
 		String installFolder = System.getProperty(IProfile.PROP_INSTALL_FOLDER);
 		IProfileRegistry profileRegistry = getProfileRegistry();
@@ -94,8 +94,8 @@ public class DirectorTest extends AbstractProvisioningTest {
 		if (!operationStatus.isOK())
 			fail("The installation has failed");
 
-		IInstallableUnit[] result = (IInstallableUnit[]) p.query(new InstallableUnitQuery(allRoots[0].getId(), VersionRange.emptyRange), null).toArray(IInstallableUnit.class);
+		IInstallableUnit[] result = (IInstallableUnit[]) p.query(QueryUtil.createIUQuery(allRoots[0].getId(), VersionRange.emptyRange), null).toArray(IInstallableUnit.class);
 		assertEquals(result.length, (!doUninstall ? 1 : 0));
-		result = (IInstallableUnit[]) p.query(new InstallableUnitQuery("toolingdefault", VersionRange.emptyRange), null).toArray(IInstallableUnit.class);
+		result = (IInstallableUnit[]) p.query(QueryUtil.createIUQuery("toolingdefault", VersionRange.emptyRange), null).toArray(IInstallableUnit.class);
 	}
 }

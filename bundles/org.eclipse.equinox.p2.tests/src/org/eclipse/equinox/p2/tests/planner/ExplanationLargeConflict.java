@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.File;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
@@ -20,8 +18,9 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -50,11 +49,11 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 		long sTime = System.currentTimeMillis();
 		//Here we verify that two version of JDT can't be installed together. The SDKProfile is not used
 		IProfile profile = createProfile("TestProfile." + getName());
-		IQueryResult c = repo1.query(new InstallableUnitQuery("org.eclipse.jdt.feature.group"), null);
+		IQueryResult c = repo1.query(QueryUtil.createIUQuery("org.eclipse.jdt.feature.group"), null);
 		assertEquals(1, queryResultSize(c));
 		IInstallableUnit jdt1 = (IInstallableUnit) c.iterator().next();
 
-		IQueryResult c2 = repo2.query(new InstallableUnitQuery("org.eclipse.jdt.feature.group"), null);
+		IQueryResult c2 = repo2.query(QueryUtil.createIUQuery("org.eclipse.jdt.feature.group"), null);
 		assertEquals(1, queryResultSize(c2));
 		IInstallableUnit jdt2 = (IInstallableUnit) c2.iterator().next();
 
@@ -102,7 +101,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 	public void testExplanationLargeConflictInSDK() {
 		long sTime = System.currentTimeMillis();
 		//Test large conflict. We are trying to install an inappropriate version of CVS over the already installed SDK
-		IQueryResult c = repo2.query(new InstallableUnitQuery("org.eclipse.cvs.feature.group"), null);
+		IQueryResult c = repo2.query(QueryUtil.createIUQuery("org.eclipse.cvs.feature.group"), null);
 		assertEquals(1, queryResultSize(c));
 		IInstallableUnit cvs = (IInstallableUnit) c.iterator().next();
 

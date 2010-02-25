@@ -24,8 +24,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -526,7 +526,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), location, new SurrogateProfileHandler(getAgent()), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
-		IQueryResult queryResult = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);
+		IQueryResult queryResult = profiles[0].query(QueryUtil.createIUQuery(id, Version.create(version)), null);
 		return !queryResult.isEmpty();
 	}
 
@@ -535,7 +535,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), location, new SurrogateProfileHandler(getAgent()), false);
 		IProfile[] profiles = registry.getProfiles();
 		assertEquals("1.0 Should only be one profile in registry.", 1, profiles.length);
-		IQueryResult queryResult = profiles[0].query(new InstallableUnitQuery(id, Version.create(version)), null);
+		IQueryResult queryResult = profiles[0].query(QueryUtil.createIUQuery(id, Version.create(version)), null);
 		assertEquals("1.1 Should not have more than one IU wth the same ID and version.", 1, queryResultSize(queryResult));
 		return (IInstallableUnit) queryResult.iterator().next();
 	}

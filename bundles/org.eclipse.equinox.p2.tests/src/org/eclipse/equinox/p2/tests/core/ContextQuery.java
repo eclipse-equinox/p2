@@ -9,10 +9,10 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
-import org.eclipse.equinox.p2.query.*;
-
 import java.util.Iterator;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
  * ContextQuery is the abstract superclass for Queries that require the entire

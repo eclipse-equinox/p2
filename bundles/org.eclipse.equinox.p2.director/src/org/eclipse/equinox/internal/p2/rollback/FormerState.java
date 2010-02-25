@@ -11,13 +11,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.rollback;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
 public class FormerState {
@@ -33,8 +34,8 @@ public class FormerState {
 	}
 
 	private static void synchronizeAllIUProperties(IProfileChangeRequest request, IProfile current, IProfile target) {
-		Set<IInstallableUnit> currentIUset = current.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
-		Iterator<IInstallableUnit> targetIUs = target.query(InstallableUnitQuery.ANY, null).iterator();
+		Set<IInstallableUnit> currentIUset = current.query(QueryUtil.createIUAnyQuery(), null).unmodifiableSet();
+		Iterator<IInstallableUnit> targetIUs = target.query(QueryUtil.createIUAnyQuery(), null).iterator();
 		List<IInstallableUnit> iusToAdd = new ArrayList<IInstallableUnit>();
 		List<IInstallableUnit> iusToUpdate = new ArrayList<IInstallableUnit>();
 		while (targetIUs.hasNext()) {

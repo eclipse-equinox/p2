@@ -18,14 +18,12 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.metadata.query.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 import org.eclipse.equinox.p2.query.*;
@@ -167,11 +165,11 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		IQuery<IInstallableUnit> query = null;
 		if (id != null) {
 			VersionRange vRange = new VersionRange(range);
-			query = new InstallableUnitQuery(id, vRange);
+			query = QueryUtil.createIUQuery(id, vRange);
 		} else if (type.equals("context")) { //$NON-NLS-1$
-			query = ExpressionContextQuery.createQuery(expression, params);
+			query = QueryUtil.createQuery(expression, params);
 		} else if (type.equals("match")) //$NON-NLS-1$
-			query = ExpressionQuery.create(expression, params);
+			query = QueryUtil.createMatchQuery(expression, params);
 		if (query == null)
 			return CollectionUtils.emptyList();
 		IQueryResult<IInstallableUnit> queryResult = results.query(query, null);
@@ -191,7 +189,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		Version version = versionString != null && versionString.length() > 0 ? Version.create(versionString) : Version.emptyVersion;
 		IQuery<IInstallableUnit> query = null;
 		if (version.equals(Version.emptyVersion)) {
-			query = new LatestIUVersionQuery<IInstallableUnit>(new InstallableUnitQuery(id));
+			query = QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id));
 		} else {
 			String qualifier;
 			try {
@@ -201,10 +199,10 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			}
 			if (qualifier != null && qualifier.endsWith(QUALIFIER)) {
 				VersionRange range = createVersionRange(version.toString());
-				IQuery<IInstallableUnit> qualifierQuery = ExpressionQuery.create(qualifierMatchExpr, id, range);
-				query = new LatestIUVersionQuery<IInstallableUnit>(qualifierQuery);
+				IQuery<IInstallableUnit> qualifierQuery = QueryUtil.createMatchQuery(qualifierMatchExpr, id, range);
+				query = QueryUtil.createLatestQuery(qualifierQuery);
 			} else {
-				query = new LimitQuery<IInstallableUnit>(new InstallableUnitQuery(id, version), 1);
+				query = QueryUtil.createLimitQuery(QueryUtil.createIUQuery(id, version), 1);
 			}
 		}
 

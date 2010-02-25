@@ -16,8 +16,8 @@ import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.publisher.eclipse.AdviceFileParser;
+import org.eclipse.equinox.p2.query.QueryUtil;
 
 public class AdviceFileParserTest extends TestCase {
 	public void testNoAdvice() {
@@ -269,7 +269,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testid0", iu0.getId());
 		assertEquals(Version.create("1.2.3"), iu0.getVersion());
 		assertFalse(iu0.isSingleton());
-		assertFalse(FragmentQuery.isFragment(iu0));
+		assertFalse(QueryUtil.isFragment(iu0));
 		assertEquals(0, iu0.getArtifacts().size());
 		assertEquals(null, iu0.getCopyright());
 		assertEquals(null, iu0.getFilter());
@@ -364,7 +364,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(2, iu1.getUpdateDescriptor().getSeverity());
 		assertEquals("some description", iu1.getUpdateDescriptor().getDescription());
 
-		assertTrue(FragmentQuery.isFragment(iu1));
+		assertTrue(QueryUtil.isFragment(iu1));
 		IRequirement[] hostRequired = ((IInstallableUnitFragment) iu1).getHost();
 		assertEquals(2, hostRequired.length);
 		assertEquals("testNamespace1", RequiredCapability.extractNamespace(hostRequired[0].getMatches()));

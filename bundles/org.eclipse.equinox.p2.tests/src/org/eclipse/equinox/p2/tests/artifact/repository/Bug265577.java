@@ -17,8 +17,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -59,7 +59,7 @@ public class Bug265577 extends AbstractProvisioningTest {
 
 	// Tests the response to a feature folder inside a jar
 	public void testZippedRepoWithFolderFeature() {
-		IQueryResult queryResult = metadataRepo.query(new InstallableUnitQuery("Field_Assist_Example.feature.jar"), null);
+		IQueryResult queryResult = metadataRepo.query(QueryUtil.createIUQuery("Field_Assist_Example.feature.jar"), null);
 		IInstallableUnit[] ius = (IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class);
 		IArtifactKey key = (ius[0].getArtifacts()).iterator().next();
 
@@ -83,7 +83,7 @@ public class Bug265577 extends AbstractProvisioningTest {
 
 	// Test to retrieve a file from a zipped metadata & artifact repository
 	public void testZippedRepo() {
-		IQueryResult queryResult = metadataRepo.query(new InstallableUnitQuery("valid.feature.jar"), null);
+		IQueryResult queryResult = metadataRepo.query(QueryUtil.createIUQuery("valid.feature.jar"), null);
 		IInstallableUnit[] ius = (IInstallableUnit[]) queryResult.toArray(IInstallableUnit.class);
 		IArtifactKey key = (ius[0].getArtifacts()).iterator().next();
 

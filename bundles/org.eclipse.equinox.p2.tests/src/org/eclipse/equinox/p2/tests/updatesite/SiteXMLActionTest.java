@@ -19,10 +19,10 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.updatesite.SiteXMLAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IProvidedCapability;
-import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.equinox.p2.tests.*;
@@ -51,7 +51,7 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testQualifier() {
-		IQueryResult results = actionResult.query(new CategoryQuery(), new NullProgressMonitor());
+		IQueryResult results = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		Iterator iter = results.iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit unit = (IInstallableUnit) iter.next();

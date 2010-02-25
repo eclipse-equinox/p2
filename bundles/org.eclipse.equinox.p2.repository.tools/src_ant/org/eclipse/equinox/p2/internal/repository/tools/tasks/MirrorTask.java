@@ -19,8 +19,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.CompoundQuery;
 import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 
 public class MirrorTask extends AbstractRepositoryTask {
@@ -81,9 +81,7 @@ public class MirrorTask extends AbstractRepositoryTask {
 		if (queries.size() == 1)
 			return queries.get(0);
 
-		@SuppressWarnings("unchecked")
-		IQuery<IArtifactDescriptor>[] array = queries.toArray(new IQuery[queries.size()]);
-		return CompoundQuery.<IArtifactDescriptor> createCompoundQuery(array, false);
+		return QueryUtil.<IArtifactDescriptor> createCompoundQuery(queries, false);
 	}
 
 	public SlicingOption createSlicingOptions() {

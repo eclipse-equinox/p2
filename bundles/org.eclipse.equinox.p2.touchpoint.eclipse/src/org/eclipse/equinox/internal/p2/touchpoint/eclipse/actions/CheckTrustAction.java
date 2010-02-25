@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;
@@ -22,7 +24,6 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 
 /**
  * This action collects the set of bundle files on which the signature trust check
@@ -42,7 +43,7 @@ public class CheckTrustAction extends ProvisioningAction {
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(ActionConstants.PARM_AGENT);
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		//if the IU is already in the profile there is nothing to do
-		if (!profile.available(new InstallableUnitQuery(iu), null).isEmpty())
+		if (!profile.available(QueryUtil.createIUQuery(iu), null).isEmpty())
 			return null;
 		@SuppressWarnings("unchecked")
 		Collection<File> bundleFiles = (Collection<File>) parameters.get(ActionConstants.PARM_ARTIFACT_FILES);

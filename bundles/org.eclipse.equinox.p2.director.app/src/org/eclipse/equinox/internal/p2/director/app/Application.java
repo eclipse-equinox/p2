@@ -23,12 +23,10 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.console.ProvisioningHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
@@ -377,7 +375,7 @@ public class Application implements IApplication {
 		processArguments(args);
 
 		IStatus operationStatus = Status.OK_STATUS;
-		InstallableUnitQuery query;
+		IQuery<IInstallableUnit> query;
 		IQueryResult<IInstallableUnit> roots;
 		try {
 			initializeRepositories(command == COMMAND_INSTALL);
@@ -386,8 +384,8 @@ public class Application implements IApplication {
 				case COMMAND_UNINSTALL :
 
 					IProfile profile = initializeProfile();
-					query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
-					roots = collectRootIUs(metadataRepositoryLocations, new LatestIUVersionQuery<IInstallableUnit>(query));
+					query = QueryUtil.createIUQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
+					roots = collectRootIUs(metadataRepositoryLocations, QueryUtil.createLatestQuery(query));
 					if (roots.isEmpty())
 						roots = profile.query(query, new NullProgressMonitor());
 					if (roots.isEmpty()) {
@@ -419,7 +417,7 @@ public class Application implements IApplication {
 					}
 					break;
 				case COMMAND_LIST :
-					query = new InstallableUnitQuery(null, VersionRange.emptyRange);
+					query = QueryUtil.createIUQuery(null, VersionRange.emptyRange);
 					if (metadataRepositoryLocations == null)
 						missingArgument("metadataRepository"); //$NON-NLS-1$
 
@@ -480,7 +478,7 @@ public class Application implements IApplication {
 		List<IQueryable<IInstallableUnit>> locationQueryables = new ArrayList<IQueryable<IInstallableUnit>>(locations.length);
 		for (int i = 0; i < locations.length; i++)
 			locationQueryables.add(new LocationQueryable(locations[i]));
-		return new CompoundQueryable<IInstallableUnit>(locationQueryables).query(query, nullMonitor);
+		return QueryUtil.compoundQueryable(locationQueryables).query(query, nullMonitor);
 	}
 
 	public Object start(IApplicationContext context) throws Exception {

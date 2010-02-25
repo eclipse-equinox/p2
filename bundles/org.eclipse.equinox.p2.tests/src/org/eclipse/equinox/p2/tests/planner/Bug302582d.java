@@ -20,9 +20,9 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -46,7 +46,7 @@ public class Bug302582d extends AbstractProvisioningTest {
 	}
 
 	IInstallableUnit getIU(IMetadataRepository source, String id, String version) {
-		IQueryResult c = repo.query(new InstallableUnitQuery(id, Version.create(version)), new NullProgressMonitor());
+		IQueryResult c = repo.query(QueryUtil.createIUQuery(id, Version.create(version)), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
 		return (IInstallableUnit) c.iterator().next();
 	}
@@ -58,13 +58,13 @@ public class Bug302582d extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			assertNull(e); //This guarantees that the error does not go unnoticed
 		}
-		IQueryResult<IInstallableUnit> ius = repo.query(InstallableUnitQuery.ANY, null);
+		IQueryResult<IInstallableUnit> ius = repo.query(QueryUtil.createIUAnyQuery(), null);
 		IPlanner planner = getPlanner(agent);
 		IProvisioningPlan plan = planner.getProvisioningPlan(createRequest(ius), null, new NullProgressMonitor());
 
 		IProvisioningPlan expected = planner.getProvisioningPlan(createFilteredRequest(ius), null, new NullProgressMonitor());
 
-		assertEquals("Plan comparison", expected.getAdditions().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class), plan.getAdditions().query(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class), false);
+		assertEquals("Plan comparison", expected.getAdditions().query(QueryUtil.createIUAnyQuery(), null).toArray(IInstallableUnit.class), plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null).toArray(IInstallableUnit.class), false);
 	}
 
 	private ProfileChangeRequest createFilteredRequest(IQueryResult<IInstallableUnit> ius) {

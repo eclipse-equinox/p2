@@ -9,12 +9,9 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
-import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
-
-import org.eclipse.equinox.internal.p2.metadata.query.IMatchQuery;
-
 import java.util.*;
 import junit.framework.TestCase;
+import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -33,7 +30,7 @@ public class AggregateQueryTest extends TestCase {
 	}
 
 	public void testEmptyCompositeQuery() {
-		IQuery query = PipedQuery.createPipe(new IQuery[0]);
+		IQuery query = QueryUtil.createPipeQuery(Collections.<IQuery<Object>> emptySet());
 		query.perform(getABCDE().iterator());
 		// We should not throw an exception.  No guarantee on what perform
 		// will return in this case
@@ -67,19 +64,19 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		IQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {getLatest, getAllBut3}, true);
+		IQuery compoundQuery = QueryUtil.createCompoundQuery(getLatest, getAllBut3, true);
 		IQueryResult result = compoundQuery.perform(get123().iterator());
 		assertEquals(0, AbstractProvisioningTest.queryResultSize(result));
 
-		compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {getAllBut3, getLatest}, true);
+		compoundQuery = QueryUtil.createCompoundQuery(getAllBut3, getLatest, true);
 		result = compoundQuery.perform(get123().iterator());
 		assertEquals(0, AbstractProvisioningTest.queryResultSize(result));
 
-		compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {getLatest, getAllBut3}, false);
+		compoundQuery = QueryUtil.createCompoundQuery(getLatest, getAllBut3, false);
 		result = compoundQuery.perform(get123().iterator());
 		assertEquals(3, AbstractProvisioningTest.queryResultSize(result));
 
-		compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {getAllBut3, getLatest}, false);
+		compoundQuery = QueryUtil.createCompoundQuery(getAllBut3, getLatest, false);
 		result = compoundQuery.perform(get123().iterator());
 		assertEquals(3, AbstractProvisioningTest.queryResultSize(result));
 
@@ -118,79 +115,15 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		IQuery compoundQuery = PipedQuery.createPipe(getLatest, getAllBut3);
+		IQuery compoundQuery = QueryUtil.createPipeQuery(getLatest, getAllBut3);
 		IQueryResult result = compoundQuery.perform(get123().iterator());
 		assertEquals(0, AbstractProvisioningTest.queryResultSize(result));
 
-		compoundQuery = PipedQuery.createPipe(getAllBut3, getLatest);
+		compoundQuery = QueryUtil.createPipeQuery(getAllBut3, getLatest);
 		result = compoundQuery.perform(get123().iterator());
 		assertEquals(1, AbstractProvisioningTest.queryResultSize(result));
 		assertEquals("2", result.iterator().next());
 
-	}
-
-	public void testCompoundAllMatchQueries() {
-		IQuery A = new MatchQuery() {
-			public boolean isMatch(Object candidate) {
-				return false;
-			}
-		};
-		IQuery B = new MatchQuery() {
-			public boolean isMatch(Object candidate) {
-				return false;
-			}
-		};
-		IQuery C = new MatchQuery() {
-			public boolean isMatch(Object candidate) {
-				return false;
-			}
-		};
-		IQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {A, B, C}, true);
-		assertTrue("1.0", compoundQuery instanceof IMatchQuery);
-	}
-
-	public void testCompoundSomeMatchQueries() {
-		IQuery A = new MatchQuery() {
-			public boolean isMatch(Object candidate) {
-				return false;
-			}
-		};
-		IQuery B = new ContextQuery() {
-			public Collector perform(Iterator iterator) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
-		IQuery C = new MatchQuery() {
-			public boolean isMatch(Object candidate) {
-				return false;
-			}
-		};
-		IQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {A, B, C}, true);
-		assertTrue("1.0", !(compoundQuery instanceof IMatchQuery));
-	}
-
-	public void testCompoundNoMatchQueries() {
-		IQuery A = new ContextQuery() {
-			public Collector perform(Iterator iterator) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
-		IQuery B = new ContextQuery() {
-			public Collector perform(Iterator iterator) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
-		IQuery C = new ContextQuery() {
-			public Collector perform(Iterator iterator) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
-		IQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {A, B, C}, true);
-		assertTrue("1.0", !(compoundQuery instanceof IMatchQuery));
 	}
 
 	public void testIntersection() {
@@ -210,7 +143,7 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		IQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {ABC, BCDE}, true);
+		IQuery compoundQuery = QueryUtil.createCompoundQuery(ABC, BCDE, true);
 		IQueryResult result = compoundQuery.perform(getABCDE().iterator());
 		assertEquals("1.0", AbstractProvisioningTest.queryResultSize(result), 2);
 		AbstractProvisioningTest.assertContains("1.1", result, "B");
@@ -242,7 +175,7 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		IQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {ABC, BCDE}, true);
+		IQuery compoundQuery = QueryUtil.createCompoundQuery(ABC, BCDE, true);
 		IQueryResult result = compoundQuery.perform(getABCDE().iterator());
 		assertEquals("1.0", AbstractProvisioningTest.queryResultSize(result), 2);
 		AbstractProvisioningTest.assertContains("1.1", result, "B");
@@ -266,7 +199,7 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		IQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {ABC, BCDE}, false);
+		IQuery compoundQuery = QueryUtil.createCompoundQuery(ABC, BCDE, false);
 		IQueryResult result = compoundQuery.perform(getABCDE().iterator());
 		assertEquals("1.0", AbstractProvisioningTest.queryResultSize(result), 5);
 		AbstractProvisioningTest.assertContains("1.1", result, "A");
@@ -301,7 +234,7 @@ public class AggregateQueryTest extends TestCase {
 			}
 		};
 
-		IQuery compoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {ABC, BCDE}, false);
+		IQuery compoundQuery = QueryUtil.createCompoundQuery(ABC, BCDE, false);
 		IQueryResult result = compoundQuery.perform(getABCDE().iterator());
 		assertEquals("1.0", AbstractProvisioningTest.queryResultSize(result), 5);
 		AbstractProvisioningTest.assertContains("1.1", result, "A");

@@ -22,10 +22,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.GroupQuery;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
@@ -234,7 +231,7 @@ public class ProvCommandProvider implements CommandProvider {
 		URI repoURL = null;
 		if (urlString != null && !urlString.equals(WILDCARD_ANY))
 			repoURL = toURI(interpreter, urlString);
-		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoURL, new InstallableUnitQuery(id, new VersionRange(version)), null));
+		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoURL, QueryUtil.createIUQuery(id, new VersionRange(version)), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -259,7 +256,7 @@ public class ProvCommandProvider implements CommandProvider {
 		URI repoLocation = toURI(interpreter, urlString);
 		if (repoLocation == null)
 			return;
-		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoLocation, new InstallableUnitQuery(id, new VersionRange(version)), null));
+		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoLocation, QueryUtil.createIUQuery(id, new VersionRange(version)), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -285,7 +282,7 @@ public class ProvCommandProvider implements CommandProvider {
 			if (queryable == null)
 				return;
 		}
-		IInstallableUnit[] units = sort(queryable.query(new GroupQuery(), null));
+		IInstallableUnit[] units = sort(queryable.query(QueryUtil.createIUGroupQuery(), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -380,7 +377,7 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 
 		// list the profile contents
-		IInstallableUnit[] result = sort(target.query(new InstallableUnitQuery(id, new VersionRange(range)), null));
+		IInstallableUnit[] result = sort(target.query(QueryUtil.createIUQuery(id, new VersionRange(range)), null));
 		for (int i = 0; i < result.length; i++)
 			interpreter.println(result[i]);
 	}
@@ -473,7 +470,7 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println("Profile " + profileId + " not found");
 			return;
 		}
-		IInstallableUnit[] units = sort(profile.query(new GroupQuery(), new NullProgressMonitor()));
+		IInstallableUnit[] units = sort(profile.query(QueryUtil.createIUGroupQuery(), new NullProgressMonitor()));
 		// Now print out results
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);

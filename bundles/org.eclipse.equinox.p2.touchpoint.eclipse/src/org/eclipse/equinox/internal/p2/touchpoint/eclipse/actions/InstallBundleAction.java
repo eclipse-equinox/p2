@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;
@@ -22,7 +24,6 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.osgi.util.NLS;
 
 public class InstallBundleAction extends ProvisioningAction {
@@ -46,7 +47,7 @@ public class InstallBundleAction extends ProvisioningAction {
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_BUNDLE, ID));
 
 		//TODO: eventually remove this. What is a fragment doing here??
-		if (FragmentQuery.isFragment(iu)) {
+		if (QueryUtil.isFragment(iu)) {
 			System.out.println("What is a fragment doing here!!! -- " + iu); //$NON-NLS-1$
 			return Status.OK_STATUS;
 		}

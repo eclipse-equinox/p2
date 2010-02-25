@@ -11,17 +11,19 @@
 
 package org.eclipse.equinox.internal.p2.ui;
 
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+
 import java.net.URI;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 
 /**
  * RepositoryLocationQuery yields true for all URI elements.  
  * 
  * @since 3.5
  */
-public class RepositoryLocationQuery extends ExpressionQuery<URI> {
+public class RepositoryLocationQuery extends ExpressionMatchQuery<URI> {
 
 	public RepositoryLocationQuery() {
-		super(URI.class, matchAll());
+		super(URI.class, ExpressionUtil.TRUE_EXPRESSION);
 	}
 }

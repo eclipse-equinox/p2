@@ -9,9 +9,10 @@
 ******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.query;
 
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+
 import org.eclipse.equinox.p2.query.IQuery;
 
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A query in which the elements can be evaluated by calling isMatch on. Each
@@ -20,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
  * exclusive from all other calls. <P>
  * 
  * @noimplement This interface is not intended to be implemented by clients. Clients
- * creating custom queries must extend {@link ExpressionQuery} instead.
+ * creating custom queries must extend {@link ExpressionMatchQuery} instead.
  * @since 2.0
  */
 public interface IMatchQuery<T> extends IQuery<T> {

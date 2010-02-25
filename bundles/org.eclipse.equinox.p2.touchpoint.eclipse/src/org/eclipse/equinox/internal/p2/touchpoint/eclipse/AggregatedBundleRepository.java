@@ -101,7 +101,7 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		// Query all the all the repositories
-		CompoundQueryable<IArtifactKey> queryable = new CompoundQueryable<IArtifactKey>(bundleRepositories);
+		IQueryable<IArtifactKey> queryable = QueryUtil.compoundQueryable(bundleRepositories);
 		return queryable.query(query, monitor);
 	}
 
@@ -110,6 +110,6 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 		for (IFileArtifactRepository repository : bundleRepositories)
 			descQueryables.add(repository.descriptorQueryable());
 
-		return new CompoundQueryable<IArtifactDescriptor>(descQueryables);
+		return QueryUtil.compoundQueryable(descQueryables);
 	}
 }

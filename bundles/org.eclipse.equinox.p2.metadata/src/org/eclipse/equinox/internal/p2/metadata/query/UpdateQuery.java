@@ -11,16 +11,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.query;
 
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
 import org.eclipse.equinox.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 
 /**
  * A query that finds all IUs that are considered an "Update" of the 
  * specified IU.  
  */
-public final class UpdateQuery extends ExpressionQuery<IInstallableUnit> {
+public final class UpdateQuery extends ExpressionMatchQuery<IInstallableUnit> {
 	private static final IExpression expr1;
 	private static final IExpression expr2;
 

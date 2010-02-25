@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.ant;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,7 +27,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.LimitQuery;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.osgi.util.NLS;
@@ -105,7 +106,7 @@ public abstract class AbstractPublishTask extends Task {
 	}
 
 	private boolean isEmpty(IArtifactRepository repo) {
-		IQueryResult<IArtifactKey> result = repo.query(new LimitQuery<IArtifactKey>(ArtifactKeyQuery.ALL_KEYS, 1), null);
+		IQueryResult<IArtifactKey> result = repo.query(QueryUtil.createLimitQuery(ArtifactKeyQuery.ALL_KEYS, 1), null);
 		return result.isEmpty();
 	}
 

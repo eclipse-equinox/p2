@@ -12,11 +12,10 @@ package org.eclipse.equinox.p2.tests.perf;
 
 import org.eclipse.core.tests.harness.PerformanceTestRunner;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.LimitQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 
 /**
  * Performance tests for the p2 publisher
@@ -36,7 +35,7 @@ public class PublisherPerformanceTest extends ProvisioningPerformanceTest {
 				for (int i = 0; i < ius.length; i++) {
 					ius[i] = generateIU(i);
 					result.addIU(ius[i], IPublisherResult.ROOT);
-					queries[i] = new InstallableUnitQuery(ius[i].getId(), ius[i].getVersion());
+					queries[i] = QueryUtil.createIUQuery(ius[i].getId(), ius[i].getVersion());
 				}
 			}
 
@@ -63,7 +62,7 @@ public class PublisherPerformanceTest extends ProvisioningPerformanceTest {
 				for (int i = 0; i < ius.length; i++) {
 					ius[i] = generateIU(i);
 					result.addIU(ius[i], IPublisherResult.ROOT);
-					queries[i] = new LimitQuery(new InstallableUnitQuery(ius[i].getId(), ius[i].getVersion()), 1);
+					queries[i] = QueryUtil.createLimitQuery(QueryUtil.createIUQuery(ius[i].getId(), ius[i].getVersion()), 1);
 				}
 			}
 

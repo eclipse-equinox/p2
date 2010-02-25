@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.File;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -20,8 +18,9 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class Bug252682 extends AbstractProvisioningTest {
@@ -44,9 +43,9 @@ public class Bug252682 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallFeaturePatch() {
-		IInstallableUnit p2Feature = (IInstallableUnit) profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.user.ui.feature.group"), new NullProgressMonitor()).iterator().next();
+		IInstallableUnit p2Feature = (IInstallableUnit) profile.query(QueryUtil.createIUQuery("org.eclipse.equinox.p2.user.ui.feature.group"), new NullProgressMonitor()).iterator().next();
 		System.out.println(p2Feature);
-		IQueryResult c = profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.core.patch"), new NullProgressMonitor());
+		IQueryResult c = profile.query(QueryUtil.createIUQuery("org.eclipse.equinox.p2.core.patch"), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
 		ProvisioningContext ctx = new ProvisioningContext();
 		ctx.setExtraIUs(newIUs);

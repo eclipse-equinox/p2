@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
@@ -22,7 +24,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -85,7 +86,7 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	}
 
 	private void addArtifactKeys(IProfile aProfile) {
-		Iterator<IInstallableUnit> installableUnits = aProfile.query(InstallableUnitQuery.ANY, null).iterator();
+		Iterator<IInstallableUnit> installableUnits = aProfile.query(QueryUtil.createIUAnyQuery(), null).iterator();
 		while (installableUnits.hasNext()) {
 			Collection<IArtifactKey> keys = installableUnits.next().getArtifacts();
 			if (keys == null)

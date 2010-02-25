@@ -8,48 +8,30 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.metadata.query;
+package org.eclipse.equinox.p2.query;
+
 
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.internal.p2.metadata.query.IMatchQuery;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
  * A query that evaluates using an iterator as input and produces a new iterator.
  * @since 2.0
  */
-public class ExpressionContextQuery<T> implements IQueryWithIndex<T> {
+public class ExpressionQuery<T> implements IQueryWithIndex<T> {
 	private final IContextExpression<T> expression;
 	private final Class<? extends T> elementClass;
 
-	public static <Q> IQuery<Q> createQuery(Class<? extends Q> elementClass, IExpression expression, Object... parameters) {
-		return new ExpressionContextQuery<Q>(elementClass, expression, parameters);
-	}
-
-	public static <Q> IQuery<Q> createQuery(Class<? extends Q> matchingClass, String expression, Object... parameters) {
-		return new ExpressionContextQuery<Q>(matchingClass, expression, parameters);
-	}
-
-	public static IQuery<IInstallableUnit> createQuery(IExpression expression, Object... parameters) {
-		return new ExpressionContextQuery<IInstallableUnit>(IInstallableUnit.class, expression, parameters);
-	}
-
-	public static IQuery<IInstallableUnit> createQuery(String expression, Object... parameters) {
-		return new ExpressionContextQuery<IInstallableUnit>(IInstallableUnit.class, expression, parameters);
-	}
-
-	protected ExpressionContextQuery(Class<? extends T> elementClass, IExpression expression, Object... parameters) {
+	public ExpressionQuery(Class<? extends T> elementClass, IExpression expression, Object... parameters) {
 		this.elementClass = elementClass;
 		this.expression = ExpressionUtil.getFactory().<T> contextExpression(expression, parameters);
 	}
 
-	protected ExpressionContextQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {
+	public ExpressionQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {
 		this(matchingClass, ExpressionUtil.parseQuery(expression), parameters);
 	}
 
@@ -72,14 +54,14 @@ public class ExpressionContextQuery<T> implements IQueryWithIndex<T> {
 	public static <T> Class<? extends T> getElementClass(IQuery<T> query) {
 		@SuppressWarnings("unchecked")
 		Class<? extends T> elementClass = (Class<T>) Object.class;
-		if (query instanceof ExpressionQuery<?>)
-			elementClass = ((ExpressionQuery<T>) query).getMatchingClass();
-		else if (query instanceof ExpressionContextQuery<?>)
-			elementClass = ((ExpressionContextQuery<T>) query).getElementClass();
+		if (query instanceof ExpressionMatchQuery<?>)
+			elementClass = ((ExpressionMatchQuery<T>) query).getMatchingClass();
+		else if (query instanceof ExpressionQuery<?>)
+			elementClass = ((ExpressionQuery<T>) query).getElementClass();
 		return elementClass;
 	}
 
-	protected static <T> IContextExpression<T> createExpression(IQuery<T> query) {
+	public static <T> IContextExpression<T> createExpression(IQuery<T> query) {
 		IExpressionFactory factory = ExpressionUtil.getFactory();
 		IExpression expr = query.getExpression();
 		Object[] parameters;

@@ -20,9 +20,8 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 
 /**
  * An InstallOperation describes an operation that installs IInstallableUnits into
@@ -72,11 +71,11 @@ public class InstallOperation extends ProfileChangeOperation {
 		for (IInstallableUnit entryToInstall : toInstall) {
 			// If the user is installing a patch, we mark it optional.  This allows
 			// the patched IU to be updated later by removing the patch.
-			if (PatchQuery.isPatch(entryToInstall))
+			if (QueryUtil.isPatch(entryToInstall))
 				request.setInstallableUnitInclusionRules(entryToInstall, PlannerHelper.createOptionalInclusionRule(entryToInstall));
 
 			// Check to see if it is already installed.  This may alter the request.
-			IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(new InstallableUnitQuery(entryToInstall.getId()), null);
+			IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(QueryUtil.createIUQuery(entryToInstall.getId()), null);
 			// TODO ideally we should only do this check if the iu is a singleton, but in practice many iu's that should
 			// be singletons are not, so we don't check this (yet)
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=230878

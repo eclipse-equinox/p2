@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractAntProvisioningTest;
@@ -60,7 +60,7 @@ public class Repo2RunnableTaskTests extends AbstractAntProvisioningTest {
 		IInstallableUnit iu = null;
 		try {
 			IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(source, new NullProgressMonitor());
-			IQueryResult ius = repo.query(new InstallableUnitQuery("helloworldfeature.feature.jar"), new NullProgressMonitor());
+			IQueryResult ius = repo.query(QueryUtil.createIUQuery("helloworldfeature.feature.jar"), new NullProgressMonitor());
 			assertEquals("Expected number of IUs", 1, queryResultSize(ius));
 			iu = (IInstallableUnit) ius.iterator().next();
 		} catch (ProvisionException e) {

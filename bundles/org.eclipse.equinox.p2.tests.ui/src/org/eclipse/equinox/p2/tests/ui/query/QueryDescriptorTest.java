@@ -9,11 +9,10 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
-
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.internal.p2.ui.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.p2.ui.ElementWrapper;
 import org.eclipse.equinox.p2.query.*;
@@ -100,7 +99,7 @@ public class QueryDescriptorTest extends TestCase {
 	}
 
 	public void testCompoundDescriptorAND() {
-		IQuery query = CompoundQuery.createCompoundQuery(new IQuery[] {new SimpleMatchQuery(), new SimpleMatchQuery2()}, true);
+		IQuery query = QueryUtil.createCompoundQuery(new SimpleMatchQuery(), new SimpleMatchQuery2(), true);
 		ElementQueryDescriptor eqDescriptor = new ElementQueryDescriptor(new SimpleQueryable(), query, new Collector(), new StringWrapper());
 		Collection collection = eqDescriptor.performQuery(null);
 		assertEquals("1.0", 1, collection.size());
@@ -108,7 +107,7 @@ public class QueryDescriptorTest extends TestCase {
 	}
 
 	public void testCompoundDescriptorOR() {
-		IQuery query = CompoundQuery.createCompoundQuery(new IQuery[] {new SimpleMatchQuery(), new SimpleMatchQuery2()}, false);
+		IQuery query = QueryUtil.createCompoundQuery(new SimpleMatchQuery(), new SimpleMatchQuery2(), false);
 		ElementQueryDescriptor eqDescriptor = new ElementQueryDescriptor(new SimpleQueryable(), query, new Collector(), new StringWrapper());
 		Collection collection = eqDescriptor.performQuery(null);
 		assertEquals("1.0", 3, collection.size());

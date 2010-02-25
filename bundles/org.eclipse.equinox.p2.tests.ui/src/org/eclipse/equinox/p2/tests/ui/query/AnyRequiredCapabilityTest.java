@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,6 @@ import org.eclipse.equinox.internal.p2.ui.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestData;
@@ -31,7 +32,7 @@ public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 		List items = new ArrayList();
 		items.add(match);
 		items.add(noMatch);
-		IQueryResult result = ExpressionQuery.create(requires.getMatches()).perform(items.iterator());
+		IQueryResult result = QueryUtil.createMatchQuery(requires.getMatches()).perform(items.iterator());
 		assertEquals("1.0", 1, queryResultSize(result));
 		assertEquals("1.1", match, result.iterator().next());
 	}
@@ -48,7 +49,7 @@ public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 		metadataRepositoryManager.addRepository(location);
 		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(ProvisioningUI.getDefaultUI(), false);
 		IRequirement requires = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.iu", "test.bundle", ANY_VERSION, null, false, false);
-		IQueryResult result = manager.query(ExpressionQuery.create(requires.getMatches()), getMonitor());
+		IQueryResult result = manager.query(QueryUtil.createMatchQuery(requires.getMatches()), getMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "test.bundle", iu.getId());

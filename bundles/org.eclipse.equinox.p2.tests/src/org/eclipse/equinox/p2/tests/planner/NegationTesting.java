@@ -1,20 +1,20 @@
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
-
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.Slicer;
+import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
 import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerStatus;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -79,7 +79,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		// Verify that the slice includes iu3 because the requirement from iu1 is a range including the provided capability of iu3.
 		Slicer slicer = new Slicer(repo, new Properties(), false);
 		IQueryable slice = slicer.slice(new IInstallableUnit[] {iu1}, new NullProgressMonitor());
-		assertEquals(3, queryResultSize(slice.query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
+		assertEquals(3, queryResultSize(slice.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 
 		//Verify that the resolution succeeds and does not return iu3 since it is excluded by the requirement of iu1
 		IProfile profile = createProfile("TestProfile." + getName());
@@ -87,8 +87,8 @@ public class NegationTesting extends AbstractProvisioningTest {
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.add(iu1);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
-		assertEquals(0, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(new InstallableUnitQuery("ProviderOf1_1_1"), null)));
-		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(InstallableUnitQuery.ANY, null)));
+		assertEquals(0, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(QueryUtil.createIUQuery("ProviderOf1_1_1"), null)));
+		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(QueryUtil.createIUAnyQuery(), null)));
 
 		//Verify that the installing iu1 and iu3 will result in a conflict since iu3 is excluded by the requirement of iu1
 		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);
@@ -137,8 +137,8 @@ public class NegationTesting extends AbstractProvisioningTest {
 		//Test the slicer. The slice will not contain iu3 because none of the range of iu1 cause it to be brought in.
 		Slicer slicer = new Slicer(repo, new Properties(), false);
 		IQueryable slice = slicer.slice(new IInstallableUnit[] {iu1}, new NullProgressMonitor());
-		assertEquals(0, queryResultSize(slice.query(new InstallableUnitQuery("ProviderOf1_1_1"), new NullProgressMonitor())));
-		assertEquals(2, queryResultSize(slice.query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
+		assertEquals(0, queryResultSize(slice.query(QueryUtil.createIUQuery("ProviderOf1_1_1"), new NullProgressMonitor())));
+		assertEquals(2, queryResultSize(slice.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 	}
 
 	public void testNot6() {
@@ -169,8 +169,8 @@ public class NegationTesting extends AbstractProvisioningTest {
 		//Test the slicer. The slice will not contain iu3 because none of the range of iu1 cause it to be brought in.
 		Slicer slicer = new Slicer(repo, new Properties(), false);
 		IQueryable slice = slicer.slice(new IInstallableUnit[] {iu1}, new NullProgressMonitor());
-		assertEquals(0, queryResultSize(slice.query(new InstallableUnitQuery("ProviderOf1_1_1"), new NullProgressMonitor())));
-		assertEquals(2, queryResultSize(slice.query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
+		assertEquals(0, queryResultSize(slice.query(QueryUtil.createIUQuery("ProviderOf1_1_1"), new NullProgressMonitor())));
+		assertEquals(2, queryResultSize(slice.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 
 		//Verify that the negation can not fail the resolution when the IUs satisfying the negative requirement are not there 
 		IProfile profile = createProfile("TestProfile." + getName());
@@ -178,8 +178,8 @@ public class NegationTesting extends AbstractProvisioningTest {
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.add(iu1);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
-		assertEquals(0, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(new InstallableUnitQuery("ProviderOf1_1_1"), null)));
-		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(InstallableUnitQuery.ANY, null)));
+		assertEquals(0, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(QueryUtil.createIUQuery("ProviderOf1_1_1"), null)));
+		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(QueryUtil.createIUAnyQuery(), null)));
 	}
 
 	//Test the slicer and the resolver. 
@@ -223,7 +223,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		// Verify that the slice includes iu3 because the requirement from iu1 is a range including the provided capability of iu3.
 		Slicer slicer = new Slicer(repo, new Properties(), false);
 		IQueryable slice = slicer.slice(new IInstallableUnit[] {iu1}, new NullProgressMonitor());
-		assertEquals(3, queryResultSize(slice.query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
+		assertEquals(3, queryResultSize(slice.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 
 		//Verify that the resolution succeeds and does not return iu3 since it is excluded by the requirement of iu1
 		IProfile profile = createProfile("TestProfile." + getName());
@@ -231,8 +231,8 @@ public class NegationTesting extends AbstractProvisioningTest {
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.add(iu1);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
-		assertEquals(0, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(new InstallableUnitQuery("ProviderOf1_1_1"), null)));
-		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(InstallableUnitQuery.ANY, null)));
+		assertEquals(0, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(QueryUtil.createIUQuery("ProviderOf1_1_1"), null)));
+		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(QueryUtil.createIUAnyQuery(), null)));
 
 		//Verify that the installing iu1 and iu3 will result in a conflict since iu3 is excluded by the requirement of iu1
 		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);
@@ -292,12 +292,12 @@ public class NegationTesting extends AbstractProvisioningTest {
 		// Verify that the slice includes iu3
 		Slicer slicer = new Slicer(repo, new Properties(), false);
 		IQueryable slice = slicer.slice(new IInstallableUnit[] {iu1, iu4}, new NullProgressMonitor());
-		assertEquals(4, queryResultSize(slice.query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
+		assertEquals(4, queryResultSize(slice.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 
 		// Verify that the slice includes iu3
 		Slicer slicer2 = new Slicer(repo, new Properties(), false);
 		IQueryable slice2 = slicer2.slice(new IInstallableUnit[] {iu4}, new NullProgressMonitor());
-		assertEquals(2, queryResultSize(slice2.query(InstallableUnitQuery.ANY, new NullProgressMonitor())));
+		assertEquals(2, queryResultSize(slice2.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 
 		//Verify that the resolution succeeds and does not return iu3 since it is excluded by the requirement of iu1
 		IProfile profile = createProfile("TestProfile." + getName());
@@ -305,8 +305,8 @@ public class NegationTesting extends AbstractProvisioningTest {
 		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.add(iu1);
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
-		assertEquals(0, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(new InstallableUnitQuery("ProviderOf1_1_1"), null)));
-		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(InstallableUnitQuery.ANY, null)));
+		assertEquals(0, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(QueryUtil.createIUQuery("ProviderOf1_1_1"), null)));
+		assertEquals(2, queryResultSize(((PlannerStatus) plan.getStatus()).getPlannedState().query(QueryUtil.createIUAnyQuery(), null)));
 
 		//Verify that the installing iu1 and iu4 will result in a conflict since iu3 is excluded by the requirement of iu1
 		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);

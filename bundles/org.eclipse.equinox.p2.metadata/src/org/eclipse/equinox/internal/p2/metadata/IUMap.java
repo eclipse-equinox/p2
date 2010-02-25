@@ -15,8 +15,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 
 /**
  * A map that stores {@link IInstallableUnit} instances in a way that is efficient to query
@@ -136,19 +135,8 @@ public class IUMap {
 		return new MapIterator();
 	}
 
-	public IQueryResult<IInstallableUnit> query(InstallableUnitQuery query) {
-		//iterate over the entire map, or just the IU's with the given id
-		Iterator<IInstallableUnit> candidates;
-		if (query.getId() == null)
-			candidates = iterator();
-		else
-			candidates = getUnits(query.getId()).iterator();
-		return query.perform(candidates);
-
-	}
-
 	public boolean contains(IInstallableUnit unit) {
-		return get(unit.getId(), unit.getVersion()) != null;
+		return !internalGet(unit.getId(), unit.getVersion()).isEmpty();
 	}
 
 	/**
@@ -168,18 +156,15 @@ public class IUMap {
 	}
 
 	private IQueryResult<IInstallableUnit> internalGet(String id, Version version) {
-		// TODO can probably optimize this
-		InstallableUnitQuery query = null;
-		if (version == null) {
-			if (id == null) {
-				query = InstallableUnitQuery.ANY;
-			} else {
-				query = new InstallableUnitQuery(id);
-			}
-		} else {
-			query = new InstallableUnitQuery(id, version);
+		if (id == null) {
+			IQuery<IInstallableUnit> query = version == null ? QueryUtil.createIUAnyQuery() : QueryUtil.createIUQuery(null, version);
+			return query.perform(iterator());
 		}
-		return query(query);
+
+		Collection<IInstallableUnit> idUnits = getUnits(id);
+		if (idUnits.isEmpty())
+			return Collector.emptyCollector();
+		return version == null ? new CollectionResult<IInstallableUnit>(idUnits) : QueryUtil.createIUQuery(id, version).perform(idUnits.iterator());
 	}
 
 	public IInstallableUnit get(String id, Version version) {

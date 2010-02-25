@@ -12,6 +12,8 @@
 
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
@@ -19,8 +21,6 @@ import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
@@ -140,7 +140,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 				// In the case of patches, it's possible that a patch is returned as an available update
 				// even though it is already installed, because we are querying each IU for updates individually.
 				// For now, we ignore any proposed update that is already installed.
-				IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(new InstallableUnitQuery(replacements[i]), null);
+				IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(QueryUtil.createIUQuery(replacements[i]), null);
 				if (alreadyInstalled.isEmpty()) {
 					Update update = new Update(iu, replacements[i]);
 					updates.add(update);
@@ -190,7 +190,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 				boolean foundPatch = false;
 				for (int j = 0; j < updates.length; j++) {
 					String key;
-					if (PatchQuery.isPatch(updates[j].replacement)) {
+					if (QueryUtil.isPatch(updates[j].replacement)) {
 						foundPatch = true;
 						key = updates[j].replacement.getId();
 					} else {
@@ -238,7 +238,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 			}
 			request.add(theUpdate);
 			request.setInstallableUnitProfileProperty(theUpdate, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
-			if (PatchQuery.isPatch(theUpdate)) {
+			if (QueryUtil.isPatch(theUpdate)) {
 				request.setInstallableUnitInclusionRules(theUpdate, PlannerHelper.createOptionalInclusionRule(theUpdate));
 			} else {
 				request.remove(update.toUpdate);

@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ql;
 
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -21,7 +24,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class TestQueryReimplementation extends AbstractProvisioningTest {
 
-	public static class UpdateQuery extends ExpressionQuery {
+	public static class UpdateQuery extends ExpressionMatchQuery {
 		private static final IExpression expr1;
 		private static final IExpression expr2;
 
@@ -45,7 +48,7 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		}
 	}
 
-	public static class IUPropertyQuery extends ExpressionQuery {
+	public static class IUPropertyQuery extends ExpressionMatchQuery {
 		private static final IExpression expr = ExpressionUtil.getParser().parse("properties[$0] == $1");
 
 		public IUPropertyQuery(String propertyName, String propertyValue) {
@@ -53,12 +56,12 @@ public class TestQueryReimplementation extends AbstractProvisioningTest {
 		}
 	}
 
-	public static class InstallableUnitQuery extends ExpressionQuery {
+	public static class InstallableUnitQuery extends ExpressionMatchQuery {
 		/**
 		 * A convenience query that will match any {@link IInstallableUnit}
 		 * it encounters.
 		 */
-		public static final IQuery<IInstallableUnit> ANY = ExpressionQuery.create("");
+		public static final IQuery<IInstallableUnit> ANY = QueryUtil.createMatchQuery("");
 
 		private static final IExpression idVersionQuery;
 		private static final IExpression idRangeQuery;

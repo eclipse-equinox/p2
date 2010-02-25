@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,7 +22,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -167,7 +168,7 @@ public class UpdateManagerCompatibility {
 	}
 
 	public static boolean requiresInstallHandlerSupport(IProvisioningPlan plan) {
-		IQueryResult<IInstallableUnit> result = plan.getAdditions().query(InstallableUnitQuery.ANY, null);
+		IQueryResult<IInstallableUnit> result = plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null);
 		for (Iterator<IInstallableUnit> iterator = result.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
 			if (iu != null && iu.getProperty(ECLIPSE_INSTALL_HANDLER_PROP) != null)

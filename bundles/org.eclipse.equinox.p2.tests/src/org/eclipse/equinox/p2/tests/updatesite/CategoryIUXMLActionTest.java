@@ -14,10 +14,10 @@ import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryXMLAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.CategoryQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.*;
 
 /**
@@ -69,14 +69,14 @@ public class CategoryIUXMLActionTest extends AbstractProvisioningTest {
 	}
 
 	private void doCategorySetTest() {
-		IQueryResult result = actionResult.query(new CategoryQuery(), new NullProgressMonitor());
+		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();
 		assertEquals("1.1", "Test Category Label", iu.getProperty(IInstallableUnit.PROP_NAME));
 	}
 
 	private void doCategoryNotSetTest() {
-		IQueryResult result = actionResult.query(new CategoryQuery(), new NullProgressMonitor());
+		IQueryResult result = actionResult.query(QueryUtil.createIUCategoryQuery(), new NullProgressMonitor());
 		assertEquals("1.0", 0, queryResultSize(result));
 	}
 }

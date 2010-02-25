@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
@@ -27,7 +29,6 @@ import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository.RepositoryState;
@@ -143,7 +144,7 @@ public class MetadataRepositoryIO {
 				writeRepositoryReferences(references.iterator(), references.size());
 			}
 			// The size attribute is a problematic since it forces the use of a collection.
-			Set<IInstallableUnit> units = repository.query(InstallableUnitQuery.ANY, null).unmodifiableSet();
+			Set<IInstallableUnit> units = repository.query(QueryUtil.createIUAnyQuery(), null).unmodifiableSet();
 			writeInstallableUnits(units.iterator(), units.size());
 
 			end(REPOSITORY_ELEMENT);

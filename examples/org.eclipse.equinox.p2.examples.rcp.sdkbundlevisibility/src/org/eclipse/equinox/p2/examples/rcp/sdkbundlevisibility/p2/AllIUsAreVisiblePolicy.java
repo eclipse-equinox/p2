@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility.p2;
 
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.ui.Policy;
 
 /**
@@ -26,8 +26,8 @@ public class AllIUsAreVisiblePolicy extends Policy {
 		setRepositoryPreferencePageId(PreferenceConstants.PREF_PAGE_SITES);
 		
 		// XXX All available IU's should be shown, not just groups/features
-		setVisibleAvailableIUQuery(InstallableUnitQuery.ANY);
+		setVisibleAvailableIUQuery(QueryUtil.createIUAnyQuery());
 		// XXX All installed IU's should be shown, not just the user-installed.
-		setVisibleInstalledIUQuery(InstallableUnitQuery.ANY);
+		setVisibleInstalledIUQuery(QueryUtil.createIUAnyQuery());
 	}
 }

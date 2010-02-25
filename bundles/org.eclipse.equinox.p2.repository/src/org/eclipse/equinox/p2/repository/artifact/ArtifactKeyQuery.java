@@ -12,10 +12,12 @@
 
 package org.eclipse.equinox.p2.repository.artifact;
 
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IExpression;
 
 /**
  * A general purpose query for matching {@link IArtifactKey} instances
@@ -23,22 +25,22 @@ import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
  * 
  * @since 2.0
  */
-public class ArtifactKeyQuery extends ExpressionQuery<IArtifactKey> {
+public class ArtifactKeyQuery extends ExpressionMatchQuery<IArtifactKey> {
 	private static final IExpression matchKey = ExpressionUtil.parse("this == $0"); //$NON-NLS-1$
 	private static final IExpression matchID = ExpressionUtil.parse("id == $0"); //$NON-NLS-1$
 	private static final IExpression matchIDClassifierRange = ExpressionUtil.parse("id == $0 && version ~= $2 && (null == $1 || classifier == $1)"); //$NON-NLS-1$
 
-	private static IMatchExpression<IArtifactKey> createMatchExpression(IArtifactKey key) {
+	private static IExpression createMatchExpression(IArtifactKey key) {
 		if (key == null)
-			return matchAll();
+			return ExpressionUtil.TRUE_EXPRESSION;
 		return ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchKey, key);
 	}
 
-	private static IMatchExpression<IArtifactKey> createMatchExpression(String classifier, String id, VersionRange range) {
+	private static IExpression createMatchExpression(String classifier, String id, VersionRange range) {
 		if (range == null) {
 			if (classifier == null) {
 				if (id == null)
-					return matchAll();
+					return ExpressionUtil.TRUE_EXPRESSION;
 				return ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchID, id);
 			}
 			range = VersionRange.emptyRange;
@@ -60,7 +62,7 @@ public class ArtifactKeyQuery extends ExpressionQuery<IArtifactKey> {
 	}
 
 	private ArtifactKeyQuery() {
-		super(IArtifactKey.class, matchAll());
+		super(IArtifactKey.class, ExpressionUtil.TRUE_EXPRESSION);
 	}
 
 	public ArtifactKeyQuery(IArtifactKey key) {

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -163,7 +165,7 @@ public abstract class QueryableRepositoryManager<T> implements IQueryable<T> {
 				loadedRepos.add(repo);
 		}
 		if (loadedRepos.size() > 0) {
-			return new CompoundQueryable<T>(loadedRepos).query(query, sub.newChild(100));
+			return QueryUtil.compoundQueryable(loadedRepos).query(query, sub.newChild(100));
 		}
 		return Collector.emptyCollector();
 	}

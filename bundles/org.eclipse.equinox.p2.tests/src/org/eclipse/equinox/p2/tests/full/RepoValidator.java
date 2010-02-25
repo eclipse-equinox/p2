@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -21,9 +19,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -56,7 +53,7 @@ public class RepoValidator extends AbstractProvisioningTest {
 
 		IQuery q;
 
-		q = new InstallableUnitQuery("org.eclipse.rcp.feature.group");
+		q = QueryUtil.createIUQuery("org.eclipse.rcp.feature.group");
 
 		//		q = InstallableUnitQuery.ANY;
 		IQueryResult iusToTest = validatedRepo.query(q, null);

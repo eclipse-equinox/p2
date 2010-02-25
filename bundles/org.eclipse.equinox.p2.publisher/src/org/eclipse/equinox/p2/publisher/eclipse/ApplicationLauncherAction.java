@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -17,7 +19,6 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.FragmentQuery;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
 
@@ -91,7 +92,7 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 		for (IInstallableUnit iu : ius) {
 			// skip over source bundles and fragments
 			// TODO should we use the source property here rather than magic name matching?
-			if (iu.getId().endsWith(".source") || FragmentQuery.isFragment(iu)) //$NON-NLS-1$
+			if (iu.getId().endsWith(".source") || QueryUtil.isFragment(iu)) //$NON-NLS-1$
 				continue;
 			advice.setVersion(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), iu.getVersion());
 			found = true;

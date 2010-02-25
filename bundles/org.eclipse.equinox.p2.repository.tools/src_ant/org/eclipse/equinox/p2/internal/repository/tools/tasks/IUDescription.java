@@ -13,14 +13,11 @@ package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 import java.util.*;
 import org.apache.tools.ant.types.DataType;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
-import org.eclipse.equinox.internal.p2.metadata.query.IUPropertyQuery;
-import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.p2.internal.repository.tools.Activator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.PipedQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -111,10 +108,10 @@ public class IUDescription extends DataType {
 		if (id != null) {
 			if (version == null || version.length() == 0) {
 				// Get the latest version of the iu
-				queries.add(new LatestIUVersionQuery<IInstallableUnit>(new InstallableUnitQuery(id)));
+				queries.add(QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id)));
 			} else {
 				Version iuVersion = Version.parseVersion(version);
-				queries.add(new InstallableUnitQuery(id, iuVersion));
+				queries.add(QueryUtil.createIUQuery(id, iuVersion));
 			}
 		}
 
@@ -125,8 +122,7 @@ public class IUDescription extends DataType {
 		if (queries.size() == 1)
 			return queries.get(0);
 
-		@SuppressWarnings("unchecked")
-		IQuery<IInstallableUnit> query = PipedQuery.createPipe(queries.toArray(new IQuery[queries.size()]));
+		IQuery<IInstallableUnit> query = QueryUtil.createPipeQuery(queries);
 		return query;
 	}
 
@@ -145,8 +141,8 @@ public class IUDescription extends DataType {
 			if (name == null)
 				return null;
 			if (value == null)
-				value = IUPropertyQuery.ANY;
-			return new IUPropertyQuery(name, value);
+				value = QueryUtil.ANY;
+			return QueryUtil.createIUPropertyQuery(name, value);
 		}
 
 		return null;

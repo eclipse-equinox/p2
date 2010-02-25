@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -40,8 +40,8 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		IMetadataRepositoryManager mmgr = getMetadataRepositoryManager();
 		metaRepo = mmgr.loadRepository((getTestData("MissingArtifact repo", testDataLocation).toURI()), null);
 
-		missingArtifactIU = (IInstallableUnit) metaRepo.query(new InstallableUnitQuery("javax.wsdl", new VersionRange("[1.5, 1.6)")), null).iterator().next();
-		missingSizeIU = (IInstallableUnit) metaRepo.query(new InstallableUnitQuery("javax.wsdl", new VersionRange("[1.4, 1.5)")), null).iterator().next();
+		missingArtifactIU = (IInstallableUnit) metaRepo.query(QueryUtil.createIUQuery("javax.wsdl", new VersionRange("[1.5, 1.6)")), null).iterator().next();
+		missingSizeIU = (IInstallableUnit) metaRepo.query(QueryUtil.createIUQuery("javax.wsdl", new VersionRange("[1.4, 1.5)")), null).iterator().next();
 
 		IArtifactRepositoryManager mgr = getArtifactRepositoryManager();
 		source = mgr.loadRepository((getTestData("MissingArtifact repo", testDataLocation).toURI()), null);

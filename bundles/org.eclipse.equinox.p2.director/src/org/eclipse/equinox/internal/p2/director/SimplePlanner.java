@@ -11,6 +11,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.*;
@@ -28,8 +30,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.ExpressionQuery;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
@@ -197,7 +197,7 @@ public class SimplePlanner implements IPlanner {
 			ProvisioningContext context = new ProvisioningContext(new URI[0]);
 			if (context.getProperty(INCLUDE_PROFILE_IUS) == null)
 				context.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
-			context.setExtraIUs(Arrays.asList(targetProfile.available(InstallableUnitQuery.ANY, null).toArray(IInstallableUnit.class)));
+			context.setExtraIUs(Arrays.asList(targetProfile.available(QueryUtil.createIUAnyQuery(), null).toArray(IInstallableUnit.class)));
 			return getProvisioningPlan(profileChangeRequest, context, sub.newChild(ExpandWork / 2));
 		} finally {
 			sub.done();
@@ -249,7 +249,7 @@ public class SimplePlanner implements IPlanner {
 					throw new OperationCanceledException();
 
 				IMetadataRepository repository = repoManager.loadRepository(repositories[i], sub.newChild(100));
-				IQueryResult<IInstallableUnit> matches = repository.query(new InstallableUnitQuery(null, VersionRange.emptyRange), sub.newChild(100));
+				IQueryResult<IInstallableUnit> matches = repository.query(QueryUtil.createIUQuery(null, VersionRange.emptyRange), sub.newChild(100));
 				for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 					IInstallableUnit iu = it.next();
 					String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
@@ -308,7 +308,7 @@ public class SimplePlanner implements IPlanner {
 			List<IInstallableUnit> extraIUs = new ArrayList<IInstallableUnit>(profileChangeRequest.getAdditions());
 			extraIUs.addAll(profileChangeRequest.getRemovals());
 			if (context == null || context.getProperty(INCLUDE_PROFILE_IUS) == null || context.getProperty(INCLUDE_PROFILE_IUS).equalsIgnoreCase(Boolean.TRUE.toString())) {
-				Iterator<IInstallableUnit> itor = profile.available(InstallableUnitQuery.ANY, null).iterator();
+				Iterator<IInstallableUnit> itor = profile.available(QueryUtil.createIUAnyQuery(), null).iterator();
 				while (itor.hasNext())
 					extraIUs.add(itor.next());
 			}
@@ -393,7 +393,7 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private IProvisioningPlan generateAbsoluteProvisioningPlan(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor) {
-		Set<IInstallableUnit> toState = profileChangeRequest.getProfile().query(InstallableUnitQuery.ANY, null).toSet();
+		Set<IInstallableUnit> toState = profileChangeRequest.getProfile().query(QueryUtil.createIUAnyQuery(), null).toSet();
 		HashSet<IInstallableUnit> fromState = new HashSet<IInstallableUnit>(toState);
 		toState.removeAll(profileChangeRequest.getRemovals());
 		toState.addAll(profileChangeRequest.getAdditions());
@@ -427,7 +427,7 @@ public class SimplePlanner implements IPlanner {
 	private Collection<IRequirement> areMetaRequirementsSatisfied(IProfile oldProfile, Collection<IInstallableUnit> newProfile, IProvisioningPlan initialPlan) {
 		Collection<IRequirement> allMetaRequirements = extractMetaRequirements(newProfile, initialPlan);
 		for (IRequirement requirement : allMetaRequirements) {
-			if (oldProfile.query(new LimitQuery<IInstallableUnit>(ExpressionQuery.create(requirement.getMatches()), 1), null).isEmpty())
+			if (oldProfile.query(QueryUtil.createLimitQuery(QueryUtil.createMatchQuery(requirement.getMatches()), 1), null).isEmpty())
 				return allMetaRequirements;
 		}
 		return null;
@@ -439,7 +439,7 @@ public class SimplePlanner implements IPlanner {
 		for (IInstallableUnit iu : ius) {
 			allMetaRequirements.addAll(iu.getMetaRequiredCapabilities());
 		}
-		IQueryResult<IInstallableUnit> queryResult = plan.getRemovals().query(InstallableUnitQuery.ANY, null);
+		IQueryResult<IInstallableUnit> queryResult = plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null);
 		for (Iterator<IInstallableUnit> iterator = queryResult.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
 			allMetaRequirements.addAll(iu.getMetaRequiredCapabilities());
@@ -572,7 +572,7 @@ public class SimplePlanner implements IPlanner {
 			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "The resolution of the previous state contained in profile " + initialRequest.getProfile().getProfileId() + " version " + initialRequest.getProfile().getTimestamp() + " failed.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			return (IProvisioningPlan) initialSolution;
 		}
-		Iterator<IInstallableUnit> profileState = initialRequest.getProfile().query(InstallableUnitQuery.ANY, null).iterator();
+		Iterator<IInstallableUnit> profileState = initialRequest.getProfile().query(QueryUtil.createIUAnyQuery(), null).iterator();
 		Collection<IInstallableUnit> initialState = AttachmentHelper.attachFragments(profileState, ((Projector) initialSolution).getFragmentAssociation());
 
 		IProvisioningPlan agentPlan = generateProvisioningPlan(initialState, agentState, initialRequest, null, initialContext);
@@ -596,7 +596,7 @@ public class SimplePlanner implements IPlanner {
 			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "The resolution of the previous state contained in profile " + request.getProfile().getProfileId() + " version " + request.getProfile().getTimestamp() + " failed.")); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 			return (IProvisioningPlan) initialSolution;
 		}
-		Iterator<IInstallableUnit> profileState = request.getProfile().query(InstallableUnitQuery.ANY, null).iterator();
+		Iterator<IInstallableUnit> profileState = request.getProfile().query(QueryUtil.createIUAnyQuery(), null).iterator();
 		Collection<IInstallableUnit> initialState = AttachmentHelper.attachFragments(profileState, ((Projector) initialSolution).getFragmentAssociation());
 
 		//Generate the plan
@@ -607,12 +607,12 @@ public class SimplePlanner implements IPlanner {
 		ProvisioningContext noRepoContext = new ProvisioningContext(new URI[0]);
 		noRepoContext.setArtifactRepositories(new URI[0]);
 		noRepoContext.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
-		noRepoContext.setExtraIUs(new ArrayList<IInstallableUnit>(request.getProfile().query(InstallableUnitQuery.ANY, new NullProgressMonitor()).unmodifiableSet()));
+		noRepoContext.setExtraIUs(new ArrayList<IInstallableUnit>(request.getProfile().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).unmodifiableSet()));
 		return noRepoContext;
 	}
 
 	private IInstallableUnit getPreviousIUForMetaRequirements(IProfile profile, String iuId, IProgressMonitor monitor) {
-		IQueryResult<IInstallableUnit> c = profile.query(new InstallableUnitQuery(iuId), monitor);
+		IQueryResult<IInstallableUnit> c = profile.query(QueryUtil.createIUQuery(iuId), monitor);
 		if (c.isEmpty())
 			return null;
 		return c.iterator().next();

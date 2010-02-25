@@ -131,7 +131,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 			monitor = new NullProgressMonitor();
 		try {
 			// Query all the all the repositories this composite repo contains
-			CompoundQueryable<IInstallableUnit> queryable = new CompoundQueryable<IInstallableUnit>(loadedRepos);
+			IQueryable<IInstallableUnit> queryable = QueryUtil.compoundQueryable(loadedRepos);
 			return queryable.query(query, monitor);
 		} finally {
 			if (monitor != null)

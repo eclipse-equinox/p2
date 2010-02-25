@@ -8,13 +8,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.generator;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Feature;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.query.PatchQuery;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PatchIUGeneration extends AbstractProvisioningTest {
@@ -39,7 +40,7 @@ public class PatchIUGeneration extends AbstractProvisioningTest {
 		assertEquals(VersionRange.emptyRange, patchIU.getRequirementsChange().get(0).applyOn().getRange());
 		assertEquals("org.eclipse.jdt.core", patchIU.getRequirementsChange().get(0).newValue().getName());
 		assertEquals(new VersionRange("[3.2.2,3.2.2]"), patchIU.getRequirementsChange().get(0).newValue().getRange());
-		assertTrue(PatchQuery.isPatch(patchIU));
+		assertTrue(QueryUtil.isPatch(patchIU));
 		assertEquals(1, patchIU.getRequiredCapabilities().size());
 		assertEquals(featureIU.getId(), ((IRequiredCapability) patchIU.getRequiredCapabilities().iterator().next()).getName());
 		assertEquals("org.eclipse.jdt.feature.group", ((IRequiredCapability) patchIU.getLifeCycle()).getName());

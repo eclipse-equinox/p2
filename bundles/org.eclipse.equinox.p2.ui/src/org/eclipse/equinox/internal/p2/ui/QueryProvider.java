@@ -11,16 +11,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
+import org.eclipse.equinox.p2.query.QueryUtil;
+
 import java.net.URI;
 import java.util.Collection;
-import org.eclipse.equinox.internal.p2.metadata.query.LatestIUVersionQuery;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.query.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.metadata.expression.*;
-import org.eclipse.equinox.p2.metadata.query.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -44,8 +44,6 @@ public class QueryProvider {
 	public static final int AVAILABLE_UPDATES = 5;
 	public static final int INSTALLED_IUS = 6;
 	public static final int AVAILABLE_ARTIFACTS = 7;
-
-	private IQuery<IInstallableUnit> allQuery = ExpressionQuery.create(ExpressionQuery.matchAll());
 
 	public QueryProvider(ProvisioningUI ui) {
 		this.ui = ui;
@@ -81,14 +79,14 @@ public class QueryProvider {
 				}
 
 				IQuery<IInstallableUnit> topLevelQuery = policy.getVisibleAvailableIUQuery();
-				IQuery<IInstallableUnit> categoryQuery = new CategoryQuery();
+				IQuery<IInstallableUnit> categoryQuery = QueryUtil.createIUCategoryQuery();
 
 				// Showing child IU's of a group of repositories, or of a single repository
 				if (element instanceof MetadataRepositories || element instanceof MetadataRepositoryElement) {
 					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT || !context.getUseCategories()) {
 						AvailableIUWrapper wrapper = new AvailableIUWrapper(queryable, element, false, context.getShowAvailableChildren());
 						if (showLatest)
-							topLevelQuery = new LatestIUVersionQuery<IInstallableUnit>(topLevelQuery);
+							topLevelQuery = QueryUtil.createLatestQuery(topLevelQuery);
 						if (targetProfile != null)
 							wrapper.markInstalledIUs(targetProfile, hideInstalled);
 						return new ElementQueryDescriptor(queryable, topLevelQuery, new Collector<Object>(), wrapper);
@@ -103,21 +101,20 @@ public class QueryProvider {
 					// children of a category should drill down according to the context.  If we aren't in a category, we are already drilling down and
 					// continue to do so.
 					boolean drillDownTheChildren = element instanceof CategoryElement ? context.getShowAvailableChildren() : true;
-					IQuery<IInstallableUnit> memberOfCategoryQuery = new CategoryMemberQuery(((IIUElement) element).getIU());
+					IQuery<IInstallableUnit> memberOfCategoryQuery = QueryUtil.createIUCategoryMemberQuery(((IIUElement) element).getIU());
 					availableIUWrapper = new AvailableIUWrapper(queryable, element, true, drillDownTheChildren);
 					if (targetProfile != null)
 						availableIUWrapper.markInstalledIUs(targetProfile, hideInstalled);
 					// if it's a category, there is a special query.
 					if (element instanceof CategoryElement) {
 						if (showLatest)
-							memberOfCategoryQuery = new LatestIUVersionQuery<IInstallableUnit>(memberOfCategoryQuery);
+							memberOfCategoryQuery = QueryUtil.createLatestQuery(memberOfCategoryQuery);
 						return new ElementQueryDescriptor(queryable, memberOfCategoryQuery, new Collector<Object>(), availableIUWrapper);
 					}
 					// It is not a category, we want to traverse the requirements that are groups.
-					@SuppressWarnings("unchecked")
-					IQuery<IInstallableUnit> query = CompoundQuery.createCompoundQuery(new IQuery[] {topLevelQuery, new RequiredIUsQuery(((IIUElement) element).getIU())}, true);
+					IQuery<IInstallableUnit> query = QueryUtil.createCompoundQuery(topLevelQuery, new RequiredIUsQuery(((IIUElement) element).getIU()), true);
 					if (showLatest)
-						query = new LatestIUVersionQuery<IInstallableUnit>(query);
+						query = QueryUtil.createLatestQuery(query);
 					// If it's not a category, these are generic requirements and should be filtered by the visibility property (topLevelQuery)
 					return new ElementQueryDescriptor(queryable, query, new Collector<Object>(), availableIUWrapper);
 				}
@@ -141,7 +138,7 @@ public class QueryProvider {
 					toUpdate = queryResult.toArray(IInstallableUnit.class);
 				}
 				QueryableUpdates updateQueryable = new QueryableUpdates(ui, toUpdate);
-				return new ElementQueryDescriptor(updateQueryable, context.getShowLatestVersionsOnly() ? new LatestIUVersionQuery<IInstallableUnit>() : allQuery, new Collector<Object>());
+				return new ElementQueryDescriptor(updateQueryable, context.getShowLatestVersionsOnly() ? QueryUtil.createLatestIUQuery() : QueryUtil.createIUAnyQuery(), new Collector<Object>());
 
 			case INSTALLED_IUS :
 				// Querying of IU's.  We are drilling down into the requirements.
@@ -153,10 +150,9 @@ public class QueryProvider {
 						requirementExpressions[i++] = req.getMatches();
 					}
 					IExpressionFactory factory = ExpressionUtil.getFactory();
-					IQuery<IInstallableUnit> meetsAnyRequirementQuery = ExpressionQuery.create(factory.or(requirementExpressions));
+					IQuery<IInstallableUnit> meetsAnyRequirementQuery = QueryUtil.createMatchQuery(factory.or(requirementExpressions));
 					IQuery<IInstallableUnit> visibleAsAvailableQuery = policy.getVisibleAvailableIUQuery();
-					@SuppressWarnings("unchecked")
-					IQuery<IInstallableUnit> createCompoundQuery = CompoundQuery.createCompoundQuery(new IQuery[] {visibleAsAvailableQuery, meetsAnyRequirementQuery}, true);
+					IQuery<IInstallableUnit> createCompoundQuery = QueryUtil.createCompoundQuery(visibleAsAvailableQuery, meetsAnyRequirementQuery, true);
 					return new ElementQueryDescriptor(queryable, createCompoundQuery, new Collector<IInstallableUnit>(), new InstalledIUElementWrapper(queryable, element));
 				}
 				profile = ProvUI.getAdapter(element, IProfile.class);
@@ -176,7 +172,7 @@ public class QueryProvider {
 
 			case PROFILES :
 				queryable = new QueryableProfileRegistry(ui);
-				return new ElementQueryDescriptor(queryable, ExpressionQuery.create(IProfile.class, ExpressionQuery.matchAll()), new Collector<Object>(), new ProfileElementWrapper(null, element));
+				return new ElementQueryDescriptor(queryable, QueryUtil.createMatchQuery(IProfile.class, ExpressionUtil.TRUE_EXPRESSION), new Collector<Object>(), new ProfileElementWrapper(null, element));
 
 			case AVAILABLE_ARTIFACTS :
 				if (!(queryable instanceof IArtifactRepository))

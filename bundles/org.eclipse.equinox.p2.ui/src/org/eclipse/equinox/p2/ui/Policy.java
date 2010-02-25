@@ -10,16 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
-import org.eclipse.equinox.p2.query.IQuery;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.GroupQuery;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -74,7 +73,7 @@ public class Policy {
 	 */
 	public static final int RESTART_POLICY_PROMPT_RESTART_OR_APPLY = 4;
 
-	private IQuery<IInstallableUnit> visibleAvailableIUQuery = new GroupQuery();
+	private IQuery<IInstallableUnit> visibleAvailableIUQuery = QueryUtil.createIUGroupQuery();
 	private IQuery<IInstallableUnit> visibleInstalledIUQuery = new UserVisibleRootQuery();
 	private boolean groupByCategory = true;
 	private boolean allowDrilldown = true;

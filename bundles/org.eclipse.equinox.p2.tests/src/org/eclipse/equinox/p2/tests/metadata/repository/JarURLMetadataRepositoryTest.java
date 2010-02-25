@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -77,7 +77,7 @@ public class JarURLMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		IMetadataRepository repo = manager.loadRepository(jarRepoLocation, null);
-		assertTrue(!repo.query(InstallableUnitQuery.ANY, null).isEmpty());
+		assertTrue(!repo.query(QueryUtil.createIUAnyQuery(), null).isEmpty());
 
 		URI[] local = manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_LOCAL);
 		boolean found = false;

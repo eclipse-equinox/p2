@@ -10,17 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.io.File;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -46,7 +46,7 @@ public class Bug254481dataSet2 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallFeaturePatch() {
-		IQueryResult c = repo.query(new InstallableUnitQuery("org.eclipse.jdt.feature.patch.feature.group"), new NullProgressMonitor());
+		IQueryResult c = repo.query(QueryUtil.createIUQuery("org.eclipse.jdt.feature.patch.feature.group"), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
 		IInstallableUnit patch = (IInstallableUnit) c.iterator().next();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
@@ -55,7 +55,7 @@ public class Bug254481dataSet2 extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertInstallOperand(plan, patch);
-		assertEquals(1, queryResultSize(plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.jdt.core"), null)));
-		assertEquals(1, queryResultSize(plan.getAdditions().query(new InstallableUnitQuery("org.eclipse.jdt.core.manipulation"), null)));
+		assertEquals(1, queryResultSize(plan.getAdditions().query(QueryUtil.createIUQuery("org.eclipse.jdt.core"), null)));
+		assertEquals(1, queryResultSize(plan.getAdditions().query(QueryUtil.createIUQuery("org.eclipse.jdt.core.manipulation"), null)));
 	}
 }

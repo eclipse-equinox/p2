@@ -11,9 +11,7 @@ package org.eclipse.equinox.p2.publisher.actions;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.*;
 import org.osgi.framework.Filter;
 
 /**
@@ -29,14 +27,14 @@ public class QueryableFilterAdvice implements IFilterAdvice {
 	}
 
 	public Filter getFilter(String id, Version version, boolean exact) {
-		InstallableUnitQuery query = new InstallableUnitQuery(id, version);
+		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id, version);
 		IQueryResult<IInstallableUnit> result = queryable.query(query, null);
 		if (!result.isEmpty())
 			return result.iterator().next().getFilter();
 		if (exact)
 			return null;
 
-		query = new InstallableUnitQuery(id);
+		query = QueryUtil.createIUQuery(id);
 		result = queryable.query(query, null);
 		if (!result.isEmpty())
 			return result.iterator().next().getFilter();

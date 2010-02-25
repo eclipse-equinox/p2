@@ -248,7 +248,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 			}
 		};
 
-		return new CompoundQueryable<IArtifactDescriptor>(cached, innerRepo.descriptorQueryable());
+		return QueryUtil.compoundQueryable(cached, innerRepo.descriptorQueryable());
 	}
 
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
@@ -259,7 +259,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 			}
 		};
 
-		CompoundQueryable<IArtifactKey> compound = new CompoundQueryable<IArtifactKey>(cached, innerRepo);
+		IQueryable<IArtifactKey> compound = QueryUtil.compoundQueryable(cached, innerRepo);
 		return compound.query(query, monitor);
 	}
 
