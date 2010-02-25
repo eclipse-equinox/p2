@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  * profile, a description of the desired end state of that profile and metadata 
  * describing the available IUs, a planner produces a plan that lists the
  * provisioning operands that the engine should perform.  
- * @since 1.1
+ * @since 2.0
  */
 public interface IPlanner {
 	/**

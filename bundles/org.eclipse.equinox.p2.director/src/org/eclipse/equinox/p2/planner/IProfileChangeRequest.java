@@ -17,7 +17,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  *  A profile change request is a description of a set of changes to be performed on a profile.
  *  A profile change request is then 
  * @noimplement This interface is not intended to be implemented by clients.
- * @since 1.1
+ * @since 2.0
  */
 public interface IProfileChangeRequest {
 
