@@ -87,7 +87,7 @@ public class FeaturesActionTest extends ActionTest {
 		action.perform(publisherInfo, publisherResult, new NullProgressMonitor());
 
 		IInstallableUnit iu = publisherResult.getIU("test.feature.feature.group", Version.parseVersion("1.0.0"), null);
-		Collection<IRequirement> requires = iu.getRequiredCapabilities();
+		Collection<IRequirement> requires = iu.getRequirements();
 		assertEquals(5, requires.size());
 		for (IRequirement require : requires) {
 			if (((IRequiredCapability) require).getName().equals("org.foo.feature.group")) {
@@ -132,7 +132,7 @@ public class FeaturesActionTest extends ActionTest {
 		String fooValue = tpData.iterator().next().getInstructions().get("zipped").getBody(); //$NON-NLS-1$
 		assertTrue(fooValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
-		Collection<IRequirement> fooRequiredCapabilities = foo.getRequiredCapabilities();
+		Collection<IRequirement> fooRequiredCapabilities = foo.getRequirements();
 		assertTrue(fooRequiredCapabilities.size() == 0);
 
 		Collection<IProvidedCapability> fooProvidedCapabilities = foo.getProvidedCapabilities();
@@ -170,7 +170,7 @@ public class FeaturesActionTest extends ActionTest {
 		barIUs = new ArrayList(publisherResult.getIUs("bar.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
 		assertTrue(fooIUs.size() == 1);
 		IInstallableUnit barGroup = (IInstallableUnit) barIUs.get(0);
-		Collection<IRequirement> barRequiredCapabilities = barGroup.getRequiredCapabilities();
+		Collection<IRequirement> barRequiredCapabilities = barGroup.getRequirements();
 		//contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), null, false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "org.bar.feature.feature.group", VersionRange.emptyRange, "(&(|(osgi.nl=de)(osgi.nl=en)(osgi.nl=fr)))", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
@@ -184,7 +184,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(bar.getTouchpointType().getId().equalsIgnoreCase("org.eclipse.equinox.p2.osgi")); //$NON-NLS-1$
 		assertTrue(bar.getTouchpointType().getVersion().equals(fooVersion));
 		//String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy)
-		barRequiredCapabilities = bar.getRequiredCapabilities();
+		barRequiredCapabilities = bar.getRequirements();
 
 		assertTrue(barRequiredCapabilities.size() == 0);
 

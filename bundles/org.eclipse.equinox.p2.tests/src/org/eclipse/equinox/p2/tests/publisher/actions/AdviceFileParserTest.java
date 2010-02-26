@@ -275,7 +275,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(null, iu0.getFilter());
 		assertEquals(0, iu0.getLicenses().size());
 		assertEquals(0, iu0.getProperties().size());
-		assertEquals(0, iu0.getRequiredCapabilities().size());
+		assertEquals(0, iu0.getRequirements().size());
 		assertEquals(0, iu0.getProvidedCapabilities().size());
 		assertEquals(0, iu0.getMetaRequirements().size());
 		assertEquals(0, iu0.getTouchpointData().size());
@@ -304,7 +304,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testValue1", iu1.getProperty("testName1"));
 		assertEquals("testValue2", iu1.getProperty("testName2"));
 
-		Collection<IRequirement> reqs = iu1.getRequiredCapabilities();
+		Collection<IRequirement> reqs = iu1.getRequirements();
 		Iterator it2 = reqs.iterator();
 		IRequirement req0 = (IRequirement) it2.next();
 		IRequirement req1 = (IRequirement) it2.next();

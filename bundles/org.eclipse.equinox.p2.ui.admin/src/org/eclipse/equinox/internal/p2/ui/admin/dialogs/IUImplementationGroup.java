@@ -162,7 +162,7 @@ public class IUImplementationGroup extends IUGroup {
 		}
 		touchpointData.setItems(items);
 
-		Collection<IRequirement> reqs = iu.getRequiredCapabilities();
+		Collection<IRequirement> reqs = iu.getRequirements();
 		items = new String[reqs.size()];
 		i = 0;
 		for (IRequirement req : reqs) {

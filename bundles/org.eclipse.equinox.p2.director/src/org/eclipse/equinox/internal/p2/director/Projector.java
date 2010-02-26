@@ -263,7 +263,7 @@ public class Projector {
 		BigInteger optionalWeight = maxWeight.negate();
 		long countOptional = 1;
 		List<IInstallableUnit> requestedPatches = new ArrayList<IInstallableUnit>();
-		Collection<IRequirement> reqs = metaIu.getRequiredCapabilities();
+		Collection<IRequirement> reqs = metaIu.getRequirements();
 		for (IRequirement req : reqs) {
 			if (req.getMin() > 0)
 				continue;
@@ -429,7 +429,7 @@ public class Projector {
 	}
 
 	private Collection<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
-		Collection<IRequirement> rqs = iu.getRequiredCapabilities();
+		Collection<IRequirement> rqs = iu.getRequirements();
 		if (!considerMetaRequirements)
 			return rqs;
 
@@ -668,7 +668,7 @@ public class Projector {
 		if (patch == null)
 			return null;
 		List<IRequirementChange> changes = patch.getRequirementsChange();
-		Collection<IRequirement> iuRequirements = iu.getRequiredCapabilities();
+		Collection<IRequirement> iuRequirements = iu.getRequirements();
 		IRequirement[] originalRequirements = iuRequirements.toArray(new IRequirement[iuRequirements.size()]);
 		List<IRequirement[]> rrr = new ArrayList<IRequirement[]>();
 		boolean found = false;

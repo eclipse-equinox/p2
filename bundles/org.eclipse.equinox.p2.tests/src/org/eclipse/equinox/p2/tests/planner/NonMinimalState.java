@@ -85,7 +85,7 @@ public class NonMinimalState extends AbstractProvisioningTest {
 			visited.add(iu);
 			return false;
 		}
-		Collection<IRequirement> reqs = iu.getRequiredCapabilities();
+		Collection<IRequirement> reqs = iu.getRequirements();
 		for (IRequirement req : reqs) {
 			boolean result = expandRequirement(iu, req);
 			if (result) {

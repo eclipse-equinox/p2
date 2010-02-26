@@ -602,7 +602,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		IQueryResult result = metadataRepo.query(query, null);
 		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit featureIU = (IInstallableUnit) result.iterator().next();
-		Collection<IRequirement> required = featureIU.getRequiredCapabilities();
+		Collection<IRequirement> required = featureIU.getRequirements();
 		for (Iterator iterator = required.iterator(); iterator.hasNext();) {
 			IRequiredCapability req = (IRequiredCapability) iterator.next();
 			if (req.getName().equals("org.eclipse.ui.ide")) {

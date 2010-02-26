@@ -81,14 +81,14 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return result;
 	}
 
-	public Collection<IRequirement> getRequiredCapabilities() {
-		Collection<IRequirement> originalCapabilities = original.getRequiredCapabilities();
+	public Collection<IRequirement> getRequirements() {
+		Collection<IRequirement> originalCapabilities = original.getRequirements();
 		if (fragments.length == 0)
 			return originalCapabilities;
 
 		ArrayList<IRequirement> result = new ArrayList<IRequirement>(originalCapabilities);
 		for (int i = 0; i < fragments.length; i++)
-			result.addAll(fragments[i].getRequiredCapabilities());
+			result.addAll(fragments[i].getRequirements());
 		return result;
 	}
 

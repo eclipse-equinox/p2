@@ -294,7 +294,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	private static void validateIUPatch(IInstallableUnitPatch iu) {
 		validateIU(iu);
 		assertTrue(iu.getApplicabilityScope() != null);
-		assertTrue(iu.getRequiredCapabilities() != null);
+		assertTrue(iu.getRequirements() != null);
 		assertEquals(3, iu.getRequirementsChange().size());
 		assertEquals(null, iu.getRequirementsChange().get(1).applyOn());
 		assertNotNull(iu.getRequirementsChange().get(1).newValue());
@@ -355,7 +355,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String[][] extractRequires(IInstallableUnit iu) {
-		Collection<IRequirement> reqs = iu.getRequiredCapabilities();
+		Collection<IRequirement> reqs = iu.getRequirements();
 		String[][] tuples = new String[reqs.size()][4];
 		int i = 0;
 		for (Iterator iterator = reqs.iterator(); iterator.hasNext();) {

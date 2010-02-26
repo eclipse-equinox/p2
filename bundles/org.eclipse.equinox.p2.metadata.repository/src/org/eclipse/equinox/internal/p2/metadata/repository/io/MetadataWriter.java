@@ -72,7 +72,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeProperties(iu.getProperties());
 		writeMetaRequiredCapabilities(iu.getMetaRequirements());
 		writeProvidedCapabilities(iu.getProvidedCapabilities());
-		writeRequiredCapabilities(iu.getRequiredCapabilities());
+		writeRequiredCapabilities(iu.getRequirements());
 		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter() == null ? null : iu.getFilter().toString());
 
 		writeArtifactKeys(iu.getArtifacts());

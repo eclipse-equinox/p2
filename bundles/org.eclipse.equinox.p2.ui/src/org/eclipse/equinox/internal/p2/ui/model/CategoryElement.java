@@ -109,11 +109,11 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 			return CollectionUtils.emptyList();
 		if (requirements == null) {
 			if (ius.size() == 1)
-				requirements = getIU().getRequiredCapabilities();
+				requirements = getIU().getRequirements();
 			else {
 				ArrayList<IRequirement> capabilities = new ArrayList<IRequirement>();
 				for (IInstallableUnit iu : ius) {
-					capabilities.addAll(iu.getRequiredCapabilities());
+					capabilities.addAll(iu.getRequirements());
 				}
 				requirements = capabilities;
 			}

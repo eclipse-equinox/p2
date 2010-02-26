@@ -495,7 +495,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		desc.setId(prototype.getId());
 		Collection<ILicense> originalLicenses = prototype.getLicenses();
 		desc.setLicenses(originalLicenses.toArray(new ILicense[originalLicenses.size()]));
-		Collection<IRequirement> originalRequirements = prototype.getRequiredCapabilities();
+		Collection<IRequirement> originalRequirements = prototype.getRequirements();
 		desc.setRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
 		originalRequirements = prototype.getMetaRequirements();
 		desc.setMetaRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
@@ -1078,7 +1078,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 
 		assertEquals(message, iu1.getProvidedCapabilities(), iu2.getProvidedCapabilities());
-		assertEquals(message, iu1.getRequiredCapabilities(), iu2.getRequiredCapabilities());
+		assertEquals(message, iu1.getRequirements(), iu2.getRequirements());
 		assertEquals(message, iu1.getArtifacts(), iu2.getArtifacts());
 		assertEquals(message, iu1.getTouchpointType(), iu2.getTouchpointType());
 		assertEquals(message, iu1.getTouchpointData(), iu2.getTouchpointData());

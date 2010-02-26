@@ -85,7 +85,7 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 	 * @see org.eclipse.equinox.internal.p2.ui.model.IUElement#getRequirements()
 	 */
 	public Collection<IRequirement> getRequirements() {
-		return iu.getRequiredCapabilities();
+		return iu.getRequirements();
 	}
 
 	/* (non-Javadoc)

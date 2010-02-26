@@ -182,7 +182,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 */
 	public Collection<IProvidedCapability> getProvidedCapabilities();
 
-	public Collection<IRequirement> getRequiredCapabilities();
+	public Collection<IRequirement> getRequirements();
 
 	public Collection<IRequirement> getMetaRequirements();
 

@@ -75,7 +75,7 @@ public class MetadataFactory {
 		public void addRequiredCapabilities(Collection<IRequirement> additional) {
 			if (additional == null || additional.size() == 0)
 				return;
-			List<IRequirement> current = unit().getRequiredCapabilities();
+			List<IRequirement> current = unit().getRequirements();
 			ArrayList<IRequirement> all = new ArrayList<IRequirement>(additional.size() + current.size());
 			all.addAll(current);
 			all.addAll(additional);
@@ -96,7 +96,7 @@ public class MetadataFactory {
 		}
 
 		public List<IRequirement> getRequiredCapabilities() {
-			return unit().getRequiredCapabilities();
+			return unit().getRequirements();
 		}
 
 		public Collection<IRequirement> getMetaRequiredCapabilities() {

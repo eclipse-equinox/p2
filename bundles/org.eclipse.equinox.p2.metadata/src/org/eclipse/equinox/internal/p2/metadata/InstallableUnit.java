@@ -164,7 +164,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		return TranslationSupport.getInstance().getIUProperty(this, key, locale);
 	}
 
-	public List<IRequirement> getRequiredCapabilities() {
+	public List<IRequirement> getRequirements() {
 		return CollectionUtils.unmodifiableList(requires);
 
 	}

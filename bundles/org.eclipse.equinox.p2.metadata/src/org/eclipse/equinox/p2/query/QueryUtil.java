@@ -181,7 +181,7 @@ public class QueryUtil {
 	 */
 	public static IQuery<IInstallableUnit> createIUCategoryMemberQuery(IInstallableUnit category) {
 		if (QueryUtil.isCategory(category))
-			return QueryUtil.createMatchQuery(matchesRequirementsExpression, category.getRequiredCapabilities());
+			return QueryUtil.createMatchQuery(matchesRequirementsExpression, category.getRequirements());
 		return NO_UNITS;
 	}
 

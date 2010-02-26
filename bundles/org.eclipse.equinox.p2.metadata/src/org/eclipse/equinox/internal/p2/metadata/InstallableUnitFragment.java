@@ -30,7 +30,7 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 	}
 
 	private void addRequiredCapability(IRequirement[] toAdd) {
-		List<IRequirement> current = super.getRequiredCapabilities();
+		List<IRequirement> current = super.getRequirements();
 		int currSize = current.size();
 		IRequirement[] result = new IRequirement[currSize + toAdd.length];
 		for (int i = 0; i < currSize; ++i)

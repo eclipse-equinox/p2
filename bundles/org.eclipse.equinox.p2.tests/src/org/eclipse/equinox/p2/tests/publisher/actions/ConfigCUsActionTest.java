@@ -63,7 +63,7 @@ public class ConfigCUsActionTest extends ActionTest {
 		assertTrue(providedCapabilities.size() == 1);
 
 		//verify RequiredCapabilities
-		List<IRequirement> requiredCapability = iu.getRequiredCapabilities();
+		List<IRequirement> requiredCapability = iu.getRequirements();
 		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".config." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
 		verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + ".ini." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$
 		assertTrue(requiredCapability.size() == 2);
@@ -86,7 +86,7 @@ public class ConfigCUsActionTest extends ActionTest {
 				verifyProvidedCapability(providedCapabilities, IInstallableUnit.NAMESPACE_IU_ID, flavor + id + "." + cuType + "." + configSpec, version); //$NON-NLS-1$//$NON-NLS-2$
 				verifyProvidedCapability(providedCapabilities, flavor + id, id + "." + cuType, version); //$NON-NLS-1$
 				assertTrue(providedCapabilities.size() == 2);
-				assertTrue(iu.getRequiredCapabilities().size() == 0);
+				assertTrue(iu.getRequirements().size() == 0);
 				return; //pass
 			}
 		}

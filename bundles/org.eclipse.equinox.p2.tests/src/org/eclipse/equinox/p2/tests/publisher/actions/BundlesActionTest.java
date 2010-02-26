@@ -189,7 +189,7 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals("1.1", bundle1IU.getVersion(), BUNDLE1_VERSION);
 
 		// check required capabilities
-		Collection<IRequirement> requiredCapability = bundle1IU.getRequiredCapabilities();
+		Collection<IRequirement> requiredCapability = bundle1IU.getRequirements();
 		verifyRequiredCapability(requiredCapability, TEST1_IUD_NAMESPACE, TEST1_IUD_NAME, TEST1_IUD_VERSION_RANGE);
 		assertEquals("2.0", 1, requiredCapability.size());
 
@@ -224,7 +224,7 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals(bundle2IU.getVersion(), BUNDLE2_VERSION);
 
 		// check required capabilities
-		Collection<IRequirement> requiredCapabilities = bundle2IU.getRequiredCapabilities();
+		Collection<IRequirement> requiredCapabilities = bundle2IU.getRequirements();
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUA_NAMESPACE, TEST2_REQA_NAME, TEST2_IUA_VERSION_RANGE);
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUB_NAMESPACE, TEST2_REQB_NAME, TEST2_IUB_VERSION_RANGE);
 		verifyRequiredCapability(requiredCapabilities, TEST2_IUC_NAMESPACE, TEST2_REQC_NAME, TEST2_IUC_VERSION_RANGE);

@@ -94,7 +94,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				Collection<IProvidedCapability> providedCapability = fragment.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + idBase + ".executable." + configSpec, version); //$NON-NLS-1$ 
 				assertTrue(providedCapability.size() == 1);
-				Collection<IRequirement> requiredCapability = fragment.getRequiredCapabilities();
+				Collection<IRequirement> requiredCapability = fragment.getRequirements();
 				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$ 
 				assertTrue(requiredCapability.size() == 1);
 				assertTrue(fragment.getFilter().equals(ExpressionUtil.parseLDAP("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
@@ -114,7 +114,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				Collection<IProvidedCapability> providedCapability = possibleEclipse.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec + ".eclipse", version); //$NON-NLS-1$ //$NON-NLS-2$ 
 				assertTrue(providedCapability.size() == 1);
-				Collection<IRequirement> req = possibleEclipse.getRequiredCapabilities();
+				Collection<IRequirement> req = possibleEclipse.getRequirements();
 				assertTrue(req.size() == 0);
 				return;//pass
 			}
@@ -142,7 +142,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				verifyProvidedCapability(providedCapabilities, flavorArg + idBase, idBase + ".executable", version); //$NON-NLS-1$
 				assertTrue(providedCapabilities.size() == 2);
 
-				Collection<IRequirement> requiredCapability = possibleExec.getRequiredCapabilities();
+				Collection<IRequirement> requiredCapability = possibleExec.getRequirements();
 				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher." + (idBase.equals("mac") || idBase.equals("macCocoa") ? configSpec.substring(0, configSpec.lastIndexOf(".")) : configSpec), VersionRange.emptyRange); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 				assertTrue(requiredCapability.size() == 1);
 				return;//pass

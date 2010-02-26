@@ -130,13 +130,13 @@ public class GeneratorTests extends AbstractProvisioningTest {
 		File siteXml = new File(rootFolder, "site.xml");
 		IInstallableUnit iu = getIU(metadataRepo, URIUtil.toUnencodedString(siteXml.toURI()) + ".More Examples");
 		assertNotNull(iu);
-		assertEquals(iu.getRequiredCapabilities().size(), 3);
+		assertEquals(iu.getRequirements().size(), 3);
 		assertEquals(iu.getProperty("org.eclipse.equinox.p2.type.category"), "true");
 		assertEquals(iu.getProperty("org.eclipse.equinox.p2.name"), "More Fine Examples");
 
 		iu = getIU(metadataRepo, URIUtil.toUnencodedString(siteXml.toURI()) + ".Examples");
 		assertNotNull(iu);
-		assertEquals(iu.getRequiredCapabilities().size(), 5);
+		assertEquals(iu.getRequirements().size(), 5);
 		assertEquals(iu.getProperty("org.eclipse.equinox.p2.type.category"), "true");
 		assertEquals(iu.getProperty("org.eclipse.equinox.p2.name"), "Platform Examples");
 

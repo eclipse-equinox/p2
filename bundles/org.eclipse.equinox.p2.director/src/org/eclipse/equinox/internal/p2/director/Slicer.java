@@ -131,7 +131,7 @@ public class Slicer {
 	}
 
 	private Collection<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
-		Collection<IRequirement> iuRequirements = iu.getRequiredCapabilities();
+		Collection<IRequirement> iuRequirements = iu.getRequirements();
 		int initialRequirementCount = iuRequirements.size();
 		if (!(iu instanceof IInstallableUnitPatch)) {
 			if (!considerMetaRequirements)

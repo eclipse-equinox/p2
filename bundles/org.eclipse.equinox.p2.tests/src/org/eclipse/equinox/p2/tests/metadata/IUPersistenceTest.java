@@ -243,7 +243,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String[][] extractRequires(IInstallableUnit iu) {
-		Collection<IRequirement> requyres = iu.getRequiredCapabilities();
+		Collection<IRequirement> requyres = iu.getRequirements();
 		String[][] tuples = new String[requyres.size()][4];
 		int i = 0;
 		for (Iterator iterator = requyres.iterator(); iterator.hasNext();) {
@@ -424,7 +424,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	private void validateIUPatch(IInstallableUnitPatch iu) {
 		validateIU(iu);
 		assertTrue(iu.getApplicabilityScope() != null);
-		assertTrue(iu.getRequiredCapabilities() != null);
+		assertTrue(iu.getRequirements() != null);
 		assertEquals(3, iu.getRequirementsChange().size());
 		assertEquals(null, iu.getRequirementsChange().get(1).applyOn());
 		assertNotNull(iu.getRequirementsChange().get(1).newValue());
@@ -439,7 +439,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	private void validateIUPatchWithEmptyScope(IInstallableUnitPatch iu) {
 		validateIU(iu);
 		assertTrue(iu.getApplicabilityScope() != null);
-		assertTrue(iu.getRequiredCapabilities() != null);
+		assertTrue(iu.getRequirements() != null);
 		assertEquals(3, iu.getRequirementsChange().size());
 		assertEquals(null, iu.getRequirementsChange().get(1).applyOn());
 		assertNotNull(iu.getRequirementsChange().get(1).newValue());

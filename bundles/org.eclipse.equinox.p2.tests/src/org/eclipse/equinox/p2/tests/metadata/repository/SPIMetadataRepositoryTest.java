@@ -274,7 +274,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return providedCapabilities;
 		}
 
-		public List<IRequirement> getRequiredCapabilities() {
+		public List<IRequirement> getRequirements() {
 			return requiredCapabilities;
 		}
 
@@ -724,8 +724,8 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(1, queryResultSize(queryResult));
 
 		IInstallableUnit unit = (IInstallableUnit) queryResult.iterator().next();
-		assertEquals(unit.getRequiredCapabilities().size(), 1);
-		assertTrue(unit.getRequiredCapabilities().iterator().next() instanceof SPIRequiredCapability);
+		assertEquals(unit.getRequirements().size(), 1);
+		assertTrue(unit.getRequirements().iterator().next() instanceof SPIRequiredCapability);
 
 		repo = manager.refreshRepository(repoLocation.toURI(), null);
 		queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
@@ -733,9 +733,9 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(1, queryResultSize(queryResult));
 
 		unit = (IInstallableUnit) queryResult.iterator().next();
-		assertEquals(unit.getRequiredCapabilities().size(), 1);
-		assertTrue(unit.getRequiredCapabilities().iterator().next() instanceof RequiredCapability);
-		assertTrue(((IRequiredCapability) unit.getRequiredCapabilities().iterator().next()).getName().equals("bar"));
+		assertEquals(unit.getRequirements().size(), 1);
+		assertTrue(unit.getRequirements().iterator().next() instanceof RequiredCapability);
+		assertTrue(((IRequiredCapability) unit.getRequirements().iterator().next()).getName().equals("bar"));
 	}
 
 	/**
@@ -803,13 +803,13 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertFalse(unit == null);
 		assertFalse(patchUnit == null);
 
-		assertEquals(unit.getRequiredCapabilities().size(), 1);
+		assertEquals(unit.getRequirements().size(), 1);
 		assertEquals(unit.getProvidedCapabilities().size(), 1);
 		assertEquals(unit.getTouchpointData().size(), 1);
-		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().iterator().next()).getNamespace(), spiRequiredCapability.getNamespace());
-		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().iterator().next()).getName(), spiRequiredCapability.getName());
-		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().iterator().next()).getMin(), spiRequiredCapability.getMin());
-		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().iterator().next()).getMax(), spiRequiredCapability.getMax());
+		assertEquals(((IRequiredCapability) unit.getRequirements().iterator().next()).getNamespace(), spiRequiredCapability.getNamespace());
+		assertEquals(((IRequiredCapability) unit.getRequirements().iterator().next()).getName(), spiRequiredCapability.getName());
+		assertEquals(((IRequiredCapability) unit.getRequirements().iterator().next()).getMin(), spiRequiredCapability.getMin());
+		assertEquals(((IRequiredCapability) unit.getRequirements().iterator().next()).getMax(), spiRequiredCapability.getMax());
 		assertEquals(unit.getProvidedCapabilities().iterator().next(), spiProvidedCapability);
 		assertEquals(unit.getTouchpointData().iterator().next(), spiTouchpointData);
 		assertEquals(unit.getTouchpointType(), spiTouchpointType);
@@ -826,7 +826,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		// Check to make sure the actual objects are not equal.  This is because the repo has 
 		// been refreshed, and re-parsed, thus using the default implementations.
 		assertFalse(spiTouchpointData == unit.getTouchpointData().iterator().next());
-		assertFalse(spiRequiredCapability == unit.getRequiredCapabilities().iterator().next());
+		assertFalse(spiRequiredCapability == unit.getRequirements().iterator().next());
 		assertFalse(spiProvidedCapability == unit.getProvidedCapabilities().iterator().next());
 		assertFalse(spiTouchpointType == unit.getTouchpointType());
 		assertFalse(spiLicense == unit.getLicenses().iterator().next());

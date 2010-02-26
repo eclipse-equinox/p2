@@ -268,7 +268,7 @@ public class RootIUActionTest extends ActionTest {
 		IInstallableUnit iu = (IInstallableUnit) ius.get(0);
 		assertTrue(iu != null);
 		assertTrue(iu.getVersion().equals(versionArg));
-		Collection<IRequirement> required = iu.getRequiredCapabilities();
+		Collection<IRequirement> required = iu.getRequirements();
 		if ((testSpec & EMPTY) > 0)
 			assertEquals(required.size(), 0);
 		String confirmedIUs = ""; //$NON-NLS-1$
