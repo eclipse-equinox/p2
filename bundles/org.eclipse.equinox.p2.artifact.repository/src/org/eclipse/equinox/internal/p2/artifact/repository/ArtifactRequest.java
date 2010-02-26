@@ -35,7 +35,7 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 	}
 
 	/**
-	 * Returns the result of the previous call to {@link #perform(IProgressMonitor)},
+	 * Returns the result of the previous call to {@link #perform(IArtifactRepository, IProgressMonitor)},
 	 * or <code>null</code> if perform has never been called.
 	 * 
 	 * @return The result of the previous perform call.
@@ -61,7 +61,7 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 	abstract public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor);
 
 	/**
-	 * Sets the result of an invocation of {@link #perform(IProgressMonitor)}.
+	 * Sets the result of an invocation of {@link #perform(IArtifactRepository, IProgressMonitor)}.
 	 * This method is called by subclasses to set the result status for
 	 * this request.
 	 * 
