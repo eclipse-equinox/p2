@@ -250,7 +250,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.filter;
 		}
 
-		public List<IInstallableUnitFragment> getFragments() {
+		public Collection<IInstallableUnitFragment> getFragments() {
 			return fragments;
 		}
 
@@ -278,7 +278,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return requiredCapabilities;
 		}
 
-		public List<ITouchpointData> getTouchpointData() {
+		public Collection<ITouchpointData> getTouchpointData() {
 			return touchpointData;
 		}
 
@@ -811,11 +811,11 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().iterator().next()).getMin(), spiRequiredCapability.getMin());
 		assertEquals(((IRequiredCapability) unit.getRequiredCapabilities().iterator().next()).getMax(), spiRequiredCapability.getMax());
 		assertEquals(unit.getProvidedCapabilities().iterator().next(), spiProvidedCapability);
-		assertEquals(unit.getTouchpointData().get(0), spiTouchpointData);
+		assertEquals(unit.getTouchpointData().iterator().next(), spiTouchpointData);
 		assertEquals(unit.getTouchpointType(), spiTouchpointType);
 		assertEquals(unit.getLicenses().iterator().next(), spiLicense);
 		assertEquals(spiProvidedCapability, unit.getProvidedCapabilities().iterator().next());
-		assertEquals(spiTouchpointData, unit.getTouchpointData().get(0));
+		assertEquals(spiTouchpointData, unit.getTouchpointData().iterator().next());
 		assertEquals(spiTouchpointType, unit.getTouchpointType());
 		assertEquals(spiLicense, unit.getLicenses().iterator().next());
 
@@ -825,7 +825,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		// Check to make sure the actual objects are not equal.  This is because the repo has 
 		// been refreshed, and re-parsed, thus using the default implementations.
-		assertFalse(spiTouchpointData == unit.getTouchpointData().get(0));
+		assertFalse(spiTouchpointData == unit.getTouchpointData().iterator().next());
 		assertFalse(spiRequiredCapability == unit.getRequiredCapabilities().iterator().next());
 		assertFalse(spiProvidedCapability == unit.getProvidedCapabilities().iterator().next());
 		assertFalse(spiTouchpointType == unit.getTouchpointType());

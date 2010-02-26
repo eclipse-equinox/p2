@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.*;
@@ -33,7 +31,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		this.fragments = fragments == null ? NO_IU : fragments;
 	}
 
-	public List<IInstallableUnitFragment> getFragments() {
+	public Collection<IInstallableUnitFragment> getFragments() {
 		int fcount = fragments.length;
 		if (fcount == 0)
 			return CollectionUtils.emptyList();
@@ -105,8 +103,8 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return result;
 	}
 
-	public List<ITouchpointData> getTouchpointData() {
-		List<ITouchpointData> originalTouchpointData = original.getTouchpointData();
+	public Collection<ITouchpointData> getTouchpointData() {
+		Collection<ITouchpointData> originalTouchpointData = original.getTouchpointData();
 		if (fragments.length == 0)
 			return originalTouchpointData;
 

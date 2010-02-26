@@ -11,6 +11,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import org.eclipse.equinox.p2.metadata.ITouchpointData;
+
+import java.util.Collection;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
+
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
@@ -119,7 +124,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		return filter;
 	}
 
-	public List<IInstallableUnitFragment> getFragments() {
+	public Collection<IInstallableUnitFragment> getFragments() {
 		return CollectionUtils.emptyList();
 	}
 
@@ -164,7 +169,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 
 	}
 
-	public List<ITouchpointData> getTouchpointData() {
+	public Collection<ITouchpointData> getTouchpointData() {
 		return CollectionUtils.unmodifiableList(touchpointData);
 	}
 

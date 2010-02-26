@@ -56,9 +56,9 @@ public class LocalUpdateSiteActionTest extends ActionTest {
 		Collection ius = publisherResult.getIUs("test.feature.feature.jar", null);
 		assertEquals("1.0", 1, ius.size());
 		IInstallableUnit iu = (IInstallableUnit) ius.iterator().next();
-		List<ITouchpointData> touchpointData = iu.getTouchpointData();
+		Collection<ITouchpointData> touchpointData = iu.getTouchpointData();
 		assertEquals("1.1", 1, touchpointData.size());
-		Map instructions = touchpointData.get(0).getInstructions();
+		Map instructions = touchpointData.iterator().next().getInstructions();
 		Set keys = instructions.keySet();
 		assertEquals("1.2", 1, keys.size());
 		String unzip = (String) keys.iterator().next();

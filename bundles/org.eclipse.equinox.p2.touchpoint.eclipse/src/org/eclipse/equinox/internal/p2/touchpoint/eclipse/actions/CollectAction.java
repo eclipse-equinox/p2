@@ -46,11 +46,11 @@ public class CollectAction extends ProvisioningAction {
 		return Status.OK_STATUS;
 	}
 
-	public static boolean isZipped(List<ITouchpointData> data) {
+	public static boolean isZipped(Collection<ITouchpointData> data) {
 		if (data == null || data.size() == 0)
 			return false;
-		for (int i = 0; i < data.size(); i++) {
-			if (data.get(i).getInstruction("zipped") != null) //$NON-NLS-1$
+		for (ITouchpointData td : data) {
+			if (td.getInstruction("zipped") != null) //$NON-NLS-1$
 				return true;
 		}
 		return false;

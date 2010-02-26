@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
 import java.io.File;
-import java.util.List;
+import java.util.Collection;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
@@ -34,11 +34,11 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 		return new TestSuite(RepositoryListenerTest.class);
 	}
 
-	public static boolean isZipped(List<ITouchpointData> data) {
+	public static boolean isZipped(Collection<ITouchpointData> data) {
 		if (data == null || data.size() == 0)
 			return false;
-		for (int i = 0; i < data.size(); i++) {
-			if (data.get(i).getInstruction("zipped") != null) //$NON-NLS-1$
+		for (ITouchpointData td : data) {
+			if (td.getInstruction("zipped") != null) //$NON-NLS-1$
 				return true;
 		}
 		return false;

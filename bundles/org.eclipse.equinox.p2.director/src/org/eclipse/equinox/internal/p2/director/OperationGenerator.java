@@ -63,8 +63,8 @@ public class OperationGenerator {
 	}
 
 	private void generateConfigurationOperation(IInstallableUnit fromIU, IInstallableUnit toIU) {
-		List<IInstallableUnitFragment> fromFragments = fromIU.getFragments();
-		List<IInstallableUnitFragment> toFragments = toIU.getFragments();
+		Collection<IInstallableUnitFragment> fromFragments = fromIU.getFragments();
+		Collection<IInstallableUnitFragment> toFragments = toIU.getFragments();
 		if (fromFragments == toFragments)
 			return;
 		//Check to see if the two arrays are equals independently of the order of the fragments

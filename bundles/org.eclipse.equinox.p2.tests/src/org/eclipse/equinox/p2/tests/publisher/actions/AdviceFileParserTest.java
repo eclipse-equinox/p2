@@ -350,11 +350,11 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(1, metaReq1.getMin());
 
 		assertEquals(1, iu1.getTouchpointData().size());
-		ITouchpointInstruction configure = iu1.getTouchpointData().get(0).getInstruction("configure");
+		ITouchpointInstruction configure = iu1.getTouchpointData().iterator().next().getInstruction("configure");
 		assertEquals(null, configure.getImportAttribute());
 		assertEquals("addProgramArg(programArg:-startup); addProgramArg(programArg:@artifact);", configure.getBody());
 
-		ITouchpointInstruction unconfigure = iu1.getTouchpointData().get(0).getInstruction("unconfigure");
+		ITouchpointInstruction unconfigure = iu1.getTouchpointData().iterator().next().getInstruction("unconfigure");
 		assertEquals("some.removeProgramArg", unconfigure.getImportAttribute());
 		assertEquals("removeProgramArg(programArg:-startup); removeProgramArg(programArg:@artifact);)", unconfigure.getBody());
 

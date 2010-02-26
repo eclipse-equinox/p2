@@ -109,7 +109,7 @@ public class MetadataFactory {
 		 * 
 		 * @return The current touchpoint data on this description
 		 */
-		public List<ITouchpointData> getTouchpointData() {
+		public Collection<ITouchpointData> getTouchpointData() {
 			return unit().getTouchpointData();
 
 		}

@@ -10,19 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
-import org.eclipse.equinox.p2.metadata.*;
-
 import java.util.Collection;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
@@ -159,23 +154,24 @@ public class IUImplementationGroup extends IUGroup {
 		if (type != null) {
 			touchpointType.setText(type.getId());
 		}
-		java.util.List<ITouchpointData> data = iu.getTouchpointData();
+		Collection<ITouchpointData> data = iu.getTouchpointData();
 		String[] items = new String[data.size()];
-		for (int i = 0; i < data.size(); i++) {
-			items[i] = data.get(i).toString();
+		int i = 0;
+		for (ITouchpointData td : data) {
+			items[i++] = td.toString();
 		}
 		touchpointData.setItems(items);
 
 		Collection<IRequirement> reqs = iu.getRequiredCapabilities();
 		items = new String[reqs.size()];
-		int j = 0;
+		i = 0;
 		for (IRequirement req : reqs) {
-			items[j++] = req.toString();
+			items[i++] = req.toString();
 		}
 		requiredCapabilities.setItems(items);
 		Collection<IProvidedCapability> prov = iu.getProvidedCapabilities();
 		items = new String[prov.size()];
-		int i = 0;
+		i = 0;
 		for (IProvidedCapability capability : prov) {
 			items[i++] = capability.toString();
 		}

@@ -12,7 +12,8 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.io.File;
 import java.net.URI;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
@@ -106,9 +107,9 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 		Collection productIUs = publisherResult.getIUs("productWithAdvice.product", IPublisherResult.NON_ROOT);
 		assertEquals("1.0", 1, productIUs.size());
 		IInstallableUnit product = (IInstallableUnit) productIUs.iterator().next();
-		List<ITouchpointData> data = product.getTouchpointData();
+		Collection<ITouchpointData> data = product.getTouchpointData();
 		assertEquals("1.1", 1, data.size());
-		String configure = data.get(0).getInstruction("configure").getBody();
+		String configure = data.iterator().next().getInstruction("configure").getBody();
 		assertEquals("1.2", "addRepository(type:0,location:http${#58}//download.eclipse.org/releases/fred);addRepository(type:1,location:http${#58}//download.eclipse.org/releases/fred);", configure);
 	}
 

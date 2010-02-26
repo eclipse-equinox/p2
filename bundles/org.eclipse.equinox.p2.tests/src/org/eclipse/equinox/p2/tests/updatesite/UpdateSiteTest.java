@@ -648,9 +648,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		IQueryResult result = repository.query(QueryUtil.createIUQuery("test.feature.feature.jar"), getMonitor());
 		assertTrue("1.0", !result.isEmpty());
 		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
-		List<ITouchpointData> data = unit.getTouchpointData();
+		Collection<ITouchpointData> data = unit.getTouchpointData();
 		assertEquals("1.1", 1, data.size());
-		Map instructions = data.get(0).getInstructions();
+		Map instructions = data.iterator().next().getInstructions();
 		assertEquals("1.2", 1, instructions.size());
 		assertEquals("1.3", "true", ((ITouchpointInstruction) instructions.get("zipped")).getBody());
 	}

@@ -11,6 +11,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import java.util.Collection;
+
 import java.util.*;
 import org.osgi.framework.Filter;
 
@@ -137,7 +139,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 * @see #isResolved()
 	 * @return The fragments bound to this installable unit, or <code>null</code>
 	 */
-	public List<IInstallableUnitFragment> getFragments();
+	public Collection<IInstallableUnitFragment> getFragments();
 
 	/**
 	 * Returns an <i>unmodifiable copy</i> of the properties
@@ -184,7 +186,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 
 	public Collection<IRequirement> getMetaRequiredCapabilities();
 
-	public List<ITouchpointData> getTouchpointData();
+	public Collection<ITouchpointData> getTouchpointData();
 
 	public ITouchpointType getTouchpointType();
 

@@ -201,10 +201,10 @@ public class BundlesActionTest extends ActionTest {
 		verifyProvidedCapability(providedCapabilities, PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "source", Version.create("1.0.0"));//$NON-NLS-1$//$NON-NLS-2$
 		assertEquals("2.1", 4, providedCapabilities.size());
 
-		List<ITouchpointData> data = bundle1IU.getTouchpointData();
+		Collection<ITouchpointData> data = bundle1IU.getTouchpointData();
 		boolean found = false;
-		for (int i = 0; i < data.size(); i++) {
-			ITouchpointInstruction configure = data.get(i).getInstruction("configure");
+		for (ITouchpointData td : data) {
+			ITouchpointInstruction configure = td.getInstruction("configure");
 			if (configure == null)
 				continue;
 			String body = configure.getBody();
@@ -245,10 +245,10 @@ public class BundlesActionTest extends ActionTest {
 		assertTrue(prop.get("org.eclipse.equinox.p2.name").toString().equalsIgnoreCase("%bundleName"));//$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(prop.get("org.eclipse.equinox.p2.provider").toString().equalsIgnoreCase("%providerName"));//$NON-NLS-1$//$NON-NLS-2$
 
-		List<ITouchpointData> data = bundle2IU.getTouchpointData();
+		Collection<ITouchpointData> data = bundle2IU.getTouchpointData();
 		boolean found = false;
-		for (int i = 0; i < data.size(); i++) {
-			ITouchpointInstruction configure = data.get(i).getInstruction("configure");
+		for (ITouchpointData td : data) {
+			ITouchpointInstruction configure = td.getInstruction("configure");
 			if (configure == null)
 				continue;
 			String body = configure.getBody();

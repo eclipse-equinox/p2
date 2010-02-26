@@ -36,7 +36,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(ID)) {
 				assertEquals(iu.getFragments().size(), 1);
-				assertEquals(iu.getFragments().get(0).getId(), "iuFragment.test1");
+				assertEquals(iu.getFragments().iterator().next().getId(), "iuFragment.test1");
 			}
 		}
 	}
@@ -54,11 +54,11 @@ public class FragmentTest extends AbstractProvisioningTest {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(ID1)) {
 				assertEquals(iu.getFragments().size(), 1);
-				assertEquals(iu.getFragments().get(0).getId(), "iuFragment.test1");
+				assertEquals(iu.getFragments().iterator().next().getId(), "iuFragment.test1");
 			}
 			if (iu.getId().equals(ID3)) {
 				assertEquals(iu.getFragments().size(), 1);
-				assertEquals(iu.getFragments().get(0).getId(), "iuFragment.test1");
+				assertEquals(iu.getFragments().iterator().next().getId(), "iuFragment.test1");
 			}
 		}
 	}

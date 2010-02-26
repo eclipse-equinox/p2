@@ -128,8 +128,8 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(foo.getTouchpointType().getVersion().equals(fooVersion));
 
 		//zipped=true
-		List<ITouchpointData> tpData = foo.getTouchpointData();
-		String fooValue = tpData.get(0).getInstructions().get("zipped").getBody(); //$NON-NLS-1$
+		Collection<ITouchpointData> tpData = foo.getTouchpointData();
+		String fooValue = tpData.iterator().next().getInstructions().get("zipped").getBody(); //$NON-NLS-1$
 		assertTrue(fooValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
 		Collection<IRequirement> fooRequiredCapabilities = foo.getRequiredCapabilities();
@@ -147,7 +147,7 @@ public class FeaturesActionTest extends ActionTest {
 		IInstallableUnit fooGroup = (IInstallableUnit) fooIUs.get(0);
 		tpData = fooGroup.getTouchpointData();
 		assertEquals(1, tpData.size());
-		ITouchpointInstruction instruction = tpData.get(0).getInstruction("install");
+		ITouchpointInstruction instruction = tpData.iterator().next().getInstruction("install");
 		assertNotNull(instruction);
 		assertEquals("ln(targetDir:@artifact,linkTarget:foo/lib.1.so,linkName:lib.so);chmod(targetDir:@artifact,targetFile:lib/lib.so,permissions:755);", instruction.getBody());
 		System.out.println(fooGroup.getFilter());
@@ -177,7 +177,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(barGroup.getFilter().equals(ExpressionUtil.parseLDAP("(&(|(osgi.os=macosx)(osgi.os=win32))(|(osgi.ws=carbon)(osgi.ws=win32))(|(osgi.arch=ppc)(osgi.arch=x86))(osgi.nl=en))")));
 
 		//check zipped=true in touchpointData
-		String barValue = bar.getTouchpointData().get(0).getInstructions().get("zipped").getBody(); //$NON-NLS-1$
+		String barValue = bar.getTouchpointData().iterator().next().getInstructions().get("zipped").getBody(); //$NON-NLS-1$
 		assertTrue(barValue.equalsIgnoreCase("true")); //$NON-NLS-1$
 
 		//check touchpointType

@@ -14,7 +14,8 @@ import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -53,22 +54,23 @@ public class DebugHelper {
 		System.out.println(buffer.toString());
 	}
 
-	public static String formatArray(List<? extends Object> array, boolean toString, boolean newLines) {
+	public static String formatArray(Collection<? extends Object> array, boolean toString, boolean newLines) {
 		if (array == null || array.size() == 0)
 			return "[]"; //$NON-NLS-1$
 
 		StringBuffer buffer = new StringBuffer();
 		buffer.append('[');
-		int i = 0;
-		for (;;) {
-			if (toString)
-				buffer.append(array.get(i).toString());
+		boolean first = true;
+		for (Object elem : array) {
+			if (first)
+				first = false;
 			else
-				buffer.append(array.get(i).getClass().getName());
-			i++;
-			if (i == array.size())
-				break;
-			buffer.append(',');
+				buffer.append(',');
+
+			if (toString)
+				buffer.append(elem.toString());
+			else
+				buffer.append(elem.getClass().getName());
 			if (newLines)
 				buffer.append(DebugHelper.LINE_SEPARATOR);
 			else

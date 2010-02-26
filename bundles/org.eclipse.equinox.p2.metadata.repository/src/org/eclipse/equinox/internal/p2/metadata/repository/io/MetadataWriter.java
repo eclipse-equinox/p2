@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -24,6 +22,7 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.query.QueryUtil;
 
 public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 
@@ -227,12 +226,11 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(TOUCHPOINT_TYPE_ELEMENT);
 	}
 
-	protected void writeTouchpointData(List<ITouchpointData> touchpointData) {
+	protected void writeTouchpointData(Collection<ITouchpointData> touchpointData) {
 		if (touchpointData != null && touchpointData.size() > 0) {
 			start(TOUCHPOINT_DATA_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, touchpointData.size());
-			for (int i = 0; i < touchpointData.size(); i++) {
-				ITouchpointData nextData = touchpointData.get(i);
+			for (ITouchpointData nextData : touchpointData) {
 				Map<String, ITouchpointInstruction> instructions = nextData.getInstructions();
 				if (instructions.size() > 0) {
 					start(TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT);
