@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class FindingPatchesThroughUpdates extends AbstractProvisioningTest {
@@ -56,14 +57,15 @@ public class FindingPatchesThroughUpdates extends AbstractProvisioningTest {
 	}
 
 	public void testInstall() {
-		IInstallableUnit[] updates = planner.updatesFor(a1, new ProvisioningContext(), new NullProgressMonitor());
-		assertEquals(2, updates.length);
-		assertEquals("Checking updates", new IInstallableUnit[] {a120, patchA1}, updates, false);
+		IQueryResult<IInstallableUnit> updates = planner.updatesFor(a1, new ProvisioningContext(), new NullProgressMonitor());
+		assertEquals(2, updates.unmodifiableSet().size());
+		assertTrue(updates.unmodifiableSet().contains(a120));
+		assertTrue(updates.unmodifiableSet().contains(patchA1));
 	}
 
 	public void testFindUpdatesOfPatches() {
-		IInstallableUnit[] updates = planner.updatesFor(anotherPatch2, new ProvisioningContext(), new NullProgressMonitor());
-		assertEquals(1, updates.length);
-		assertEquals("Checking updates", new IInstallableUnit[] {anotherPatch3}, updates, false);
+		IQueryResult<IInstallableUnit> updates = planner.updatesFor(anotherPatch2, new ProvisioningContext(), new NullProgressMonitor());
+		assertEquals(1, updates.unmodifiableSet().size());
+		assertTrue(updates.unmodifiableSet().contains(anotherPatch3));
 	}
 }

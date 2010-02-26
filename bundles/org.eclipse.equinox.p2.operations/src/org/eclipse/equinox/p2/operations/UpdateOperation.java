@@ -12,8 +12,6 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
@@ -22,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 
 /**
  * An UpdateOperation describes an operation that updates {@link IInstallableUnit}s in
@@ -133,16 +132,17 @@ public class UpdateOperation extends ProfileChangeOperation {
 			updates = possibleUpdatesByIU.get(iu);
 		} else {
 			// We must consult the planner
-			IInstallableUnit[] replacements = session.getPlanner().updatesFor(iu, context, monitor);
-			updates = new ArrayList<Update>(replacements.length);
-			for (int i = 0; i < replacements.length; i++) {
+			IQueryResult<IInstallableUnit> replacements = session.getPlanner().updatesFor(iu, context, monitor);
+			updates = new ArrayList<Update>();
+			for (Iterator<IInstallableUnit> replacementIterator = replacements.iterator(); replacementIterator.hasNext();) {
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=273967
 				// In the case of patches, it's possible that a patch is returned as an available update
 				// even though it is already installed, because we are querying each IU for updates individually.
 				// For now, we ignore any proposed update that is already installed.
-				IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(QueryUtil.createIUQuery(replacements[i]), null);
+				IInstallableUnit replacementIU = replacementIterator.next();
+				IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(QueryUtil.createIUQuery(replacementIU), null);
 				if (alreadyInstalled.isEmpty()) {
-					Update update = new Update(iu, replacements[i]);
+					Update update = new Update(iu, replacementIU);
 					updates.add(update);
 				}
 			}

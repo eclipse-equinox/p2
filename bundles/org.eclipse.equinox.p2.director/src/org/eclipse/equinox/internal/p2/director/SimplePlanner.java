@@ -11,12 +11,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.*;
-import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
@@ -161,21 +158,21 @@ public class SimplePlanner implements IPlanner {
 		}
 		// Now deal with profile property changes/additions
 		Map<String, String> propertyChanges = profileChangeRequest.getPropertiesToAdd();
-		for (Entry<String, String> entry : propertyChanges.entrySet()) {
+		for (Map.Entry<String, String> entry : propertyChanges.entrySet()) {
 			plan.setProfileProperty(entry.getKey(), entry.getValue());
 		}
 
 		// Now deal with iu property changes/additions.
 		Map<IInstallableUnit, Map<String, String>> allIUPropertyChanges = profileChangeRequest.getInstallableUnitProfilePropertiesToAdd();
-		for (Entry<IInstallableUnit, Map<String, String>> entry : allIUPropertyChanges.entrySet()) {
+		for (Map.Entry<IInstallableUnit, Map<String, String>> entry : allIUPropertyChanges.entrySet()) {
 			IInstallableUnit iu = entry.getKey();
-			for (Entry<String, String> entry2 : entry.getValue().entrySet()) {
+			for (Map.Entry<String, String> entry2 : entry.getValue().entrySet()) {
 				plan.setInstallableUnitProfileProperty(iu, entry2.getKey(), entry2.getValue());
 			}
 		}
 		// Now deal with iu property removals.
 		Map<IInstallableUnit, List<String>> allIUPropertyDeletions = profileChangeRequest.getInstallableUnitProfilePropertiesToRemove();
-		for (Entry<IInstallableUnit, List<String>> entry : allIUPropertyDeletions.entrySet()) {
+		for (Map.Entry<IInstallableUnit, List<String>> entry : allIUPropertyDeletions.entrySet()) {
 			IInstallableUnit iu = entry.getKey();
 			List<String> iuPropertyRemovals = entry.getValue();
 			for (String key : iuPropertyRemovals) {
@@ -527,7 +524,7 @@ public class SimplePlanner implements IPlanner {
 
 		//Create an agent request from the initial request
 		ProfileChangeRequest agentRequest = new ProfileChangeRequest(profile);
-		for (Entry<String, String> entry : initialRequest.getPropertiesToAdd().entrySet()) {
+		for (Map.Entry<String, String> entry : initialRequest.getPropertiesToAdd().entrySet()) {
 			agentRequest.setProfileProperty(entry.getKey(), entry.getValue());
 		}
 		String[] removedProperties = initialRequest.getPropertiesToRemove();
@@ -535,7 +532,7 @@ public class SimplePlanner implements IPlanner {
 			agentRequest.removeProfileProperty(removedProperties[i]);
 		}
 		Map<IInstallableUnit, List<String>> removedIUProperties = initialRequest.getInstallableUnitProfilePropertiesToRemove();
-		for (Entry<IInstallableUnit, List<String>> entry : removedIUProperties.entrySet()) {
+		for (Map.Entry<IInstallableUnit, List<String>> entry : removedIUProperties.entrySet()) {
 			for (String propKey : entry.getValue()) {
 				agentRequest.removeInstallableUnitProfileProperty(entry.getKey(), propKey);
 			}
@@ -657,7 +654,7 @@ public class SimplePlanner implements IPlanner {
 		Collection<IInstallableUnit> additionRequested = profileChangeRequest.getAdditions();
 		Collection<IInstallableUnit> removalRequested = profileChangeRequest.getRemovals();
 
-		for (Entry<IInstallableUnit, List<String>> object : profileChangeRequest.getInstallableUnitProfilePropertiesToRemove().entrySet()) {
+		for (Map.Entry<IInstallableUnit, List<String>> object : profileChangeRequest.getInstallableUnitProfilePropertiesToRemove().entrySet()) {
 			if (object.getValue().contains(INCLUSION_RULES))
 				profileChangeRequest.setInstallableUnitProfileProperty(object.getKey(), INCLUSION_RULES, PlannerHelper.createStrictInclusionRule(object.getKey()));
 		}
@@ -732,7 +729,7 @@ public class SimplePlanner implements IPlanner {
 		return MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, false, false, true);
 	}
 
-	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor) {
+	public IQueryResult<IInstallableUnit> updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor) {
 		Map<String, IInstallableUnit> resultsMap = new HashMap<String, IInstallableUnit>();
 
 		URI[] repositories = context.getMetadataRepositories();
@@ -758,8 +755,7 @@ public class SimplePlanner implements IPlanner {
 			}
 		}
 		sub.done();
-		Collection<IInstallableUnit> results = resultsMap.values();
-		return results.toArray(new IInstallableUnit[results.size()]);
+		return new CollectionResult<IInstallableUnit>(resultsMap.values());
 	}
 
 	//helper class to trick the resolver to believe that everything is optional

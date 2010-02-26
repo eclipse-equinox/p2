@@ -14,6 +14,7 @@ package org.eclipse.equinox.p2.planner;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
  * Planners are responsible for determining what should be done to a given 
@@ -42,5 +43,5 @@ public interface IPlanner {
 
 	public IProfileChangeRequest createChangeRequest(IProfile profileToChange);
 
-	public IInstallableUnit[] updatesFor(IInstallableUnit iu, ProvisioningContext context, IProgressMonitor monitor);
+	public IQueryResult<IInstallableUnit> updatesFor(IInstallableUnit iu, ProvisioningContext context, IProgressMonitor monitor);
 }

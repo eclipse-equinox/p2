@@ -12,7 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.query;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
@@ -41,13 +42,12 @@ public class QueryableUpdates implements IQueryable<IInstallableUnit> {
 		monitor.beginTask(ProvUIMessages.QueryableUpdates_UpdateListProgress, totalWork);
 		IPlanner planner = ui.getSession().getPlanner();
 		try {
-			ArrayList<IInstallableUnit> allUpdates = new ArrayList<IInstallableUnit>();
+			Set<IInstallableUnit> allUpdates = new HashSet<IInstallableUnit>();
 			for (int i = 0; i < iusToUpdate.length; i++) {
 				if (monitor.isCanceled())
 					return Collector.emptyCollector();
-				IInstallableUnit[] updates = planner.updatesFor(iusToUpdate[i], new ProvisioningContext(), new SubProgressMonitor(monitor, totalWork / 2 / iusToUpdate.length));
-				for (int j = 0; j < updates.length; j++)
-					allUpdates.add(updates[j]);
+				IQueryResult<IInstallableUnit> updates = planner.updatesFor(iusToUpdate[i], new ProvisioningContext(), new SubProgressMonitor(monitor, totalWork / 2 / iusToUpdate.length));
+				allUpdates.addAll(updates.unmodifiableSet());
 			}
 			return query.perform(allUpdates.iterator());
 		} catch (OperationCanceledException e) {

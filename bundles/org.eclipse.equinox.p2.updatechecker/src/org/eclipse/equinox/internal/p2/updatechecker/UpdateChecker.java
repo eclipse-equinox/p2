@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,7 +23,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
-import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
@@ -132,8 +130,8 @@ public class UpdateChecker implements IUpdateChecker {
 		Iterator<IInstallableUnit> iter = profile.query(query, null).iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit iu = iter.next();
-			IInstallableUnit[] replacements = getPlanner().updatesFor(iu, context, null);
-			if (replacements.length > 0)
+			IQueryResult<IInstallableUnit> replacements = getPlanner().updatesFor(iu, context, null);
+			if (!replacements.isEmpty())
 				iusWithUpdates.add(iu);
 		}
 		return iusWithUpdates;
