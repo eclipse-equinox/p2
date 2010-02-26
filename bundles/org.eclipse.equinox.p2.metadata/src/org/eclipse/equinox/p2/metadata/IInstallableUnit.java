@@ -184,7 +184,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 
 	public Collection<IRequirement> getRequiredCapabilities();
 
-	public Collection<IRequirement> getMetaRequiredCapabilities();
+	public Collection<IRequirement> getMetaRequirements();
 
 	public Collection<ITouchpointData> getTouchpointData();
 

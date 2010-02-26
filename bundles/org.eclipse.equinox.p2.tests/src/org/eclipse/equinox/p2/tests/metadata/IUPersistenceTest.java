@@ -254,7 +254,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	}
 
 	private static String[][] extractMetaRequires(IInstallableUnit iu) {
-		Collection<IRequirement> requyres = iu.getMetaRequiredCapabilities();
+		Collection<IRequirement> requyres = iu.getMetaRequirements();
 		String[][] tuples = new String[requyres.size()][4];
 		int i = 0;
 		for (Iterator iterator = requyres.iterator(); iterator.hasNext();) {

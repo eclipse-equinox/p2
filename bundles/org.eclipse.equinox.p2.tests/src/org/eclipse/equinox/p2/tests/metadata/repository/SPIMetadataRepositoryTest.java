@@ -322,7 +322,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return getId().compareTo(other.getId());
 		}
 
-		public List<IRequirement> getMetaRequiredCapabilities() {
+		public List<IRequirement> getMetaRequirements() {
 			return null;
 		}
 

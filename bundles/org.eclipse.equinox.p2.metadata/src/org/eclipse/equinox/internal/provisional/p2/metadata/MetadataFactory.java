@@ -100,7 +100,7 @@ public class MetadataFactory {
 		}
 
 		public Collection<IRequirement> getMetaRequiredCapabilities() {
-			return unit().getMetaRequiredCapabilities();
+			return unit().getMetaRequirements();
 		}
 
 		/**

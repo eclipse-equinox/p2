@@ -497,7 +497,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		desc.setLicenses(originalLicenses.toArray(new ILicense[originalLicenses.size()]));
 		Collection<IRequirement> originalRequirements = prototype.getRequiredCapabilities();
 		desc.setRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
-		originalRequirements = prototype.getMetaRequiredCapabilities();
+		originalRequirements = prototype.getMetaRequirements();
 		desc.setMetaRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
 		desc.setSingleton(prototype.isSingleton());
 		desc.setTouchpointType(MetadataFactory.createTouchpointType(prototype.getTouchpointType().getId(), prototype.getTouchpointType().getVersion()));

@@ -309,7 +309,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		return candidate.isMatch(this);
 	}
 
-	public Collection<IRequirement> getMetaRequiredCapabilities() {
+	public Collection<IRequirement> getMetaRequirements() {
 		return CollectionUtils.unmodifiableList(metaRequires);
 	}
 

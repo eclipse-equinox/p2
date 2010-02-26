@@ -92,14 +92,14 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return result;
 	}
 
-	public Collection<IRequirement> getMetaRequiredCapabilities() {
-		Collection<IRequirement> originalCapabilities = original.getMetaRequiredCapabilities();
+	public Collection<IRequirement> getMetaRequirements() {
+		Collection<IRequirement> originalCapabilities = original.getMetaRequirements();
 		if (fragments.length == 0)
 			return originalCapabilities;
 
 		ArrayList<IRequirement> result = new ArrayList<IRequirement>(originalCapabilities);
 		for (int i = 0; i < fragments.length; i++)
-			result.addAll(fragments[i].getMetaRequiredCapabilities());
+			result.addAll(fragments[i].getMetaRequirements());
 		return result;
 	}
 

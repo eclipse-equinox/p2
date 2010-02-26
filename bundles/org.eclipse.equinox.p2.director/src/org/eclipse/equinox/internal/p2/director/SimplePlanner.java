@@ -434,12 +434,12 @@ public class SimplePlanner implements IPlanner {
 	private Collection<IRequirement> extractMetaRequirements(Collection<IInstallableUnit> ius, IProvisioningPlan plan) {
 		Set<IRequirement> allMetaRequirements = new HashSet<IRequirement>();
 		for (IInstallableUnit iu : ius) {
-			allMetaRequirements.addAll(iu.getMetaRequiredCapabilities());
+			allMetaRequirements.addAll(iu.getMetaRequirements());
 		}
 		IQueryResult<IInstallableUnit> queryResult = plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null);
 		for (Iterator<IInstallableUnit> iterator = queryResult.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
-			allMetaRequirements.addAll(iu.getMetaRequiredCapabilities());
+			allMetaRequirements.addAll(iu.getMetaRequirements());
 		}
 		return allMetaRequirements;
 	}

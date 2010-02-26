@@ -277,7 +277,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals(0, iu0.getProperties().size());
 		assertEquals(0, iu0.getRequiredCapabilities().size());
 		assertEquals(0, iu0.getProvidedCapabilities().size());
-		assertEquals(0, iu0.getMetaRequiredCapabilities().size());
+		assertEquals(0, iu0.getMetaRequirements().size());
 		assertEquals(0, iu0.getTouchpointData().size());
 		assertEquals(ITouchpointType.NONE, iu0.getTouchpointType());
 		assertEquals(null, iu0.getUpdateDescriptor());
@@ -332,7 +332,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testName2", cap2.getName());
 		assertEquals(Version.emptyVersion, cap2.getVersion());
 
-		Collection<IRequirement> metarequirements = iu1.getMetaRequiredCapabilities();
+		Collection<IRequirement> metarequirements = iu1.getMetaRequirements();
 		assertEquals(2, metarequirements.size());
 		Iterator it3 = metarequirements.iterator();
 		IRequirement metaReq0 = (IRequirement) it3.next();
