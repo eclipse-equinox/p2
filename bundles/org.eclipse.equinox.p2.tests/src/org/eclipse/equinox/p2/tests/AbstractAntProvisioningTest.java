@@ -42,8 +42,8 @@ public class AbstractAntProvisioningTest extends AbstractProvisioningTest {
 
 	public void setUp() throws Exception {
 		super.setUp();
-		buildScript = new File(getTempFolder(), getUniqueString());
-		logLocation = new File(getTempFolder(), getUniqueString());
+		buildScript = new File(getTestFolder(getName()), "build_" + getName() + ".xml");
+		logLocation = new File(getTestFolder(getName()), "log_" + getName() + ".log");
 		createBuildScript();
 	}
 

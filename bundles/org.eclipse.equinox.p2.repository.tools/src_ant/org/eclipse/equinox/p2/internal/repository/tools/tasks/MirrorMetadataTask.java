@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.internal.repository.tools.RepositoryDescriptor;
 
@@ -38,6 +37,7 @@ public class MirrorMetadataTask extends Task {
 		destinationRepo.setName(destinationName);
 		destinationRepo.setLocation(destination);
 		destinationRepo.setKind(RepositoryDescriptor.KIND_METADATA);
+		destinationRepo.setFormat(source);
 		if (writeMode != null && writeMode.equals("clean")) //$NON-NLS-1$
 			destinationRepo.setAppend(false);
 

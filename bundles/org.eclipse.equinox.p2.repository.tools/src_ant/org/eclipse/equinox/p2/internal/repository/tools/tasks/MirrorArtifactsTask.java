@@ -45,6 +45,7 @@ public class MirrorArtifactsTask extends Task {
 		destinationRepo.setName(destinationName);
 		destinationRepo.setLocation(destination);
 		destinationRepo.setKind(RepositoryDescriptor.KIND_ARTIFACT);
+		destinationRepo.setFormat(source);
 		if (writeMode != null && writeMode.equals("clean")) //$NON-NLS-1$
 			destinationRepo.setAppend(false);
 
