@@ -68,7 +68,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	public static final String KEY_VERSION = "version"; //$NON-NLS-1$
 
 	public static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
-	private static final String INDEX_FILE = "index.p2"; //$NON-NLS-1$
+	private static final String INDEX_FILE = "p2.index"; //$NON-NLS-1$
 
 	/**
 	 * Map of String->RepositoryInfo, where String is the repository key
