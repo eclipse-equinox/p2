@@ -69,9 +69,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		Map<String, String> targetProperties = new HashMap<String, String>();
 		targetProperties.put("artifact.folder", "true");
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, targetProperties);
-		request.setSourceRepository(sourceRepository);
-
-		request.perform(new NullProgressMonitor());
+		request.perform(sourceRepository, new NullProgressMonitor());
 
 		assertTrue(request.getResult().matches(IStatus.ERROR));
 		assertTrue(request.getResult().getException() instanceof IOException);
@@ -82,9 +80,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		Map<String, String> targetProperties = new HashMap<String, String>();
 		targetProperties.put("artifact.folder", "true");
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, targetProperties);
-		request.setSourceRepository(sourceRepository);
-
-		request.perform(new NullProgressMonitor());
+		request.perform(sourceRepository, new NullProgressMonitor());
 
 		assertTrue(request.getResult().matches(IStatus.ERROR));
 	}
@@ -95,8 +91,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		IArtifactKey key = new ArtifactKey("test.txt", "fail_to_canonical", Version.parseVersion("1.0.0"));
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null);
-		request.setSourceRepository(src);
-		request.perform(new NullProgressMonitor());
+		request.perform(src, new NullProgressMonitor());
 
 		assertTrue(request.getResult().toString(), request.getResult().isOK());
 		assertTrue("Target does not contain artifact.", targetRepository.contains(key));
@@ -110,8 +105,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		// call test
 		IArtifactKey key = new ArtifactKey("test.txt", "HelloWorldText", Version.parseVersion("1.0.0"));
 		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null);
-		request.setSourceRepository(sourceRepository);
-		request.perform(new NullProgressMonitor());
+		request.perform(sourceRepository, new NullProgressMonitor());
 
 		// The download succeeded
 		assertTrue(request.getResult().toString(), request.getResult().isOK());
@@ -139,11 +133,11 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		IArtifactKey key = (IArtifactKey) keys.iterator().next();
 		MirrorRequest req = new MirrorRequest(key, targetRepository, null, null);
-		req.setSourceRepository(source);
+
 		// Set Status sequence 
 		seq.add(new Status(IStatus.ERROR, "Activator", "Message"));
 		seq.add(new Status(IStatus.WARNING, "Activator", "Message"));
-		req.perform(new NullProgressMonitor());
+		req.perform(source, new NullProgressMonitor());
 
 		assertEquals("Expected WARNING status", IStatus.WARNING, req.getResult().getSeverity());
 
@@ -151,10 +145,10 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		targetRepository.removeDescriptor(key);
 		// Set Status sequence 
 		req = new MirrorRequest(key, targetRepository, null, null);
-		req.setSourceRepository(source);
+
 		seq.add(new Status(IStatus.WARNING, "Activator", "Message"));
 		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
-		req.perform(new NullProgressMonitor());
+		req.perform(source, new NullProgressMonitor());
 
 		assertEquals("Expected INFO status", IStatus.INFO, req.getResult().getSeverity());
 
@@ -162,9 +156,9 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		targetRepository.removeDescriptor(key);
 		// Set Status sequence 
 		req = new MirrorRequest(key, targetRepository, null, null);
-		req.setSourceRepository(source);
+
 		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
-		req.perform(new NullProgressMonitor());
+		req.perform(source, new NullProgressMonitor());
 
 		assertEquals("Expected OK status", IStatus.OK, req.getResult().getSeverity());
 	}
@@ -189,9 +183,8 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 			IArtifactKey key = new ArtifactKey("osgi.bundle", "org.eclipse.ve.jfc", Version.parseVersion("1.4.0.HEAD"));
 			MirrorRequest req = new MirrorRequest(key, target, null, null);
-			req.setSourceRepository(source);
 
-			req.perform(new NullProgressMonitor());
+			req.perform(source, new NullProgressMonitor());
 			IStatus result = req.getResult();
 			assertTrue("MirrorRequest should have failed", result.matches(IStatus.ERROR));
 			assertEquals("Result should contain two failures", 2, result.getChildren().length);

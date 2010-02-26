@@ -14,11 +14,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.DownloadManager;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -132,6 +132,10 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		IArtifactRequest request = new IArtifactRequest() {
 			public IArtifactKey getArtifactKey() {
 				return null;
+			}
+
+			public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
+				//do nothing
 			}
 
 			public IStatus getResult() {

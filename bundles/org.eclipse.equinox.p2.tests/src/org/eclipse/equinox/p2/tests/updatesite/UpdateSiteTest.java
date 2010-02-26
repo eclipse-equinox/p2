@@ -802,8 +802,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 				fail("0.3");
 
 			RawMirrorRequest mirror = new RawMirrorRequest(descriptor, new ArtifactDescriptor(descriptor), targetRepository);
-			mirror.setSourceRepository(sourceRepo);
-			mirror.perform(getMonitor());
+			mirror.perform(sourceRepo, getMonitor());
 
 			assertTrue(mirror.getResult().isOK());
 			assertTrue(targetRepository.contains(key));

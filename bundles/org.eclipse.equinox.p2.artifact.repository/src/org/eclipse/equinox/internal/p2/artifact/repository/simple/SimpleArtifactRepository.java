@@ -16,7 +16,6 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
@@ -337,7 +336,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			internal.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
 		if (descriptor instanceof SimpleArtifactDescriptor) {
 			Map<String, String> repoProperties = ((SimpleArtifactDescriptor) descriptor).getRepositoryProperties();
-			for (Entry<String, String> entry : repoProperties.entrySet()) {
+			for (Map.Entry<String, String> entry : repoProperties.entrySet()) {
 				internal.setRepositoryProperty(entry.getKey(), entry.getValue());
 			}
 		}
@@ -548,9 +547,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return super.getAdapter(adapter);
 	}
 
-	IStatus getArtifact(ArtifactRequest request, IProgressMonitor monitor) {
-		request.setSourceRepository(this);
-		request.perform(monitor);
+	IStatus getArtifact(IArtifactRequest request, IProgressMonitor monitor) {
+		request.perform(this, monitor);
 		return request.getResult();
 	}
 
@@ -601,7 +599,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				for (int i = 0; i < requests.length; i++) {
 					if (monitor.isCanceled())
 						return Status.CANCEL_STATUS;
-					IStatus result = getArtifact((ArtifactRequest) requests[i], subMonitor.newChild(1));
+					IStatus result = getArtifact(requests[i], subMonitor.newChild(1));
 					if (!result.isOK())
 						overallStatus.add(result);
 				}

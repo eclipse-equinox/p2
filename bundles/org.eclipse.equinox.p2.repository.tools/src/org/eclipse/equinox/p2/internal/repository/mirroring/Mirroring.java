@@ -193,9 +193,7 @@ public class Mirroring {
 	 */
 	private IStatus downloadArtifact(IArtifactRepository sourceRepo, IArtifactDescriptor destDescriptor, IArtifactDescriptor srcDescriptor) {
 		RawMirrorRequest request = new RawMirrorRequest(srcDescriptor, destDescriptor, destination);
-		request.setSourceRepository(sourceRepo);
-
-		request.perform(new NullProgressMonitor());
+		request.perform(sourceRepo, new NullProgressMonitor());
 
 		return request.getResult();
 	}

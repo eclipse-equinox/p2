@@ -12,11 +12,13 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.*;
 import java.lang.reflect.Method;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -123,8 +125,17 @@ public class Bug252308 extends AbstractProvisioningTest {
 		IArtifactDescriptor sourceDescriptor = getArtifactKeyFor(source, "osgi.bundle", "missingFromFileSystem", Version.createOSGi(1, 0, 0))[0];
 		SimpleArtifactDescriptor targetDescriptor = new SimpleArtifactDescriptor(sourceDescriptor);
 		targetDescriptor.setRepositoryProperty("artifact.folder", "true");
-		MirrorRequest request = new MirrorRequest(new ArtifactKey("osgi.bundle", "missingFromFileSystem", Version.createOSGi(1, 0, 0)), target, null, null);
-		request.setSourceRepository(source);
+		class TestRequest extends MirrorRequest {
+			public TestRequest(IArtifactKey key, IArtifactRepository targetRepository, Map<String, String> targetDescriptorProperties, Map<String, String> targetRepositoryProperties) {
+				super(key, targetRepository, targetDescriptorProperties, targetRepositoryProperties);
+			}
+
+			public void setSource(IArtifactRepository source) {
+				super.setSourceRepository(source);
+			}
+		}
+		TestRequest request = new TestRequest(new ArtifactKey("osgi.bundle", "missingFromFileSystem", Version.createOSGi(1, 0, 0)), target, null, null);
+		request.setSource(source);
 		IStatus s = transferSingle(request, targetDescriptor, sourceDescriptor, new NullProgressMonitor());
 		assertTrue(s.toString(), s.getException().getClass() == FileNotFoundException.class);
 	}

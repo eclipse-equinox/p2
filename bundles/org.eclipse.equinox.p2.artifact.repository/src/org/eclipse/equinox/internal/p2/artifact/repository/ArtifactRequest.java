@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,10 +54,11 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 	/**
 	 * Performs the artifact request, and sets the result status.
 	 * 
+	 * @param sourceRepository the repository to download the artifact from 
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
-	abstract public void perform(IProgressMonitor monitor);
+	abstract public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor);
 
 	/**
 	 * Sets the result of an invocation of {@link #perform(IProgressMonitor)}.
@@ -70,7 +71,7 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 		result = value;
 	}
 
-	public void setSourceRepository(IArtifactRepository value) {
+	protected void setSourceRepository(IArtifactRepository value) {
 		source = value;
 	}
 }

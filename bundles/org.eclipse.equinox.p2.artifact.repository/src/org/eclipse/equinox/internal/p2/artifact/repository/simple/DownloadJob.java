@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 import java.util.LinkedList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 
 public class DownloadJob extends Job {
@@ -61,7 +60,7 @@ public class DownloadJob extends Job {
 			SubProgressMonitor subMonitor = new SubProgressMonitor(masterMonitor, 1);
 			subMonitor.beginTask("", 1); //$NON-NLS-1$
 			try {
-				IStatus status = repository.getArtifact((ArtifactRequest) request, subMonitor);
+				IStatus status = repository.getArtifact(request, subMonitor);
 				if (!status.isOK()) {
 					synchronized (overallStatus) {
 						overallStatus.add(status);

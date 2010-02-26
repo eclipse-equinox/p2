@@ -1010,8 +1010,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 			// Create mirror request
 			MirrorRequest request = new MirrorRequest(descriptor.getArtifactKey(), destination, null, null);
-			request.setSourceRepository(source);
-			request.perform(new NullProgressMonitor());
+			request.perform(source, new NullProgressMonitor());
 			IStatus status = request.getResult();
 			// The download should have completed 'successfully'
 			assertTrue(status.isOK());
@@ -1098,8 +1097,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 			// Create mirror request
 			MirrorRequest request = new MirrorRequest(descriptor.getArtifactKey(), dest, null, null);
-			request.setSourceRepository(source);
-			request.perform(new NullProgressMonitor());
+			request.perform(source, new NullProgressMonitor());
 			IStatus status = request.getResult();
 
 			// We should have OK status

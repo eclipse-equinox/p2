@@ -111,8 +111,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	}
 
 	private IStatus getArtifact(ArtifactRequest request, IProgressMonitor monitor) {
-		request.setSourceRepository(this);
-		request.perform(monitor);
+		request.perform(this, monitor);
 		return request.getResult();
 	}
 

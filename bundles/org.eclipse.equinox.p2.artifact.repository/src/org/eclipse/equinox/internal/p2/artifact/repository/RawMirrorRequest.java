@@ -29,8 +29,9 @@ public class RawMirrorRequest extends MirrorRequest {
 		this.targetDescriptor = targetDescriptor;
 	}
 
-	public void perform(IProgressMonitor monitor) {
+	public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
 		monitor.subTask(NLS.bind(Messages.downloading, getArtifactKey().getId()));
+		setSourceRepository(sourceRepository);
 		// Do we already have the descriptor in the target?
 		if (target.contains(targetDescriptor)) {
 			setResult(new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.mirror_alreadyExists, targetDescriptor, target)));

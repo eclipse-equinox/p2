@@ -186,8 +186,7 @@ public class TestArtifactRepository implements IArtifactRepository {
 	}
 
 	private IStatus getArtifact(ArtifactRequest artifactRequest, IProgressMonitor monitor) {
-		artifactRequest.setSourceRepository(this);
-		artifactRequest.perform(monitor);
+		artifactRequest.perform(this, monitor);
 		return artifactRequest.getResult();
 	}
 

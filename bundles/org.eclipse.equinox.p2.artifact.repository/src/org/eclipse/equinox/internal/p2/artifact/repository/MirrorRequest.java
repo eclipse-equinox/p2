@@ -58,8 +58,9 @@ public class MirrorRequest extends ArtifactRequest {
 		}
 	}
 
-	public void perform(IProgressMonitor monitor) {
+	public void perform(IArtifactRepository sourceRepository, IProgressMonitor monitor) {
 		monitor.subTask(NLS.bind(Messages.downloading, getArtifactKey().getId()));
+		setSourceRepository(sourceRepository);
 		// Do we already have the artifact in the target?
 		if (target.contains(getArtifactKey())) {
 			setResult(new Status(IStatus.OK, Activator.ID, NLS.bind(Messages.available_already_in, getArtifactKey())));
