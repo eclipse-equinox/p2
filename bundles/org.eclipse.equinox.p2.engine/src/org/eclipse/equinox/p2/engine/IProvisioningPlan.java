@@ -87,7 +87,7 @@ public interface IProvisioningPlan {
 
 	public void removeInstallableUnit(IInstallableUnit iu);
 
-	public void updateInstallableUnit(IInstallableUnit iu1, IInstallableUnit iu2);
+	public void updateInstallableUnit(IInstallableUnit from, IInstallableUnit to);
 
 	public void setProfileProperty(String name, String value);
 
