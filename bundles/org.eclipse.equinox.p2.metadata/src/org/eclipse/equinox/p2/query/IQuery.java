@@ -40,7 +40,7 @@ public interface IQuery<T> {
 	IQueryResult<T> perform(Iterator<T> iterator);
 
 	/**
-	 * Returns the IExpression backing this query of <code>null</code> if
+	 * Returns the IExpression backing this query or <code>null</code> if
 	 * this is not an expression query.
 	 * @return An expression or <code>null</code>.
 	 */
