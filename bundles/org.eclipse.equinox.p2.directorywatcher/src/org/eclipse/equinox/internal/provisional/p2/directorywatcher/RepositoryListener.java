@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.io.File;
 import java.net.URI;
 import java.util.*;
@@ -25,8 +23,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -220,7 +217,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			IQuery<IInstallableUnit> removeQuery = QueryUtil.createMatchQuery( //
 					"$1.exists(x | properties[$0] == x)", FILE_NAME, removedFiles); //$NON-NLS-1$
 			IQueryResult<IInstallableUnit> toRemove = metadataRepository.query(removeQuery, null);
-			metadataRepository.removeInstallableUnits(toRemove.toSet());
+			metadataRepository.removeInstallableUnits(toRemove.unmodifiableSet());
 		}
 		// Then add all the new IUs as well as the new copies of the ones that have changed
 		Collection<IInstallableUnit> additions = iusToAdd.getIUs(null, null);

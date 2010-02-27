@@ -239,7 +239,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 	private void mirrorMetadata(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {
 		IQueryResult<IInstallableUnit> allIUs = slice.query(QueryUtil.createIUAnyQuery(), monitor);
-		destinationMetadataRepository.addInstallableUnits(allIUs.toSet());
+		destinationMetadataRepository.addInstallableUnits(allIUs.unmodifiableSet());
 	}
 
 	/*

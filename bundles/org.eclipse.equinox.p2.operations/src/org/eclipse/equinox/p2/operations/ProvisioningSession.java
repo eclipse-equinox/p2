@@ -12,8 +12,6 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.io.IOException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -313,6 +311,6 @@ public class ProvisioningSession {
 		else
 			query = new UserVisibleRootQuery();
 		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
-		return queryResult.toSet();
+		return queryResult.unmodifiableSet();
 	}
 }
