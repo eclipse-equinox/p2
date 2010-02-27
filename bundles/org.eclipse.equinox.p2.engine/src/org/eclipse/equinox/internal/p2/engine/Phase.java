@@ -282,7 +282,7 @@ public abstract class Phase {
 			return Status.OK_STATUS;
 
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-		for (Entry<Touchpoint, Map<String, Object>> entry : touchpointToTouchpointPhaseParameters.entrySet()) {
+		for (Map.Entry<Touchpoint, Map<String, Object>> entry : touchpointToTouchpointPhaseParameters.entrySet()) {
 			Touchpoint touchpoint = entry.getKey();
 			Map<String, Object> touchpointParameters = entry.getValue();
 			mergeStatus(status, touchpoint.completePhase(monitor, profile, phaseId, touchpointParameters));
@@ -300,7 +300,7 @@ public abstract class Phase {
 			return Status.OK_STATUS;
 
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-		for (Entry<Touchpoint, Map<String, Object>> entry : touchpointToTouchpointOperandParameters.entrySet()) {
+		for (Map.Entry<Touchpoint, Map<String, Object>> entry : touchpointToTouchpointOperandParameters.entrySet()) {
 			Touchpoint touchpoint = entry.getKey();
 			Map<String, Object> touchpointParameters = entry.getValue();
 			mergeStatus(status, touchpoint.completeOperand(profile, touchpointParameters));
