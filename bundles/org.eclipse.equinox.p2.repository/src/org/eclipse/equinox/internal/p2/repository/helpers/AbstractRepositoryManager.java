@@ -707,7 +707,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	private IRepository<T> loadRepository(URI location, String suffix, String type, int flags, SubMonitor monitor) throws ProvisionException {
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix, type);
 		// Loop over the candidates and return the first one that successfully loads
-		monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
+		monitor.beginTask(null, providers.length * 10);
 		for (int i = 0; i < providers.length; i++)
 			try {
 				IRepository<T> repo = factoryLoad(location, providers[i], flags, monitor);

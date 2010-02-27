@@ -11,10 +11,10 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
-import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.osgi.util.NLS;
@@ -102,7 +102,7 @@ public abstract class Phase {
 
 	private void mainPerform(MultiStatus status, EngineSession session, Operand[] operands, SubMonitor subMonitor) {
 		IProfile profile = session.getProfile();
-		subMonitor.beginTask("", operands.length); //$NON-NLS-1$
+		subMonitor.beginTask(null, operands.length);
 		for (int i = 0; i < operands.length; i++) {
 			subMonitor.setWorkRemaining(operands.length - i);
 			if (subMonitor.isCanceled())
