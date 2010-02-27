@@ -19,7 +19,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
@@ -220,7 +219,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		ICopyright copyright = null;
 		Filter filter = null;
 		String id = null;
-		ILicense[] license = null;
+		Collection<ILicense> license = null;
 		Map properties = new HashMap();
 		ITouchpointType touchpointType = null;
 		IUpdateDescriptor updateDescriptor = null;
@@ -259,7 +258,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		public Collection<ILicense> getLicenses() {
-			return CollectionUtils.unmodifiableList(license);
+			return license;
 		}
 
 		public Map getProperties() {
@@ -330,7 +329,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return getProperty(key);
 		}
 
-		public ILicense[] getLicenses(String locale) {
+		public Collection<ILicense> getLicenses(String locale) {
 			return license;
 		}
 

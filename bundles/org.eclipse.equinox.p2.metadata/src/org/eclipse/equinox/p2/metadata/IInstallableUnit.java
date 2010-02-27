@@ -12,8 +12,7 @@
 package org.eclipse.equinox.p2.metadata;
 
 import java.util.Collection;
-
-import java.util.*;
+import java.util.Map;
 import org.osgi.framework.Filter;
 
 /**
@@ -258,7 +257,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 * @param locale The locale to translate the license for, or null to use the current locale.
 	 * @return the translated licenses that apply to this installable unit
 	 */
-	public ILicense[] getLicenses(String locale);
+	public Collection<ILicense> getLicenses(String locale);
 
 	/**
 	 * Returns the untranslated copyright that applies to this installable unit.

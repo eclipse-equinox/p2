@@ -18,7 +18,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -62,7 +62,7 @@ public class TranslationSupportTests extends AbstractQueryTest {
 
 		ICopyright copyright = unit.getCopyright(null);
 		assertEquals("1.1", "Test Copyright", copyright.getBody());
-		ILicense license = unit.getLicenses(null)[0];
+		ILicense license = unit.getLicenses(null).iterator().next();
 		assertEquals("1.2", "Test License", license.getBody());
 		//		assertEquals("1.3", "license.html", license.getURL().toExternalForm());
 		String name = unit.getProperty(IInstallableUnit.PROP_NAME, null);
@@ -128,9 +128,9 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		profile.addInstallableUnit(iuFragment);
 		profile.addInstallableUnit(iu);
 
-		ILicense license = iu.getLicenses(Locale.GERMAN.toString())[0];
+		ILicense license = iu.getLicenses(Locale.GERMAN.toString()).iterator().next();
 		assertEquals("1.0", germanLicense, license.getBody());
-		license = iu.getLicenses(Locale.CANADA_FRENCH.toString())[0];
+		license = iu.getLicenses(Locale.CANADA_FRENCH.toString()).iterator().next();
 		assertEquals("1.1", canadianFRLicense, license.getBody());
 	}
 
@@ -138,7 +138,7 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		IInstallableUnit unit = createIU("f1");
 
 		assertNull("1.1", unit.getCopyright(null));
-		assertEquals("1.2", 0, unit.getLicenses(null).length);;
+		assertEquals("1.2", 0, unit.getLicenses(null).size());
 		assertNull("1.3", unit.getProperty(IInstallableUnit.PROP_NAME, null));
 		assertNull("1.4", unit.getProperty(IInstallableUnit.PROP_DESCRIPTION, null));
 		assertNull("1.5", unit.getProperty(IInstallableUnit.PROP_PROVIDER, null));

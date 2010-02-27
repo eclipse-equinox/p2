@@ -172,7 +172,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getLicenses();
 	}
 
-	public ILicense[] getLicenses(String locale) {
+	public Collection<ILicense> getLicenses(String locale) {
 		return original.getLicenses(locale);
 	}
 

@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.p2.metadata.ILicense;
-
+import java.util.Iterator;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.ILicense;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -32,11 +32,10 @@ public class IULicensePropertyPage extends IUPropertyPage {
 
 	protected Control createIUPage(Composite parent, IInstallableUnit iu) {
 		// Get the license in the default locale
-		ILicense[] licenses = iu.getLicenses(null);
-		final ILicense license;
+		Iterator<ILicense> licenses = iu.getLicenses(null).iterator();
+		final ILicense license = licenses.hasNext() ? licenses.next() : null;
 		//FIXME
-		if (licenses.length > 0 && licenses[0].getBody() != null && licenses[0].getBody().length() > 0) {
-			license = licenses[0];
+		if (license != null && license.getBody().length() > 0) {
 			Composite composite = new Composite(parent, SWT.NONE);
 			GridLayout layout = new GridLayout();
 			layout.marginWidth = 0;

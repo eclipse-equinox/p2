@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.util.*;
 import java.util.List;
 import org.eclipse.core.runtime.IStatus;
@@ -24,6 +22,7 @@ import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.ILicense;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.*;
@@ -286,9 +285,10 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		if (singleIU != null) {
 			String licenseBody = ""; //$NON-NLS-1$
 			// We've already established before calling this method that it's a single IU with a single license
-			ILicense[] licenses = singleIU.getLicenses(null);
-			if (licenses.length > 0 && licenses[0].getBody() != null) {
-				licenseBody = licenses[0].getBody();
+			Iterator<ILicense> licenses = singleIU.getLicenses(null).iterator();
+			ILicense license = licenses.hasNext() ? licenses.next() : null;
+			if (license != null && license.getBody() != null) {
+				licenseBody = license.getBody();
 			}
 			licenseTextBox.setText(licenseBody);
 		}
@@ -387,9 +387,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		HashMap<ILicense, HashSet<String>> namesSeen = new HashMap<ILicense, HashSet<String>>(); // map of License->HashSet of names with that license
 		for (int i = 0; i < iusToCheck.length; i++) {
 			IInstallableUnit iu = iusToCheck[i];
-			ILicense[] licenses = iu.getLicenses(null);
-			for (int k = 0; k < licenses.length; k++) {
-				ILicense license = licenses[k];
+			for (ILicense license : iu.getLicenses(null)) {
 				if (manager != null && !manager.isAccepted(license)) {
 					String name = iu.getProperty(IInstallableUnit.PROP_NAME, null);
 					if (name == null)

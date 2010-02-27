@@ -11,11 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.ITouchpointData;
-
-import java.util.Collection;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
-
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
@@ -289,8 +284,8 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		return CollectionUtils.unmodifiableList(licenses);
 	}
 
-	public ILicense[] getLicenses(String locale) {
-		return TranslationSupport.getInstance().getLicenses(this, locale);
+	public Collection<ILicense> getLicenses(String locale) {
+		return CollectionUtils.unmodifiableList(TranslationSupport.getInstance().getLicenses(this, locale));
 	}
 
 	public void setCopyright(ICopyright copyright) {
