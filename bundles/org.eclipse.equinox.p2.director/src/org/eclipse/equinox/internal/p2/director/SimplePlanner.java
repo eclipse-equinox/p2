@@ -203,7 +203,7 @@ public class SimplePlanner implements IPlanner {
 
 	public static Collection<IInstallableUnit> findPlannerMarkedIUs(final IProfile profile) {
 		IQuery<IInstallableUnit> markerQuery = new IUProfilePropertyQuery(INCLUSION_RULES, IUProfilePropertyQuery.ANY);
-		return profile.query(markerQuery, null).unmodifiableSet();
+		return profile.query(markerQuery, null).toUnmodifiableSet();
 	}
 
 	public static Dictionary<String, String> createSelectionContext(Map<String, String> properties) {
@@ -604,7 +604,7 @@ public class SimplePlanner implements IPlanner {
 		ProvisioningContext noRepoContext = new ProvisioningContext(new URI[0]);
 		noRepoContext.setArtifactRepositories(new URI[0]);
 		noRepoContext.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
-		noRepoContext.setExtraIUs(new ArrayList<IInstallableUnit>(request.getProfile().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).unmodifiableSet()));
+		noRepoContext.setExtraIUs(new ArrayList<IInstallableUnit>(request.getProfile().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).toUnmodifiableSet()));
 		return noRepoContext;
 	}
 

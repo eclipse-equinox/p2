@@ -64,7 +64,7 @@ public class ElementQueryDescriptor {
 		// This allows the wrapper to modify the results with explanations.
 		if (wrapper != null)
 			return wrapper.getElements(results);
-		return results.unmodifiableSet();
+		return results.toUnmodifiableSet();
 	}
 
 	public boolean hasCollector() {

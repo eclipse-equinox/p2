@@ -75,10 +75,10 @@ public class QueryResult<T> implements IQueryResult<T> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Set<T> unmodifiableSet() {
+	public Set<T> toUnmodifiableSet() {
 		Object provider = iterator.getIteratorProvider();
 		if (provider instanceof Collector<?>)
-			return ((Collector<T>) provider).unmodifiableSet();
+			return ((Collector<T>) provider).toUnmodifiableSet();
 
 		if (provider instanceof Set<?>)
 			return Collections.unmodifiableSet((Set<T>) provider);

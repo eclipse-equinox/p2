@@ -178,7 +178,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		if (queryResult.isEmpty() && publisherInfo.getContextMetadataRepository() != null)
 			queryResult = publisherInfo.getContextMetadataRepository().query(query, null);
 
-		return queryResult.unmodifiableSet();
+		return queryResult.toUnmodifiableSet();
 	}
 
 	private static final IExpression qualifierMatchExpr = ExpressionUtil.parse("id == $0 && version ~= $1"); //$NON-NLS-1$

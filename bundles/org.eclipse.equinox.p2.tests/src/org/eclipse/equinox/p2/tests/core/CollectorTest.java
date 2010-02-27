@@ -98,10 +98,10 @@ public class CollectorTest extends AbstractProvisioningTest {
 		};
 		Collector collector = new Collector();
 		collector.addAll(numeric.perform(list.iterator()));
-		assertEquals("1.0", 7, collector.unmodifiableSet().size());
+		assertEquals("1.0", 7, collector.toUnmodifiableSet().size());
 
 		collector.addAll(collector.query(fourOrFiveOrABC, null));
-		Collection collection = collector.unmodifiableSet();
+		Collection collection = collector.toUnmodifiableSet();
 		assertEquals("2.0", 7, collection.size());
 	}
 
@@ -138,7 +138,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 
 	public void testToCollection() {
 		Collector collector = new Collector();
-		Collection result = collector.unmodifiableSet();
+		Collection result = collector.toUnmodifiableSet();
 		assertEquals("1.0", 0, result.size());
 		//collection should be immutable
 		try {
@@ -150,7 +150,7 @@ public class CollectorTest extends AbstractProvisioningTest {
 
 		String value = "value";
 		collector.accept(value);
-		result = collector.unmodifiableSet();
+		result = collector.toUnmodifiableSet();
 		assertEquals("2.0", 1, result.size());
 		assertEquals("2.1", value, result.iterator().next());
 		//collection should be immutable

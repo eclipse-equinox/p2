@@ -77,14 +77,14 @@ public class PublisherResult extends IndexProvider<IInstallableUnit> implements 
 		if (type == null) {
 			// TODO can this be optimized?
 			ArrayList<IInstallableUnit> result = new ArrayList<IInstallableUnit>();
-			result.addAll(rootIUs.get(id).unmodifiableSet());
-			result.addAll(nonRootIUs.get(id).unmodifiableSet());
+			result.addAll(rootIUs.get(id).toUnmodifiableSet());
+			result.addAll(nonRootIUs.get(id).toUnmodifiableSet());
 			return result;
 		}
 		if (type == ROOT)
-			return rootIUs.get(id).unmodifiableSet();
+			return rootIUs.get(id).toUnmodifiableSet();
 		if (type == NON_ROOT)
-			return nonRootIUs.get(id).unmodifiableSet();
+			return nonRootIUs.get(id).toUnmodifiableSet();
 		return null;
 	}
 

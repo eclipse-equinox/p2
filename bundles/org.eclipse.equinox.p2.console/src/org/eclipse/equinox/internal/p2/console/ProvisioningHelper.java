@@ -200,7 +200,7 @@ public class ProvisioningHelper {
 			throw new ProvisionException("No director service found.");
 		ProvisioningContext context = new ProvisioningContext();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addAll(units.unmodifiableSet());
+		request.addAll(units.toUnmodifiableSet());
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}
@@ -299,7 +299,7 @@ public class ProvisioningHelper {
 			throw new ProvisionException("No engine service found.");
 		ProvisioningContext context = new ProvisioningContext();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.removeAll(units.unmodifiableSet());
+		request.removeAll(units.toUnmodifiableSet());
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}

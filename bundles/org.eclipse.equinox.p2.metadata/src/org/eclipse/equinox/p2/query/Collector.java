@@ -166,7 +166,7 @@ public class Collector<T> implements IQueryResult<T> {
 	 * @return An unmodifiable collection of the collected objects
 	 */
 	@SuppressWarnings("unchecked")
-	public Set<T> unmodifiableSet() {
+	public Set<T> toUnmodifiableSet() {
 		return collected == null ? Collections.EMPTY_SET : Collections.unmodifiableSet(collected);
 	}
 }

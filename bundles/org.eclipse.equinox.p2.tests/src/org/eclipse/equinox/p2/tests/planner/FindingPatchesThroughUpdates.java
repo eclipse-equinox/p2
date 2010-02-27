@@ -58,14 +58,14 @@ public class FindingPatchesThroughUpdates extends AbstractProvisioningTest {
 
 	public void testInstall() {
 		IQueryResult<IInstallableUnit> updates = planner.updatesFor(a1, new ProvisioningContext(), new NullProgressMonitor());
-		assertEquals(2, updates.unmodifiableSet().size());
-		assertTrue(updates.unmodifiableSet().contains(a120));
-		assertTrue(updates.unmodifiableSet().contains(patchA1));
+		assertEquals(2, updates.toUnmodifiableSet().size());
+		assertTrue(updates.toUnmodifiableSet().contains(a120));
+		assertTrue(updates.toUnmodifiableSet().contains(patchA1));
 	}
 
 	public void testFindUpdatesOfPatches() {
 		IQueryResult<IInstallableUnit> updates = planner.updatesFor(anotherPatch2, new ProvisioningContext(), new NullProgressMonitor());
-		assertEquals(1, updates.unmodifiableSet().size());
-		assertTrue(updates.unmodifiableSet().contains(anotherPatch3));
+		assertEquals(1, updates.toUnmodifiableSet().size());
+		assertTrue(updates.toUnmodifiableSet().contains(anotherPatch3));
 	}
 }

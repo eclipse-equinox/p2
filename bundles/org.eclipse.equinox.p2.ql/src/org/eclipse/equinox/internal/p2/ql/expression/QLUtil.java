@@ -33,7 +33,7 @@ public abstract class QLUtil implements IExpression, IQLConstants {
 				if (provider instanceof Set<?>)
 					return (Set<?>) provider;
 				if (provider instanceof IQueryResult<?>)
-					return ((IQueryResult<?>) provider).unmodifiableSet();
+					return ((IQueryResult<?>) provider).toUnmodifiableSet();
 			}
 
 			if (provider instanceof Collection<?>)
@@ -43,7 +43,7 @@ public abstract class QLUtil implements IExpression, IQLConstants {
 				if (val instanceof Set<?>)
 					return (Set<?>) val;
 				if (val instanceof IQueryResult<?>)
-					return ((IQueryResult<?>) val).unmodifiableSet();
+					return ((IQueryResult<?>) val).toUnmodifiableSet();
 			}
 		}
 

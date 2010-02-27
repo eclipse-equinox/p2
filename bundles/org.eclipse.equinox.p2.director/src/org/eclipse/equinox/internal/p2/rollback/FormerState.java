@@ -34,7 +34,7 @@ public class FormerState {
 	}
 
 	private static void synchronizeAllIUProperties(IProfileChangeRequest request, IProfile current, IProfile target) {
-		Set<IInstallableUnit> currentIUset = current.query(QueryUtil.createIUAnyQuery(), null).unmodifiableSet();
+		Set<IInstallableUnit> currentIUset = current.query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet();
 		Iterator<IInstallableUnit> targetIUs = target.query(QueryUtil.createIUAnyQuery(), null).iterator();
 		List<IInstallableUnit> iusToAdd = new ArrayList<IInstallableUnit>();
 		List<IInstallableUnit> iusToUpdate = new ArrayList<IInstallableUnit>();

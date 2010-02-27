@@ -208,7 +208,7 @@ public class Projector {
 		IQueryResult<IInstallableUnit> qr = installedIUs.query(QueryUtil.createIUAnyQuery(), null);
 		if (qr instanceof Collector<?>)
 			return ((Collector<?>) qr).size();
-		return qr.unmodifiableSet().size();
+		return qr.toUnmodifiableSet().size();
 	}
 
 	//Create an optimization function favoring the highest version of each IU

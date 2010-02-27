@@ -217,7 +217,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			IQuery<IInstallableUnit> removeQuery = QueryUtil.createMatchQuery( //
 					"$1.exists(x | properties[$0] == x)", FILE_NAME, removedFiles); //$NON-NLS-1$
 			IQueryResult<IInstallableUnit> toRemove = metadataRepository.query(removeQuery, null);
-			metadataRepository.removeInstallableUnits(toRemove.unmodifiableSet());
+			metadataRepository.removeInstallableUnits(toRemove.toUnmodifiableSet());
 		}
 		// Then add all the new IUs as well as the new copies of the ones that have changed
 		Collection<IInstallableUnit> additions = iusToAdd.getIUs(null, null);

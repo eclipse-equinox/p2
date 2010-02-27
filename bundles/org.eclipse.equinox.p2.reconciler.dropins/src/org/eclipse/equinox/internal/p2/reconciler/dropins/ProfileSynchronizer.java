@@ -299,10 +299,10 @@ public class ProfileSynchronizer {
 		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>();
 
 		boolean foundIUsToAdd = false;
-		Set<IInstallableUnit> profileIUs = profile.query(QueryUtil.createIUAnyQuery(), null).unmodifiableSet();
+		Set<IInstallableUnit> profileIUs = profile.query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet();
 
 		// we use IProfile.available(...) here so that we also gather any shared IUs
-		Set<IInstallableUnit> availableProfileIUs = profile.available(QueryUtil.createIUAnyQuery(), null).unmodifiableSet();
+		Set<IInstallableUnit> availableProfileIUs = profile.available(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet();
 
 		// get all IUs from all our repos (toAdd)
 		IQueryResult<IInstallableUnit> allIUs = getAllIUsFromRepos();
@@ -328,7 +328,7 @@ public class ProfileSynchronizer {
 
 		// get all IUs from profile with marked property (existing)
 		IQueryResult<IInstallableUnit> dropinIUs = profile.query(new IUProfilePropertyQuery(PROP_FROM_DROPINS, Boolean.TRUE.toString()), null);
-		Set<IInstallableUnit> all = allIUs.unmodifiableSet();
+		Set<IInstallableUnit> all = allIUs.toUnmodifiableSet();
 		for (Iterator<IInstallableUnit> iter = dropinIUs.iterator(); iter.hasNext();) {
 			IInstallableUnit iu = iter.next();
 			// the STRICT policy is set when we install things via the UI, we use it to differentiate between IUs installed

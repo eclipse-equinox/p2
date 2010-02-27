@@ -144,7 +144,7 @@ public class MetadataRepositoryIO {
 				writeRepositoryReferences(references.iterator(), references.size());
 			}
 			// The size attribute is a problematic since it forces the use of a collection.
-			Set<IInstallableUnit> units = repository.query(QueryUtil.createIUAnyQuery(), null).unmodifiableSet();
+			Set<IInstallableUnit> units = repository.query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet();
 			writeInstallableUnits(units.iterator(), units.size());
 
 			end(REPOSITORY_ELEMENT);

@@ -51,7 +51,7 @@ public class CollectionResult<T> implements IQueryResult<T> {
 		return new HashSet<T>(collection);
 	}
 
-	public Set<T> unmodifiableSet() {
+	public Set<T> toUnmodifiableSet() {
 		return collection instanceof Set<?> ? Collections.<T> unmodifiableSet((Set<T>) collection) : toSet();
 	}
 }

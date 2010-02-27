@@ -53,5 +53,5 @@ public interface IQueryResult<T> extends IQueryable<T> {
 	 * Returns a Set backed by this query result. The set is immutable.
 	 * @return A Set backed by this query result.
 	 */
-	public Set<T> unmodifiableSet();
+	public Set<T> toUnmodifiableSet();
 }

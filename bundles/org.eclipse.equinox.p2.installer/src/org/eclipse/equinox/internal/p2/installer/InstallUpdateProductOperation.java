@@ -112,7 +112,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		} else {
 			monitor.setTaskName(NLS.bind(Messages.Op_Updating, installDescription.getProductName()));
 			IQueryResult<IInstallableUnit> toUninstall = computeUnitsToUninstall(p);
-			request.removeAll(toUninstall.unmodifiableSet());
+			request.removeAll(toUninstall.toUnmodifiableSet());
 			request.addAll(toInstall);
 			s = director.provision(request, null, monitor.newChild(90));
 		}

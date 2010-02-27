@@ -182,7 +182,7 @@ public class ProvisioningSession {
 	}
 
 	private int countPlanElements(IProvisioningPlan plan) {
-		return QueryUtil.compoundQueryable(plan.getAdditions(), plan.getRemovals()).query(QueryUtil.createIUAnyQuery(), null).unmodifiableSet().size();
+		return QueryUtil.compoundQueryable(plan.getAdditions(), plan.getRemovals()).query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet().size();
 	}
 
 	/**
@@ -217,7 +217,7 @@ public class ProvisioningSession {
 				// we will be able to get everything else.
 				ProfileChangeRequest downloadRequest = new ProfileChangeRequest(profile);
 				downloadRequest.setAbsoluteMode(true);
-				downloadRequest.addAll(QueryUtil.compoundQueryable(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(QueryUtil.createIUAnyQuery(), null).unmodifiableSet());
+				downloadRequest.addAll(QueryUtil.compoundQueryable(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet());
 
 				IPhaseSet download = DefaultPhaseSet.createIncluding(new String[] {DefaultPhaseSet.PHASE_COLLECT});
 				IProvisioningPlan downloadPlan = getPlanner().getProvisioningPlan(downloadRequest, context, mon.newChild(100));
@@ -311,6 +311,6 @@ public class ProvisioningSession {
 		else
 			query = new UserVisibleRootQuery();
 		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
-		return queryResult.unmodifiableSet();
+		return queryResult.toUnmodifiableSet();
 	}
 }

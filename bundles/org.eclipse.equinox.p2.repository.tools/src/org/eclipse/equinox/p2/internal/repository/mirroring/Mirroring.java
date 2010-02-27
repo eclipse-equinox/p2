@@ -92,7 +92,7 @@ public class Mirroring {
 
 		if (compareExclusionQuery != null) {
 			IQueryResult<IArtifactDescriptor> exclusions = source.descriptorQueryable().query(compareExclusionQuery, null);
-			compareExclusions = exclusions.unmodifiableSet();
+			compareExclusions = exclusions.toUnmodifiableSet();
 		}
 
 		while (keys.hasNext()) {
