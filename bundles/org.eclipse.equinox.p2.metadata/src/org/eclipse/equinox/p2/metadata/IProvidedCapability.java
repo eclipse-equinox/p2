@@ -19,10 +19,25 @@ package org.eclipse.equinox.p2.metadata;
  */
 public interface IProvidedCapability {
 
+	/**
+	 * 
+	 * @return String
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
 	public String getName();
 
+	/**
+	 * 
+	 * @return String
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
 	public String getNamespace();
 
+	/**
+	 * 
+	 * @return String
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
 	public Version getVersion();
 
 	/**

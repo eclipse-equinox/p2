@@ -129,6 +129,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 * properties of the environment.
 	 * 
 	 * @return The installation filter for this unit, or <code>null</code>
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public Filter getFilter();
 
@@ -207,6 +208,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 * installable unit with a given id is allowed to exist in a given installed system.
 	 * Attempting to install multiple versions of a singleton will fail.
 	 * @return <code>true</code> if this unit is a singleton, and <code>false</code> otherwise
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public boolean isSingleton();
 
