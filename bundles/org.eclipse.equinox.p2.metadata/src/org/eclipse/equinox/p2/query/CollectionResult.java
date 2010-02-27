@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 
 /**
+ * This class allows to adapt java collections to a p2 a query result  and as such something queryable  
  * @since 2.0
  */
 public class CollectionResult<T> implements IQueryResult<T> {
