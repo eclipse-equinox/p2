@@ -2,9 +2,9 @@
 <!-- Schema file written by PDE -->
 <schema targetNamespace="org.eclipse.equinox.p2.metadata.repository" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
-      <appinfo>
+      <appInfo>
          <meta.schema plugin="org.eclipse.equinox.p2.metadata.repository" id="metadataRepositories" name="Metadata Repositories"/>
-      </appinfo>
+      </appInfo>
       <documentation>
          This extension point is used to provide metadata repository implementations
       </documentation>
@@ -12,14 +12,14 @@
 
    <element name="extension">
       <annotation>
-         <appinfo>
+         <appInfo>
             <meta.element />
-         </appinfo>
+         </appInfo>
       </annotation>
       <complexType>
          <sequence>
             <element ref="factory"/>
-            <element ref="filter" minOccurs="0" maxOccurs="1"/>
+            <element ref="filter"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -40,9 +40,9 @@
                <documentation>
                   
                </documentation>
-               <appinfo>
+               <appInfo>
                   <meta.attribute translatable="true"/>
-               </appinfo>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>
@@ -56,9 +56,9 @@
                   the fully-qualified name of a class which implements 
 &lt;samp&gt;org.eclipse.equinox.p2.artifact.repository.IArtifactRepository&lt;/samp&gt;.
                </documentation>
-               <appinfo>
+               <appInfo>
                   <meta.attribute kind="java" basedOn="org.eclipse.equinox.p2.artifact.repository.IArtifactRepository"/>
-               </appinfo>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>
@@ -77,27 +77,27 @@
    </element>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="since"/>
-      </appinfo>
+      </appInfo>
       <documentation>
          org.eclipse.equinox.p2.metadata.repository 1.0.0
       </documentation>
    </annotation>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="examples"/>
-      </appinfo>
+      </appInfo>
       <documentation>
          [Enter extension point usage example here.]
       </documentation>
    </annotation>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="apiInfo"/>
-      </appinfo>
+      </appInfo>
       <documentation>
          The value of the class attribute must represent an 
 implementor of &lt;tt&gt;org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.MetadataRepositoryFactory&lt;/tt&gt;
@@ -105,18 +105,18 @@ implementor of &lt;tt&gt;org.eclipse.equinox.internal.provisional.spi.p2.metadat
    </annotation>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="implementation"/>
-      </appinfo>
+      </appInfo>
       <documentation>
          This bundle provides an artifact repository factory for the IMetadataRepositoryManager#TYPE_SIMPLE_REPOSITORY repository type.
       </documentation>
    </annotation>
 
    <annotation>
-      <appinfo>
+      <appInfo>
          <meta.section type="copyright"/>
-      </appinfo>
+      </appInfo>
       <documentation>
          Copyright (c) 2007, 2008 IBM Corporation and others.&lt;br&gt;
 All rights reserved. This program and the accompanying materials are made 
