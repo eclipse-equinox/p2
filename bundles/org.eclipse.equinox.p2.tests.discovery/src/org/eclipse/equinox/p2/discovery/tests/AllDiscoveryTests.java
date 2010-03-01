@@ -25,8 +25,8 @@ public class AllDiscoveryTests {
 		suite.addTestSuite(ConnectorDiscoveryTest.class);
 		suite.addTestSuite(DirectoryParserTest.class);
 		suite.addTestSuite(BundleDiscoveryStrategyTest.class);
-		suite.addTestSuite(RemoteBundleDiscoveryStrategyTest.class);
-		suite.addTestSuite(ConnectorDiscoveryRemoteTest.class);
+		//suite.addTestSuite(RemoteBundleDiscoveryStrategyTest.class);
+		//suite.addTestSuite(ConnectorDiscoveryRemoteTest.class);
 		return suite;
 	}
 
