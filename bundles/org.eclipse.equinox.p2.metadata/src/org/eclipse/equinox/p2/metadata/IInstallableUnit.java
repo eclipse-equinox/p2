@@ -250,7 +250,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 
 	/**
 	 * Returns the licenses that apply to this installable unit. Any translation of the
-	 * licenses for the given locale will be applied. Returns an empty array if this
+	 * licenses for the given locale will be applied. Returns an empty collection if this
 	 * unit has no licenses, or if the available licenses are externalized and do not
 	 * have translations available for the given locale.
 	 * 
