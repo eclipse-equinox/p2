@@ -73,6 +73,8 @@ public abstract class FilteredViewer {
 
 	protected StructuredViewer viewer;
 
+	private Composite header;
+
 	public FilteredViewer() {
 		// constructor
 	}
@@ -237,7 +239,7 @@ public abstract class FilteredViewer {
 	}
 
 	private void doCreateHeader() {
-		Composite header = new Composite(container, SWT.NONE);
+		header = new Composite(container, SWT.NONE);
 		GridLayoutFactory.fillDefaults().applyTo(header);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(header);
 
@@ -250,6 +252,19 @@ public abstract class FilteredViewer {
 
 	protected void doCreateHeaderControls(Composite header) {
 		// ignore
+	}
+
+	public void setHeaderVisible(boolean visible) {
+		if (header != null && visible != header.getVisible()) {
+			header.setVisible(visible);
+			GridData headerLayout = (GridData) header.getLayoutData();
+			headerLayout.exclude = !visible;
+			container.layout(true, true);
+		}
+	}
+
+	public boolean isHeaderVisible() {
+		return header != null && header.getVisible();
 	}
 
 	protected WorkbenchJob doCreateRefreshJob() {

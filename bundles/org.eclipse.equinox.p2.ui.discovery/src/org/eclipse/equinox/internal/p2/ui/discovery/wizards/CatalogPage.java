@@ -65,6 +65,10 @@ public class CatalogPage extends WizardPage implements IShellProvider {
 		return viewer;
 	}
 
+	protected CatalogViewer getViewer() {
+		return viewer;
+	}
+
 	protected void doUpdateCatalog() {
 		if (!updated) {
 			updated = true;
