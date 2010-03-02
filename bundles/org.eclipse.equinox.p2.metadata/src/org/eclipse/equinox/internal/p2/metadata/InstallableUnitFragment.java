@@ -34,9 +34,11 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 		List<IRequirement> current = super.getRequirements();
 		int currSize = current.size();
 		IRequirement[] result = new IRequirement[currSize + toAdd.size()];
-		for (int i = 0; i < currSize; ++i)
+		int i = 0;
+		for (; i < currSize; ++i)
 			result[i] = current.get(i);
-		System.arraycopy(toAdd, 0, result, current.size(), toAdd.size());
+		for (IRequirement requirement : toAdd)
+			result[i++] = requirement;
 		setRequiredCapabilities(result);
 	}
 
