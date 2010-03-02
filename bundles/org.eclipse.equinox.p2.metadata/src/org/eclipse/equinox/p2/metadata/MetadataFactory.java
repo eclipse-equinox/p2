@@ -193,8 +193,8 @@ public class MetadataFactory {
 			setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		}
 
-		public void setHost(IRequirement[] hostRequirements) {
-			((InstallableUnitFragment) unit()).setHost(hostRequirements);
+		public void setHost(IRequirement... hostRequirement) {
+			((InstallableUnitFragment) unit()).setHost(Arrays.asList(hostRequirement));
 		}
 
 		InstallableUnit unit() {

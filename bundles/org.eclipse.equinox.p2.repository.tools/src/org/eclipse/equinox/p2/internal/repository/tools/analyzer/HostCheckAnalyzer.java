@@ -9,6 +9,7 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
+import java.util.Collection;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
@@ -29,9 +30,9 @@ public class HostCheckAnalyzer extends IUAnalyzer {
 	public void analyzeIU(IInstallableUnit iu) {
 		if (iu instanceof IInstallableUnitFragment) {
 			IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
-			IRequirement[] hosts = fragment.getHost();
-			for (int i = 0; i < hosts.length; i++) {
-				IMatchExpression<IInstallableUnit> hostMatch = hosts[i].getMatches();
+			Collection<IRequirement> hosts = fragment.getHost();
+			for (IRequirement req : hosts) {
+				IMatchExpression<IInstallableUnit> hostMatch = req.getMatches();
 				String namespace = RequiredCapability.extractNamespace(hostMatch);
 				if ("osgi.bundle".equals(namespace)) {
 					String name = RequiredCapability.extractName(hostMatch);

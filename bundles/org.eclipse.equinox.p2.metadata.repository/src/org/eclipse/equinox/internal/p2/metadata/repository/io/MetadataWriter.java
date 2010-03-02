@@ -93,12 +93,12 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(LIFECYCLE);
 	}
 
-	protected void writeHostRequiredCapabilities(IRequirement[] capabilities) {
-		if (capabilities != null && capabilities.length > 0) {
+	protected void writeHostRequiredCapabilities(Collection<IRequirement> hostRequirements) {
+		if (hostRequirements != null && hostRequirements.size() > 0) {
 			start(HOST_REQUIRED_CAPABILITIES_ELEMENT);
-			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.length);
-			for (int i = 0; i < capabilities.length; i++) {
-				writeRequiredCapability(capabilities[i]);
+			attribute(COLLECTION_SIZE_ATTRIBUTE, hostRequirements.size());
+			for (IRequirement req : hostRequirements) {
+				writeRequiredCapability(req);
 			}
 			end(HOST_REQUIRED_CAPABILITIES_ELEMENT);
 		}

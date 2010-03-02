@@ -947,9 +947,8 @@ public class Projector {
 		if (!(iu instanceof IInstallableUnitFragment))
 			return false;
 		IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
-		IRequirement[] reqs = fragment.getHost();
-		for (int i = 0; i < reqs.length; i++) {
-			if (req.equals(reqs[i]))
+		for (IRequirement hostReqs : fragment.getHost()) {
+			if (req.equals(hostReqs))
 				return true;
 		}
 		return false;

@@ -10,16 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-
-import org.eclipse.equinox.p2.query.QueryUtil;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
-
 import java.util.*;
-import java.util.Map.Entry;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.query.QueryUtil;
 
 public class AttachmentHelper {
 	private static final IInstallableUnitFragment[] NO_FRAGMENTS = new IInstallableUnitFragment[0];
@@ -28,7 +21,7 @@ public class AttachmentHelper {
 		Map<IInstallableUnit, IInstallableUnitFragment> fragmentBindings = new HashMap<IInstallableUnit, IInstallableUnitFragment>();
 		//Build a map inverse of the one provided in input (host --> List of fragments)
 		Map<IInstallableUnit, List<IInstallableUnitFragment>> iusToFragment = new HashMap<IInstallableUnit, List<IInstallableUnitFragment>>(fragmentsToIUs.size());
-		for (Entry<IInstallableUnitFragment, List<IInstallableUnit>> mapping : fragmentsToIUs.entrySet()) {
+		for (Map.Entry<IInstallableUnitFragment, List<IInstallableUnit>> mapping : fragmentsToIUs.entrySet()) {
 			IInstallableUnitFragment fragment = mapping.getKey();
 			List<IInstallableUnit> existingMatches = mapping.getValue();
 
@@ -42,7 +35,7 @@ public class AttachmentHelper {
 			}
 		}
 
-		for (Entry<IInstallableUnit, List<IInstallableUnitFragment>> entry : iusToFragment.entrySet()) {
+		for (Map.Entry<IInstallableUnit, List<IInstallableUnitFragment>> entry : iusToFragment.entrySet()) {
 			IInstallableUnit hostIU = entry.getKey();
 			List<IInstallableUnitFragment> potentialIUFragments = entry.getValue();
 			ArrayList<IInstallableUnitFragment> applicableFragments = new ArrayList<IInstallableUnitFragment>();
@@ -51,12 +44,13 @@ public class AttachmentHelper {
 					continue;
 
 				// Check to make sure the host meets the requirements of the fragment
-				IRequirement reqsFromFragment[] = potentialFragment.getHost();
+				Collection<IRequirement> reqsFromFragment = potentialFragment.getHost();
 				boolean match = true;
 				boolean requirementMatched = false;
-				for (int l = 0; l < reqsFromFragment.length && match == true; l++) {
+				for (Iterator<IRequirement> iterator = reqsFromFragment.iterator(); iterator.hasNext() && match == true;) {
+					IRequirement reqs = iterator.next();
 					requirementMatched = false;
-					if (hostIU.satisfies(reqsFromFragment[l]))
+					if (hostIU.satisfies(reqs))
 						requirementMatched = true;
 					if (requirementMatched == false) {
 						match = false;
@@ -72,9 +66,9 @@ public class AttachmentHelper {
 			IInstallableUnitFragment theFragment = null;
 			int specificityLevel = 0;
 			for (IInstallableUnitFragment fragment : applicableFragments) {
-				if (fragment.getHost().length > specificityLevel) {
+				if (fragment.getHost().size() > specificityLevel) {
 					theFragment = fragment;
-					specificityLevel = fragment.getHost().length;
+					specificityLevel = fragment.getHost().size();
 				}
 			}
 			if (theFragment != null)
@@ -102,5 +96,4 @@ public class AttachmentHelper {
 		}
 		return result;
 	}
-
 }

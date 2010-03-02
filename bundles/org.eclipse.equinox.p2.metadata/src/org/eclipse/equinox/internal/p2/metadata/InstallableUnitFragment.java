@@ -10,36 +10,37 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import java.util.Collection;
 import java.util.List;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 
 public class InstallableUnitFragment extends InstallableUnit implements IInstallableUnitFragment {
 
-	private IRequirement[] hostRequirements;
+	private Collection<IRequirement> hostRequirements;
 
 	public InstallableUnitFragment() {
 		super();
 	}
 
-	public void setHost(IRequirement[] hostRequirements) {
+	public void setHost(Collection<IRequirement> hostRequirements) {
 		if (hostRequirements == null)
 			return;
 		this.hostRequirements = hostRequirements;
 		addRequiredCapability(hostRequirements);
 	}
 
-	private void addRequiredCapability(IRequirement[] toAdd) {
+	private void addRequiredCapability(Collection<IRequirement> toAdd) {
 		List<IRequirement> current = super.getRequirements();
 		int currSize = current.size();
-		IRequirement[] result = new IRequirement[currSize + toAdd.length];
+		IRequirement[] result = new IRequirement[currSize + toAdd.size()];
 		for (int i = 0; i < currSize; ++i)
 			result[i] = current.get(i);
-		System.arraycopy(toAdd, 0, result, current.size(), toAdd.length);
+		System.arraycopy(toAdd, 0, result, current.size(), toAdd.size());
 		setRequiredCapabilities(result);
 	}
 
-	public IRequirement[] getHost() {
+	public Collection<IRequirement> getHost() {
 		return hostRequirements;
 	}
 

@@ -363,17 +363,18 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("some description", iu1.getUpdateDescriptor().getDescription());
 
 		assertTrue(QueryUtil.isFragment(iu1));
-		IRequirement[] hostRequired = ((IInstallableUnitFragment) iu1).getHost();
-		assertEquals(2, hostRequired.length);
-		assertEquals("testNamespace1", RequiredCapability.extractNamespace(hostRequired[0].getMatches()));
-		assertEquals("testName1", RequiredCapability.extractName(hostRequired[0].getMatches()));
-		assertEquals(new VersionRange("[1.2.3, 2)"), RequiredCapability.extractRange(hostRequired[0].getMatches()));
-		assertEquals(true, hostRequired[0].isGreedy());
-		assertEquals(0, hostRequired[0].getMin());
-		assertEquals("testNamespace2", RequiredCapability.extractNamespace(hostRequired[1].getMatches()));
-		assertEquals("testName2", RequiredCapability.extractName(hostRequired[1].getMatches()));
-		assertEquals(new VersionRange(Version.emptyVersion.toString()), RequiredCapability.extractRange(hostRequired[1].getMatches()));
-		assertEquals(false, hostRequired[1].isGreedy());
-		assertEquals(1, hostRequired[1].getMin());
+		Collection<IRequirement> hostRequired = ((IInstallableUnitFragment) iu1).getHost();
+		assertEquals(2, hostRequired.size());
+		assertEquals("testNamespace1", RequiredCapability.extractNamespace(hostRequired.iterator().next().getMatches()));
+		assertEquals("testName1", RequiredCapability.extractName(hostRequired.iterator().next().getMatches()));
+		assertEquals(new VersionRange("[1.2.3, 2)"), RequiredCapability.extractRange(hostRequired.iterator().next().getMatches()));
+		assertEquals(true, hostRequired.iterator().next().isGreedy());
+		assertEquals(0, hostRequired.iterator().next().getMin());
+		IRequirement secondRequirement = hostRequired.iterator().next();
+		assertEquals("testNamespace2", RequiredCapability.extractNamespace(secondRequirement.getMatches()));
+		assertEquals("testName2", RequiredCapability.extractName(secondRequirement.getMatches()));
+		assertEquals(new VersionRange(Version.emptyVersion.toString()), RequiredCapability.extractRange(secondRequirement.getMatches()));
+		assertEquals(false, secondRequirement.isGreedy());
+		assertEquals(1, secondRequirement.getMin());
 	}
 }
