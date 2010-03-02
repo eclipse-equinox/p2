@@ -22,6 +22,7 @@ import org.osgi.framework.Filter;
 
 /**
  * A factory class for instantiating various p2 metadata objects.
+ * @since 2.0
  */
 public class MetadataFactory {
 	/**

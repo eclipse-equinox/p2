@@ -13,6 +13,9 @@ package org.eclipse.equinox.p2.repository;
 
 import java.net.URI;
 
+/**
+ * @since 2.0
+ */
 public interface IRepositoryReference {
 	/**
 	 * Returns the location of the referenced repository
