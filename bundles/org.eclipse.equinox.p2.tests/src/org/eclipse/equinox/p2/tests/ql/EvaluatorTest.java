@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ql;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-
 import java.io.File;
 import java.net.URI;
 import java.util.*;
@@ -97,7 +95,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 	public void testToString() throws Exception {
 		String exprString = "select(x | x.id == $0 && (x.version == $1 || x.version == $2)).traverse(set(), _, {requirementsCache, parent | select(" + //
-				"parent.requiredCapabilities.unique(requirementsCache).select(rc | rc.filter == null || $2 ~= filter(rc.filter)), _, " + //
+				"parent.requirerements.unique(requirementsCache).select(rc | rc.filter == null || $2 ~= filter(rc.filter)), _, " + //
 				"{rcs, child | rcs.exists(rc | child ~= rc)})}).limit(10)";
 
 		IContextExpression expr = factory.contextExpression(parser.parseQuery(exprString));
@@ -188,7 +186,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 	public void testTraverse() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 		IQueryResult result = repo.query(QueryUtil.createQuery(//
-				"select(x | x.id == $0 && x.version == $1).traverse(parent | parent.requiredCapabilities.collect(rc | select(iu | iu ~= rc)).flatten())", //
+				"select(x | x.id == $0 && x.version == $1).traverse(parent | parent.requirements.collect(rc | select(iu | iu ~= rc)).flatten())", //
 				"org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 463);
 	}
@@ -202,7 +200,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 		IContextExpression<IInstallableUnit> expr = factory.contextExpression(parser.parseQuery("" + //
 				"select(x | x.id == $0 && x.version == $1).traverse(parent |" + //
-				"parent.requiredCapabilities.select(rc | rc.filter == null || $2 ~= rc.filter).collect(rc | select(iu | iu ~= rc)).flatten())"), "org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2"), env);
+				"parent.requirements.select(rc | rc.filter == null || $2 ~= rc.filter).collect(rc | select(iu | iu ~= rc)).flatten())"), "org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2"), env);
 
 		IQuery<IInstallableUnit> query = QueryUtil.createQuery(expr);
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
@@ -221,9 +219,9 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 		IContextExpression<IInstallableUnit> expr = factory.contextExpression(parser.parseQuery("" + //
 				"select(x | x.id == $0 && x.version == $1).traverse(parent |" + //
-				"parent.requiredCapabilities.select(rc | rc.filter == null || $4 ~= rc.filter).collect(rc | select(iu | iu ~= rc)).flatten()).intersect(" + //
+				"parent.requirements.select(rc | rc.filter == null || $4 ~= rc.filter).collect(rc | select(iu | iu ~= rc)).flatten()).intersect(" + //
 				"select(x | x.id == $2 && x.version == $3).traverse(parent |" + //
-				"parent.requiredCapabilities.select(rc | rc.filter == null || $4 ~= rc.filter).collect(rc | select(iu | iu ~= rc)).flatten()))"), //
+				"parent.requirements.select(rc | rc.filter == null || $4 ~= rc.filter).collect(rc | select(iu | iu ~= rc)).flatten()))"), //
 				"org.eclipse.pde.feature.group", //
 				Version.create("3.5.0.v20090123-7Z7YF8NFE-z0VXhWU26Hu8gY"), //
 				"org.eclipse.gmf.feature.group", //

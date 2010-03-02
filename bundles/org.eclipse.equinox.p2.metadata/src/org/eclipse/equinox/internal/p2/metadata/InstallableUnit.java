@@ -34,7 +34,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	public static final String MEMBER_PROPERTIES = "properties"; //$NON-NLS-1$
 	public static final String MEMBER_FILTER = "filter"; //$NON-NLS-1$
 	public static final String MEMBER_ARTIFACTS = "artifacts"; //$NON-NLS-1$
-	public static final String MEMBER_REQUIRED_CAPABILITIES = "requiredCapabilities"; //$NON-NLS-1$
+	public static final String MEMBER_REQUIREMENTS = "requirements"; //$NON-NLS-1$
 	public static final String MEMBER_LICENSES = "licenses"; //$NON-NLS-1$
 	public static final String MEMBER_COPYRIGHT = "copyright"; //$NON-NLS-1$
 	public static final String MEMBER_TOUCHPOINT_DATA = "touchpointData"; //$NON-NLS-1$
@@ -335,7 +335,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 			return filter;
 		if (MEMBER_ARTIFACTS == memberName)
 			return artifacts;
-		if (MEMBER_REQUIRED_CAPABILITIES == memberName)
+		if (MEMBER_REQUIREMENTS == memberName)
 			return requires;
 		if (MEMBER_LICENSES == memberName)
 			return licenses;

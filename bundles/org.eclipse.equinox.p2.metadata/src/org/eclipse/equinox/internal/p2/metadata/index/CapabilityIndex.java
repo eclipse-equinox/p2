@@ -138,10 +138,10 @@ public class CapabilityIndex extends Index<IInstallableUnit> {
 					LambdaExpression lambda = cf.lambda;
 					queriedKeys = getQueriedIDs(ctx, lambda.getItemVariable(), ProvidedCapability.MEMBER_NAME, lambda.getOperand(), queriedKeys);
 				} else {
-					// Might be the requiredCapabilities array.
+					// Might be the requirements array.
 					//
 					Expression op = cf.getOperand();
-					if (op instanceof Member && InstallableUnit.MEMBER_REQUIRED_CAPABILITIES.equals(((Member) op).getName())) {
+					if (op instanceof Member && InstallableUnit.MEMBER_REQUIREMENTS.equals(((Member) op).getName())) {
 						queriedKeys = getQueriedIDs(ctx, variable, ProvidedCapability.MEMBER_NAME, booleanExpr, queriedKeys);
 					}
 				}

@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ql;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -101,7 +97,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IInstallableUnit[] roots = new IInstallableUnit[] {(IInstallableUnit) itor.next()};
 
 		IQuery query = QueryUtil.createQuery( //
-				"$0.traverse(set(), _, { cache, parent | parent.requiredCapabilities.unique(cache).select(rc | rc.filter == null || $1 ~= rc.filter).collect(rc | everything.select(iu | iu ~= rc)).flatten()})", roots, env);
+				"$0.traverse(set(), _, { cache, parent | parent.requirements.unique(cache).select(rc | rc.filter == null || $1 ~= rc.filter).collect(rc | everything.select(iu | iu ~= rc)).flatten()})", roots, env);
 
 		long sliceTime = 0;
 		long traverseTime = 0;
