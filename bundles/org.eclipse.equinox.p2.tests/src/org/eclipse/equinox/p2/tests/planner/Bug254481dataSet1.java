@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import java.io.File;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -51,7 +52,7 @@ public class Bug254481dataSet1 extends AbstractProvisioningTest {
 		IInstallableUnit patch = (IInstallableUnit) c.iterator().next();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {patch});
-		request.setInstallableUnitInclusionRules(patch, PlannerHelper.createOptionalInclusionRule(patch));
+		request.setInstallableUnitInclusionRules(patch, ProfileInclusionRules.createOptionalInclusionRule(patch));
 		IPlanner planner = createPlanner();
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertInstallOperand(plan, patch);

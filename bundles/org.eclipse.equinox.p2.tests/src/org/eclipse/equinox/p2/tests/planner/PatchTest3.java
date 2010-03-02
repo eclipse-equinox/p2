@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -69,7 +70,7 @@ public class PatchTest3 extends AbstractProvisioningTest {
 		//Install p1, this should cause b1 to be uninstalled and b2 to be used instead
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {p1});
-		req2.setInstallableUnitInclusionRules(p1, PlannerHelper.createOptionalInclusionRule(p1));
+		req2.setInstallableUnitInclusionRules(p1, ProfileInclusionRules.createOptionalInclusionRule(p1));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertTrue(IStatus.ERROR != plan2.getStatus().getSeverity());
 		assertInstallOperand(plan2, p1);

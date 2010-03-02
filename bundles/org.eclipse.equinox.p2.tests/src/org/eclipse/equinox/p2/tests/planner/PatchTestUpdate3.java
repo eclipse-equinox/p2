@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 
 import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -84,7 +85,7 @@ public class PatchTestUpdate3 extends AbstractProvisioningTest {
 		//The update of the feature will cause the patch pp2 to be uninstalled because its lifecycle is no longer matched. pp1 stays because its lifecycle is still applicable
 		ProfileChangeRequest req1 = new ProfileChangeRequest(getProfile("TestProfile." + getName()));
 		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
-		req1.setInstallableUnitInclusionRules(p2Feature20, PlannerHelper.createStrictInclusionRule(p2Feature20));
+		req1.setInstallableUnitInclusionRules(p2Feature20, ProfileInclusionRules.createStrictInclusionRule(p2Feature20));
 		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
 		IProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(true, IStatus.ERROR != plan.getStatus().getSeverity());

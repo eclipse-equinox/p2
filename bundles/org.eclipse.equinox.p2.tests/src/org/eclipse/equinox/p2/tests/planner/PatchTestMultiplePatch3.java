@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -70,7 +71,7 @@ public class PatchTestMultiplePatch3 extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {p2Feature});
 		req.addInstallableUnits(new IInstallableUnit[] {pp1});
 		req.addInstallableUnits(new IInstallableUnit[] {pp2});
-		req.setInstallableUnitInclusionRules(pp2, PlannerHelper.createOptionalInclusionRule(pp2));
+		req.setInstallableUnitInclusionRules(pp2, ProfileInclusionRules.createOptionalInclusionRule(pp2));
 
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertOK("Planning should be ok", plan.getStatus());

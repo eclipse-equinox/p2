@@ -12,10 +12,11 @@
 
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
@@ -72,7 +73,7 @@ public class InstallOperation extends ProfileChangeOperation {
 			// If the user is installing a patch, we mark it optional.  This allows
 			// the patched IU to be updated later by removing the patch.
 			if (QueryUtil.isPatch(entryToInstall))
-				request.setInstallableUnitInclusionRules(entryToInstall, PlannerHelper.createOptionalInclusionRule(entryToInstall));
+				request.setInstallableUnitInclusionRules(entryToInstall, ProfileInclusionRules.createOptionalInclusionRule(entryToInstall));
 
 			// Check to see if it is already installed.  This may alter the request.
 			IQueryResult<IInstallableUnit> alreadyInstalled = profile.query(QueryUtil.createIUQuery(entryToInstall.getId()), null);

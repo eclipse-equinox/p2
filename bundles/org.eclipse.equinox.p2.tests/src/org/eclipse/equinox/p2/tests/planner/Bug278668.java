@@ -1,12 +1,13 @@
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 
 import java.util.ArrayList;
 import java.util.Properties;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -92,8 +93,8 @@ public class Bug278668 extends AbstractProvisioningTest {
 
 		ProfileChangeRequest request4 = new ProfileChangeRequest(profile);
 		request4.addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) c.iterator().next(), (IInstallableUnit) c2.iterator().next()});
-		request4.setInstallableUnitInclusionRules((IInstallableUnit) c.iterator().next(), PlannerHelper.createOptionalInclusionRule((IInstallableUnit) c.iterator().next()));
-		request4.setInstallableUnitInclusionRules((IInstallableUnit) c2.iterator().next(), PlannerHelper.createOptionalInclusionRule((IInstallableUnit) c2.iterator().next()));
+		request4.setInstallableUnitInclusionRules((IInstallableUnit) c.iterator().next(), ProfileInclusionRules.createOptionalInclusionRule((IInstallableUnit) c.iterator().next()));
+		request4.setInstallableUnitInclusionRules((IInstallableUnit) c2.iterator().next(), ProfileInclusionRules.createOptionalInclusionRule((IInstallableUnit) c2.iterator().next()));
 		IPlanner planner4 = createPlanner();
 		IProvisioningPlan plan4 = planner4.getProvisioningPlan(request4, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan4.getStatus());

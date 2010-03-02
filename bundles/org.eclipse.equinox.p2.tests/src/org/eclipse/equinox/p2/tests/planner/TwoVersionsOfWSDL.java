@@ -8,9 +8,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -44,8 +45,8 @@ public class TwoVersionsOfWSDL extends AbstractProvisioningTest {
 		//Ensure that p1 causes a1 to resolve
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		req1.addInstallableUnits(new IInstallableUnit[] {wsdl15, wsdl14});
-		req1.setInstallableUnitInclusionRules(wsdl15, PlannerHelper.createStrictInclusionRule(wsdl15));
-		req1.setInstallableUnitInclusionRules(wsdl14, PlannerHelper.createStrictInclusionRule(wsdl14));
+		req1.setInstallableUnitInclusionRules(wsdl15, ProfileInclusionRules.createStrictInclusionRule(wsdl15));
+		req1.setInstallableUnitInclusionRules(wsdl14, ProfileInclusionRules.createStrictInclusionRule(wsdl14));
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 		assertInstallOperand(plan1, wsdl15);

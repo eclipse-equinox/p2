@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 
 import org.eclipse.core.runtime.IStatus;
@@ -53,7 +55,7 @@ public class Bug252638 extends AbstractProvisioningTest {
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {p1});
-		req2.setInstallableUnitInclusionRules(p1, PlannerHelper.createOptionalInclusionRule(p1));
+		req2.setInstallableUnitInclusionRules(p1, ProfileInclusionRules.createOptionalInclusionRule(p1));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getCode());
 		assertEquals(IStatus.ERROR, ((PlannerStatus) plan2.getStatus()).getRequestChanges().get(p1).getSeverity());

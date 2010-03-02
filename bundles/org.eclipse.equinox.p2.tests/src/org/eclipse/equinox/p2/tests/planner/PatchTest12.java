@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 
 import java.util.Set;
@@ -54,7 +56,7 @@ public class PatchTest12 extends AbstractProvisioningTest {
 		//the only thing that ends up being installed are A 1.0.0 and B 1.0.0
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {a1, p1});
-		req2.setInstallableUnitInclusionRules(p1, PlannerHelper.createOptionalInclusionRule(p1));
+		req2.setInstallableUnitInclusionRules(p1, ProfileInclusionRules.createOptionalInclusionRule(p1));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertTrue(IStatus.ERROR != plan2.getStatus().getSeverity());
 		assertNoOperand(plan2, p1);

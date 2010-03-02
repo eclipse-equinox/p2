@@ -12,10 +12,11 @@
 
 package org.eclipse.equinox.p2.operations;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -239,7 +240,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 			request.add(theUpdate);
 			request.setInstallableUnitProfileProperty(theUpdate, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			if (QueryUtil.isPatch(theUpdate)) {
-				request.setInstallableUnitInclusionRules(theUpdate, PlannerHelper.createOptionalInclusionRule(theUpdate));
+				request.setInstallableUnitInclusionRules(theUpdate, ProfileInclusionRules.createOptionalInclusionRule(theUpdate));
 			} else {
 				request.remove(update.toUpdate);
 			}

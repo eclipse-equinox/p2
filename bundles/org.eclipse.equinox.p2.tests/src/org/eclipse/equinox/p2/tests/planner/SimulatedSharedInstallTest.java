@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 
 import java.net.URI;
@@ -49,7 +51,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.setAbsoluteMode(true);
 		request.addInstallableUnits(new IInstallableUnit[] {a1});
-		request.setInstallableUnitInclusionRules(a1, PlannerHelper.createStrictInclusionRule(a1));
+		request.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createStrictInclusionRule(a1));
 		final ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		assertEquals(IStatus.OK, engine.perform(plan, new NullProgressMonitor()).getSeverity());
@@ -68,7 +70,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.setAbsoluteMode(true);
 		request.addInstallableUnits(new IInstallableUnit[] {c1});
-		request.setInstallableUnitInclusionRules(c1, PlannerHelper.createStrictInclusionRule(c1));
+		request.setInstallableUnitInclusionRules(c1, ProfileInclusionRules.createStrictInclusionRule(c1));
 		final ProvisioningContext context = new ProvisioningContext(new URI[0]);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		assertEquals(IStatus.OK, engine.perform(plan, new NullProgressMonitor()).getSeverity());

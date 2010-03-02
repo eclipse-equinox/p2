@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 
 import java.util.Map;
@@ -49,9 +52,9 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile1);
 		req.addInstallableUnits(new IInstallableUnit[] {b});
-		req.setInstallableUnitInclusionRules(b, PlannerHelper.createStrictInclusionRule(b));
+		req.setInstallableUnitInclusionRules(b, ProfileInclusionRules.createStrictInclusionRule(b));
 		req.addInstallableUnits(new IInstallableUnit[] {a});
-		req.setInstallableUnitInclusionRules(a, PlannerHelper.createOptionalInclusionRule(a));
+		req.setInstallableUnitInclusionRules(a, ProfileInclusionRules.createOptionalInclusionRule(a));
 
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, ((PlannerStatus) plan.getStatus()).getRequestChanges().get(b).getSeverity());
@@ -63,7 +66,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		//Install B2
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {b2});
-		req2.setInstallableUnitInclusionRules(b2, PlannerHelper.createStrictInclusionRule(b2));
+		req2.setInstallableUnitInclusionRules(b2, ProfileInclusionRules.createStrictInclusionRule(b2));
 		req2.removeInstallableUnits(new IInstallableUnit[] {b});
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
@@ -81,7 +84,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		//Try to Install A
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
 		req3.addInstallableUnits(new IInstallableUnit[] {a});
-		req3.setInstallableUnitInclusionRules(a, PlannerHelper.createOptionalInclusionRule(a));
+		req3.setInstallableUnitInclusionRules(a, ProfileInclusionRules.createOptionalInclusionRule(a));
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
 		assertNotNull(((PlannerStatus) plan3.getStatus()).getRequestChanges().get(a));
 		assertEquals(IStatus.ERROR, ((PlannerStatus) plan3.getStatus()).getRequestChanges().get(a).getSeverity());
@@ -90,7 +93,7 @@ public class ActualChangeRequestTest2 extends AbstractProvisioningTest {
 		//Try to Install A
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile1);
 		req4.addInstallableUnits(new IInstallableUnit[] {a});
-		req4.setInstallableUnitInclusionRules(a, PlannerHelper.createStrictInclusionRule(a));
+		req4.setInstallableUnitInclusionRules(a, ProfileInclusionRules.createStrictInclusionRule(a));
 		IProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
 		assertNotNull(((PlannerStatus) plan4.getStatus()).getRequestChanges().get(a));
 		assertEquals(IStatus.ERROR, ((PlannerStatus) plan4.getStatus()).getRequestChanges().get(a).getSeverity());

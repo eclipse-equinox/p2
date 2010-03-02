@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.Phase;
 import org.eclipse.equinox.internal.p2.engine.PhaseSet;
 import org.eclipse.equinox.internal.p2.engine.phases.Sizing;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
@@ -53,7 +54,7 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		IProfile profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile1);
 		req.add(missingArtifactIU);
-		req.setInstallableUnitInclusionRules(missingArtifactIU, PlannerHelper.createStrictInclusionRule(missingArtifactIU));
+		req.setInstallableUnitInclusionRules(missingArtifactIU, ProfileInclusionRules.createStrictInclusionRule(missingArtifactIU));
 
 		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
@@ -71,7 +72,7 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		IProfile profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile1);
 		req.add(missingSizeIU);
-		req.setInstallableUnitInclusionRules(missingSizeIU, PlannerHelper.createStrictInclusionRule(missingSizeIU));
+		req.setInstallableUnitInclusionRules(missingSizeIU, ProfileInclusionRules.createStrictInclusionRule(missingSizeIU));
 
 		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());

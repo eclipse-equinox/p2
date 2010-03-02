@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 
 import java.util.Map;
@@ -47,7 +49,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		profile1 = createProfile("TestProfile." + getName());
 		ProfileChangeRequest req = new ProfileChangeRequest(profile1);
 		req.addInstallableUnits(new IInstallableUnit[] {b});
-		req.setInstallableUnitInclusionRules(b, PlannerHelper.createStrictInclusionRule(b));
+		req.setInstallableUnitInclusionRules(b, ProfileInclusionRules.createStrictInclusionRule(b));
 		req.setInstallableUnitProfileProperty(b, "foo", "bar");
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, ((PlannerStatus) plan.getStatus()).getRequestChanges().get(b).getSeverity());
@@ -59,7 +61,7 @@ public class ActualChangeRequestTest extends AbstractProvisioningTest {
 		//Install A
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {a});
-		req2.setInstallableUnitInclusionRules(a, PlannerHelper.createStrictInclusionRule(a));
+		req2.setInstallableUnitInclusionRules(a, ProfileInclusionRules.createStrictInclusionRule(a));
 		req2.setInstallableUnitProfileProperty(a, "foo", "bar");
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());

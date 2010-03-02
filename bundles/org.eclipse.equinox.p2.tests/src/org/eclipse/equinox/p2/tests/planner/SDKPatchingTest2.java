@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 
 import java.io.File;
@@ -17,7 +19,6 @@ import java.util.ArrayList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -75,8 +76,8 @@ public class SDKPatchingTest2 extends AbstractProvisioningTest {
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {patchInstallingJDTLaunching, patchInstallingDebugUI});
-		request.setInstallableUnitInclusionRules(patchInstallingJDTLaunching, PlannerHelper.createOptionalInclusionRule(patchInstallingJDTLaunching));
-		request.setInstallableUnitInclusionRules(patchInstallingDebugUI, PlannerHelper.createOptionalInclusionRule(patchInstallingDebugUI));
+		request.setInstallableUnitInclusionRules(patchInstallingJDTLaunching, ProfileInclusionRules.createOptionalInclusionRule(patchInstallingJDTLaunching));
+		request.setInstallableUnitInclusionRules(patchInstallingDebugUI, ProfileInclusionRules.createOptionalInclusionRule(patchInstallingDebugUI));
 		IPlanner planner = createPlanner();
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("Installation plan", plan.getStatus());

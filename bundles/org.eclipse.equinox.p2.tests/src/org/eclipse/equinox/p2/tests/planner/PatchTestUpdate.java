@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 
 import java.util.Set;
@@ -76,7 +78,7 @@ public class PatchTestUpdate extends AbstractProvisioningTest {
 		//The update of the feature is expected to fail because the patches are installed without flexibility (strict mode) 
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
-		req1.setInstallableUnitInclusionRules(p2Feature20, PlannerHelper.createStrictInclusionRule(p2Feature20));
+		req1.setInstallableUnitInclusionRules(p2Feature20, ProfileInclusionRules.createStrictInclusionRule(p2Feature20));
 		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
 		IProvisioningPlan plan = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());
@@ -86,7 +88,7 @@ public class PatchTestUpdate extends AbstractProvisioningTest {
 		//The update of the feature is expected to fail because the patches are installed without flexibility (strict mode) 
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		req1.addInstallableUnits(new IInstallableUnit[] {p2Feature20});
-		req1.setInstallableUnitInclusionRules(p2Feature20, PlannerHelper.createStrictInclusionRule(p2Feature20));
+		req1.setInstallableUnitInclusionRules(p2Feature20, ProfileInclusionRules.createStrictInclusionRule(p2Feature20));
 		req1.removeInstallableUnits(new IInstallableUnit[] {p2Feature});
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());

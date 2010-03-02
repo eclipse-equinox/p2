@@ -8,16 +8,20 @@
  *  Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.director;
+package org.eclipse.equinox.p2.planner;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
-public class PlannerHelper {
-	public static String createOptionalInclusionRule(IInstallableUnit iu) {
-		return "OPTIONAL"; //$NON-NLS-1$
+public class ProfileInclusionRules {
+	private ProfileInclusionRules() {
+		//Can't instantiate profile inclusion rules
 	}
 
 	public static String createStrictInclusionRule(IInstallableUnit iu) {
 		return "STRICT"; //$NON-NLS-1$
+	}
+
+	public static String createOptionalInclusionRule(IInstallableUnit iu) {
+		return "OPTIONAL"; //$NON-NLS-1$
 	}
 }

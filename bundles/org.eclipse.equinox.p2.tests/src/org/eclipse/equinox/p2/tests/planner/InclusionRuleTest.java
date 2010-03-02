@@ -8,8 +8,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -55,7 +56,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 
 		//Make a1 optional.
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
-		req2.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
+		req2.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createOptionalInclusionRule(a1));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		engine.perform(plan2, null);
@@ -101,7 +102,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 
 		//Make a1 optional.
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile2);
-		req2.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
+		req2.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createOptionalInclusionRule(a1));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		engine.perform(plan2, null);
@@ -141,7 +142,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 
 		//Make a1 optional.
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile3);
-		req2.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
+		req2.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createOptionalInclusionRule(a1));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		engine.perform(plan2, null);
@@ -179,7 +180,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 		//Install a1 and a2 marking a1 optional 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile4);
 		req.addInstallableUnits(new IInstallableUnit[] {a1, a2});
-		req.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
+		req.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createOptionalInclusionRule(a1));
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		engine.perform(plan, null);
@@ -188,7 +189,7 @@ public class InclusionRuleTest extends AbstractProvisioningTest {
 
 		//Make a1 optional, this is a no-op since a1 is not in the system
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile4);
-		req2.setInstallableUnitInclusionRules(a1, PlannerHelper.createOptionalInclusionRule(a1));
+		req2.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createOptionalInclusionRule(a1));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		engine.perform(plan2, null);

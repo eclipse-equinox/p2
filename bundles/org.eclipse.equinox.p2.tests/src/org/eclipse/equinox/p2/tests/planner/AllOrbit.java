@@ -8,11 +8,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -46,7 +47,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (!iu.getId().equals("javax.wsdl"))
-				req1.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
+				req1.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
 		}
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
@@ -82,7 +83,7 @@ public class AllOrbit extends AbstractProvisioningTest {
 			IInstallableUnit toAdd = (IInstallableUnit) iterator.next();
 			if (!toAdd.getId().equals("com.ibm.icu")) {
 				toInstall.add(toAdd);
-				req1.setInstallableUnitInclusionRules(toAdd, PlannerHelper.createOptionalInclusionRule(toAdd));
+				req1.setInstallableUnitInclusionRules(toAdd, ProfileInclusionRules.createOptionalInclusionRule(toAdd));
 			} else
 				removed++;
 		}

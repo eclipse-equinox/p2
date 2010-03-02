@@ -11,6 +11,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 
@@ -657,7 +659,7 @@ public class SimplePlanner implements IPlanner {
 
 		for (Map.Entry<IInstallableUnit, List<String>> object : profileChangeRequest.getInstallableUnitProfilePropertiesToRemove().entrySet()) {
 			if (object.getValue().contains(INCLUSION_RULES))
-				profileChangeRequest.setInstallableUnitProfileProperty(object.getKey(), INCLUSION_RULES, PlannerHelper.createStrictInclusionRule(object.getKey()));
+				profileChangeRequest.setInstallableUnitProfileProperty(object.getKey(), INCLUSION_RULES, ProfileInclusionRules.createStrictInclusionRule(object.getKey()));
 		}
 		//Remove the iu properties associated to the ius removed and the iu properties being removed as well
 		if (removalRequested.size() != 0) {
@@ -683,7 +685,7 @@ public class SimplePlanner implements IPlanner {
 				profileRequirement = createRequirement(added, propertiesForIU.get(INCLUSION_RULES));
 			}
 			if (profileRequirement == null) {
-				profileChangeRequest.setInstallableUnitProfileProperty(added, INCLUSION_RULES, PlannerHelper.createStrictInclusionRule(added));
+				profileChangeRequest.setInstallableUnitProfileProperty(added, INCLUSION_RULES, ProfileInclusionRules.createStrictInclusionRule(added));
 				profileRequirement = createStrictRequirement(added);
 			}
 			gatheredRequirements.add(profileRequirement);
@@ -713,10 +715,10 @@ public class SimplePlanner implements IPlanner {
 	private IRequirement createRequirement(IInstallableUnit iu, String rule) {
 		if (rule == null)
 			return null;
-		if (rule.equals(PlannerHelper.createStrictInclusionRule(iu))) {
+		if (rule.equals(ProfileInclusionRules.createStrictInclusionRule(iu))) {
 			return createStrictRequirement(iu);
 		}
-		if (rule.equals(PlannerHelper.createOptionalInclusionRule(iu))) {
+		if (rule.equals(ProfileInclusionRules.createOptionalInclusionRule(iu))) {
 			return createOptionalRequirement(iu);
 		}
 		return null;
@@ -777,7 +779,7 @@ public class SimplePlanner implements IPlanner {
 
 		public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
 			if (INCLUSION_RULES.equals(key))
-				return PlannerHelper.createOptionalInclusionRule(iu);
+				return ProfileInclusionRules.createOptionalInclusionRule(iu);
 			return profile.getInstallableUnitProperty(iu, key);
 		}
 

@@ -10,8 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,7 +19,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -29,8 +26,8 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
-import org.eclipse.equinox.p2.query.Collector;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
@@ -314,7 +311,7 @@ public class ProfileSynchronizer {
 					request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 				// mark all IUs with special property
 				request.setInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS, Boolean.TRUE.toString());
-				request.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
+				request.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
 				request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, Integer.toString(IProfile.LOCK_UNINSTALL));
 				toAdd.add(iu);
 

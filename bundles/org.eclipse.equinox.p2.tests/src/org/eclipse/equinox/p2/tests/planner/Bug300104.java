@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+
 import java.io.File;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.provisional.p2.director.PlannerHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
@@ -94,8 +96,8 @@ public class Bug300104 extends AbstractProvisioningTest {
 		installFeature1.addInstallableUnits(new IInstallableUnit[] {featureGroup, featureJar, helloIU});
 
 		installFeature1.setInstallableUnitInclusionRules(featureGroup, createInclusionRule(featureGroup, optional));
-		installFeature1.setInstallableUnitInclusionRules(featureJar, PlannerHelper.createOptionalInclusionRule(featureJar));
-		installFeature1.setInstallableUnitInclusionRules(helloIU, PlannerHelper.createOptionalInclusionRule(helloIU));
+		installFeature1.setInstallableUnitInclusionRules(featureJar, ProfileInclusionRules.createOptionalInclusionRule(featureJar));
+		installFeature1.setInstallableUnitInclusionRules(helloIU, ProfileInclusionRules.createOptionalInclusionRule(helloIU));
 
 		IProvisioningPlan feature1Plan = getPlannerService().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
 		assertOK("installation of feature1", getEngineService().perform(feature1Plan, new NullProgressMonitor()));
@@ -111,7 +113,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 	}
 
 	private String createInclusionRule(IInstallableUnit unit, boolean optional) {
-		return optional ? PlannerHelper.createOptionalInclusionRule(unit) : PlannerHelper.createStrictInclusionRule(unit);
+		return optional ? ProfileInclusionRules.createOptionalInclusionRule(unit) : ProfileInclusionRules.createStrictInclusionRule(unit);
 	}
 
 	private void applyHelloPatch1() throws ProvisionException {
@@ -131,9 +133,9 @@ public class Bug300104 extends AbstractProvisioningTest {
 
 		installFeature1.addInstallableUnits(new IInstallableUnit[] {featureGroup, featureJar, helloIU});
 
-		installFeature1.setInstallableUnitInclusionRules(featureGroup, PlannerHelper.createOptionalInclusionRule(featureGroup));
-		installFeature1.setInstallableUnitInclusionRules(featureJar, PlannerHelper.createOptionalInclusionRule(featureJar));
-		installFeature1.setInstallableUnitInclusionRules(helloIU, PlannerHelper.createOptionalInclusionRule(helloIU));
+		installFeature1.setInstallableUnitInclusionRules(featureGroup, ProfileInclusionRules.createOptionalInclusionRule(featureGroup));
+		installFeature1.setInstallableUnitInclusionRules(featureJar, ProfileInclusionRules.createOptionalInclusionRule(featureJar));
+		installFeature1.setInstallableUnitInclusionRules(helloIU, ProfileInclusionRules.createOptionalInclusionRule(helloIU));
 
 		IProvisioningPlan feature1Plan = getPlannerService().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
 		assertOK("installation of feature1", getEngineService().perform(feature1Plan, new NullProgressMonitor()));
@@ -162,10 +164,10 @@ public class Bug300104 extends AbstractProvisioningTest {
 
 		installFeature1.addInstallableUnits(new IInstallableUnit[] {featureGroup, featureJar, helloIU, hello2IU});
 
-		installFeature1.setInstallableUnitInclusionRules(featureGroup, PlannerHelper.createOptionalInclusionRule(featureGroup));
-		installFeature1.setInstallableUnitInclusionRules(featureJar, PlannerHelper.createOptionalInclusionRule(featureJar));
-		installFeature1.setInstallableUnitInclusionRules(helloIU, PlannerHelper.createOptionalInclusionRule(helloIU));
-		installFeature1.setInstallableUnitInclusionRules(hello2IU, PlannerHelper.createOptionalInclusionRule(hello2IU));
+		installFeature1.setInstallableUnitInclusionRules(featureGroup, ProfileInclusionRules.createOptionalInclusionRule(featureGroup));
+		installFeature1.setInstallableUnitInclusionRules(featureJar, ProfileInclusionRules.createOptionalInclusionRule(featureJar));
+		installFeature1.setInstallableUnitInclusionRules(helloIU, ProfileInclusionRules.createOptionalInclusionRule(helloIU));
+		installFeature1.setInstallableUnitInclusionRules(hello2IU, ProfileInclusionRules.createOptionalInclusionRule(hello2IU));
 
 		IProvisioningPlan feature1Plan = getPlannerService().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
 		assertOK("installation of feature1", getEngineService().perform(feature1Plan, new NullProgressMonitor()));

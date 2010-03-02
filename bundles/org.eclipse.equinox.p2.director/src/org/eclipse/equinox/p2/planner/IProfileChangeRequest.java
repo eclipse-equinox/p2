@@ -50,10 +50,6 @@ public interface IProfileChangeRequest {
 
 	public abstract void removeInstallableUnitInclusionRules(IInstallableUnit iu);
 
-	//	public Object getOptionalInclusionRule();
-	//
-	//	public Object getStrictInclusionRule();
-
 	/** 
 	 * Set a global property on the profile
 	 * @param key key of the property
