@@ -23,6 +23,9 @@ public interface IRequirement {
 
 	int getMax();
 
+	/**
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
 	Filter getFilter();
 
 	/**
