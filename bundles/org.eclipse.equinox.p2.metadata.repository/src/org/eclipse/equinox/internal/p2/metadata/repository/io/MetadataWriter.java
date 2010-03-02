@@ -15,13 +15,14 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.*;
-import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.QueryUtil;
 
 public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
@@ -144,9 +145,12 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		if (descriptor == null)
 			return;
 
+		if (descriptor.getIUsBeingUpdated().size() > 1)
+			throw new IllegalStateException();
+		IMatchExpression<IInstallableUnit> singleUD = descriptor.getIUsBeingUpdated().iterator().next();
 		start(UPDATE_DESCRIPTOR_ELEMENT);
-		attribute(ID_ATTRIBUTE, descriptor.getId());
-		attribute(VERSION_RANGE_ATTRIBUTE, descriptor.getRange());
+		attribute(ID_ATTRIBUTE, RequiredCapability.extractName(singleUD));
+		attribute(VERSION_RANGE_ATTRIBUTE, RequiredCapability.extractRange(singleUD));
 		attribute(UPDATE_DESCRIPTOR_SEVERITY, descriptor.getSeverity());
 		attribute(DESCRIPTION_ATTRIBUTE, descriptor.getDescription());
 		end(UPDATE_DESCRIPTOR_ELEMENT);
@@ -235,7 +239,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 				if (instructions.size() > 0) {
 					start(TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT);
 					attribute(COLLECTION_SIZE_ATTRIBUTE, instructions.size());
-					for (Entry<String, ITouchpointInstruction> entry : instructions.entrySet()) {
+					for (Map.Entry<String, ITouchpointInstruction> entry : instructions.entrySet()) {
 						start(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT);
 						attribute(TOUCHPOINT_DATA_INSTRUCTION_KEY_ATTRIBUTE, entry.getKey());
 						ITouchpointInstruction instruction = entry.getValue();

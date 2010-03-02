@@ -8,20 +8,19 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
+import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
 public class UpdateDescriptor implements IUpdateDescriptor {
+	private Collection<IMatchExpression<IInstallableUnit>> descriptors;
+
 	private String description;
-	private String id;
-	private VersionRange range;
 	private int severity;
 
-	public UpdateDescriptor(String id, VersionRange range, int severity, String description) {
-		this.id = id;
-		this.range = range;
+	public UpdateDescriptor(Collection<IMatchExpression<IInstallableUnit>> descriptors, int severity, String description) {
+		this.descriptors = descriptors;
 		this.severity = severity;
 		this.description = description;
 	}
@@ -30,23 +29,15 @@ public class UpdateDescriptor implements IUpdateDescriptor {
 		return description;
 	}
 
-	public String getId() {
-		return id;
-	}
-
-	public VersionRange getRange() {
-		return range;
-	}
-
 	public int getSeverity() {
 		return severity;
 	}
 
 	public boolean isUpdateOf(IInstallableUnit iu) {
-		if (!id.equals(iu.getId()))
-			return false;
-		if (range.isIncluded(iu.getVersion()))
-			return true;
-		return false;
+		return descriptors.iterator().next().isMatch(iu);
+	}
+
+	public Collection<IMatchExpression<IInstallableUnit>> getIUsBeingUpdated() {
+		return descriptors;
 	}
 }

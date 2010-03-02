@@ -23,7 +23,6 @@ Import-Package: ie.wombat.jbdiff,
  org.eclipse.equinox.internal.p2.metadata,
  org.eclipse.equinox.internal.p2.sar,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing,
- org.eclipse.equinox.internal.provisional.p2.metadata,
  org.eclipse.equinox.internal.provisional.p2.repository,
  org.osgi.framework;version="1.4.0"
 Bundle-ActivationPolicy: lazy

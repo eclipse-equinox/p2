@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -25,8 +23,6 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -204,10 +200,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 *  fragment provided capabilities are added to the IU.
 	 */
 	public static IInstallableUnitFragment createBundleFragment(String name) {
-		InstallableUnitFragmentDescription fragment = new InstallableUnitFragmentDescription();
+		org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription fragment = new org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription();
 		fragment.setId(name);
 		fragment.setVersion(DEFAULT_VERSION);
-		fragment.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		fragment.setProperty(org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		fragment.setTouchpointType(TOUCHPOINT_OSGI);
 		fragment.addTouchpointData(NO_TP_DATA);
 		fragment.setHost(BUNDLE_REQUIREMENT);
@@ -388,7 +384,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static IInstallableUnitPatch createIUPatch(String name, Version version, Filter filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirementChange[] reqChanges, IRequiredCapability[][] scope, IRequiredCapability lifeCycle, IRequiredCapability[] metaRequirements) {
-		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
+		org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
 		iu.setId(name);
 		iu.setVersion(version);
 		iu.setFilter(filter);
@@ -417,7 +413,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static IInstallableUnit createIU(String name, Version version, Filter filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequiredCapability[] metaRequirements) {
-		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
+		org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(name);
 		iu.setVersion(version);
 		iu.setFilter(filter);
@@ -457,10 +453,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * The self and fragment provided capabilities are added to the IU.
 	 */
 	public static IInstallableUnitFragment createIUFragment(IInstallableUnit host, String name, Version version, IRequiredCapability[] required, ITouchpointType tpType, ITouchpointData tpData) {
-		InstallableUnitFragmentDescription fragment = new InstallableUnitFragmentDescription();
+		org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription fragment = new org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription();
 		fragment.setId(name);
 		fragment.setVersion(version);
-		fragment.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		fragment.setProperty(org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		fragment.setRequiredCapabilities(required);
 		fragment.setTouchpointType(tpType);
 		if (tpData != null)
@@ -473,7 +469,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return MetadataFactory.createInstallableUnitFragment(fragment);
 	}
 
-	public static void changeVersion(InstallableUnitDescription desc, Version newVersion) {
+	public static void changeVersion(org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription desc, Version newVersion) {
 		List<IProvidedCapability> capabilities = new ArrayList(desc.getProvidedCapabilities());
 		for (int i = 0; i < capabilities.size(); i++) {
 			IProvidedCapability pc = capabilities.get(i);
@@ -485,7 +481,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static MetadataFactory.InstallableUnitDescription createIUDescriptor(IInstallableUnit prototype) {
-		InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
+		org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
 		Collection<IArtifactKey> originalArtifacts = prototype.getArtifacts();
 		desc.setArtifacts(originalArtifacts.toArray(new IArtifactKey[originalArtifacts.size()]));
 		Collection<IProvidedCapability> originalCapabilities = prototype.getProvidedCapabilities();
@@ -501,7 +497,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		desc.setMetaRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
 		desc.setSingleton(prototype.isSingleton());
 		desc.setTouchpointType(MetadataFactory.createTouchpointType(prototype.getTouchpointType().getId(), prototype.getTouchpointType().getVersion()));
-		desc.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(prototype.getUpdateDescriptor().getId(), prototype.getUpdateDescriptor().getRange(), prototype.getUpdateDescriptor().getSeverity(), prototype.getUpdateDescriptor().getDescription()));
+		desc.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(prototype.getUpdateDescriptor().getIUsBeingUpdated(), prototype.getUpdateDescriptor().getSeverity(), prototype.getUpdateDescriptor().getDescription()));
 		desc.setVersion(prototype.getVersion());
 		Map prototypeProperties = prototype.getProperties();
 		Set entries = prototypeProperties.entrySet();
@@ -1125,9 +1121,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fail();
 
 		try {
-			assertEquals(message, desc1.getId(), desc2.getId());
+			assertEquals(message, desc1.getIUsBeingUpdated(), desc2.getIUsBeingUpdated());
 			assertEquals(message, desc1.getSeverity(), desc2.getSeverity());
-			assertEquals(message, desc1.getRange(), desc2.getRange());
+			assertEquals(message, desc1.getDescription(), desc2.getDescription());
 
 			String d1 = desc1.getDescription();
 			String d2 = desc2.getDescription();

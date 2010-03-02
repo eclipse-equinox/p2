@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import java.util.Collection;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
 /**
  * @noimplement This interface is not intended to be implemented by clients.
@@ -20,17 +22,7 @@ public interface IUpdateDescriptor {
 	public final int NORMAL = 0;
 	public final int HIGH = 1;
 
-	/**
-	 * The identifier of an installable unit that the installable unit containing this object is an update for.
-	 * @return An installable unit id
-	 */
-	public String getId();
-
-	/**
-	 * The range of the installable unit that the installable unit containing this object is an update for.
-	 * @return A version range
-	 */
-	public VersionRange getRange();
+	Collection<IMatchExpression<IInstallableUnit>> getIUsBeingUpdated();
 
 	/**
 	 * The description of the update. This allows to explain what the update is about.

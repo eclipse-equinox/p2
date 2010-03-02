@@ -18,8 +18,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -266,7 +264,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 
 	private IInstallableUnitPatch createPatchIU() {
 		propertyMap = createProperties(properties);
-		propertyMap.put(InstallableUnitDescription.PROP_TYPE_PATCH, "true");
+		propertyMap.put(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PATCH, "true");
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
 		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
@@ -283,7 +281,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 
 	private IInstallableUnitPatch createPatchWithEmptyScope() {
 		propertyMap = createProperties(properties);
-		propertyMap.put(InstallableUnitDescription.PROP_TYPE_PATCH, "true");
+		propertyMap.put(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PATCH, "true");
 		IProvidedCapability[] additionalProvides = createProvided(provides);
 		IRequiredCapability[] requirements = createRequired(requires);
 		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
@@ -306,7 +304,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		ILicense[] licenses = new ILicense[] {MetadataFactory.createLicense(URI.create("http://eclipse.org"), "license text"), MetadataFactory.createLicense(URI.create("http://apache.org"), "license text2")};
 		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
-		InstallableUnitDescription iu1 = new MetadataFactory.InstallableUnitDescription();
+		MetadataFactory.InstallableUnitDescription iu1 = new MetadataFactory.InstallableUnitDescription();
 		iu1.setId(id);
 		iu1.setVersion(version);
 		iu1.setFilter(filter);
@@ -415,10 +413,10 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		assertTrue("Installable unit provided capabilities are not correct", equal(addSelfCapability(iu, provides), extractProvides(iu)));
 		assertTrue("Installable unit required capabilities are not correct", equal(requires, extractRequires(iu)));
 		assertTrue("Installable unit meta required capabilities are not correct", equal(metaRequires, extractMetaRequires(iu)));
-		assertTrue("Installable unit update descriptor are not correct", id.equals(iu.getUpdateDescriptor().getId()));
+		assertTrue("Installable unit update descriptor are not correct", id.equals(RequiredCapability.extractName(iu.getUpdateDescriptor().getIUsBeingUpdated().iterator().next())));
 		assertTrue("Installable unit update descriptor are not correct", IUpdateDescriptor.HIGH == iu.getUpdateDescriptor().getSeverity());
 		assertTrue("Installable unit update descriptor are not correct", "desc".equals(iu.getUpdateDescriptor().getDescription()));
-		assertTrue("Installable unit update descriptor are not correct", new VersionRange(IU_TEST_VERSION, true, IU_TEST_VERSION, true).equals(iu.getUpdateDescriptor().getRange()));
+		assertTrue("Installable unit update descriptor are not correct", new VersionRange(IU_TEST_VERSION, true, IU_TEST_VERSION, true).equals(RequiredCapability.extractRange(iu.getUpdateDescriptor().getIUsBeingUpdated().iterator().next())));
 	}
 
 	private void validateIUPatch(IInstallableUnitPatch iu) {

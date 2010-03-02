@@ -1,0 +1,14 @@
+	+				if (range.getMaximum().equals(Version.MAX_VERSION)) {
+	+					// Open ended
+	+					resultExpression = factory.matchExpression(range.getIncludeMinimum() ? openEndedExpression : openEndedNonInclusiveExpression, name, namespace, range.getMinimum());
+	+				} else {
+	+					resultExpression = factory.matchExpression(//
+	+							range.getIncludeMinimum() ? (range.getIncludeMaximum() ? range_II_Expression : range_IN_Expression) //
+	+									: (range.getIncludeMaximum() ? range_NI_Expression : range_NN_Expression), //
+	+							name, namespace, range.getMinimum(), range.getMaximum());
+	+				}
+	+			}
+	+		}
+	+		return resultExpression;
+	+	}
+	+

@@ -13,8 +13,6 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.eclipse.AdviceFileParser;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -264,7 +262,7 @@ public class AdviceFileParserTest extends TestCase {
 
 		AdviceFileParser parser = new AdviceFileParser("id", Version.emptyVersion, map);
 		parser.parse();
-		InstallableUnitDescription[] descriptions = parser.getAdditionalInstallableUnitDescriptions();
+		MetadataFactory.InstallableUnitDescription[] descriptions = parser.getAdditionalInstallableUnitDescriptions();
 		IInstallableUnit iu0 = MetadataFactory.createInstallableUnit(descriptions[0]);
 		assertEquals("testid0", iu0.getId());
 		assertEquals(Version.create("1.2.3"), iu0.getVersion());
@@ -359,8 +357,8 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("removeProgramArg(programArg:-startup); removeProgramArg(programArg:@artifact);)", unconfigure.getBody());
 
 		assertEquals(MetadataFactory.createTouchpointType("testTouchpointId", Version.create("1.2.5")), iu1.getTouchpointType());
-		assertEquals("testid1", iu1.getUpdateDescriptor().getId());
-		assertEquals(new VersionRange("(1,2)"), iu1.getUpdateDescriptor().getRange());
+		assertEquals("testid1", RequiredCapability.extractName(iu1.getUpdateDescriptor().getIUsBeingUpdated().iterator().next()));
+		assertEquals(new VersionRange("(1,2)"), RequiredCapability.extractRange(iu1.getUpdateDescriptor().getIUsBeingUpdated().iterator().next()));
 		assertEquals(2, iu1.getUpdateDescriptor().getSeverity());
 		assertEquals("some description", iu1.getUpdateDescriptor().getDescription());
 

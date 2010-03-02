@@ -248,12 +248,12 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 			return VersionRange.emptyRange;
 		Version v = (Version) params[2];
 		if (params.length < 4) {
-			if (expr == strictVersionExpression)
+			if (expr.equals(strictVersionExpression))
 				return new VersionRange(v, true, v, true);
-			return new VersionRange(v, expr == openEndedExpression, Version.MAX_VERSION, true);
+			return new VersionRange(v, expr.equals(openEndedExpression), Version.MAX_VERSION, true);
 		}
 		Version h = (Version) params[3];
-		return new VersionRange(v, expr == range_II_Expression || expr == range_IN_Expression, h, expr == range_II_Expression || expr == range_NI_Expression);
+		return new VersionRange(v, expr.equals(range_II_Expression) || expr.equals(range_IN_Expression), h, expr.equals(range_II_Expression) || expr.equals(range_NI_Expression));
 	}
 
 	public static boolean isSimpleRequirement(IMatchExpression<IInstallableUnit> matchExpression) {
@@ -268,7 +268,7 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 	}
 
 	private static boolean isPredefined(IExpression expr) {
-		return expr == allVersionsExpression || expr == range_II_Expression || expr == range_IN_Expression || expr == range_NI_Expression || expr == range_NN_Expression || expr == strictVersionExpression || expr == openEndedExpression || expr == openEndedNonInclusiveExpression;
+		return expr.equals(allVersionsExpression) || expr.equals(range_II_Expression) || expr.equals(range_IN_Expression) || expr.equals(range_NI_Expression) || expr.equals(range_NN_Expression) || expr.equals(strictVersionExpression) || expr.equals(openEndedExpression) || expr.equals(openEndedNonInclusiveExpression);
 	}
 
 	public Object getMember(String memberName) {

@@ -10,16 +10,14 @@
  *     Genuitec, LLC
  *		EclipseSource - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata;
+package org.eclipse.equinox.p2.metadata;
 
 import java.net.URI;
 import java.util.*;
-import java.util.Map.Entry;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.expression.*;
 import org.osgi.framework.Filter;
 
 /**
@@ -392,7 +390,7 @@ public class MetadataFactory {
 
 		Map<String, ITouchpointInstruction> result = new LinkedHashMap<String, ITouchpointInstruction>(instructions.size());
 
-		for (Entry<String, ? extends Object> entry : instructions.entrySet()) {
+		for (Map.Entry<String, ? extends Object> entry : instructions.entrySet()) {
 			Object value = entry.getValue();
 			ITouchpointInstruction instruction;
 			if (value == null || value instanceof String)
@@ -472,8 +470,75 @@ public class MetadataFactory {
 		}
 	}
 
+	public static IUpdateDescriptor createUpdateDescriptor(Collection<IMatchExpression<IInstallableUnit>> descriptors, int severity, String description) {
+		return new UpdateDescriptor(descriptors, severity, description);
+	}
+
 	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description) {
-		return new UpdateDescriptor(id, range, severity, description);
+		Collection<IMatchExpression<IInstallableUnit>> descriptors = new ArrayList<IMatchExpression<IInstallableUnit>>(1);
+		descriptors.add(createMatchExpressionFromRange(IInstallableUnit.NAMESPACE_IU_ID, id, range));
+		return new UpdateDescriptor(descriptors, severity, description);
+	}
+
+	private static final IExpression allVersionsExpression;
+	private static final IExpression range_II_Expression;
+	private static final IExpression range_IN_Expression;
+	private static final IExpression range_NI_Expression;
+	private static final IExpression range_NN_Expression;
+	private static final IExpression strictVersionExpression;
+	private static final IExpression openEndedExpression;
+	private static final IExpression openEndedNonInclusiveExpression;
+
+	static {
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		IExpression xVar = factory.variable("x"); //$NON-NLS-1$
+		IExpression nameEqual = factory.equals(factory.member(xVar, ProvidedCapability.MEMBER_NAME), factory.indexedParameter(0));
+		IExpression namespaceEqual = factory.equals(factory.member(xVar, ProvidedCapability.MEMBER_NAMESPACE), factory.indexedParameter(1));
+
+		IExpression versionMember = factory.member(xVar, ProvidedCapability.MEMBER_VERSION);
+
+		IExpression versionCmpLow = factory.indexedParameter(2);
+		IExpression versionEqual = factory.equals(versionMember, versionCmpLow);
+		IExpression versionGt = factory.greater(versionMember, versionCmpLow);
+		IExpression versionGtEqual = factory.greaterEqual(versionMember, versionCmpLow);
+
+		IExpression versionCmpHigh = factory.indexedParameter(3);
+		IExpression versionLt = factory.less(versionMember, versionCmpHigh);
+		IExpression versionLtEqual = factory.lessEqual(versionMember, versionCmpHigh);
+
+		IExpression pvMember = factory.member(factory.thisVariable(), InstallableUnit.MEMBER_PROVIDED_CAPABILITIES);
+		allVersionsExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual)));
+		strictVersionExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionEqual)));
+		openEndedExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual)));
+		openEndedNonInclusiveExpression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGt)));
+		range_II_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual, versionLtEqual)));
+		range_IN_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGtEqual, versionLt)));
+		range_NI_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGt, versionLtEqual)));
+		range_NN_Expression = factory.exists(pvMember, factory.lambda(xVar, factory.and(nameEqual, namespaceEqual, versionGt, versionLt)));
+	}
+
+	private static IMatchExpression<IInstallableUnit> createMatchExpressionFromRange(String namespace, String name, VersionRange range) {
+		IMatchExpression<IInstallableUnit> resultExpression = null;
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		if (range == null || range.equals(VersionRange.emptyRange)) {
+			resultExpression = factory.matchExpression(allVersionsExpression, name, namespace);
+		} else {
+			if (range.getMinimum().equals(range.getMaximum())) {
+				// Explicit version appointed
+				resultExpression = factory.matchExpression(strictVersionExpression, name, namespace, range.getMinimum());
+			} else {
+				if (range.getMaximum().equals(Version.MAX_VERSION)) {
+					// Open ended
+					resultExpression = factory.matchExpression(range.getIncludeMinimum() ? openEndedExpression : openEndedNonInclusiveExpression, name, namespace, range.getMinimum());
+				} else {
+					resultExpression = factory.matchExpression(//
+							range.getIncludeMinimum() ? (range.getIncludeMaximum() ? range_II_Expression : range_IN_Expression) //
+									: (range.getIncludeMaximum() ? range_NI_Expression : range_NN_Expression), //
+							name, namespace, range.getMinimum(), range.getMaximum());
+				}
+			}
+		}
+		return resultExpression;
 	}
 
 	private static ITouchpointType getCachedTouchpointType(String id, Version version) {

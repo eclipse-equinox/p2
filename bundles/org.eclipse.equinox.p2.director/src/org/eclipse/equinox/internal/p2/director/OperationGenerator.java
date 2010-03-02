@@ -11,16 +11,12 @@
 package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.query.*;
 
 public class OperationGenerator {
-	private static final IInstallableUnit NULL_IU = MetadataFactory.createResolvedInstallableUnit(MetadataFactory.createInstallableUnit(new InstallableUnitDescription()), new IInstallableUnitFragment[0]);
+	private static final IInstallableUnit NULL_IU = MetadataFactory.createResolvedInstallableUnit(MetadataFactory.createInstallableUnit(new MetadataFactory.InstallableUnitDescription()), new IInstallableUnitFragment[0]);
 	private final IProvisioningPlan plan;
 
 	public OperationGenerator(IProvisioningPlan plan) {
@@ -111,16 +107,7 @@ public class OperationGenerator {
 		Set<IInstallableUnit> processed = new HashSet<IInstallableUnit>();
 		Set<IInstallableUnit> removedFromTo = new HashSet<IInstallableUnit>();
 
-		Map<String, List<IInstallableUnit>> fromById = new HashMap<String, List<IInstallableUnit>>();
-		for (IInstallableUnit iuFrom : from) {
-			List<IInstallableUnit> ius = fromById.get(iuFrom.getId());
-			if (ius == null) {
-				ius = new ArrayList<IInstallableUnit>();
-				fromById.put(iuFrom.getId(), ius);
-			}
-			ius.add(iuFrom);
-		}
-
+		QueryableArray indexedFromElements = new QueryableArray(from.toArray(new IInstallableUnit[from.size()]));
 		for (int toIdx = 0; toIdx < to.size(); toIdx++) {
 			IInstallableUnit iuTo = to.get(toIdx);
 			if (iuTo.getId().equals(next(to, toIdx).getId())) { //This handle the case where there are multiple versions of the same IU in the target. Eg we are trying to update from A 1.0.0 to A 1.1.1 and A 1.2.2
@@ -131,31 +118,30 @@ public class OperationGenerator {
 			if (iuTo.getUpdateDescriptor() == null)
 				continue;
 
-			List<IInstallableUnit> fromIdIndexList = fromById.get(iuTo.getUpdateDescriptor().getId());
-			if (fromIdIndexList == null)
-				continue;
+			//TODO we eventually need to handle the case where an IU is a merge of several others.
 
-			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of
-			IQuery<IInstallableUnit> updateQuery = QueryUtil.createIUQuery(iuTo.getUpdateDescriptor().getId(), iuTo.getUpdateDescriptor().getRange());
-			Iterator<IInstallableUnit> updates = updateQuery.perform(fromIdIndexList.iterator()).iterator();
+			IQuery<IInstallableUnit> updateQuery = QueryUtil.createMatchQuery(iuTo.getUpdateDescriptor().getIUsBeingUpdated().iterator().next(), new Object[0]);
+			iuTo.getUpdateDescriptor().getIUsBeingUpdated();
+			IQueryResult<IInstallableUnit> updates = indexedFromElements.query(updateQuery, null);
 
-			if (!updates.hasNext()) { //Nothing to update from.
+			if (updates.isEmpty()) { //Nothing to update from.
 				continue;
 			}
-			IInstallableUnit iuFrom = updates.next();
-			if (updates.hasNext()) { //There are multiple IUs to update from
+			Iterator<IInstallableUnit> updatesIterator = updates.iterator();
+			IInstallableUnit iuFrom = updatesIterator.next();
+			if (updatesIterator.hasNext()) { //There are multiple IUs to update from
 				//System.out.println("Can't update  " + iuTo + " because there are multiple IUs to update from (" + toString(iusFrom) + ')');
 				continue;
 			}
 			if (iuTo.equals(iuFrom)) {
 				from.remove(iuFrom);
-				fromIdIndexList.remove(iuFrom);
+				//				fromIdIndexList.remove(iuFrom);
 				removedFromTo.add(iuTo);
 				continue;
 			}
 			plan.updateInstallableUnit(iuFrom, iuTo);
 			from.remove(iuFrom);
-			fromIdIndexList.remove(iuFrom);
+			//			fromIdIndexList.remove(iuFrom);
 			processed.add(iuTo);
 		}
 		to.removeAll(processed);
