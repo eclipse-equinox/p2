@@ -25,8 +25,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
-import org.eclipse.equinox.p2.repository.ICompositeRepository;
-import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
@@ -262,8 +261,21 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return getActualLocation(location, XML_EXTENSION);
 	}
 
-	public synchronized void addReference(URI repositoryLocation, int repositoryType, int options) {
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addReferences(java.util.Collection)
+	 */
+	public synchronized void addReferences(Collection<? extends IRepositoryReference> references) {
 		throw new UnsupportedOperationException("Cannot add References to a composite repository"); //$NON-NLS-1$
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#getReferences()
+	 */
+	public Collection<IRepositoryReference> getReferences() {
+		HashSet<IRepositoryReference> allRefs = new HashSet<IRepositoryReference>();
+		for (IMetadataRepository child : loadedRepos)
+			allRefs.addAll(child.getReferences());
+		return allRefs;
 	}
 
 	// caller should be synchronized

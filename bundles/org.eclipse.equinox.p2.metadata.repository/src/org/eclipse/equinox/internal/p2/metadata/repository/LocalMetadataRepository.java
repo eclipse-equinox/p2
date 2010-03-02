@@ -32,9 +32,9 @@ import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
-import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
 /**
  * A metadata repository that resides in the local file system.  If the repository
@@ -50,7 +50,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	static final private String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
 	protected IUMap units = new IUMap();
-	protected HashSet<RepositoryReference> repositories = new HashSet<RepositoryReference>();
+	protected HashSet<IRepositoryReference> repositories = new HashSet<IRepositoryReference>();
 	private IIndex<IInstallableUnit> idIndex;
 	private IIndex<IInstallableUnit> capabilityIndex;
 	private TranslationSupport translationSupport;
@@ -113,12 +113,20 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addReference(java.net.URI, java.lang.String, int, int)
+	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addReferences(java.util.Collection)
 	 */
 	@Override
-	public synchronized void addReference(URI repositoryLocation, String nickname, int repositoryType, int options) {
+	public void addReferences(Collection<? extends IRepositoryReference> references) {
 		assertModifiable();
-		repositories.add(new RepositoryReference(repositoryLocation, nickname, repositoryType, options));
+		repositories.addAll(references);
+		save();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#getReferences()
+	 */
+	public Collection<IRepositoryReference> getReferences() {
+		return Collections.unmodifiableCollection(repositories);
 	}
 
 	/* (non-Javadoc)
@@ -178,17 +186,17 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		if (bus == null)
 			return;
 
-		List<RepositoryReference> repositoriesSnapshot = createRepositoriesSnapshot();
-		for (RepositoryReference reference : repositoriesSnapshot) {
-			boolean isEnabled = (reference.Options & IRepository.ENABLED) != 0;
-			bus.publishEvent(new RepositoryEvent(reference.Location, reference.Type, RepositoryEvent.DISCOVERED, isEnabled));
+		List<IRepositoryReference> repositoriesSnapshot = createRepositoriesSnapshot();
+		for (IRepositoryReference reference : repositoriesSnapshot) {
+			boolean isEnabled = (reference.getOptions() & IRepository.ENABLED) != 0;
+			bus.publishEvent(new RepositoryEvent(reference.getLocation(), reference.getType(), RepositoryEvent.DISCOVERED, isEnabled));
 		}
 	}
 
-	private synchronized List<RepositoryReference> createRepositoriesSnapshot() {
+	private synchronized List<IRepositoryReference> createRepositoriesSnapshot() {
 		if (repositories.isEmpty())
 			return CollectionUtils.emptyList();
-		return new ArrayList<RepositoryReference>(repositories);
+		return new ArrayList<IRepositoryReference>(repositories);
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream

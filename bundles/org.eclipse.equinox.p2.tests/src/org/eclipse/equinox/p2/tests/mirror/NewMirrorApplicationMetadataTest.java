@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.mirror;
 
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
+
 import java.io.File;
 import java.net.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.URIUtil;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -23,8 +24,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.util.NLS;
 
@@ -37,6 +37,7 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 	protected File sourceRepo2Location; //anotherfeature
 	protected File sourceRepo3Location; //helloworldfeature + yetanotherfeature
 	protected File sourceRepo4Location; //helloworldfeature v1.0.1
+	protected File sourceRepoWithRefs; //helloworldfeature v1.0.1 and references
 
 	protected Exception exception = null;
 
@@ -50,6 +51,7 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 		sourceRepo2Location = getTestData("0.1", "/testData/mirror/mirrorSourceRepo2");
 		sourceRepo3Location = getTestData("0.2", "/testData/mirror/mirrorSourceRepo3");
 		sourceRepo4Location = getTestData("0.3", "/testData/mirror/mirrorSourceRepo4");
+		sourceRepoWithRefs = getTestData("0.4", "/testData/mirror/mirrorSourceRepoWithRefs");
 
 		//create destination location
 		destRepoLocation = new File(getTempFolder(), "BasicMirrorApplicationTest");
@@ -66,6 +68,7 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 		getMetadataRepositoryManager().removeRepository(sourceRepo2Location.toURI());
 		getMetadataRepositoryManager().removeRepository(sourceRepo3Location.toURI());
 		getMetadataRepositoryManager().removeRepository(sourceRepo4Location.toURI());
+		getMetadataRepositoryManager().removeRepository(sourceRepoWithRefs.toURI());
 		exception = null;
 		//delete the destination location (no left over files for the next test)
 		delete(destRepoLocation);
@@ -963,5 +966,25 @@ public class NewMirrorApplicationMetadataTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("Could not load destination", e);
 		}
+	}
+
+	public void testMirrorReferences() throws Exception {
+		MirrorApplication app = new MirrorApplication();
+		RepositoryDescriptor dest = new RepositoryDescriptor();
+		dest.setLocation(destRepoLocation.toURI());
+		dest.setAppend(false);
+		dest.setKind("metadata");
+		app.addDestination(dest);
+
+		RepositoryDescriptor src = new RepositoryDescriptor();
+		src.setLocation(sourceRepoWithRefs.toURI());
+		src.setKind("metadata");
+		app.addSource(src);
+		app.setReferences(true);
+		app.run(null);
+
+		IMetadataRepository destRepo = getMetadataRepositoryManager().loadRepository(destRepoLocation.toURI(), null);
+		Collection<IRepositoryReference> destRefs = destRepo.getReferences();
+		assertEquals(destRefs.size(), 4);
 	}
 }

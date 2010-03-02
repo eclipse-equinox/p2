@@ -18,6 +18,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 public class UpdateSiteMetadataRepository implements IMetadataRepository {
@@ -46,10 +47,17 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#addReference(java.net.URI, java.lang.String, int, int)
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#addReferences(java.util.Collection)
 	 */
-	public void addReference(URI location, String nickname, int type, int options) {
+	public void addReferences(Collection<? extends IRepositoryReference> references) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#getReferences()
+	 */
+	public Collection<IRepositoryReference> getReferences() {
+		return delegate.getReferences();
 	}
 
 	/* (non-Javadoc)

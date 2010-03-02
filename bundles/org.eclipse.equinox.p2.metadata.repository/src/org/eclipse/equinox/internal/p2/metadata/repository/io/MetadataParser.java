@@ -12,9 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.*;
-
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
@@ -22,8 +19,12 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionParseException;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
@@ -50,11 +51,11 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class RepositoryReferencesHandler extends AbstractMetadataHandler {
-		private HashSet<RepositoryReference> references;
+		private HashSet<IRepositoryReference> references;
 
 		public RepositoryReferencesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, REPOSITORY_REFERENCES_ELEMENT);
-			references = new HashSet<RepositoryReference>(getOptionalSize(attributes, 4));
+			references = new HashSet<IRepositoryReference>(getOptionalSize(attributes, 4));
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -65,8 +66,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			}
 		}
 
-		public RepositoryReference[] getReferences() {
-			return references.toArray(new RepositoryReference[references.size()]);
+		public IRepositoryReference[] getReferences() {
+			return references.toArray(new IRepositoryReference[references.size()]);
 		}
 	}
 
@@ -74,7 +75,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		private final String[] required = new String[] {TYPE_ATTRIBUTE, OPTIONS_ATTRIBUTE};
 
-		public RepositoryReferenceHandler(AbstractHandler parentHandler, Attributes attributes, Set<RepositoryReference> references) {
+		public RepositoryReferenceHandler(AbstractHandler parentHandler, Attributes attributes, Set<IRepositoryReference> references) {
 			super(parentHandler, REPOSITORY_REFERENCE_ELEMENT);
 			String[] values = parseRequiredAttributes(attributes, required);
 			String name = parseOptionalAttribute(attributes, NAME_ATTRIBUTE);

@@ -16,11 +16,13 @@ import java.io.FilenameFilter;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.osgi.util.NLS;
@@ -86,6 +88,13 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	@Override
 	public void addInstallableUnits(IInstallableUnit[] installableUnits) {
 		throw new UnsupportedOperationException();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#getReferences()
+	 */
+	public Collection<IRepositoryReference> getReferences() {
+		return CollectionUtils.emptyList();
 	}
 
 	/* (non-Javadoc)

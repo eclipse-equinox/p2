@@ -15,6 +15,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -26,6 +27,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
@@ -149,6 +151,10 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 			return null;
 
 		return p2EngineDirectory.getParentFile();
+	}
+
+	public Collection<IRepositoryReference> getReferences() {
+		return CollectionUtils.emptyList();
 	}
 
 	public void initialize(RepositoryState state) {

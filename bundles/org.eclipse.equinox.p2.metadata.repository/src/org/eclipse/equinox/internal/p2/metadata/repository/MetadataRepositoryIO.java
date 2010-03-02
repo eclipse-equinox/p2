@@ -11,7 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
+
 import org.eclipse.equinox.p2.query.QueryUtil;
+
 
 import java.io.*;
 import java.lang.reflect.Constructor;
@@ -32,7 +35,6 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository.RepositoryState;
-import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
@@ -140,7 +142,7 @@ public class MetadataRepositoryIO {
 
 			writeProperties(repository.getProperties());
 			if (repository instanceof LocalMetadataRepository) {
-				Set<RepositoryReference> references = ((LocalMetadataRepository) repository).repositories;
+				Set<IRepositoryReference> references = ((LocalMetadataRepository) repository).repositories;
 				writeRepositoryReferences(references.iterator(), references.size());
 			}
 			// The size attribute is a problematic since it forces the use of a collection.
@@ -152,11 +154,11 @@ public class MetadataRepositoryIO {
 		}
 
 		/**
-		 * Writes a list of {@link RepositoryReference}.
-		 * @param references An Iterator of {@link RepositoryReference}.
+		 * Writes a list of {@link IRepositoryReference}.
+		 * @param references An Iterator of {@link IRepositoryReference}.
 		 * @param size The number of references  to write
 		 */
-		protected void writeRepositoryReferences(Iterator<RepositoryReference> references, int size) {
+		protected void writeRepositoryReferences(Iterator<IRepositoryReference> references, int size) {
 			if (size == 0)
 				return;
 			start(REPOSITORY_REFERENCES_ELEMENT);
@@ -166,20 +168,20 @@ public class MetadataRepositoryIO {
 			end(REPOSITORY_REFERENCES_ELEMENT);
 		}
 
-		private void writeRepositoryReference(RepositoryReference reference) {
+		private void writeRepositoryReference(IRepositoryReference reference) {
 			start(REPOSITORY_REFERENCE_ELEMENT);
-			attribute(URI_ATTRIBUTE, reference.Location.toString());
+			attribute(URI_ATTRIBUTE, reference.getLocation().toString());
 
 			try {
 				// we write the URL attribute for backwards compatibility with 3.4.x
 				// this attribute should be removed if we make a breaking format change.
-				attribute(URL_ATTRIBUTE, URIUtil.toURL(reference.Location).toExternalForm());
+				attribute(URL_ATTRIBUTE, URIUtil.toURL(reference.getLocation()).toExternalForm());
 			} catch (MalformedURLException e) {
-				attribute(URL_ATTRIBUTE, reference.Location.toString());
+				attribute(URL_ATTRIBUTE, reference.getLocation().toString());
 			}
 
-			attribute(TYPE_ATTRIBUTE, Integer.toString(reference.Type));
-			attribute(OPTIONS_ATTRIBUTE, Integer.toString(reference.Options));
+			attribute(TYPE_ATTRIBUTE, Integer.toString(reference.getType()));
+			attribute(OPTIONS_ATTRIBUTE, Integer.toString(reference.getOptions()));
 			end(REPOSITORY_REFERENCE_ELEMENT);
 		}
 	}
@@ -309,7 +311,7 @@ public class MetadataRepositoryIO {
 							: propertiesHandler.getProperties());
 					state.Units = (unitsHandler == null ? new IInstallableUnit[0] //
 							: unitsHandler.getUnits());
-					state.Repositories = repositoryReferencesHandler == null ? new RepositoryReference[0] : repositoryReferencesHandler.getReferences();
+					state.Repositories = repositoryReferencesHandler == null ? new IRepositoryReference[0] : repositoryReferencesHandler.getReferences();
 					Object repositoryObject = null;
 					//can't create repository if missing type - this is already logged when parsing attributes
 					if (state.Type == null)

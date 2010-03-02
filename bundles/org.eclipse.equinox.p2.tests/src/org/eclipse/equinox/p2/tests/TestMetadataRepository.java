@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -22,7 +24,6 @@ import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
-import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
 /**
  * A simple metadata repository used for testing purposes.  All metadata
@@ -36,7 +37,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	private static final String TYPE = "testmetadatarepo"; //$NON-NLS-1$
 	private static final String VERSION = "1"; //$NON-NLS-1$
 	private final List units = new ArrayList();
-	protected HashSet repositories = new HashSet();
+	protected HashSet<IRepositoryReference> repositories = new HashSet<IRepositoryReference>();
 
 	private static URI createLocation() {
 		try {
@@ -116,15 +117,15 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		this.repositories.addAll(Arrays.asList(state.Repositories));
 	}
 
-	public synchronized void addReference(URI repositoryLocation, String nickname, int repositoryType, int options) {
+	public synchronized void addReferences(Collection<? extends IRepositoryReference> references) {
 		assertModifiable();
-		repositories.add(new RepositoryReference(repositoryLocation, nickname, repositoryType, options));
+		repositories.addAll(references);
 	}
 
 	/**
 	 * Returns a collection of {@link RepositoryReference}.
 	 */
-	public Collection getReferences() {
+	public Collection<IRepositoryReference> getReferences() {
 		return repositories;
 	}
 

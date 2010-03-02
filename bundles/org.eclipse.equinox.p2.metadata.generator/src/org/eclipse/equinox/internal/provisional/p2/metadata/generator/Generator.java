@@ -37,6 +37,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
@@ -1137,8 +1138,10 @@ public class Generator {
 		try {
 			URI associateLocation = URIUtil.fromString(location);
 			int flags = isEnabled ? IRepository.ENABLED : IRepository.NONE;
-			metadataRepo.addReference(associateLocation, name, IRepository.TYPE_METADATA, flags);
-			metadataRepo.addReference(associateLocation, name, IRepository.TYPE_ARTIFACT, flags);
+			ArrayList refs = new ArrayList();
+			refs.add(new RepositoryReference(associateLocation, name, IRepository.TYPE_METADATA, flags));
+			refs.add(new RepositoryReference(associateLocation, name, IRepository.TYPE_ARTIFACT, flags));
+			metadataRepo.addReferences(refs);
 		} catch (URISyntaxException e) {
 			String message = "Invalid site reference: " + location; //$NON-NLS-1$
 			if (featureId != null)

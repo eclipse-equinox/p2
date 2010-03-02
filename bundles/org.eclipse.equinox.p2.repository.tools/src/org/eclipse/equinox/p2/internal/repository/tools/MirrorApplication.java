@@ -43,6 +43,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	private boolean raw = true;
 	private boolean verbose = false;
 	private boolean validate = false;
+	private boolean mirrorReferences = false;
 	private String metadataOrArtifacts = null;
 	private String[] rootIUs = null;
 
@@ -122,6 +123,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 				compare = true;
 			else if (args[i].equalsIgnoreCase("-validate")) //$NON-NLS-1$
 				validate = true;
+			else if (args[i].equalsIgnoreCase("-references")) //$NON-NLS-1$
+				mirrorReferences = true;
 
 			// check for args with parameters. If we are at the last argument or 
 			// if the next one has a '-' as the first character, then we can't have 
@@ -240,6 +243,8 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	private void mirrorMetadata(IQueryable<IInstallableUnit> slice, IProgressMonitor monitor) {
 		IQueryResult<IInstallableUnit> allIUs = slice.query(QueryUtil.createIUAnyQuery(), monitor);
 		destinationMetadataRepository.addInstallableUnits(allIUs.toUnmodifiableSet());
+		if (mirrorReferences)
+			destinationMetadataRepository.addReferences(getCompositeMetadataRepository().getReferences());
 	}
 
 	/*
@@ -406,6 +411,13 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 	 */
 	public void setValidate(boolean value) {
 		validate = value;
+	}
+
+	/*
+	 * Set if references should be mirrored
+	 */
+	public void setReferences(boolean flag) {
+		mirrorReferences = flag;
 	}
 
 	public void setComparatorExclusions(IQuery<IArtifactDescriptor> exclusions) {

@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.tests.*;
 
 /**
@@ -74,14 +74,14 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 		assertEquals("1.0", 2, references.size());
 		boolean metadataFound = false, artifactFound = false;
 		for (Iterator it = references.iterator(); it.hasNext();) {
-			RepositoryReference ref = (RepositoryReference) it.next();
-			assertEquals("1.1", "http://download.eclipse.org/eclipse/updates/3.5", ref.Location.toString());
-			assertEquals("1.2", IRepository.ENABLED, ref.Options);
-			assertEquals("1.3", "Eclipse Project Update Site", ref.Nickname);
+			IRepositoryReference ref = (IRepositoryReference) it.next();
+			assertEquals("1.1", "http://download.eclipse.org/eclipse/updates/3.5", ref.getLocation().toString());
+			assertEquals("1.2", IRepository.ENABLED, ref.getOptions());
+			assertEquals("1.3", "Eclipse Project Update Site", ref.getNickname());
 
-			if (ref.Type == IRepository.TYPE_METADATA)
+			if (ref.getType() == IRepository.TYPE_METADATA)
 				metadataFound = true;
-			else if (ref.Type == IRepository.TYPE_ARTIFACT)
+			else if (ref.getType() == IRepository.TYPE_ARTIFACT)
 				artifactFound = true;
 		}
 		assertTrue("1.3", metadataFound);
@@ -89,7 +89,7 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 	}
 
 	public void testMirrorsURL() {
-		String mirrorsURL = (String) metadataRepository.getProperties().get(IRepository.PROP_MIRRORS_URL);
+		String mirrorsURL = metadataRepository.getProperties().get(IRepository.PROP_MIRRORS_URL);
 		assertEquals("1.0", "http://www.eclipse.org/downloads/download.php?file=/eclipse/updates/3.4&format=xml", mirrorsURL);
 	}
 }

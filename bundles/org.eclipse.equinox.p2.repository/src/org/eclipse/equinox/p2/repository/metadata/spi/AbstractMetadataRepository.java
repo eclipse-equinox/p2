@@ -17,9 +17,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
-import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
 /**
  * The common base class for all metadata repositories.
@@ -40,7 +40,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository<IIns
 		public URI Location;
 		public Map<String, String> Properties;
 		public IInstallableUnit[] Units;
-		public RepositoryReference[] Repositories;
+		public IRepositoryReference[] Repositories;
 	}
 
 	public AbstractMetadataRepository(IProvisioningAgent agent) {
@@ -69,7 +69,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository<IIns
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#addReference(java.net.URI, java.lang.String, int, int)
 	 */
-	public void addReference(URI repositoryLocation, String nickname, int repositoryType, int options) {
+	public void addReferences(Collection<? extends IRepositoryReference> references) {
 		assertModifiable();
 	}
 

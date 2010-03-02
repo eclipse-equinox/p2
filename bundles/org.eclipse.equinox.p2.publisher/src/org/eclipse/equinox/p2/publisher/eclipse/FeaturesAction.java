@@ -10,30 +10,29 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.*;
+import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Filter;
@@ -475,7 +474,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	 * @param featureId the identifier of the feature where the error occurred, or null
 	 * @param metadataRepo The repo into which the references are added
 	 */
-	private void generateSiteReference(String location, String nickname, String featureId, IMetadataRepository metadataRepo) {
+	private void generateSiteReference(String location, String nickname, String featureId, List<IRepositoryReference> collector) {
 		if (location == null) {
 			String message = featureId == null ? NLS.bind(Messages.exception_invalidSiteReference, location) : NLS.bind(Messages.exception_invalidSiteReferenceInFeature, location, featureId);
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
@@ -484,8 +483,8 @@ public class FeaturesAction extends AbstractPublisherAction {
 
 		try {
 			URI associateLocation = new URI(location);
-			metadataRepo.addReference(associateLocation, nickname, IRepository.TYPE_METADATA, IRepository.NONE);
-			metadataRepo.addReference(associateLocation, nickname, IRepository.TYPE_ARTIFACT, IRepository.NONE);
+			collector.add(new RepositoryReference(associateLocation, nickname, IRepository.TYPE_METADATA, IRepository.NONE));
+			collector.add(new RepositoryReference(associateLocation, nickname, IRepository.TYPE_ARTIFACT, IRepository.NONE));
 		} catch (URISyntaxException e) {
 			String message = featureId == null ? NLS.bind(Messages.exception_invalidSiteReference, location) : NLS.bind(Messages.exception_invalidSiteReferenceInFeature, location, featureId);
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
@@ -497,11 +496,14 @@ public class FeaturesAction extends AbstractPublisherAction {
 		URLEntry updateURL = feature.getUpdateSite();
 		//don't enable feature update sites by default since this results in too many
 		//extra sites being loaded and searched (Bug 234177)
+		List<IRepositoryReference> collector = new ArrayList<IRepositoryReference>();
 		if (updateURL != null)
-			generateSiteReference(updateURL.getURL(), updateURL.getAnnotation(), feature.getId(), publisherInfo.getMetadataRepository());
+			generateSiteReference(updateURL.getURL(), updateURL.getAnnotation(), feature.getId(), collector);
 		URLEntry[] discoverySites = feature.getDiscoverySites();
 		for (int i = 0; i < discoverySites.length; i++)
-			generateSiteReference(discoverySites[i].getURL(), discoverySites[i].getAnnotation(), feature.getId(), publisherInfo.getMetadataRepository());
+			generateSiteReference(discoverySites[i].getURL(), discoverySites[i].getAnnotation(), feature.getId(), collector);
+		if (!collector.isEmpty())
+			publisherInfo.getMetadataRepository().addReferences(collector);
 	}
 
 	protected Feature[] getFeatures(File[] featureLocations) {

@@ -13,10 +13,10 @@
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.net.URI;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.index.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -26,6 +26,7 @@ import org.eclipse.equinox.p2.metadata.index.IIndex;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 
 /**
@@ -34,6 +35,7 @@ import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository
 public class URLMetadataRepository extends AbstractMetadataRepository implements IIndexProvider<IInstallableUnit> {
 
 	public static final String CONTENT_FILENAME = "content"; //$NON-NLS-1$
+	protected Collection<IRepositoryReference> references;
 	public static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	private static final String REPOSITORY_TYPE = URLMetadataRepository.class.getName();
 	private static final Integer REPOSITORY_VERSION = new Integer(1);
@@ -77,12 +79,17 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 		this.location = state.Location;
 		this.properties = state.Properties;
 		this.units.addAll(state.Units);
+		this.references = CollectionUtils.unmodifiableList(state.Repositories);
 	}
 
 	// Use this method to setup any transient fields etc after the object has been restored from a stream
 	public synchronized void initializeAfterLoad(URI repoLocation) {
 		this.location = repoLocation;
 		content = getActualLocation(location);
+	}
+
+	public Collection<IRepositoryReference> getReferences() {
+		return references;
 	}
 
 	public boolean isModifiable() {

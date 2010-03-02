@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -185,9 +186,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		properties.put(IRepository.PROP_COMPRESSED, "false");
 		final URI repoURI = repoLocation.toURI();
 		IMetadataRepository repo = manager.createRepository(repoURI, "testLoadSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		repo.addReference(repoURI, "testNick", IRepository.TYPE_METADATA, IRepository.NONE);
-		//adding a reference doesn't save the repository, but setting a property does
-		repo.setProperty("changed", "false");
+		repo.addReferences(Collections.singletonList(new RepositoryReference(repoURI, "testNick", IRepository.TYPE_METADATA, IRepository.NONE)));
 
 		final int[] callCount = new int[] {0};
 		final boolean[] wasEnabled = new boolean[] {false};
@@ -226,9 +225,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		properties.put(IRepository.PROP_COMPRESSED, "false");
 		final URI repoURL = repoLocation.toURI();
 		IMetadataRepository repo = manager.createRepository(repoURL, "testRefreshSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		repo.addReference(repoURL, "testNick", IRepository.TYPE_METADATA, IRepository.NONE);
-		//adding a reference doesn't save the repository, but setting a property does
-		repo.setProperty("changed", "false");
+		repo.addReferences(Collections.singletonList(new RepositoryReference(repoURL, "testNick", IRepository.TYPE_METADATA, IRepository.NONE)));
 
 		final int[] callCount = new int[] {0};
 		final boolean[] wasEnabled = new boolean[] {false};

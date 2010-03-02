@@ -10,9 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,13 +20,15 @@ import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.URLEntry;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
@@ -273,9 +272,23 @@ public class SiteXMLAction extends AbstractPublisherAction {
 
 		//publish associate sites as repository references
 		URLEntry[] associatedSites = site.getAssociatedSites();
-		if (associatedSites != null)
-			for (int i = 0; i < associatedSites.length; i++)
-				generateSiteReference(associatedSites[i].getURL(), associatedSites[i].getAnnotation(), null, publisherInfo.getMetadataRepository());
+		if (associatedSites != null) {
+			ArrayList<IRepositoryReference> refs = new ArrayList<IRepositoryReference>(associatedSites.length * 2);
+			for (int i = 0; i < associatedSites.length; i++) {
+				URLEntry associatedSite = associatedSites[i];
+				String siteLocation = associatedSite.getURL();
+				try {
+					URI associateLocation = new URI(siteLocation);
+					String label = associatedSite.getAnnotation();
+					refs.add(new RepositoryReference(associateLocation, label, IRepository.TYPE_METADATA, IRepository.ENABLED));
+					refs.add(new RepositoryReference(associateLocation, label, IRepository.TYPE_ARTIFACT, IRepository.ENABLED));
+				} catch (URISyntaxException e) {
+					String message = "Invalid site reference: " + siteLocation; //$NON-NLS-1$
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
+				}
+			}
+			publisherInfo.getMetadataRepository().addReferences(refs);
+		}
 
 		File siteFile = URIUtil.toFile(updateSite.getLocation());
 		if (siteFile != null && siteFile.exists()) {
@@ -303,28 +316,6 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			}
 		}
 		return mappings;
-	}
-
-	/**
-	 * Generates and publishes a reference to an update site location
-	 * @param siteLocation The update site location
-	 * @param label The update site label
-	 * @param featureId the identifier of the feature where the error occurred, or null
-	 * @param metadataRepo The repository into which the references are added
-	 */
-	private void generateSiteReference(String siteLocation, String label, String featureId, IMetadataRepository metadataRepo) {
-		if (metadataRepo == null)
-			return;
-		try {
-			URI associateLocation = new URI(siteLocation);
-			metadataRepo.addReference(associateLocation, label, IRepository.TYPE_METADATA, IRepository.ENABLED);
-			metadataRepo.addReference(associateLocation, label, IRepository.TYPE_ARTIFACT, IRepository.ENABLED);
-		} catch (URISyntaxException e) {
-			String message = "Invalid site reference: " + siteLocation; //$NON-NLS-1$
-			if (featureId != null)
-				message = message + " in feature: " + featureId; //$NON-NLS-1$
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
-		}
 	}
 
 	/**
