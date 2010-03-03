@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,8 +15,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.security.storage.EncodingUtils;
 
@@ -28,7 +26,7 @@ import org.eclipse.equinox.security.storage.EncodingUtils;
  */
 public final class ProfileScope implements IScopeContext {
 
-	/*
+	/**
 	 * String constant (value of <code>"profile"</code>) used for the 
 	 * scope name for this preference scope.
 	 */
@@ -37,16 +35,6 @@ public final class ProfileScope implements IScopeContext {
 	private String profileId;
 
 	private IAgentLocation location;
-
-	/**
-	 * Create and return a new profile scope for the given profile. The given
-	 * profile id must not be null. The provisioning agent of the currently running
-	 * system is used.
-	 * @deprecated use {@link ProfileScope#ProfileScope(IAgentLocation, String)} instead
-	 */
-	public ProfileScope(String profileId) {
-		this(getDefaultAgent(), profileId);
-	}
 
 	/**
 	 * Creates and returns a profile scope for the given profile id and agent.
@@ -61,15 +49,17 @@ public final class ProfileScope implements IScopeContext {
 		this.location = agentLocation;
 	}
 
-	private static IAgentLocation getDefaultAgent() {
-		return (IAgentLocation) ServiceHelper.getService(EngineActivator.getContext(), IAgentLocation.SERVICE_NAME);
-	}
-
+	/*(non-Javadoc)
+	 * @see org.eclipse.core.runtime.preferences.IScopeContext#getLocation()
+	 */
 	public IPath getLocation() {
 		// Null returned as the location should only be used when the profile is locked
 		return null;
 	}
 
+	/*(non-Javadoc)
+	 * @see org.eclipse.core.runtime.preferences.IScopeContext#getName()
+	 */
 	public String getName() {
 		return SCOPE;
 	}
