@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.ILicense;
-import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
+import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -329,11 +329,17 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 	/**
 	 * Update the current page to show the licenses that must be approved for the
-	 * selected IUs and the provisioning plan
+	 * selected IUs and the provisioning plan.  
+	 * 
+	 * Clients using this page in conjunction with a {@link ProfileChangeOperation} should
+	 * instead use {@link #update(IInstallableUnit[], ProfileChangeOperation)}.   This 
+	 * method is intended for clients who are working with a low-level provisioning plan
+	 * rather than an {@link InstallOperation} or {@link UpdateOperation}.
 	 * 
 	 * @param theIUs the installable units to be installed for which licenses must be checked
-	 * @param plan the provisioning plan for the install operation
-	 * @deprecated use {@link #update(IInstallableUnit[], ProfileChangeOperation)}
+	 * @param plan the provisioning plan that describes a resolved install operation
+	 * 
+	 * @see #update(IInstallableUnit[], ProfileChangeOperation)
 	 */
 
 	public void updateForPlan(IInstallableUnit[] theIUs, IProvisioningPlan plan) {
