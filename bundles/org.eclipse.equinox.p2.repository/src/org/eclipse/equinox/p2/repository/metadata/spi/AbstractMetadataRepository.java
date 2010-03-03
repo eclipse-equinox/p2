@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.repository.metadata.spi;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -54,11 +53,6 @@ public abstract class AbstractMetadataRepository extends AbstractRepository<IIns
 		super(agent, name, type, version, location, description, provider, properties);
 	}
 
-	// TODO remove
-	public void addInstallableUnits(IInstallableUnit[] installableUnit) {
-		assertModifiable();
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#addInstallableUnits(java.util.Collection)
 	 */
@@ -78,12 +72,6 @@ public abstract class AbstractMetadataRepository extends AbstractRepository<IIns
 	 */
 	public void removeAll() {
 		assertModifiable();
-	}
-
-	// TODO remove
-	public boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
-		assertModifiable();
-		return false;
 	}
 
 	/* (non-Javadoc)

@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.repository.metadata;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -59,7 +60,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * <li>A repository already exists at that location.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository createRepository(URI location, String name, String type, Map<String, String> properties) throws ProvisionException;
+	public IMetadataRepository createRepository(URI location, String name, String type, Map<String, String> properties) throws ProvisionException, OperationCanceledException;
 
 	/**
 	 * Loads a repository corresponding to the given URL.  If a repository has
@@ -82,7 +83,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
+	public IMetadataRepository loadRepository(URI location, IProgressMonitor monitor) throws ProvisionException, OperationCanceledException;
 
 	/**
 	 * Loads a repository corresponding to the given URL.  If a repository has
@@ -111,7 +112,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * </ul>
 	 * @see IRepositoryManager#REPOSITORY_HINT_MODIFIABLE
 	 */
-	public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor) throws ProvisionException;
+	public IMetadataRepository loadRepository(URI location, int flags, IProgressMonitor monitor) throws ProvisionException, OperationCanceledException;
 
 	/**
 	 * Refreshes the repository corresponding to the given URL. This method discards
@@ -130,6 +131,6 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * <li>The repository at that location could not be read.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException;
+	public IMetadataRepository refreshRepository(URI location, IProgressMonitor monitor) throws ProvisionException, OperationCanceledException;
 
 }

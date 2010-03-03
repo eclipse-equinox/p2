@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.repository.metadata;
 
 import java.util.Collection;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
@@ -28,11 +27,6 @@ import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository
  * @since 2.0
  */
 public interface IMetadataRepository extends IRepository<IInstallableUnit> {
-
-	/**
-	 * @deprecated use {@link #addInstallableUnits(Collection)}
-	 */
-	public void addInstallableUnits(IInstallableUnit[] installableUnits);
 
 	/** 
 	 * Add the given installable units to this repository.
@@ -58,11 +52,6 @@ public interface IMetadataRepository extends IRepository<IInstallableUnit> {
 	 * @return An immutable collection of repository references, possibly empty but never <code>null</code>.
 	 */
 	Collection<IRepositoryReference> getReferences();
-
-	/**
-	 * @deprecated use {@link #removeInstallableUnits(Collection)}
-	 */
-	public boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor);
 
 	/**
 	 * Removes all installable units in the given collection from this repository.
