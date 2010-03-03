@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,15 +11,10 @@
 package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.Map;
-import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.osgi.framework.Bundle;
 
 /**
  * Test to ensure MirrorApplication handles loading an removing repositories correctly
@@ -57,48 +52,9 @@ public class ArtifactRepositoryCleanupTest extends AbstractProvisioningTest {
 	 */
 	private void runMirrorApplication(final File source, final File destination, final boolean append) throws Exception {
 		MirrorApplication application = new MirrorApplication();
-		application.start(new IApplicationContext() {
-
-			public void applicationRunning() {
-			}
-
-			public Map getArguments() {
-				Map arguments = new HashMap();
-
-				try {
-					arguments.put(IApplicationContext.APPLICATION_ARGS, new String[] {"-source", source.toURL().toExternalForm(), "-destination", destination.toURL().toExternalForm(), append ? "-append" : ""});
-				} catch (MalformedURLException e) {
-					// shouldn't happen
-					throw new IllegalArgumentException(e);
-				}
-
-				return arguments;
-			}
-
-			public String getBrandingApplication() {
-				return null;
-			}
-
-			public Bundle getBrandingBundle() {
-				return null;
-			}
-
-			public String getBrandingDescription() {
-				return null;
-			}
-
-			public String getBrandingId() {
-				return null;
-			}
-
-			public String getBrandingName() {
-				return null;
-			}
-
-			public String getBrandingProperty(String key) {
-				return null;
-			}
-		});
+		String[] args = new String[] {"-source", source.toURL().toExternalForm(), "-destination", destination.toURL().toExternalForm(), append ? "-append" : ""};
+		application.initializeFromArguments(args);
+		application.run(null);
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -14,17 +14,13 @@ package org.eclipse.equinox.p2.tests.director;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.director.app.DirectorApplication;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.osgi.framework.Bundle;
 
 /**
  * Various automated tests of the {@link IDirector} API.
@@ -36,44 +32,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	 */
 	private void runDirectorApp(String message, final String[] args) throws Exception {
 		DirectorApplication application = new DirectorApplication();
-		application.start(new IApplicationContext() {
-
-			public void applicationRunning() {
-				//empty
-			}
-
-			public Map getArguments() {
-				Map arguments = new HashMap();
-
-				arguments.put(IApplicationContext.APPLICATION_ARGS, args);
-
-				return arguments;
-			}
-
-			public String getBrandingApplication() {
-				return null;
-			}
-
-			public Bundle getBrandingBundle() {
-				return null;
-			}
-
-			public String getBrandingDescription() {
-				return null;
-			}
-
-			public String getBrandingId() {
-				return null;
-			}
-
-			public String getBrandingName() {
-				return null;
-			}
-
-			public String getBrandingProperty(String key) {
-				return null;
-			}
-		});
+		application.run(args);
 	}
 
 	/**

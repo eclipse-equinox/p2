@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -11,14 +11,10 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.io.File;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryPublisherApplication;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherApplication;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
-import org.osgi.framework.Bundle;
 
 /**
  *
@@ -29,45 +25,7 @@ public class CategoryPublisherTest extends AbstractProvisioningTest {
 	 * runs default director app.
 	 */
 	protected void runPublisherApp(AbstractPublisherApplication application, final String[] args) throws Exception {
-
-		application.start(new IApplicationContext() {
-
-			public void applicationRunning() {
-				//empty
-			}
-
-			public Map getArguments() {
-				Map arguments = new HashMap();
-
-				arguments.put(IApplicationContext.APPLICATION_ARGS, args);
-
-				return arguments;
-			}
-
-			public String getBrandingApplication() {
-				return null;
-			}
-
-			public Bundle getBrandingBundle() {
-				return null;
-			}
-
-			public String getBrandingDescription() {
-				return null;
-			}
-
-			public String getBrandingId() {
-				return null;
-			}
-
-			public String getBrandingName() {
-				return null;
-			}
-
-			public String getBrandingProperty(String key) {
-				return null;
-			}
-		});
+		application.run(args);
 	}
 
 	public void testCompressCategoryRepo() throws Exception {
