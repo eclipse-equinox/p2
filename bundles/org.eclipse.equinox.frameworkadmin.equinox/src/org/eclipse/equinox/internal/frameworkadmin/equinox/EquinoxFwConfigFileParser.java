@@ -203,8 +203,9 @@ public class EquinoxFwConfigFileParser {
 		configData.initialize();
 		configData.setBundles(null);
 
-		String launcherName = null;
-		String launcherPath = null;
+		// TODO commented out to prevent dead code warning, but is it really needed?
+		//		String launcherName = null;
+		//		String launcherPath = null;
 
 		// load configuration properties
 		Properties props = loadProperties(inputFile);
@@ -235,9 +236,10 @@ public class EquinoxFwConfigFileParser {
 			String value = props.getProperty(key);
 			configData.setProperty(key, value);
 		}
-		if (launcherName != null && launcherPath != null) {
-			launcherData.setLauncher(new File(launcherPath, launcherName + EquinoxConstants.EXE_EXTENSION));
-		}
+		// TODO commented out to prevent dead code warning, but is it really needed?
+		//		if (launcherName != null && launcherPath != null) {
+		//			launcherData.setLauncher(new File(launcherPath, launcherName + EquinoxConstants.EXE_EXTENSION));
+		//		}
 		Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_configFile, inputFile.getAbsolutePath()));
 	}
 
