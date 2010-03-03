@@ -80,6 +80,11 @@ public class GeneratorApplication implements IApplication {
 		if (args.containsKey(IGeneratorConstants.PAR))
 			args.put(IGeneratorConstants.PUBLISH_ATIFACT_REPOSITORY, args.remove(IGeneratorConstants.PAR));
 
+		if (args.containsKey(IGeneratorConstants.ROOT))
+			args.put(IGeneratorConstants.IU, args.remove(IGeneratorConstants.ROOT));
+		if (args.containsKey(IGeneratorConstants.ROOT_VERSION))
+			args.put(IGeneratorConstants.VERSION, args.remove(IGeneratorConstants.ROOT_VERSION));
+
 		String source = null;
 		// -inplace and -updateSite become -source, and imply -append
 		if (args.containsKey(IGeneratorConstants.UPDATE_SITE))

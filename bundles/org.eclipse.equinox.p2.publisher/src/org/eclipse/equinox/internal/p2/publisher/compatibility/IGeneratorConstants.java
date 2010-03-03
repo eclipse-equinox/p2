@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.publisher.compatibility;
 
 /**
  * @since 1.1
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IGeneratorConstants {
 	public static final String DASH = "-"; //$NON-NLS-1$
@@ -47,4 +48,6 @@ public interface IGeneratorConstants {
 	public static final String ROOT_VERSION = "-rootVersion"; //$NON-NLS-1$
 	public static final String P2_OS = "-p2.os"; //$NON-NLS-1$
 	public static final String SITE = "-site"; //$NON-NLS-1$
+	public static final String IU = "-iu"; //$NON-NLS-1$
+	public static final String VERSION = "-version"; //$NON-NLS-1$
 }
