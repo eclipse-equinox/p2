@@ -112,6 +112,16 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	public static final String PROP_PROVIDER = "org.eclipse.equinox.p2.provider"; //$NON-NLS-1$
 
 	/**
+	 * A property key (value <code>"org.eclipse.equinox.p2.icon"</code>) for a String
+	 * property containing the icon that should be shown when displaying this installable
+	 * unit in a user interface.  The property value is a String containing the icon's
+	 * bytes.
+	 * 
+	 * @see #getProperty(String)
+	 */
+	public static final String PROP_ICON = "org.eclipse.equinox.p2.icon"; //$NON-NLS-1$
+
+	/**
 	 * Returns the collection of artifacts associated with this installable unit.
 	 * Installing this unit into a system will cause these artifacts to be fetched from
 	 * a repository and applied to the installed system. Uninstalling this unit
