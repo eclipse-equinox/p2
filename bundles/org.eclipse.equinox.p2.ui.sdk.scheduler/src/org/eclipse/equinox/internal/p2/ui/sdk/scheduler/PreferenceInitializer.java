@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.*;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.ProfileScope;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -30,7 +31,10 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		// scope (final 3.5 format)
 		// 2) if applicable, migrate from 3.4 prefs kept in a different bundle
 		// 3) if applicable, migrate from 3.3 prefs known by Update Manager
-		Preferences pref = new ProfileScope(IProfileRegistry.SELF).getNode(AutomaticUpdatePlugin.PLUGIN_ID);
+		final IAgentLocation agentLocation = AutomaticUpdatePlugin.getDefault().getAgentLocation();
+		if (agentLocation == null)
+			return;
+		Preferences pref = new ProfileScope(agentLocation, IProfileRegistry.SELF).getNode(AutomaticUpdatePlugin.PLUGIN_ID);
 		try {
 			if (pref.keys().length == 0) {
 				// migrate preferences from instance scope to profile scope

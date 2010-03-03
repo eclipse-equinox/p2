@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceInitializer;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.ProfileScope;
@@ -28,6 +29,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * Activator class for the p2 UI.
@@ -129,9 +131,21 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	public IPreferenceStore getPreferenceStore() {
 		// Create the preference store lazily.
 		if (preferenceStore == null) {
-			preferenceStore = new ScopedPreferenceStore(new ProfileScope(IProfileRegistry.SELF), PLUGIN_ID);
+			final IAgentLocation agentLocation = getAgentLocation();
+			if (agentLocation == null)
+				return super.getPreferenceStore();
+			preferenceStore = new ScopedPreferenceStore(new ProfileScope(agentLocation, IProfileRegistry.SELF), PLUGIN_ID);
 		}
 		return preferenceStore;
+	}
+
+	private IAgentLocation getAgentLocation() {
+		ServiceReference ref = getContext().getServiceReference(IAgentLocation.SERVICE_NAME);
+		if (ref == null)
+			return null;
+		IAgentLocation location = (IAgentLocation) getContext().getService(ref);
+		getContext().ungetService(ref);
+		return location;
 	}
 
 	public void savePreferences() {

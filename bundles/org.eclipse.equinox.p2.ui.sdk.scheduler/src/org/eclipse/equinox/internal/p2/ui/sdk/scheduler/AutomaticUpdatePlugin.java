@@ -15,6 +15,7 @@ import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.ProfileScope;
@@ -133,9 +134,21 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	public IPreferenceStore getPreferenceStore() {
 		// Create the preference store lazily.
 		if (preferenceStore == null) {
-			preferenceStore = new ScopedPreferenceStore(new ProfileScope(IProfileRegistry.SELF), PLUGIN_ID);
+			final IAgentLocation agentLocation = getAgentLocation();
+			if (agentLocation == null)
+				return super.getPreferenceStore();
+			preferenceStore = new ScopedPreferenceStore(new ProfileScope(agentLocation, IProfileRegistry.SELF), PLUGIN_ID);
 		}
 		return preferenceStore;
+	}
+
+	public IAgentLocation getAgentLocation() {
+		ServiceReference ref = getContext().getServiceReference(IAgentLocation.SERVICE_NAME);
+		if (ref == null)
+			return null;
+		IAgentLocation location = (IAgentLocation) getContext().getService(ref);
+		getContext().ungetService(ref);
+		return location;
 	}
 
 	public void savePreferences() {
