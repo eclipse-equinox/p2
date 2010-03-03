@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2009 IBM Corporation and others.
+ *  Copyright (c) 2005, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -17,6 +17,11 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
 
 /**
+ * Represents the state of a profile in a profile registry at a given moment in time.
+ * Note this object contains only a snapshot of a particular profile state, and will
+ * never be updated if subsequent changes are made to this profile. A client should
+ * never retain an {@link IProfile} instance, but rather retain the profile id and obtain
+ * the current state of the profile from the profile registry only when required.
  * @since 2.0
  */
 public interface IProfile extends IQueryable<IInstallableUnit> {
@@ -52,7 +57,17 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	 */
 	public static final String PROP_PROFILE_LOCKED_IU = "org.eclipse.equinox.p2.type.lock"; //$NON-NLS-1$
 
-	//TODO Move to UI
+	/**
+	 * A property key (value <code>"org.eclipse.equinox.p2.type.root"</code>) for a
+	 * boolean property indicating whether an installable unit should be considered
+	 * a root of the install. Typically this means the unit will appear to the end user
+	 * as a top-level installed item. The property should be obtained from a profile using 
+	 * IProfile#getInstallableUnitProperty(IInstallableUnit, String).
+	 * 
+	 * @see #LOCK_UNINSTALL
+	 * @see #LOCK_UPDATE
+	 * @see #LOCK_NONE
+	 */
 	public static final String PROP_PROFILE_ROOT_IU = "org.eclipse.equinox.p2.type.root"; //$NON-NLS-1$
 
 	/**
@@ -118,23 +133,57 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	 */
 	public IProvisioningAgent getProvisioningAgent();
 
+	/**
+	 * Returns the id of this profile, unique within a given profile registry
+	 * @return the profile id
+	 */
 	public String getProfileId();
 
 	/**
-	 * Get the stored value associated with the given key.
-	 *  
-	 * <code>null</code> is returned if this property is not present
+	 * Returns the profile property associated with the given key,
+	 * or <code>null</code> if this property is not present
+	 * @param key The property kid
+	 * @return the property value, or <code>null</code>
 	 */
 	public String getProperty(String key);
 
+	/**
+	 * Returns the profile property associated with the given installable unit.
+	 * @param iu the installable unit to return the property for
+	 * @param key the property key
+	 * @return the property value, or <code>null</code> if no such property is defined
+	 */
 	public String getInstallableUnitProperty(IInstallableUnit iu, String key);
 
+	/**
+	 * Returns an unmodifiable map of all profile properties.
+	 * @return a map of all profile properties.
+	 */
 	public Map<String, String> getProperties();
 
+	/**
+	 * Returns an unmodifiable map of all profile properties associated with the given
+	 * installable unit in this profile.
+	 * @param iu the installable unit to return profile properties for
+	 * @return an unmodifiable map of installable unit profile properties
+	 */
 	public Map<String, String> getInstallableUnitProperties(IInstallableUnit iu);
 
+	/**
+	 * Returns a timestamp describing when this profile snapshot was created.
+	 * @return A profile timestamp
+	 */
 	public long getTimestamp();
 
+	/**
+	 * Returns the installable units in this profile that match the given query. In a shared
+	 * install, this will include both the installable units in the shared base location, and in
+	 * the current user's private install area.
+	 * @param query
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return The installable units that match the given query
+	 */
 	public IQueryResult<IInstallableUnit> available(IQuery<IInstallableUnit> query, IProgressMonitor monitor);
 
 }

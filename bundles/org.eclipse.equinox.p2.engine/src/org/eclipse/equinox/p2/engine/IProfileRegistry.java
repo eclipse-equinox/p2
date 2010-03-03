@@ -19,6 +19,13 @@ import org.eclipse.equinox.p2.core.ProvisionException;
  * @since 2.0
  */
 public interface IProfileRegistry {
+	/**
+	 * A special profile id representing the profile of the currently running system.
+	 * This constant can be used when invoking {@link #getProfile(String)} to obtain
+	 * the profile of the currently running system. Note that a given profile registry
+	 * may not have a defined self profile, for example if the running system doesn't
+	 * have a profile, or resides in a different profile registry.
+	 */
 	public static final String SELF = "_SELF_"; //$NON-NLS-1$
 	/**
 	 * Service name constant for the profile registry service.
@@ -32,7 +39,7 @@ public interface IProfileRegistry {
 	 * @param id the profile identifier
 	 * @return the profile or <code>null</code>
 	 */
-	IProfile getProfile(String id);
+	public IProfile getProfile(String id);
 
 	/**
 	 * Return the profile in the registry that has the given id and timestamp. If it does not exist, 
@@ -40,18 +47,18 @@ public interface IProfileRegistry {
 	 * 
 	 * @param id the profile identifier
 	 * @param timestamp the profile's timestamp
-
 	 * @return the profile or <code>null</code>
 	 */
-	IProfile getProfile(String id, long timestamp);
+	public IProfile getProfile(String id, long timestamp);
 
 	/**
-	 * Return an array of timestamps in ascending order for the profile in question. If there are none, then
-	 * return an empty array.
+	 * Return an array of timestamps in ascending order for the profile id in question. 
+	 * If there are none, then return an empty array.
 	 * 
+	 * @param id the id of the profile to list timestamps for
 	 * @return the array of timestamps
 	 */
-	long[] listProfileTimestamps(String id);
+	public long[] listProfileTimestamps(String id);
 
 	/**
 	 * Return an array of profiles known to this registry. If there are none, then
@@ -59,28 +66,28 @@ public interface IProfileRegistry {
 	 * 
 	 * @return the array of profiles
 	 */
-	IProfile[] getProfiles();
+	public IProfile[] getProfiles();
 
 	/**
 	 * Add the given profile to this profile registry.
 	 * 
 	 * @param id the profile id
-	 * 
 	 * @throws ProvisionException if a profile
 	 *         with the same id is already present in the registry.
+	 * @return the new empty profile
 	 */
-	IProfile addProfile(String id) throws ProvisionException;
+	public IProfile addProfile(String id) throws ProvisionException;
 
 	/**
 	 * Add the given profile to this profile registry.
 	 * 
 	 * @param id the profile id
 	 * @param properties the profile properties
-	 * 
 	 * @throws ProvisionException if a profile
 	 *         with the same id is already present in the registry.
+	 * @return the new empty profile
 	 */
-	IProfile addProfile(String id, Map<String, String> properties) throws ProvisionException;
+	public IProfile addProfile(String id, Map<String, String> properties) throws ProvisionException;
 
 	/**
 	 * Returns whether this profile registry contains a profile with the given id.
@@ -98,10 +105,9 @@ public interface IProfileRegistry {
 	 * 
 	 * @param id the profile to remove
 	 * @param timestamp the timestamp of the profile to remove 
-	 * 
 	 * @throws ProvisionException if the profile with the specified id and timestamp is the current profile.
 	 */
-	void removeProfile(String id, long timestamp) throws ProvisionException;
+	public void removeProfile(String id, long timestamp) throws ProvisionException;
 
 	/**
 	 * Remove the given profile from this profile registry.  This method has no effect
@@ -109,7 +115,7 @@ public interface IProfileRegistry {
 	 * 
 	 * @param id the profile to remove
 	 */
-	void removeProfile(String id);
+	public void removeProfile(String id);
 
 	/**
 	 * Check if the given profile from this profile registry is up-to-date.
