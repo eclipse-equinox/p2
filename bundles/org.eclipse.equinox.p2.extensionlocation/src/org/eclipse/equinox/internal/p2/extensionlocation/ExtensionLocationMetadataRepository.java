@@ -84,12 +84,6 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		state = value;
 	}
 
-	// TODO remove
-	@Override
-	public void addInstallableUnits(IInstallableUnit[] installableUnits) {
-		throw new UnsupportedOperationException();
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#getReferences()
 	 */
@@ -110,12 +104,6 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	 */
 	@Override
 	public void removeAll() {
-		throw new UnsupportedOperationException();
-	}
-
-	// TODO remove
-	@Override
-	public boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException();
 	}
 

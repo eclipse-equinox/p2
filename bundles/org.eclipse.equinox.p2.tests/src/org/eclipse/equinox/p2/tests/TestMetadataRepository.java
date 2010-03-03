@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.p2.repository.IRepositoryReference;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -22,6 +20,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 
@@ -54,12 +53,6 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		units.addAll(Arrays.asList(ius));
 	}
 
-	// TODO remove
-	@Override
-	public void addInstallableUnits(IInstallableUnit[] toAdd) {
-		addInstallableUnits(Arrays.asList(toAdd));
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addInstallableUnits(java.util.Collection)
 	 */
@@ -86,12 +79,6 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 
 	public void removeAll() {
 		units.clear();
-	}
-
-	// TODO remove
-	@Override
-	public boolean removeInstallableUnits(IInstallableUnit[] toRemove, IProgressMonitor monitor) {
-		return removeInstallableUnits(Arrays.asList(toRemove));
 	}
 
 	/* (non-Javadoc)

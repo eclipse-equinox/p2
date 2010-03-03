@@ -94,12 +94,6 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		save();
 	}
 
-	// TODO remove
-	@Override
-	public synchronized void addInstallableUnits(IInstallableUnit[] installableUnits) {
-		addInstallableUnits(Arrays.asList(installableUnits));
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addInstallableUnits(java.util.Collection)
 	 */
@@ -234,12 +228,6 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		units.clear();
 		capabilityIndex = null; // Generated, not backed by units.
 		save();
-	}
-
-	// TODO remove
-	@Override
-	public synchronized boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
-		return removeInstallableUnits(Arrays.asList(installableUnits));
 	}
 
 	/* (non-Javadoc)

@@ -206,12 +206,6 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		save();
 	}
 
-	// TODO remove
-	@Override
-	public synchronized void addInstallableUnits(IInstallableUnit[] installableUnits) {
-		throw new UnsupportedOperationException("Cannot add IUs to a composite repository"); //$NON-NLS-1$
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository#addInstallableUnits(java.util.Collection)
 	 */
@@ -225,12 +219,6 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	 */
 	@Override
 	public synchronized void removeAll() {
-		throw new UnsupportedOperationException("Cannot remove IUs from a composite repository"); //$NON-NLS-1$
-	}
-
-	// TODO remove
-	@Override
-	public synchronized boolean removeInstallableUnits(IInstallableUnit[] installableUnits, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException("Cannot remove IUs from a composite repository"); //$NON-NLS-1$
 	}
 
