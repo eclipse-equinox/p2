@@ -178,11 +178,11 @@ public class AdviceFileParserTest extends TestCase {
 
 		AdviceFileParser parser = new AdviceFileParser("id", Version.emptyVersion, map);
 		parser.parse();
-		ITouchpointInstruction configure = (ITouchpointInstruction) parser.getTouchpointInstructions().get("configure");
+		ITouchpointInstruction configure = parser.getTouchpointInstructions().get("configure");
 		assertEquals(null, configure.getImportAttribute());
 		assertEquals("addProgramArg(programArg:-startup); addProgramArg(programArg:@artifact);", configure.getBody());
 
-		ITouchpointInstruction unconfigure = (ITouchpointInstruction) parser.getTouchpointInstructions().get("unconfigure");
+		ITouchpointInstruction unconfigure = parser.getTouchpointInstructions().get("unconfigure");
 		assertEquals("some.removeProgramArg", unconfigure.getImportAttribute());
 		assertEquals("removeProgramArg(programArg:-startup); removeProgramArg(programArg:@artifact);)", unconfigure.getBody());
 	}
@@ -365,12 +365,15 @@ public class AdviceFileParserTest extends TestCase {
 		assertTrue(QueryUtil.isFragment(iu1));
 		Collection<IRequirement> hostRequired = ((IInstallableUnitFragment) iu1).getHost();
 		assertEquals(2, hostRequired.size());
-		assertEquals("testNamespace1", RequiredCapability.extractNamespace(hostRequired.iterator().next().getMatches()));
-		assertEquals("testName1", RequiredCapability.extractName(hostRequired.iterator().next().getMatches()));
-		assertEquals(new VersionRange("[1.2.3, 2)"), RequiredCapability.extractRange(hostRequired.iterator().next().getMatches()));
-		assertEquals(true, hostRequired.iterator().next().isGreedy());
-		assertEquals(0, hostRequired.iterator().next().getMin());
-		IRequirement secondRequirement = hostRequired.iterator().next();
+		Iterator<IRequirement> iterator = hostRequired.iterator();
+		IRequirement requirement = iterator.next();
+		assertEquals("testNamespace1", RequiredCapability.extractNamespace(requirement.getMatches()));
+		assertEquals("testName1", RequiredCapability.extractName(requirement.getMatches()));
+		assertEquals(new VersionRange("[1.2.3, 2)"), RequiredCapability.extractRange(requirement.getMatches()));
+		assertEquals(true, requirement.isGreedy());
+		assertEquals(0, requirement.getMin());
+
+		IRequirement secondRequirement = iterator.next();
 		assertEquals("testNamespace2", RequiredCapability.extractNamespace(secondRequirement.getMatches()));
 		assertEquals("testName2", RequiredCapability.extractName(secondRequirement.getMatches()));
 		assertEquals(new VersionRange(Version.emptyVersion.toString()), RequiredCapability.extractRange(secondRequirement.getMatches()));
