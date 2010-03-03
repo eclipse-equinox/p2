@@ -24,8 +24,13 @@ public class ProfileInclusionRules {
 	}
 
 	/**
-	 * Provide an inclusion rule to for the installation of the given installable unit
-	 * @param iu the iu to be installed.
+	 * Returns an inclusion rule to strictly install the given installable unit. Strictly
+	 * installed installable units will never be uninstalled in order to satisfy a
+	 * later profile change request. That is, when there is a dependency conflict
+	 * between a strictly installed unit and a non-strict unit, the strictly installed
+	 * installable unit will take precedence.
+	 * 
+	 * @param iu the installable unit to be installed.
 	 * @return an opaque token to be passed to the {@link IProfileChangeRequest#setInstallableUnitInclusionRules(IInstallableUnit, String)}
 	 */
 	public static String createStrictInclusionRule(IInstallableUnit iu) {
@@ -33,8 +38,11 @@ public class ProfileInclusionRules {
 	}
 
 	/**
-	 * Provide an inclusion rule to optionally install the installable unit being specified
-	 * @param iu the iu to be installed.
+	 * Returns an inclusion rule to optionally install the given installable unit. An optionally
+	 * installed installable unit will automatically be removed from the profile if any of
+	 * its dependencies become unsatisfied.
+	 * 
+	 * @param iu the installable unit to be installed.
 	 * @return an opaque token to be passed to the {@link IProfileChangeRequest#setInstallableUnitInclusionRules(IInstallableUnit, String)}
 	 */
 	public static String createOptionalInclusionRule(IInstallableUnit iu) {

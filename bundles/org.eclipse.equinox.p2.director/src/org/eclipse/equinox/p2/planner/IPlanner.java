@@ -19,9 +19,9 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 /**
  * Planners are responsible for determining what should be done to a given 
  * profile to reshape it as requested. That is, given the current state of a 
- * profile, a description of the desired end state of that profile and metadata 
- * describing the available IUs, a planner produces a plan that lists the
- * provisioning operands that the engine should perform.  
+ * profile, a description of the desired changes to that profile and metadata 
+ * describing the available installable units, a planner produces a concrete plan that lists the
+ * exact steps that the engine should perform.  
  * @since 2.0
  */
 public interface IPlanner {
@@ -31,6 +31,8 @@ public interface IPlanner {
 	public static final String SERVICE_NAME = IPlanner.class.getName();
 
 	/**
+	 * Returns a plan describing the set of changes that must be performed to
+	 * satisfy the given profile change request.
 	 * 
 	 * @param profileChangeRequest the request to be evaluated
 	 * @param context the context in which the request is processed
