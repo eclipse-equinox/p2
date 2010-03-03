@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008-2009 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -472,7 +472,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 	 * @param location The update site location
 	 * @param nickname The update site label
 	 * @param featureId the identifier of the feature where the error occurred, or null
-	 * @param metadataRepo The repo into which the references are added
+	 * @param collector The list into which the references are added
 	 */
 	private void generateSiteReference(String location, String nickname, String featureId, List<IRepositoryReference> collector) {
 		if (location == null) {
