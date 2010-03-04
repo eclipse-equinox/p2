@@ -48,7 +48,7 @@ public class Bug252682 extends AbstractProvisioningTest {
 		IQueryResult c = profile.query(QueryUtil.createIUQuery("org.eclipse.equinox.p2.core.patch"), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
 		ProvisioningContext ctx = new ProvisioningContext();
-		ctx.setExtraIUs(newIUs);
+		ctx.setExtraInstallableUnits(newIUs);
 		IInstallableUnit patch = (IInstallableUnit) c.iterator().next();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(new IInstallableUnit[] {patch});

@@ -351,7 +351,7 @@ public class ProfileSynchronizer {
 			return null;
 		}
 
-		context.setExtraIUs(toAdd);
+		context.setExtraInstallableUnits(toAdd);
 		request.addAll(toAdd);
 		request.removeAll(toRemove);
 		debug(request);

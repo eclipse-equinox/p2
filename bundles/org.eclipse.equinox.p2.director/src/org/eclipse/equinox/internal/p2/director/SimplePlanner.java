@@ -197,7 +197,7 @@ public class SimplePlanner implements IPlanner {
 			ProvisioningContext context = new ProvisioningContext(new URI[0]);
 			if (context.getProperty(INCLUDE_PROFILE_IUS) == null)
 				context.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
-			context.setExtraIUs(Arrays.asList(targetProfile.available(QueryUtil.createIUAnyQuery(), null).toArray(IInstallableUnit.class)));
+			context.setExtraInstallableUnits(Arrays.asList(targetProfile.available(QueryUtil.createIUAnyQuery(), null).toArray(IInstallableUnit.class)));
 			return getProvisioningPlan(profileChangeRequest, context, sub.newChild(ExpandWork / 2));
 		} finally {
 			sub.done();
@@ -233,7 +233,7 @@ public class SimplePlanner implements IPlanner {
 			}
 		}
 		if (context != null) {
-			for (IInstallableUnit iu : context.getExtraIUs()) {
+			for (IInstallableUnit iu : context.getExtraInstallableUnits()) {
 				String key = iu.getId() + '_' + iu.getVersion().toString();
 				resultsMap.put(key, iu);
 			}
@@ -547,7 +547,7 @@ public class SimplePlanner implements IPlanner {
 
 		ProvisioningContext agentCtx = new ProvisioningContext(new URI[0]);
 		ArrayList<IInstallableUnit> extraIUs = new ArrayList<IInstallableUnit>(unattachedState);
-		agentCtx.setExtraIUs(extraIUs);
+		agentCtx.setExtraInstallableUnits(extraIUs);
 		Object agentSolution = getSolutionFor(agentRequest, agentCtx, monitor.newChild(3));
 		if (agentSolution instanceof IProvisioningPlan && ((IProvisioningPlan) agentSolution).getStatus().getSeverity() == IStatus.ERROR) {
 			MultiStatus agentStatus = new MultiStatus(DirectorActivator.PI_DIRECTOR, 0, Messages.Planner_actions_and_software_incompatible, null);
@@ -607,7 +607,7 @@ public class SimplePlanner implements IPlanner {
 		ProvisioningContext noRepoContext = new ProvisioningContext(new URI[0]);
 		noRepoContext.setArtifactRepositories(new URI[0]);
 		noRepoContext.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
-		noRepoContext.setExtraIUs(new ArrayList<IInstallableUnit>(request.getProfile().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).toUnmodifiableSet()));
+		noRepoContext.setExtraInstallableUnits(new ArrayList<IInstallableUnit>(request.getProfile().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).toUnmodifiableSet()));
 		return noRepoContext;
 	}
 
