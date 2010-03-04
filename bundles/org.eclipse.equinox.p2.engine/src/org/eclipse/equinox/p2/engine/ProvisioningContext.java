@@ -142,7 +142,7 @@ public class ProvisioningContext {
 		this.extraIUs.clear();
 		//copy the list to prevent future client tampering
 		if (extraIUs != null)
-			extraIUs.addAll(extraIUs);
+			this.extraIUs.addAll(extraIUs);
 	}
 
 	/**
