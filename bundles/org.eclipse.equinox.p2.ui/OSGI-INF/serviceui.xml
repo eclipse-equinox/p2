@@ -4,5 +4,5 @@
    <service>
       <provide interface="org.eclipse.equinox.p2.core.spi.IAgentServiceFactory"/>
    </service>
-   <property name="p2.agent.servicename" type="String" value="org.eclipse.equinox.internal.provisional.p2.core.IServiceUI"/>
+   <property name="p2.agent.servicename" type="String" value="org.eclipse.equinox.p2.core.UIServices"/>
 </scr:component>
