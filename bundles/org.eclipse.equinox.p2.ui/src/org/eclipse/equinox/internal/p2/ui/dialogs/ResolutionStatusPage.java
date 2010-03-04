@@ -144,12 +144,15 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 			// No specific error about this IU.  Show the overall error if it is in error.
 			if (resolvedOperation.getResolutionResult().getSeverity() == IStatus.ERROR) {
 				detail = resolvedOperation.getResolutionDetails();
-				detailsGroup.enablePropertyLink(false);
-				detailsGroup.setDetailText(detail);
-				return;
+				if (detail != null) {
+					detailsGroup.enablePropertyLink(false);
+					detailsGroup.setDetailText(detail);
+					return;
+				}
 			}
 
-			// The overall status is not an error, so we may as well just show info about this iu rather than everything.
+			// The overall status is not an error, or else there was no explanatory text for an error.
+			// We may as well just show info about this iu.
 			detailsGroup.enablePropertyLink(true);
 			detailsGroup.setDetailText(getIUDescription(selectedIU));
 			return;

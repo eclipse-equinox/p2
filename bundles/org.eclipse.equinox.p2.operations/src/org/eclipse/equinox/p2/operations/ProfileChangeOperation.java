@@ -225,6 +225,11 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	public String getResolutionDetails() {
 		if (job != null && job.getResolutionResult() != null)
 			return job.getResolutionResult().getSummaryReport();
+		// We couldn't resolve, but we have some status describing
+		// why there is no profile change request.
+		IStatus result = getResolutionResult();
+		if (result != null)
+			return result.getMessage();
 		return null;
 
 	}
