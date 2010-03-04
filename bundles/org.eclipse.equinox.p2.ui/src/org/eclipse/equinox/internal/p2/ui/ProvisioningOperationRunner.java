@@ -55,6 +55,7 @@ public class ProvisioningOperationRunner {
 			job.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
 		}
 		job.setProperty(IProgressConstants.ICON_PROPERTY, ProvUIImages.getImageDescriptor(ProvUIImages.IMG_PROFILE));
+		job.setProperty(IProgressConstants.SHOW_IN_TASKBAR_ICON_PROPERTY, Boolean.TRUE);
 		manageJob(job, job.getRestartPolicy());
 		job.schedule();
 	}
