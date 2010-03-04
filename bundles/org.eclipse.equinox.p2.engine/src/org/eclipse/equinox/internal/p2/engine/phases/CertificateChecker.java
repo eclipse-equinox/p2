@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
+import org.eclipse.equinox.p2.core.UIServices;
+import org.eclipse.equinox.p2.core.UIServices.TrustInfo;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -19,8 +22,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.Messages;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.TrustInfo;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.osgi.service.security.TrustEngine;
 import org.eclipse.osgi.signedcontent.*;
@@ -56,7 +57,7 @@ public class CertificateChecker {
 	}
 
 	private IStatus checkCertificates(TrustEngine trustEngine, SignedContentFactory verifierFactory) {
-		IServiceUI serviceUI = (IServiceUI) agent.getService(IServiceUI.SERVICE_NAME);
+		UIServices serviceUI = (UIServices) agent.getService(UIServices.SERVICE_NAME);
 		SignedContent content = null;
 		SignerInfo[] signerInfo = null;
 		ArrayList<Certificate> untrusted = new ArrayList<Certificate>();

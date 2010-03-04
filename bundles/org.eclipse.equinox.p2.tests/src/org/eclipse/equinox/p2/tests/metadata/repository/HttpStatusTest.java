@@ -15,8 +15,8 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
 /**
@@ -170,7 +170,7 @@ public class HttpStatusTest extends ServerBasedTestCase {
 		}
 	}
 
-	public class AladdinNotSavedService implements IServiceUI {
+	public class AladdinNotSavedService extends UIServices {
 		public int counter = 0;
 
 		public AuthenticationInfo getUsernamePassword(String location) {

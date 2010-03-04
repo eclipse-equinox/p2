@@ -17,14 +17,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.ProvisioningAgent;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.phases.CertificateChecker;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
+import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.tests.*;
 
 /**
  * Tests for {@link CertificateChecker}.
  */
 public class CertificateCheckerTest extends AbstractProvisioningTest {
-	class CertificateTestService implements IServiceUI {
+	class CertificateTestService extends UIServices {
 		public boolean unsignedReturnValue = true;
 		public boolean wasPrompted = false;
 
@@ -51,7 +51,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		serviceUI = new CertificateTestService();
 		testAgent = new ProvisioningAgent();
-		testAgent.registerService(IServiceUI.SERVICE_NAME, serviceUI);
+		testAgent.registerService(UIServices.SERVICE_NAME, serviceUI);
 		testAgent.setBundleContext(TestActivator.getContext());
 		checker = new CertificateChecker(testAgent);
 		try {
@@ -146,7 +146,7 @@ public class CertificateCheckerTest extends AbstractProvisioningTest {
 	public void testBug291049() {
 		try {
 			// Intentionally replace our service with a null service
-			testAgent.registerService(IServiceUI.SERVICE_NAME, null);
+			testAgent.registerService(UIServices.SERVICE_NAME, null);
 			checker.add(unsigned);
 			// TODO need to add some untrusted files here, too.  To prove that we treated them as trusted temporarily
 			System.getProperties().setProperty(EngineActivator.PROP_UNSIGNED_POLICY, EngineActivator.UNSIGNED_PROMPT);

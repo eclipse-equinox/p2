@@ -13,8 +13,8 @@ package org.eclipse.equinox.p2.tests.testserver.helper;
 import java.security.cert.Certificate;
 import junit.framework.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class AbstractTestServerClientCase extends TestCase {
@@ -110,7 +110,7 @@ public class AbstractTestServerClientCase extends TestCase {
 		TestServerController.setServiceUI(null);
 	}
 
-	public class AladdinNotSavedService implements IServiceUI {
+	public class AladdinNotSavedService extends UIServices {
 
 		public AuthenticationInfo getUsernamePassword(String location) {
 			return new AuthenticationInfo("Aladdin", "open sesame", false);
@@ -136,7 +136,7 @@ public class AbstractTestServerClientCase extends TestCase {
 	 * @author henrik
 	 *
 	 */
-	public class BadLoginService implements IServiceUI {
+	public class BadLoginService extends UIServices {
 
 		public AuthenticationInfo getUsernamePassword(String location) {
 			return new AuthenticationInfo("moria", "friend", false);

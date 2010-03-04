@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
+import org.eclipse.equinox.p2.core.UIServices;
+
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 
 /**
  * Component that provides a factory that can create and initialize
- * {@link IServiceUI} instances.
+ * {@link UIServices} instances.
  */
 public class ServiceUIComponent implements IAgentServiceFactory {
 

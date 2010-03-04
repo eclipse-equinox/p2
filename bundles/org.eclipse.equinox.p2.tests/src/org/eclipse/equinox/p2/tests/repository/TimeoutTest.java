@@ -13,8 +13,8 @@ import java.net.URI;
 import java.security.cert.Certificate;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.tests.metadata.repository.AllServerTests;
 import org.eclipse.equinox.p2.tests.testserver.helper.AbstractTestServerClientCase;
 
@@ -210,7 +210,7 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 		}
 	}
 
-	public class AladdinNotSavedService implements IServiceUI {
+	public class AladdinNotSavedService extends UIServices {
 		public int counter = 0;
 
 		public AuthenticationInfo getUsernamePassword(String location) {

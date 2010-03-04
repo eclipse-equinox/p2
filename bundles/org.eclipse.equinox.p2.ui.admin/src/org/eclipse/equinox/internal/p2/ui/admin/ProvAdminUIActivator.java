@@ -12,9 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ValidationDialogServiceUI;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -83,7 +81,6 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 		plugin = this;
 		ProvAdminUIActivator.context = bundleContext;
 		initializePolicy();
-		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), new ValidationDialogServiceUI(), null);
 		getPreferenceStore().addPropertyChangeListener(getPreferenceListener());
 	}
 

@@ -20,8 +20,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.helpers.DebugHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.AuthenticationInfo;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.security.storage.*;
 
@@ -39,7 +39,7 @@ public class Credentials {
 	/** 
 	 * Cache of auth information that is not persisted, and modified auth info.
 	 */
-	private static final Map<String, AuthenticationInfo> savedAuthInfo = Collections.synchronizedMap(new HashMap<String, AuthenticationInfo>());
+	private static final Map<String, UIServices.AuthenticationInfo> savedAuthInfo = Collections.synchronizedMap(new HashMap<String, UIServices.AuthenticationInfo>());
 
 	/**
 	 * Information about retry counts, and prompts canceled by user. The SoftReference is
@@ -68,7 +68,7 @@ public class Credentials {
 	 * @throws CoreException if the password cannot be read or saved
 	 * @return The authentication info.
 	 */
-	public static AuthenticationInfo forLocation(URI location, boolean prompt) throws LoginCanceledException, CoreException {
+	public static UIServices.AuthenticationInfo forLocation(URI location, boolean prompt) throws LoginCanceledException, CoreException {
 		return forLocation(location, prompt, null);
 	}
 
@@ -90,7 +90,7 @@ public class Credentials {
 	 * @throws UserCancelledException - user canceled the prompt for name/password
 	 * @throws CoreException if there is an error
 	 */
-	public static AuthenticationInfo forLocation(URI location, boolean prompt, AuthenticationInfo lastUsed) throws LoginCanceledException, CoreException {
+	public static UIServices.AuthenticationInfo forLocation(URI location, boolean prompt, UIServices.AuthenticationInfo lastUsed) throws LoginCanceledException, CoreException {
 		String host = uriToHost(location);
 		String nodeKey;
 		try {
@@ -125,7 +125,7 @@ public class Credentials {
 				r.put(host, hostLock);
 			}
 		}
-		AuthenticationInfo loginDetails = null;
+		UIServices.AuthenticationInfo loginDetails = null;
 		ISecurePreferences securePreferences = null;
 		// synchronize getting secure store with prompting user, as it may prompt.
 		synchronized (promptLock) {
@@ -166,7 +166,7 @@ public class Credentials {
 
 							// if we don't have stored connection data just return a null auth info
 							if (username != null && password != null)
-								return new IServiceUI.AuthenticationInfo(username, password, true);
+								return new UIServices.AuthenticationInfo(username, password, true);
 						}
 						if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
 							DebugHelper.debug("Credentials", "forLocation:PREFNODE NOT FOUND - RETURN FROM MEMORY", // //$NON-NLS-1$ //$NON-NLS-2$
@@ -184,7 +184,7 @@ public class Credentials {
 				// check if another thread has modified the credentials since last attempt
 				// made by current thread - if so, try with latest without prompting
 				if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
-					AuthenticationInfo latest = restoreFromMemory(nodeName);
+					UIServices.AuthenticationInfo latest = restoreFromMemory(nodeName);
 					boolean useLatest = false;
 					if (latest != null && lastUsed != null)
 						if (!(latest.getUserName().equals(lastUsed.getUserName()) && latest.getPassword().equals(lastUsed.getPassword())))
@@ -194,7 +194,7 @@ public class Credentials {
 								new Object[] {"host", location, "prompt", Boolean.toString(prompt)}); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 
-				AuthenticationInfo latest = restoreFromMemory(nodeName);
+				UIServices.AuthenticationInfo latest = restoreFromMemory(nodeName);
 				if (latest != null && lastUsed != null)
 					if (!(latest.getUserName().equals(lastUsed.getUserName()) && latest.getPassword().equals(lastUsed.getPassword())))
 						return latest;
@@ -219,7 +219,9 @@ public class Credentials {
 						throw new LoginCanceledException();
 					return latest == null ? lastUsed : latest; // keep client failing on the latest known
 				}
-				IServiceUI adminUIService = (IServiceUI) ServiceHelper.getService(Activator.getContext(), IServiceUI.class.getName());
+				IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getContext(), IProvisioningAgent.SERVICE_NAME);
+				UIServices adminUIService = (UIServices) agent.getService(UIServices.SERVICE_NAME);
+
 				if (adminUIService != null)
 					synchronized (promptLock) {
 						try {
@@ -320,14 +322,14 @@ public class Credentials {
 	 * Returns authentication details stored in memory for the given node name,
 	 * or <code>null</code> if no information is stored.
 	 */
-	private static AuthenticationInfo restoreFromMemory(String nodeName) {
+	private static UIServices.AuthenticationInfo restoreFromMemory(String nodeName) {
 		return savedAuthInfo.get(nodeName);
 	}
 
 	/**
 	 * Saves authentication details in memory so user is only prompted once per (SDK) session
 	 */
-	private static void saveInMemory(String nodeName, AuthenticationInfo loginDetails) {
+	private static void saveInMemory(String nodeName, UIServices.AuthenticationInfo loginDetails) {
 		savedAuthInfo.put(nodeName, loginDetails);
 	}
 

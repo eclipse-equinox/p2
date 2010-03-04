@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.security.cert.Certificate;
 import java.util.Hashtable;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
+import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -31,7 +31,7 @@ public class TestServerController {
 	private static final String BUNDLE_EQUINOX_HTTP = "org.eclipse.equinox.http";
 	public static final String PROP_TESTSERVER_PORT = "org.osgi.service.http.port";
 
-	static IServiceUI hookedAuthDialog;
+	static UIServices hookedAuthDialog;
 	private static ServiceRegistration certificateUIRegistration;
 	private static int setUpCounter = 0;
 	private static ServiceReference packageAdminRef;
@@ -95,7 +95,7 @@ public class TestServerController {
 		Hashtable properties = new Hashtable(1);
 		properties.put(org.osgi.framework.Constants.SERVICE_RANKING, new Integer(Integer.MAX_VALUE));
 
-		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), new DelegatingAuthService(), properties);
+		certificateUIRegistration = context.registerService(UIServices.class.getName(), new DelegatingAuthService(), properties);
 		setUpCounter = 1;
 	}
 
@@ -135,11 +135,11 @@ public class TestServerController {
 		return;
 	}
 
-	static public void setServiceUI(IServiceUI hook) {
+	static public void setServiceUI(UIServices hook) {
 		hookedAuthDialog = hook;
 	}
 
-	public static class DelegatingAuthService implements IServiceUI {
+	public static class DelegatingAuthService extends UIServices {
 
 		public AuthenticationInfo getUsernamePassword(String location) {
 			if (hookedAuthDialog != null)

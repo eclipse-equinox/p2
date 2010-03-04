@@ -12,8 +12,6 @@
 
 package org.eclipse.equinox.internal.p2.repository;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.*;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
@@ -21,8 +19,9 @@ import org.eclipse.ecf.core.security.ConnectContextFactory;
 import org.eclipse.ecf.core.security.IConnectContext;
 import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.repository.Credentials.LoginCanceledException;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.AuthenticationInfo;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.osgi.util.NLS;
 
 /**
