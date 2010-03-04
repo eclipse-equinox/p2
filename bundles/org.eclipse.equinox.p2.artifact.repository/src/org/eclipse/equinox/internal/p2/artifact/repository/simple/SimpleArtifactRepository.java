@@ -43,7 +43,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.osgi.util.NLS;
 
-public class SimpleArtifactRepository extends AbstractArtifactRepository implements IArtifactRepository, IFileArtifactRepository, IIndexProvider<IArtifactKey> {
+public class SimpleArtifactRepository extends AbstractArtifactRepository implements IFileArtifactRepository, IIndexProvider<IArtifactKey> {
 	/** 
 	 * A boolean property controlling whether mirroring is enabled.
 	 */
@@ -735,7 +735,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// Determine writing location
 		URI newLocation = createLocation(newDescriptor);
 		if (newLocation == null)
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, "No location for " + newDescriptor));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.no_location, newDescriptor)));
 		String file = URIUtil.toFile(newLocation).getAbsolutePath();
 
 		// TODO at this point we have to assume that the repository is file-based.  Eventually 
@@ -992,11 +992,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {
-		final Collection<List<IArtifactDescriptor>> descs = artifactMap.values();
 		return new IQueryable<IArtifactDescriptor>() {
-
 			public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
-				return query.perform(new CompoundIterator<IArtifactDescriptor>(descs.iterator()));
+				synchronized (SimpleArtifactRepository.this) {
+					Collection<List<IArtifactDescriptor>> descs = SimpleArtifactRepository.this.artifactMap.values();
+					return query.perform(new CompoundIterator<IArtifactDescriptor>(descs.iterator()));
+				}
 			}
 		};
 	}
