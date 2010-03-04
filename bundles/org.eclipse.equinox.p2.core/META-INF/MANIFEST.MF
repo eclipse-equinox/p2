@@ -41,9 +41,6 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.updatechecker,
    org.eclipse.equinox.p2.updatechecker.app,
    org.eclipse.equinox.p2.updatesite",
- org.eclipse.equinox.internal.provisional.p2.core;
-  x-friends:="org.eclipse.pde.core,
-   org.eclipse.pde.ui",
  org.eclipse.equinox.internal.provisional.p2.core.eventbus;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.director,
