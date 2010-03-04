@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,11 +11,10 @@
 
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.p2.engine.IProfileEvent;
-
 import java.util.EventObject;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.engine.IProfileEvent;
 import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
