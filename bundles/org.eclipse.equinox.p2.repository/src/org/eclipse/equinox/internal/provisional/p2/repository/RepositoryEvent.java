@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -12,12 +12,14 @@ package org.eclipse.equinox.internal.provisional.p2.repository;
 
 import java.net.URI;
 import java.util.EventObject;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
  * An event indicating a repository was added, removed, changed,
  * or discovered.
  * 
+ * @see IProvisioningEventBus
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class RepositoryEvent extends EventObject {

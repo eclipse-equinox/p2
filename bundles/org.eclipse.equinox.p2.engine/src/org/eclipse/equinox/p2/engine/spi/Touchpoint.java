@@ -12,17 +12,20 @@ package org.eclipse.equinox.p2.engine.spi;
 
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.engine.PhaseSet;
+import org.eclipse.equinox.p2.engine.IPhaseSet;
 import org.eclipse.equinox.p2.engine.IProfile;
 
 /**
  * A touchpoint is responsible for executing a given phase for a given 
- * targeted system (eclipse, native). The order of phases is defined in the {@link PhaseSet}.  
+ * targeted system (eclipse, native). The order of phases is defined in the {@link IPhaseSet}.  
  * @since 2.0
  */
 public abstract class Touchpoint {
 
-	/** NOT API -- this is for backwards compatibility only */
+	/** 
+	 * NOT API -- this is for backwards compatibility only 
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
 	public String qualifyAction(String actionId) {
 		return actionId;
 	}

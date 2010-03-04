@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.p2.engine.IProfileEvent;
-
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URI;
@@ -395,7 +393,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		FileUtils.deleteAll(profileFile);
 	}
 
-	private void broadcastChangeEvent(String profileId, byte reason) {
+	private void broadcastChangeEvent(String profileId, int reason) {
 		if (eventBus != null)
 			eventBus.publishEvent(new ProfileEvent(profileId, reason));
 	}

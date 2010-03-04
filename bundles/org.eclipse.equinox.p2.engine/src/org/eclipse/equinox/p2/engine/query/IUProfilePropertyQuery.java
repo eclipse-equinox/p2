@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,10 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine.query;
 
-import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
-
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
 
 /**
  * A query that searches for {@link IInstallableUnit} instances that have
@@ -22,6 +21,10 @@ import org.eclipse.equinox.p2.metadata.expression.*;
  * @since 2.0
  */
 public class IUProfilePropertyQuery extends ExpressionMatchQuery<IInstallableUnit> {
+	/**
+	 * A property value constant that will match any defined property value.
+	 * @see #IUProfilePropertyQuery(String, String)
+	 */
 	public static final String ANY = "*"; //$NON-NLS-1$
 
 	private static final IExpression matchValue = ExpressionUtil.parse("profileProperties[$0] == $1"); //$NON-NLS-1$
@@ -38,7 +41,7 @@ public class IUProfilePropertyQuery extends ExpressionMatchQuery<IInstallableUni
 	 * instance, we use a reference to the profile rather than the
 	 * profile id for performance reasons.
 	 * @param propertyName The name of the property to match
-	 * @param propertyValue The value to compare to. A value of &quot;*&quot; means any value.
+	 * @param propertyValue The value to compare to. A value of {@link #ANY} will match any value.
 	 */
 	public IUProfilePropertyQuery(String propertyName, String propertyValue) {
 		super(IInstallableUnit.class, createMatch(propertyName, propertyValue));

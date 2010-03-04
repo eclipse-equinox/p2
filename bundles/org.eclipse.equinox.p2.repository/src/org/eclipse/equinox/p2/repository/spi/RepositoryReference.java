@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,15 +11,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.spi;
 
-import org.eclipse.equinox.p2.repository.IRepositoryReference;
-
 import java.net.URI;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
 /**
- * Serialization helper class for repository references.
+ * Concrete implementation of a repository reference. This class can be used
+ * by clients to define new repository references.
+ * @see IMetadataRepository#addReferences(java.util.Collection)
  * @since 2.0
+ * @noextend This class is not intended to be subclassed by clients.
  */
 public class RepositoryReference implements IRepositoryReference {
 	private final URI location;
