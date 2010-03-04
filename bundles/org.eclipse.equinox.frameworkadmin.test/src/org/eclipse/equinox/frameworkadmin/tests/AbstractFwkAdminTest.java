@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Properties;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;

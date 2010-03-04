@@ -143,7 +143,7 @@ public class LauncherData {
 		// backwards compatibility we remove all program args until the 
 		// next program arg key 
 		// (see bug 253862)
-		if (!arg.startsWith("-"))
+		if (!arg.startsWith("-")) //$NON-NLS-1$
 			return;
 
 		int index = programArgs.indexOf(arg);
@@ -216,37 +216,37 @@ public class LauncherData {
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("Class:" + this.getClass().getName() + "\n");
-		sb.append("fwName=" + this.fwName + "\n");
-		sb.append("fwVersion=" + this.fwVersion + "\n");
-		sb.append("launcherName=" + this.launcherName + "\n");
-		sb.append("launcherVersion=" + this.launcherVersion + "\n");
+		sb.append("Class:" + this.getClass().getName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("fwName=" + this.fwName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("fwVersion=" + this.fwVersion + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("launcherName=" + this.launcherName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("launcherVersion=" + this.launcherVersion + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		sb.append("jvm=" + this.jvm + "\n");
+		sb.append("jvm=" + this.jvm + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (this.jvmArgs.size() == 0)
-			sb.append("jvmArgs = null\n");
+			sb.append("jvmArgs = null\n"); //$NON-NLS-1$
 		else {
-			sb.append("jvmArgs=\n");
+			sb.append("jvmArgs=\n"); //$NON-NLS-1$
 			int i = 0;
 			for (Iterator iterator = jvmArgs.iterator(); iterator.hasNext(); iterator.next())
-				sb.append("\tjvmArgs[" + i++ + "]=" + iterator + "\n");
+				sb.append("\tjvmArgs[" + i++ + "]=" + iterator + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 		}
 		if (this.programArgs.size() == 0)
-			sb.append("programArgs = null\n");
+			sb.append("programArgs = null\n"); //$NON-NLS-1$
 		else {
-			sb.append("programArgs=\n");
+			sb.append("programArgs=\n"); //$NON-NLS-1$
 			int i = 0;
 			for (Iterator iterator = programArgs.iterator(); iterator.hasNext(); iterator.next())
-				sb.append("\tprogramArgs[" + i++ + "]=" + iterator + "\n");
+				sb.append("\tprogramArgs[" + i++ + "]=" + iterator + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
-		sb.append("fwConfigLocation=" + this.fwConfigLocation + "\n");
-		sb.append("fwJar=" + this.fwJar + "\n");
-		sb.append("fwPersistentDataLocation=" + this.fwPersistentDataLocation + "\n");
-		sb.append("home=" + this.home + "\n");
-		sb.append("launcher=" + this.launcher + "\n");
-		sb.append("launcherConfigLocation=" + this.launcherConfigLocation + "\n");
-		sb.append("clean=" + this.isClean() + "\n");
+		sb.append("fwConfigLocation=" + this.fwConfigLocation + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("fwJar=" + this.fwJar + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("fwPersistentDataLocation=" + this.fwPersistentDataLocation + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("home=" + this.home + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("launcher=" + this.launcher + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("launcherConfigLocation=" + this.launcherConfigLocation + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("clean=" + this.isClean() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		return sb.toString();
 	}

@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.frameworkadmin;
 
 import java.io.File;
 import java.io.IOException;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
 
 /**
@@ -113,7 +114,7 @@ public interface Manipulator {
 	 * 
 	 * This method will check last modified time of all launcher configuration file, framework configuration file,
 	 * and framework persistent storage according to the parameters set.
-	 * @return
+	 * @return long
 	 */
 	long getTimeStamp();
 

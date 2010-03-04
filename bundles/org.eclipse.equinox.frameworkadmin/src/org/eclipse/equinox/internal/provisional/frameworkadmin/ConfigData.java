@@ -12,6 +12,7 @@
 package org.eclipse.equinox.internal.provisional.frameworkadmin;
 
 import java.util.*;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 
 /**
  * This object is instantiated by {@link Manipulator#getConfigData()};
@@ -161,15 +162,15 @@ public class ConfigData {
 
 	private static void setPropsStrings(StringBuffer sb, Properties props) {
 		if (props.size() > 0) {
-			sb.append("\n");
+			sb.append("\n"); //$NON-NLS-1$
 			for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
 				String key = (String) enumeration.nextElement();
 				String value = props.getProperty(key);
-				if (value == null || value.equals(""))
+				if (value == null || value.equals("")) //$NON-NLS-1$
 					continue;
-				sb.append("\t{" + key + " ,\t" + value + "}\n");
+				sb.append("\t{" + key + " ,\t" + value + "}\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 		} else
-			sb.append("empty\n");
+			sb.append("empty\n"); //$NON-NLS-1$
 	}
 }

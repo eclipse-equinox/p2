@@ -41,7 +41,7 @@ public class ConfiguratorCommandProvider implements CommandProvider {
 
 	/**
 	 * Apply the current configuration
-	 * @param configuration URL (optional)
+	 * @param interpreter 
 	 */
 	public void _confapply(CommandInterpreter interpreter) {
 		String parameter = interpreter.nextArgument();

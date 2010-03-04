@@ -14,16 +14,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxManipulatorImpl;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
@@ -274,7 +275,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			try {
 				//config.ini uses simpleconfigurator, read the bundles.info and replace the bundle infos
 				SimpleConfiguratorManipulator simpleManipulator = (SimpleConfiguratorManipulator) ServiceHelper.getService(Activator.getContext(), SimpleConfiguratorManipulator.class.getName());
-				BundleInfo[] bundleInfos = simpleManipulator.loadConfiguration(new URL(value), null);
+				BundleInfo[] bundleInfos = simpleManipulator.loadConfiguration(new URL(value).openStream(), null);
 				data.setBundles(bundleInfos);
 			} catch (MalformedURLException e1) {
 				// ignore

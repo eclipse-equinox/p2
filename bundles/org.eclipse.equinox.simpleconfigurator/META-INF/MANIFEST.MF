@@ -20,7 +20,7 @@ Export-Package: org.eclipse.equinox.internal.provisional.configurator;
    org.eclipse.equinox.p2.operations,
    org.eclipse.equinox.p2.ui,
    org.eclipse.equinox.p2.director",
- org.eclipse.equinox.internal.simpleconfigurator;x-internal:=true,
+ org.eclipse.equinox.internal.simpleconfigurator;x-friends:="org.eclipse.equinox.simpleconfigurator.manipulator",
  org.eclipse.equinox.internal.simpleconfigurator.console;x-internal:=true,
  org.eclipse.equinox.internal.simpleconfigurator.utils;x-friends:="org.eclipse.equinox.simpleconfigurator.manipulator"
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,

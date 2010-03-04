@@ -18,7 +18,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
 import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 import org.eclipse.osgi.util.ManifestElement;
@@ -131,7 +131,7 @@ public class Utils {
 	public static URL checkFullUrl(URL url, String urlName) throws IllegalArgumentException {//throws ManipulatorException {
 		if (url == null)
 			throw new IllegalArgumentException(urlName + " is null");
-		if (!url.getProtocol().endsWith("file"))
+		if (!url.getProtocol().endsWith("file")) //$NON-NLS-1$
 			return url;
 		File file = new File(url.getFile());
 		if (!file.isAbsolute())
@@ -139,7 +139,7 @@ public class Utils {
 		if (file.getAbsolutePath().startsWith(PATH_SEP))
 			return url;
 		try {
-			return getUrl("file", null, PATH_SEP + file.getAbsolutePath());
+			return getUrl("file", null, PATH_SEP + file.getAbsolutePath()); //$NON-NLS-1$
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException(urlName + "(" + "file:" + PATH_SEP + file.getAbsolutePath() + ") is not fully quallified");
 		}
@@ -190,7 +190,7 @@ public class Utils {
 	}
 
 	public static String[] getClauses(String header) {
-		StringTokenizer token = new StringTokenizer(header, ",");
+		StringTokenizer token = new StringTokenizer(header, ","); //$NON-NLS-1$
 		List list = new LinkedList();
 		while (token.hasMoreTokens()) {
 			list.add(token.nextToken());
@@ -219,7 +219,7 @@ public class Utils {
 			return basicLoadManifest(URIUtil.toFile(location));
 
 		try {
-			URL url = new URL("jar:" + location.toString() + "!/");
+			URL url = new URL("jar:" + location.toString() + "!/"); //$NON-NLS-1$//$NON-NLS-2$
 			JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
 			ZipFile jar = jarConnection.getJarFile();
 
@@ -296,14 +296,14 @@ public class Utils {
 	 * 	"hogehoge.yyyyMMddHHmmss".
 	 */
 	public static File getSimpleDataFormattedFile(File file) {
-		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss"); //$NON-NLS-1$
 		String date = df.format(new Date());
 		String filename = file.getName();
-		int index = filename.lastIndexOf(".");
+		int index = filename.lastIndexOf("."); //$NON-NLS-1$
 		if (index != -1)
-			filename = filename.substring(0, index) + "." + date + "." + filename.substring(index + 1);
+			filename = filename.substring(0, index) + "." + date + "." + filename.substring(index + 1); //$NON-NLS-1$ //$NON-NLS-2$
 		else
-			filename = filename + "." + date;
+			filename = filename + "." + date; //$NON-NLS-1$
 		File dest = new File(file.getParentFile(), filename);
 		return dest;
 	}
@@ -330,15 +330,15 @@ public class Utils {
 
 	public static URL getUrlInFull(String path, URL from) throws MalformedURLException {//throws ManipulatorException {
 		Utils.checkFullUrl(from, "from");
-		path = Utils.replaceAll(path, File.separator, "/");
+		path = Utils.replaceAll(path, File.separator, "/"); //$NON-NLS-1$
 		//System.out.println("from.toExternalForm()=" + from.toExternalForm());
 		String fromSt = Utils.removeLastCh(from.toExternalForm(), '/');
 		//System.out.println("fromSt=" + fromSt);
-		if (path.startsWith("/")) {
+		if (path.startsWith("/")) { //$NON-NLS-1$
 			String fileSt = from.getFile();
 			return new URL(fromSt.substring(0, fromSt.lastIndexOf(fileSt) - 1) + path);
 		}
-		return new URL(fromSt + "/" + path);
+		return new URL(fromSt + "/" + path); //$NON-NLS-1$
 	}
 
 	private static Properties manifestToProperties(Map d) {

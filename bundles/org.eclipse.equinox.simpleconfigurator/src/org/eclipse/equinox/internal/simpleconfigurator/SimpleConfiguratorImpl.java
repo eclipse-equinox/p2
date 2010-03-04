@@ -47,7 +47,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 		this.bundle = bundle;
 	}
 
-	private URL getConfigurationURL() throws IOException {
+	public URL getConfigurationURL() throws IOException {
 		String specifiedURL = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL);
 		if (specifiedURL == null)
 			specifiedURL = "file:" + SimpleConfiguratorConstants.CONFIGURATOR_FOLDER + "/" + SimpleConfiguratorConstants.CONFIG_LIST;

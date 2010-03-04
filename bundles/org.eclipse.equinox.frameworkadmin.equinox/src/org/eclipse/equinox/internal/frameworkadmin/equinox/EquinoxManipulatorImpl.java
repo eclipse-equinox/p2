@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;

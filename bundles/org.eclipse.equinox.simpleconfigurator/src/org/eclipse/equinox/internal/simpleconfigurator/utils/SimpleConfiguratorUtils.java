@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -28,19 +28,37 @@ public class SimpleConfiguratorUtils {
 	private static final String ENCODED_COMMA = "%2C";
 
 	public static List readConfiguration(URL url, URI base) throws IOException {
-		List bundles = new ArrayList();
-
-		BufferedReader r = null;
+		InputStream stream = null;
 		try {
-			r = new BufferedReader(new InputStreamReader(url.openStream()));
+			stream = url.openStream();
 		} catch (IOException e) {
 			// if the exception is a FNF we return an empty bundle list
 			if (e instanceof FileNotFoundException)
-				return bundles;
+				return Collections.EMPTY_LIST;
 			throw e;
 		}
+
 		try {
-			String line;
+			return readConfiguration(stream, base);
+		} finally {
+			stream.close();
+		}
+	}
+
+	/**
+	 * Read the configuration from the given InputStream
+	 * 
+	 * @param stream - the stream is always closed 
+	 * @param base
+	 * @return List of {@link BundleInfo}
+	 * @throws IOException
+	 */
+	public static List readConfiguration(InputStream stream, URI base) throws IOException {
+		List bundles = new ArrayList();
+
+		BufferedReader r = new BufferedReader(new InputStreamReader(stream));
+		String line;
+		try {
 			while ((line = r.readLine()) != null) {
 				line = line.trim();
 				//ignore any comment or empty lines

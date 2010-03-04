@@ -15,6 +15,7 @@ import java.io.*;
 import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 
 public class ManipulatorTests extends AbstractFwkAdminTest {

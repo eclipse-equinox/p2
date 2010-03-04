@@ -5,6 +5,6 @@
    <property name="service.vendor" type="String" value="Eclipse.org"/>
    <service>
       <provide interface="org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator"/>
-      <provide interface="org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator"/>
+      <provide interface="org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator"/>
    </service>
 </scr:component>

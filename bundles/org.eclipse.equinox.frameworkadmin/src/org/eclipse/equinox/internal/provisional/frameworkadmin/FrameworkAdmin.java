@@ -65,12 +65,12 @@ import java.io.IOException;
  */
 public interface FrameworkAdmin {
 
-	String SERVICE_PROP_KEY_FW_NAME = "org.eclipse.equinox.frameworkhandler.framework.name";
-	String SERVICE_PROP_KEY_FW_VERSION = "org.eclipse.equinox.frameworkhandler.framework.version";
+	String SERVICE_PROP_KEY_FW_NAME = "org.eclipse.equinox.frameworkhandler.framework.name"; //$NON-NLS-1$
+	String SERVICE_PROP_KEY_FW_VERSION = "org.eclipse.equinox.frameworkhandler.framework.version"; //$NON-NLS-1$
 
-	String SERVICE_PROP_KEY_LAUNCHER_NAME = "org.eclipse.equinox.frameworkhandler.launcher.name";
-	String SERVICE_PROP_KEY_LAUNCHER_VERSION = "org.eclipse.equinox.frameworkhandler.launcher.version";
-	String SERVICE_PROP_KEY_RUNNING_SYSTEM_FLAG = "org.eclipse.equinox.frameworkhandler.runningfwflag";
+	String SERVICE_PROP_KEY_LAUNCHER_NAME = "org.eclipse.equinox.frameworkhandler.launcher.name"; //$NON-NLS-1$
+	String SERVICE_PROP_KEY_LAUNCHER_VERSION = "org.eclipse.equinox.frameworkhandler.launcher.version"; //$NON-NLS-1$
+	String SERVICE_PROP_KEY_RUNNING_SYSTEM_FLAG = "org.eclipse.equinox.frameworkhandler.runningfwflag"; //$NON-NLS-1$
 
 	/**
 	 * Create new instance of {@link Manipulator} and return it.

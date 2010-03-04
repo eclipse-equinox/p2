@@ -14,6 +14,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;

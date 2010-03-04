@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.publisher.eclipse;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 
 /**

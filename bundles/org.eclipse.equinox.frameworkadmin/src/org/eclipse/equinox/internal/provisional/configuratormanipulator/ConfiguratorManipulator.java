@@ -12,18 +12,20 @@ package org.eclipse.equinox.internal.provisional.configuratormanipulator;
 
 import java.io.File;
 import java.io.IOException;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 
 /**
  * 
  * This interface provides methods that enable client bundles to 
  * manipulate the corresponding ConfiguratorBundle.
  * 
- *  @see Configurator
+ *  see org.eclipse.equinox.internal.provisional.configurator.Configurator
  */
 
 public interface ConfiguratorManipulator {
-	String SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME = "org.eclipse.equinox.configurator.BundleSymbolicName";
+	String SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME = "org.eclipse.equinox.configurator.BundleSymbolicName"; //$NON-NLS-1$
 
 	/**
 	 * Save configuration for the corresponding Configurator Bundle so that 

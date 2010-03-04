@@ -8,7 +8,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 
 public class WhatIsRunning {
 	public BundleInfo[] getBundlesBeingRun() {

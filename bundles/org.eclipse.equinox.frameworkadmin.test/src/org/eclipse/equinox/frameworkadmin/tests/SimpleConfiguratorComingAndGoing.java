@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.BundleException;
 
@@ -31,7 +32,7 @@ public class SimpleConfiguratorComingAndGoing extends FwkAdminAndSimpleConfigura
 	}
 
 	public void testWithMutipleBundles() throws IOException, BundleException, URISyntaxException {
-		BundleInfo bi = new BundleInfo(URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2);
+		BundleInfo bi = new BundleInfo(URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2, false);
 		m.getConfigData().addBundle(bi);
 		m.save(false);
 

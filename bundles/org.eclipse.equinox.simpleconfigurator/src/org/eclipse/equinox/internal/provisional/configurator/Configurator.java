@@ -36,7 +36,7 @@ import java.net.URL;
  * 
  * At its stopping, the service registered will be unregistered.
  * 
- * @see ConfiguratorManipulator
+ * see org.eclipse.equinox.internal.provisional.configuratormanipulato.ConfiguratorManipulator
  *
  */
 public interface Configurator {
@@ -62,7 +62,7 @@ public interface Configurator {
 	 * Return the url in use.
 	 * If it is never used, return null.
 	 * 
-	 * @return
+	 * @return URL
 	 */
 	URL getUrlInUse();
 }

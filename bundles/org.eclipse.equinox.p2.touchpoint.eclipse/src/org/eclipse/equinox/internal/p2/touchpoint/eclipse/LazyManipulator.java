@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.IOException;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;

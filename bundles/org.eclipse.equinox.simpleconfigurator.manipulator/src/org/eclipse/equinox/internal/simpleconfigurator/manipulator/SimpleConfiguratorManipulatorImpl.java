@@ -8,23 +8,28 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.ParserUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
+import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
+import org.eclipse.equinox.internal.simpleconfigurator.SimpleConfiguratorImpl;
+import org.eclipse.equinox.internal.simpleconfigurator.utils.EquinoxUtils;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorUtils;
+import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
+import org.eclipse.osgi.service.datalocation.Location;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
 /**
  * 
  */
-public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorManipulator {
+public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorManipulator, ConfiguratorManipulator {
 	class LocationInfo {
 		URI[] prerequisiteLocations = null;
 		URI systemBundleLocation = null;
@@ -202,7 +207,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		return true;
 	}
 
-	private boolean divideBundleInfos(Manipulator manipulator, List setToInitialConfig, List setToSimpleConfig, final int initialBSL) throws IOException {
+	private boolean divideBundleInfos(Manipulator manipulator, List setToInitialConfig, List setToSimpleConfig, final int initialBSL) {
 		BundlesState state = manipulator.getBundlesState();
 		BundleInfo[] targetBundleInfos = null;
 		if (state.isFullySupported()) {
@@ -281,7 +286,7 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 	private void printoutUnsatisfiedConstraints(BundleInfo bInfo, BundlesState state) {
 		if (DEBUG) {
 			StringBuffer sb = new StringBuffer();
-			sb.append("Missing constraints:\n");
+			sb.append("Missing constraints:\n"); //$NON-NLS-1$
 			String[] missings = state.getUnsatisfiedConstraints(bInfo);
 			for (int i = 0; i < missings.length; i++)
 				sb.append(" " + missings[i] + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -289,11 +294,34 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		}
 	}
 
-	public BundleInfo[] loadConfiguration(URL url, File base) throws IOException {
-		if (url == null)
+	public BundleInfo[] loadConfiguration(BundleContext context, String infoPath) throws IOException {
+		URI installArea = EquinoxUtils.getInstallLocationURI(context);
+
+		URL configURL = null;
+		if (infoPath == null) {
+			SimpleConfiguratorImpl simpleImpl = new SimpleConfiguratorImpl(context, null);
+			configURL = simpleImpl.getConfigurationURL();
+		} else {
+			//if == SOURCE_INFO (not .equals) use the default source info, currently SOURCE_INFO_PATH
+			if (infoPath == SOURCE_INFO)
+				infoPath = SOURCE_INFO_PATH;
+			Location configLocation = EquinoxUtils.getConfigLocation(context);
+			configURL = configLocation.getDataArea(infoPath);
+		}
+
+		return loadConfiguration(configURL.openStream(), installArea);
+	}
+
+	/*
+	 * InputStream must be closed
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator#loadConfiguration(java.io.InputStream, java.net.URI)
+	 */
+	public BundleInfo[] loadConfiguration(InputStream stream, URI installArea) throws IOException {
+		if (stream == null)
 			return NULL_BUNDLEINFOS;
 
-		List simpleBundles = SimpleConfiguratorUtils.readConfiguration(url, base != null ? base.toURI() : null);
+		List simpleBundles = SimpleConfiguratorUtils.readConfiguration(stream, installArea);
 
 		// convert to FrameworkAdmin BundleInfo Type
 		BundleInfo[] result = new BundleInfo[simpleBundles.size()];
@@ -305,16 +333,22 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 				location = URIUtil.makeAbsolute(location, simpleInfo.getBaseLocation());
 
 			BundleInfo bundleInfo = new BundleInfo(simpleInfo.getSymbolicName(), simpleInfo.getVersion(), location, simpleInfo.getStartLevel(), simpleInfo.isMarkedAsStarted());
+			bundleInfo.setBaseLocation(simpleInfo.getBaseLocation());
 			result[i++] = bundleInfo;
 		}
 		return result;
 	}
 
-	public void saveConfiguration(BundleInfo[] configuration, File outputFile, File base) throws IOException {
-		saveConfiguration(configuration, outputFile, base, false);
+	public void saveConfiguration(BundleInfo[] configuration, OutputStream stream, URI installArea) throws IOException {
+		org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[] simpleInfos = convertBundleInfos(configuration, installArea);
+		SimpleConfiguratorManipulatorUtils.writeConfiguration(simpleInfos, stream);
 	}
 
-	private void saveConfiguration(BundleInfo[] configuration, File outputFile, File base, boolean backup) throws IOException {
+	public void saveConfiguration(BundleInfo[] configuration, File outputFile, URI installArea) throws IOException {
+		saveConfiguration(configuration, outputFile, installArea, false);
+	}
+
+	private void saveConfiguration(BundleInfo[] configuration, File outputFile, URI installArea, boolean backup) throws IOException {
 		if (backup && outputFile.exists()) {
 			File backupFile = Utils.getSimpleDataFormattedFile(outputFile);
 			if (!outputFile.renameTo(backupFile)) {
@@ -322,18 +356,37 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			}
 		}
 
+		org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[] simpleInfos = convertBundleInfos(configuration, installArea);
+
+		// if empty remove the configuration file
+		if (simpleInfos == null || simpleInfos.length == 0) {
+			if (outputFile.exists()) {
+				outputFile.delete();
+			}
+			File parentDir = outputFile.getParentFile();
+			if (parentDir.exists()) {
+				parentDir.delete();
+			}
+			return;
+		}
+		SimpleConfiguratorManipulatorUtils.writeConfiguration(simpleInfos, outputFile);
+	}
+
+	private org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[] convertBundleInfos(BundleInfo[] configuration, URI installArea) {
 		// convert to SimpleConfigurator BundleInfo Type
 		org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[] simpleInfos = new org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo[configuration.length];
 		for (int i = 0; i < configuration.length; i++) {
 			BundleInfo bundleInfo = configuration[i];
-			String symbolicName = bundleInfo.getSymbolicName();
-			String bundleVersion = bundleInfo.getVersion();
-			URI location = base != null ? URIUtil.makeRelative(bundleInfo.getLocation(), base.toURI()) : bundleInfo.getLocation();
-			if (symbolicName == null || bundleVersion == null || location == null)
+			URI location = bundleInfo.getLocation();
+			if (bundleInfo.getSymbolicName() == null || bundleInfo.getVersion() == null || location == null)
 				throw new IllegalArgumentException("Cannot persist bundleinfo: " + bundleInfo.toString());
-			simpleInfos[i] = new org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo(symbolicName, bundleVersion, location, bundleInfo.getStartLevel(), bundleInfo.isMarkedAsStarted());
+			//only need to make a new BundleInfo if we are changing it.
+			if (installArea != null)
+				location = URIUtil.makeRelative(location, installArea);
+			simpleInfos[i] = new org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo(bundleInfo.getSymbolicName(), bundleInfo.getVersion(), location, bundleInfo.getStartLevel(), bundleInfo.isMarkedAsStarted());
+			simpleInfos[i].setBaseLocation(bundleInfo.getBaseLocation());
 		}
-		SimpleConfiguratorManipulatorUtils.writeConfiguration(simpleInfos, outputFile);
+		return simpleInfos;
 	}
 
 	public BundleInfo[] save(Manipulator manipulator, boolean backup) throws IOException {
@@ -345,7 +398,8 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 			return configData.getBundles();
 
 		File outputFile = getConfigFile(manipulator);
-		saveConfiguration((BundleInfo[]) setToSimpleConfig.toArray(new BundleInfo[setToSimpleConfig.size()]), outputFile, ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getConfigData().getProperties(), manipulator.getLauncherData()), backup);
+		URI installArea = ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getConfigData().getProperties(), manipulator.getLauncherData()).toURI();
+		saveConfiguration((BundleInfo[]) setToSimpleConfig.toArray(new BundleInfo[setToSimpleConfig.size()]), outputFile, installArea, backup);
 		configData.setProperty(SimpleConfiguratorManipulatorImpl.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
 		return orderingInitialConfig(setToInitialConfig);
 	}
@@ -414,7 +468,9 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		boolean exclusiveInstallation = Boolean.valueOf(properties.getProperty(SimpleConfiguratorManipulatorImpl.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
 		File configFile = getConfigFile(manipulator);
 
-		BundleInfo[] toInstall = loadConfiguration(configFile.toURL(), ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getConfigData().getProperties(), manipulator.getLauncherData()));
+		File installArea = ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getConfigData().getProperties(), manipulator.getLauncherData());
+		//input stream will be closed for us
+		BundleInfo[] toInstall = loadConfiguration(new FileInputStream(configFile), installArea.toURI());
 
 		List toUninstall = new LinkedList();
 		if (exclusiveInstallation)

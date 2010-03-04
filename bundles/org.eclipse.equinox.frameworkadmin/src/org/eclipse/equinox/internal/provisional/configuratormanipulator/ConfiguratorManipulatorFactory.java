@@ -18,7 +18,7 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
  *  @see FrameworkAdmin
  */
 public abstract class ConfiguratorManipulatorFactory {
-	public final static String SYSTEM_PROPERTY_KEY = "org.eclipse.equinox.configuratorManipulatorFactory";
+	public final static String SYSTEM_PROPERTY_KEY = "org.eclipse.equinox.configuratorManipulatorFactory"; //$NON-NLS-1$
 
 	abstract protected ConfiguratorManipulator createConfiguratorManipulator();
 

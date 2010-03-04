@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.osgi.framework.BundleException;
 
 public class OSGiVersionChange extends FwkAdminAndSimpleConfiguratorTest {

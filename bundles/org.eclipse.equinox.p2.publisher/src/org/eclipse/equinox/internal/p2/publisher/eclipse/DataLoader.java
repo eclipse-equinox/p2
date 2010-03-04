@@ -14,13 +14,14 @@ import java.io.IOException;
 import java.net.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxManipulatorImpl;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
+import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 import org.osgi.framework.Constants;
 
 public class DataLoader {
@@ -86,7 +87,8 @@ public class DataLoader {
 			try {
 				//config.ini uses simpleconfigurator, read the bundles.info and replace the bundle infos
 				SimpleConfiguratorManipulator simpleManipulator = (SimpleConfiguratorManipulator) ServiceHelper.getService(Activator.getContext(), SimpleConfiguratorManipulator.class.getName());
-				BundleInfo[] bundleInfos = simpleManipulator.loadConfiguration(new URL(value), null);
+				//input stream will be buffered and closed for us
+				BundleInfo[] bundleInfos = simpleManipulator.loadConfiguration(new URL(value).openStream(), null);
 				data.setBundles(bundleInfos);
 			} catch (MalformedURLException e1) {
 				// ignore

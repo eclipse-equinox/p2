@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.frameworkadmin;
 
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
+
 /**
  * This API is used for expecting bundles state virtually.
  * 
@@ -66,14 +68,14 @@ public interface BundlesState {
 	 * to resolve the specified bInfo under the state currently composed.  
 	 * 
 	 * If this implementation doesn't support resolving state,
-	 * FrameworkAdminRuntimeException with a cause of {@value FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}
+	 * FrameworkAdminRuntimeException with a cause of {@link FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}
 	 * will be thrown.
 	 * 
 	 * XXX this method is prepared mainly for debugging. 
 	 * 
 	 * @param bInfo
 	 * @return array of Strings which tells the unsatisfied constaints.
-	 * @throws FrameworkAdminRuntimeException if this implementation doesn't support resolving state, FrameworkAdminRuntimeException with a cause of {@value FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}  will be thrown.
+	 * @throws FrameworkAdminRuntimeException if this implementation doesn't support resolving state, FrameworkAdminRuntimeException with a cause of {@link FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}  will be thrown.
 	 */
 	public String[] getUnsatisfiedConstraints(BundleInfo bInfo) throws FrameworkAdminRuntimeException;
 
@@ -99,11 +101,11 @@ public interface BundlesState {
 	 * Otherwise false. 
 	 * 
 	 * If this implementation doesn't support resolving state,
-	 * FrameworkAdminRuntimeException with a cause of {@value FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}
+	 * FrameworkAdminRuntimeException with a cause of {@link FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}
 	 * will be thrown.
 	 * 
 	 * @return true if the state currently composed is resolved after the last change of the state. Otherwise false. 
-	 * @throws FrameworkAdminRuntimeException if this implementation doesn't support resolving state, FrameworkAdminRuntimeException with a cause of {@value FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}  will be thrown.
+	 * @throws FrameworkAdminRuntimeException if this implementation doesn't support resolving state, FrameworkAdminRuntimeException with a cause of {@link FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}  will be thrown.
 	 */
 	public boolean isResolved() throws FrameworkAdminRuntimeException;
 
@@ -112,11 +114,11 @@ public interface BundlesState {
 	 * Otherwise false. 
 	 * 
 	 * If this implementation doesn't support resolving state,
-	 * FwLauncherException with a cause of {@value FwLauncherException#UNSUPPORTED_OPERATION}
+	 * FwLauncherException with a cause of {@link FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}
 	 * will be thrown.
 	 * 
 	 * @return true if the specified bundle is resolved. Otherwise false. 
-	 * @throws FrameworkAdminRuntimeException if this implementation doesn't support resolving state, FrameworkAdminRuntimeException with a cause of {@value FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}  will be thrown.
+	 * @throws FrameworkAdminRuntimeException if this implementation doesn't support resolving state, FrameworkAdminRuntimeException with a cause of {@link FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}  will be thrown.
 	 */
 	public boolean isResolved(BundleInfo bInfo) throws FrameworkAdminRuntimeException;
 
@@ -124,7 +126,7 @@ public interface BundlesState {
 	 * Resolves the constraints contained in this state.
 	 * 
 	 * If this implementation doesn't support resolving state,
-	 * FrameworkAdminRuntimeException with a cause of {@value FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}
+	 * FrameworkAdminRuntimeException with a cause of {@link FrameworkAdminRuntimeException#UNSUPPORTED_OPERATION}
 	 * will be thrown.
 	 * 	 
 	 * @param incremental a flag controlling whether resolution should be incremental
@@ -138,5 +140,5 @@ public interface BundlesState {
 	 * @param bInfo BundleInfo to be uninstalled
 	 * @throws FrameworkAdminRuntimeException - If the {@link FrameworkAdmin} service created the parent {@link Manipulator} is unregistered. 
 	 */
-	void uninstallBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException;;
+	void uninstallBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException;
 }

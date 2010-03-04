@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -18,6 +18,24 @@ import org.osgi.util.tracker.ServiceTracker;
 public class EquinoxUtils {
 
 	public static URL[] getConfigAreaURL(BundleContext context) {
+		Location configLocation = getConfigLocation(context);
+		if (configLocation == null)
+			return null;
+
+		URL baseURL = configLocation.getURL();
+		if (configLocation.getParentLocation() != null && configLocation.getURL() != null) {
+			if (baseURL == null)
+				return new URL[] {configLocation.getParentLocation().getURL()};
+			else
+				return new URL[] {baseURL, configLocation.getParentLocation().getURL()};
+		}
+		if (baseURL != null)
+			return new URL[] {baseURL};
+
+		return null;
+	}
+
+	public static Location getConfigLocation(BundleContext context) {
 		Filter filter = null;
 		try {
 			filter = context.createFilter(Location.CONFIGURATION_FILTER);
@@ -27,21 +45,7 @@ public class EquinoxUtils {
 		ServiceTracker configLocationTracker = new ServiceTracker(context, filter, null);
 		configLocationTracker.open();
 		try {
-			Location configLocation = (Location) configLocationTracker.getService();
-			if (configLocation == null)
-				return null;
-
-			URL baseURL = configLocation.getURL();
-			if (configLocation.getParentLocation() != null && configLocation.getURL() != null) {
-				if (baseURL == null)
-					return new URL[] {configLocation.getParentLocation().getURL()};
-				else
-					return new URL[] {baseURL, configLocation.getParentLocation().getURL()};
-			}
-			if (baseURL != null)
-				return new URL[] {baseURL};
-
-			return null;
+			return (Location) configLocationTracker.getService();
 		} finally {
 			configLocationTracker.close();
 		}

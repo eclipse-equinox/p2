@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 
 public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
@@ -90,7 +90,7 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 	}
 
 	public void testWithMutipleBundles() throws IOException, URISyntaxException {
-		BundleInfo bi = new BundleInfo(URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2);
+		BundleInfo bi = new BundleInfo(URIUtil.toURI(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1"))), 2, false);
 		m.getConfigData().addBundle(bi);
 		m.save(false);
 

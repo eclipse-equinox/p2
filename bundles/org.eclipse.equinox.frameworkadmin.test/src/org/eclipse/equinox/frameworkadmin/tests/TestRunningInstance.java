@@ -11,7 +11,9 @@
 package org.eclipse.equinox.frameworkadmin.tests;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.osgi.framework.*;
 
 public class TestRunningInstance extends AbstractFwkAdminTest {

@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.Constants;
 
@@ -188,20 +189,20 @@ public class SimpleBundlesState implements BundlesState {
 			String manifestVersion = Utils.getManifestMainAttributes(location, Constants.BUNDLE_MANIFESTVERSION);
 			if (manifestVersion == null)
 				continue;
-			if (manifestVersion.equals("1") || manifestVersion.equals("1.0"))
+			if (manifestVersion.equals("1") || manifestVersion.equals("1.0")) //$NON-NLS-1$//$NON-NLS-2$
 				continue;
 
 			String fragmentHost = Utils.getManifestMainAttributes(location, Constants.FRAGMENT_HOST);
 			if (fragmentHost == null)
 				continue;
-			int index = fragmentHost.indexOf(";");
+			int index = fragmentHost.indexOf(";"); //$NON-NLS-1$
 			if (index == -1)
 				continue;
 			String symbolicName = fragmentHost.substring(0, index).trim();
 			String parameter = fragmentHost.substring(index + 1).trim();
 			// TODO What to do ,in case of alias name of system bundle is not used ?
 			if (symbolicName.equals(Constants.SYSTEM_BUNDLE_SYMBOLICNAME))
-				if (parameter.equals(Constants.EXTENSION_DIRECTIVE + ":=" + Constants.EXTENSION_FRAMEWORK)) {
+				if (parameter.equals(Constants.EXTENSION_DIRECTIVE + ":=" + Constants.EXTENSION_FRAMEWORK)) { //$NON-NLS-1$
 					list.add(location);
 					break;
 				}
@@ -228,7 +229,8 @@ public class SimpleBundlesState implements BundlesState {
 			this.installBundle(bInfos[j]);
 
 		if (getSystemBundle() == null) {
-			BundleInfo sysBInfo = new BundleInfo(launcherData.getFwJar().toURI(), 0, true, 0);
+			BundleInfo sysBInfo = new BundleInfo(launcherData.getFwJar().toURI(), 0, true);
+			sysBInfo.setBundleId(0);
 			this.installBundle(sysBInfo);
 		}
 	}

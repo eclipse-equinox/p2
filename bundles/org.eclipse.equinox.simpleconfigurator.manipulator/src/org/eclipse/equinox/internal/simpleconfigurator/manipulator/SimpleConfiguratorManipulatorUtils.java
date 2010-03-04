@@ -14,8 +14,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.Messages;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
-import org.eclipse.equinox.internal.provisional.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo;
+import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 import org.osgi.framework.Version;
 
 public class SimpleConfiguratorManipulatorUtils {
@@ -25,19 +25,38 @@ public class SimpleConfiguratorManipulatorUtils {
 	private static final Version OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION = new Version("1.0.100.v20081206"); //$NON-NLS-1$
 
 	public static void writeConfiguration(BundleInfo[] simpleInfos, File outputFile) throws IOException {
-
-		// if empty remove the configuration file
-		if (simpleInfos == null || simpleInfos.length == 0) {
-			if (outputFile.exists()) {
-				outputFile.delete();
-			}
-			File parentDir = outputFile.getParentFile();
-			if (parentDir.exists()) {
-				parentDir.delete();
-			}
-			return;
+		if (!Utils.createParentDir(outputFile)) {
+			throw new IllegalStateException(Messages.exception_failedToCreateDir);
 		}
 
+		IOException caughtException = null;
+		OutputStream stream = null;
+		try {
+			stream = new FileOutputStream(outputFile);
+			writeConfiguration(simpleInfos, stream);
+		} catch (IOException e) {
+			caughtException = e;
+		} finally {
+			try {
+				if (stream != null)
+					stream.close();
+			} catch (IOException e) {
+				// we want to avoid over-writing the original exception
+				if (caughtException != null)
+					caughtException = e;
+			}
+		}
+		if (caughtException != null)
+			throw caughtException;
+	}
+
+	/**
+	 * The output stream is left open
+	 * @param simpleInfos
+	 * @param stream
+	 * @throws IOException
+	 */
+	public static void writeConfiguration(BundleInfo[] simpleInfos, OutputStream stream) throws IOException {
 		// sort by symbolic name
 		Arrays.sort(simpleInfos, new Comparator() {
 			public int compare(Object o1, Object o2) {
@@ -48,11 +67,7 @@ public class SimpleConfiguratorManipulatorUtils {
 			}
 		});
 
-		if (!Utils.createParentDir(outputFile)) {
-			throw new IllegalStateException(Messages.exception_failedToCreateDir);
-		}
 		BufferedWriter writer = null;
-		IOException caughtException = null;
 		boolean oldStyle = false;
 		for (int i = 0; i < simpleInfos.length; i++) {
 			if (SimpleConfiguratorManipulator.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(simpleInfos[i].getSymbolicName())) {
@@ -63,32 +78,17 @@ public class SimpleConfiguratorManipulatorUtils {
 			}
 		}
 
-		try {
-			writer = new BufferedWriter(new FileWriter(outputFile));
-			// version line
-			writer.write(createVersionLine());
-			writer.newLine();
+		writer = new BufferedWriter(new OutputStreamWriter(stream));
+		// version line
+		writer.write(createVersionLine());
+		writer.newLine();
 
-			// bundle info lines
-			for (int i = 0; i < simpleInfos.length; i++) {
-				writer.write(createBundleInfoLine(simpleInfos[i], oldStyle));
-				writer.newLine();
-			}
-		} catch (IOException e) {
-			caughtException = e;
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e) {
-					// we want to avoid over-writing the original exception
-					if (caughtException != null)
-						caughtException = e;
-				}
-			}
+		// bundle info lines
+		for (int i = 0; i < simpleInfos.length; i++) {
+			writer.write(createBundleInfoLine(simpleInfos[i], oldStyle));
+			writer.newLine();
 		}
-		if (caughtException != null)
-			throw caughtException;
+		writer.flush();
 	}
 
 	public static String createVersionLine() {
