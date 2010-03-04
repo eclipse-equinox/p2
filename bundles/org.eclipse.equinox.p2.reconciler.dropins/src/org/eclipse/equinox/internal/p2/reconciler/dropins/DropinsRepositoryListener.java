@@ -14,9 +14,9 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationArtifactRepository;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -24,8 +24,10 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -40,6 +42,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private static final String LINKS_PATH = "path"; //$NON-NLS-1$
 	private static final String DROPIN_ARTIFACT_REPOSITORIES = "dropin.artifactRepositories"; //$NON-NLS-1$
 	private static final String DROPIN_METADATA_REPOSITORIES = "dropin.metadataRepositories"; //$NON-NLS-1$
+	final private String PREFIX = "[reconciler][dropins] "; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
 	private BundleContext context;
 	private List metadataRepositories = new ArrayList();
@@ -55,8 +58,12 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	public boolean added(File file) {
-		if (super.added(file))
+		if (super.added(file)) {
+			if (Tracing.DEBUG_RECONCILER) {
+				Tracing.debug(PREFIX + "Interesting feature or bundle added " + file); //$NON-NLS-1$
+			}
 			return true;
+		}
 
 		URL repositoryURL = createRepositoryURL(file);
 		if (repositoryURL != null) {
@@ -67,8 +74,12 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	public boolean changed(File file) {
-		if (super.changed(file))
+		if (super.changed(file)) {
+			if (Tracing.DEBUG_RECONCILER) {
+				Tracing.debug(PREFIX + "Interesting feature or bundle changed " + file); //$NON-NLS-1$
+			}
 			return true;
+		}
 
 		URL repositoryURL = createRepositoryURL(file);
 		if (repositoryURL != null) {
@@ -175,6 +186,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 			} catch (ProvisionException e) {
 				repository = Activator.loadMetadataRepository(repoURL, null);
 			}
+			debugRepository(repository);
 			metadataRepositories.add(repository);
 		} catch (ProvisionException ex) {
 			LogHelper.log(ex);
@@ -299,6 +311,15 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		List result = new ArrayList(metadataRepositories);
 		result.add(getMetadataRepository());
 		return result;
+	}
+
+	private void debugRepository(IMetadataRepository repository) {
+		if (!Tracing.DEBUG_RECONCILER)
+			return;
+		Tracing.debug(PREFIX + "Repository created " + repository.getLocation()); //$NON-NLS-1$
+		Collector result = repository.query(InstallableUnitQuery.ANY, new Collector(), new NullProgressMonitor());
+		for (Iterator iter = result.iterator(); iter.hasNext();)
+			Tracing.debug(PREFIX + "\t" + iter.next()); //$NON-NLS-1$
 	}
 
 }

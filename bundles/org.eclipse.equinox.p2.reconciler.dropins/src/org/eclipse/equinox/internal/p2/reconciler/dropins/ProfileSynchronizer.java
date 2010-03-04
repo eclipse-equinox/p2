@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -15,8 +15,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -83,14 +82,18 @@ public class ProfileSynchronizer {
 		ProvisioningContext context = getContext();
 		ProfileChangeRequest request = createProfileChangeRequest(context);
 
-		if (request == null)
+		if (request == null) {
+			if (Tracing.DEBUG_RECONCILER)
+				Tracing.debug("[reconciler][plan] Empty request");
 			return Status.OK_STATUS;
+		}
+		debug(request);
 
 		SubMonitor sub = SubMonitor.convert(monitor, 100);
 		try {
 			//create the provisioning plan
 			ProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
-
+			debug(request, plan);
 			status = plan.getStatus();
 			if (status.getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL || plan.getOperands().length == 0)
 				return status;
@@ -408,5 +411,69 @@ public class ProfileSynchronizer {
 				return true;
 		}
 		return false;
+	}
+
+	private void debug(ProfileChangeRequest request) {
+		if (!Tracing.DEBUG_RECONCILER) {
+			return;
+		}
+		final String PREFIX = "[reconciler][request] "; //$NON-NLS-1$
+		IInstallableUnit[] toAdd = request.getAddedInstallableUnits();
+		if (toAdd == null || toAdd.length == 0) {
+			Tracing.debug(PREFIX + "No installable units to add."); //$NON-NLS-1$
+		} else {
+			for (int i = 0; i < toAdd.length; i++) {
+				Tracing.debug(PREFIX + "Adding IU: " + toAdd[i].getId() + ' ' + toAdd[i].getVersion()); //$NON-NLS-1$
+			}
+		}
+		IInstallableUnit[] toRemove = request.getRemovedInstallableUnits();
+		if (toRemove == null || toRemove.length == 0) {
+			Tracing.debug(PREFIX + "No installable units to remove."); //$NON-NLS-1$
+		} else {
+			for (int i = 0; i < toRemove.length; i++) {
+				Tracing.debug(PREFIX + "Removing IU: " + toRemove[i].getId() + ' ' + toRemove[i].getVersion()); //$NON-NLS-1$
+			}
+		}
+	}
+
+	private void debug(ProfileChangeRequest request, ProvisioningPlan plan) {
+		if (!Tracing.DEBUG_RECONCILER)
+			return;
+		final String PREFIX = "[reconciler][plan] "; //$NON-NLS-1$
+		//get the request
+		List toAdd = new ArrayList();
+		toAdd.addAll(Arrays.asList(request.getAddedInstallableUnits()));
+		List toRemove = new ArrayList();
+		toRemove.addAll(Arrays.asList(request.getRemovedInstallableUnits()));
+
+		//remove from the request everything what is in the plan
+		Operand[] ops = plan.getOperands();
+		for (int i = 0; i < ops.length; i++) {
+			if (ops[i] instanceof InstallableUnitOperand) {
+				InstallableUnitOperand iuo = (InstallableUnitOperand) ops[i];
+				if (iuo.first() == null && iuo.second() != null) {
+					toAdd.remove(iuo.second());
+				}
+				if (iuo.first() != null && iuo.second() == null) {
+					toRemove.remove(iuo.first());
+				}
+			}
+		}
+		//if anything is left in the request, then something is wrong with the plan
+		if (toAdd.size() == 0 && toRemove.size() == 0) {
+			Tracing.debug(PREFIX + "Plan matches the request"); //$NON-NLS-1$
+		}
+		if (toAdd.size() != 0) {
+			Tracing.debug(PREFIX + "Some units will not be installed, because they are already installed or there are dependency issues:"); //$NON-NLS-1$
+			for (int i = 0; i < toAdd.size(); i++) {
+				Tracing.debug(PREFIX + toAdd.get(i));
+			}
+		}
+		if (toRemove.size() != 0) {
+			Tracing.debug(PREFIX + "Some units will not be uninstalled:"); //$NON-NLS-1$
+			for (int i = 0; i < toRemove.size(); i++) {
+				Tracing.debug(PREFIX + toRemove.get(i));
+			}
+		}
 	}
 }
