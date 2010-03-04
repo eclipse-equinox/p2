@@ -12,5 +12,5 @@ Export-Package: org.eclipse.equinox.internal.p2.jarprocessor;x-friends:="org.ecl
  org.eclipse.equinox.internal.p2.jarprocessor.unsigner;x-internal:=true,
  org.eclipse.equinox.internal.p2.jarprocessor.verifier;x-internal:=true,
  org.eclipse.internal.provisional.equinox.p2.jarprocessor;x-friends:="org.eclipse.equinox.p2.artifact.optimizers,org.eclipse.equinox.p2.artifact.repository,org.eclipse.pde.build"
-Import-Package: org.eclipse.core.runtime;version="3.4.0";resolution:=optional,
- org.eclipse.core.runtime.jobs;resolution:=optional
+Import-Package: org.eclipse.core.runtime.jobs;resolution:=optional
+Require-Bundle: org.eclipse.equinox.common;bundle-version="3.3.0"
