@@ -16,6 +16,7 @@ package org.eclipse.equinox.internal.p2.director.app;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.cert.Certificate;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
@@ -46,6 +47,23 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * p2 data location. See bug 268138 for related discussion.
  */
 public class DirectorApplication implements IApplication {
+	class AvoidTrustPromptService extends UIServices {
+		@Override
+		public AuthenticationInfo getUsernamePassword(String location) {
+			return null;
+		}
+
+		@Override
+		public AuthenticationInfo getUsernamePassword(String location, AuthenticationInfo previousInfo) {
+			return null;
+		}
+
+		@Override
+		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
+			return new TrustInfo(null, false, true);
+		}
+	}
+
 	class LocationQueryable implements IQueryable<IInstallableUnit> {
 		private URI location;
 
@@ -441,6 +459,8 @@ public class DirectorApplication implements IApplication {
 		engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new ProvisionException(Messages.Missing_Engine);
+
+		agent.registerService(UIServices.SERVICE_NAME, new AvoidTrustPromptService());
 	}
 
 	private void logStatus(IStatus status) {
