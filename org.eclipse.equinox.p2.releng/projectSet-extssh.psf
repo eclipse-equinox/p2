@@ -58,8 +58,8 @@
 
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/compendium/bundles/org.eclipse.equinox.http,org.eclipse.equinox.http"/>
 
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/tools,org.eclipse.orbit/org.sat4j.core,org.sat4j.core_v2.1.1,v2_1_1"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/tools,org.eclipse.orbit/org.sat4j.pb,org.sat4j.pb_v2.1.1,v2_1_1"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/tools,org.eclipse.orbit/org.sat4j.core,org.sat4j.core_v2.2.2,v2_2_2"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/tools,org.eclipse.orbit/org.sat4j.pb,org.sat4j.pb_v2.2.2,v2_2_2"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/tools,org.eclipse.orbit/org.easymock,org.easymock,v2_4"/>
 
 </provider>
