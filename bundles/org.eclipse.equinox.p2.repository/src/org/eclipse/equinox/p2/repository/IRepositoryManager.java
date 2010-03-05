@@ -35,30 +35,42 @@ public interface IRepositoryManager<T> extends IQueryable<T> {
 	public static final int REPOSITORIES_ALL = 0;
 
 	/**
-	 * Constant used to indicate that disabled repositories are of interest.
+	 * Constant used to indicate that only system repositories are of interest.
+	 * @see IRepository#PROP_SYSTEM
 	 * @see #getKnownRepositories(int)
 	 */
-	public static final int REPOSITORIES_DISABLED = 1 << 3;
+	public static final int REPOSITORIES_SYSTEM = 1 << 0;
 
 	/**
-	 * Constant used to indicate that local repositories are of interest.
-	 * @see #getKnownRepositories(int)
-	 */
-	public static final int REPOSITORIES_LOCAL = 1 << 2;
-
-	/**
-	 * Constant used to indicate that non-system repositories are of interest.
+	 * Constant used to indicate that only non-system repositories are of interest.
 	 * @see IRepository#PROP_SYSTEM
 	 * @see #getKnownRepositories(int)
 	 */
 	public static final int REPOSITORIES_NON_SYSTEM = 1 << 1;
 
 	/**
-	 * Constant used to indicate that system repositories are of interest.
-	 * @see IRepository#PROP_SYSTEM
+	 * Constant used to indicate that only local repositories are of interest. Any
+	 * repository that requires network communication will be omitted when
+	 * this flag is used.
 	 * @see #getKnownRepositories(int)
 	 */
-	public static final int REPOSITORIES_SYSTEM = 1 << 0;
+	public static final int REPOSITORIES_LOCAL = 1 << 2;
+
+	/**
+	 * Constant used to indicate that only remote repositories are of interest. Any
+	 * repository that doesn't require network communication will be omitted when
+	 * this flag is used.
+	 * @see #getKnownRepositories(int)
+	 */
+	public static final int REPOSITORIES_NON_LOCAL = 1 << 4;
+
+	/**
+	 * Constant used to indicate that only disabled repositories are of interest.
+	 * When this flag is used, all enabled repositories will be ignored and
+	 * all disabled repositories that match the remaining filters will be returned.
+	 * @see #getKnownRepositories(int)
+	 */
+	public static final int REPOSITORIES_DISABLED = 1 << 3;
 
 	/**
 	 * Constant used to indicate that a repository manager should only load the
@@ -108,7 +120,8 @@ public interface IRepositoryManager<T> extends IQueryable<T> {
 	 * 
 	 * @param flags an integer bit-mask indicating which repositories should be
 	 * returned.  <code>REPOSITORIES_ALL</code> can be used as the mask when
-	 * all enabled repositories should be returned.
+	 * all enabled repositories should be returned. Disabled repositories are automatically
+	 * excluded unless the {@link #REPOSITORIES_DISABLED} flag is set.
 	 * @return the locations of the repositories managed by this repository manager.
 	 * 
 	 * @see #REPOSITORIES_ALL

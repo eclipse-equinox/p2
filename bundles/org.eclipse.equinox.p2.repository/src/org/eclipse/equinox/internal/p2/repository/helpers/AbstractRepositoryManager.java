@@ -750,6 +750,8 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		}
 		if ((flags & REPOSITORIES_LOCAL) == REPOSITORIES_LOCAL)
 			return "file".equals(info.location.getScheme()) || info.location.toString().startsWith("jar:file"); //$NON-NLS-1$ //$NON-NLS-2$
+		if ((flags & REPOSITORIES_NON_LOCAL) == REPOSITORIES_NON_LOCAL)
+			return !("file".equals(info.location.getScheme()) || info.location.toString().startsWith("jar:file")); //$NON-NLS-1$ //$NON-NLS-2$
 		return true;
 	}
 
