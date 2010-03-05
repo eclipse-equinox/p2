@@ -68,7 +68,7 @@ public class DefaultPhaseSet extends PhaseSet {
 	private static final List<String> ALL_PHASES_LIST = Arrays.asList(new String[] {PHASE_COLLECT, PHASE_UNCONFIGURE, PHASE_UNINSTALL, PHASE_PROPERTY, PHASE_CHECK_TRUST, PHASE_INSTALL, PHASE_CONFIGURE});
 
 	public DefaultPhaseSet() {
-		this(new Phase[] {new Collect(100), new Unconfigure(10, forcedUninstall), new Uninstall(50, forcedUninstall), new Property(1), new CheckTrust(10), new Install(50), new Configure(10)});
+		this(new Phase[] {new Collect(100), new CheckTrust(10), new Unconfigure(10, forcedUninstall), new Uninstall(50, forcedUninstall), new Property(1), new Install(50), new Configure(10)});
 	}
 
 	private DefaultPhaseSet(Phase[] phases) {
@@ -107,14 +107,14 @@ public class DefaultPhaseSet extends PhaseSet {
 		ArrayList<Phase> phases = new ArrayList<Phase>();
 		if (includeList.contains(PHASE_COLLECT))
 			phases.add(new Collect(100));
+		if (includeList.contains(PHASE_CHECK_TRUST))
+			phases.add(new CheckTrust(10));
 		if (includeList.contains(PHASE_UNCONFIGURE))
 			phases.add(new Unconfigure(10, forcedUninstall));
 		if (includeList.contains(PHASE_UNINSTALL))
 			phases.add(new Uninstall(50, forcedUninstall));
 		if (includeList.contains(PHASE_PROPERTY))
 			phases.add(new Property(1));
-		if (includeList.contains(PHASE_CHECK_TRUST))
-			phases.add(new CheckTrust(10));
 		if (includeList.contains(PHASE_INSTALL))
 			phases.add(new Install(50));
 		if (includeList.contains(PHASE_CONFIGURE))
