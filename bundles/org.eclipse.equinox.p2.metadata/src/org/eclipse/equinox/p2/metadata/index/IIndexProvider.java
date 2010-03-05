@@ -31,7 +31,7 @@ public interface IIndexProvider<T> {
 	 * Return the iterator that delivers all rows that the target query should
 	 * consider. This is used when no index can be found for any possible
 	 * member.
-	 * @return An iterator. Possibly emtpy but never <code>null</code>.
+	 * @return An iterator. Possibly empty but never <code>null</code>.
 	 */
 	Iterator<T> everything();
 
