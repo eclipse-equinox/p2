@@ -72,7 +72,7 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 	}
 
 	private void createContent() {
-		GridLayout layout = new GridLayout(4, false);
+		GridLayout layout = new GridLayout(3, false);
 		layout.marginLeft = 7;
 		layout.marginTop = 2;
 		layout.marginBottom = 2;
@@ -107,29 +107,6 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 		nameLabel.setFont(resources.getSmallHeaderFont());
 		nameLabel.setText(connector.getName());
 
-		providerLabel = new Link(this, SWT.RIGHT);
-		GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).applyTo(providerLabel);
-		// always disabled color to make it less prominent
-		providerLabel.setForeground(resources.getColorDisabled());
-		if (connector.getCertification() != null) {
-			providerLabel.setText(NLS.bind(Messages.DiscoveryViewer_Certification_Label0, new String[] {connector.getProvider(), connector.getLicense(), connector.getCertification().getName()}));
-			if (connector.getCertification().getUrl() != null) {
-				providerLabel.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						WorkbenchUtil.openUrl(connector.getCertification().getUrl(), IWorkbenchBrowserSupport.AS_EXTERNAL);
-					}
-				});
-			}
-			Overview overview = new Overview();
-			overview.setSummary(connector.getCertification().getDescription());
-			overview.setUrl(connector.getCertification().getUrl());
-			Image image = resources.getIconImage(connector.getSource(), connector.getCertification().getIcon(), 48, true);
-			hookTooltip(providerLabel, providerLabel, this, providerLabel, connector.getSource(), overview, image);
-		} else {
-			providerLabel.setText(NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_provider_and_license, connector.getProvider(), connector.getLicense()));
-		}
-
 		if (hasTooltip(connector) || connector.isInstalled()) {
 			ToolBar toolBar = new ToolBar(this, SWT.FLAT);
 			GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).applyTo(toolBar);
@@ -162,6 +139,33 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 			descriptionText = descriptionText.substring(0, maxDescriptionLength);
 		}
 		description.setText(descriptionText.replaceAll("(\\r\\n)|\\n|\\r", " ")); //$NON-NLS-1$ //$NON-NLS-2$
+
+		createProviderLabel();
+	}
+
+	public void createProviderLabel() {
+		providerLabel = new Link(this, SWT.RIGHT);
+		GridDataFactory.fillDefaults().span(3, 1).align(SWT.BEGINNING, SWT.CENTER).applyTo(providerLabel);
+		// always disabled color to make it less prominent
+		providerLabel.setForeground(resources.getColorDisabled());
+		if (connector.getCertification() != null) {
+			providerLabel.setText(NLS.bind(Messages.DiscoveryViewer_Certification_Label0, new String[] {connector.getProvider(), connector.getLicense(), connector.getCertification().getName()}));
+			if (connector.getCertification().getUrl() != null) {
+				providerLabel.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						WorkbenchUtil.openUrl(connector.getCertification().getUrl(), IWorkbenchBrowserSupport.AS_EXTERNAL);
+					}
+				});
+			}
+			Overview overview = new Overview();
+			overview.setSummary(connector.getCertification().getDescription());
+			overview.setUrl(connector.getCertification().getUrl());
+			Image image = resources.getIconImage(connector.getSource(), connector.getCertification().getIcon(), 48, true);
+			hookTooltip(providerLabel, providerLabel, this, providerLabel, connector.getSource(), overview, image);
+		} else {
+			providerLabel.setText(NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_provider_and_license, connector.getProvider(), connector.getLicense()));
+		}
 	}
 
 	protected boolean hasTooltip(final CatalogItem connector) {

@@ -191,7 +191,7 @@ public class CatalogViewer extends FilteredViewer {
 
 	private final SelectionProviderAdapter selectionProvider;
 
-	private final IShellProvider shellProvider;
+	protected final IShellProvider shellProvider;
 
 	boolean showInstalled;
 
@@ -458,6 +458,10 @@ public class CatalogViewer extends FilteredViewer {
 		return features;
 	}
 
+	protected DiscoveryResources getResources() {
+		return resources;
+	}
+
 	public IStructuredSelection getSelection() {
 		return (IStructuredSelection) selectionProvider.getSelection();
 	}
@@ -492,7 +496,7 @@ public class CatalogViewer extends FilteredViewer {
 		return false;
 	}
 
-	void modifySelection(final CatalogItem connector, boolean selected) {
+	protected void modifySelection(final CatalogItem connector, boolean selected) {
 		modifySelectionInternal(connector, selected);
 		updateState();
 	}
