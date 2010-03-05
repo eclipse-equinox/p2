@@ -449,11 +449,9 @@ public class ProfileSynchronizer {
 
 	private IStatus setProperty(String key, String value, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
-		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
-		ProfileChangeRequest addPropertyRequest = new ProfileChangeRequest(profile);
-		addPropertyRequest.setProfileProperty(key, value);
-		IProvisioningPlan plan = planner.getProvisioningPlan(addPropertyRequest, provisioningContext, monitor);
-		IPhaseSet phaseSet = PhaseSetFactory.createDefaultPhaseSetExcluding(new String[] {PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST});
+		IProvisioningPlan plan = engine.createPlan(profile, provisioningContext);
+		plan.setProfileProperty(key, value);
+		IPhaseSet phaseSet = PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_PROPERTY});
 		return engine.perform(plan, phaseSet, monitor);
 	}
 

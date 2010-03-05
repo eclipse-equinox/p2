@@ -91,9 +91,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 			assertFalse("0.1", userBundlesInfo.exists());
 			assertFalse("0.2", userConfigIni.exists());
 			reconcileReadOnly("0.21");
-
-			// This line is disabled until bug 300050 is also fixed
-			//			assertFalse("0.3", userBundlesInfo.exists());
+			assertFalse("0.3", userBundlesInfo.exists());
 			assertTrue("0.4", userConfigIni.exists());
 
 			Properties props = new Properties();
@@ -104,8 +102,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 				is.close();
 			}
 			assertTrue("0.5", props.containsKey("osgi.sharedConfiguration.area"));
-			assertTrue("0.51", props.containsKey("eclipse.p2.data.area"));
-			assertTrue("0.6", props.size() == 2);
+			assertTrue("0.6", props.size() == 1);
 		} finally {
 			cleanupReadOnlyInstall();
 		}
