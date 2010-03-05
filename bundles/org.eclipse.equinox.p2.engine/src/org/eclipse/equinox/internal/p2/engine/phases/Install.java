@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.engine.DefaultPhaseSet;
+import org.eclipse.equinox.p2.engine.PhaseSetFactory;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
@@ -71,7 +71,7 @@ public class Install extends InstallableUnitPhase {
 	}
 
 	public Install(int weight) {
-		super(DefaultPhaseSet.PHASE_INSTALL, weight);
+		super(PhaseSetFactory.PHASE_INSTALL, weight);
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {

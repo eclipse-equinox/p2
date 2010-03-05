@@ -31,7 +31,7 @@ public class Collect extends InstallableUnitPhase {
 	public static final String NO_ARTIFACT_REPOSITORIES_AVAILABLE = "noArtifactRepositoriesAvailable"; //$NON-NLS-1$
 
 	public Collect(int weight) {
-		super(DefaultPhaseSet.PHASE_COLLECT, weight);
+		super(PhaseSetFactory.PHASE_COLLECT, weight);
 		//re-balance work since postPerform will do almost all the time-consuming work
 		prePerformWork = 0;
 		mainPerformWork = 100;

@@ -283,7 +283,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		ProfileChangeRequest request3 = new ProfileChangeRequest(getProfile("installation"));
 		request3.removeInstallableUnits(new IInstallableUnit[] {a111});
 		IProvisioningPlan plan3 = planner.getProvisioningPlan(request3, ctx, new NullProgressMonitor());
-		//		assertOK("install actions", engine.perform(getProfile("agent"), new DefaultPhaseSet(), plan3.getInstallerPlan().getOperands(), null, null));
+		//		assertOK("install actions", engine.perform(getProfile("agent"), new PhaseSetFactory(), plan3.getInstallerPlan().getOperands(), null, null));
 		//		assertProfileContainsAll("Checking profile after install of actions", getProfile("agent"), new IInstallableUnit[] {act1b}); //At this point there is not 
 		assertOK("install A", engine.perform(plan3, null));
 		assertProfileContainsAll("Checking profile after install of actions", getProfile("installation"), new IInstallableUnit[] {c, b, act2});

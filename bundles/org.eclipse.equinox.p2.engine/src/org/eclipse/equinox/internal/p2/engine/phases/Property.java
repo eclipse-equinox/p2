@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.engine.phases;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.p2.engine.DefaultPhaseSet;
+import org.eclipse.equinox.p2.engine.PhaseSetFactory;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
@@ -135,7 +135,7 @@ public class Property extends Phase {
 	}
 
 	public Property(int weight) {
-		super(DefaultPhaseSet.PHASE_PROPERTY, weight);
+		super(PhaseSetFactory.PHASE_PROPERTY, weight);
 	}
 
 	protected List<ProvisioningAction> getActions(Operand operand) {

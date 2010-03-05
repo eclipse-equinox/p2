@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.p2.engine.InstallableUnitPhase;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.engine.DefaultPhaseSet;
+import org.eclipse.equinox.p2.engine.PhaseSetFactory;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -32,7 +32,7 @@ public class CheckTrust extends InstallableUnitPhase {
 	public static final String PARM_ARTIFACT_FILES = "artifactFiles"; //$NON-NLS-1$
 
 	public CheckTrust(int weight) {
-		super(DefaultPhaseSet.PHASE_CHECK_TRUST, weight);
+		super(PhaseSetFactory.PHASE_CHECK_TRUST, weight);
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {

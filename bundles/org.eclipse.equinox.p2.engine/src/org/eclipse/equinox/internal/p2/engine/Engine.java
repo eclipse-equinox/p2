@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.engine.PhaseSetFactory;
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -45,7 +47,7 @@ public class Engine implements IEngine {
 	}
 
 	public IStatus perform(IProvisioningPlan plan, IProgressMonitor monitor) {
-		return perform(plan, new DefaultPhaseSet(), monitor);
+		return perform(plan, PhaseSetFactory.createDefaultPhaseSet(), monitor);
 	}
 
 	public IStatus perform(IProfile iprofile, IPhaseSet phases, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {

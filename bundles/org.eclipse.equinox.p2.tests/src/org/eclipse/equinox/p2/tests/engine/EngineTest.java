@@ -10,12 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -202,23 +198,23 @@ public class EngineTest extends AbstractProvisioningTest {
 	 */
 	public void testCreatePhaseSetExcluding() {
 		//null argument
-		IPhaseSet set = DefaultPhaseSet.createExcluding(null);
+		IPhaseSet set = PhaseSetFactory.createDefaultPhaseSetExcluding(null);
 		assertEquals("1.0", 7, set.getPhaseIds().length);
 
 		//empty argument
-		set = DefaultPhaseSet.createExcluding(new String[0]);
+		set = PhaseSetFactory.createDefaultPhaseSetExcluding(new String[0]);
 		assertEquals("2.0", 7, set.getPhaseIds().length);
 
 		//bogus argument
-		set = DefaultPhaseSet.createExcluding(new String[] {"blort"});
+		set = PhaseSetFactory.createDefaultPhaseSetExcluding(new String[] {"blort"});
 		assertEquals("3.0", 7, set.getPhaseIds().length);
 
 		//valid argument
-		set = DefaultPhaseSet.createExcluding(new String[] {DefaultPhaseSet.PHASE_CHECK_TRUST});
+		set = PhaseSetFactory.createDefaultPhaseSetExcluding(new String[] {PhaseSetFactory.PHASE_CHECK_TRUST});
 		final String[] phases = set.getPhaseIds();
 		assertEquals("4.0", 6, phases.length);
 		for (int i = 0; i < phases.length; i++)
-			if (phases[i].equals(DefaultPhaseSet.PHASE_CHECK_TRUST))
+			if (phases[i].equals(PhaseSetFactory.PHASE_CHECK_TRUST))
 				fail("4.1." + i);
 
 	}
@@ -228,31 +224,31 @@ public class EngineTest extends AbstractProvisioningTest {
 	 */
 	public void testCreatePhaseSetIncluding() {
 		//null argument
-		IPhaseSet set = DefaultPhaseSet.createIncluding(null);
+		IPhaseSet set = PhaseSetFactory.createPhaseSetIncluding(null);
 		assertNotNull("1.0", set);
 		assertEquals("1.1", 0, set.getPhaseIds().length);
 		//expected
 		//empty argument
-		set = DefaultPhaseSet.createIncluding(new String[0]);
+		set = PhaseSetFactory.createPhaseSetIncluding(new String[0]);
 		assertNotNull("2.0", set);
 		assertEquals("2.1", 0, set.getPhaseIds().length);
 
 		//unknown argument
-		set = DefaultPhaseSet.createIncluding(new String[] {"blort", "not a phase", "bad input"});
+		set = PhaseSetFactory.createPhaseSetIncluding(new String[] {"blort", "not a phase", "bad input"});
 		assertNotNull("3.0", set);
 		assertEquals("3.1", 0, set.getPhaseIds().length);
 
 		//one valid phase
-		set = DefaultPhaseSet.createIncluding(new String[] {DefaultPhaseSet.PHASE_COLLECT});
+		set = PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_COLLECT});
 		assertNotNull("4.0", set);
 		assertEquals("4.1", 1, set.getPhaseIds().length);
-		assertEquals("4.2", DefaultPhaseSet.PHASE_COLLECT, set.getPhaseIds()[0]);
+		assertEquals("4.2", PhaseSetFactory.PHASE_COLLECT, set.getPhaseIds()[0]);
 
 		//one valid phase and one bogus
-		set = DefaultPhaseSet.createIncluding(new String[] {DefaultPhaseSet.PHASE_COLLECT, "bogus"});
+		set = PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_COLLECT, "bogus"});
 		assertNotNull("4.0", set);
 		assertEquals("4.1", 1, set.getPhaseIds().length);
-		assertEquals("4.2", DefaultPhaseSet.PHASE_COLLECT, set.getPhaseIds()[0]);
+		assertEquals("4.2", PhaseSetFactory.PHASE_COLLECT, set.getPhaseIds()[0]);
 
 	}
 
@@ -347,7 +343,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	//			InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createResolvedIU(doomed), null)};
 	//			engine.perform(engine.createPlan(profile, null), new NullProgressMonitor());
 	//		}
-	//		PhaseSet phaseSet = new DefaultPhaseSet();
+	//		PhaseSet phaseSet = new PhaseSetFactory();
 	//		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
 	//		IStatus result = ((Engine) engine).validate(profile, phaseSet, operands, null, new NullProgressMonitor());
 	//		assertTrue(result.isOK());
@@ -433,7 +429,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	//		Map properties = new HashMap();
 	//		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 	//		IProfile profile = createProfile("testPerformRollback", properties);
-	//		PhaseSet phaseSet = new DefaultPhaseSet();
+	//		PhaseSet phaseSet = new PhaseSetFactory();
 	//
 	//		Iterator ius = getInstallableUnits(profile);
 	//		assertFalse(ius.hasNext());
@@ -531,7 +527,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("testPerformForcedUninstallWithBadUninstallIUActionThrowsException", properties);
 
 		// forcedUninstall is false by default
-		PhaseSet phaseSet = new DefaultPhaseSet();
+		IPhaseSet phaseSet = PhaseSetFactory.createDefaultPhaseSet();
 
 		Iterator ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
@@ -551,7 +547,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
 
-		// this simulates a DefaultPhaseSet with forcedUninstall set
+		// this simulates a PhaseSetFactory with forcedUninstall set
 		phaseSet = new TestPhaseSet(true);
 		plan = engine.createPlan(profile, null);
 		plan.removeInstallableUnit(badUninstallIU);
@@ -587,7 +583,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
 
-		// this simulates a DefaultPhaseSet with forcedUninstall set
+		// this simulates a PhaseSetFactory with forcedUninstall set
 		IPhaseSet phaseSet = new TestPhaseSet(true);
 		plan = engine.createPlan(profile, null);
 		plan.removeInstallableUnit(badUninstallIU);
@@ -620,7 +616,7 @@ public class EngineTest extends AbstractProvisioningTest {
 	}
 
 	private IInstallableUnit createOSGiIU(String version) {
-		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
+		MetadataFactory.InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.osgi");
 		description.setVersion(Version.create(version));
 		description.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);

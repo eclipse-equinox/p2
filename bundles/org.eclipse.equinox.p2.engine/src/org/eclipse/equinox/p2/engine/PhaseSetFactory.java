@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.p2.engine.phases.*;
 /**
  * @since 2.0
  */
-public class DefaultPhaseSet extends PhaseSet {
+public class PhaseSetFactory {
 
 	private static final boolean forcedUninstall = Boolean.valueOf(EngineActivator.getContext().getProperty("org.eclipse.equinox.p2.engine.forcedUninstall")).booleanValue(); //$NON-NLS-1$
 
@@ -67,29 +67,21 @@ public class DefaultPhaseSet extends PhaseSet {
 
 	private static final List<String> ALL_PHASES_LIST = Arrays.asList(new String[] {PHASE_COLLECT, PHASE_UNCONFIGURE, PHASE_UNINSTALL, PHASE_PROPERTY, PHASE_CHECK_TRUST, PHASE_INSTALL, PHASE_CONFIGURE});
 
-	public DefaultPhaseSet() {
-		this(new Phase[] {new Collect(100), new CheckTrust(10), new Unconfigure(10, forcedUninstall), new Uninstall(50, forcedUninstall), new Property(1), new Install(50), new Configure(10)});
-	}
-
-	private DefaultPhaseSet(Phase[] phases) {
-		super(phases);
-	}
-
 	/**
 	 * Creates a default phase set that covers all the provisioning operations.
 	 * Phases can be specified for exclusion.
 	 * 
 	 * @param exclude - A set of bit options that specify the phases to exclude.
-	 * See {@link DefaultPhaseSet} for possible options
+	 * See {@link PhaseSetFactory} for possible options
 	 * @return the {@link PhaseSet}
 	 */
-	public static final IPhaseSet createExcluding(String[] exclude) {
+	public static final IPhaseSet createDefaultPhaseSetExcluding(String[] exclude) {
 		if (exclude == null || exclude.length == 0)
-			return new DefaultPhaseSet();
+			return createDefaultPhaseSet();
 		List<String> excludeList = Arrays.asList(exclude);
 		List<String> includeList = new ArrayList<String>(ALL_PHASES_LIST);
 		includeList.removeAll(excludeList);
-		return createIncluding(includeList.toArray(new String[includeList.size()]));
+		return createPhaseSetIncluding(includeList.toArray(new String[includeList.size()]));
 	}
 
 	/**
@@ -97,12 +89,12 @@ public class DefaultPhaseSet extends PhaseSet {
 	 * Phases can be specified for inclusion.
 	 * 
 	 * @param include - A set of bit options that specify the phases to include.
-	 * See {@link DefaultPhaseSet} for possible options
+	 * See {@link PhaseSetFactory} for possible options
 	 * @return the {@link PhaseSet}
 	 */
-	public static final IPhaseSet createIncluding(String[] include) {
+	public static final IPhaseSet createPhaseSetIncluding(String[] include) {
 		if (include == null || include.length == 0)
-			return new DefaultPhaseSet(new Phase[0]);
+			return new PhaseSet(new Phase[0]);
 		List<String> includeList = Arrays.asList(include);
 		ArrayList<Phase> phases = new ArrayList<Phase>();
 		if (includeList.contains(PHASE_COLLECT))
@@ -119,6 +111,14 @@ public class DefaultPhaseSet extends PhaseSet {
 			phases.add(new Install(50));
 		if (includeList.contains(PHASE_CONFIGURE))
 			phases.add(new Configure(10));
-		return new DefaultPhaseSet(phases.toArray(new Phase[phases.size()]));
+		return new PhaseSet(phases.toArray(new Phase[phases.size()]));
+	}
+
+	public static IPhaseSet createDefaultPhaseSet() {
+		return createPhaseSetIncluding(ALL_PHASES_LIST.toArray(new String[ALL_PHASES_LIST.size()]));
+	}
+
+	public static ISizingPhaseSet createSizingPhaseSet() {
+		return new SizingPhaseSet();
 	}
 }

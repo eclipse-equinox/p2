@@ -8,19 +8,13 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-/**
- * 
- */
-package org.eclipse.equinox.p2.engine;
 
-import org.eclipse.equinox.internal.p2.engine.Phase;
-import org.eclipse.equinox.internal.p2.engine.PhaseSet;
+package org.eclipse.equinox.internal.p2.engine;
+
 import org.eclipse.equinox.internal.p2.engine.phases.Sizing;
+import org.eclipse.equinox.p2.engine.ISizingPhaseSet;
 
-/**
- * @since 2.0
- */
-public class SizingPhaseSet extends PhaseSet {
+public class SizingPhaseSet extends PhaseSet implements ISizingPhaseSet {
 
 	private static Sizing sizing;
 
@@ -28,10 +22,16 @@ public class SizingPhaseSet extends PhaseSet {
 		super(new Phase[] {sizing = new Sizing(100)});
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.ISizingPhaseSet#getDiskSize()
+	 */
 	public long getDiskSize() {
 		return sizing.getDiskSize();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.ISizingPhaseSet#getDownloadSize()
+	 */
 	public long getDownloadSize() {
 		return sizing.getDownloadSize();
 	}

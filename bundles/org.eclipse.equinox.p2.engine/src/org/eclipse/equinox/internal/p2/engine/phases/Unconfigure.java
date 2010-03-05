@@ -15,7 +15,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.p2.engine.DefaultPhaseSet;
+import org.eclipse.equinox.p2.engine.PhaseSetFactory;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 public class Unconfigure extends InstallableUnitPhase {
 
 	public Unconfigure(int weight, boolean forced) {
-		super(DefaultPhaseSet.PHASE_UNCONFIGURE, weight, forced);
+		super(PhaseSetFactory.PHASE_UNCONFIGURE, weight, forced);
 	}
 
 	public Unconfigure(int weight) {

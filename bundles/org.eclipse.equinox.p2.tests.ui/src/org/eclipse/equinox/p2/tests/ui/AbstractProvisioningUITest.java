@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui;
 
+import org.eclipse.equinox.p2.engine.PhaseSetFactory;
+
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 
@@ -144,7 +146,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		IProvisioningPlan plan = getSession().getPlanner().getProvisioningPlan(req, new ProvisioningContext(new URI[] {}), getMonitor());
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
-		return getSession().performProvisioningPlan(plan, new DefaultPhaseSet(), new ProvisioningContext(), getMonitor());
+		return getSession().performProvisioningPlan(plan, PhaseSetFactory.createDefaultPhaseSet(), new ProvisioningContext(), getMonitor());
 	}
 
 	protected IInstallableUnit createNamedIU(String id, String name, Version version, boolean isCategory) {

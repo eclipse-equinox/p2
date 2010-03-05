@@ -15,7 +15,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.p2.engine.DefaultPhaseSet;
+import org.eclipse.equinox.p2.engine.PhaseSetFactory;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -25,7 +25,7 @@ import org.eclipse.osgi.util.NLS;
 public class Configure extends InstallableUnitPhase {
 
 	public Configure(int weight) {
-		super(DefaultPhaseSet.PHASE_CONFIGURE, weight);
+		super(PhaseSetFactory.PHASE_CONFIGURE, weight);
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {

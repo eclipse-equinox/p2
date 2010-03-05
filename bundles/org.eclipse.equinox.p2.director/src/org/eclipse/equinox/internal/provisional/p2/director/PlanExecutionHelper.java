@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
+import org.eclipse.equinox.p2.engine.PhaseSetFactory;
+
 import java.io.IOException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -20,7 +22,7 @@ import org.eclipse.equinox.p2.engine.*;
 
 public class PlanExecutionHelper {
 	public static IStatus executePlan(IProvisioningPlan result, IEngine engine, ProvisioningContext context, IProgressMonitor progress) {
-		return executePlan(result, engine, new DefaultPhaseSet(), context, progress);
+		return executePlan(result, engine, PhaseSetFactory.createDefaultPhaseSet(), context, progress);
 	}
 
 	public static IStatus executePlan(IProvisioningPlan result, IEngine engine, IPhaseSet phaseSet, ProvisioningContext context, IProgressMonitor progress) {

@@ -167,14 +167,14 @@ public class ProvisioningSession {
 		long installPlanSize = 0;
 		SubMonitor mon = SubMonitor.convert(monitor, 300);
 		if (plan.getInstallerPlan() != null) {
-			SizingPhaseSet sizingPhaseSet = new SizingPhaseSet();
+			ISizingPhaseSet sizingPhaseSet = PhaseSetFactory.createSizingPhaseSet();
 			IStatus status = getEngine().perform(plan.getInstallerPlan(), sizingPhaseSet, mon.newChild(100));
 			if (status.isOK())
 				installPlanSize = sizingPhaseSet.getDiskSize();
 		} else {
 			mon.worked(100);
 		}
-		SizingPhaseSet sizingPhaseSet = new SizingPhaseSet();
+		ISizingPhaseSet sizingPhaseSet = PhaseSetFactory.createSizingPhaseSet();
 		IStatus status = getEngine().perform(plan, sizingPhaseSet, mon.newChild(200));
 		if (status.isOK())
 			return installPlanSize + sizingPhaseSet.getDiskSize();
@@ -197,7 +197,7 @@ public class ProvisioningSession {
 	public IStatus performProvisioningPlan(IProvisioningPlan plan, IPhaseSet phaseSet, ProvisioningContext context, IProgressMonitor monitor) {
 		IPhaseSet set;
 		if (phaseSet == null)
-			set = new DefaultPhaseSet();
+			set = PhaseSetFactory.createDefaultPhaseSet();
 		else
 			set = phaseSet;
 
@@ -211,7 +211,7 @@ public class ProvisioningSession {
 		IProfile profile = plan.getProfile();
 
 		if (plan.getInstallerPlan() != null) {
-			if (set instanceof DefaultPhaseSet) {
+			if (set instanceof PhaseSetFactory) {
 				// If the phase set calls for download and install, then we want to download everything atomically before 
 				// applying the install plan.  This way, we can be sure to install the install handler only if we know 
 				// we will be able to get everything else.
@@ -219,7 +219,7 @@ public class ProvisioningSession {
 				downloadRequest.setAbsoluteMode(true);
 				downloadRequest.addAll(QueryUtil.compoundQueryable(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet());
 
-				IPhaseSet download = DefaultPhaseSet.createIncluding(new String[] {DefaultPhaseSet.PHASE_COLLECT});
+				IPhaseSet download = PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_COLLECT});
 				IProvisioningPlan downloadPlan = getPlanner().getProvisioningPlan(downloadRequest, context, mon.newChild(100));
 				IStatus downloadStatus = getEngine().perform(downloadPlan, download, mon.newChild(300));
 				if (!downloadStatus.isOK()) {
