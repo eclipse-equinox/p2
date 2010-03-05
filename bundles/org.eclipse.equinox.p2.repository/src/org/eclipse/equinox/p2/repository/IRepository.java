@@ -29,6 +29,9 @@ public interface IRepository<T> extends IAdaptable, IQueryable<T> {
 	 * The key for a boolean property indicating that the repository
 	 * is a system repository.  System repositories are implementation details
 	 * that are not subject to general access, hidden from the typical user, etc.
+	 * This property is never stored in the repository itself, but is instead tracked and 
+	 * managed by an {@link IRepositoryManager}.
+	 * @see IRepositoryManager#getRepositoryProperty(URI, String)
 	 */
 	public static final String PROP_SYSTEM = "p2.system"; //$NON-NLS-1$
 
@@ -37,40 +40,49 @@ public interface IRepository<T> extends IAdaptable, IQueryable<T> {
 	 * stored in compressed form.  A compressed repository will have lower
 	 * bandwidth cost to read when remote, but higher processing cost to
 	 * uncompress when reading.
+	 * @see IRepository#getProperties()
 	 */
 	public static final String PROP_COMPRESSED = "p2.compressed"; //$NON-NLS-1$
 
 	/**
 	 * The key for a string property providing a human-readable name for the repository.
+	 * @see IRepositoryManager#getRepositoryProperty(URI, String)
+	 * @see IRepository#getProperties()
 	 */
 	public static final String PROP_NAME = "name"; //$NON-NLS-1$
 
 	/**
 	 * The key for a string property providing a user-defined name for the repository.
-	 * This property is never stored in the repository itself, but is instead tracked and managed
-	 * by an {@link IRepositoryManager}.
+	 * This property is never stored in the repository itself, but is instead tracked and 
+	 * managed by an {@link IRepositoryManager}.
+	 * @see IRepositoryManager#getRepositoryProperty(URI, String)
 	 */
 	public static final String PROP_NICKNAME = "p2.nickname"; //$NON-NLS-1$
 
 	/**
 	 * The key for a string property providing a human-readable description for the repository.
+	 * @see IRepositoryManager#getRepositoryProperty(URI, String)
+	 * @see IRepository#getProperties()
 	 */
 	public static final String PROP_DESCRIPTION = "description"; //$NON-NLS-1$
 
 	/**
 	 * The key for a string property providing the common base URL that should
 	 * be replaced with the mirror URL.
+	 * @see IRepository#getProperties()
 	 */
 	public static final String PROP_MIRRORS_BASE_URL = "p2.mirrorsBaseURL"; //$NON-NLS-1$
 
 	/**
 	 * The key for a string property providing a URL that can return mirrors of this
 	 * repository.
+	 * @see IRepository#getProperties()
 	 */
 	public static final String PROP_MIRRORS_URL = "p2.mirrorsURL"; //$NON-NLS-1$
 
 	/**
 	 * The key for a string property containing the time when the repository was last modified.
+	 * @see IRepository#getProperties()
 	 */
 	public static final String PROP_TIMESTAMP = "p2.timestamp"; //$NON-NLS-1$
 

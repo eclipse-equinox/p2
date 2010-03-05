@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -123,14 +123,15 @@ public interface IRepositoryManager<T> extends IQueryable<T> {
 	 * Returns the property associated with the repository at the given URI, 
 	 * without loading the repository.
 	 * <p>
-	 * Note that some properties for a repository can only be
-	 * determined when that repository is loaded.  This method will return <code>null</code>
-	 * for such properties.  Only values for the properties that are already
-	 * known by a repository manager will be returned. 
+	 * Note that only the repository properties referenced below are tracked by the 
+	 * repository manager itself. For all other properties, this method will return <code>null</code>.
+	 * Only values for the properties that are already known by a repository manager will be returned. 
+	 * </p>
 	 * <p>
 	 * If a client wishes to retrieve a property value from a repository 
 	 * regardless of the cost of retrieving it, the client should load the 
 	 * repository and then retrieve the property from the repository itself.
+	 * </p>
 	 * 
 	 * @param location the absolute URI of the repository in question
 	 * @param key the String key of the property desired
@@ -140,6 +141,10 @@ public interface IRepositoryManager<T> extends IQueryable<T> {
 	 * 
 	 * @see IRepository#getProperties()
 	 * @see #setRepositoryProperty(URI, String, String)
+	 * @see IRepository#PROP_NAME
+	 * @see IRepository#PROP_NICKNAME
+	 * @see IRepository#PROP_DESCRIPTION
+	 * @see IRepository#PROP_SYSTEM
 	 */
 	public String getRepositoryProperty(URI location, String key);
 
@@ -151,7 +156,9 @@ public interface IRepositoryManager<T> extends IQueryable<T> {
 	 * not write the property to the backing repository. This is useful for making
 	 * repository properties available without incurring the cost of loading the repository.
 	 * When the repository is loaded, it will overwrite any conflicting properties that
-	 * have been set using this method.
+	 * have been set using this method. Only the repository properties referenced
+	 * below can be stored by the repository manager; attempts to set other
+	 * repository properties will be ignored.
 	 * </p>
 	 * <p>
 	 * To persistently set a property on a repository, clients must load
@@ -163,6 +170,10 @@ public interface IRepositoryManager<T> extends IQueryable<T> {
 	 * @param value the value to set the property to
 	 * @see #getRepositoryProperty(URI, String)
 	 * @see IRepository#setProperty(String, String)
+	 * @see IRepository#PROP_NAME
+	 * @see IRepository#PROP_NICKNAME
+	 * @see IRepository#PROP_DESCRIPTION
+	 * @see IRepository#PROP_SYSTEM
 	 */
 	public void setRepositoryProperty(URI location, String key, String value);
 
