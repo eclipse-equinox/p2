@@ -469,8 +469,14 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		File configFile = getConfigFile(manipulator);
 
 		File installArea = ParserUtils.getOSGiInstallArea(Arrays.asList(manipulator.getLauncherData().getProgramArgs()), manipulator.getConfigData().getProperties(), manipulator.getLauncherData());
-		//input stream will be closed for us
-		BundleInfo[] toInstall = loadConfiguration(new FileInputStream(configFile), installArea.toURI());
+		BundleInfo[] toInstall = null;
+		try {
+			//input stream will be closed for us
+			toInstall = loadConfiguration(new FileInputStream(configFile), installArea.toURI());
+		} catch (FileNotFoundException e) {
+			//no file, just return an empty list
+			toInstall = new BundleInfo[0];
+		}
 
 		List toUninstall = new LinkedList();
 		if (exclusiveInstallation)
