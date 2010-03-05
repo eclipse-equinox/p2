@@ -159,13 +159,13 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	@Override
 	public void initialize(RepositoryState state) {
 		synchronized (this) {
-			this.name = state.Name;
-			this.type = state.Type;
-			this.version = state.Version.toString();
-			this.provider = state.Provider;
-			this.description = state.Description;
-			this.location = state.Location;
-			this.properties = state.Properties;
+			setName(state.Name);
+			setType(state.Type);
+			setVersion(state.Version.toString());
+			setProvider(state.Provider);
+			setDescription(state.Description);
+			setLocation(state.Location);
+			setProperties(state.Properties);
 			this.units.addAll(state.Units);
 			this.repositories.addAll(Arrays.asList(state.Repositories));
 		}
@@ -176,7 +176,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	 * Broadcast discovery events for all repositories referenced by this repository.
 	 */
 	public void publishRepositoryReferences() {
-		IProvisioningEventBus bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus bus = (IProvisioningEventBus) getProvisioningAgent().getService(IProvisioningEventBus.SERVICE_NAME);
 		if (bus == null)
 			return;
 
@@ -195,7 +195,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
 	public synchronized void initializeAfterLoad(URI aLocation) {
-		this.location = aLocation;
+		setLocation(aLocation);
 	}
 
 	/* (non-Javadoc)
@@ -248,9 +248,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 
 	// caller should be synchronized
 	private void save() {
-		File file = getActualLocation(location);
-		File jarFile = getActualLocation(location, JAR_EXTENSION);
-		boolean compress = "true".equalsIgnoreCase(properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		File file = getActualLocation(getLocation());
+		File jarFile = getActualLocation(getLocation(), JAR_EXTENSION);
+		boolean compress = "true".equalsIgnoreCase(getProperty(PROP_COMPRESSED)); //$NON-NLS-1$
 		try {
 			OutputStream output = null;
 			if (!compress) {
@@ -278,9 +278,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 				output = jOutput;
 			}
 			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
-			new MetadataRepositoryIO(agent).write(this, output);
+			new MetadataRepositoryIO(getProvisioningAgent()).write(this, output);
 		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, "Error saving metadata repository: " + location, e)); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, "Error saving metadata repository: " + getLocation(), e)); //$NON-NLS-1$
 		}
 	}
 
@@ -297,7 +297,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 			save();
 		}
 		//force repository manager to reload this repository because it caches properties
-		MetadataRepositoryManager manager = (MetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		MetadataRepositoryManager manager = (MetadataRepositoryManager) getProvisioningAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager.removeRepository(getLocation()))
 			manager.addRepository(this);
 		return oldValue;

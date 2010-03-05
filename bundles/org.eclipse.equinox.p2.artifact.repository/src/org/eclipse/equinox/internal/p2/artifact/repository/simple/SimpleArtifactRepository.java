@@ -419,7 +419,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (descriptor.getProcessingSteps().length == 0) {
 			descriptor.setProperty(ARTIFACT_UUID, null);
 			IArtifactKey key = descriptor.getArtifactKey();
-			URI result = mapper.map(location, key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+			URI result = mapper.map(getLocation(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 			if (result != null) {
 				if (isFolderBased(descriptor) && URIUtil.lastSegment(result).endsWith(JAR_EXTENSION)) {
 					return URIUtil.removeFileExtension(result);
@@ -661,7 +661,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 */
 	private URI getLocationForPackedButFlatArtifacts(IArtifactDescriptor descriptor) {
 		IArtifactKey key = descriptor.getArtifactKey();
-		return mapper.map(location, key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+		return mapper.map(getLocation(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 	}
 
 	public synchronized URI getLocation(IArtifactDescriptor descriptor) {
@@ -690,7 +690,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			// if the descriptor is complete then use the mapping rules...
 			if (descriptor.getProcessingSteps().length == 0) {
 				IArtifactKey key = descriptor.getArtifactKey();
-				URI result = mapper.map(location, key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+				URI result = mapper.map(getLocation(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 				if (result != null) {
 					if (isFolderBased(descriptor) && URIUtil.lastSegment(result).endsWith(JAR_EXTENSION))
 						return URIUtil.removeFileExtension(result);
@@ -801,7 +801,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
 	public synchronized void initializeAfterLoad(URI repoLocation) {
-		this.location = repoLocation;
+		setLocation(repoLocation);
 		blobStore = new BlobStore(getBlobStoreLocation(repoLocation), 128);
 		initializeMapper();
 		for (SimpleArtifactDescriptor desc : artifactDescriptors)
@@ -816,7 +816,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private boolean isFolderBased(IArtifactDescriptor descriptor) {
 		// This is called from createInternalDescriptor, so if we aren't a
 		// SimpleArtifactDescriptor then just check the descriptor properties instead 
-		// of creating the interla descriptor.
+		// of creating the internal descriptor.
 		SimpleArtifactDescriptor internalDescriptor = null;
 		if (descriptor instanceof SimpleArtifactDescriptor)
 			internalDescriptor = (SimpleArtifactDescriptor) descriptor;
@@ -833,7 +833,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private boolean isLocal() {
-		return "file".equalsIgnoreCase(location.getScheme()); //$NON-NLS-1$
+		return "file".equalsIgnoreCase(getLocation().getScheme()); //$NON-NLS-1$
 	}
 
 	public boolean isModifiable() {
@@ -842,7 +842,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public OutputStream processDestination(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		destination = addPostSteps(handler, descriptor, destination, monitor);
-		destination = handler.createAndLink(agent, descriptor.getProcessingSteps(), descriptor, destination, monitor);
+		destination = handler.createAndLink(getProvisioningAgent(), descriptor.getProcessingSteps(), descriptor, destination, monitor);
 		destination = addPreSteps(handler, descriptor, destination, monitor);
 		return destination;
 	}
@@ -914,7 +914,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public void save() {
 		if (disableSave)
 			return;
-		boolean compress = "true".equalsIgnoreCase(properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		boolean compress = "true".equalsIgnoreCase(getProperty(PROP_COMPRESSED)); //$NON-NLS-1$
 		save(compress);
 	}
 
@@ -923,9 +923,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		OutputStream os = null;
 		try {
 			try {
-				URI actualLocation = getActualLocation(location, false);
+				URI actualLocation = getActualLocation(getLocation(), false);
 				File artifactsFile = URIUtil.toFile(actualLocation);
-				File jarFile = URIUtil.toFile(getActualLocation(location, true));
+				File jarFile = URIUtil.toFile(getActualLocation(getLocation(), true));
 				if (!compress) {
 					if (jarFile.exists()) {
 						jarFile.delete();
@@ -948,7 +948,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 					os = jOs;
 				}
 				super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
-				new SimpleArtifactRepositoryIO(agent).write(this, os);
+				new SimpleArtifactRepositoryIO(getProvisioningAgent()).write(this, os);
 			} catch (IOException e) {
 				// TODO proper exception handling
 				e.printStackTrace();
@@ -977,7 +977,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 		save();
 		//force repository manager to reload this repository because it caches properties
-		ArtifactRepositoryManager manager = (ArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		ArtifactRepositoryManager manager = (ArtifactRepositoryManager) getProvisioningAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager.removeRepository(getLocation()))
 			manager.addRepository(this);
 		return oldValue;
@@ -988,7 +988,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public String toString() {
-		return location.toString();
+		return getLocation().toString();
 	}
 
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {

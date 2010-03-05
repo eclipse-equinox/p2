@@ -107,6 +107,10 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 		return delegate.getProperties();
 	}
 
+	public String getProperty(String key) {
+		return delegate.getProperty(key);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.repository.IRepository#getProvider()
 	 */

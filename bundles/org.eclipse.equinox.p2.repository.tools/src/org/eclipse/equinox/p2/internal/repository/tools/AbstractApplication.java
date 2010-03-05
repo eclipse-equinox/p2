@@ -235,7 +235,7 @@ public abstract class AbstractApplication {
 	protected boolean initDestinationRepository(IRepository<?> repository, RepositoryDescriptor descriptor) {
 		if (repository != null && repository.isModifiable()) {
 			if (descriptor.getName() != null)
-				repository.setName(descriptor.getName());
+				repository.setProperty(IRepository.PROP_NAME, descriptor.getName());
 			if (repository instanceof ICompositeRepository<?> && !descriptor.isAppend())
 				((ICompositeRepository<?>) repository).removeAllChildren();
 			else if (repository instanceof IMetadataRepository && !descriptor.isAppend())

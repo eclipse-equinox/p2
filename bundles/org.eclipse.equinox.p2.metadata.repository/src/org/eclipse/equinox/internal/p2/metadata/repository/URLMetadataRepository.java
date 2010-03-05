@@ -71,21 +71,21 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 	}
 
 	public synchronized void initialize(RepositoryState state) {
-		this.name = state.Name;
-		this.type = state.Type;
-		this.version = state.Version.toString();
-		this.provider = state.Provider;
-		this.description = state.Description;
-		this.location = state.Location;
-		this.properties = state.Properties;
+		setName(state.Name);
+		setType(state.Type);
+		setVersion(state.Version.toString());
+		setProvider(state.Provider);
+		setDescription(state.Description);
+		setLocation(state.Location);
+		setProperties(state.Properties);
 		this.units.addAll(state.Units);
 		this.references = CollectionUtils.unmodifiableList(state.Repositories);
 	}
 
 	// Use this method to setup any transient fields etc after the object has been restored from a stream
 	public synchronized void initializeAfterLoad(URI repoLocation) {
-		this.location = repoLocation;
-		content = getActualLocation(location);
+		setLocation(repoLocation);
+		content = getActualLocation(repoLocation);
 	}
 
 	public Collection<IRepositoryReference> getReferences() {

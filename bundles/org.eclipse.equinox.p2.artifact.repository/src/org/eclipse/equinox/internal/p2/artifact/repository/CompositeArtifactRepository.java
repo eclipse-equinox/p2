@@ -147,7 +147,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	private boolean isLocal() {
-		return "file".equalsIgnoreCase(location.getScheme()); //$NON-NLS-1$
+		return "file".equalsIgnoreCase(getLocation().getScheme()); //$NON-NLS-1$
 	}
 
 	public boolean isModifiable() {
@@ -159,7 +159,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	private void addChild(URI childURI, boolean save) {
-		URI absolute = URIUtil.makeAbsolute(childURI, location);
+		URI absolute = URIUtil.makeAbsolute(childURI, getLocation());
 		if (childrenURIs.contains(childURI) || childrenURIs.contains(absolute))
 			return;
 		childrenURIs.add(childURI);
@@ -193,7 +193,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		boolean removed = childrenURIs.remove(childURI);
 		// if the child wasn't there make sure and try the other permutation
 		// (absolute/relative) to see if it really is in the list.
-		URI other = childURI.isAbsolute() ? URIUtil.makeRelative(childURI, location) : URIUtil.makeAbsolute(childURI, location);
+		URI other = childURI.isAbsolute() ? URIUtil.makeRelative(childURI, getLocation()) : URIUtil.makeAbsolute(childURI, getLocation());
 		if (!removed)
 			childrenURIs.remove(other);
 
@@ -222,7 +222,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	public List<URI> getChildren() {
 		List<URI> result = new ArrayList<URI>();
 		for (URI uri : childrenURIs)
-			result.add(URIUtil.makeAbsolute(uri, location));
+			result.add(URIUtil.makeAbsolute(uri, getLocation()));
 		return result;
 	}
 
@@ -408,12 +408,12 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			return;
 		if (!isModifiable())
 			return;
-		boolean compress = "true".equalsIgnoreCase(properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		boolean compress = "true".equalsIgnoreCase(getProperty(PROP_COMPRESSED)); //$NON-NLS-1$
 		OutputStream os = null;
 		try {
-			URI actualLocation = getActualLocation(location, false);
+			URI actualLocation = getActualLocation(getLocation(), false);
 			File artifactsFile = URIUtil.toFile(actualLocation);
-			File jarFile = URIUtil.toFile(getActualLocation(location, true));
+			File jarFile = URIUtil.toFile(getActualLocation(getLocation(), true));
 			if (!compress) {
 				if (jarFile.exists()) {
 					jarFile.delete();
@@ -439,13 +439,13 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
 			new CompositeRepositoryIO().write(toState(), os, PI_REPOSITORY_TYPE);
 		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, NLS.bind(Messages.io_failedWrite, location), e));
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, NLS.bind(Messages.io_failedWrite, getLocation()), e));
 		}
 	}
 
 	private IArtifactRepository load(URI repoURI) throws ProvisionException {
 		// make sure we are dealing with an absolute location
-		repoURI = URIUtil.makeAbsolute(repoURI, location);
+		repoURI = URIUtil.makeAbsolute(repoURI, getLocation());
 		boolean loaded = getManager().contains(repoURI);
 		IArtifactRepository repo = getManager().loadRepository(repoURI, null);
 		if (!loaded) {

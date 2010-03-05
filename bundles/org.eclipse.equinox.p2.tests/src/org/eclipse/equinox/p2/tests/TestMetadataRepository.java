@@ -93,13 +93,13 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public void initialize(RepositoryState state) {
-		this.name = state.Name;
-		this.type = state.Type;
-		this.version = state.Version.toString();
-		this.provider = state.Provider;
-		this.description = state.Description;
-		this.location = state.Location;
-		this.properties = state.Properties;
+		setName(state.Name);
+		setType(state.Type);
+		setVersion(state.Version.toString());
+		setProvider(state.Provider);
+		setDescription(state.Description);
+		setLocation(state.Location);
+		setProperties(state.Properties);
 		this.units.addAll(Arrays.asList(state.Units));
 		this.repositories.addAll(Arrays.asList(state.Repositories));
 	}

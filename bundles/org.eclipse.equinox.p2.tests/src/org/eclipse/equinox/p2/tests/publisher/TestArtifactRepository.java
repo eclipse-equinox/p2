@@ -222,6 +222,10 @@ public class TestArtifactRepository implements IArtifactRepository {
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
+	public String getProperty(String key) {
+		return properties.get(key);
+	}
+
 	public String getProvider() {
 		return provider;
 	}

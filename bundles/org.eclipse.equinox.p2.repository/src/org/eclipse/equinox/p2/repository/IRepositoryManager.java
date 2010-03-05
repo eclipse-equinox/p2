@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
  * <p>
  * All {@link URI} instances provided to a repository manager must be absolute.
  * </p>
- * 
+ * @param <T> the type of contents in the repositories controlled by this manager
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */

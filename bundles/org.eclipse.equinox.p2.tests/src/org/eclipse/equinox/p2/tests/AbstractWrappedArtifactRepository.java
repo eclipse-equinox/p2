@@ -93,6 +93,10 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 		return delegate.getProperties();
 	}
 
+	public String getProperty(String key) {
+		return delegate.getProperty(key);
+	}
+
 	public String getProvider() {
 		return delegate.getProvider();
 	}
@@ -113,20 +117,8 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 		return delegate.isModifiable();
 	}
 
-	public void setDescription(String description) {
-		delegate.setDescription(description);
-	}
-
-	public void setName(String name) {
-		delegate.setName(name);
-	}
-
 	public String setProperty(String key, String value) {
 		return delegate.setProperty(key, value);
-	}
-
-	public void setProvider(String provider) {
-		delegate.setProvider(provider);
 	}
 
 	public Object getAdapter(Class adapter) {

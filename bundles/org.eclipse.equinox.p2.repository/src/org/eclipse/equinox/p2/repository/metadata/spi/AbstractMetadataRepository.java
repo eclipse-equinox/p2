@@ -29,53 +29,105 @@ import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
  */
 public abstract class AbstractMetadataRepository extends AbstractRepository<IInstallableUnit> implements IMetadataRepository {
 
-	//TODO Consider removing from abstract class, this is currently an implementation detail of the simple metadata repo parser
+	/**
+	 * A class that encapsulates the persisted state of a repository. This is used as a convenience
+	 * when loading and storing repositories.
+	 * @see AbstractMetadataRepository#initialize(RepositoryState)
+	 */
 	public static class RepositoryState {
+		/**
+		 * The persisted name of the repository.
+		 */
 		public String Name;
+		/**
+		 * The persisted type of the repository.
+		 */
 		public String Type;
+		/**
+		 * The persisted version of the repository.
+		 */
 		public Version Version;
+		/**
+		 * The persisted provider of the repository.
+		 */
 		public String Provider;
+		/**
+		 * The persisted description of the repository.
+		 */
 		public String Description;
+		/**
+		 * The persisted location of the repository.
+		 */
 		public URI Location;
+		/**
+		 * The persisted properties of the repository.
+		 */
 		public Map<String, String> Properties;
+		/**
+		 * The persisted set of installable units of the repository.
+		 */
 		public IInstallableUnit[] Units;
+		/**
+		 * The persisted array of repository references
+		 */
 		public IRepositoryReference[] Repositories;
 	}
 
+	/**
+	 * Creates a new metadata repository that uses the provided agent.
+	 * 
+	 * @param agent the provisioning agent to be used by this repository
+	 */
 	public AbstractMetadataRepository(IProvisioningAgent agent) {
 		super(agent, "noName", "noType", "noVersion", null, null, null, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
-	//TODO Consider removing from abstract class, this is currently an implementation detail of the simple metadata repo parser
+	/**
+	 * Initializes this class based on the provided previously persisted state
+	 * 
+	 * @param state the persisted repository state
+	 */
 	public abstract void initialize(RepositoryState state);
 
+	/**
+	 * Creates a new metadata repository with the provided repository information
+	 * 
+	 * @param agent the provisioning agent to be used by this repository
+	 * @param name the repository name
+	 * @param type the repository type
+	 * @param version the repository version
+	 * @param location the repository location
+	 * @param description the repository description
+	 * @param provider the repository provider
+	 * @param properties the repository properties
+	 */
 	protected AbstractMetadataRepository(IProvisioningAgent agent, String name, String type, String version, URI location, String description, String provider, Map<String, String> properties) {
 		super(agent, name, type, version, location, description, provider, properties);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#addInstallableUnits(java.util.Collection)
+	/**
+	 * {@inheritDoc}
 	 */
 	public void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		assertModifiable();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#addReference(java.net.URI, java.lang.String, int, int)
+	/**
+	 * {@inheritDoc}
 	 */
 	public void addReferences(Collection<? extends IRepositoryReference> references) {
 		assertModifiable();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#removeAll()
+	/**
+	 * {@inheritDoc}
 	 */
 	public void removeAll() {
 		assertModifiable();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#removeInstallableUnits(java.util.Collection)
+	/**
+	 * {@inheritDoc}
 	 */
 	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		assertModifiable();

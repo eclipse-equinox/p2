@@ -36,6 +36,10 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * Repository type for a simple repository based on a URL or local file system location.
 	 */
 	public static final String TYPE_SIMPLE_REPOSITORY = "org.eclipse.equinox.p2.metadata.repository.simpleRepository"; //$NON-NLS-1$
+
+	/**
+	 * Repository type for a composite repository based on a URL or local file system location.
+	 */
 	public static final String TYPE_COMPOSITE_REPOSITORY = "org.eclipse.equinox.p2.metadata.repository.compositeRepository"; //$NON-NLS-1$
 
 	/**
@@ -59,6 +63,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * <li>There was an error writing to the given repository location.</li>
 	 * <li>A repository already exists at that location.</li>
 	 * </ul>
+	 * @throws OperationCanceledException if this operation has been canceled
 	 */
 	public IMetadataRepository createRepository(URI location, String name, String type, Map<String, String> properties) throws ProvisionException, OperationCanceledException;
 
@@ -77,6 +82,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The loaded metadata repository
+	 * @throws OperationCanceledException if this operation has been canceled
 	 * @throws ProvisionException if the repository could not be created.  Reasons include:
 	 * <ul>
 	 * <li>There is no existing repository at that location.</li>
@@ -105,6 +111,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The loaded metadata repository
+	 * @throws OperationCanceledException if this operation has been canceled
 	 * @throws ProvisionException if the repository could not be created.  Reasons include:
 	 * <ul>
 	 * <li>There is no existing repository at that location.</li>
@@ -124,6 +131,7 @@ public interface IMetadataRepositoryManager extends IRepositoryManager<IInstalla
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The refreshed metadata repository
+	 * @throws OperationCanceledException if this operation has been canceled
 	 * @throws ProvisionException if the repository could not be refreshed.  Reasons include:
 	 * <ul>
 	 * <li>The location is not known to the repository manager.</li>

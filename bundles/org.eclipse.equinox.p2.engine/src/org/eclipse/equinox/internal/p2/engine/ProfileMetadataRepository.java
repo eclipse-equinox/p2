@@ -55,7 +55,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	private void publishArtifactRepos() {
 		List<URI> artifactRepos = findArtifactRepos();
 
-		IProvisioningEventBus bus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
+		IProvisioningEventBus bus = (IProvisioningEventBus) getProvisioningAgent().getService(IProvisioningEventBus.SERVICE_NAME);
 		if (bus == null)
 			return;
 		for (URI repo : artifactRepos) {
@@ -136,7 +136,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	private File findP2Directory() {
-		File target = new File(location);
+		File target = new File(getLocation());
 		if (target.isFile())
 			target = target.getParentFile();
 

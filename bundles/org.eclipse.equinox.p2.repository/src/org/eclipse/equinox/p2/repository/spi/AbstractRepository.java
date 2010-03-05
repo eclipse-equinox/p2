@@ -27,15 +27,27 @@ import org.eclipse.equinox.p2.repository.IRepository;
  * @since 2.0
 */
 public abstract class AbstractRepository<T> extends PlatformObject implements IRepository<T> {
-	protected final IProvisioningAgent agent;
-	protected String description;
-	protected transient URI location;
-	protected String name;
-	protected Map<String, String> properties = new OrderedProperties();
-	protected String provider;
-	protected String type;
-	protected String version;
+	private final IProvisioningAgent agent;
+	private String description;
+	private transient URI location;
+	private String name;
+	private Map<String, String> properties = new OrderedProperties();
+	private String provider;
+	private String type;
+	private String version;
 
+	/**
+	 * Creates a new repository with the given attributes.
+	 * 
+	 * @param agent the provisioning agent to be used by this repository
+	 * @param name the repository name
+	 * @param type the repository type
+	 * @param version the repository version
+	 * @param location the repository location
+	 * @param description the repository description
+	 * @param provider the repository provider
+	 * @param properties the repository properties
+	 */
 	protected AbstractRepository(IProvisioningAgent agent, String name, String type, String version, URI location, String description, String provider, Map<String, String> properties) {
 		this.agent = agent;
 		this.name = name;
@@ -93,6 +105,13 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public String getProperty(String key) {
+		return properties.get(key);
+	}
+
+	/**
 	 * Returns the name of the provider of the repository.
 	 * @return the provider of this repository.
 	 */
@@ -100,6 +119,11 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 		return provider;
 	}
 
+	/**
+	 * Returns the provisioning agent used by this repository
+	 * 
+	 * @return the provisioning agent
+	 */
 	public IProvisioningAgent getProvisioningAgent() {
 		return agent;
 	}
@@ -120,24 +144,86 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 		return version;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean isModifiable() {
 		return false;
 	}
 
+	/**
+	 * Sets the description of this repository
+	 * 
+	 * @param description the repository description
+	 */
 	public synchronized void setDescription(String description) {
 		this.description = description;
 	}
 
+	/**
+	 * Sets the name of this repository
+	 * 
+	 * @param value the repository name
+	 */
 	public synchronized void setName(String value) {
 		this.name = value;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public synchronized String setProperty(String key, String value) {
 		assertModifiable();
+		if (key.equals(IRepository.PROP_NAME)) {
+			String oldName = getName();
+			setName(value);
+			return oldName;
+		}
 		return (value == null ? properties.remove(key) : properties.put(key, value));
 	}
 
+	/**
+	 * Sets the provider of this repository
+	 * 
+	 * @param provider the repository provider
+	 */
 	public synchronized void setProvider(String provider) {
 		this.provider = provider;
+	}
+
+	/**
+	 * Sets the type of this repository
+	 * 
+	 * @param type the repository type
+	 */
+	protected synchronized void setType(String type) {
+		this.type = type;
+	}
+
+	/**
+	 * Sets the location of this repository
+	 * 
+	 * @param location the repository location
+	 */
+	protected synchronized void setLocation(URI location) {
+		this.location = location;
+	}
+
+	/**
+	 * Sets the version of this repository
+	 * 
+	 * @param version the repository version
+	 */
+	protected synchronized void setVersion(String version) {
+		this.version = version;
+	}
+
+	/**
+	 * Sets the properties of this repository
+	 * 
+	 * @param properties the repository provider
+	 */
+	protected synchronized void setProperties(Map<String, String> properties) {
+		this.properties = properties;
 	}
 }

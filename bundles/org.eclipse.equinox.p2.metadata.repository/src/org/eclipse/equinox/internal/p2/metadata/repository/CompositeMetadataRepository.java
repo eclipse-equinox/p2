@@ -80,7 +80,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	}
 
 	private boolean isLocal() {
-		return "file".equalsIgnoreCase(location.getScheme()); //$NON-NLS-1$
+		return "file".equalsIgnoreCase(getLocation().getScheme()); //$NON-NLS-1$
 	}
 
 	public boolean isModifiable() {
@@ -139,7 +139,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	}
 
 	private void addChild(URI childURI, boolean save) {
-		URI absolute = URIUtil.makeAbsolute(childURI, location);
+		URI absolute = URIUtil.makeAbsolute(childURI, getLocation());
 		if (childrenURIs.contains(childURI) || childrenURIs.contains(absolute))
 			return;
 		// always add the URI to the list of child URIs (even if we can't load it later)
@@ -177,7 +177,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		boolean removed = childrenURIs.remove(childURI);
 		// if the child wasn't there make sure and try the other permutation
 		// (absolute/relative) to see if it really is in the list.
-		URI other = childURI.isAbsolute() ? URIUtil.makeRelative(childURI, location) : URIUtil.makeAbsolute(childURI, location);
+		URI other = childURI.isAbsolute() ? URIUtil.makeRelative(childURI, getLocation()) : URIUtil.makeAbsolute(childURI, getLocation());
 		if (!removed)
 			removed = childrenURIs.remove(other);
 
@@ -270,9 +270,9 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	private void save() {
 		if (!isModifiable())
 			return;
-		File file = getActualLocation(location);
-		File jarFile = getActualLocation(location, JAR_EXTENSION);
-		boolean compress = "true".equalsIgnoreCase(properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		File file = getActualLocation(getLocation());
+		File jarFile = getActualLocation(getLocation(), JAR_EXTENSION);
+		boolean compress = "true".equalsIgnoreCase(getProperty(PROP_COMPRESSED)); //$NON-NLS-1$
 		try {
 			OutputStream output = null;
 			if (!compress) {
@@ -302,7 +302,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
 			new CompositeRepositoryIO().write(toState(), output, PI_REPOSITORY_TYPE);
 		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, NLS.bind(Messages.io_failedWrite, location), e));
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, NLS.bind(Messages.io_failedWrite, getLocation()), e));
 		}
 	}
 
@@ -312,7 +312,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	public List<URI> getChildren() {
 		List<URI> result = new ArrayList<URI>();
 		for (URI childURI : childrenURIs)
-			result.add(URIUtil.makeAbsolute(childURI, location));
+			result.add(URIUtil.makeAbsolute(childURI, getLocation()));
 		return result;
 	}
 
@@ -324,12 +324,12 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 
 	//TODO this should never be called. What do we do?
 	public void initialize(RepositoryState state) {
-		this.name = state.Name;
-		this.type = state.Type;
-		this.version = state.Version.toString();
-		this.provider = state.Provider;
-		this.description = state.Description;
-		this.location = state.Location;
-		this.properties = state.Properties;
+		setName(state.Name);
+		setType(state.Type);
+		setVersion(state.Version.toString());
+		setProvider(state.Provider);
+		setDescription(state.Description);
+		setLocation(state.Location);
+		setProperties(state.Properties);
 	}
 }

@@ -181,6 +181,10 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return innerRepo.getProperties();
 	}
 
+	public String getProperty(String key) {
+		return innerRepo.getProperty(key);
+	}
+
 	public String getProvider() {
 		return innerRepo.getProvider();
 	}
@@ -201,22 +205,10 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return innerRepo.isModifiable();
 	}
 
-	public void setDescription(String description) {
-		innerRepo.setDescription(description);
-	}
-
-	public void setName(String name) {
-		innerRepo.setName(name);
-	}
-
 	public String setProperty(String key, String value) {
 		String result = getProperties().get(key);
 		propertyChanges.put(key, value == null ? NULL : value);
 		return result;
-	}
-
-	public void setProvider(String provider) {
-		innerRepo.setProvider(provider);
 	}
 
 	@SuppressWarnings("rawtypes")

@@ -67,7 +67,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 	void reload() {
 		try {
 			ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
-			factory.setAgent(agent);
+			factory.setAgent(getProvisioningAgent());
 			ExtensionLocationArtifactRepository repo = (ExtensionLocationArtifactRepository) factory.load(getLocation(), 0, null);
 			artifactRepository = repo.artifactRepository;
 			base = repo.base;

@@ -69,7 +69,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	void reload() {
 		try {
 			ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
-			factory.setAgent(agent);
+			factory.setAgent(getProvisioningAgent());
 			ExtensionLocationMetadataRepository repo = (ExtensionLocationMetadataRepository) factory.load(getLocation(), 0, null);
 			metadataRepository = repo.metadataRepository;
 			base = repo.base;

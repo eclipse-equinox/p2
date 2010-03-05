@@ -99,6 +99,10 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 		return delegate.getProperties();
 	}
 
+	public String getProperty(String key) {
+		return delegate.getProperty(key);
+	}
+
 	public String getProvider() {
 		return delegate.getProvider();
 	}

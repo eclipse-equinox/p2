@@ -129,7 +129,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	}
 
 	public void initialize(URI repoURL, InputStream descriptorFile) {
-		location = repoURL;
+		setLocation(repoURL);
 	}
 
 	public boolean contains(IArtifactDescriptor descriptor) {
@@ -142,7 +142,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ProcessingStepHandler handler = new ProcessingStepHandler();
-		destination = handler.createAndLink(agent, descriptor.getProcessingSteps(), null, destination, monitor);
+		destination = handler.createAndLink(getProvisioningAgent(), descriptor.getProcessingSteps(), null, destination, monitor);
 		testhandler.download(keysToLocations.get(descriptor.getArtifactKey()), destination, monitor);
 		return Status.OK_STATUS;
 	}

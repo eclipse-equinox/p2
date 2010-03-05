@@ -20,6 +20,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
  * A p2 repository contains either metadata or artifacts related to software
  * provisioning. This base interface defines properties common to all types
  * of repositories.
+ * @param <T> The type of contents contained in this repository
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
@@ -171,6 +172,14 @@ public interface IRepository<T> extends IAdaptable, IQueryable<T> {
 	public Map<String, String> getProperties();
 
 	/**
+	 * Returns the repository property with the given key, or <code>null</code>
+	 * if no such property is defined
+	 * @param key the property key
+	 * @return the property value, or <code>null</code>
+	 */
+	public String getProperty(String key);
+
+	/**
 	 * Returns the provisioning agent that manages this repository
 	 * @return A provisioning agent.
 	 */
@@ -185,16 +194,6 @@ public interface IRepository<T> extends IAdaptable, IQueryable<T> {
 	public boolean isModifiable();
 
 	/**
-	 * Set the name of the repository.
-	 */
-	public void setName(String name);
-
-	/**
-	 * Sets the description of the repository.
-	 */
-	public void setDescription(String description);
-
-	/**
 	 * Sets the value of the property with the given key. Returns the old property
 	 * associated with that key, if any.  Setting a value of <code>null</code> will
 	 * remove the corresponding key from the properties of this repository.
@@ -204,9 +203,4 @@ public interface IRepository<T> extends IAdaptable, IQueryable<T> {
 	 * @return The old property value, or <code>null</code> if there was no old value
 	 */
 	public String setProperty(String key, String value);
-
-	/**
-	 * Sets the name of the provider of the repository.
-	 */
-	public void setProvider(String provider);
 }
