@@ -4,4 +4,5 @@
    <service>
       <provide interface="org.eclipse.equinox.p2.metadata.expression.IExpressionParser"/>
    </service>
+   <property name="service.priority" type="Integer" value="1"/>
 </scr:component>
