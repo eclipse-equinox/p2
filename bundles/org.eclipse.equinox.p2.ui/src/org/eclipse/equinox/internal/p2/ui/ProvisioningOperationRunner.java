@@ -23,6 +23,7 @@ import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressConstants;
+import org.eclipse.ui.progress.IProgressConstants2;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -55,7 +56,7 @@ public class ProvisioningOperationRunner {
 			job.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
 		}
 		job.setProperty(IProgressConstants.ICON_PROPERTY, ProvUIImages.getImageDescriptor(ProvUIImages.IMG_PROFILE));
-		job.setProperty(IProgressConstants.SHOW_IN_TASKBAR_ICON_PROPERTY, Boolean.TRUE);
+		job.setProperty(IProgressConstants2.SHOW_IN_TASKBAR_ICON_PROPERTY, Boolean.TRUE);
 		manageJob(job, job.getRestartPolicy());
 		job.schedule();
 	}
