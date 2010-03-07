@@ -12,6 +12,7 @@
 package org.eclipse.equinox.internal.p2.ui.query;
 
 import java.net.URI;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -46,6 +47,6 @@ public class MetadataRepositoryElementWrapper extends QueriedElementWrapper {
 	 * Transforms the item to a UI element
 	 */
 	protected Object wrap(Object item) {
-		return super.wrap(new MetadataRepositoryElement(parent, (URI) item, ProvisioningUI.getDefaultUI().getSession().getMetadataRepositoryManager().isEnabled((URI) item)));
+		return super.wrap(new MetadataRepositoryElement(parent, (URI) item, ProvUI.getMetadataRepositoryManager(ProvisioningUI.getDefaultUI().getSession()).isEnabled((URI) item)));
 	}
 }

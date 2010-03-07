@@ -40,7 +40,7 @@ public class QueryableUpdates implements IQueryable<IInstallableUnit> {
 			monitor = new NullProgressMonitor();
 		int totalWork = 2000;
 		monitor.beginTask(ProvUIMessages.QueryableUpdates_UpdateListProgress, totalWork);
-		IPlanner planner = ui.getSession().getPlanner();
+		IPlanner planner = (IPlanner) ui.getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
 		try {
 			Set<IInstallableUnit> allUpdates = new HashSet<IInstallableUnit>();
 			for (int i = 0; i < iusToUpdate.length; i++) {

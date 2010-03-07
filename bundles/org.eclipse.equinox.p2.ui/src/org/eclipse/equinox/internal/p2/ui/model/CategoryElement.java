@@ -14,11 +14,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
-import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.p2.ui.QueryProvider;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
 
 /**
  * Element wrapper class for IU's that represent categories of
@@ -70,7 +68,7 @@ public class CategoryElement extends RemoteQueriedElement implements IIUElement 
 	}
 
 	public long getSize() {
-		return ProvisioningSession.SIZE_UNKNOWN;
+		return ProvUI.SIZE_UNKNOWN;
 	}
 
 	public boolean shouldShowSize() {

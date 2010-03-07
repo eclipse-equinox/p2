@@ -63,7 +63,7 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		// Two visible repos, one is added, the other is not
 		URI known1 = new URI("http://example.com/known1");
 		URI known2 = new URI("http://example.com/known2");
-		IMetadataRepositoryManager manager = session.getMetadataRepositoryManager();
+		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		manager.addRepository(known1);
 
 		// Add system repos that should not be known or affected by ElementUtils
@@ -73,10 +73,10 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		manager.addRepository(uri);
 		manager.setRepositoryProperty(uri, IRepository.PROP_SYSTEM, Boolean.toString(true));
 		manager.addRepository(uri2);
-		session.getArtifactRepositoryManager().addRepository(uri2);
+		getArtifactRepositoryManager().addRepository(uri2);
 		manager.setRepositoryProperty(uri2, IRepository.PROP_SYSTEM, Boolean.toString(true));
 		manager.setEnabled(uri2, false);
-		session.getArtifactRepositoryManager().setEnabled(uri2, false);
+		getArtifactRepositoryManager().setEnabled(uri2, false);
 
 		List children = new ArrayList();
 		children.add(new MetadataRepositoryElement(null, known1, true));
@@ -140,8 +140,8 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 				display.sleep();
 		}
 
-		URI[] enabled = session.getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		URI[] disabled = session.getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED);
+		URI[] enabled = getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
+		URI[] disabled = getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED);
 
 		boolean foundKnown1 = false;
 		boolean foundKnown2 = false;
@@ -184,7 +184,7 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		manager.removeRepository(known2);
 		manager.removeRepository(uri);
 		manager.removeRepository(uri2);
-		session.getArtifactRepositoryManager().removeRepository(uri2);
+		getArtifactRepositoryManager().removeRepository(uri2);
 		manager.removeRepository(uri3);
 	}
 }

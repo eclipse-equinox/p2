@@ -16,19 +16,17 @@ import java.io.IOException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.operations.*;
+import org.eclipse.equinox.internal.p2.operations.Activator;
+import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
@@ -44,33 +42,6 @@ public class ProvisioningSession {
 	private IProvisioningAgent agent;
 
 	Set<Job> scheduledJobs = Collections.synchronizedSet(new HashSet<Job>());
-
-	/**
-	 * A constant indicating that there was nothing to size (there
-	 * was no valid plan that could be used to compute
-	 * size).
-	 */
-	public static final long SIZE_NOTAPPLICABLE = -3L;
-	/**
-	 * Indicates that the size is unavailable (an
-	 * attempt was made to compute size but it failed)
-	 */
-	public static final long SIZE_UNAVAILABLE = -2L;
-	/**
-	 * Indicates that the size is currently unknown
-	 */
-	public static final long SIZE_UNKNOWN = -1L;
-
-	/**
-	 * A status code used to indicate that there were no updates found when
-	 * looking for updates.
-	 */
-	public static final int STATUS_NOTHING_TO_UPDATE = IStatusCodes.NOTHING_TO_UPDATE;
-
-	/**
-	 * A status code used to indicate that a repository location was not valid.
-	 */
-	public static final int STATUS_INVALID_REPOSITORY_LOCATION = IStatusCodes.INVALID_REPOSITORY_LOCATION;
 
 	/**
 	 * Create a provisioning session using the services of the supplied agent.
@@ -93,7 +64,7 @@ public class ProvisioningSession {
 	 * Return the agent location for this session
 	 * @return the agent location
 	 */
-	public IAgentLocation getAgentLocation() {
+	IAgentLocation getAgentLocation() {
 		return (IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME);
 	}
 
@@ -101,7 +72,7 @@ public class ProvisioningSession {
 	 * Return the artifact repository manager for this session
 	 * @return the repository manager
 	 */
-	public IArtifactRepositoryManager getArtifactRepositoryManager() {
+	IArtifactRepositoryManager getArtifactRepositoryManager() {
 		return (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 	}
 
@@ -109,13 +80,15 @@ public class ProvisioningSession {
 	 * Return the metadata repository manager for this session
 	 * @return the repository manager
 	 */
-	public IMetadataRepositoryManager getMetadataRepositoryManager() {
+	IMetadataRepositoryManager getMetadataRepositoryManager() {
 		return (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 	}
 
 	/**
 	 * Return the profile registry for this session
 	 * @return the profile registry
+	 * 
+	 * @deprecated this API will not appear in the final release.
 	 */
 	public IProfileRegistry getProfileRegistry() {
 		return (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
@@ -125,7 +98,7 @@ public class ProvisioningSession {
 	 * Return the provisioning engine for this session
 	 * @return the provisioning engine
 	 */
-	public IEngine getEngine() {
+	IEngine getEngine() {
 		return (IEngine) agent.getService(IEngine.SERVICE_NAME);
 	}
 
@@ -133,7 +106,7 @@ public class ProvisioningSession {
 	 * Return the provisioning event bus used for dispatching events.
 	 * @return the event bus
 	 */
-	public IProvisioningEventBus getProvisioningEventBus() {
+	IProvisioningEventBus getProvisioningEventBus() {
 		return (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 	}
 
@@ -141,48 +114,8 @@ public class ProvisioningSession {
 	 * Return the planner used for this session
 	 * @return the planner
 	 */
-	public IPlanner getPlanner() {
+	IPlanner getPlanner() {
 		return (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
-	}
-
-	/**
-	 * Get sizing information about the specified plan.
-	 * 
-	 * @param plan the provisioning plan
-	 * @param context the provisioning context to be used for the sizing
-	 * @param monitor the progress monitor
-	 * 
-	 * @return a long integer describing the disk size required for the provisioning plan.
-	 * 
-	 * @see #SIZE_UNKNOWN
-	 * @see #SIZE_UNAVAILABLE
-	 * @see #SIZE_NOTAPPLICABLE
-	 */
-	public long getSize(IProvisioningPlan plan, ProvisioningContext context, IProgressMonitor monitor) {
-		// If there is nothing to size, return 0
-		if (plan == null)
-			return SIZE_NOTAPPLICABLE;
-		if (countPlanElements(plan) == 0)
-			return 0;
-		long installPlanSize = 0;
-		SubMonitor mon = SubMonitor.convert(monitor, 300);
-		if (plan.getInstallerPlan() != null) {
-			ISizingPhaseSet sizingPhaseSet = PhaseSetFactory.createSizingPhaseSet();
-			IStatus status = getEngine().perform(plan.getInstallerPlan(), sizingPhaseSet, mon.newChild(100));
-			if (status.isOK())
-				installPlanSize = sizingPhaseSet.getDiskSize();
-		} else {
-			mon.worked(100);
-		}
-		ISizingPhaseSet sizingPhaseSet = PhaseSetFactory.createSizingPhaseSet();
-		IStatus status = getEngine().perform(plan, sizingPhaseSet, mon.newChild(200));
-		if (status.isOK())
-			return installPlanSize + sizingPhaseSet.getDiskSize();
-		return SIZE_UNAVAILABLE;
-	}
-
-	private int countPlanElements(IProvisioningPlan plan) {
-		return QueryUtil.compoundQueryable(plan.getAdditions(), plan.getRemovals()).query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet().size();
 	}
 
 	/**
@@ -289,28 +222,5 @@ public class ProvisioningSession {
 				scheduledJobs.remove(event.getJob());
 			}
 		});
-	}
-
-	/**
-	 * Get the IInstallable units for the specified profile
-	 * 
-	 * @param profileId the profile in question
-	 * @param all <code>true</code> if all IInstallableUnits in the profile should
-	 * be returned, <code>false</code> only those IInstallableUnits marked as (user visible) roots
-	 * should be returned.
-	 * 
-	 * @return an array of IInstallableUnits installed in the profile.
-	 */
-	public Collection<IInstallableUnit> getInstalledIUs(String profileId, boolean all) {
-		IProfile profile = getProfileRegistry().getProfile(profileId);
-		if (profile == null)
-			return CollectionUtils.emptyList();
-		IQuery<IInstallableUnit> query;
-		if (all)
-			query = QueryUtil.createIUAnyQuery();
-		else
-			query = new UserVisibleRootQuery();
-		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
-		return queryResult.toUnmodifiableSet();
 	}
 }

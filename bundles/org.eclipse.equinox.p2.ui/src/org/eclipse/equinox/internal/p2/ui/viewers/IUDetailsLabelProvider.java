@@ -19,7 +19,6 @@ import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Font;
@@ -133,7 +132,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		long size = element.getSize();
 		// If size is already known, or we already tried
 		// to get it, don't try again
-		if (size != ProvisioningSession.SIZE_UNKNOWN)
+		if (size != ProvUI.SIZE_UNKNOWN)
 			return getFormattedSize(size);
 		if (!jobs.containsKey(element)) {
 			Job resolveJob = new Job(element.getIU().getId()) {
@@ -151,7 +150,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 						return Status.CANCEL_STATUS;
 
 					// If we still could not compute size, give up
-					if (element.getSize() == ProvisioningSession.SIZE_UNKNOWN)
+					if (element.getSize() == ProvUI.SIZE_UNKNOWN)
 						return Status.OK_STATUS;
 
 					if (shell == null || shell.isDisposed())
@@ -181,7 +180,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	private String getFormattedSize(long size) {
-		if (size == ProvisioningSession.SIZE_UNKNOWN || size == ProvisioningSession.SIZE_UNAVAILABLE)
+		if (size == ProvUI.SIZE_UNKNOWN || size == ProvUI.SIZE_UNAVAILABLE)
 			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 		if (size > 1000L) {
 			long kb = size / 1000L;

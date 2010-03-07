@@ -16,8 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
@@ -113,7 +112,7 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 			if (sub.isCanceled())
 				return Status.CANCEL_STATUS;
 			try {
-				repoCache.add(ui.getSession().getMetadataRepositoryManager().loadRepository(locations[i], sub.newChild(100)));
+				repoCache.add(ProvUI.getMetadataRepositoryManager(ui.getSession()).loadRepository(locations[i], sub.newChild(100)));
 			} catch (ProvisionException e) {
 				handleLoadFailure(e, locations[i]);
 			}

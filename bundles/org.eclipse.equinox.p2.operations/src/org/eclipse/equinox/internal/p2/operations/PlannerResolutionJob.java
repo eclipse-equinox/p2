@@ -15,6 +15,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.p2.planner.IPlanner;
 
 /**
  * Class representing a provisioning profile plan
@@ -63,7 +64,7 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 	}
 
 	public IStatus runModal(IProgressMonitor monitor) {
-		plan = getSession().getPlanner().getProvisioningPlan(request, provisioningContext, monitor);
+		plan = ((IPlanner) getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME)).getProvisioningPlan(request, provisioningContext, monitor);
 		if (plan == null) {
 			return new Status(IStatus.ERROR, Activator.ID, Messages.PlannerResolutionJob_NullProvisioningPlan);
 		}

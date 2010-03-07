@@ -10,6 +10,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.UpdateOperation;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -49,7 +50,7 @@ public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 			public void run(IProgressMonitor monitor)
 					throws InvocationTargetException, InterruptedException {
 				IStatus updateStatus = P2Util.checkForUpdates(agent, monitor);
-				if (updateStatus.getCode() == ProvisioningSession.STATUS_NOTHING_TO_UPDATE) {
+				if (updateStatus.getCode() == UpdateOperation.STATUS_NOTHING_TO_UPDATE) {
 					PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 						public void run() {
 							MessageDialog.openInformation(null, "Updates", "No updates were found");

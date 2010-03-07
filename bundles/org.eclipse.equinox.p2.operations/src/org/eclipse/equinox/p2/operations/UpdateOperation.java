@@ -12,16 +12,16 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
+import org.eclipse.equinox.p2.query.*;
 
 /**
  * An UpdateOperation describes an operation that updates {@link IInstallableUnit}s in
@@ -60,6 +60,12 @@ import org.eclipse.equinox.p2.query.QueryUtil;
  * @since 2.0
  */
 public class UpdateOperation extends ProfileChangeOperation {
+
+	/**
+	 * A status code used to indicate that there were no updates found when
+	 * looking for updates.
+	 */
+	public static final int STATUS_NOTHING_TO_UPDATE = IStatusCodes.NOTHING_TO_UPDATE;
 
 	private Collection<IInstallableUnit> iusToUpdate;
 	private HashMap<IInstallableUnit, List<Update>> possibleUpdatesByIU = new HashMap<IInstallableUnit, List<Update>>();
@@ -270,8 +276,27 @@ public class UpdateOperation extends ProfileChangeOperation {
 	protected void prepareToResolve() {
 		super.prepareToResolve();
 		if (iusToUpdate == null) {
-			iusToUpdate = session.getInstalledIUs(profileId, false);
+			iusToUpdate = getInstalledIUs();
 		}
+	}
+
+	/*
+	 * Get the IInstallable units for the specified profile
+	 * 
+	 * @param profileId the profile in question
+	 * @param all <code>true</code> if all IInstallableUnits in the profile should
+	 * be returned, <code>false</code> only those IInstallableUnits marked as (user visible) roots
+	 * should be returned.
+	 * 
+	 * @return an array of IInstallableUnits installed in the profile.
+	 */
+	private Collection<IInstallableUnit> getInstalledIUs() {
+		IProfile profile = session.getProfileRegistry().getProfile(profileId);
+		if (profile == null)
+			return CollectionUtils.emptyList();
+		IQuery<IInstallableUnit> query = new UserVisibleRootQuery();
+		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
+		return queryResult.toUnmodifiableSet();
 	}
 
 }

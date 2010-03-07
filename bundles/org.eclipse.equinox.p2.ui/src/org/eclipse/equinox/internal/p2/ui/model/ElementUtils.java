@@ -38,8 +38,8 @@ public class ElementUtils {
 			public IStatus run(IProgressMonitor monitor) {
 				final ProvisioningUI ui = ProvUIActivator.getDefault().getProvisioningUI();
 				ui.signalRepositoryOperationStart();
-				IMetadataRepositoryManager metaManager = ui.getSession().getMetadataRepositoryManager();
-				IArtifactRepositoryManager artManager = ui.getSession().getArtifactRepositoryManager();
+				IMetadataRepositoryManager metaManager = ProvUI.getMetadataRepositoryManager(ui.getSession());
+				IArtifactRepositoryManager artManager = ProvUI.getArtifactRepositoryManager(ui.getSession());
 				try {
 					int visibilityFlags = ui.getRepositoryTracker().getMetadataRepositoryFlags();
 					URI[] currentlyEnabled = metaManager.getKnownRepositories(visibilityFlags);
@@ -99,8 +99,8 @@ public class ElementUtils {
 	}
 
 	private static void setColocatedRepositoryEnablement(ProvisioningUI ui, URI location, boolean enable) {
-		ProvUIActivator.getDefault().getSession().getArtifactRepositoryManager().setEnabled(location, enable);
-		ProvUIActivator.getDefault().getSession().getMetadataRepositoryManager().setEnabled(location, enable);
+		ProvUI.getArtifactRepositoryManager(ProvUIActivator.getDefault().getSession()).setEnabled(location, enable);
+		ProvUI.getMetadataRepositoryManager(ProvUIActivator.getDefault().getSession()).setEnabled(location, enable);
 	}
 
 	public static IInstallableUnit getIU(Object element) {

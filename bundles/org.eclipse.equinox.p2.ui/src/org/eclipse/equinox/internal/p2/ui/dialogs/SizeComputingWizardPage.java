@@ -13,13 +13,13 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import java.text.NumberFormat;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
@@ -47,20 +47,20 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 			computeSizing(initialResolution.getProvisioningPlan(), initialResolution.getProvisioningContext());
 		else
 			// Set the size to indicate there is no size yet.
-			size = ProvisioningSession.SIZE_NOTAPPLICABLE;
+			size = ProvUI.SIZE_NOTAPPLICABLE;
 	}
 
 	protected void computeSizing(final IProvisioningPlan plan, final ProvisioningContext provisioningContext) {
 		if (plan == lastComputedPlan)
 			return;
 		lastComputedPlan = plan;
-		size = ProvisioningSession.SIZE_UNKNOWN;
+		size = ProvUI.SIZE_UNKNOWN;
 		updateSizingInfo();
 		if (sizingJob != null)
 			sizingJob.cancel();
 		sizingJob = new Job(ProvUIMessages.SizeComputingWizardPage_SizeJobTitle) {
 			protected IStatus run(IProgressMonitor monitor) {
-				size = getProvisioningUI().getSession().getSize(plan, provisioningContext, monitor);
+				size = ProvUI.getSize(ProvUI.getEngine(getProvisioningUI().getSession()), plan, provisioningContext, monitor);
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
 				if (display != null) {
@@ -89,7 +89,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 
 	protected void updateSizingInfo() {
 		if (sizeInfo != null && !sizeInfo.isDisposed()) {
-			if (size == ProvisioningSession.SIZE_NOTAPPLICABLE)
+			if (size == ProvUI.SIZE_NOTAPPLICABLE)
 				sizeInfo.setVisible(false);
 			else {
 				sizeInfo.setText(NLS.bind(ProvUIMessages.UpdateOrInstallWizardPage_Size, getFormattedSize()));
@@ -99,7 +99,7 @@ public abstract class SizeComputingWizardPage extends ResolutionResultsWizardPag
 	}
 
 	protected String getFormattedSize() {
-		if (size == ProvisioningSession.SIZE_UNKNOWN || size == ProvisioningSession.SIZE_UNAVAILABLE)
+		if (size == ProvUI.SIZE_UNKNOWN || size == ProvUI.SIZE_UNAVAILABLE)
 			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 		if (size > 1000L) {
 			long kb = size / 1000L;

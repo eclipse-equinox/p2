@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.*;
@@ -351,8 +352,10 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				IProfile currentProfile;
-				currentProfile = getSession().getProfileRegistry().getProfile(profileId);
-				plan[0] = getSession().getPlanner().getDiffPlan(currentProfile, snapshot, monitor);
+				IProfileRegistry registry = ProvUI.getProfileRegistry(getSession());
+				IPlanner planner = (IPlanner) getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
+				currentProfile = registry.getProfile(profileId);
+				plan[0] = planner.getDiffPlan(currentProfile, snapshot, monitor);
 			}
 		};
 		ProgressMonitorDialog dialog = new ProgressMonitorDialog(getShell());

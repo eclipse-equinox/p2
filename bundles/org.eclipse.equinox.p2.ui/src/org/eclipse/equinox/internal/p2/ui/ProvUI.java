@@ -11,16 +11,20 @@
 
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import org.eclipse.core.commands.*;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.UpdateOperation;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.Policy;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Event;
@@ -46,6 +50,22 @@ public class ProvUI {
 	public static final String UPDATE_COMMAND_TOOLTIP = ProvUIMessages.UpdateIUCommandTooltip;
 	public static final String REVERT_COMMAND_LABEL = ProvUIMessages.RevertIUCommandLabel;
 	public static final String REVERT_COMMAND_TOOLTIP = ProvUIMessages.RevertIUCommandTooltip;
+
+	/**
+	 * A constant indicating that there was nothing to size (there
+	 * was no valid plan that could be used to compute
+	 * size).
+	 */
+	public static final long SIZE_NOTAPPLICABLE = -3L;
+	/**
+	 * Indicates that the size is unavailable (an
+	 * attempt was made to compute size but it failed)
+	 */
+	public static final long SIZE_UNAVAILABLE = -2L;
+	/**
+	 * Indicates that the size is currently unknown
+	 */
+	public static final long SIZE_UNKNOWN = -1L;
 
 	private static IUColumnConfig[] columnConfig;
 	private static QueryProvider queryProvider;
@@ -79,7 +99,7 @@ public class ProvUI {
 				// unset logging for statuses that should never be logged.
 				// Ideally the caller would do this but this bug keeps coming back.
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=274074
-				if (status.getCode() == ProvisioningSession.STATUS_NOTHING_TO_UPDATE)
+				if (status.getCode() == UpdateOperation.STATUS_NOTHING_TO_UPDATE)
 					style = 0;
 			} else if (status.getSeverity() == IStatus.WARNING) {
 				MessageDialog.openWarning(ProvUI.getDefaultParentShell(), ProvUIMessages.ProvUI_WarningTitle, status.getMessage());
@@ -192,4 +212,86 @@ public class ProvUI {
 	public static void setQueryProvider(QueryProvider provider) {
 		queryProvider = provider;
 	}
+
+	/**
+	 * Get sizing information about the specified plan.
+	 * 
+	 * @param engine the engine 
+	 * @param plan the provisioning plan
+	 * @param context the provisioning context to be used for the sizing
+	 * @param monitor the progress monitor
+	 * 
+	 * @return a long integer describing the disk size required for the provisioning plan.
+	 * 
+	 * @see #SIZE_UNKNOWN
+	 * @see #SIZE_UNAVAILABLE
+	 * @see #SIZE_NOTAPPLICABLE
+	 */
+	public static long getSize(IEngine engine, IProvisioningPlan plan, ProvisioningContext context, IProgressMonitor monitor) {
+		// If there is nothing to size, return 0
+		if (plan == null)
+			return SIZE_NOTAPPLICABLE;
+		if (countPlanElements(plan) == 0)
+			return 0;
+		long installPlanSize = 0;
+		SubMonitor mon = SubMonitor.convert(monitor, 300);
+		if (plan.getInstallerPlan() != null) {
+			ISizingPhaseSet sizingPhaseSet = PhaseSetFactory.createSizingPhaseSet();
+			IStatus status = engine.perform(plan.getInstallerPlan(), sizingPhaseSet, mon.newChild(100));
+			if (status.isOK())
+				installPlanSize = sizingPhaseSet.getDiskSize();
+		} else {
+			mon.worked(100);
+		}
+		ISizingPhaseSet sizingPhaseSet = PhaseSetFactory.createSizingPhaseSet();
+		IStatus status = engine.perform(plan, sizingPhaseSet, mon.newChild(200));
+		if (status.isOK())
+			return installPlanSize + sizingPhaseSet.getDiskSize();
+		return SIZE_UNAVAILABLE;
+	}
+
+	private static int countPlanElements(IProvisioningPlan plan) {
+		return QueryUtil.compoundQueryable(plan.getAdditions(), plan.getRemovals()).query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet().size();
+	}
+
+	/**
+	 * Return the artifact repository manager for the given session
+	 * @return the repository manager
+	 */
+	public static IArtifactRepositoryManager getArtifactRepositoryManager(ProvisioningSession session) {
+		return (IArtifactRepositoryManager) session.getProvisioningAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
+	}
+
+	/**
+	 * Return the metadata repository manager for the given session
+	 * @return the repository manager
+	 */
+	public static IMetadataRepositoryManager getMetadataRepositoryManager(ProvisioningSession session) {
+		return (IMetadataRepositoryManager) session.getProvisioningAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+	}
+
+	/**
+	 * Return the profile registry for the given session
+	 * @return the profile registry
+	 */
+	public static IProfileRegistry getProfileRegistry(ProvisioningSession session) {
+		return (IProfileRegistry) session.getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
+	}
+
+	/**
+	 * Return the provisioning engine for the given session
+	 * @return the provisioning engine
+	 */
+	public static IEngine getEngine(ProvisioningSession session) {
+		return (IEngine) session.getProvisioningAgent().getService(IEngine.SERVICE_NAME);
+	}
+
+	/**
+	 * Return the provisioning event bus used for dispatching events.
+	 * @return the event bus
+	 */
+	public static IProvisioningEventBus getProvisioningEventBus(ProvisioningSession session) {
+		return (IProvisioningEventBus) session.getProvisioningAgent().getService(IProvisioningEventBus.SERVICE_NAME);
+	}
+
 }

@@ -19,6 +19,8 @@ import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
@@ -54,17 +56,17 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.policy.RepositoryManipulator#getKnownRepositories()
 	 */
 	public URI[] getKnownRepositories(ProvisioningSession session) {
-		return session.getMetadataRepositoryManager().getKnownRepositories(getMetadataRepositoryFlags());
+		return getMetadataRepositoryManager().getKnownRepositories(getMetadataRepositoryFlags());
 	}
 
 	public void addRepository(URI repoLocation, String nickname, ProvisioningSession session) {
 		ui.signalRepositoryOperationStart();
 		try {
-			session.getMetadataRepositoryManager().addRepository(repoLocation);
-			session.getArtifactRepositoryManager().addRepository(repoLocation);
+			getMetadataRepositoryManager().addRepository(repoLocation);
+			getArtifactRepositoryManager().addRepository(repoLocation);
 			if (nickname != null) {
-				session.getMetadataRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_NICKNAME, nickname);
-				session.getArtifactRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_NICKNAME, nickname);
+				getMetadataRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_NICKNAME, nickname);
+				getArtifactRepositoryManager().setRepositoryProperty(repoLocation, IRepository.PROP_NICKNAME, nickname);
 
 			}
 		} finally {
@@ -80,8 +82,8 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		ui.signalRepositoryOperationStart();
 		try {
 			for (int i = 0; i < repoLocations.length; i++) {
-				session.getMetadataRepositoryManager().removeRepository(repoLocations[i]);
-				session.getArtifactRepositoryManager().removeRepository(repoLocations[i]);
+				getMetadataRepositoryManager().removeRepository(repoLocations[i]);
+				getArtifactRepositoryManager().removeRepository(repoLocations[i]);
 			}
 		} finally {
 			ui.signalRepositoryOperationComplete(null, true);
@@ -97,8 +99,8 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		SubMonitor mon = SubMonitor.convert(monitor, locations.length * 100);
 		for (int i = 0; i < locations.length; i++) {
 			try {
-				session.getArtifactRepositoryManager().refreshRepository(locations[i], mon.newChild(50));
-				session.getMetadataRepositoryManager().refreshRepository(locations[i], mon.newChild(50));
+				getArtifactRepositoryManager().refreshRepository(locations[i], mon.newChild(50));
+				getMetadataRepositoryManager().refreshRepository(locations[i], mon.newChild(50));
 			} catch (ProvisionException e) {
 				//ignore problematic repositories when refreshing
 			}
@@ -134,7 +136,7 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 								}
 
 								protected String getInitialNameText() {
-									String nickname = ui.getSession().getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+									String nickname = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 									return nickname == null ? "" : nickname; //$NON-NLS-1$
 								}
 							};
@@ -158,5 +160,13 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		} else {
 			ProvUI.handleException(e, null, StatusManager.SHOW | StatusManager.LOG);
 		}
+	}
+
+	IMetadataRepositoryManager getMetadataRepositoryManager() {
+		return ProvUI.getMetadataRepositoryManager(ui.getSession());
+	}
+
+	IArtifactRepositoryManager getArtifactRepositoryManager() {
+		return ProvUI.getArtifactRepositoryManager(ui.getSession());
 	}
 }

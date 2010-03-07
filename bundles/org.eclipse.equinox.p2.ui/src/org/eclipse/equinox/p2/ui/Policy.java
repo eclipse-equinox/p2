@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.operations.UpdateOperation;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -101,7 +101,7 @@ public class Policy {
 			return false;
 
 		// Special case those statuses where we would never want to open a wizard
-		if (status.getCode() == ProvisioningSession.STATUS_NOTHING_TO_UPDATE) {
+		if (status.getCode() == UpdateOperation.STATUS_NOTHING_TO_UPDATE) {
 			ProvUI.reportStatus(status, StatusManager.BLOCK);
 			return false;
 		}

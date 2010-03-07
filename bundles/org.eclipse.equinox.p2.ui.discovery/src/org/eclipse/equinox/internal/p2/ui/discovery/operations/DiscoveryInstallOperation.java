@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.discovery.operations;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.util.*;
@@ -24,9 +22,9 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.operations.*;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -275,9 +273,10 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		// fetch meta-data for these repositories
 		ArrayList<IMetadataRepository> repositories = new ArrayList<IMetadataRepository>();
 		monitor.setWorkRemaining(repositories.size());
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) session.getProvisioningAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		for (URI uri : repositoryLocations) {
 			checkCancelled(monitor);
-			IMetadataRepository repository = session.getMetadataRepositoryManager().loadRepository(uri, monitor.newChild(1));
+			IMetadataRepository repository = manager.loadRepository(uri, monitor.newChild(1));
 			repositories.add(repository);
 		}
 		return repositories;

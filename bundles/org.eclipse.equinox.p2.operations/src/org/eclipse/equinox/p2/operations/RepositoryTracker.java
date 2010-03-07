@@ -30,6 +30,11 @@ import org.eclipse.osgi.util.NLS;
  */
 public abstract class RepositoryTracker {
 
+	/**
+	 * A status code used to indicate that a repository location was not valid.
+	 */
+	public static final int STATUS_INVALID_REPOSITORY_LOCATION = IStatusCodes.INVALID_REPOSITORY_LOCATION;
+
 	// What repositories to show
 	private int artifactRepositoryFlags = IRepositoryManager.REPOSITORIES_NON_SYSTEM;
 	private int metadataRepositoryFlags = IRepositoryManager.REPOSITORIES_NON_SYSTEM;

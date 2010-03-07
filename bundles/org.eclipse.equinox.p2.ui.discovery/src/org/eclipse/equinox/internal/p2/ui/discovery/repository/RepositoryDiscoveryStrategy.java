@@ -11,8 +11,6 @@
 
 package org.eclipse.equinox.internal.p2.ui.discovery.repository;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -27,9 +25,9 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
@@ -110,8 +108,9 @@ public class RepositoryDiscoveryStrategy extends AbstractDiscoveryStrategy {
 
 		// fetch meta-data for these repositories
 		ArrayList<IMetadataRepository> repositories = new ArrayList<IMetadataRepository>();
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) session.getProvisioningAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		for (URI uri : locations) {
-			IMetadataRepository repository = session.getMetadataRepositoryManager().loadRepository(uri, monitor.newChild(1));
+			IMetadataRepository repository = manager.loadRepository(uri, monitor.newChild(1));
 			repositories.add(repository);
 		}
 		return repositories;

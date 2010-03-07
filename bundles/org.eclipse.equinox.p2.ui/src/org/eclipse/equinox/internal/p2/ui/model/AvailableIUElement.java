@@ -15,13 +15,12 @@ import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.p2.ui.QueryProvider;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
+import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
@@ -44,7 +43,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	// probably refer to some preference or policy to decide what to do.
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=221087
 	private static boolean shouldShowSize = false;
-	long size = ProvisioningSession.SIZE_UNKNOWN;
+	long size = ProvUI.SIZE_UNKNOWN;
 	String profileID;
 
 	public AvailableIUElement(Object parent, IInstallableUnit iu, String profileID, boolean showChildren) {
@@ -87,17 +86,29 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 			return;
 		SubMonitor mon = SubMonitor.convert(monitor, 100);
 		IProvisioningPlan plan = getSizingPlan(mon.newChild(50));
-		size = getProvisioningUI().getSession().getSize(plan, getProvisioningContext(), mon.newChild(50));
+		size = ProvUI.getSize(getEngine(), plan, getProvisioningContext(), mon.newChild(50));
 	}
 
 	protected IProfile getProfile() {
-		return getProvisioningUI().getSession().getProfileRegistry().getProfile(profileID);
+		return getProfileRegistry().getProfile(profileID);
 	}
 
 	protected IProvisioningPlan getSizingPlan(IProgressMonitor monitor) {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProvisioningUI().getSession().getProvisioningAgent(), profileID);
 		request.add(getIU());
-		return getProvisioningUI().getSession().getPlanner().getProvisioningPlan(request, getProvisioningContext(), monitor);
+		return getPlanner().getProvisioningPlan(request, getProvisioningContext(), monitor);
+	}
+
+	IEngine getEngine() {
+		return ProvUI.getEngine(getProvisioningUI().getSession());
+	}
+
+	IPlanner getPlanner() {
+		return (IPlanner) getProvisioningUI().getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
+	}
+
+	IProfileRegistry getProfileRegistry() {
+		return ProvUI.getProfileRegistry(getProvisioningUI().getSession());
 	}
 
 	public IInstallableUnit getIU() {

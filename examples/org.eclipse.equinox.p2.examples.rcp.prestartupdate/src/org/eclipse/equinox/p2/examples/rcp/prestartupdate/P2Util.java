@@ -32,7 +32,7 @@ public class P2Util {
 		SubMonitor sub = SubMonitor.convert(monitor,
 				"Checking for application updates...", 200);
 		IStatus status = operation.resolveModal(sub.newChild(100));
-		if (status.getCode() == ProvisioningSession.STATUS_NOTHING_TO_UPDATE) {
+		if (status.getCode() == UpdateOperation.STATUS_NOTHING_TO_UPDATE) {
 			return status;
 		}
 		if (status.getSeverity() == IStatus.CANCEL)

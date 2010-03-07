@@ -115,7 +115,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	}
 
 	public IProvisioningEventBus getProvisioningEventBus() {
-		return getSession().getProvisioningEventBus();
+		return ProvUI.getProvisioningEventBus(getSession());
 	}
 
 	public void removeProvisioningListener(ProvUIProvisioningListener listener) {

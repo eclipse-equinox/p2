@@ -17,7 +17,6 @@ import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
@@ -28,7 +27,9 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -346,7 +347,7 @@ public class ProvisioningUI {
 	 * a corresponding operation ending event is signaled.
 	 */
 	public void signalRepositoryOperationStart() {
-		getSession().getProvisioningEventBus().publishEvent(new RepositoryOperationBeginningEvent(this));
+		ProvUI.getProvisioningEventBus(getSession()).publishEvent(new RepositoryOperationBeginningEvent(this));
 	}
 
 	/**
@@ -357,7 +358,7 @@ public class ProvisioningUI {
 	 * @param update <code>true</code> if the event should be reflected in the UI, false if it should be ignored.
 	 */
 	public void signalRepositoryOperationComplete(RepositoryEvent event, boolean update) {
-		getSession().getProvisioningEventBus().publishEvent(new RepositoryOperationEndingEvent(this, update, event));
+		ProvUI.getProvisioningEventBus(getSession()).publishEvent(new RepositoryOperationEndingEvent(this, update, event));
 	}
 
 	/**
@@ -375,14 +376,15 @@ public class ProvisioningUI {
 		IMetadataRepository repo = null;
 		try {
 			signalRepositoryOperationStart();
-			repo = session.getMetadataRepositoryManager().loadRepository(location, monitor);
+			IMetadataRepositoryManager manager = ProvUI.getMetadataRepositoryManager(getSession());
+			repo = manager.loadRepository(location, monitor);
 			// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
 			// This will keep the name in the manager even when the repo is not loaded
-			String name = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+			String name = manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 			if (name == null || name.length() == 0) {
 				name = repo.getName();
 				if (name != null && name.length() > 0)
-					session.getMetadataRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+					manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 			}
 		} catch (ProvisionException e) {
 			getRepositoryTracker().reportLoadFailure(location, e);
@@ -410,15 +412,16 @@ public class ProvisioningUI {
 		IArtifactRepository repo;
 		signalRepositoryOperationStart();
 		try {
-			repo = session.getArtifactRepositoryManager().loadRepository(location, monitor);
+			IArtifactRepositoryManager manager = ProvUI.getArtifactRepositoryManager(getSession());
+			repo = manager.loadRepository(location, monitor);
 
 			// If there is no user nickname assigned to this repo but there is a provider name, then set the nickname.
 			// This will keep the name in the manager even when the repo is not loaded
-			String name = session.getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+			String name = manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 			if (name == null) {
-				name = session.getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
+				name = manager.getRepositoryProperty(location, IRepository.PROP_NAME);
 				if (name != null)
-					session.getArtifactRepositoryManager().setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+					manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
 			}
 		} finally {
 			// We have no idea how many repos may have been touched as a result of loading this one,
@@ -426,10 +429,5 @@ public class ProvisioningUI {
 			signalRepositoryOperationComplete(null, update);
 		}
 		return repo;
-	}
-
-	public TranslationSupport getTranslationSupport() {
-		// TODO Temporary fix to enable build.
-		return TranslationSupport.getInstance();
 	}
 }

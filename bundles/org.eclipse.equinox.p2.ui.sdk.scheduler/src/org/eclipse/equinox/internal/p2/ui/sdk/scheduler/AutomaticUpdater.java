@@ -16,12 +16,17 @@ import java.lang.reflect.Method;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -60,15 +65,15 @@ public class AutomaticUpdater implements IUpdateListener {
 				}
 			}
 		};
-		getProvisioningUI().getSession().getProvisioningEventBus().addListener(profileListener);
+		getProvisioningEventBus().addListener(profileListener);
 	}
 
 	private boolean sameProfile(String another) {
 		if (another.equals(IProfileRegistry.SELF)) {
-			another = getSession().getProfileRegistry().getProfile(another).getProfileId();
+			another = getProfileRegistry().getProfile(another).getProfileId();
 		}
 		if (profileId.equals(IProfileRegistry.SELF)) {
-			profileId = getSession().getProfileRegistry().getProfile(profileId).getProfileId();
+			profileId = getProfileRegistry().getProfile(profileId).getProfileId();
 		}
 		return profileId.equals(another);
 	}
@@ -161,7 +166,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	void validateIusToUpdate() {
 		ArrayList<IInstallableUnit> list = new ArrayList<IInstallableUnit>(iusWithUpdates.size());
-		IProfile profile = getSession().getProfileRegistry().getProfile(profileId);
+		IProfile profile = getProfileRegistry().getProfile(profileId);
 
 		for (IInstallableUnit iuWithUpdate : iusWithUpdates) {
 			try {
@@ -326,7 +331,7 @@ public class AutomaticUpdater implements IUpdateListener {
 				// notify that updates are available for all roots.  We don't know for sure that
 				// there are any, but this will cause everything to be rechecked. Don't trigger
 				// a popup, just update the affordance and internal state.
-				updatesAvailable(new UpdateEvent(profileId, getSession().getInstalledIUs(profileId, false)), false);
+				updatesAvailable(new UpdateEvent(profileId, getInstalledIUs()));
 				return Status.OK_STATUS;
 			}
 		};
@@ -336,12 +341,39 @@ public class AutomaticUpdater implements IUpdateListener {
 		notifyJob.schedule();
 	}
 
+	/*
+	 * Get the IInstallable units for the specified profile
+	 * 
+	 * @param profileId the profile in question
+	 * @param all <code>true</code> if all IInstallableUnits in the profile should
+	 * be returned, <code>false</code> only those IInstallableUnits marked as (user visible) roots
+	 * should be returned.
+	 * 
+	 * @return an array of IInstallableUnits installed in the profile.
+	 */
+	public Collection<IInstallableUnit> getInstalledIUs() {
+		IProfile profile = getProfileRegistry().getProfile(profileId);
+		if (profile == null)
+			return CollectionUtils.emptyList();
+		IQuery<IInstallableUnit> query = new UserVisibleRootQuery();
+		IQueryResult<IInstallableUnit> queryResult = profile.query(query, null);
+		return queryResult.toUnmodifiableSet();
+	}
+
 	public void shutdown() {
 		statusLineManager = null;
 		if (profileListener != null) {
-			getSession().getProvisioningEventBus().removeListener(profileListener);
+			getProvisioningEventBus().removeListener(profileListener);
 			profileListener = null;
 		}
+	}
+
+	IProfileRegistry getProfileRegistry() {
+		return (IProfileRegistry) getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
+	}
+
+	IProvisioningEventBus getProvisioningEventBus() {
+		return (IProvisioningEventBus) getSession().getProvisioningAgent().getService(IProvisioningEventBus.SERVICE_NAME);
 	}
 
 	IPreferenceStore getPreferenceStore() {

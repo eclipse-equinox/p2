@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.operations;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
 /**
@@ -25,9 +25,9 @@ public class SizingTest extends AbstractProvisioningUITest {
 		IProfile testProfile = createProfile(profileId);
 		ProfileChangeRequest request = new ProfileChangeRequest(testProfile);
 		IProvisioningPlan plan = null;
-		plan = getSession().getPlanner().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
-		long size = ProvisioningSession.SIZE_NOTAPPLICABLE;
-		size = getSession().getSize(plan, new ProvisioningContext(), getMonitor());
+		plan = getPlanner(getSession().getProvisioningAgent()).getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
+		long size = ProvUI.SIZE_NOTAPPLICABLE;
+		size = ProvUI.getSize(getEngine(), plan, new ProvisioningContext(), getMonitor());
 		assertEquals("1.0", 0, size);
 	}
 
@@ -41,9 +41,9 @@ public class SizingTest extends AbstractProvisioningUITest {
 		ProfileChangeRequest request = new ProfileChangeRequest(testProfile);
 		request.add(f1);
 		IProvisioningPlan plan = null;
-		plan = getSession().getPlanner().getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
-		long size = ProvisioningSession.SIZE_NOTAPPLICABLE;
-		size = getSession().getSize(plan, new ProvisioningContext(), getMonitor());
+		plan = getPlanner(getSession().getProvisioningAgent()).getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
+		long size = ProvUI.SIZE_NOTAPPLICABLE;
+		size = ProvUI.getSize(getEngine(), plan, new ProvisioningContext(), getMonitor());
 		assertEquals("1.0", 0, size);
 	}
 }

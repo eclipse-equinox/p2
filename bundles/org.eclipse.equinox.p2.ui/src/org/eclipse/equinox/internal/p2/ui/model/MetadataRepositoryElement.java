@@ -17,7 +17,6 @@ import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -146,11 +145,10 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getName()
 	 */
 	public String getName() {
-		ProvisioningSession session = getProvisioningUI().getSession();
 		if (name == null) {
-			name = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+			name = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 			if (name == null)
-				name = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
+				name = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
 			if (name == null)
 				name = ""; //$NON-NLS-1$
 		}
@@ -171,10 +169,9 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
 	public String getDescription() {
-		ProvisioningSession session = getProvisioningUI().getSession();
 		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location))
 			return ProvUIMessages.RepositoryElement_NotFound;
-		String description = session.getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
+		String description = getMetadataRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
 		if (description == null)
 			return ""; //$NON-NLS-1$
 		return description;
@@ -209,7 +206,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			return true;
 		if (location == null)
 			return false;
-		IMetadataRepositoryManager manager = ProvUIActivator.getDefault().getSession().getMetadataRepositoryManager();
+		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		if (manager == null || !(manager instanceof MetadataRepositoryManager))
 			return false;
 		IMetadataRepository repo = ((MetadataRepositoryManager) manager).getRepository(location);
@@ -237,5 +234,9 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 		else
 			result.append(" (not loaded)"); //$NON-NLS-1$
 		return result.toString();
+	}
+
+	IMetadataRepositoryManager getMetadataRepositoryManager() {
+		return ProvUI.getMetadataRepositoryManager(getProvisioningUI().getSession());
 	}
 }

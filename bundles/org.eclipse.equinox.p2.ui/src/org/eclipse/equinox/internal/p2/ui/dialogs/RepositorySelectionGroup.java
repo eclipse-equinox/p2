@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -360,7 +361,7 @@ public class RepositorySelectionGroup {
 	}
 
 	String getSiteString(URI uri) {
-		String nickname = ui.getSession().getMetadataRepositoryManager().getRepositoryProperty(uri, IRepository.PROP_NICKNAME);
+		String nickname = getMetadataRepositoryManager().getRepositoryProperty(uri, IRepository.PROP_NICKNAME);
 		if (nickname != null && nickname.length() > 0)
 			return NLS.bind(ProvUIMessages.AvailableIUsPage_NameWithLocation, nickname, URIUtil.toUnencodedString(uri));
 		return URIUtil.toUnencodedString(uri);
@@ -419,7 +420,7 @@ public class RepositorySelectionGroup {
 	private URI[] getLocalSites() {
 		// use our current visibility flags plus the local filter
 		int flags = ui.getRepositoryTracker().getMetadataRepositoryFlags() | IRepositoryManager.REPOSITORIES_LOCAL;
-		return ui.getSession().getMetadataRepositoryManager().getKnownRepositories(flags);
+		return getMetadataRepositoryManager().getKnownRepositories(flags);
 	}
 
 	String[] getComboProposals() {
@@ -427,7 +428,7 @@ public class RepositorySelectionGroup {
 		String[] items = repoCombo.getItems();
 		// Clear any previously remembered disabled repos
 		disabledRepoProposals = new HashMap<String, URI>();
-		URI[] disabled = ui.getSession().getMetadataRepositoryManager().getKnownRepositories(flags);
+		URI[] disabled = getMetadataRepositoryManager().getKnownRepositories(flags);
 		String[] disabledItems = new String[disabled.length];
 		for (int i = 0; i < disabledItems.length; i++) {
 			disabledItems[i] = getSiteString(disabled[i]);
@@ -607,5 +608,9 @@ public class RepositorySelectionGroup {
 		for (int i = 0; i < selectionListeners.length; i++) {
 			((IRepositorySelectionListener) selectionListeners[i]).repositorySelectionChanged(repoChoice, repoLocation);
 		}
+	}
+
+	IMetadataRepositoryManager getMetadataRepositoryManager() {
+		return ProvUI.getMetadataRepositoryManager(ui.getSession());
 	}
 }

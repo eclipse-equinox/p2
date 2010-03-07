@@ -15,10 +15,10 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
@@ -69,7 +69,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	public IArtifactRepository getRepository(IProgressMonitor monitor) {
 		if (repo == null)
 			try {
-				repo = ui.getSession().getArtifactRepositoryManager().loadRepository(location, monitor);
+				repo = getArtifactRepositoryManager().loadRepository(location, monitor);
 			} catch (ProvisionException e) {
 				ui.getRepositoryTracker().reportLoadFailure(location, e);
 			} catch (OperationCanceledException e) {
@@ -90,9 +90,9 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getName()
 	 */
 	public String getName() {
-		String name = ui.getSession().getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
+		String name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NICKNAME);
 		if (name == null)
-			name = ui.getSession().getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
+			name = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_NAME);
 		if (name == null)
 			name = ""; //$NON-NLS-1$
 		return name;
@@ -103,10 +103,9 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
 	public String getDescription() {
-		ProvisioningSession session = ui.getSession();
 		if (ui.getRepositoryTracker().hasNotFoundStatusBeenReported(location))
 			return ProvUIMessages.RepositoryElement_NotFound;
-		String description = session.getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
+		String description = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
 		if (description == null)
 			return ""; //$NON-NLS-1$
 		return description;
@@ -142,5 +141,9 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 		if (queryable == null)
 			queryable = getRepository(new NullProgressMonitor());
 		return queryable;
+	}
+
+	IArtifactRepositoryManager getArtifactRepositoryManager() {
+		return ProvUI.getArtifactRepositoryManager(ui.getSession());
 	}
 }

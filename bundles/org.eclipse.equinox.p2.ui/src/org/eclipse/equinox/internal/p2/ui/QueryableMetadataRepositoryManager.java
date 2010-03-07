@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -40,7 +39,7 @@ public class QueryableMetadataRepositoryManager extends QueryableRepositoryManag
 	}
 
 	protected IMetadataRepositoryManager getRepositoryManager() {
-		return getSession().getMetadataRepositoryManager();
+		return ProvUI.getMetadataRepositoryManager(getSession());
 	}
 
 	protected IMetadataRepository doLoadRepository(IRepositoryManager<IInstallableUnit> manager, URI location, IProgressMonitor monitor) throws ProvisionException {

@@ -12,6 +12,7 @@
 package org.eclipse.equinox.internal.p2.ui.query;
 
 import java.net.URI;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.model.ArtifactRepositoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -45,6 +46,6 @@ public class ArtifactRepositoryElementWrapper extends QueriedElementWrapper {
 	 * Transforms the item to a UI element
 	 */
 	protected Object wrap(Object item) {
-		return super.wrap(new ArtifactRepositoryElement(parent, (URI) item, ProvisioningUI.getDefaultUI().getSession().getArtifactRepositoryManager().isEnabled((URI) item)));
+		return super.wrap(new ArtifactRepositoryElement(parent, (URI) item, ProvUI.getArtifactRepositoryManager(ProvisioningUI.getDefaultUI().getSession()).isEnabled((URI) item)));
 	}
 }
