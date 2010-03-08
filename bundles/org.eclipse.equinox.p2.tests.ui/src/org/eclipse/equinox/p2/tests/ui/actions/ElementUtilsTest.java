@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -59,7 +58,6 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 	}
 
 	public void testUpdateUsingElements() throws URISyntaxException {
-		ProvisioningSession session = getSession();
 		// Two visible repos, one is added, the other is not
 		URI known1 = new URI("http://example.com/known1");
 		URI known2 = new URI("http://example.com/known2");
