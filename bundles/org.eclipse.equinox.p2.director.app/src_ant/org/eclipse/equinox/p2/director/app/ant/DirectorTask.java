@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.internal.p2.director.app.*;
-import org.eclipse.equinox.internal.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.osgi.util.NLS;
 
 /**

@@ -19,7 +19,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.p2.metadata.VersionedId;
+import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.osgi.service.datalocation.Location;

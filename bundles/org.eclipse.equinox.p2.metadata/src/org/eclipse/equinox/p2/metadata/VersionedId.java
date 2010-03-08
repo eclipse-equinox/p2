@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 Code 9 and others.
+ * Copyright (c) 2008, 2010 Code 9 and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,17 +11,16 @@
  *     Thomas Hallgren - Fix for bug 268659
  *     IBM - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.metadata;
-
-import org.eclipse.equinox.p2.metadata.Version;
+package org.eclipse.equinox.p2.metadata;
 
 import org.eclipse.equinox.internal.p2.core.helpers.StringHelper;
-import org.eclipse.equinox.p2.metadata.IVersionedId;
 
 /**
  * An object representing a (id,version) pair. 
  * 
  * @noextend This class is not intended to be subclassed by clients.
+ * 
+ * @since 2.0
  */
 public class VersionedId implements IVersionedId {
 	private final String id;
