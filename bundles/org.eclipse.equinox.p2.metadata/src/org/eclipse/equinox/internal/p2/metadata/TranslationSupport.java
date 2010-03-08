@@ -12,10 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.lang.ref.SoftReference;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
@@ -205,6 +201,25 @@ public class TranslationSupport {
 			translatedLicenses[i++] = getLicense(iu, iLicense, locale);
 		}
 		return translatedLicenses;
+	}
+
+	/**
+	 * Return an update descriptor localized for the receiver's locale.
+	 * 
+	 * @param iu the IInstallableUnit in question
+	 * @return the localized update descriptor defined by the IInstallableUnit
+	 */
+	public IUpdateDescriptor getUpdateDescriptor(IInstallableUnit iu, String locale) {
+		if (locale == null)
+			locale = getCurrentLocale();
+
+		IUpdateDescriptor descriptor = iu.getUpdateDescriptor();
+		String body = (descriptor != null ? descriptor.getDescription() : null);
+		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
+			return descriptor;
+		final String actualKey = body.substring(1); // Strip off the %
+		body = getLocalizedIUProperty(iu, actualKey, locale);
+		return MetadataFactory.createUpdateDescriptor(descriptor.getIUsBeingUpdated(), descriptor.getSeverity(), body, descriptor.getLocation());
 	}
 
 	/**
