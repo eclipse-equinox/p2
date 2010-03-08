@@ -34,7 +34,7 @@ public class MetadataFactory {
 	public static class InstallableUnitDescription {
 		public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
 
-		protected InstallableUnit unit;
+		InstallableUnit unit;
 
 		/**
 		 * A property key (value <code>"org.eclipse.equinox.p2.type.patch"</code>) for a 
@@ -307,19 +307,39 @@ public class MetadataFactory {
 	 * and <code>false</code> otherwise.
 	 * @param multiple <code>true</code> if this capability can be satisfied by multiple provided capabilities, or it requires exactly one match
 	 */
+	public static IRequirement createRequirement(String namespace, String name, VersionRange range, Filter filter, boolean optional, boolean multiple) {
+		return new RequiredCapability(namespace, name, range, filter, optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, true);
+	}
+
+	/**
+	 * @deprecated use #createRequirement
+	 */
 	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, Filter filter, boolean optional, boolean multiple) {
 		return new RequiredCapability(namespace, name, range, filter, optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, true);
 	}
 
+	public static IRequirement createRequirement(String namespace, String name, VersionRange range, Filter filter, int minCard, int maxCard, boolean greedy) {
+		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy);
+	}
+
+	/**
+	 * @deprecated use #createRequirement
+	 */
 	public static IRequirement createRequiredCapability(String namespace, String name, VersionRange range, Filter filter, int minCard, int maxCard, boolean greedy) {
 		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy);
 	}
 
 	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement) {
 		return new RequiredCapability(requirement);
-
 	}
 
+	public static IRequirement createRequirement(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
+		return new RequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
+	}
+
+	/**
+	 * @deprecated use #createRequirement
+	 */
 	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
 		return new RequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
 	}
