@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import java.net.URI;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -57,5 +59,20 @@ public class SimpleConfiguratorTest extends AbstractFwkAdminTest {
 		assertContent(configINI, "org.eclipse.osgi");
 		assertContent(bundleTXT, "org.eclipse.equinox.simpleconfigurator");
 		assertContent(configINI, "org.eclipse.equinox.simpleconfigurator");
+	}
+
+	public void testBundleInfoEquals() throws Exception {
+		BundleInfo b1 = new BundleInfo("org.foo", "3.1.0", new URI("plugins/org.foo_3.1.0"), -1, false);
+		BundleInfo b2 = new BundleInfo("org.foo", "3.1.0", null, -1, false);
+		BundleInfo b3 = new BundleInfo("org.foo", "3.1.0", URIUtil.fromString("C:/sp ace/plugins/org.foo_3.1.0"), -1, false);
+		
+		assertEquals(b1, b2);
+		assertFalse(b1.equals(b3));
+		
+		b1.setBaseLocation(URIUtil.fromString("C:/sp ace"));
+		assertEquals(b1, b3);
+		
+		b3.setBaseLocation(URIUtil.fromString("C:/sp ace"));
+		assertEquals(b1, b3);
 	}
 }

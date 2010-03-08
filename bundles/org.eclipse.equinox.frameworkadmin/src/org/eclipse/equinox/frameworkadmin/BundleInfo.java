@@ -316,8 +316,17 @@ public class BundleInfo {
 			return true;
 
 		//compare absolute location URIs
-		URI absoluteLocation = baseLocation == null ? location : URIUtil.append(baseLocation, location.toString());
-		URI otherAbsoluteLocation = other.baseLocation == null ? other.location : URIUtil.append(other.baseLocation, other.location.toString());
+		URI absoluteLocation = null;
+		if (location.isAbsolute() || baseLocation == null)
+			absoluteLocation = location;
+		else
+			absoluteLocation = URIUtil.append(baseLocation, URIUtil.toUnencodedString(location));
+
+		URI otherAbsoluteLocation = null;
+		if (other.location.isAbsolute() || other.baseLocation == null)
+			otherAbsoluteLocation = other.location;
+		else
+			otherAbsoluteLocation = URIUtil.append(other.baseLocation, URIUtil.toUnencodedString(other.location));
 		return URIUtil.sameURI(absoluteLocation, otherAbsoluteLocation);
 	}
 }
