@@ -84,13 +84,7 @@ public class ProvisioningSession {
 		return (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 	}
 
-	/**
-	 * Return the profile registry for this session
-	 * @return the profile registry
-	 * 
-	 * @deprecated this API will not appear in the final release.
-	 */
-	public IProfileRegistry getProfileRegistry() {
+	IProfileRegistry getProfileRegistry() {
 		return (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 	}
 
