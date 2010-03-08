@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 
@@ -32,12 +31,19 @@ public interface IArtifactRepositoryManager extends IRepositoryManager<IArtifact
 	 */
 	public static final String SERVICE_NAME = IArtifactRepositoryManager.class.getName();
 
+	/**
+	 * A convenience constant representing an empty set of artifact requests.
+	 */
 	public static final IArtifactRequest[] NO_ARTIFACT_REQUEST = new IArtifactRequest[0];
 
 	/**
 	 * Repository type for a simple repository based on a URL or local file system location.
 	 */
 	public static final String TYPE_SIMPLE_REPOSITORY = "org.eclipse.equinox.p2.artifact.repository.simpleRepository"; //$NON-NLS-1$
+
+	/**
+	 * Repository type for a composite repository based on a URL or local file system location.
+	 */
 	public static final String TYPE_COMPOSITE_REPOSITORY = "org.eclipse.equinox.p2.artifact.repository.compositeRepository"; //$NON-NLS-1$
 
 	/**

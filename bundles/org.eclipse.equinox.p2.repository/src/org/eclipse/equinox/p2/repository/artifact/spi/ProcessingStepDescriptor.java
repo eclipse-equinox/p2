@@ -35,29 +35,29 @@ public class ProcessingStepDescriptor implements IProcessingStepDescriptor {
 		this.required = required;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor#getProcessorId()
+	/**
+	 * {@inheritDoc}
 	 */
 	public String getProcessorId() {
 		return processorId;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor#getData()
+	/**
+	 * {@inheritDoc}
 	 */
 	public String getData() {
 		return data;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor#isRequired()
+	/**
+	 * {@inheritDoc}
 	 */
 	public boolean isRequired() {
 		return required;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
+	/**
+	 * {@inheritDoc}
 	 */
 	public int hashCode() {
 		final int prime = 31;
@@ -68,8 +68,8 @@ public class ProcessingStepDescriptor implements IProcessingStepDescriptor {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
+	/**
+	 * {@inheritDoc}
 	 */
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -96,6 +96,7 @@ public class ProcessingStepDescriptor implements IProcessingStepDescriptor {
 
 	/**
 	 * Returns a string representation of this descriptor for debugging purposes only.
+	 * @return a string representation ofthe processing step descriptor
 	 */
 	public String toString() {
 		return "Processor: " + processorId + (required ? "(req)" : "(notReq)") + " ,data: " + data; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$

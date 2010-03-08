@@ -12,12 +12,12 @@
 
 package org.eclipse.equinox.p2.repository.artifact;
 
-import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
-
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
+import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+import org.eclipse.equinox.p2.query.IQueryable;
 
 /**
  * A general purpose query for matching {@link IArtifactKey} instances
@@ -48,6 +48,10 @@ public class ArtifactKeyQuery extends ExpressionMatchQuery<IArtifactKey> {
 		return ExpressionUtil.getFactory().<IArtifactKey> matchExpression(matchIDClassifierRange, id, classifier, range);
 	}
 
+	/**
+	 * A singleton artifact key query that will always match every artifact key in
+	 * the given {@link IQueryable}.
+	 */
 	public static final ArtifactKeyQuery ALL_KEYS = new ArtifactKeyQuery();
 
 	/**
@@ -65,6 +69,11 @@ public class ArtifactKeyQuery extends ExpressionMatchQuery<IArtifactKey> {
 		super(IArtifactKey.class, ExpressionUtil.TRUE_EXPRESSION);
 	}
 
+	/**
+	 * Creates an artifact key query that will match any key equal to the
+	 * provided key
+	 * @param key the input key to test for equality in the query
+	 */
 	public ArtifactKeyQuery(IArtifactKey key) {
 		super(IArtifactKey.class, createMatchExpression(key));
 	}

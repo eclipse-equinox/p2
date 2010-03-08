@@ -28,6 +28,11 @@ public interface IProcessingStepDescriptor {
 	 */
 	public abstract String getProcessorId();
 
+	/**
+	 * An argument that is passed to the processing step instance. The structure
+	 * and content of the data is specific to the particular processing step being used.
+	 * @return the processing step data
+	 */
 	public abstract String getData();
 
 	/**

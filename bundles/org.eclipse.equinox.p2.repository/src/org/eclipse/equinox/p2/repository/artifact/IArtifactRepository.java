@@ -74,12 +74,27 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	public boolean contains(IArtifactKey key);
 
 	/**
-	 * Write to the given output stream the bytes represented by the artifact descriptor processed by the processing steps of the given descriptor.
+	 * Writes to the given output stream the bytes represented by the artifact descriptor.
+	 * Any processing steps defined by the descriptor will be applied to the artifact bytes
+	 * before they are sent to the provided output stream.
+	 * 
+	 * @param descriptor the descriptor to transfer
+	 * @param destination the stream to write the final artifact output to
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting and cancellation are not desired
+	 *  @return the result of the artifact transfer
 	 */
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor);
 
 	/**
-	 * Write to the given output stream the bytes represented by the artifact descriptor without processing by the steps of the given descriptor. 
+	 * Writes to the given output stream the bytes represented by the artifact descriptor.
+	 * Any processing steps defined by the descriptor will <b>not</b> be applied to the artifact bytes.
+	 * 
+	 * @param descriptor the descriptor to transfer
+	 * @param destination the stream to write the final artifact output to
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting and cancellation are not desired
+	 *  @return the result of the artifact transfer
 	 */
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor);
 
