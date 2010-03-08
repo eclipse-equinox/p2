@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
@@ -216,6 +217,18 @@ public class Projector {
 
 		List<WeightedObject<? extends Object>> weightedObjects = new ArrayList<WeightedObject<? extends Object>>();
 
+		Set<IInstallableUnit> transitiveClosure;
+		if (newRoots.isEmpty()) {
+			transitiveClosure = Collections.emptySet();
+		} else {
+			IQueryable<IInstallableUnit> queryable = new Slicer(picker, selectionContext, false).slice(newRoots.toArray(new InstallableUnit[newRoots.size()]), new NullProgressMonitor());
+			if (queryable==null) {
+				transitiveClosure = Collections.emptySet();
+			} else {
+			transitiveClosure = queryable.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet();
+			}
+		}
+
 		Set<Entry<String, Map<Version, IInstallableUnit>>> s = slice.entrySet();
 		final BigInteger POWER = BigInteger.valueOf(numberOfInstalledIUs > 0 ? numberOfInstalledIUs + 1 : 2);
 
@@ -233,7 +246,7 @@ public class Projector {
 			boolean rootedMet = false;
 			for (int i = 0; i < count; i++) {
 				IInstallableUnit iu = toSort.get(i);
-				if (!rootedMet && isInstalled(iu)) {
+				if (!rootedMet && isInstalled(iu) && !transitiveClosure.contains(iu)) {
 					installedIuMet = true;
 					weightedObjects.add(WeightedObject.newWO(iu, BigInteger.ONE));
 				} else if (!installedIuMet && !rootedMet && isRoot(iu, newRoots)) {
