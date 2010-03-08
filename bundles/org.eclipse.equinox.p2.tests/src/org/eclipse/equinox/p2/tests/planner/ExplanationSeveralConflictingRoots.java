@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-
 import java.util.Set;
 import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
@@ -22,6 +20,7 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest {
 	private IProfile profile;
@@ -31,9 +30,9 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		sdk = createIU("SDK", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[1.0.0, 1.0.0]")));
-		IInstallableUnit sdkPart = createIU("SDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
-		IInstallableUnit sdkPart2 = createIU("SDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("2.0.0")), true);
+		sdk = createIU("SDK", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[1.0.0, 1.0.0]")));
+		IInstallableUnit sdkPart = createIU("SDKPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
+		IInstallableUnit sdkPart2 = createIU("SDKPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("2.0.0")), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {sdk, sdkPart, sdkPart2});
 
@@ -50,9 +49,9 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 	public void testConflictingSingletonAndMissingDependency() {
 		//CDT will have a singleton conflict with SDK
 		//EMF will be missing a dependency
-		IInstallableUnit cdt = createIU("CDT", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[2.0.0, 2.0.0]")));
+		IInstallableUnit cdt = createIU("CDT", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[2.0.0, 2.0.0]")));
 
-		IInstallableUnit emf = createIU("EMF", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "EMFPart", new VersionRange("[1.0.0, 1.0.0]")));
+		IInstallableUnit emf = createIU("EMF", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "EMFPart", new VersionRange("[1.0.0, 1.0.0]")));
 
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
@@ -72,13 +71,13 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 	public void testConflictingSingletonAndMissingDependency2() {
 		//CDT will have a singleton conflict EMF
 		//EMF will be missing a dependency and will be in conflict with CDT
-		IInstallableUnit cdt = createIU("CDT", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "ASingleton", new VersionRange("[2.0.0, 2.0.0]")));
-		IInstallableUnit aSingleton1 = createIU("ASingleton", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
-		IInstallableUnit aSingleton2 = createIU("ASingleton", Version.fromOSGiVersion(new org.osgi.framework.Version("2.0.0")), true);
+		IInstallableUnit cdt = createIU("CDT", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "ASingleton", new VersionRange("[2.0.0, 2.0.0]")));
+		IInstallableUnit aSingleton1 = createIU("ASingleton", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
+		IInstallableUnit aSingleton2 = createIU("ASingleton", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("2.0.0")), true);
 
 		IRequiredCapability emfOnSingleton = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "ASingleton", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
 		IRequiredCapability emfMissing = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "EMFPart", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
-		IInstallableUnit emf = createIU("EMF", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), new IRequiredCapability[] {emfOnSingleton, emfMissing});
+		IInstallableUnit emf = createIU("EMF", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), new IRequiredCapability[] {emfOnSingleton, emfMissing});
 
 		createTestMetdataRepository(new IInstallableUnit[] {aSingleton1, aSingleton2, cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
@@ -97,12 +96,12 @@ public class ExplanationSeveralConflictingRoots extends AbstractProvisioningTest
 	public void testConflictingSingletonAndMissingDependency3() {
 		//CDT will have a singleton conflict EMF and with the SDK
 		//EMF will be conflicting with CDT
-		IInstallableUnit cdt = createIU("CDT", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[2.0.0, 2.0.0]")));
-		IInstallableUnit sdkPart3 = createIU("SDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("3.0.0")), true);
+		IInstallableUnit cdt = createIU("CDT", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[2.0.0, 2.0.0]")));
+		IInstallableUnit sdkPart3 = createIU("SDKPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("3.0.0")), true);
 
 		IRequiredCapability emfOnSingleton = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
 		IRequiredCapability emfMissing = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "EMFPart", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
-		IInstallableUnit emf = createIU("EMF", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), new IRequiredCapability[] {emfOnSingleton, emfMissing});
+		IInstallableUnit emf = createIU("EMF", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), new IRequiredCapability[] {emfOnSingleton, emfMissing});
 
 		createTestMetdataRepository(new IInstallableUnit[] {sdkPart3, cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);

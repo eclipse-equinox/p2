@@ -16,8 +16,7 @@ import org.eclipse.equinox.internal.p2.jarprocessor.PackStep;
 import org.eclipse.equinox.internal.p2.jarprocessor.verifier.Verifier;
 import org.eclipse.equinox.internal.p2.jarprocessor.verifier.VerifyStep;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
-import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.*;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 
 public class JarProcessorTests extends AbstractProvisioningTest {

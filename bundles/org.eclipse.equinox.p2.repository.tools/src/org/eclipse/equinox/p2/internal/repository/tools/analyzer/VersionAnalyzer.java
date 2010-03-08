@@ -9,9 +9,8 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
-import org.eclipse.equinox.p2.metadata.Version;
-
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 
@@ -28,12 +27,23 @@ public class VersionAnalyzer extends IUAnalyzer {
 			return;
 		}
 		if (iu.getVersion().isOSGiCompatible()) {
-			String qualifier = Version.toOSGiVersion(iu.getVersion()).getQualifier();
+			String qualifier = toOSGiVersion(iu.getVersion()).getQualifier();
 			if (qualifier != null && qualifier.equals("qualifier")) {
 				error(iu, "[ERROR] IU: " + iu.getId() + " has not replaced its qualifiier");
 				return;
 			}
 		}
+	}
+
+	private static org.osgi.framework.Version toOSGiVersion(Version version) {
+		if (version == null)
+			return null;
+		if (version == Version.emptyVersion)
+			return org.osgi.framework.Version.emptyVersion;
+		if (version == Version.MAX_VERSION)
+			return new org.osgi.framework.Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+
+		return new org.osgi.framework.Version(version.toString());
 	}
 
 	public void preAnalysis(IMetadataRepository repo) {

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;

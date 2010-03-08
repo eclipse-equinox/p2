@@ -141,7 +141,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(bd.isSingleton());
 		iu.setId(bd.getSymbolicName());
-		iu.setVersion(Version.fromOSGiVersion(bd.getVersion()));
+		iu.setVersion(PublisherHelper.fromOSGiVersion(bd.getVersion()));
 		iu.setFilter(bd.getPlatformFilter());
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), computeUpdateRange(bd.getVersion()), IUpdateDescriptor.NORMAL, null));
 		iu.setArtifacts(new IArtifactKey[] {key});
@@ -156,9 +156,9 @@ public class BundlesAction extends AbstractPublisherAction {
 		//		if (requiresAFragment)
 		//			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
 		if (isFragment)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), VersionRange.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
+			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
 		for (int j = 0; j < requiredBundles.length; j++)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), VersionRange.fromOSGiVersionRange(requiredBundles[j].getVersionRange()), null, requiredBundles[j].isOptional(), false));
+			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), PublisherHelper.fromOSGiVersionRange(requiredBundles[j].getVersionRange()), null, requiredBundles[j].isOptional(), false));
 
 		// Process the import packages
 		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
@@ -168,7 +168,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			String importPackageName = importSpec.getName();
 			if (importPackageName.indexOf('*') != -1)
 				continue;
-			VersionRange versionRange = VersionRange.fromOSGiVersionRange(importSpec.getVersionRange());
+			VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(importSpec.getVersionRange());
 			//TODO this needs to be refined to take into account all the attribute handled by imports
 			reqsDeps.add(MetadataFactory.createRequiredCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
 		}
@@ -176,14 +176,14 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		// Create set of provided capabilities
 		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();
-		providedCapabilities.add(PublisherHelper.createSelfCapability(bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion())));
-		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion())));
+		providedCapabilities.add(PublisherHelper.createSelfCapability(bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
+		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
 
 		// Process the export package
 		ExportPackageDescription exports[] = bd.getExportPackages();
 		for (int i = 0; i < exports.length; i++) {
 			//TODO make sure that we support all the refinement on the exports
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, exports[i].getName(), Version.fromOSGiVersion(exports[i].getVersion())));
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, exports[i].getName(), PublisherHelper.fromOSGiVersion(exports[i].getVersion())));
 		}
 		// Here we add a bundle capability to identify bundles
 		if (manifest != null && manifest.containsKey("Eclipse-SourceBundle")) //$NON-NLS-1$
@@ -191,7 +191,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		else
 			providedCapabilities.add(BUNDLE_CAPABILITY);
 		if (isFragment)
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), Version.fromOSGiVersion(bd.getVersion())));
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), PublisherHelper.fromOSGiVersion(bd.getVersion())));
 
 		if (manifestLocalizations != null) {
 			for (Entry<Locale, Map<String, String>> locEntry : manifestLocalizations.entrySet()) {
@@ -238,7 +238,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	static VersionRange computeUpdateRange(org.osgi.framework.Version base) {
 		VersionRange updateRange = null;
 		if (!base.equals(org.osgi.framework.Version.emptyVersion)) {
-			updateRange = new VersionRange(Version.emptyVersion, true, Version.fromOSGiVersion(base), false);
+			updateRange = new VersionRange(Version.emptyVersion, true, PublisherHelper.fromOSGiVersion(base), false);
 		} else {
 			updateRange = VersionRange.emptyRange;
 		}
@@ -264,10 +264,10 @@ public class BundlesAction extends AbstractPublisherAction {
 		InstallableUnitFragmentDescription fragment = new MetadataFactory.InstallableUnitFragmentDescription();
 		String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
 		fragment.setId(fragmentId);
-		fragment.setVersion(Version.fromOSGiVersion(bd.getVersion())); // TODO: is this a meaningful version?
+		fragment.setVersion(PublisherHelper.fromOSGiVersion(bd.getVersion())); // TODO: is this a meaningful version?
 
 		HostSpecification hostSpec = bd.getHost();
-		IRequirement[] hostReqs = new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), VersionRange.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
+		IRequirement[] hostReqs = new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), PublisherHelper.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
 		fragment.setHost(hostReqs);
 
 		fragment.setSingleton(true);
@@ -669,7 +669,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			BundleDescription bd = bundleDescriptions[i];
 			if (bd != null && bd.getSymbolicName() != null && bd.getVersion() != null) {
 				//First check to see if there is already an IU around for this
-				IInstallableUnit bundleIU = queryForIU(result, bundleDescriptions[i].getSymbolicName(), Version.fromOSGiVersion(bd.getVersion()));
+				IInstallableUnit bundleIU = queryForIU(result, bundleDescriptions[i].getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion()));
 				IArtifactKey key = createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
 				if (bundleIU == null) {
 					createAdviceFileAdvice(bundleDescriptions[i], info);
@@ -692,13 +692,13 @@ public class BundlesAction extends AbstractPublisherAction {
 				if (isFragment(bd)) {
 					// TODO: Need a test case for multiple hosts
 					String hostId = bd.getHost().getName();
-					VersionRange hostVersionRange = VersionRange.fromOSGiVersionRange(bd.getHost().getVersionRange());
+					VersionRange hostVersionRange = PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange());
 					IQueryResult<IInstallableUnit> hosts = queryForIUs(result, hostId, hostVersionRange);
 
 					for (Iterator<IInstallableUnit> itor = hosts.iterator(); itor.hasNext();) {
 						IInstallableUnit host = itor.next();
 						String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
-						fragment = queryForIU(result, fragmentId, Version.fromOSGiVersion(bd.getVersion()));
+						fragment = queryForIU(result, fragmentId, PublisherHelper.fromOSGiVersion(bd.getVersion()));
 						if (fragment == null) {
 							String[] externalizedStrings = getExternalizedStrings(host);
 							fragment = createHostLocalizationFragment(bundleIU, bd, hostId, externalizedStrings);
@@ -727,14 +727,14 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (location == null)
 			return;
 
-		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(), Version.fromOSGiVersion(bundleDescription.getVersion()), new Path(location), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
+		AdviceFileAdvice advice = new AdviceFileAdvice(bundleDescription.getSymbolicName(), PublisherHelper.fromOSGiVersion(bundleDescription.getVersion()), new Path(location), AdviceFileAdvice.BUNDLE_ADVICE_FILE);
 		if (advice.containsAdvice())
 			publisherInfo.addAdvice(advice);
 
 	}
 
 	private static boolean isDir(BundleDescription bundle, IPublisherInfo info) {
-		Collection<IBundleShapeAdvice> advice = info.getAdvice(null, true, bundle.getSymbolicName(), Version.fromOSGiVersion(bundle.getVersion()), IBundleShapeAdvice.class);
+		Collection<IBundleShapeAdvice> advice = info.getAdvice(null, true, bundle.getSymbolicName(), PublisherHelper.fromOSGiVersion(bundle.getVersion()), IBundleShapeAdvice.class);
 		// if the advice has a shape, use it
 		if (advice != null && !advice.isEmpty()) {
 			// we know there is some advice but if there is more than one, take the first.

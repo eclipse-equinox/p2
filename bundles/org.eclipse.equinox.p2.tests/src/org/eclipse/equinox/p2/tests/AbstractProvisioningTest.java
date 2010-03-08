@@ -9,8 +9,6 @@
 package org.eclipse.equinox.p2.tests;
 
 
-import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -25,13 +23,15 @@ import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.query.*;
@@ -39,6 +39,7 @@ import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.osgi.framework.*;
@@ -227,7 +228,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	public IInstallableUnit createBundleIU(BundleDescription bd, boolean isFolder, IArtifactKey key) {
 		PublisherInfo info = new PublisherInfo();
 		String shape = isFolder ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
-		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion()), shape));
+		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), PublisherHelper.fromOSGiVersion(bd.getVersion()), shape));
 		return BundlesAction.createBundleIU(bd, key, info);
 	}
 

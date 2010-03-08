@@ -17,7 +17,7 @@ import org.eclipse.osgi.util.NLS;
 
 /**
  * This class represents a version range with Omni Version bounds. It is signature
- * equivalent with the OSGi {@link org.eclipse.osgi.service.resolver.VersionRange VersionRange}
+ * equivalent with the OSGi org.eclipse.osgi.service.resolver.VersionRange
  *
  * @Immutable
  * @noextend This class is not intended to be subclassed by clients.
@@ -467,15 +467,4 @@ public class VersionRange implements Serializable {
 			throw new IllegalArgumentException(NLS.bind(Messages.range_min_0_is_not_less_then_range_max_1, minVersion, maxVersion));
 	}
 
-	public static org.eclipse.osgi.service.resolver.VersionRange toOSGiVersionRange(VersionRange range) {
-		if (range.equals(emptyRange))
-			return org.eclipse.osgi.service.resolver.VersionRange.emptyRange;
-		return new org.eclipse.osgi.service.resolver.VersionRange(Version.toOSGiVersion(range.getMinimum()), range.getIncludeMinimum(), Version.toOSGiVersion(range.getMaximum()), range.getIncludeMinimum());
-	}
-
-	public static VersionRange fromOSGiVersionRange(org.eclipse.osgi.service.resolver.VersionRange range) {
-		if (range.equals(org.eclipse.osgi.service.resolver.VersionRange.emptyRange))
-			return emptyRange;
-		return new VersionRange(Version.fromOSGiVersion(range.getMinimum()), range.getIncludeMinimum(), Version.fromOSGiVersion(range.getMaximum()), range.getIncludeMaximum());
-	}
 }

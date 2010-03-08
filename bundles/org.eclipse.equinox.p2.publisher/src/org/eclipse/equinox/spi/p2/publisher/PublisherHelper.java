@@ -12,18 +12,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.spi.p2.publisher;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.Map.Entry;
-import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
@@ -215,7 +212,7 @@ public class PublisherHelper {
 		ArrayList<IInstallableUnit> iusCreated = new ArrayList<IInstallableUnit>(1);
 		IPublisherInfo info = new PublisherInfo();
 		String shape = isFolderPlugin ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
-		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion()), shape));
+		info.addAdvice(new BundleShapeAdvice(bd.getSymbolicName(), fromOSGiVersion(bd.getVersion()), shape));
 		IInstallableUnit iu = BundlesAction.createBundleIU(bd, key, info);
 		addExtraProperties(iu, extraProperties);
 		iusCreated.add(iu);
@@ -230,4 +227,47 @@ public class PublisherHelper {
 		return MetadataFactory.createProvidedCapability(IU_NAMESPACE, installableUnitId, installableUnitVersion);
 	}
 
+	/**
+	 * Convert <code>version</code> into its OSGi equivalent if possible.
+	 *
+	 * @param version The version to convert. Can be <code>null</code>
+	 * @return The converted version or <code>null</code> if the argument was <code>null</code>
+	 * @throws UnsupportedOperationException if the version could not be converted into an OSGi version
+	 */
+	public static org.osgi.framework.Version toOSGiVersion(Version version) {
+		if (version == null)
+			return null;
+		if (version == Version.emptyVersion)
+			return org.osgi.framework.Version.emptyVersion;
+		if (version == Version.MAX_VERSION)
+			return new org.osgi.framework.Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+
+		BasicVersion bv = (BasicVersion) version;
+		return new org.osgi.framework.Version(bv.getMajor(), bv.getMinor(), bv.getMicro(), bv.getQualifier());
+	}
+
+	/**
+	 * Create an omni version from an OSGi <code>version</code>.
+	 * @param version The OSGi version. Can be <code>null</code>.
+	 * @return The created omni version
+	 */
+	public static Version fromOSGiVersion(org.osgi.framework.Version version) {
+		if (version == null)
+			return null;
+		if (version.getMajor() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE)
+			return Version.MAX_VERSION;
+		return Version.createOSGi(version.getMajor(), version.getMinor(), version.getMicro(), version.getQualifier());
+	}
+
+	public static org.eclipse.osgi.service.resolver.VersionRange toOSGiVersionRange(VersionRange range) {
+		if (range.equals(VersionRange.emptyRange))
+			return org.eclipse.osgi.service.resolver.VersionRange.emptyRange;
+		return new org.eclipse.osgi.service.resolver.VersionRange(toOSGiVersion(range.getMinimum()), range.getIncludeMinimum(), toOSGiVersion(range.getMaximum()), range.getIncludeMinimum());
+	}
+
+	public static VersionRange fromOSGiVersionRange(org.eclipse.osgi.service.resolver.VersionRange range) {
+		if (range.equals(org.eclipse.osgi.service.resolver.VersionRange.emptyRange))
+			return VersionRange.emptyRange;
+		return new VersionRange(fromOSGiVersion(range.getMinimum()), range.getIncludeMinimum(), fromOSGiVersion(range.getMaximum()), range.getIncludeMaximum());
+	}
 }

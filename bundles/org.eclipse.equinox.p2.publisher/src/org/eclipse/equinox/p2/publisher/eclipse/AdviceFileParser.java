@@ -8,16 +8,15 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class AdviceFileParser {
 
@@ -479,7 +478,7 @@ public class AdviceFileParser {
 
 		if (version.indexOf(QUALIFIER_SUBSTITUTION) != -1) {
 			try {
-				String qualifier = Version.toOSGiVersion(hostVersion).getQualifier();
+				String qualifier = PublisherHelper.toOSGiVersion(hostVersion).getQualifier();
 				if (qualifier == null)
 					qualifier = ""; //$NON-NLS-1$
 				if (qualifier.length() == 0) {

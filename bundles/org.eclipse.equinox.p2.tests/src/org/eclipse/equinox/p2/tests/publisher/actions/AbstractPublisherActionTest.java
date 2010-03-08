@@ -10,16 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 	//Note: this is tests for AbstractPublisherAction and not a base class for other tests
@@ -148,7 +147,7 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		iu.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability("ns2", "name2", null)});
 		iu.setMetaRequiredCapabilities(createRequiredCapabilities("ns3", "name3", null, ""));
 
-		assertNotSame(9, Version.toOSGiVersion(iu.getProvidedCapabilities().iterator().next().getVersion()).getMajor());
+		assertNotSame(9, PublisherHelper.toOSGiVersion(iu.getProvidedCapabilities().iterator().next().getVersion()).getMajor());
 		assertTrue(iu.getRequiredCapabilities().iterator().next().isGreedy());
 		assertTrue(iu.getMetaRequiredCapabilities().iterator().next().isGreedy());
 
@@ -161,7 +160,7 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		TestAction action = new TestAction();
 		action.testProcessCapabilityAdvice(iu, info);
 
-		assertEquals(9, Version.toOSGiVersion(iu.getProvidedCapabilities().iterator().next().getVersion()).getMajor());
+		assertEquals(9, PublisherHelper.toOSGiVersion(iu.getProvidedCapabilities().iterator().next().getVersion()).getMajor());
 		assertFalse(iu.getRequiredCapabilities().iterator().next().isGreedy());
 		assertFalse(iu.getMetaRequiredCapabilities().iterator().next().isGreedy());
 	}

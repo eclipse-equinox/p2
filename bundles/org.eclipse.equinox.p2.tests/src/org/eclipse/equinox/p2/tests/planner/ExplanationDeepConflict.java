@@ -14,9 +14,11 @@ import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class ExplanationDeepConflict extends AbstractProvisioningTest {
 	private IProfile profile;
@@ -27,10 +29,10 @@ public class ExplanationDeepConflict extends AbstractProvisioningTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		sdk = createIU("SDK", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[1.0.0, 1.0.0]")));
-		IInstallableUnit sdkPart = createIU("SDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "InnerSDKPart", new VersionRange("[1.0.0, 1.0.0]")));
-		IInstallableUnit innerSdkPart = createIU("InnerSDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "InnerInnerSDKPart", new VersionRange("[1.0.0, 1.0.0]")));
-		IInstallableUnit innerInnerSDKPart = createIU("InnerInnerSDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
+		sdk = createIU("SDK", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "SDKPart", new VersionRange("[1.0.0, 1.0.0]")));
+		IInstallableUnit sdkPart = createIU("SDKPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "InnerSDKPart", new VersionRange("[1.0.0, 1.0.0]")));
+		IInstallableUnit innerSdkPart = createIU("InnerSDKPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "InnerInnerSDKPart", new VersionRange("[1.0.0, 1.0.0]")));
+		IInstallableUnit innerInnerSDKPart = createIU("InnerInnerSDKPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {sdk, sdkPart, innerSdkPart, innerInnerSDKPart});
 
@@ -46,9 +48,9 @@ public class ExplanationDeepConflict extends AbstractProvisioningTest {
 
 	public void testDeepSingletonConflict() {
 		//CDT will have a singleton conflict with SDK
-		IInstallableUnit cdt = createIU("CDT", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "CDTPart", new VersionRange("[1.0.0, 1.0.0]")));
-		IInstallableUnit cdtPart = createIU("CDTPart", Version.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "InnerInnerSDKPart", new VersionRange("[2.0.0, 2.0.0]")));
-		IInstallableUnit innerInnerSDKPart2 = createIU("InnerInnerSDKPart", Version.fromOSGiVersion(new org.osgi.framework.Version("2.0.0")), true);
+		IInstallableUnit cdt = createIU("CDT", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "CDTPart", new VersionRange("[1.0.0, 1.0.0]")));
+		IInstallableUnit cdtPart = createIU("CDTPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "InnerInnerSDKPart", new VersionRange("[2.0.0, 2.0.0]")));
+		IInstallableUnit innerInnerSDKPart2 = createIU("InnerInnerSDKPart", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("2.0.0")), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, cdtPart, innerInnerSDKPart2});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);

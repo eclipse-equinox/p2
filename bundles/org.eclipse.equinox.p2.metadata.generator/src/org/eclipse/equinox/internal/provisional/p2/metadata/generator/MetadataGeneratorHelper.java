@@ -11,9 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.*;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,10 +24,14 @@ import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.BasicVersion;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.LocalizationHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.SiteCategory;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
@@ -243,7 +244,7 @@ public class MetadataGeneratorHelper {
 	private static VersionRange computeUpdateRange(org.osgi.framework.Version base) {
 		VersionRange updateRange = null;
 		if (!base.equals(org.osgi.framework.Version.emptyVersion)) {
-			updateRange = new VersionRange(Version.emptyVersion, true, Version.fromOSGiVersion(base), false);
+			updateRange = new VersionRange(Version.emptyVersion, true, fromOSGiVersion(base), false);
 		} else {
 			updateRange = VersionRange.emptyRange;
 		}
@@ -261,7 +262,7 @@ public class MetadataGeneratorHelper {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(bd.isSingleton());
 		iu.setId(bd.getSymbolicName());
-		iu.setVersion(Version.fromOSGiVersion(bd.getVersion()));
+		iu.setVersion(fromOSGiVersion(bd.getVersion()));
 		iu.setFilter(bd.getPlatformFilter());
 
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), computeUpdateRange(bd.getVersion()), IUpdateDescriptor.NORMAL, null));
@@ -275,9 +276,9 @@ public class MetadataGeneratorHelper {
 		//		if (requiresAFragment)
 		//			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
 		if (isFragment)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), VersionRange.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
+			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
 		for (int j = 0; j < requiredBundles.length; j++)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), VersionRange.fromOSGiVersionRange(requiredBundles[j].getVersionRange()), null, requiredBundles[j].isOptional(), false));
+			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), fromOSGiVersionRange(requiredBundles[j].getVersionRange()), null, requiredBundles[j].isOptional(), false));
 
 		// Process the import packages
 		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
@@ -288,7 +289,7 @@ public class MetadataGeneratorHelper {
 			if (importPackageName.indexOf('*') != -1)
 				continue;
 
-			VersionRange versionRange = VersionRange.fromOSGiVersionRange(importSpec.getVersionRange());
+			VersionRange versionRange = fromOSGiVersionRange(importSpec.getVersionRange());
 
 			//TODO this needs to be refined to take into account all the attribute handled by imports
 			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
@@ -297,14 +298,14 @@ public class MetadataGeneratorHelper {
 
 		// Create set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
-		providedCapabilities.add(createSelfCapability(bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion())));
-		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), Version.fromOSGiVersion(bd.getVersion())));
+		providedCapabilities.add(createSelfCapability(bd.getSymbolicName(), fromOSGiVersion(bd.getVersion())));
+		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), fromOSGiVersion(bd.getVersion())));
 
 		// Process the export package
 		ExportPackageDescription exports[] = bd.getExportPackages();
 		for (int i = 0; i < exports.length; i++) {
 			//TODO make sure that we support all the refinement on the exports
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_JAVA_PACKAGE, exports[i].getName(), Version.fromOSGiVersion(exports[i].getVersion())));
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_JAVA_PACKAGE, exports[i].getName(), fromOSGiVersion(exports[i].getVersion())));
 		}
 		// Here we add a bundle capability to identify bundles
 		if (isBinaryBundle)
@@ -313,7 +314,7 @@ public class MetadataGeneratorHelper {
 			providedCapabilities.add(SOURCE_BUNDLE_CAPABILITY);
 
 		if (isFragment)
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), Version.fromOSGiVersion(bd.getVersion())));
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), fromOSGiVersion(bd.getVersion())));
 
 		if (manifestLocalizations != null) {
 			for (Iterator iter = manifestLocalizations.keySet().iterator(); iter.hasNext();) {
@@ -411,10 +412,10 @@ public class MetadataGeneratorHelper {
 		InstallableUnitFragmentDescription fragment = new MetadataFactory.InstallableUnitFragmentDescription();
 		String fragmentId = makeHostLocalizationFragmentId(bd.getSymbolicName());
 		fragment.setId(fragmentId);
-		fragment.setVersion(Version.fromOSGiVersion(bd.getVersion())); // TODO: is this a meaningful version?
+		fragment.setVersion(fromOSGiVersion(bd.getVersion())); // TODO: is this a meaningful version?
 
 		HostSpecification hostSpec = bd.getHost();
-		IRequirement[] hostReqs = new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), VersionRange.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
+		IRequirement[] hostReqs = new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
 		fragment.setHost(hostReqs);
 
 		fragment.setSingleton(true);
@@ -651,7 +652,7 @@ public class MetadataGeneratorHelper {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/false);
 		iu.setId(id);
-		Version version = Version.fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
+		Version version = fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
 		iu.setVersion(version);
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, computeUpdateRange(new org.osgi.framework.Version(feature.getVersion())), IUpdateDescriptor.NORMAL, null));
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
@@ -750,7 +751,7 @@ public class MetadataGeneratorHelper {
 		if (transformIds)
 			id = getTransformedId(id, /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
-		Version version = Version.fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
+		Version version = fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
 		if (feature.getDescription() != null)
@@ -820,7 +821,7 @@ public class MetadataGeneratorHelper {
 		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
-		Version version = Version.fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
+		Version version = fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
 		if (feature.getDescription() != null)
@@ -1196,7 +1197,7 @@ public class MetadataGeneratorHelper {
 			return new VersionRange(version, true, version, true);
 		String match = entry.getMatch();
 
-		org.osgi.framework.Version osgiVersion = Version.toOSGiVersion(version);
+		org.osgi.framework.Version osgiVersion = toOSGiVersion(version);
 		if (match == null || match.equals("compatible")) { //$NON-NLS-1$
 			Version upper = Version.createOSGi(osgiVersion.getMajor() + 1, 0, 0);
 			return new VersionRange(version, true, upper, false);
@@ -1381,4 +1382,47 @@ public class MetadataGeneratorHelper {
 		return localizations;
 	}
 
+	/**
+	 * Convert <code>version</code> into its OSGi equivalent if possible.
+	 *
+	 * @param version The version to convert. Can be <code>null</code>
+	 * @return The converted version or <code>null</code> if the argument was <code>null</code>
+	 * @throws UnsupportedOperationException if the version could not be converted into an OSGi version
+	 */
+	public static org.osgi.framework.Version toOSGiVersion(Version version) {
+		if (version == null)
+			return null;
+		if (version == Version.emptyVersion)
+			return org.osgi.framework.Version.emptyVersion;
+		if (version == Version.MAX_VERSION)
+			return new org.osgi.framework.Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+
+		BasicVersion bv = (BasicVersion) version;
+		return new org.osgi.framework.Version(bv.getMajor(), bv.getMinor(), bv.getMicro(), bv.getQualifier());
+	}
+
+	/**
+	 * Create an omni version from an OSGi <code>version</code>.
+	 * @param version The OSGi version. Can be <code>null</code>.
+	 * @return The created omni version
+	 */
+	public static Version fromOSGiVersion(org.osgi.framework.Version version) {
+		if (version == null)
+			return null;
+		if (version.getMajor() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE)
+			return Version.MAX_VERSION;
+		return Version.createOSGi(version.getMajor(), version.getMinor(), version.getMicro(), version.getQualifier());
+	}
+
+	public static org.eclipse.osgi.service.resolver.VersionRange toOSGiVersionRange(VersionRange range) {
+		if (range.equals(VersionRange.emptyRange))
+			return org.eclipse.osgi.service.resolver.VersionRange.emptyRange;
+		return new org.eclipse.osgi.service.resolver.VersionRange(toOSGiVersion(range.getMinimum()), range.getIncludeMinimum(), toOSGiVersion(range.getMaximum()), range.getIncludeMinimum());
+	}
+
+	public static VersionRange fromOSGiVersionRange(org.eclipse.osgi.service.resolver.VersionRange range) {
+		if (range.equals(org.eclipse.osgi.service.resolver.VersionRange.emptyRange))
+			return VersionRange.emptyRange;
+		return new VersionRange(fromOSGiVersion(range.getMinimum()), range.getIncludeMinimum(), fromOSGiVersion(range.getMaximum()), range.getIncludeMaximum());
+	}
 };

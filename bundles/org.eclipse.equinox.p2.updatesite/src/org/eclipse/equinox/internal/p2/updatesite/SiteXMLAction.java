@@ -193,7 +193,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		} else {
 			String qualifier;
 			try {
-				qualifier = Version.toOSGiVersion(version).getQualifier();
+				qualifier = PublisherHelper.toOSGiVersion(version).getQualifier();
 			} catch (UnsupportedOperationException e) {
 				qualifier = null;
 			}
@@ -230,8 +230,8 @@ public class SiteXMLAction extends AbstractPublisherAction {
 
 				Version lower = Version.parseVersion(newVersion);
 				Version upper = null;
-				String newQualifier = VersionSuffixGenerator.incrementQualifier(Version.toOSGiVersion(lower).getQualifier());
-				org.osgi.framework.Version osgiVersion = Version.toOSGiVersion(lower);
+				String newQualifier = VersionSuffixGenerator.incrementQualifier(PublisherHelper.toOSGiVersion(lower).getQualifier());
+				org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(lower);
 				if (newQualifier == null)
 					upper = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor(), osgiVersion.getMicro() + 1);
 				else
@@ -345,7 +345,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			cat.setVersion(Version.createOSGi(1, 0, 0, versionSuffixGenerator.generateSuffix(featureIUs, CollectionUtils.<IVersionedId> emptyList())));
 		else {
 			if (categoryVersion.isOSGiCompatible()) {
-				org.osgi.framework.Version osgiVersion = Version.toOSGiVersion(categoryVersion);
+				org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(categoryVersion);
 				String qualifier = osgiVersion.getQualifier();
 				if (qualifier.endsWith(QUALIFIER)) {
 					String suffix = versionSuffixGenerator.generateSuffix(featureIUs, CollectionUtils.<IVersionedId> emptyList());

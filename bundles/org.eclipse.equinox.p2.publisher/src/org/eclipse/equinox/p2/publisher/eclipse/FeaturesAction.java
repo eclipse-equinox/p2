@@ -221,7 +221,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getGroupId(feature.getId());
 		iu.setId(id);
-		Version version = Version.fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
+		Version version = PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version(feature.getVersion()));
 		iu.setVersion(version);
 
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
@@ -564,7 +564,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (match.equals("perfect")) //$NON-NLS-1$
 			return new VersionRange(version, true, version, true);
 
-		org.osgi.framework.Version osgiVersion = Version.toOSGiVersion(version);
+		org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(version);
 		if (match.equals("equivalent")) { //$NON-NLS-1$
 			Version upper = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor() + 1, 0);
 			return new VersionRange(version, true, upper, false);

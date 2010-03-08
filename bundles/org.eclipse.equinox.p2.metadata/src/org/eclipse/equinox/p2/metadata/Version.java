@@ -120,19 +120,6 @@ public abstract class Version implements Comparable<Version>, Serializable {
 	}
 
 	/**
-	 * Create an omni version from an OSGi <code>version</code>.
-	 * @param version The OSGi version. Can be <code>null</code>.
-	 * @return The created omni version
-	 */
-	public static Version fromOSGiVersion(org.osgi.framework.Version version) {
-		if (version == null)
-			return null;
-		if (version.getMajor() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE && version.getMicro() == Integer.MAX_VALUE)
-			return MAX_VERSION;
-		return createOSGi(version.getMajor(), version.getMinor(), version.getMicro(), version.getQualifier());
-	}
-
-	/**
 	 * Parses a version identifier from the specified string. This method is for backward
 	 * compatibility with OSGi and will return the OSGi &quot;0.0.0&quot; version when
 	 * the provided string is empty or <code>null</code>.
@@ -152,25 +139,6 @@ public abstract class Version implements Comparable<Version>, Serializable {
 			return Version.emptyVersion;
 		Version v = create(version);
 		return v == null ? Version.emptyVersion : v;
-	}
-
-	/**
-	 * Convert <code>version</code> into its OSGi equivalent if possible.
-	 *
-	 * @param version The version to convert. Can be <code>null</code>
-	 * @return The converted version or <code>null</code> if the argument was <code>null</code>
-	 * @throws UnsupportedOperationException if the version could not be converted into an OSGi version
-	 */
-	public static org.osgi.framework.Version toOSGiVersion(Version version) {
-		if (version == null)
-			return null;
-		if (version == emptyVersion)
-			return org.osgi.framework.Version.emptyVersion;
-		if (version == MAX_VERSION)
-			return new org.osgi.framework.Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
-
-		BasicVersion bv = (BasicVersion) version;
-		return new org.osgi.framework.Version(bv.getMajor(), bv.getMinor(), bv.getMicro(), bv.getQualifier());
 	}
 
 	/**
