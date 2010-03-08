@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.net.URI;
 import java.util.Collection;
 import org.eclipse.equinox.internal.p2.ui.model.*;
@@ -75,7 +73,7 @@ public class QueryProvider {
 				IProfile targetProfile = null;
 				String profileId = context.getInstalledProfileId();
 				if (profileId != null) {
-					targetProfile = ui.getSession().getProfileRegistry().getProfile(profileId);
+					targetProfile = ProvUI.getProfileRegistry(ui.getSession()).getProfile(profileId);
 				}
 
 				IQuery<IInstallableUnit> topLevelQuery = policy.getVisibleAvailableIUQuery();
@@ -126,7 +124,7 @@ public class QueryProvider {
 				IProfile profile;
 				IInstallableUnit[] toUpdate = null;
 				if (element instanceof Updates) {
-					profile = ui.getSession().getProfileRegistry().getProfile(((Updates) element).getProfileId());
+					profile = ProvUI.getProfileRegistry(ui.getSession()).getProfile(((Updates) element).getProfileId());
 					toUpdate = ((Updates) element).getIUs();
 				} else {
 					profile = ProvUI.getAdapter(element, IProfile.class);

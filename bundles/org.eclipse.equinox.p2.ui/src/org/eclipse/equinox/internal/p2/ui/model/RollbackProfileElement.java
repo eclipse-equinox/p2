@@ -60,7 +60,7 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 
 	public IProfile getProfileSnapshot(IProgressMonitor monitor) {
 		if (snapshot == null) {
-			snapshot = getProvisioningUI().getSession().getProfileRegistry().getProfile(profileId, timestamp);
+			snapshot = ProvUI.getProfileRegistry(getProvisioningUI().getSession()).getProfile(profileId, timestamp);
 			setQueryable(snapshot);
 		}
 		return snapshot;

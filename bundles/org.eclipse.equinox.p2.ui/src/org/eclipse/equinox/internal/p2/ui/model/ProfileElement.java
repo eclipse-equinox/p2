@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.p2.ui.QueryProvider;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.query.IQueryable;
 
@@ -53,7 +52,7 @@ public class ProfileElement extends RemoteQueriedElement {
 	}
 
 	public IQueryable<?> getQueryable() {
-		return getProvisioningUI().getSession().getProfileRegistry().getProfile(profileId);
+		return ProvUI.getProfileRegistry(getProvisioningUI().getSession()).getProfile(profileId);
 	}
 
 	/*

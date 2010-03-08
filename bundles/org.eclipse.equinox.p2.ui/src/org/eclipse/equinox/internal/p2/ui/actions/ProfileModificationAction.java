@@ -58,7 +58,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 
 	public IProfile getProfile() {
 		String id = profileId == null ? ui.getProfileId() : profileId;
-		return ui.getSession().getProfileRegistry().getProfile(id);
+		return ProvUI.getProfileRegistry(ui.getSession()).getProfile(id);
 	}
 
 	protected IStatus getNoProfileOrSelectionStatus(String id, Collection<IInstallableUnit> ius) {

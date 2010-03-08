@@ -543,7 +543,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 				// If it is a recognized element and it is not the current profile, then it can be deleted.
 				if (selected instanceof RollbackProfileElement && !((RollbackProfileElement) selected).isCurrentProfile()) {
 					RollbackProfileElement snapshot = (RollbackProfileElement) selected;
-					IProfileRegistry registry = getSession().getProfileRegistry();
+					IProfileRegistry registry = ProvUI.getProfileRegistry(getSession());
 					if (registry != null) {
 						try {
 							registry.removeProfile(profileId, snapshot.getTimestamp());
