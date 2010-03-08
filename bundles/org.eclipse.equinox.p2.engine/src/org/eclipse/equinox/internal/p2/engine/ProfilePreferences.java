@@ -32,7 +32,7 @@ import org.osgi.service.prefs.BackingStoreException;
  */
 public class ProfilePreferences extends EclipsePreferences {
 	private class SaveJob extends Job {
-		private IProvisioningAgent agent;
+		IProvisioningAgent agent;
 
 		SaveJob(IProvisioningAgent agent) {
 			super(Messages.ProfilePreferences_saving);
@@ -268,23 +268,21 @@ public class ProfilePreferences extends EclipsePreferences {
 	 * of the save job instance.
 	 */
 	protected synchronized void save() throws BackingStoreException {
-		if (saveJob == null) {
-			ServiceReference agentRef;
-			try {
-				agentRef = getAgent(getSegment(absolutePath(), 1));
-				IProvisioningAgent agent = (IProvisioningAgent) EngineActivator.getContext().getService(agentRef);
+		try {
+			ServiceReference agentRef = getAgent(getSegment(absolutePath(), 1));
+			IProvisioningAgent agent = (IProvisioningAgent) EngineActivator.getContext().getService(agentRef);
+			if (saveJob == null || saveJob.agent != agent)
 				saveJob = new SaveJob(agent);
-				EngineActivator.getContext().ungetService(agentRef);
-			} catch (BackingStoreException e) {
-				if (Tracing.DEBUG_PROFILE_PREFERENCES)
-					e.printStackTrace();
-				//get agent has already gone away so we can't save preferences
-				//TODO see bug 300450
-			}
+			EngineActivator.getContext().ungetService(agentRef);
+		} catch (BackingStoreException e) {
+			if (Tracing.DEBUG_PROFILE_PREFERENCES)
+				e.printStackTrace();
+			//get agent has already gone away so we can't save preferences
+			//TODO see bug 300450
 		}
 		//only schedule a save if the engine bundle is still running
 		BundleContext context = EngineActivator.getContext();
-		if (context == null)
+		if (context == null || saveJob == null)
 			return;
 		try {
 			if (context.getBundle().getState() == Bundle.ACTIVE)
