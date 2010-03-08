@@ -13,6 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -139,6 +141,11 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 
 	public Policy getPolicy() {
 		return policy;
+	}
+
+	public IProfileRegistry getProfileRegistry() {
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(context, IProvisioningAgent.SERVICE_NAME);
+		return (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 	}
 
 	public ProvisioningUI getProvisioningUI(String profileId) {

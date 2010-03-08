@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 
@@ -40,7 +39,7 @@ public class ProfileFactory {
 		profileProperties.put(IProfile.PROP_NL, getDefaultNL());
 
 		try {
-			return ProvAdminUIActivator.getDefault().getProvisioningUI(null).getSession().getProfileRegistry().addProfile(profileId, profileProperties);
+			return ProvAdminUIActivator.getDefault().getProfileRegistry().addProfile(profileId, profileProperties);
 		} catch (ProvisionException e) {
 			// log
 		}

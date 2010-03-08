@@ -199,7 +199,7 @@ public class ProfilesView extends ProvView {
 	}
 
 	String[] getKnownProfileIds() {
-		IProfile[] allProfiles = getProvisioningUI().getSession().getProfileRegistry().getProfiles();
+		IProfile[] allProfiles = ProvAdminUIActivator.getDefault().getProfileRegistry().getProfiles();
 		String[] ids = new String[allProfiles.length];
 		for (int i = 0; i < allProfiles.length; i++)
 			ids[i] = allProfiles[i].getProfileId();

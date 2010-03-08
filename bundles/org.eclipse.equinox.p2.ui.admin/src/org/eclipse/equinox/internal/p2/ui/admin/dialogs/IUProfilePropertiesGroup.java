@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -75,6 +75,6 @@ public class IUProfilePropertiesGroup extends IUGroup {
 	}
 
 	private IProfile getProfile(InstalledIUElement element) {
-		return ProvisioningUI.getDefaultUI().getSession().getProfileRegistry().getProfile(element.getProfileId());
+		return ProvAdminUIActivator.getDefault().getProfileRegistry().getProfile(element.getProfileId());
 	}
 }
