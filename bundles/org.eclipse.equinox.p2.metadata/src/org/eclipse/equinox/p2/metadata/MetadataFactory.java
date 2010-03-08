@@ -471,14 +471,14 @@ public class MetadataFactory {
 		}
 	}
 
-	public static IUpdateDescriptor createUpdateDescriptor(Collection<IMatchExpression<IInstallableUnit>> descriptors, int severity, String description) {
-		return new UpdateDescriptor(descriptors, severity, description);
+	public static IUpdateDescriptor createUpdateDescriptor(Collection<IMatchExpression<IInstallableUnit>> descriptors, int severity, String description, URI location) {
+		return new UpdateDescriptor(descriptors, severity, description, null);
 	}
 
 	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description) {
 		Collection<IMatchExpression<IInstallableUnit>> descriptors = new ArrayList<IMatchExpression<IInstallableUnit>>(1);
 		descriptors.add(createMatchExpressionFromRange(IInstallableUnit.NAMESPACE_IU_ID, id, range));
-		return new UpdateDescriptor(descriptors, severity, description);
+		return new UpdateDescriptor(descriptors, severity, description, null);
 	}
 
 	private static final IExpression allVersionsExpression;

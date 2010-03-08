@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import java.net.URI;
 import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
@@ -29,6 +30,13 @@ public interface IUpdateDescriptor {
 	 * @return A description
 	 */
 	public String getDescription();
+
+	/**
+	 * Returns the location of a document containing the description.
+	 * 
+	 * @return the location of the document, or <code>null</code>
+	 */
+	public URI getLocation();
 
 	/**
 	 * The importance of the update descriptor represented as a int.

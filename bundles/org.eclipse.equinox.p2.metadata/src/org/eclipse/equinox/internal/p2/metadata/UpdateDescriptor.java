@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import java.net.URI;
 import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
@@ -18,11 +19,13 @@ public class UpdateDescriptor implements IUpdateDescriptor {
 
 	private String description;
 	private int severity;
+	private URI location;
 
-	public UpdateDescriptor(Collection<IMatchExpression<IInstallableUnit>> descriptors, int severity, String description) {
+	public UpdateDescriptor(Collection<IMatchExpression<IInstallableUnit>> descriptors, int severity, String description, URI location) {
 		this.descriptors = descriptors;
 		this.severity = severity;
 		this.description = description;
+		this.location = location;
 	}
 
 	public String getDescription() {
@@ -39,5 +42,9 @@ public class UpdateDescriptor implements IUpdateDescriptor {
 
 	public Collection<IMatchExpression<IInstallableUnit>> getIUsBeingUpdated() {
 		return descriptors;
+	}
+
+	public URI getLocation() {
+		return location;
 	}
 }

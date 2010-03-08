@@ -500,7 +500,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		desc.setMetaRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
 		desc.setSingleton(prototype.isSingleton());
 		desc.setTouchpointType(MetadataFactory.createTouchpointType(prototype.getTouchpointType().getId(), prototype.getTouchpointType().getVersion()));
-		desc.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(prototype.getUpdateDescriptor().getIUsBeingUpdated(), prototype.getUpdateDescriptor().getSeverity(), prototype.getUpdateDescriptor().getDescription()));
+		desc.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(prototype.getUpdateDescriptor().getIUsBeingUpdated(), prototype.getUpdateDescriptor().getSeverity(), prototype.getUpdateDescriptor().getDescription(), null));
 		desc.setVersion(prototype.getVersion());
 		Map prototypeProperties = prototype.getProperties();
 		Set entries = prototypeProperties.entrySet();
