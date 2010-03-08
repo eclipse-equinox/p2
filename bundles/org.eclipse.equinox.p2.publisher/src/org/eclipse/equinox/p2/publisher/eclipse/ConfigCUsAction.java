@@ -221,16 +221,16 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	 * with the name id.type and the given version.  This allows others to create an abstract
 	 * dependency on having one of these things around but not having to list out the configs.
 	 */
-	private IInstallableUnit createCU(String id, Version version, String type, String flavor, String configSpec, Map<String, String> touchpointData) {
+	private IInstallableUnit createCU(String cuId, Version cuVersion, String cuType, String cuFlavor, String configSpec, Map<String, String> touchpointData) {
 		InstallableUnitDescription cu = new InstallableUnitDescription();
-		String resultId = createCUIdString(id, type, flavor, configSpec);
+		String resultId = createCUIdString(cuId, cuType, cuFlavor, configSpec);
 		cu.setId(resultId);
-		cu.setVersion(version);
+		cu.setVersion(cuVersion);
 		cu.setFilter(createFilterSpec(configSpec));
-		IProvidedCapability selfCapability = PublisherHelper.createSelfCapability(resultId, version);
-		String namespace = getAbstractCUCapabilityNamespace(id, type, flavor, configSpec);
-		String abstractId = getAbstractCUCapabilityId(id, type, flavor, configSpec);
-		IProvidedCapability abstractCapability = MetadataFactory.createProvidedCapability(namespace, abstractId, version);
+		IProvidedCapability selfCapability = PublisherHelper.createSelfCapability(resultId, cuVersion);
+		String namespace = getAbstractCUCapabilityNamespace(cuId, cuType, cuFlavor, configSpec);
+		String abstractId = getAbstractCUCapabilityId(cuId, cuType, cuFlavor, configSpec);
+		IProvidedCapability abstractCapability = MetadataFactory.createProvidedCapability(namespace, abstractId, cuVersion);
 		cu.setCapabilities(new IProvidedCapability[] {selfCapability, abstractCapability});
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
@@ -319,7 +319,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			IInstallableUnit iu = bundle.getIU();
 
 			// If there is no host, or the filters don't match, skip this one.
-			if (iu == null || !filterMatches(iu.getFilter() == null ? null : iu.getFilter(), configSpec))
+			if (iu == null || !filterMatches(iu.getFilter(), configSpec))
 				continue;
 
 			// TODO need to factor this out into its own action

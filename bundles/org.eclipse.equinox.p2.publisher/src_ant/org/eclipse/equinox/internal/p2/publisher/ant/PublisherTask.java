@@ -26,7 +26,6 @@ import org.eclipse.equinox.p2.publisher.eclipse.EclipseInstallAction;
  */
 public class PublisherTask extends AbstractPublishTask {
 
-	protected String source;
 	protected boolean inplace = false;
 	protected String[] configurations;
 	protected String mode;

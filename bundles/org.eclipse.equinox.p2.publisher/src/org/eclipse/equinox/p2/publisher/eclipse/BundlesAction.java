@@ -115,8 +115,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		Version hostVersion = Version.parseVersion(configInfo.getVersion());
 		VersionRange range = hostVersion == Version.emptyVersion ? VersionRange.emptyRange : new VersionRange(hostVersion, true, Version.MAX_VERSION, true);
 		cu.setHost(new IRequirement[] { //
-				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, hostId, range, null, false, false, true), //
-						MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
+				MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, hostId, range, null, false, false, true), //
+						MetadataFactory.createRequirement(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
@@ -156,9 +156,9 @@ public class BundlesAction extends AbstractPublisherAction {
 		//		if (requiresAFragment)
 		//			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
 		if (isFragment)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
+			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
 		for (int j = 0; j < requiredBundles.length; j++)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), PublisherHelper.fromOSGiVersionRange(requiredBundles[j].getVersionRange()), null, requiredBundles[j].isOptional(), false));
+			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), PublisherHelper.fromOSGiVersionRange(requiredBundles[j].getVersionRange()), null, requiredBundles[j].isOptional(), false));
 
 		// Process the import packages
 		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
@@ -170,7 +170,7 @@ public class BundlesAction extends AbstractPublisherAction {
 				continue;
 			VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(importSpec.getVersionRange());
 			//TODO this needs to be refined to take into account all the attribute handled by imports
-			reqsDeps.add(MetadataFactory.createRequiredCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
+			reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
 		}
 		iu.setRequiredCapabilities(reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
 
@@ -267,7 +267,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		fragment.setVersion(PublisherHelper.fromOSGiVersion(bd.getVersion())); // TODO: is this a meaningful version?
 
 		HostSpecification hostSpec = bd.getHost();
-		IRequirement[] hostReqs = new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), PublisherHelper.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
+		IRequirement[] hostReqs = new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), PublisherHelper.fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
 		fragment.setHost(hostReqs);
 
 		fragment.setSingleton(true);
@@ -332,7 +332,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		cu.setCapabilities(new IProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		// Create a required capability on bundles
-		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequiredCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
+		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequirement(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
 		cu.setHost(reqs);
 		Map<String, String> touchpointData = new HashMap<String, String>();
 

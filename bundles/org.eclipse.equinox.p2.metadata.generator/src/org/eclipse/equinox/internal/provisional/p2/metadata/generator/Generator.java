@@ -198,15 +198,15 @@ public class Generator {
 		String version = getProductVersion();
 		VersionRange range = new VersionRange(Version.create(version), true, Version.create(version), true);
 		ArrayList requires = new ArrayList(1);
-		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_LAUCHER_SUFFIX, range, null, false, true));
-		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_INI_SUFFIX, range, null, false, false));
-		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_CONFIG_SUFFIX, range, null, false, false));
+		requires.add(MetadataFactory.createRequirement(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_LAUCHER_SUFFIX, range, null, false, true));
+		requires.add(MetadataFactory.createRequirement(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_INI_SUFFIX, range, null, false, false));
+		requires.add(MetadataFactory.createRequirement(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_CONFIG_SUFFIX, range, null, false, false));
 
 		//default CUs		
-		requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId(MetadataGeneratorHelper.OSGI_BUNDLE_CLASSIFIER, info.getFlavor()), VersionRange.emptyRange, null, false, false));
-		requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId("source", info.getFlavor()), VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
+		requires.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId(MetadataGeneratorHelper.OSGI_BUNDLE_CLASSIFIER, info.getFlavor()), VersionRange.emptyRange, null, false, false));
+		requires.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId("source", info.getFlavor()), VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
 		if (productFile.useFeatures())
-			requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId(MetadataGeneratorHelper.ECLIPSE_FEATURE_CLASSIFIER, info.getFlavor()), VersionRange.emptyRange, MetadataGeneratorHelper.INSTALL_FEATURES_FILTER, true, false));
+			requires.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId(MetadataGeneratorHelper.ECLIPSE_FEATURE_CLASSIFIER, info.getFlavor()), VersionRange.emptyRange, MetadataGeneratorHelper.INSTALL_FEATURES_FILTER, true, false));
 
 		InstallableUnitDescription root = createTopLevelIUDescription(productContents, productFile.getId(), version, productFile.getProductName(), requires, false);
 		return MetadataFactory.createInstallableUnit(root);
@@ -236,7 +236,7 @@ public class Generator {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
 			//			boolean isOptional = checkOptionalRootDependency(iu);
-			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
+			reqsConfigurationUnits.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
 		}
 		if (requires != null)
 			reqsConfigurationUnits.addAll(requires);
@@ -709,7 +709,7 @@ public class Generator {
 		ArrayList required = new ArrayList(rootCategory.size());
 		for (Iterator iterator = rootCategory.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			required.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), VersionRange.emptyRange, iu.getFilter(), false, false));
+			required.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), VersionRange.emptyRange, iu.getFilter(), false, false));
 		}
 		cat.setRequiredCapabilities((IRequirement[]) required.toArray(new IRequirement[required.size()]));
 		cat.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, categoryId, Version.emptyVersion)});
@@ -817,7 +817,7 @@ public class Generator {
 		String launcherFragment = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
 		if (!(Constants.OS_MACOSX.equals(os) && !Constants.ARCH_X86_64.equals(arch)))
 			launcherFragment += '.' + arch;
-		iu.setRequiredCapabilities(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
+		iu.setRequiredCapabilities(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
 		result.rootIUs.add(MetadataFactory.createInstallableUnit(iu));
 
 		//Create the CU
@@ -827,7 +827,7 @@ public class Generator {
 		cu.setVersion(launcherVersion);
 		if (filter != null)
 			cu.setFilter(filter);
-		cu.setHost(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherId, new VersionRange(launcherVersion, true, launcherVersion, true), null, false, false)});
+		cu.setHost(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, launcherId, new VersionRange(launcherVersion, true, launcherVersion, true), null, false, false)});
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		//TODO bug 218890, would like the fragment to provide the launcher capability as well, but can't right now.
 		cu.setCapabilities(new IProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configUnitId, launcherVersion)});

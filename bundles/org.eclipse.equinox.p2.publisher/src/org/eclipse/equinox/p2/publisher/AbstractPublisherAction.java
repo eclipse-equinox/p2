@@ -10,9 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
@@ -25,6 +22,7 @@ import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.QuotedTokenizer;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.query.*;
@@ -156,12 +154,12 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			if (next instanceof IInstallableUnit) {
 				IInstallableUnit iu = (IInstallableUnit) next;
 				VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter() == null ? null : iu.getFilter(), false, false));
+				result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter() == null ? null : iu.getFilter(), false, false));
 			} else {
 				Version version = next.getVersion();
 				VersionRange range = (version == null || Version.emptyVersion.equals(version)) ? VersionRange.emptyRange : new VersionRange(version, true, version, true);
 				Filter filter = getFilterAdvice(next);
-				result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, next.getId(), range, filter, false, false));
+				result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, next.getId(), range, filter, false, false));
 			}
 		}
 		return result;

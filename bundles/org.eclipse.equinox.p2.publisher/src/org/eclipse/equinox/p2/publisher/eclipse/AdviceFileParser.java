@@ -228,7 +228,7 @@ public class AdviceFileParser {
 			}
 			next();
 		}
-		IRequirement capability = MetadataFactory.createRequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
+		IRequirement capability = MetadataFactory.createRequirement(namespace, name, range, filter, optional, multiple, greedy);
 		requires.add(capability);
 	}
 
