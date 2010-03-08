@@ -14,10 +14,12 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 
@@ -86,6 +88,10 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return new ArtifactDescriptor(key);
+	}
+
+	public IArtifactKey createArtifactKey(String classifier, String id, Version version) {
+		return new ArtifactKey(classifier, id, version);
 	}
 
 	public IStatus executeBatch(Runnable runnable) {

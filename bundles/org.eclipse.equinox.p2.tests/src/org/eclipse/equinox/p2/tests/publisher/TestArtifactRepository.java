@@ -17,11 +17,13 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -296,6 +298,10 @@ public class TestArtifactRepository implements IArtifactRepository {
 
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return new ArtifactDescriptor(key);
+	}
+
+	public IArtifactKey createArtifactKey(String classifier, String id, Version keyVersion) {
+		return new ArtifactKey(classifier, id, keyVersion);
 	}
 
 	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {

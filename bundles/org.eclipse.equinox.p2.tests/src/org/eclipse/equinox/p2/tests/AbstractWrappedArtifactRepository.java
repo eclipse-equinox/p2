@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 
@@ -127,6 +128,10 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return delegate.createArtifactDescriptor(key);
+	}
+
+	public IArtifactKey createArtifactKey(String classifier, String id, Version version) {
+		return delegate.createArtifactKey(classifier, id, version);
 	}
 
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {

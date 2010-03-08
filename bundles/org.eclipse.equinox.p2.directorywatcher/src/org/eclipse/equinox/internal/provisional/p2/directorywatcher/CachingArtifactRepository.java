@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -230,6 +231,10 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return innerRepo.createArtifactDescriptor(key);
+	}
+
+	public IArtifactKey createArtifactKey(String classifier, String id, Version version) {
+		return innerRepo.createArtifactKey(classifier, id, version);
 	}
 
 	public IQueryable<IArtifactDescriptor> descriptorQueryable() {

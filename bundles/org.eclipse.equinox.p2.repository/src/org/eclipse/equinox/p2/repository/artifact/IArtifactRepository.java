@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
@@ -38,11 +39,20 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	public static int CODE_RETRY = 13;
 
 	/**
-	 * Create an instance of IArtifactDescriptor based on the given key
-	 * @param key
+	 * Create an instance of {@link IArtifactDescriptor} based on the given key
+	 * @param key {@link IArtifactKey}
 	 * @return a new instanceof of IArtifactDescriptor
 	 */
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key);
+
+	/**
+	 * Create an instance of {@link IArtifactKey}
+	 * @param classifier
+	 * @param id
+	 * @param version
+	 * @return a new IArtifactKey
+	 */
+	public IArtifactKey createArtifactKey(String classifier, String id, Version version);
 
 	/**
 	 * Add the given descriptor to the set of descriptors in this repository.  This is 
