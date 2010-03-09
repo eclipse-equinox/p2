@@ -52,9 +52,7 @@ public class Bug259537 extends AbstractProvisioningTest {
 		ProvisioningPlan provisioningPlan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertOK("Plan not OK", provisioningPlan.getStatus());
 		assertOK("Engine failed", engine.perform(provisioningPlan, null));
-	}
 
-	public void test2() {
 		a2 = createIU("A", Version.create("1.1.0"), true);
 		b2 = createIU("B", Version.create("2.2.0"), true);
 		IRequirement c1 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 2.0.0)"), null, false, false);
@@ -62,11 +60,10 @@ public class Bug259537 extends AbstractProvisioningTest {
 		f2 = createIU("F", Version.createOSGi(2, 1, 0), new IRequirement[] {c1, c2});
 
 		createTestMetdataRepository(new IInstallableUnit[] {a2, b2, f2});
-		ProfileChangeRequest req = new ProfileChangeRequest(getProfile("TestProfile." + getName()));
+		ProfileChangeRequest req2 = new ProfileChangeRequest(getProfile("TestProfile." + getName()));
 		req.addInstallableUnits(f2);
 		req.remove(f1);
-		ProvisioningPlan provisioningPlan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
-		assertOK("Plan not OK", provisioningPlan.getStatus());
-
+		ProvisioningPlan provisioningPlan2 = (ProvisioningPlan) planner.getProvisioningPlan(req2, null, null);
+		assertOK("Plan not OK", provisioningPlan2.getStatus());
 	}
 }
