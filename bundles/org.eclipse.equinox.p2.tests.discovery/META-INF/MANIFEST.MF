@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.eclipse.equinox.p2.tests.discovery;singleton:=true
-Bundle-Version: 3.4.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: %Bundle-Provider
 Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.p2.discovery.tests;version="2.0.0",
