@@ -219,13 +219,13 @@ public class Projector {
 
 		Set<IInstallableUnit> transitiveClosure;
 		if (newRoots.isEmpty()) {
-			transitiveClosure = Collections.emptySet();
+			transitiveClosure = CollectionUtils.emptySet();
 		} else {
 			IQueryable<IInstallableUnit> queryable = new Slicer(picker, selectionContext, false).slice(newRoots.toArray(new InstallableUnit[newRoots.size()]), new NullProgressMonitor());
-			if (queryable==null) {
-				transitiveClosure = Collections.emptySet();
+			if (queryable == null) {
+				transitiveClosure = CollectionUtils.emptySet();
 			} else {
-			transitiveClosure = queryable.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet();
+				transitiveClosure = queryable.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).toSet();
 			}
 		}
 
