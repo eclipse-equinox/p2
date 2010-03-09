@@ -239,8 +239,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			final Set<String> installableUnitIdsThisRepository = getDescriptorIds(repository);
 			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery( //
 					"id ~= /*.feature.group/ && " + //$NON-NLS-1$
-							"properties['org.eclipse.equinox.p2.type.group'] == true && " + //$NON-NLS-1$
-							"providedCapabilities.exists(p | p.namespace == 'org.eclipse.equinox.p2.iu' && p.name == id)"); //$NON-NLS-1$
+							"properties['org.eclipse.equinox.p2.type.group'] == true ");//$NON-NLS-1$
 			IQueryResult<IInstallableUnit> result = repository.query(query, monitor.newChild(1));
 			for (Iterator<IInstallableUnit> iter = result.iterator(); iter.hasNext();) {
 				IInstallableUnit iu = iter.next();
