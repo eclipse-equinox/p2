@@ -47,6 +47,7 @@ public interface IPlanner {
 
 	/**
 	 * @noreference This method is not intended to be referenced by clients. 
+	 * You may want to consider using the org.eclipse.equinox.p2.operations.UpdateOperation class instead. 
 	 */
 	public IQueryResult<IInstallableUnit> updatesFor(IInstallableUnit iu, ProvisioningContext context, IProgressMonitor monitor);
 }
