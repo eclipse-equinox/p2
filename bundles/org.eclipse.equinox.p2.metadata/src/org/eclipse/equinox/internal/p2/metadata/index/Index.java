@@ -58,10 +58,18 @@ public abstract class Index<T> implements IIndex<T> {
 				Binary eqExpr = (Binary) targetExpr;
 				IExpression lhs = eqExpr.lhs;
 				IExpression rhs = eqExpr.rhs;
-				if (isIndexedMember(lhs, variable, memberName))
-					return concatenateUnique(queriedKeys, rhs.evaluate(ctx));
-				if (isIndexedMember(rhs, variable, memberName))
-					return concatenateUnique(queriedKeys, lhs.evaluate(ctx));
+				if (isIndexedMember(lhs, variable, memberName)) {
+					Object val = safeEvaluate(ctx, rhs);
+					if (val == null)
+						return null;
+					return concatenateUnique(queriedKeys, val);
+				}
+				if (isIndexedMember(rhs, variable, memberName)) {
+					Object val = safeEvaluate(ctx, lhs);
+					if (val == null)
+						return null;
+					return concatenateUnique(queriedKeys, val);
+				}
 
 				// Not applicable for indexing
 				return null;
@@ -103,7 +111,12 @@ public abstract class Index<T> implements IIndex<T> {
 				// We must evaluate the lhs to find the referenced keys
 				//
 				CollectionFilter cf = (CollectionFilter) targetExpr;
-				Iterator<?> values = cf.getOperand().evaluateAsIterator(ctx);
+				Iterator<?> values;
+				try {
+					values = cf.getOperand().evaluateAsIterator(ctx);
+				} catch (IllegalArgumentException e) {
+					return null;
+				}
 				if (!values.hasNext())
 					// No keys are requested but we know that an exists must
 					// fail at this point. An all will however succeed regardless
@@ -124,5 +137,13 @@ public abstract class Index<T> implements IIndex<T> {
 				return queriedKeys;
 		}
 		return null;
+	}
+
+	private static Object safeEvaluate(IEvaluationContext ctx, IExpression expr) {
+		try {
+			return expr.evaluate(ctx);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
 	}
 }

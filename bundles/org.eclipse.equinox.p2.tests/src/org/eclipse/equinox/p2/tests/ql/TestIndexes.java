@@ -56,6 +56,13 @@ public class TestIndexes extends AbstractProvisioningTest {
 		assertEquals(queryResultSize(result), 1);
 	}
 
+	public void testComplexIndexMatches() throws Exception {
+		IMetadataRepository repo = getMDR("/testData/galileoM7");
+		IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery("id ~= /*.feature.group/ && properties['org.eclipse.equinox.p2.type.group'] == true && providedCapabilities.exists(p | p.namespace == 'org.eclipse.equinox.p2.iu' && p.name == id)");
+		IQueryResult<IInstallableUnit> result = repo.query(query, getMonitor());
+		assertEquals(queryResultSize(result), 487);
+	}
+
 	private IMetadataRepository getMDR(String uri) throws Exception {
 		URI metadataRepo = getTestData("1.1", uri).toURI();
 
