@@ -45,5 +45,8 @@ public interface IPlanner {
 
 	public IProfileChangeRequest createChangeRequest(IProfile profileToChange);
 
+	/**
+	 * @noreference This method is not intended to be referenced by clients. 
+	 */
 	public IQueryResult<IInstallableUnit> updatesFor(IInstallableUnit iu, ProvisioningContext context, IProgressMonitor monitor);
 }
