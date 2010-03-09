@@ -36,11 +36,12 @@ public class ProvisioningPlan implements IProvisioningPlan {
 	}
 
 	public ProvisioningPlan(IStatus status, IProfile profile, Operand[] operands, ProvisioningContext context, IProvisioningPlan installerPlan) {
+		Assert.isNotNull(profile);
 		this.status = status;
 		this.profile = profile;
 		if (operands != null)
 			this.operands.addAll(Arrays.asList(operands));
-		this.context = (context == null) ? new ProvisioningContext() : context;
+		this.context = (context == null) ? new ProvisioningContext(profile.getProvisioningAgent()) : context;
 		this.installerPlan = installerPlan;
 	}
 

@@ -50,7 +50,7 @@ public class SDKPatchingTest1 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallFeaturePatch() {
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 		ctx.setExtraInstallableUnits(newIUs);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {patchInstallingCommon});

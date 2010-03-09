@@ -117,7 +117,7 @@ public class AutomaticUpdater implements IUpdateListener {
 		// preference dictates.
 
 		if (download) {
-			ProfileModificationJob job = new ProfileModificationJob(AutomaticUpdateMessages.AutomaticUpdater_AutomaticDownloadOperationName, getSession(), event.getProfileId(), operation.getProvisioningPlan(), new ProvisioningContext());
+			ProfileModificationJob job = new ProfileModificationJob(AutomaticUpdateMessages.AutomaticUpdater_AutomaticDownloadOperationName, getSession(), event.getProfileId(), operation.getProvisioningPlan(), new ProvisioningContext(getSession().getProvisioningAgent()));
 			job.setPhaseSet(PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_COLLECT}));
 			job.setUser(false);
 			job.setSystem(true);

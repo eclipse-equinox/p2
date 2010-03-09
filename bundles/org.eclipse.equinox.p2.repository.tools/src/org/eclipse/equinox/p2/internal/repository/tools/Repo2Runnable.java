@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -29,6 +27,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -95,8 +94,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			List<IArtifactRequest> artifactRequests = (List<IArtifactRequest>) parameters.get(NATIVE_ARTIFACTS);
 			ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
 			IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-			IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-			DownloadManager dm = new DownloadManager(context, repositoryManager);
+			DownloadManager dm = new DownloadManager(context, agent);
 			for (IArtifactRequest request : artifactRequests) {
 				dm.add(request);
 			}
@@ -128,7 +126,7 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			ProfileChangeRequest request = new ProfileChangeRequest(profile);
 			request.setAbsoluteMode(true);
 			request.addAll(processedIUs);
-			ProvisioningContext context = new ProvisioningContext();
+			ProvisioningContext context = new ProvisioningContext(agent);
 			IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 			if (engine == null)
 				throw new ProvisionException(Messages.exception_noEngineService);

@@ -72,7 +72,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(oldUnits);
 		request.addInstallableUnits(newUnits);
-		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(getAgent()), null);
 		assertTrue("1.0", plan.getStatus().isOK());
 		assertProfileContainsAll("1.1", profile, oldUnits);
 		IStatus result = createEngine().perform(plan, null);
@@ -85,7 +85,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(new IInstallableUnit[] {frag1});
 		request.addInstallableUnits(new IInstallableUnit[] {frag1_4});
-		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(getAgent()), null);
 		assertTrue("1.0", plan.getStatus().isOK());
 	}
 

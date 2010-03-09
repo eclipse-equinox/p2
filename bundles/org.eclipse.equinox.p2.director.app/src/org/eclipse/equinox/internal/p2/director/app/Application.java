@@ -405,7 +405,8 @@ public class Application implements IApplication {
 							logFailure(multi);
 							return EXIT_ERROR;
 						}
-						ProvisioningContext context = new ProvisioningContext(metadataRepositoryLocations);
+						ProvisioningContext context = new ProvisioningContext(agent);
+						context.setMetadataRepositories(metadataRepositoryLocations);
 						context.setArtifactRepositories(artifactRepositoryLocations);
 						ProfileChangeRequest request = buildProvisioningRequest(profile, roots, command == COMMAND_INSTALL);
 						printRequest(request);
@@ -534,7 +535,8 @@ public class Application implements IApplication {
 		// will set it back later (see bug 269468)
 		request.setProfileProperty(IProfile.PROP_ROAMING, "false"); //$NON-NLS-1$
 
-		ProvisioningContext context = new ProvisioningContext(new URI[0]);
+		ProvisioningContext context = new ProvisioningContext(agent);
+		context.setMetadataRepositories(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		return PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
@@ -546,7 +548,8 @@ public class Application implements IApplication {
 	private IStatus setRoaming(IProfile profile) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.setProfileProperty(IProfile.PROP_ROAMING, "true"); //$NON-NLS-1$
-		ProvisioningContext context = new ProvisioningContext(new URI[0]);
+		ProvisioningContext context = new ProvisioningContext(agent);
+		context.setMetadataRepositories(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		return PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());

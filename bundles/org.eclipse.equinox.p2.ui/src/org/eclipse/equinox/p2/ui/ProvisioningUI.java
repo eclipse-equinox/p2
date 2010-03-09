@@ -175,12 +175,13 @@ public class ProvisioningUI {
 
 	private ProvisioningContext makeProvisioningContext(URI[] repos) {
 		if (repos != null) {
-			ProvisioningContext context = new ProvisioningContext(repos);
+			ProvisioningContext context = new ProvisioningContext(getSession().getProvisioningAgent());
+			context.setMetadataRepositories(repos);
 			context.setArtifactRepositories(repos);
 			return context;
 		}
 		// look everywhere
-		return new ProvisioningContext();
+		return new ProvisioningContext(getSession().getProvisioningAgent());
 	}
 
 	/**

@@ -57,7 +57,8 @@ public class NonMinimalState extends AbstractProvisioningTest {
 	public void testValidateProfileWithoutRepo() {
 		IPlanner planner = createPlanner();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		ProvisioningContext ctx = new ProvisioningContext(new URI[0]);
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
+		ctx.setMetadataRepositories(new URI[0]);
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
 		assertTrue(plan.getAdditions().query(QueryUtil.createIUQuery("org.eclipse.tptp.platform.agentcontroller"), null).isEmpty());

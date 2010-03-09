@@ -561,12 +561,12 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	public ProvisioningContext getProvisioningContext() {
 		// If the user can't manipulate repos, always resolve against everything
 		if (!getPolicy().getRepositoriesVisible() || repoSelector == null) {
-			return new ProvisioningContext();
+			return new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent());
 		}
 		// Consult the checkbox to see if we should resolve against everything,
 		// or use the combo to determine what to do.
 		if (resolveAllCheckbox.getSelection())
-			return new ProvisioningContext();
+			return new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent());
 		// Use the contents of the combo to determine the context
 		return repoSelector.getProvisioningContext();
 	}

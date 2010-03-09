@@ -57,7 +57,7 @@ public class UpdateTest extends AbstractProvisioningTest {
 	public void testInstall() {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {f1_1});
-		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(getAgent()), new NullProgressMonitor());
 		assertOK("1.0", plan.getStatus());
 		assertOK("1.1", director.provision(request, null, null));
 		request = new ProfileChangeRequest(profile);

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.p2.engine.PhaseSetFactory;
-
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -57,7 +55,7 @@ public class Engine implements IEngine {
 		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 
 		if (context == null)
-			context = new ProvisioningContext();
+			context = new ProvisioningContext(agent);
 
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
@@ -108,7 +106,7 @@ public class Engine implements IEngine {
 		checkArguments(iprofile, phaseSet, operands, context, monitor);
 
 		if (context == null)
-			context = new ProvisioningContext();
+			context = new ProvisioningContext(agent);
 
 		if (monitor == null)
 			monitor = new NullProgressMonitor();

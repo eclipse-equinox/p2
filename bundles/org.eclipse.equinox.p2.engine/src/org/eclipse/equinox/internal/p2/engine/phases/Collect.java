@@ -20,7 +20,6 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.ITouchpointType;
-import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 
 /**
@@ -69,9 +68,8 @@ public class Collect extends InstallableUnitPhase {
 		List<IArtifactRequest[]> artifactRequests = (List<IArtifactRequest[]>) parameters.get(PARM_ARTIFACT_REQUESTS);
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
 		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
-		IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 
-		DownloadManager dm = new DownloadManager(context, repositoryManager);
+		DownloadManager dm = new DownloadManager(context, agent);
 		for (IArtifactRequest[] requests : artifactRequests) {
 			dm.add(requests);
 		}

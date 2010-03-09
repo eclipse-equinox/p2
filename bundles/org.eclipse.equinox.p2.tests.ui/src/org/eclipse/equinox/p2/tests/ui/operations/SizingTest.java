@@ -25,9 +25,9 @@ public class SizingTest extends AbstractProvisioningUITest {
 		IProfile testProfile = createProfile(profileId);
 		ProfileChangeRequest request = new ProfileChangeRequest(testProfile);
 		IProvisioningPlan plan = null;
-		plan = getPlanner(getSession().getProvisioningAgent()).getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
+		plan = getPlanner(getSession().getProvisioningAgent()).getProvisioningPlan(request, new ProvisioningContext(getAgent()), getMonitor());
 		long size = ProvUI.SIZE_NOTAPPLICABLE;
-		size = ProvUI.getSize(getEngine(), plan, new ProvisioningContext(), getMonitor());
+		size = ProvUI.getSize(getEngine(), plan, new ProvisioningContext(getAgent()), getMonitor());
 		assertEquals("1.0", 0, size);
 	}
 
@@ -41,9 +41,9 @@ public class SizingTest extends AbstractProvisioningUITest {
 		ProfileChangeRequest request = new ProfileChangeRequest(testProfile);
 		request.add(f1);
 		IProvisioningPlan plan = null;
-		plan = getPlanner(getSession().getProvisioningAgent()).getProvisioningPlan(request, new ProvisioningContext(), getMonitor());
+		plan = getPlanner(getSession().getProvisioningAgent()).getProvisioningPlan(request, new ProvisioningContext(getAgent()), getMonitor());
 		long size = ProvUI.SIZE_NOTAPPLICABLE;
-		size = ProvUI.getSize(getEngine(), plan, new ProvisioningContext(), getMonitor());
+		size = ProvUI.getSize(getEngine(), plan, new ProvisioningContext(getAgent()), getMonitor());
 		assertEquals("1.0", 0, size);
 	}
 }

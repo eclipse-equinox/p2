@@ -12,41 +12,23 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
 
 public class DownloadManager {
 	private ProvisioningContext provContext = null;
 	ArrayList<IArtifactRequest> requestsToProcess = new ArrayList<IArtifactRequest>();
+	private IProvisioningAgent agent = null;
 
-	private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
-
-	/**
-	 * This Comparator sorts the repositories such that �local� repositories are first
-	 */
-	private static final Comparator<URI> LOCAL_FIRST_COMPARATOR = new Comparator<URI>() {
-
-		public int compare(URI arg0, URI arg1) {
-			String protocol0 = arg0.getScheme();
-			String protocol1 = arg1.getScheme();
-
-			if (FILE_PROTOCOL.equals(protocol0) && !FILE_PROTOCOL.equals(protocol1))
-				return -1;
-			if (!FILE_PROTOCOL.equals(protocol0) && FILE_PROTOCOL.equals(protocol1))
-				return 1;
-			return 0;
-		}
-	};
-	private final IArtifactRepositoryManager repositoryManager;
-
-	public DownloadManager(ProvisioningContext context, IArtifactRepositoryManager repositoryManager) {
+	public DownloadManager(ProvisioningContext context, IProvisioningAgent agent) {
 		provContext = context;
-		this.repositoryManager = repositoryManager;
+		this.agent = agent;
 	}
 
 	/*
@@ -78,20 +60,23 @@ public class DownloadManager {
 	 * Start the downloads. Return a status message indicating success or failure of the overall operation
 	 */
 	public IStatus start(IProgressMonitor monitor) {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, Messages.download_artifact, requestsToProcess.size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, Messages.download_artifact, 1000);
 		try {
 			if (requestsToProcess.isEmpty())
 				return Status.OK_STATUS;
 
-			URI[] repositories = null;
-			if (provContext == null || provContext.getArtifactRepositories() == null)
-				repositories = repositoryManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-			else
-				repositories = provContext.getArtifactRepositories();
+			if (provContext == null)
+				provContext = new ProvisioningContext(agent);
+
+			if (requestsToProcess.isEmpty())
+				return Status.OK_STATUS;
+
+			// Should be using queryable here
+			URI[] repositories = provContext.getArtifactRepositories();
+			subMonitor.worked(500);
 			if (repositories.length == 0)
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository, new Exception(Collect.NO_ARTIFACT_REPOSITORIES_AVAILABLE));
-			Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
-			fetch(repositories, subMonitor);
+			fetch(repositories, subMonitor.newChild(500));
 			return overallStatus(monitor);
 		} finally {
 			subMonitor.done();
@@ -99,6 +84,7 @@ public class DownloadManager {
 	}
 
 	private void fetch(URI[] repositories, SubMonitor monitor) {
+		IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		for (int i = 0; i < repositories.length && !requestsToProcess.isEmpty() && !monitor.isCanceled(); i++) {
 			try {
 				IArtifactRepository current = repositoryManager.loadRepository(repositories[i], monitor.newChild(0));

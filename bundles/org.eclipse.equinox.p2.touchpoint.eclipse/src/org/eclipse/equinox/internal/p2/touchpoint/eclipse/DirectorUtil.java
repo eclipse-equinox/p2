@@ -11,19 +11,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.planner.IPlanner;
 
 public class DirectorUtil {
 
 	public static IStatus validateProfile(IProfile profile) {
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		ProvisioningContext ctx = new ProvisioningContext(new URI[0]);
+		ProvisioningContext ctx = new ProvisioningContext(profile.getProvisioningAgent());
+		ctx.setMetadataRepositories(new URI[0]);
 		IPlanner planner = (IPlanner) profile.getProvisioningAgent().getService(IPlanner.SERVICE_NAME);
 		return planner.getProvisioningPlan(pcr, ctx, null).getStatus();
 	}

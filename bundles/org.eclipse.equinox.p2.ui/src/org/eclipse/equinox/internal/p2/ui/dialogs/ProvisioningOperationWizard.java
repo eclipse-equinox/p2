@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.HashSet;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
@@ -162,7 +161,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		if (currentProvisioningContext == null && provisioningContext == null)
 			return false;
 		if (currentProvisioningContext != null && provisioningContext != null)
-			return !Arrays.equals(provisioningContext.getMetadataRepositories(), currentProvisioningContext.getMetadataRepositories());
+			return currentProvisioningContext.equals(provisioningContext);
 		// One is null and the other is not
 		return true;
 	}

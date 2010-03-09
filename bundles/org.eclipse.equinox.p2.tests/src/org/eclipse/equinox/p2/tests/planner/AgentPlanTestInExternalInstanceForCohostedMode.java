@@ -65,7 +65,8 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a});
-		ProvisioningContext context = new ProvisioningContext(new URI[0]);
+		ProvisioningContext context = new ProvisioningContext(getAgent());
+		context.setMetadataRepositories(new URI[0]);
 
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		assertNotOK(plan.getStatus());
@@ -81,7 +82,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 
 		IProfile profile = getProfile("installation");
 		IPlanner planner = createPlanner();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a});
@@ -103,7 +104,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 
 		IProfile profile = getProfile("installation");
 		IPlanner planner = createPlanner();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a});
@@ -123,7 +124,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 
 		IPlanner planner = createPlanner();
 		IEngine engine = createEngine();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(getProfile("installation"));
 		request.addInstallableUnits(new IInstallableUnit[] {a});
@@ -157,7 +158,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 		IProfile profile = getProfile("installation");
 		IPlanner planner = createPlanner();
 		IEngine engine = createEngine();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a});
@@ -185,7 +186,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 
 		IPlanner planner = createPlanner();
 		IEngine engine = createEngine();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		//install A which will install Action1
 		ProfileChangeRequest request = new ProfileChangeRequest(getProfile("installation"));
@@ -236,7 +237,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 
 		IPlanner planner = createPlanner();
 		IEngine engine = createEngine();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		//install A which will install Action1
 		ProfileChangeRequest request = new ProfileChangeRequest(getProfile("installation"));
@@ -325,7 +326,7 @@ public class AgentPlanTestInExternalInstanceForCohostedMode extends AbstractProv
 
 		IProfile profile = getProfile("installation");
 		IPlanner planner = createPlanner();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a, d});

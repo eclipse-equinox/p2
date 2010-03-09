@@ -91,7 +91,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 		installFeature1.setInstallableUnitInclusionRules(helloPatch, ProfileInclusionRules.createOptionalInclusionRule(helloPatch));
 		installFeature1.setInstallableUnitInclusionRules(patchJar, ProfileInclusionRules.createOptionalInclusionRule(patchJar));
 
-		IProvisioningPlan feature1Plan = createPlanner().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
+		IProvisioningPlan feature1Plan = createPlanner().getProvisioningPlan(installFeature1, new ProvisioningContext(getAgent()), null);
 		assertOK("installation of feature1 and patch", createEngine().perform(feature1Plan, new NullProgressMonitor()));
 		assertEquals(1, queryResultSize(getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.0.1")), new NullProgressMonitor())));
 
@@ -105,7 +105,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 		installFeature2.setInstallableUnitInclusionRules(helloIU2, ProfileInclusionRules.createOptionalInclusionRule(helloIU2));
 		installFeature2.setInstallableUnitInclusionRules(featureJar2, ProfileInclusionRules.createOptionalInclusionRule(featureJar2));
 
-		IProvisioningPlan feature2Plan = createPlanner().getProvisioningPlan(installFeature2, new ProvisioningContext(), null);
+		IProvisioningPlan feature2Plan = createPlanner().getProvisioningPlan(installFeature2, new ProvisioningContext(getAgent()), null);
 		assertOK("installation of feature2", createEngine().perform(feature2Plan, new NullProgressMonitor()));
 		assertEquals(1, queryResultSize(getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.0.1")), new NullProgressMonitor())));
 	}
@@ -121,7 +121,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 		installFeature2.setInstallableUnitInclusionRules(helloIU2, ProfileInclusionRules.createOptionalInclusionRule(helloIU2));
 		installFeature2.setInstallableUnitInclusionRules(featureJar2, ProfileInclusionRules.createOptionalInclusionRule(featureJar2));
 
-		IProvisioningPlan feature2Plan = createPlanner().getProvisioningPlan(installFeature2, new ProvisioningContext(), null);
+		IProvisioningPlan feature2Plan = createPlanner().getProvisioningPlan(installFeature2, new ProvisioningContext(getAgent()), null);
 		assertOK("installation of feature2", createEngine().perform(feature2Plan, new NullProgressMonitor()));
 		assertEquals(1, queryResultSize(getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.2")), new NullProgressMonitor())));
 
@@ -142,7 +142,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 		installFeature1.setInstallableUnitInclusionRules(helloPatch, ProfileInclusionRules.createOptionalInclusionRule(helloPatch));
 		installFeature1.setInstallableUnitInclusionRules(patchJar, ProfileInclusionRules.createOptionalInclusionRule(patchJar));
 
-		IProvisioningPlan feature1Plan = createPlanner().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
+		IProvisioningPlan feature1Plan = createPlanner().getProvisioningPlan(installFeature1, new ProvisioningContext(getAgent()), null);
 		assertOK("installation of feature1 and patch", createEngine().perform(feature1Plan, new NullProgressMonitor()));
 		assertEquals(1, queryResultSize(getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.0.1")), new NullProgressMonitor())));
 	}
@@ -172,7 +172,7 @@ public class Bug271067 extends AbstractProvisioningTest {
 		installEverything.setInstallableUnitInclusionRules(helloPatch, ProfileInclusionRules.createOptionalInclusionRule(helloPatch));
 		installEverything.setInstallableUnitInclusionRules(patchJar, ProfileInclusionRules.createOptionalInclusionRule(patchJar));
 
-		IProvisioningPlan plan = createPlanner().getProvisioningPlan(installEverything, new ProvisioningContext(), null);
+		IProvisioningPlan plan = createPlanner().getProvisioningPlan(installEverything, new ProvisioningContext(getAgent()), null);
 		assertOK("installation of feature1 and patch", createEngine().perform(plan, new NullProgressMonitor()));
 		assertEquals(1, queryResultSize(getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.0.1")), new NullProgressMonitor())));
 	}

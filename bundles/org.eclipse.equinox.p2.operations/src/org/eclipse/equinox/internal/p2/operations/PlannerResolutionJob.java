@@ -40,7 +40,7 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 		this.request = request;
 		this.profileId = profileId;
 		if (provisioningContext == null)
-			this.provisioningContext = new ProvisioningContext();
+			this.provisioningContext = new ProvisioningContext(session.getProvisioningAgent());
 		else
 			this.provisioningContext = provisioningContext;
 		Assert.isNotNull(additionalStatus);

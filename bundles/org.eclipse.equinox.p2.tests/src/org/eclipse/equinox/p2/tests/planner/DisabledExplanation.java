@@ -45,7 +45,7 @@ public class DisabledExplanation extends AbstractProvisioningTest {
 	public void testExplanation() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1, b1});
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 		ctx.setProperty("org.eclipse.equinox.p2.director.explain", "false");
 		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(req, ctx, null);
 		assertEquals(IStatus.ERROR, plan.getStatus().getSeverity());

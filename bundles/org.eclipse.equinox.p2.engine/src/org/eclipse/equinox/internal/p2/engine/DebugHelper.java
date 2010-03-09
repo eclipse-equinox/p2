@@ -124,11 +124,7 @@ public class DebugHelper {
 	}
 
 	public static String formatContext(ProvisioningContext context) {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("{artifactRepos=" + DebugHelper.formatArray(Arrays.asList(context.getArtifactRepositories()), true, false)); //$NON-NLS-1$
-		buffer.append(", metadataRepos=" + DebugHelper.formatArray(Arrays.asList(context.getMetadataRepositories()), true, false)); //$NON-NLS-1$
-		buffer.append(", properties=" + context.getProperties() + "}"); //$NON-NLS-1$ //$NON-NLS-2$
-		return buffer.toString();
+		return context.toString();
 	}
 
 	public static String formatAction(ProvisioningAction action, Map<String, Object> parameters) {

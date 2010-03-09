@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-
 import java.io.File;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
@@ -98,7 +97,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 		installFeature1.setInstallableUnitInclusionRules(featureJar, ProfileInclusionRules.createOptionalInclusionRule(featureJar));
 		installFeature1.setInstallableUnitInclusionRules(helloIU, ProfileInclusionRules.createOptionalInclusionRule(helloIU));
 
-		IProvisioningPlan feature1Plan = getPlannerService().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
+		IProvisioningPlan feature1Plan = getPlannerService().getProvisioningPlan(installFeature1, new ProvisioningContext(getAgent()), null);
 		assertOK("installation of feature1", getEngineService().perform(feature1Plan, new NullProgressMonitor()));
 		assertEquals(1, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.0.200911201237")), new NullProgressMonitor())));
 	}
@@ -136,7 +135,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 		installFeature1.setInstallableUnitInclusionRules(featureJar, ProfileInclusionRules.createOptionalInclusionRule(featureJar));
 		installFeature1.setInstallableUnitInclusionRules(helloIU, ProfileInclusionRules.createOptionalInclusionRule(helloIU));
 
-		IProvisioningPlan feature1Plan = getPlannerService().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
+		IProvisioningPlan feature1Plan = getPlannerService().getProvisioningPlan(installFeature1, new ProvisioningContext(getAgent()), null);
 		assertOK("installation of feature1", getEngineService().perform(feature1Plan, new NullProgressMonitor()));
 		assertEquals(0, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.0.200911201237")), new NullProgressMonitor())));
 		assertEquals(1, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello", Version.create("1.0.1.200911201237")), new NullProgressMonitor())));
@@ -168,7 +167,7 @@ public class Bug300104 extends AbstractProvisioningTest {
 		installFeature1.setInstallableUnitInclusionRules(helloIU, ProfileInclusionRules.createOptionalInclusionRule(helloIU));
 		installFeature1.setInstallableUnitInclusionRules(hello2IU, ProfileInclusionRules.createOptionalInclusionRule(hello2IU));
 
-		IProvisioningPlan feature1Plan = getPlannerService().getProvisioningPlan(installFeature1, new ProvisioningContext(), null);
+		IProvisioningPlan feature1Plan = getPlannerService().getProvisioningPlan(installFeature1, new ProvisioningContext(getAgent()), null);
 		assertOK("installation of feature1", getEngineService().perform(feature1Plan, new NullProgressMonitor()));
 		assertEquals(1, queryResultSize(profileRegistry.getProfile(profileLoadedId).query(QueryUtil.createIUQuery("hello2", Version.create("1.0.0.200911201358")), new NullProgressMonitor())));
 

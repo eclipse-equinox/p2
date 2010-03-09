@@ -134,7 +134,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 		IProfile revertProfile = profileRegistry.getProfile(profile2.getProfileId(), timestamps[1]);
 
-		IStatus s = director.revert(profile2, revertProfile, new ProvisioningContext(), new NullProgressMonitor());
+		IStatus s = director.revert(profile2, revertProfile, new ProvisioningContext(getAgent()), new NullProgressMonitor());
 		assertTrue(s.isOK());
 
 		validateInstallContentFor35(installFolder);

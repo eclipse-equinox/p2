@@ -54,7 +54,8 @@ public class Bug265577 extends AbstractProvisioningTest {
 	private void initializeMetadataRepo(URI location) throws ProvisionException {
 		IMetadataRepositoryManager mgr = getMetadataRepositoryManager();
 		metadataRepo = mgr.loadRepository(location, new NullProgressMonitor());
-		context = new ProvisioningContext(mgr.getKnownRepositories(0));
+		context = new ProvisioningContext(getAgent());
+		context.setMetadataRepositories(mgr.getKnownRepositories(0));
 	}
 
 	// Tests the response to a feature folder inside a jar

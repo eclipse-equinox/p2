@@ -44,7 +44,7 @@ public class AvailableUpdateElement extends AvailableIUElement {
 		if (iuToBeUpdated.getId().equals(getIU().getId()))
 			request.remove(iuToBeUpdated);
 		request.add(getIU());
-		return getPlanner().getProvisioningPlan(request, new ProvisioningContext(), monitor);
+		return getPlanner().getProvisioningPlan(request, new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent()), monitor);
 	}
 
 	public boolean equals(Object obj) {

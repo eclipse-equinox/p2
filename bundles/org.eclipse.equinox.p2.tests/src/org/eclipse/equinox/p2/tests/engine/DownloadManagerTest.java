@@ -43,7 +43,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	 * Tests invocation of DownloadManager when there is nothing to download.
 	 */
 	public void testEmptyWithContext() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(getAgent());
 		DownloadManager manager = createDownloadManager(context);
 		IStatus result = manager.start(null);
 		assertTrue("1.0", result.isOK());
@@ -53,7 +53,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	 * Tests invocation of DownloadManager when there is nothing to download.
 	 */
 	public void testAddNullArtifactRequest() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(getAgent());
 		DownloadManager manager = createDownloadManager(context);
 		try {
 			manager.add((IArtifactRequest) null);
@@ -64,7 +64,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	}
 
 	public void testAddNullArtifactRequestArray() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(getAgent());
 		DownloadManager manager = createDownloadManager(context);
 		try {
 			manager.add((IArtifactRequest[]) null);
@@ -75,7 +75,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	}
 
 	public void testAddEmptyArtifactRequestArray() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(getAgent());
 		DownloadManager manager = createDownloadManager(context);
 		manager.add(new IArtifactRequest[0]);
 		IStatus result = manager.start(null);
@@ -83,7 +83,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	}
 
 	public void testAddArtifactRequestArrayContainingNull() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(getAgent());
 		DownloadManager manager = createDownloadManager(context);
 		try {
 			IArtifactRequest[] requests = new IArtifactRequest[] {null};
@@ -95,7 +95,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	}
 
 	public void testAddArtifactRequest() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(getAgent());
 		DownloadManager manager = createDownloadManager(context);
 
 		IArtifactRequest request = createArtifactRequest();
@@ -106,7 +106,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	}
 
 	public void testContext() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(getAgent());
 		context.setArtifactRepositories(new URI[0]);
 		DownloadManager manager = createDownloadManager(context);
 
@@ -118,7 +118,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	}
 
 	public void testAddArtifactRequestArray() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(getAgent());
 		DownloadManager manager = createDownloadManager(context);
 
 		IArtifactRequest[] requests = new IArtifactRequest[] {createArtifactRequest()};
@@ -146,7 +146,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	}
 
 	public void testEmptyArtifactRepositoryListContext() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(getAgent());
 		context.setArtifactRepositories(new URI[0]);
 		DownloadManager manager = createDownloadManager(context);
 
@@ -157,7 +157,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	}
 
 	public void testFileFirstArtifactRepositoryListContext() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(getAgent());
 		URI[] artifactRepos = new URI[2];
 		try {
 			artifactRepos[0] = new URI("file:/test");
@@ -176,7 +176,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	}
 
 	public void testFileLastArtifactRepositoryListContext() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(getAgent());
 		URI[] artifactRepos = new URI[2];
 		try {
 			artifactRepos[0] = new URI("jar:file:/test!/");
@@ -195,7 +195,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	}
 
 	public void testNoFileArtifactRepositoryListContext() {
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(getAgent());
 		URI[] artifactRepos = new URI[2];
 		try {
 			artifactRepos[0] = new URI("jar:file:/test1!/");
@@ -214,6 +214,6 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	}
 
 	private DownloadManager createDownloadManager(ProvisioningContext context) {
-		return new DownloadManager(context, getArtifactRepositoryManager());
+		return new DownloadManager(context, getAgent());
 	}
 }

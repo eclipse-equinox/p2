@@ -96,7 +96,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	protected ProfileChangeOperation(ProvisioningSession session) {
 		this.session = session;
 		this.profileId = IProfileRegistry.SELF;
-		this.context = new ProvisioningContext();
+		this.context = new ProvisioningContext(session.getProvisioningAgent());
 	}
 
 	/**

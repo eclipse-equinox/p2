@@ -25,14 +25,14 @@ public class AbsolutePlanTest extends AbstractProvisioningTest {
 		IInstallableUnit iuA = createEclipseIU("A");
 		pcr.addInstallableUnits(new IInstallableUnit[] {iuA, createEclipseIU("B"), createEclipseIU("C")});
 		IPlanner planner = createPlanner();
-		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, new ProvisioningContext(), null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, new ProvisioningContext(getAgent()), null);
 		assertEquals(3, countPlanElements(plan));
 		createEngine().perform(plan, null);
 
 		ProfileChangeRequest removeRequest = new ProfileChangeRequest(profile);
 		removeRequest.setAbsoluteMode(true);
 		removeRequest.removeInstallableUnits(new IInstallableUnit[] {iuA});
-		assertEquals(1, countPlanElements(planner.getProvisioningPlan(removeRequest, new ProvisioningContext(), null)));
+		assertEquals(1, countPlanElements(planner.getProvisioningPlan(removeRequest, new ProvisioningContext(getAgent()), null)));
 	}
 
 	public void testAddAndRemoveProperty() {
@@ -45,7 +45,7 @@ public class AbsolutePlanTest extends AbstractProvisioningTest {
 		pcr.setInstallableUnitProfileProperty(iuA, "key", "value");
 
 		IPlanner planner = createPlanner();
-		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, new ProvisioningContext(), null);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, new ProvisioningContext(getAgent()), null);
 		assertEquals(1, countPlanElements(plan));
 		createEngine().perform(plan, null);
 
@@ -62,7 +62,7 @@ public class AbsolutePlanTest extends AbstractProvisioningTest {
 		removeRequest.removeInstallableUnits(new IInstallableUnit[] {iuA});
 		removeRequest.removeInstallableUnitProfileProperty(iuA, "key");
 
-		assertEquals(1, countPlanElements(planner.getProvisioningPlan(removeRequest, new ProvisioningContext(), null)));
+		assertEquals(1, countPlanElements(planner.getProvisioningPlan(removeRequest, new ProvisioningContext(getAgent()), null)));
 	}
 
 	public void testAddProperty() {
@@ -73,7 +73,7 @@ public class AbsolutePlanTest extends AbstractProvisioningTest {
 		pcr.setProfileProperty("foo", "bar");
 
 		IPlanner planner = createPlanner();
-		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, new ProvisioningContext(), null);
+		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, new ProvisioningContext(getAgent()), null);
 		createEngine().perform(plan, null);
 
 		assertEquals("bar", getProfileRegistry().getProfile(getName()).getProperty("foo"));

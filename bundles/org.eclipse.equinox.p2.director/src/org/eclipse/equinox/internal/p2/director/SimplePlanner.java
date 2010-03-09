@@ -11,11 +11,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
-
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.*;
@@ -26,16 +21,12 @@ import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.planner.IPlanner;
-import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.planner.*;
 import org.eclipse.equinox.p2.query.*;
-import org.eclipse.equinox.p2.repository.IRepositoryManager;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class SimplePlanner implements IPlanner {
@@ -47,8 +38,7 @@ public class SimplePlanner implements IPlanner {
 	private static final String ID_IU_FOR_ACTIONS = "org.eclipse.equinox.p2.engine.actions.root"; //$NON-NLS-1$
 	private static final String EXPLANATION = "org.eclipse.equinox.p2.director.explain"; //$NON-NLS-1$
 	private static final String CONSIDER_METAREQUIREMENTS = "org.eclipse.equinox.p2.planner.resolveMetaRequirements"; //$NON-NLS-1$
-
-	private final IMetadataRepositoryManager repoManager;
+	private final IProvisioningAgent agent;
 	private final IProfileRegistry profileRegistry;
 	private final IEngine engine;
 
@@ -194,7 +184,7 @@ public class SimplePlanner implements IPlanner {
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
 			IProfileChangeRequest profileChangeRequest = FormerState.generateProfileDeltaChangeRequest(currentProfile, targetProfile);
-			ProvisioningContext context = new ProvisioningContext(new URI[0]);
+			ProvisioningContext context = new ProvisioningContext(agent);
 			if (context.getProperty(INCLUDE_PROFILE_IUS) == null)
 				context.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
 			context.setExtraInstallableUnits(Arrays.asList(targetProfile.available(QueryUtil.createIUAnyQuery(), null).toArray(IInstallableUnit.class)));
@@ -224,7 +214,7 @@ public class SimplePlanner implements IPlanner {
 		return result;
 	}
 
-	private IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URI[] repositories, ProvisioningContext context, IProgressMonitor monitor) {
+	private IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, ProvisioningContext context, IProgressMonitor monitor) {
 		Map<String, IInstallableUnit> resultsMap = new HashMap<String, IInstallableUnit>();
 		if (additionalSource != null) {
 			for (int i = 0; i < additionalSource.length; i++) {
@@ -232,34 +222,23 @@ public class SimplePlanner implements IPlanner {
 				resultsMap.put(key, additionalSource[i]);
 			}
 		}
-		if (context != null) {
+		if (context == null) {
+			context = new ProvisioningContext(agent);
+		} else {
 			for (IInstallableUnit iu : context.getExtraInstallableUnits()) {
 				String key = iu.getId() + '_' + iu.getVersion().toString();
 				resultsMap.put(key, iu);
 			}
 		}
-
-		if (repositories == null)
-			repositories = repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-
-		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 200);
-		for (int i = 0; i < repositories.length; i++) {
-			try {
-				if (sub.isCanceled())
-					throw new OperationCanceledException();
-
-				IMetadataRepository repository = repoManager.loadRepository(repositories[i], sub.newChild(100));
-				IQueryResult<IInstallableUnit> matches = repository.query(QueryUtil.createIUQuery(null, VersionRange.emptyRange), sub.newChild(100));
-				for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-					IInstallableUnit iu = it.next();
-					String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
-					IInstallableUnit currentIU = resultsMap.get(key);
-					if (currentIU == null || hasHigherFidelity(iu, currentIU))
-						resultsMap.put(key, iu);
-				}
-			} catch (ProvisionException e) {
-				//skip unreadable repositories
-			}
+		SubMonitor sub = SubMonitor.convert(monitor, 1000);
+		IQueryable<IInstallableUnit> queryable = context.getMetadata(sub.newChild(500));
+		IQueryResult<IInstallableUnit> matches = queryable.query(QueryUtil.createIUQuery(null, VersionRange.emptyRange), sub.newChild(500));
+		for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
+			IInstallableUnit iu = it.next();
+			String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
+			IInstallableUnit currentIU = resultsMap.get(key);
+			if (currentIU == null || hasHigherFidelity(iu, currentIU))
+				resultsMap.put(key, iu);
 		}
 		sub.done();
 		Collection<IInstallableUnit> results = resultsMap.values();
@@ -272,13 +251,13 @@ public class SimplePlanner implements IPlanner {
 		return false;
 	}
 
-	public SimplePlanner(IEngine engine, IProfileRegistry profileRegistry, IMetadataRepositoryManager repoManager) {
+	public SimplePlanner(IProvisioningAgent agent) {
+		Assert.isNotNull(agent);
+		this.agent = agent;
+		this.engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
+		this.profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		Assert.isNotNull(engine);
 		Assert.isNotNull(profileRegistry);
-		Assert.isNotNull(repoManager);
-		this.engine = engine;
-		this.profileRegistry = profileRegistry;
-		this.repoManager = repoManager;
 	}
 
 	private boolean satisfyMetaRequirements(Map<String, String> props) {
@@ -302,7 +281,6 @@ public class SimplePlanner implements IPlanner {
 
 			Object[] updatedPlan = updatePlannerInfo(profileChangeRequest, context);
 
-			URI[] metadataRepositories = (context != null) ? context.getMetadataRepositories() : null;
 			Dictionary<String, String> newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
 
 			List<IInstallableUnit> extraIUs = new ArrayList<IInstallableUnit>(profileChangeRequest.getAdditions());
@@ -313,7 +291,7 @@ public class SimplePlanner implements IPlanner {
 					extraIUs.add(itor.next());
 			}
 
-			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits(extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), metadataRepositories, context, sub.newChild(ExpandWork / 4));
+			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits(extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), context, sub.newChild(ExpandWork / 4));
 
 			Slicer slicer = new Slicer(new QueryableArray(availableIUs), newSelectionContext, satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, sub.newChild(ExpandWork / 4));
@@ -545,7 +523,8 @@ public class SimplePlanner implements IPlanner {
 			agentRequest.remove(previousMetaRequirementIU);
 		agentRequest.add(metaRequirementIU);
 
-		ProvisioningContext agentCtx = new ProvisioningContext(new URI[0]);
+		ProvisioningContext agentCtx = new ProvisioningContext(agent);
+		agentCtx.setMetadataRepositories(new URI[0]);
 		ArrayList<IInstallableUnit> extraIUs = new ArrayList<IInstallableUnit>(unattachedState);
 		agentCtx.setExtraInstallableUnits(extraIUs);
 		Object agentSolution = getSolutionFor(agentRequest, agentCtx, monitor.newChild(3));
@@ -604,7 +583,8 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private ProvisioningContext createNoRepoContext(ProfileChangeRequest request) {
-		ProvisioningContext noRepoContext = new ProvisioningContext(new URI[0]);
+		ProvisioningContext noRepoContext = new ProvisioningContext(agent);
+		noRepoContext.setMetadataRepositories(new URI[0]);
 		noRepoContext.setArtifactRepositories(new URI[0]);
 		noRepoContext.setProperty(INCLUDE_PROFILE_IUS, Boolean.FALSE.toString());
 		noRepoContext.setExtraInstallableUnits(new ArrayList<IInstallableUnit>(request.getProfile().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).toUnmodifiableSet()));
@@ -735,27 +715,15 @@ public class SimplePlanner implements IPlanner {
 	public IQueryResult<IInstallableUnit> updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor) {
 		Map<String, IInstallableUnit> resultsMap = new HashMap<String, IInstallableUnit>();
 
-		URI[] repositories = context.getMetadataRepositories();
-		if (repositories == null)
-			repositories = repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-
-		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 200);
-		for (int i = 0; i < repositories.length; i++) {
-			try {
-				if (sub.isCanceled())
-					throw new OperationCanceledException();
-				IMetadataRepository repository = repoManager.loadRepository(repositories[i], sub.newChild(100));
-				IQueryResult<IInstallableUnit> matches = repository.query(new UpdateQuery(toUpdate), sub.newChild(100));
-				for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
-					IInstallableUnit iu = it.next();
-					String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
-					IInstallableUnit currentIU = resultsMap.get(key);
-					if (currentIU == null || hasHigherFidelity(iu, currentIU))
-						resultsMap.put(key, iu);
-				}
-			} catch (ProvisionException e) {
-				//skip unreadable repositories
-			}
+		SubMonitor sub = SubMonitor.convert(monitor, 1000);
+		IQueryable<IInstallableUnit> queryable = context.getMetadata(sub.newChild(500));
+		IQueryResult<IInstallableUnit> matches = queryable.query(new UpdateQuery(toUpdate), sub.newChild(500));
+		for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
+			IInstallableUnit iu = it.next();
+			String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
+			IInstallableUnit currentIU = resultsMap.get(key);
+			if (currentIU == null || hasHigherFidelity(iu, currentIU))
+				resultsMap.put(key, iu);
 		}
 		sub.done();
 		return new CollectionResult<IInstallableUnit>(resultsMap.values());

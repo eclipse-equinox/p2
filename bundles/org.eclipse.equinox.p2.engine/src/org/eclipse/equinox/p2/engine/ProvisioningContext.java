@@ -13,8 +13,18 @@ package org.eclipse.equinox.p2.engine;
 
 import java.net.URI;
 import java.util.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.engine.DebugHelper;
+import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 
 /**
  * A provisioning context defines the scope in which a provisioning operation
@@ -23,30 +33,71 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
  * @since 2.0
  */
 public class ProvisioningContext {
+	private IProvisioningAgent agent;
 	private Collection<IRequirement> additionalRequirements;
 	private URI[] artifactRepositories; //artifact repositories to consult
 	private final List<IInstallableUnit> extraIUs = Collections.synchronizedList(new ArrayList<IInstallableUnit>());
 	private URI[] metadataRepositories; //metadata repositories to consult
 	private final Map<String, String> properties = new HashMap<String, String>();
 
+	private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
+
 	/**
-	 * Creates a new provisioning context that includes all available metadata and
-	 * artifact repositories.
+	 * This Comparator sorts the repositories such that local repositories are first
+	 */
+	private static final Comparator<URI> LOCAL_FIRST_COMPARATOR = new Comparator<URI>() {
+
+		public int compare(URI arg0, URI arg1) {
+			String protocol0 = arg0.getScheme();
+			String protocol1 = arg1.getScheme();
+
+			if (FILE_PROTOCOL.equals(protocol0) && !FILE_PROTOCOL.equals(protocol1))
+				return -1;
+			if (!FILE_PROTOCOL.equals(protocol0) && FILE_PROTOCOL.equals(protocol1))
+				return 1;
+			return 0;
+		}
+	};
+
+	/**
+	 * Instructs the provisioning context to follow repository references when providing
+	 * queryables for obtaining metadata and artifacts.
+	 * 
+	 * @see #getMetadata(IProgressMonitor)
+	 * @see #getArtifacts(IProgressMonitor)
+	 */
+	public static final String FOLLOW_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followRepositoryReferences"; //$NON-NLS-1$
+
+	/**
+	 * @deprecated 
+	 * @see #ProvisioningContext(IProvisioningAgent)
+	 * @see #setMetadataRepositories(URI[])
 	 */
 	public ProvisioningContext() {
-		// null repos means look at them all
-		metadataRepositories = null;
-		artifactRepositories = null;
+		this((IProvisioningAgent) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningAgent.SERVICE_NAME));
 	}
 
 	/**
-	 * Creates a new provisioning context that includes only the specified metadata
-	 * repositories, and all available artifact repositories.
-	 * 
-	 * @param metadataRepositories the metadata repositories to include
+	 * @deprecated 
+	 * @see #ProvisioningContext(IProvisioningAgent)
+	 * @see #setMetadataRepositories(URI[])
 	 */
 	public ProvisioningContext(URI[] metadataRepositories) {
-		this.metadataRepositories = metadataRepositories;
+		this();
+		setMetadataRepositories(metadataRepositories);
+	}
+
+	/**
+	 * Creates a new provisioning context that includes all available metadata and
+	 * artifact repositories available to the specified provisioning agent.
+	 * 
+	 * @param agent the provisioning agent from which to obtain any necessary services.
+	 */
+	public ProvisioningContext(IProvisioningAgent agent) {
+		this.agent = agent;
+		// null repos means look at them all
+		metadataRepositories = null;
+		artifactRepositories = null;
 	}
 
 	/**
@@ -61,14 +112,117 @@ public class ProvisioningContext {
 	}
 
 	/**
-	 * Returns the locations of the artifact repositories that are included in this
-	 * provisioning context, or <code>null</code> to indicate that all available
-	 * artifact repositories are included
+	 * Returns a queryable that can be used to obtain any artifact keys that
+	 * are needed for the provisioning operation.
 	 * 
-	 * @return The artifact repositories to use, or <code>null</code>
+	 * @param monitor a progress monitor to be used when creating the queryable
+	 * @return a queryable that can be used to query available artifact keys.
+	 * 
+	 * @see #setArtifactRepositories(URI[])
+	 * @see #FOLLOW_REPOSITORY_REFERENCES
 	 */
-	public URI[] getArtifactRepositories() {
-		return artifactRepositories;
+	public IQueryable<IArtifactKey> getArtifactKeys(IProgressMonitor monitor) {
+		IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		URI[] repositories = getArtifactRepositories();
+		List<IArtifactRepository> repos = new ArrayList<IArtifactRepository>();
+		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100);
+		try {
+			for (int i = 0; i < repositories.length; i++) {
+				if (sub.isCanceled())
+					throw new OperationCanceledException();
+				repos.add(repoManager.loadRepository(repositories[i], sub.newChild(100)));
+			}
+		} catch (ProvisionException e) {
+			//skip unreadable repositories
+		}
+		return QueryUtil.compoundQueryable(repos);
+	}
+
+	/**
+	 * Returns a queryable that can be used to obtain any artifact descriptors that
+	 * are needed for the provisioning operation.
+	 * 
+	 * @param monitor a progress monitor to be used when creating the queryable
+	 * @return a queryable that can be used to query available artifact descriptors.
+	 * 
+	 * @see #setArtifactRepositories(URI[])
+	 * @see #FOLLOW_REPOSITORY_REFERENCES
+	 */
+	public IQueryable<IArtifactDescriptor> getArtifactDescriptors(IProgressMonitor monitor) {
+		IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		URI[] repositories = getArtifactRepositories();
+		List<IQueryable<IArtifactDescriptor>> descriptorQueryables = new ArrayList<IQueryable<IArtifactDescriptor>>();
+		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100);
+		try {
+			for (int i = 0; i < repositories.length; i++) {
+				if (sub.isCanceled())
+					throw new OperationCanceledException();
+				IArtifactRepository repo = repoManager.loadRepository(repositories[i], sub.newChild(100));
+				descriptorQueryables.add(repo.descriptorQueryable());
+			}
+		} catch (ProvisionException e) {
+			//skip unreadable repositories
+		}
+		return QueryUtil.compoundQueryable(descriptorQueryables);
+	}
+
+	/**
+	 * Returns a queryable that can be used to obtain any artifact repositories that
+	 * are needed for the provisioning operation.
+	 * 
+	 * @param monitor a progress monitor to be used when creating the queryable
+	 * @return a queryable that can be used to query available artifact repositories.
+	 * 
+	 * @see #setArtifactRepositories(URI[])
+	 * @see #FOLLOW_REPOSITORY_REFERENCES
+	 */
+	public IQueryable<IArtifactRepository> getArtifactRepositories(IProgressMonitor monitor) {
+		IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		URI[] repositories = getArtifactRepositories();
+		final List<IArtifactRepository> repos = new ArrayList<IArtifactRepository>();
+		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100);
+		try {
+			for (int i = 0; i < repositories.length; i++) {
+				if (sub.isCanceled())
+					throw new OperationCanceledException();
+				repos.add(repoManager.loadRepository(repositories[i], sub.newChild(100)));
+			}
+		} catch (ProvisionException e) {
+			//skip unreadable repositories
+		}
+		return new IQueryable<IArtifactRepository>() {
+			public IQueryResult<IArtifactRepository> query(IQuery<IArtifactRepository> query, IProgressMonitor mon) {
+				return query.perform(repos.iterator());
+			}
+
+		};
+	}
+
+	/**
+	 * Returns a queryable that can be used to obtain any metadata (installable units)
+	 * that are needed for the provisioning operation.
+	 * 
+	 * @param monitor a progress monitor to be used when creating the queryable
+	 * @return a queryable that can be used to query available metadata.
+	 * 
+	 * @see #setMetadataRepositories(URI[])
+	 * @see #FOLLOW_REPOSITORY_REFERENCES
+	 */
+	public IQueryable<IInstallableUnit> getMetadata(IProgressMonitor monitor) {
+		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		URI[] repositories = metadataRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : metadataRepositories;
+		List<IMetadataRepository> repos = new ArrayList<IMetadataRepository>();
+		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100);
+		try {
+			for (int i = 0; i < repositories.length; i++) {
+				if (sub.isCanceled())
+					throw new OperationCanceledException();
+				repos.add(repoManager.loadRepository(repositories[i], sub.newChild(100)));
+			}
+		} catch (ProvisionException e) {
+			//skip unreadable repositories
+		}
+		return QueryUtil.compoundQueryable(repos);
 	}
 
 	/**
@@ -81,17 +235,6 @@ public class ProvisioningContext {
 	 */
 	public List<IInstallableUnit> getExtraInstallableUnits() {
 		return extraIUs;
-	}
-
-	/**
-	 * Returns the locations of the metadata repositories that are included in this
-	 * provisioning context, or <code>null</code> to indicate that all available
-	 * metadata repositories are included
-	 * 
-	 * @return The metadata repositories to use, or <code>null</code>
-	 */
-	public URI[] getMetadataRepositories() {
-		return metadataRepositories;
 	}
 
 	/**
@@ -133,6 +276,14 @@ public class ProvisioningContext {
 	}
 
 	/**
+	 * Sets the metadata repositories to consult when performing an operation.
+	 * @param metadataRepositories the metadata repository locations
+	*/
+	public void setMetadataRepositories(URI[] metadataRepositories) {
+		this.metadataRepositories = metadataRepositories;
+	}
+
+	/**
 	 * Sets the list of additional installable units that should be considered as
 	 * available for installation by the planner. This method has no effect on the
 	 * execution of the engine.
@@ -153,5 +304,33 @@ public class ProvisioningContext {
 	 */
 	public void setProperty(String key, String value) {
 		properties.put(key, value);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("{artifactRepos=" + DebugHelper.formatArray(Arrays.asList(artifactRepositories), true, false)); //$NON-NLS-1$
+		buffer.append(", metadataRepos=" + DebugHelper.formatArray(Arrays.asList(metadataRepositories), true, false)); //$NON-NLS-1$
+		buffer.append(", properties=" + getProperties() + "}"); //$NON-NLS-1$ //$NON-NLS-2$
+		return buffer.toString();
+	}
+
+	/**
+	 * Return the array of repository locations for artifact repositories.
+	 * @return an array of repository locations.  This is never <code>null</code>.
+	 * 
+	 * @deprecated
+	 * @see #getArtifactRepositories()
+	 * @see #getArtifactDescriptors(IProgressMonitor)
+	 * @see #getArtifactKeys(IProgressMonitor)
+	 */
+	public URI[] getArtifactRepositories() {
+		IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		URI[] repositories = artifactRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : artifactRepositories;
+		Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
+		return repositories;
 	}
 }

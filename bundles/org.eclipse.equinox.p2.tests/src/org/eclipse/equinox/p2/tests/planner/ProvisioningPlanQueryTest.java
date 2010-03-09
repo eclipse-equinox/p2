@@ -18,29 +18,32 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class ProvisioningPlanQueryTest extends AbstractProvisioningTest {
+
+	private static final String TESTPROFILE = "test";
+
 	public void testNull() {
-		IQueryResult c = new ProvisioningPlan(Status.OK_STATUS, null, null, null).getAdditions().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
+		IQueryResult c = new ProvisioningPlan(Status.OK_STATUS, getProfile(TESTPROFILE), null, null).getAdditions().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		assertTrue(c.isEmpty());
 	}
 
 	public void testAddition() {
 		Operand[] ops = new Operand[] {new InstallableUnitOperand(null, createIU("A"))};
-		IQueryResult c = new ProvisioningPlan(null, ops, null).getAdditions().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
+		IQueryResult c = new ProvisioningPlan(getProfile(TESTPROFILE), ops, null).getAdditions().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
-		assertTrue(new ProvisioningPlan(null, ops, null).getRemovals().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).isEmpty());
+		assertTrue(new ProvisioningPlan(getProfile(TESTPROFILE), ops, null).getRemovals().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).isEmpty());
 	}
 
 	public void testRemoval() {
 		Operand[] ops = new Operand[] {new InstallableUnitOperand(createIU("A"), null)};
-		IQueryResult c = new ProvisioningPlan(null, ops, null).getRemovals().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
+		IQueryResult c = new ProvisioningPlan(getProfile(TESTPROFILE), ops, null).getRemovals().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
-		assertTrue(new ProvisioningPlan(null, ops, null).getAdditions().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).isEmpty());
+		assertTrue(new ProvisioningPlan(getProfile(TESTPROFILE), ops, null).getAdditions().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).isEmpty());
 	}
 
 	public void testUpdate() {
 		Operand[] ops = new Operand[] {new InstallableUnitOperand(createIU("A"), createIU("B"))};
-		IQueryResult c = new ProvisioningPlan(null, ops, null).getRemovals().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
+		IQueryResult c = new ProvisioningPlan(getProfile(TESTPROFILE), ops, null).getRemovals().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(c));
-		assertEquals(1, queryResultSize(new ProvisioningPlan(null, ops, null).getAdditions().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
+		assertEquals(1, queryResultSize(new ProvisioningPlan(getProfile(TESTPROFILE), ops, null).getAdditions().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor())));
 	}
 }

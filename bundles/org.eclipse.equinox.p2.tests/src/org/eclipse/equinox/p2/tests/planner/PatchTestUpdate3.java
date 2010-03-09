@@ -76,7 +76,8 @@ public class PatchTestUpdate3 extends AbstractProvisioningTest {
 
 	public void testUpdate() {
 		ProfileChangeRequest req2 = new ProfileChangeRequest(getProfile("TestProfile." + getName()));
-		ProvisioningContext ctx = new ProvisioningContext(new URI[0]);
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
+		ctx.setMetadataRepositories(new URI[0]);
 		assertOK("Validating the profile", planner.getProvisioningPlan(req2, ctx, null).getStatus());
 
 		//The update of the feature will cause the patch pp2 to be uninstalled because its lifecycle is no longer matched. pp1 stays because its lifecycle is still applicable

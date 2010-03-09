@@ -50,7 +50,7 @@ public class AdditionalConstraints extends AbstractProvisioningTest {
 	public void testInstallA1() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 		ctx.setAdditionalRequirements(Arrays.<IRequirement> asList(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 2.0.0]"))[0]));
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, ctx, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());

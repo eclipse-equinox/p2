@@ -226,7 +226,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		request.addInstallableUnits(newIUs);
 
 		IPlanner planner = createPlanner();
-		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), new NullProgressMonitor());
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(getAgent()), new NullProgressMonitor());
 		assertTrue("1.0", plan.getStatus().isOK());
 		IStatus result = createEngine().perform(plan, getMonitor());
 		assertFalse("2.0", result.isOK());

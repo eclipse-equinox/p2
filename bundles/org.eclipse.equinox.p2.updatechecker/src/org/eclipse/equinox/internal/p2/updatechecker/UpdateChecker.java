@@ -124,7 +124,8 @@ public class UpdateChecker implements IUpdateChecker {
 		ArrayList<IInstallableUnit> iusWithUpdates = new ArrayList<IInstallableUnit>();
 		if (profile == null)
 			return CollectionUtils.emptyList();
-		ProvisioningContext context = new ProvisioningContext(getAvailableRepositories());
+		ProvisioningContext context = new ProvisioningContext(agent);
+		context.setMetadataRepositories(getAvailableRepositories());
 		if (query == null)
 			query = QueryUtil.createIUAnyQuery();
 		Iterator<IInstallableUnit> iter = profile.query(query, null).iterator();

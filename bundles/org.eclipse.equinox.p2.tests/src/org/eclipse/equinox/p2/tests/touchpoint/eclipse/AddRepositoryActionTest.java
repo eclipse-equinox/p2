@@ -177,7 +177,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 
 		assertTrue("0.1", !getArtifactRepositoryManager().contains(locationURI));
 
-		IStatus result = createDirector().provision(request, new ProvisioningContext(), getMonitor());
+		IStatus result = createDirector().provision(request, new ProvisioningContext(getAgent()), getMonitor());
 		assertTrue("1.0", result.isOK());
 
 		//check that profile property is set
@@ -205,7 +205,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		final IInstallableUnit[] oldIUs = new IInstallableUnit[] {oldIU};
 		request.addInstallableUnits(oldIUs);
-		IStatus result = createDirector().provision(request, new ProvisioningContext(), getMonitor());
+		IStatus result = createDirector().provision(request, new ProvisioningContext(getAgent()), getMonitor());
 		assertTrue("1.0", result.isOK());
 
 		assertTrue("1.1", !getArtifactRepositoryManager().contains(locationURI));
@@ -224,7 +224,7 @@ public class AddRepositoryActionTest extends AbstractProvisioningTest {
 		final IInstallableUnit[] newIUs = new IInstallableUnit[] {newIU, bundle};
 		request.addInstallableUnits(newIUs);
 		request.removeInstallableUnits(oldIUs);
-		result = createDirector().provision(request, new ProvisioningContext(), getMonitor());
+		result = createDirector().provision(request, new ProvisioningContext(getAgent()), getMonitor());
 		if (!result.isOK())
 			LogHelper.log(result);
 		assertTrue("2.0", result.isOK());

@@ -165,7 +165,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		IProfile profile = null;
 		try {
 			engine.perform(engine.createPlan(profile, null), new NullProgressMonitor());
-		} catch (IllegalArgumentException expected) {
+		} catch (AssertionFailedException expected) {
 			return;
 		}
 		fail();

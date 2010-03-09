@@ -560,7 +560,7 @@ public class RepositorySelectionGroup {
 	public ProvisioningContext getProvisioningContext() {
 		int siteSel = getComboIndex(repoCombo.getText().trim());
 		if (siteSel < 0 || siteSel == INDEX_SITE_ALL || siteSel == INDEX_SITE_NONE)
-			return new ProvisioningContext();
+			return new ProvisioningContext(ui.getSession().getProvisioningAgent());
 		URI[] locals = getLocalSites();
 		// If there are local sites, the last item in the combo is "Local Sites Only"
 		// Use all local sites in this case
@@ -568,12 +568,14 @@ public class RepositorySelectionGroup {
 		// provisioning context because the artifact repositories are used for
 		// sizing.
 		if (locals.length > 0 && siteSel == repoCombo.getItemCount() - 1) {
-			ProvisioningContext context = new ProvisioningContext(locals);
+			ProvisioningContext context = new ProvisioningContext(ui.getSession().getProvisioningAgent());
+			context.setMetadataRepositories(locals);
 			context.setArtifactRepositories(locals);
 			return context;
 		}
 		// A single site is selected.
-		ProvisioningContext context = new ProvisioningContext(new URI[] {comboRepos[siteSel]});
+		ProvisioningContext context = new ProvisioningContext(ui.getSession().getProvisioningAgent());
+		context.setMetadataRepositories(new URI[] {comboRepos[siteSel]});
 		context.setArtifactRepositories(new URI[] {comboRepos[siteSel]});
 		return context;
 	}

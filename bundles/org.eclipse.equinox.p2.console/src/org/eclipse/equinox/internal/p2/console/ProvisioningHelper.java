@@ -198,7 +198,7 @@ public class ProvisioningHelper {
 		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new ProvisionException("No director service found.");
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(agent);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addAll(units.toUnmodifiableSet());
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
@@ -266,7 +266,8 @@ public class ProvisioningHelper {
 		URI[] artifactRepos = getArtifactRepositories(agent);
 		URI[] metadataRepos = getMetadataRepositories(agent);
 		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
-		ProvisioningContext context = new ProvisioningContext(metadataRepos);
+		ProvisioningContext context = new ProvisioningContext(agent);
+		context.setMetadataRepositories(metadataRepos);
 		context.setArtifactRepositories(artifactRepos);
 		return PlanExecutionHelper.executePlan(plan, engine, context, new NullProgressMonitor());
 	}
@@ -297,7 +298,7 @@ public class ProvisioningHelper {
 		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new ProvisionException("No engine service found.");
-		ProvisioningContext context = new ProvisioningContext();
+		ProvisioningContext context = new ProvisioningContext(agent);
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeAll(units.toUnmodifiableSet());
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);

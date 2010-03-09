@@ -65,7 +65,7 @@ public class SDKPatchingTest2 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallFeaturePatch() {
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 		ctx.setExtraInstallableUnits(newIUs);
 		ProfileChangeRequest validationRequest = new ProfileChangeRequest(profile);
 		IProvisioningPlan validationPlan = createPlanner().getProvisioningPlan(validationRequest, null, null);

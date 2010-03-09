@@ -58,7 +58,8 @@ public class RepoValidator extends AbstractProvisioningTest {
 		//		q = InstallableUnitQuery.ANY;
 		IQueryResult iusToTest = validatedRepo.query(q, null);
 
-		ProvisioningContext pc = new ProvisioningContext(new URI[] {repoLoc});
+		ProvisioningContext pc = new ProvisioningContext(getAgent());
+		pc.setMetadataRepositories(new URI[] {repoLoc});
 		for (Iterator iterator = iusToTest.iterator(); iterator.hasNext();) {
 			try {
 				IInstallableUnit isInstallable = (IInstallableUnit) iterator.next();

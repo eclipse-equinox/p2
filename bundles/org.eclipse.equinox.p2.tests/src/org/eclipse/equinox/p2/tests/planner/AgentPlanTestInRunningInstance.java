@@ -40,7 +40,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 			IProfile profileAfterTestRun = getProfile(IProfileRegistry.SELF);
 			IProvisioningPlan rollbackPlan = createPlanner().getDiffPlan(profileAfterTestRun, initialProfile, new NullProgressMonitor());
 			assertOK("rollback plan", rollbackPlan.getStatus());
-			assertOK("rollback execution", PlanExecutionHelper.executePlan(rollbackPlan, createEngine(), new ProvisioningContext(), new NullProgressMonitor()));
+			assertOK("rollback execution", PlanExecutionHelper.executePlan(rollbackPlan, createEngine(), new ProvisioningContext(getAgent()), new NullProgressMonitor()));
 		}
 		super.tearDown();
 	}
@@ -54,7 +54,8 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a});
-		ProvisioningContext context = new ProvisioningContext(new URI[0]);
+		ProvisioningContext context = new ProvisioningContext(getAgent());
+		context.setMetadataRepositories(new URI[0]);
 
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		assertNotOK(plan.getStatus());
@@ -70,7 +71,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a});
@@ -92,7 +93,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a});
@@ -112,7 +113,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		IPlanner planner = createPlanner();
 		IEngine engine = createEngine();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
 		request.addInstallableUnits(new IInstallableUnit[] {a});
@@ -145,7 +146,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();
 		IEngine engine = createEngine();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a});
@@ -174,7 +175,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 		IEngine engine = createEngine();
 
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		//install A which will install Action1
 		ProfileChangeRequest request = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
@@ -219,7 +220,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		IPlanner planner = createPlanner();
 		IEngine engine = createEngine();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		//install A which will install Action1
 		ProfileChangeRequest request = new ProfileChangeRequest(getProfile(IProfileRegistry.SELF));
@@ -288,7 +289,7 @@ public class AgentPlanTestInRunningInstance extends AbstractProvisioningTest {
 
 		IProfile profile = getProfile(IProfileRegistry.SELF);
 		IPlanner planner = createPlanner();
-		ProvisioningContext ctx = new ProvisioningContext();
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a, d});
