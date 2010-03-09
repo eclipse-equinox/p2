@@ -13,10 +13,13 @@ package org.eclipse.equinox.p2.repository.metadata.spi;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
+import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 
@@ -132,6 +135,18 @@ public abstract class AbstractMetadataRepository extends AbstractRepository<IIns
 	public boolean removeInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		assertModifiable();
 		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
+		try {
+			runnable.run(monitor);
+		} catch (Exception e) {
+			return new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+		}
+		return Status.OK_STATUS;
 	}
 
 }

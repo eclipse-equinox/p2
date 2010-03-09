@@ -14,11 +14,13 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
+import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 public class UpdateSiteMetadataRepository implements IMetadataRepository {
@@ -184,5 +186,12 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 	 */
 	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		return delegate.query(query, monitor);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
+		return delegate.executeBatch(runnable, monitor);
 	}
 }

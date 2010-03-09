@@ -11,9 +11,10 @@
 package org.eclipse.equinox.p2.repository.metadata;
 
 import java.util.Collection;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.IRepositoryReference;
+import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 
 /**
@@ -67,4 +68,17 @@ public interface IMetadataRepository extends IRepository<IInstallableUnit> {
 	 */
 	public void removeAll();
 
+	/**
+	 * Executes a runnable against this repository. It is up to the repository
+	 * implementor to determine what "batch process" means, for example, it may mean
+	 * that the repository index is not stored until after the runnable completes.
+	 * 
+	 * The runnable should not execute anything in a separate thread.
+	 *  
+	 * @param runnable The runnable to execute
+	 * @param monitor A progress monitor that will be passed to the runnable
+	 * @return The result of running the runnable. Any exceptions thrown during
+	 * the execution will be returned in the status.
+	 */
+	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor);
 }
