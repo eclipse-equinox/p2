@@ -16,7 +16,9 @@ package org.eclipse.equinox.p2.metadata;
 import org.eclipse.equinox.internal.p2.core.helpers.StringHelper;
 
 /**
- * An object representing a (id,version) pair. 
+ * An object representing a (id,version) pair. An instance of this class can be constructed
+ * by invoking the constructor or calling {@link VersionedId#parse(String)} with a string 
+ * representation of this VersionedID.
  * 
  * @noextend This class is not intended to be subclassed by clients.
  * 
@@ -68,6 +70,20 @@ public class VersionedId implements IVersionedId {
 		this.version = (version == null) ? Version.emptyVersion : version;
 	}
 
+	/**
+	 * @return the ID of this VersionedID
+	 */
+	public String getId() {
+		return id;
+	}
+
+	/**
+	 * @return the Version of this VersionedID
+	 */
+	public Version getVersion() {
+		return version;
+	}
+
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -81,14 +97,6 @@ public class VersionedId implements IVersionedId {
 
 	public int hashCode() {
 		return id.hashCode() * 31 + version.hashCode();
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public Version getVersion() {
-		return version;
 	}
 
 	/**
