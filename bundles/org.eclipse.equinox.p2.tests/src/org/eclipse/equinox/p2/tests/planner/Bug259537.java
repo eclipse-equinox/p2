@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -34,9 +33,9 @@ public class Bug259537 extends AbstractProvisioningTest {
 
 		b1 = createIU("B", Version.create("2.0.0"), true);
 
-		IRequiredCapability c1 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 2.0.0)"), null, false, false);
-		IRequiredCapability c2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 3.0.0)"), null, false, false);
-		f1 = createIU("F", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c1, c2});
+		IRequirement c1 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 2.0.0)"), null, false, false);
+		IRequirement c2 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 3.0.0)"), null, false, false);
+		f1 = createIU("F", Version.createOSGi(2, 0, 0), new IRequirement[] {c1, c2});
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, f1});
 
@@ -58,9 +57,9 @@ public class Bug259537 extends AbstractProvisioningTest {
 	public void test2() {
 		a2 = createIU("A", Version.create("1.1.0"), true);
 		b2 = createIU("B", Version.create("2.2.0"), true);
-		IRequiredCapability c1 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 2.0.0)"), null, false, false);
-		IRequiredCapability c2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 3.0.0)"), null, false, false);
-		f2 = createIU("F", Version.createOSGi(2, 1, 0), new IRequiredCapability[] {c1, c2});
+		IRequirement c1 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 2.0.0)"), null, false, false);
+		IRequirement c2 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 3.0.0)"), null, false, false);
+		f2 = createIU("F", Version.createOSGi(2, 1, 0), new IRequirement[] {c1, c2});
 
 		createTestMetdataRepository(new IInstallableUnit[] {a2, b2, f2});
 		ProfileChangeRequest req = new ProfileChangeRequest(getProfile("TestProfile." + getName()));

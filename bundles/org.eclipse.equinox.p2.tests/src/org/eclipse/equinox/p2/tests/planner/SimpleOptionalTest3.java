@@ -9,7 +9,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -43,14 +42,14 @@ public class SimpleOptionalTest3 extends AbstractProvisioningTest {
 		d1 = createIU("D", Version.create("1.0.0"), true);
 		d2 = createIU("D", Version.create("2.0.0"), true);
 
-		IRequiredCapability[] reqA = new IRequiredCapability[3];
-		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
-		reqA[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true);
-		reqA[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, true, false, true);
+		IRequirement[] reqA = new IRequirement[3];
+		reqA[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
+		reqA[1] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true);
+		reqA[2] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, true, false, true);
 		a1 = createIU("A", Version.create("1.0.0"), reqA);
 
-		IRequiredCapability[] req = new IRequiredCapability[1];
-		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 2.0.0]"), null, false, false, true);
+		IRequirement[] req = new IRequirement[1];
+		req[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 2.0.0]"), null, false, false, true);
 		x1 = createIU("X", req);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, b3, c1, c2, d1, d2, x1});

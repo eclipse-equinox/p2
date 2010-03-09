@@ -3,7 +3,6 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.util.ArrayList;
 import java.util.Properties;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -40,14 +39,14 @@ public class Bug278668 extends AbstractProvisioningTest {
 		createTestMetdataRepository((IInstallableUnit[]) target.toArray(new IInstallableUnit[target.size()]));
 
 		ArrayList requirements = new ArrayList();
-		requirements.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "com.borland.tg.modelrenaming", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
-		requirements.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "com.borland.tg.xmldesign", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
-		requirements.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "com.tssap.selena.dom", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
-		requirements.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "com.tssap.selena.model.providers.rc", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
-		requirements.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "com.tssap.selena.model.providers.resources", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
-		requirements.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "com.tssap.selena.model", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
+		requirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "com.borland.tg.modelrenaming", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
+		requirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "com.borland.tg.xmldesign", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
+		requirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "com.tssap.selena.dom", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
+		requirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "com.tssap.selena.model.providers.rc", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
+		requirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "com.tssap.selena.model.providers.resources", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
+		requirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "com.tssap.selena.model", new VersionRange("[1.0.0, 1.0.0]"), null, false, false));
 
-		IInstallableUnit group = createIU("com.borland.tg.modeling.feature.group", Version.create("8.2.0.v20081113-0500-_87S7nELRXmpf6G0dO3emm"), null, (IRequiredCapability[]) requirements.toArray(new IRequiredCapability[requirements.size()]), new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "com.borland.tg.modeling", Version.create("8.2.0.v20081113-0500-_87S7nELRXmpf6G0dO3emm"))}, new Properties(), null, null, true);
+		IInstallableUnit group = createIU("com.borland.tg.modeling.feature.group", Version.create("8.2.0.v20081113-0500-_87S7nELRXmpf6G0dO3emm"), null, (IRequirement[]) requirements.toArray(new IRequirement[requirements.size()]), new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "com.borland.tg.modeling", Version.create("8.2.0.v20081113-0500-_87S7nELRXmpf6G0dO3emm"))}, new Properties(), null, null, true);
 
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {group});

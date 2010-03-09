@@ -16,7 +16,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.engine.Profile;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
@@ -89,7 +88,7 @@ public class TranslationSupportTests extends AbstractQueryTest {
 			org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription installableUnitFragmentDescription = new org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription();
 			installableUnitFragmentDescription.setId("fragment number: " + i);
 			installableUnitFragmentDescription.setVersion(Version.createOSGi(1, 0, 0));
-			installableUnitFragmentDescription.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false)});
+			installableUnitFragmentDescription.setHost(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false)});
 			installableUnitFragmentDescription.setProperty(org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription.PROP_TYPE_FRAGMENT, "true");
 			IInstallableUnitFragment iuFragment = MetadataFactory.createInstallableUnitFragment(installableUnitFragmentDescription);
 			profile.addInstallableUnit(iuFragment);
@@ -103,7 +102,7 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		installableUnitFragmentDescription.addProvidedCapabilities(list);
 		installableUnitFragmentDescription.setId("german fragment");
 		installableUnitFragmentDescription.setVersion(Version.createOSGi(1, 0, 0));
-		installableUnitFragmentDescription.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false)});
+		installableUnitFragmentDescription.setHost(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false)});
 		installableUnitFragmentDescription.setProperty(org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription.PROP_TYPE_FRAGMENT, "true");
 		installableUnitFragmentDescription.setProperty("de.license", germanLicense);
 		IInstallableUnitFragment iuFragment = MetadataFactory.createInstallableUnitFragment(installableUnitFragmentDescription);
@@ -117,7 +116,7 @@ public class TranslationSupportTests extends AbstractQueryTest {
 		installableUnitFragmentDescription.addProvidedCapabilities(list);
 		installableUnitFragmentDescription.setId("cnd french fragment");
 		installableUnitFragmentDescription.setVersion(Version.createOSGi(1, 0, 0));
-		installableUnitFragmentDescription.setHost(new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false)});
+		installableUnitFragmentDescription.setHost(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "some IU", ANY_VERSION, null, false, false)});
 		installableUnitFragmentDescription.setProperty(org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription.PROP_TYPE_FRAGMENT, "true");
 		installableUnitFragmentDescription.setProperty("fr_CA.license", canadianFRLicense);
 		iuFragment = MetadataFactory.createInstallableUnitFragment(installableUnitFragmentDescription);

@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.PlanExecutionHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -39,7 +38,7 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 		a1 = createIU("A", Version.parseVersion("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.0.0]")));
 		b1 = createIU("B", Version.parseVersion("1.0.0"));
 		// Note: C has an "optional" dependency on "B"
-		c1 = createIU("C", Version.parseVersion("1.0.0"), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.0.0]"), null, true, false)});
+		c1 = createIU("C", Version.parseVersion("1.0.0"), new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.0.0]"), null, true, false)});
 		profile = createProfile(SimulatedSharedInstallTest.class.getName());
 		planner = createPlanner();
 		engine = createEngine();

@@ -14,7 +14,6 @@ import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
@@ -44,22 +43,22 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 
 		x = createIU("X", Version.createOSGi(2, 0, 0), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 4.1.0)")));
 
-		IRequiredCapability c1 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
-		IRequiredCapability c2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 2.0.0]"), null, false, false);
-		y = createIU("Y", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c1, c2});
+		IRequirement c1 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
+		IRequirement c2 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 2.0.0]"), null, false, false);
+		y = createIU("Y", Version.createOSGi(2, 0, 0), new IRequirement[] {c1, c2});
 
-		IRequiredCapability c3 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[3.0.0, 3.0.0]"), null, false, false);
-		IRequiredCapability c4 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[4.0.0, 4.0.0]"), null, false, false);
-		z = createIU("Z", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c3, c4});
+		IRequirement c3 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[3.0.0, 3.0.0]"), null, false, false);
+		IRequirement c4 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[4.0.0, 4.0.0]"), null, false, false);
+		z = createIU("Z", Version.createOSGi(2, 0, 0), new IRequirement[] {c3, c4});
 
-		IRequiredCapability c5 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
-		IRequiredCapability c6 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[3.0.0, 3.0.0]"), null, false, false);
-		w = createIU("W", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c5, c6});
+		IRequirement c5 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
+		IRequirement c6 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[3.0.0, 3.0.0]"), null, false, false);
+		w = createIU("W", Version.createOSGi(2, 0, 0), new IRequirement[] {c5, c6});
 
-		IRequiredCapability c7 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 2.0.0]"), null, false, false);
-		IRequiredCapability c8 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[3.0.0, 4.0.0]"), null, false, false);
-		v = createIU("V", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c7});
-		u = createIU("U", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c8});
+		IRequirement c7 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 2.0.0]"), null, false, false);
+		IRequirement c8 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[3.0.0, 4.0.0]"), null, false, false);
+		v = createIU("V", Version.createOSGi(2, 0, 0), new IRequirement[] {c7});
+		u = createIU("U", Version.createOSGi(2, 0, 0), new IRequirement[] {c8});
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, a3, a4, w, x, y, z});
 

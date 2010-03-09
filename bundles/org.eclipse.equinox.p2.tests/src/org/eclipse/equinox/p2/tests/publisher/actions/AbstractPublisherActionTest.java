@@ -38,10 +38,10 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 
 	static class TestCapabilityAdvice implements ICapabilityAdvice {
 		private final IProvidedCapability providedCapability;
-		private final IRequiredCapability requiredCapability;
-		private final IRequiredCapability metaRequiredCapability;
+		private final IRequirement requiredCapability;
+		private final IRequirement metaRequiredCapability;
 
-		public TestCapabilityAdvice(IProvidedCapability providedCapability, IRequiredCapability requiredCapability, IRequiredCapability metaRequiredCapability) {
+		public TestCapabilityAdvice(IProvidedCapability providedCapability, IRequirement requiredCapability, IRequirement metaRequiredCapability) {
 			this.providedCapability = providedCapability;
 			this.requiredCapability = requiredCapability;
 			this.metaRequiredCapability = metaRequiredCapability;
@@ -54,18 +54,18 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 			return new IProvidedCapability[] {providedCapability};
 		}
 
-		public IRequiredCapability[] getRequiredCapabilities(InstallableUnitDescription iu) {
+		public IRequirement[] getRequiredCapabilities(InstallableUnitDescription iu) {
 			if (requiredCapability == null)
 				return null;
 
-			return new IRequiredCapability[] {requiredCapability};
+			return new IRequirement[] {requiredCapability};
 		}
 
-		public IRequiredCapability[] getMetaRequiredCapabilities(InstallableUnitDescription iu) {
+		public IRequirement[] getMetaRequiredCapabilities(InstallableUnitDescription iu) {
 			if (metaRequiredCapability == null)
 				return null;
 
-			return new IRequiredCapability[] {metaRequiredCapability};
+			return new IRequirement[] {metaRequiredCapability};
 		}
 
 		public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
@@ -81,9 +81,9 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		assertEquals(0, iu.getMetaRequiredCapabilities().size());
 
 		IPublisherInfo info = new PublisherInfo();
-		IRequiredCapability testRequiredCapability = MetadataFactory.createRequiredCapability("ns1", "name1", null, null, false, false, false);
+		IRequirement testRequiredCapability = MetadataFactory.createRequirement("ns1", "name1", null, null, false, false, false);
 		IProvidedCapability testProvideCapability = MetadataFactory.createProvidedCapability("ns2", "name2", Version.createOSGi(9, 0, 0));
-		IRequiredCapability testMetaRequiredCapability = MetadataFactory.createRequiredCapability("ns3", "name3", null, null, false, false, false);
+		IRequirement testMetaRequiredCapability = MetadataFactory.createRequirement("ns3", "name3", null, null, false, false, false);
 
 		info.addAdvice(new TestCapabilityAdvice(testProvideCapability, testRequiredCapability, testMetaRequiredCapability));
 		TestAction action = new TestAction();
@@ -98,12 +98,12 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		InstallableUnitDescription iu = new InstallableUnitDescription();
 		iu.setId("test");
 
-		IRequiredCapability[] requiredCapabilities = new IRequiredCapability[5];
-		requiredCapabilities[0] = MetadataFactory.createRequiredCapability("rtest1", "test1", new VersionRange("[1,2)"), null, false, false, false);
-		requiredCapabilities[1] = MetadataFactory.createRequiredCapability("rtest1", "test1", new VersionRange("[2,3)"), null, false, false, false);
-		requiredCapabilities[2] = MetadataFactory.createRequiredCapability("rtest2", "test2", new VersionRange("[1,2)"), null, false, false, false);
-		requiredCapabilities[3] = MetadataFactory.createRequiredCapability("rtest2", "test2", new VersionRange("[2,3)"), null, false, false, false);
-		requiredCapabilities[4] = MetadataFactory.createRequiredCapability("rtest3", "test3", null, null, false, false, false);
+		IRequirement[] requiredCapabilities = new IRequirement[5];
+		requiredCapabilities[0] = MetadataFactory.createRequirement("rtest1", "test1", new VersionRange("[1,2)"), null, false, false, false);
+		requiredCapabilities[1] = MetadataFactory.createRequirement("rtest1", "test1", new VersionRange("[2,3)"), null, false, false, false);
+		requiredCapabilities[2] = MetadataFactory.createRequirement("rtest2", "test2", new VersionRange("[1,2)"), null, false, false, false);
+		requiredCapabilities[3] = MetadataFactory.createRequirement("rtest2", "test2", new VersionRange("[2,3)"), null, false, false, false);
+		requiredCapabilities[4] = MetadataFactory.createRequirement("rtest3", "test3", null, null, false, false, false);
 		iu.setRequiredCapabilities(requiredCapabilities);
 
 		IProvidedCapability[] providedCapabilities = new IProvidedCapability[5];
@@ -114,12 +114,12 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		providedCapabilities[4] = MetadataFactory.createProvidedCapability("ptest3", "test3", null);
 		iu.setCapabilities(providedCapabilities);
 
-		IRequiredCapability[] metaRequiredCapabilities = new IRequiredCapability[5];
-		metaRequiredCapabilities[0] = MetadataFactory.createRequiredCapability("mtest1", "test1", new VersionRange("[1,2)"), null, false, false, false);
-		metaRequiredCapabilities[1] = MetadataFactory.createRequiredCapability("mtest1", "test1", new VersionRange("[2,3)"), null, false, false, false);
-		metaRequiredCapabilities[2] = MetadataFactory.createRequiredCapability("mtest2", "test2", new VersionRange("[1,2)"), null, false, false, false);
-		metaRequiredCapabilities[3] = MetadataFactory.createRequiredCapability("mtest2", "test2", new VersionRange("[2,3)"), null, false, false, false);
-		metaRequiredCapabilities[4] = MetadataFactory.createRequiredCapability("mtest3", "test3", null, null, false, false, false);
+		IRequirement[] metaRequiredCapabilities = new IRequirement[5];
+		metaRequiredCapabilities[0] = MetadataFactory.createRequirement("mtest1", "test1", new VersionRange("[1,2)"), null, false, false, false);
+		metaRequiredCapabilities[1] = MetadataFactory.createRequirement("mtest1", "test1", new VersionRange("[2,3)"), null, false, false, false);
+		metaRequiredCapabilities[2] = MetadataFactory.createRequirement("mtest2", "test2", new VersionRange("[1,2)"), null, false, false, false);
+		metaRequiredCapabilities[3] = MetadataFactory.createRequirement("mtest2", "test2", new VersionRange("[2,3)"), null, false, false, false);
+		metaRequiredCapabilities[4] = MetadataFactory.createRequirement("mtest3", "test3", null, null, false, false, false);
 		iu.setMetaRequiredCapabilities(metaRequiredCapabilities);
 
 		assertEquals(5, iu.getRequiredCapabilities().size());
@@ -127,9 +127,9 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		assertEquals(5, iu.getMetaRequiredCapabilities().size());
 
 		IPublisherInfo info = new PublisherInfo();
-		IRequiredCapability testRequiredCapability = MetadataFactory.createRequiredCapability("ns1", "name1", null, null, false, false, false);
+		IRequirement testRequiredCapability = MetadataFactory.createRequirement("ns1", "name1", null, null, false, false, false);
 		IProvidedCapability testProvideCapability = MetadataFactory.createProvidedCapability("ns2", "name2", Version.createOSGi(9, 0, 0));
-		IRequiredCapability testMetaRequiredCapability = MetadataFactory.createRequiredCapability("ns3", "name3", null, null, false, false, false);
+		IRequirement testMetaRequiredCapability = MetadataFactory.createRequirement("ns3", "name3", null, null, false, false, false);
 
 		info.addAdvice(new TestCapabilityAdvice(testProvideCapability, testRequiredCapability, testMetaRequiredCapability));
 		TestAction action = new TestAction();
@@ -152,9 +152,9 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		assertTrue(iu.getMetaRequiredCapabilities().iterator().next().isGreedy());
 
 		IPublisherInfo info = new PublisherInfo();
-		IRequiredCapability testRequiredCapability = MetadataFactory.createRequiredCapability("ns1", "name1", null, null, false, false, false);
+		IRequirement testRequiredCapability = MetadataFactory.createRequirement("ns1", "name1", null, null, false, false, false);
 		IProvidedCapability testProvideCapability = MetadataFactory.createProvidedCapability("ns2", "name2", Version.createOSGi(9, 0, 0));
-		IRequiredCapability testMetaRequiredCapability = MetadataFactory.createRequiredCapability("ns3", "name3", null, null, false, false, false);
+		IRequirement testMetaRequiredCapability = MetadataFactory.createRequirement("ns3", "name3", null, null, false, false, false);
 
 		info.addAdvice(new TestCapabilityAdvice(testProvideCapability, testRequiredCapability, testMetaRequiredCapability));
 		TestAction action = new TestAction();
@@ -169,12 +169,12 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		InstallableUnitDescription iu = new InstallableUnitDescription();
 		iu.setId("test");
 
-		IRequiredCapability[] requiredCapabilities = new IRequiredCapability[5];
-		requiredCapabilities[0] = MetadataFactory.createRequiredCapability("rtest1", "test1", new VersionRange("[1,2)"), null, false, false, false);
-		requiredCapabilities[1] = MetadataFactory.createRequiredCapability("rtest1", "test1", new VersionRange("[2,3)"), null, false, false, false);
-		requiredCapabilities[2] = MetadataFactory.createRequiredCapability("rtest2", "test2", new VersionRange("[1,2)"), null, false, false, false);
-		requiredCapabilities[3] = MetadataFactory.createRequiredCapability("rtest2", "test2", new VersionRange("[2,3)"), null, false, false, false);
-		requiredCapabilities[4] = MetadataFactory.createRequiredCapability("rtest3", "test3", null, null, false, false, false);
+		IRequirement[] requiredCapabilities = new IRequirement[5];
+		requiredCapabilities[0] = MetadataFactory.createRequirement("rtest1", "test1", new VersionRange("[1,2)"), null, false, false, false);
+		requiredCapabilities[1] = MetadataFactory.createRequirement("rtest1", "test1", new VersionRange("[2,3)"), null, false, false, false);
+		requiredCapabilities[2] = MetadataFactory.createRequirement("rtest2", "test2", new VersionRange("[1,2)"), null, false, false, false);
+		requiredCapabilities[3] = MetadataFactory.createRequirement("rtest2", "test2", new VersionRange("[2,3)"), null, false, false, false);
+		requiredCapabilities[4] = MetadataFactory.createRequirement("rtest3", "test3", null, null, false, false, false);
 		iu.setRequiredCapabilities(requiredCapabilities);
 
 		IProvidedCapability[] providedCapabilities = new IProvidedCapability[5];
@@ -185,12 +185,12 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		providedCapabilities[4] = MetadataFactory.createProvidedCapability("ptest3", "test3", null);
 		iu.setCapabilities(providedCapabilities);
 
-		IRequiredCapability[] metaRequiredCapabilities = new IRequiredCapability[5];
-		metaRequiredCapabilities[0] = MetadataFactory.createRequiredCapability("mtest1", "test1", new VersionRange("[1,2)"), null, false, false, false);
-		metaRequiredCapabilities[1] = MetadataFactory.createRequiredCapability("mtest1", "test1", new VersionRange("[2,3)"), null, false, false, false);
-		metaRequiredCapabilities[2] = MetadataFactory.createRequiredCapability("mtest2", "test2", new VersionRange("[1,2)"), null, false, false, false);
-		metaRequiredCapabilities[3] = MetadataFactory.createRequiredCapability("mtest2", "test2", new VersionRange("[2,3)"), null, false, false, false);
-		metaRequiredCapabilities[4] = MetadataFactory.createRequiredCapability("mtest3", "test3", null, null, false, false, false);
+		IRequirement[] metaRequiredCapabilities = new IRequirement[5];
+		metaRequiredCapabilities[0] = MetadataFactory.createRequirement("mtest1", "test1", new VersionRange("[1,2)"), null, false, false, false);
+		metaRequiredCapabilities[1] = MetadataFactory.createRequirement("mtest1", "test1", new VersionRange("[2,3)"), null, false, false, false);
+		metaRequiredCapabilities[2] = MetadataFactory.createRequirement("mtest2", "test2", new VersionRange("[1,2)"), null, false, false, false);
+		metaRequiredCapabilities[3] = MetadataFactory.createRequirement("mtest2", "test2", new VersionRange("[2,3)"), null, false, false, false);
+		metaRequiredCapabilities[4] = MetadataFactory.createRequirement("mtest3", "test3", null, null, false, false, false);
 		iu.setMetaRequiredCapabilities(metaRequiredCapabilities);
 
 		assertEquals(5, iu.getRequiredCapabilities().size());
@@ -198,9 +198,9 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		assertEquals(5, iu.getMetaRequiredCapabilities().size());
 
 		IPublisherInfo info = new PublisherInfo();
-		IRequiredCapability testRequiredCapability = MetadataFactory.createRequiredCapability("rtest1", "test1", null, null, false, false, false);
+		IRequirement testRequiredCapability = MetadataFactory.createRequirement("rtest1", "test1", null, null, false, false, false);
 		IProvidedCapability testProvideCapability = MetadataFactory.createProvidedCapability("ptest1", "test1", null);
-		IRequiredCapability testMetaRequiredCapability = MetadataFactory.createRequiredCapability("mtest1", "test1", null, null, false, false, false);
+		IRequirement testMetaRequiredCapability = MetadataFactory.createRequirement("mtest1", "test1", null, null, false, false, false);
 
 		info.addAdvice(new TestCapabilityAdvice(testProvideCapability, testRequiredCapability, testMetaRequiredCapability));
 		TestAction action = new TestAction();

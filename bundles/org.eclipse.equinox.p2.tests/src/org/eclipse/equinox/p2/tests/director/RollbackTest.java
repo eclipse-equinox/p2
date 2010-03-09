@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.director;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IAgentLocation;
@@ -42,8 +41,8 @@ public class RollbackTest extends AbstractProvisioningTest {
 		b1 = createIU("B", DEFAULT_VERSION, true);
 		c1 = createIU("C", DEFAULT_VERSION, true);
 
-		IRequiredCapability[] req = new IRequiredCapability[1];
-		req[0] = (IRequiredCapability) MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
+		IRequirement[] req = new IRequirement[1];
+		req[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
 		d1 = createIU("D", Version.create("1.0.0"), req);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1, d1});

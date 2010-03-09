@@ -9,7 +9,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -27,8 +26,8 @@ public class MissingOptionalNonGreedyRequirement extends AbstractProvisioningTes
 		super.setUp();
 		b1 = createIU("B", Version.create("1.0.0"), true);
 
-		IRequiredCapability[] reqB = new IRequiredCapability[1];
-		reqB[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, false);
+		IRequirement[] reqB = new IRequirement[1];
+		reqB[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, false);
 		a1 = createIU("A", Version.create("1.0.0"), reqB);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1});

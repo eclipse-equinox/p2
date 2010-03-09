@@ -27,7 +27,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
-		IRequirement capability = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
+		IRequirement capability = MetadataFactory.createRequirement("org.eclipse.equinox.p2.eclipse.type", "feature", new VersionRange("[1.0.0,2.0.0)"), null, false, false);
 		IQuery<IInstallableUnit> predicateQuery = QueryUtil.createMatchQuery("this ~= $0", capability);
 		IQuery<IInstallableUnit> capabilityQuery = QueryUtil.createMatchQuery(capability.getMatches());
 		IQueryResult<IInstallableUnit> result;

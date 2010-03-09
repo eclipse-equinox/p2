@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.PlannerStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -32,8 +31,8 @@ public class DisabledExplanation extends AbstractProvisioningTest {
 		a1 = createIU("A", Version.create("1.0.0"), true);
 
 		//Missing non optional dependency
-		IRequiredCapability[] req = new IRequiredCapability[1];
-		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true);
+		IRequirement[] req = new IRequirement[1];
+		req[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true);
 		b1 = createIU("B", Version.create("1.0.0"), req);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1});

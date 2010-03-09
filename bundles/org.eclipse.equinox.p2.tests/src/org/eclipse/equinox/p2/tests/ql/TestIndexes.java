@@ -50,7 +50,7 @@ public class TestIndexes extends AbstractProvisioningTest {
 
 	public void testCapabilityIndexMatches() throws Exception {
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		IRequirement requirement = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.iu", "org.eclipse.core.resources", null, null, 1, 2, true);
+		IRequirement requirement = MetadataFactory.createRequirement("org.eclipse.equinox.p2.iu", "org.eclipse.core.resources", null, null, 1, 2, true);
 		IQuery<IInstallableUnit> query = QueryUtil.createQuery("select(x | x ~= $0)", requirement);
 		IQueryResult<IInstallableUnit> result = repo.query(query, getMonitor());
 		assertEquals(queryResultSize(result), 1);

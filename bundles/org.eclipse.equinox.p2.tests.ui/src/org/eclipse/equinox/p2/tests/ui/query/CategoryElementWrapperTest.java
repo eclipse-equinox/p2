@@ -10,17 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-
 import java.util.Collection;
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.p2.ui.model.EmptyElementExplanation;
 import org.eclipse.equinox.internal.p2.ui.query.CategoryElementWrapper;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.MockQueryable;
 
@@ -86,7 +82,7 @@ public class CategoryElementWrapperTest extends AbstractQueryTest {
 		assertEquals("1.6", 1, results.size());
 
 		//adding a nested category shouldn't affected size
-		IRequiredCapability[] required = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "category1");
+		IRequirement[] required = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "category1");
 		IInstallableUnit nested = createIU("Nested", required);
 		collector.accept(nested);
 		results = wrapper.getElements(collector);

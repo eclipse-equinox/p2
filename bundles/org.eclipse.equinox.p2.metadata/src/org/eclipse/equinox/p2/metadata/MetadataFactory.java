@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -311,36 +311,16 @@ public class MetadataFactory {
 		return new RequiredCapability(namespace, name, range, filter, optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, true);
 	}
 
-	/**
-	 * @deprecated use #createRequirement
-	 */
-	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, Filter filter, boolean optional, boolean multiple) {
-		return new RequiredCapability(namespace, name, range, filter, optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, true);
-	}
-
 	public static IRequirement createRequirement(String namespace, String name, VersionRange range, Filter filter, int minCard, int maxCard, boolean greedy) {
-		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy);
-	}
-
-	/**
-	 * @deprecated use #createRequirement
-	 */
-	public static IRequirement createRequiredCapability(String namespace, String name, VersionRange range, Filter filter, int minCard, int maxCard, boolean greedy) {
 		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy);
 	}
 
 	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement) {
 		return new RequiredCapability(requirement);
+
 	}
 
 	public static IRequirement createRequirement(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
-		return new RequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
-	}
-
-	/**
-	 * @deprecated use #createRequirement
-	 */
-	public static IRequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
 		return new RequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
 	}
 

@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.planner;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
 import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
@@ -36,9 +35,9 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 
 		a2 = createIU("A", Version.create("2.0.0"), true);
 
-		IRequiredCapability c1 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
-		IRequiredCapability c2 = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 2.0.0]"), null, false, false);
-		y = createIU("Y", Version.createOSGi(2, 0, 0), new IRequiredCapability[] {c1, c2});
+		IRequirement c1 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
+		IRequirement c2 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[2.0.0, 2.0.0]"), null, false, false);
+		y = createIU("Y", Version.createOSGi(2, 0, 0), new IRequirement[] {c1, c2});
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, y});
 

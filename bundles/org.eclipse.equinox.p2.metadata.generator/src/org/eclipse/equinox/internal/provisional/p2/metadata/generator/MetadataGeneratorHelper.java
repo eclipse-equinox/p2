@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -212,8 +212,8 @@ public class MetadataGeneratorHelper {
 
 		//Indicate the IU to which this CU apply
 		cu.setHost(new IRequirement[] { //
-				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, iuId, new VersionRange(iuVersion, true, Version.MAX_VERSION, true), null, false, false, true), //
-						MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
+				MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, iuId, new VersionRange(iuVersion, true, Version.MAX_VERSION, true), null, false, false, true), //
+						MetadataFactory.createRequirement(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
@@ -276,9 +276,9 @@ public class MetadataGeneratorHelper {
 		//		if (requiresAFragment)
 		//			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
 		if (isFragment)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
+			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
 		for (int j = 0; j < requiredBundles.length; j++)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), fromOSGiVersionRange(requiredBundles[j].getVersionRange()), null, requiredBundles[j].isOptional(), false));
+			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), fromOSGiVersionRange(requiredBundles[j].getVersionRange()), null, requiredBundles[j].isOptional(), false));
 
 		// Process the import packages
 		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
@@ -292,7 +292,7 @@ public class MetadataGeneratorHelper {
 			VersionRange versionRange = fromOSGiVersionRange(importSpec.getVersionRange());
 
 			//TODO this needs to be refined to take into account all the attribute handled by imports
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
+			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
 		}
 		iu.setRequiredCapabilities((IRequirement[]) reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
 
@@ -415,7 +415,7 @@ public class MetadataGeneratorHelper {
 		fragment.setVersion(fromOSGiVersion(bd.getVersion())); // TODO: is this a meaningful version?
 
 		HostSpecification hostSpec = bd.getHost();
-		IRequirement[] hostReqs = new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
+		IRequirement[] hostReqs = new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, hostSpec.getName(), fromOSGiVersionRange(hostSpec.getVersionRange()), null, false, false, false)};
 		fragment.setHost(hostReqs);
 
 		fragment.setSingleton(true);
@@ -484,11 +484,11 @@ public class MetadataGeneratorHelper {
 		for (Iterator iterator = featureIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter() == null ? null : iu.getFilter(), false, false));
+			reqsConfigurationUnits.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter() == null ? null : iu.getFilter(), false, false));
 		}
 		//note that update sites don't currently support nested categories, but it may be useful to add in the future
 		if (parentCategory != null) {
-			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, parentCategory.getId(), VersionRange.emptyRange, parentCategory.getFilter() == null ? null : parentCategory.getFilter(), false, false));
+			reqsConfigurationUnits.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, parentCategory.getId(), VersionRange.emptyRange, parentCategory.getFilter() == null ? null : parentCategory.getFilter(), false, false));
 		}
 		cat.setRequiredCapabilities((IRequirement[]) reqsConfigurationUnits.toArray(new IRequirement[reqsConfigurationUnits.size()]));
 
@@ -561,7 +561,7 @@ public class MetadataGeneratorHelper {
 		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		// Create a required capability on bundles
-		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
+		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequirement(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true, false)};
 		cu.setHost(reqs);
 		Map touchpointData = new HashMap();
 
@@ -597,7 +597,7 @@ public class MetadataGeneratorHelper {
 		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		// Create a required capability on features
-		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, true, true, false)};
+		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequirement(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, true, true, false)};
 		cu.setHost(reqs);
 
 		cu.setFilter(INSTALL_FEATURES_FILTER);
@@ -621,7 +621,7 @@ public class MetadataGeneratorHelper {
 		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(NAMESPACE_FLAVOR, configurationFlavor, Version.createOSGi(1, 0, 0))});
 
 		// Create a required capability on source providers
-		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, true, true, false)};
+		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequirement(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, true, true, false)};
 		cu.setHost(reqs);
 		Map touchpointData = new HashMap();
 
@@ -773,12 +773,12 @@ public class MetadataGeneratorHelper {
 			String requiredId = entries[i].getId();
 			if (transformIds)
 				requiredId = getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true);
-			required[i] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, requiredId, range, getFilter(entries[i]), entries[i].isOptional(), false);
+			required[i] = MetadataFactory.createRequirement(IU_NAMESPACE, requiredId, range, getFilter(entries[i]), entries[i].isOptional(), false);
 		}
 		// the feature IU could be null if we are just generating a feature structure rather than
 		// actual features.
 		if (featureIU != null)
-			required[entries.length] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
+			required[entries.length] = MetadataFactory.createRequirement(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
 		iu.setRequiredCapabilities(required);
 		iu.setTouchpointType(ITouchpointType.NONE);
 		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString());
@@ -842,23 +842,23 @@ public class MetadataGeneratorHelper {
 		ArrayList requirementChanges = new ArrayList();
 		for (int i = 0; i < entries.length; i++) {
 			VersionRange range = getVersionRange(entries[i]);
-			IRequirement req = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
+			IRequirement req = MetadataFactory.createRequirement(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
 			if (entries[i].isRequires()) {
 				applicabilityScope.add(req);
 				if (applicabilityScope.size() == 1) {
-					iu.setLifeCycle(MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, null, false, false, false));
+					iu.setLifeCycle(MetadataFactory.createRequirement(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, null, false, false, false));
 				}
 				continue;
 			}
 			if (entries[i].isPlugin()) {
-				IRequirement from = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), VersionRange.emptyRange, getFilter(entries[i]), entries[i].isOptional(), false);
+				IRequirement from = MetadataFactory.createRequirement(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), VersionRange.emptyRange, getFilter(entries[i]), entries[i].isOptional(), false);
 				requirementChanges.add(MetadataFactory.createRequirementChange(from, req));
 				continue;
 			}
 			patchRequirements.add(req);
 		}
 		//Always add a requirement on the IU containing the feature jar
-		patchRequirements.add(MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false));
+		patchRequirements.add(MetadataFactory.createRequirement(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false));
 		iu.setRequiredCapabilities((IRequirement[]) patchRequirements.toArray(new IRequirement[patchRequirements.size()]));
 		iu.setApplicabilityScope(new IRequirement[][] {(IRequirement[]) applicabilityScope.toArray(new IRequirement[applicabilityScope.size()])});
 		iu.setRequirementChanges((IRequirementChange[]) requirementChanges.toArray(new IRequirementChange[requirementChanges.size()]));
@@ -937,7 +937,7 @@ public class MetadataGeneratorHelper {
 		String configId = "config." + id;//$NON-NLS-1$
 		cu.setId(configId);
 		cu.setVersion(version);
-		cu.setHost(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, Version.MAX_VERSION, true), null, false, false)});
+		cu.setHost(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, Version.MAX_VERSION, true), null, false, false)});
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configId, version)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);
@@ -1004,7 +1004,7 @@ public class MetadataGeneratorHelper {
 		String configUnitId = configurationFlavor + launcherId;
 		cu.setId(configUnitId);
 		cu.setVersion(LAUNCHER_VERSION);
-		cu.setHost(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherId, new VersionRange(LAUNCHER_VERSION, true, Version.MAX_VERSION, true), null, false, false)});
+		cu.setHost(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, launcherId, new VersionRange(LAUNCHER_VERSION, true, Version.MAX_VERSION, true), null, false, false)});
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new IProvidedCapability[] {createSelfCapability(configUnitId, LAUNCHER_VERSION)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);

@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.engine.IEngine;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -48,11 +47,11 @@ public class ExplanationForOptionalDependencies extends AbstractProvisioningTest
 	public void testNoProblemWithMissingOptionalDependency() {
 		//CDT will be missing a requirement but it is optional so everything should be good
 		//EMF will be not be good because it is missing a requirement
-		IRequiredCapability missingOptionalDependency = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "MissingSomething", new VersionRange("[1.0.0, 1.0.0]"), null, true, false);
-		IInstallableUnit cdt = createIU("CDT", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), new IRequiredCapability[] {missingOptionalDependency});
+		IRequirement missingOptionalDependency = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "MissingSomething", new VersionRange("[1.0.0, 1.0.0]"), null, true, false);
+		IInstallableUnit cdt = createIU("CDT", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), new IRequirement[] {missingOptionalDependency});
 
-		IRequiredCapability emfMissing = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "EMFPart", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
-		IInstallableUnit emf = createIU("EMF", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), new IRequiredCapability[] {emfMissing}, NO_PROPERTIES, true);
+		IRequirement emfMissing = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "EMFPart", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
+		IInstallableUnit emf = createIU("EMF", PublisherHelper.fromOSGiVersion(new org.osgi.framework.Version("1.0.0")), new IRequirement[] {emfMissing}, NO_PROPERTIES, true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {cdt, emf});
 		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);

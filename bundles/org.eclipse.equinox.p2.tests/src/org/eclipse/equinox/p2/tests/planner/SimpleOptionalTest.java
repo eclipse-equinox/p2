@@ -9,7 +9,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -32,8 +31,8 @@ public class SimpleOptionalTest extends AbstractProvisioningTest {
 		b1 = createIU("B", Version.create("1.0.0"), true);
 
 		//B's dependency is missing
-		IRequiredCapability[] reqA = new IRequiredCapability[1];
-		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
+		IRequirement[] reqA = new IRequirement[1];
+		reqA[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
 		a1 = createIU("A", Version.create("1.0.0"), reqA);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1});

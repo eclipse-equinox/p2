@@ -9,7 +9,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -25,13 +24,13 @@ public class MissingDependency2 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		IRequiredCapability[] reqA = new IRequiredCapability[1];
-		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true);
+		IRequirement[] reqA = new IRequirement[1];
+		reqA[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true);
 		a1 = createIU("A", Version.create("1.0.0"), reqA);
 
 		//Missing optional dependency
-		IRequiredCapability[] req = new IRequiredCapability[1];
-		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
+		IRequirement[] req = new IRequirement[1];
+		req[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
 		b1 = createIU("B", Version.create("1.0.0"), req);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1});

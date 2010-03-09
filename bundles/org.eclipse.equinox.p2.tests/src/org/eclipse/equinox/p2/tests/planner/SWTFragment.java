@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -22,7 +21,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class SWTFragment extends AbstractProvisioningTest {
 	public void testFragmentPickedByCapability() {
-		IRequiredCapability[] reqs = createRequiredCapabilities("swt.fragment", "swt.fragment", new VersionRange("[1.0.0, 2.0.0)"));
+		IRequirement[] reqs = createRequiredCapabilities("swt.fragment", "swt.fragment", new VersionRange("[1.0.0, 2.0.0)"));
 		IInstallableUnit swt = createIU("SWT", reqs);
 
 		MetadataFactory.InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();

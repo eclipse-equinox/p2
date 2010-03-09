@@ -9,7 +9,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -28,12 +27,12 @@ public class GreedyRequirement extends AbstractProvisioningTest {
 		super.setUp();
 		b1 = createIU("B", Version.create("1.0.0"), true);
 
-		IRequiredCapability[] reqB = new IRequiredCapability[1];
-		reqB[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, false);
+		IRequirement[] reqB = new IRequirement[1];
+		reqB[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, false);
 		a1 = createIU("A", Version.create("1.0.0"), reqB);
 
-		IRequiredCapability[] reqC = new IRequiredCapability[1];
-		reqC[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true);
+		IRequirement[] reqC = new IRequirement[1];
+		reqC[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true);
 		c1 = createIU("C", Version.create("1.0.0"), reqC);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1});

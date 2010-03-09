@@ -10,24 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.query;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.QueryableMetadataRepositoryManager;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 	public void testMatchOtherObjects() {
-		IRequirement requires = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.iu", "test.bundle", ANY_VERSION, null, false, false);
+		IRequirement requires = MetadataFactory.createRequirement("org.eclipse.equinox.p2.iu", "test.bundle", ANY_VERSION, null, false, false);
 		IInstallableUnit match = createIU("test.bundle");
 		IInstallableUnit noMatch = createIU("another.bundle");
 		List items = new ArrayList();
@@ -49,7 +45,7 @@ public class AnyRequiredCapabilityTest extends AbstractQueryTest {
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		metadataRepositoryManager.addRepository(location);
 		QueryableMetadataRepositoryManager manager = new QueryableMetadataRepositoryManager(ProvisioningUI.getDefaultUI(), false);
-		IRequirement requires = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.iu", "test.bundle", ANY_VERSION, null, false, false);
+		IRequirement requires = MetadataFactory.createRequirement("org.eclipse.equinox.p2.iu", "test.bundle", ANY_VERSION, null, false, false);
 		IQueryResult result = manager.query(QueryUtil.createMatchQuery(requires.getMatches()), getMonitor());
 		assertEquals("1.0", 1, queryResultSize(result));
 		IInstallableUnit iu = (IInstallableUnit) result.iterator().next();

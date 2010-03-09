@@ -9,7 +9,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -50,16 +49,16 @@ public class SimpleOptionalTest2 extends AbstractProvisioningTest {
 		z1 = createIU("Z", Version.create("1.0.0"), true);
 
 		//B's dependency is missing
-		IRequiredCapability[] reqA = new IRequiredCapability[3];
-		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true);
-		reqA[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
-		reqA[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, true, false, true);
+		IRequirement[] reqA = new IRequirement[3];
+		reqA[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true);
+		reqA[1] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
+		reqA[2] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, true, false, true);
 		a1 = createIU("A", Version.create("1.0.0"), reqA);
 
-		IRequiredCapability[] req = new IRequiredCapability[3];
-		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true);
-		req[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "Y", VersionRange.emptyRange, null, false, false, true);
-		req[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "Z", VersionRange.emptyRange, null, true, false, true);
+		IRequirement[] req = new IRequirement[3];
+		req[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[1.0.0, 1.0.0]"), null, false, false, true);
+		req[1] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "Y", VersionRange.emptyRange, null, false, false, true);
+		req[2] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "Z", VersionRange.emptyRange, null, true, false, true);
 		x1 = createIU("X", req);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, b3, c1, c2, d1, d2, x1, z1, y1});

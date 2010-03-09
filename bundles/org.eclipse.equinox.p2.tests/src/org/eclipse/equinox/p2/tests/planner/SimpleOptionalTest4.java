@@ -9,7 +9,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -38,11 +37,11 @@ public class SimpleOptionalTest4 extends AbstractProvisioningTest {
 		b4 = createIU("B", Version.create("4.0.0"), false);
 
 		//B's dependency is missing
-		IRequiredCapability[] reqA = new IRequiredCapability[4];
-		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0,1.0.0]"), null, true, false, true);
-		reqA[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0,2.0.0]"), null, true, false, true);
-		reqA[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[3.0.0,3.0.0]"), null, true, false, true);
-		reqA[3] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[4.0.0,4.0.0]"), null, true, false, true);
+		IRequirement[] reqA = new IRequirement[4];
+		reqA[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0,1.0.0]"), null, true, false, true);
+		reqA[1] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0,2.0.0]"), null, true, false, true);
+		reqA[2] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[3.0.0,3.0.0]"), null, true, false, true);
+		reqA[3] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[4.0.0,4.0.0]"), null, true, false, true);
 		a1 = createIU("A", Version.create("1.0.0"), reqA);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, b3, b4});

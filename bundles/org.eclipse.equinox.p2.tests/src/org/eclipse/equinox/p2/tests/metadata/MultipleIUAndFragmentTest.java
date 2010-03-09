@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.tests.metadata;
 
 import java.util.Collection;
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.QueryUtil;
@@ -58,7 +57,7 @@ public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 	}
 
 	private static IInstallableUnit createIUWithDependencyOn(String iuName, String dependencyOn) {
-		IRequiredCapability[] requires = new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, dependencyOn, VersionRange.emptyRange, null, false, true)};
+		IRequirement[] requires = new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, dependencyOn, VersionRange.emptyRange, null, false, true)};
 		return createEclipseIU(iuName, DEFAULT_VERSION, requires, NO_TP_DATA);
 	}
 }

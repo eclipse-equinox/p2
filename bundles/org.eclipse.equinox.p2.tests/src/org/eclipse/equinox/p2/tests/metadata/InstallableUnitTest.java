@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -25,11 +24,11 @@ public class InstallableUnitTest extends AbstractProvisioningTest {
 		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("testNamespace", "name", Version.createOSGi(1, 0, 0))};
 		IInstallableUnit iu = createIU("iu", provides);
 
-		IRequiredCapability wrongNamespace = MetadataFactory.createRequiredCapability("wrongNamespace", "name", VersionRange.emptyRange, null, false, false);
-		IRequiredCapability wrongName = MetadataFactory.createRequiredCapability("testNamespace", "wrongName", VersionRange.emptyRange, null, false, false);
-		IRequiredCapability lowerVersionRange = MetadataFactory.createRequiredCapability("testNamespace", "name", new VersionRange("[0.1,1.0)"), null, false, false);
-		IRequiredCapability higherVersionRange = MetadataFactory.createRequiredCapability("testNamespace", "name", new VersionRange("(1.0,99.99]"), null, false, false);
-		IRequiredCapability match = MetadataFactory.createRequiredCapability("testNamespace", "name", new VersionRange("[1.0,2.0)"), null, false, false);
+		IRequirement wrongNamespace = MetadataFactory.createRequirement("wrongNamespace", "name", VersionRange.emptyRange, null, false, false);
+		IRequirement wrongName = MetadataFactory.createRequirement("testNamespace", "wrongName", VersionRange.emptyRange, null, false, false);
+		IRequirement lowerVersionRange = MetadataFactory.createRequirement("testNamespace", "name", new VersionRange("[0.1,1.0)"), null, false, false);
+		IRequirement higherVersionRange = MetadataFactory.createRequirement("testNamespace", "name", new VersionRange("(1.0,99.99]"), null, false, false);
+		IRequirement match = MetadataFactory.createRequirement("testNamespace", "name", new VersionRange("[1.0,2.0)"), null, false, false);
 
 		assertFalse("1.0", iu.satisfies(wrongNamespace));
 		assertFalse("1.1", iu.satisfies(wrongName));

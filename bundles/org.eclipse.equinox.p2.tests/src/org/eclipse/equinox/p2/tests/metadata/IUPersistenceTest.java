@@ -208,11 +208,11 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		return provided;
 	}
 
-	private static IRequiredCapability[] createRequired(String[][] requireTuples) {
-		IRequiredCapability[] required = new IRequiredCapability[requireTuples.length];
+	private static IRequirement[] createRequired(String[][] requireTuples) {
+		IRequirement[] required = new IRequirement[requireTuples.length];
 		for (int i = 0; i < requireTuples.length; i++) {
 			String[] nextTuple = requireTuples[i];
-			required[i] = (IRequiredCapability) MetadataFactory.createRequiredCapability(nextTuple[0], nextTuple[1], new VersionRange(nextTuple[2]), null, Boolean.valueOf(nextTuple[3]).booleanValue(), false);
+			required[i] = MetadataFactory.createRequirement(nextTuple[0], nextTuple[1], new VersionRange(nextTuple[2]), null, Boolean.valueOf(nextTuple[3]).booleanValue(), false);
 		}
 		return required;
 	}
@@ -266,15 +266,15 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		propertyMap = createProperties(properties);
 		propertyMap.put(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PATCH, "true");
 		IProvidedCapability[] additionalProvides = createProvided(provides);
-		IRequiredCapability[] requirements = createRequired(requires);
-		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
+		IRequirement[] requirements = createRequired(requires);
+		IRequirement[] metaRequirements = createRequired(metaRequires);
 		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
 		boolean singleton = false;
-		IRequirementChange change1 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
-		IRequirementChange change2 = MetadataFactory.createRequirementChange(null, MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
-		IRequirementChange change3 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
-		IRequiredCapability[][] scope = new IRequiredCapability[][] { {(IRequiredCapability) MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true), (IRequiredCapability) MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true)}, {(IRequiredCapability) MetadataFactory.createRequiredCapability("zoo", "far", null, null, true, true)}};
+		IRequirementChange change1 = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
+		IRequirementChange change2 = MetadataFactory.createRequirementChange(null, MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
+		IRequirementChange change3 = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
+		IRequirement[][] scope = new IRequirement[][] { {MetadataFactory.createRequirement("foo", "bar", null, null, true, true), MetadataFactory.createRequirement("foo", "bar", null, null, true, true)}, {MetadataFactory.createRequirement("zoo", "far", null, null, true, true)}};
 		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new IRequirementChange[] {change1, change2, change3}, scope, null, metaRequirements);
 		return iu;
 	}
@@ -283,15 +283,15 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		propertyMap = createProperties(properties);
 		propertyMap.put(MetadataFactory.InstallableUnitDescription.PROP_TYPE_PATCH, "true");
 		IProvidedCapability[] additionalProvides = createProvided(provides);
-		IRequiredCapability[] requirements = createRequired(requires);
-		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
+		IRequirement[] requirements = createRequired(requires);
+		IRequirement[] metaRequirements = createRequired(metaRequires);
 		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
 		boolean singleton = false;
-		IRequirementChange change1 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
-		IRequirementChange change2 = MetadataFactory.createRequirementChange(null, MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
-		IRequirementChange change3 = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
-		IRequiredCapability[][] scope = new IRequiredCapability[][] {{}};
+		IRequirementChange change1 = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
+		IRequirementChange change2 = MetadataFactory.createRequirementChange(null, MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
+		IRequirementChange change3 = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
+		IRequirement[][] scope = new IRequirement[][] {{}};
 		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new IRequirementChange[] {change1, change2, change3}, scope, null, metaRequirements);
 		return iu;
 	}
@@ -299,8 +299,8 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	public IInstallableUnit createPersistenceTestIU() {
 		propertyMap = createProperties(properties);
 		IProvidedCapability[] additionalProvides = createProvided(provides);
-		IRequiredCapability[] requirements = createRequired(requires);
-		IRequiredCapability[] metaRequirements = createRequired(metaRequires);
+		IRequirement[] requirements = createRequired(requires);
+		IRequirement[] metaRequirements = createRequired(metaRequires);
 		ILicense[] licenses = new ILicense[] {MetadataFactory.createLicense(URI.create("http://eclipse.org"), "license text"), MetadataFactory.createLicense(URI.create("http://apache.org"), "license text2")};
 		ITouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();

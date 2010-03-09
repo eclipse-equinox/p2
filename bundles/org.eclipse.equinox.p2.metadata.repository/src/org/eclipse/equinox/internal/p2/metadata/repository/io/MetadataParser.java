@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -615,7 +615,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 							throw e;
 						}
 					}
-				capabilities.add(MetadataFactory.createRequiredCapability(namespace, name, range, filter, min, max, greedy));
+				capabilities.add(MetadataFactory.createRequirement(namespace, name, range, filter, min, max, greedy));
 			}
 		}
 

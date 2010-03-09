@@ -8,7 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-
 import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -52,7 +51,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected static final VersionRange ANY_VERSION = VersionRange.emptyRange;
 	protected static final IProvidedCapability[] BUNDLE_CAPABILITY = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", Version.createOSGi(1, 0, 0))};
 
-	private static final IRequiredCapability[] BUNDLE_REQUIREMENT = new IRequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
+	private static final IRequirement[] BUNDLE_REQUIREMENT = new IRequirement[] {MetadataFactory.createRequirement("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
 
 	protected static final Version DEFAULT_VERSION = Version.createOSGi(1, 0, 0);
 	public static final ITouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", Version.createOSGi(1, 0, 0));
@@ -260,7 +259,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create an Eclipse InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createEclipseIU(String name, Version version, IRequiredCapability[] requires, ITouchpointData touchpointData) {
+	public static IInstallableUnit createEclipseIU(String name, Version version, IRequirement[] requires, ITouchpointData touchpointData) {
 		return createIU(name, version, null, requires, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, touchpointData, false);
 	}
 
@@ -295,7 +294,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, IRequiredCapability[] requires) {
+	public static IInstallableUnit createIU(String name, IRequirement[] requires) {
 		return createIU(name, DEFAULT_VERSION, null, requires, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
@@ -303,7 +302,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, IRequiredCapability[] requires, boolean singleton) {
+	public static IInstallableUnit createIU(String name, IRequirement[] requires, boolean singleton) {
 		return createIU(name, DEFAULT_VERSION, null, requires, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, singleton);
 	}
 
@@ -347,11 +346,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, IRequiredCapability[] required) {
+	public static IInstallableUnit createIU(String name, Version version, IRequirement[] required) {
 		return createIU(name, version, null, required, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false);
 	}
 
-	public static IInstallableUnit createIUWithMetaRequirement(String name, Version version, boolean singleton, IRequiredCapability[] requirements, IRequiredCapability[] metaRequirements) {
+	public static IInstallableUnit createIUWithMetaRequirement(String name, Version version, boolean singleton, IRequirement[] requirements, IRequirement[] metaRequirements) {
 		return createIU(name, version, null, requirements, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, singleton, null, metaRequirements);
 	}
 
@@ -359,7 +358,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, IRequiredCapability[] required, Map properties, boolean singleton) {
+	public static IInstallableUnit createIU(String name, Version version, IRequirement[] required, Map properties, boolean singleton) {
 		return createIU(name, version, null, required, NO_PROVIDES, properties, ITouchpointType.NONE, NO_TP_DATA, singleton);
 	}
 
@@ -379,15 +378,15 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, Filter filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton) {
+	public static IInstallableUnit createIU(String name, Version version, Filter filter, IRequirement[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton) {
 		return createIU(name, version, filter, required, additionalProvides, properties, tpType, tpData, singleton, null, null);
 	}
 
-	public static IInstallableUnitPatch createIUPatch(String name, Version version, boolean singleton, IRequirementChange[] changes, IRequiredCapability[][] scope, IRequiredCapability lifeCycle) {
+	public static IInstallableUnitPatch createIUPatch(String name, Version version, boolean singleton, IRequirementChange[] changes, IRequirement[][] scope, IRequirement lifeCycle) {
 		return createIUPatch(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, singleton, null, changes, scope, lifeCycle, NO_REQUIRES);
 	}
 
-	public static IInstallableUnitPatch createIUPatch(String name, Version version, Filter filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirementChange[] reqChanges, IRequiredCapability[][] scope, IRequiredCapability lifeCycle, IRequiredCapability[] metaRequirements) {
+	public static IInstallableUnitPatch createIUPatch(String name, Version version, Filter filter, IRequirement[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirementChange[] reqChanges, IRequirement[][] scope, IRequirement lifeCycle, IRequirement[] metaRequirements) {
 		org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
 		iu.setId(name);
 		iu.setVersion(version);
@@ -416,7 +415,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return MetadataFactory.createInstallableUnitPatch(iu);
 	}
 
-	public static IInstallableUnit createIU(String name, Version version, Filter filter, IRequiredCapability[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequiredCapability[] metaRequirements) {
+	public static IInstallableUnit createIU(String name, Version version, Filter filter, IRequirement[] required, IProvidedCapability[] additionalProvides, Map properties, ITouchpointType tpType, ITouchpointData tpData, boolean singleton, IUpdateDescriptor update, IRequirement[] metaRequirements) {
 		org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(name);
 		iu.setVersion(version);
@@ -456,7 +455,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnitFragment with the given attributes. 
 	 * The self and fragment provided capabilities are added to the IU.
 	 */
-	public static IInstallableUnitFragment createIUFragment(IInstallableUnit host, String name, Version version, IRequiredCapability[] required, ITouchpointType tpType, ITouchpointData tpData) {
+	public static IInstallableUnitFragment createIUFragment(IInstallableUnit host, String name, Version version, IRequirement[] required, ITouchpointType tpType, ITouchpointData tpData) {
 		org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription fragment = new org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription();
 		fragment.setId(name);
 		fragment.setVersion(version);
@@ -467,7 +466,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fragment.addTouchpointData(tpData);
 		if (host != null) {
 			VersionRange hostRange = new VersionRange(host.getVersion(), true, host.getVersion(), true);
-			fragment.setHost(new IRequirement[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, host.getId(), hostRange, null, false, false)});
+			fragment.setHost(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, host.getId(), hostRange, null, false, false)});
 		}
 		fragment.setCapabilities(new IProvidedCapability[] {getSelfCapability(name, version)});
 		return MetadataFactory.createInstallableUnitFragment(fragment);
@@ -519,24 +518,24 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	/**
 	 * Creates and returns a required capability with the provided attributes.
 	 */
-	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name) {
+	protected static IRequirement[] createRequiredCapabilities(String namespace, String name) {
 		return createRequiredCapabilities(namespace, name, ANY_VERSION, (Filter) null);
 	}
 
-	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, String filter) {
+	protected static IRequirement[] createRequiredCapabilities(String namespace, String name, String filter) {
 		return createRequiredCapabilities(namespace, name, ANY_VERSION, filter);
 	}
 
-	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range) {
+	protected static IRequirement[] createRequiredCapabilities(String namespace, String name, VersionRange range) {
 		return createRequiredCapabilities(namespace, name, range, (Filter) null);
 	}
 
-	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
+	protected static IRequirement[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
 		return createRequiredCapabilities(namespace, name, range, ExpressionUtil.parseLDAP(filter));
 	}
 
-	protected static IRequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, Filter filter) {
-		return new IRequiredCapability[] {MetadataFactory.createRequiredCapability(namespace, name, range, filter, false, false)};
+	protected static IRequirement[] createRequiredCapabilities(String namespace, String name, VersionRange range, Filter filter) {
+		return new IRequirement[] {MetadataFactory.createRequirement(namespace, name, range, filter, false, false)};
 	}
 
 	public static boolean delete(File file) {

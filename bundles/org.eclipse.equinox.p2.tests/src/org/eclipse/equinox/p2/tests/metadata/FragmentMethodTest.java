@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.metadata;
 import java.util.*;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
@@ -117,7 +116,7 @@ public class FragmentMethodTest extends TestCase {
 		iu.setVersion(Version.createOSGi(1, 0, 0));
 		iu.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		iu.setProperty(PROP_FRAG, "value");
-		IRequiredCapability[] reqs = new IRequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true), MetadataFactory.createRequiredCapability(TEST_REQUIRED, TEST_REQUIRED, VersionRange.emptyRange, null, true, false)};
+		IRequirement[] reqs = new IRequirement[] {MetadataFactory.createRequirement("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true), MetadataFactory.createRequirement(TEST_REQUIRED, TEST_REQUIRED, VersionRange.emptyRange, null, true, false)};
 		iu.setHost(reqs);
 		IProvidedCapability[] cap = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("testCapabilityInFragment", "testCapabilityInFragment", Version.createOSGi(1, 0, 0))};
 		iu.setCapabilities(cap);

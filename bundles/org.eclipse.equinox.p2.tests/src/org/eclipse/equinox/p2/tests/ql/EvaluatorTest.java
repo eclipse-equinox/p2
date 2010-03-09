@@ -15,7 +15,6 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
@@ -122,11 +121,11 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 	}
 
 	public void testPatch() throws Exception {
-		IRequiredCapability[][] applicability = new IRequiredCapability[2][2];
-		applicability[0][0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "javax.wsdl", null, null, false, false);
-		applicability[0][1] = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.eclipse.type", "bundle", null, null, false, false);
-		applicability[1][0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "tooling.source.default", null, null, false, false);
-		applicability[1][1] = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.flavor", "tooling", null, null, false, false);
+		IRequirement[][] applicability = new IRequirement[2][2];
+		applicability[0][0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "javax.wsdl", null, null, false, false);
+		applicability[0][1] = MetadataFactory.createRequirement("org.eclipse.equinox.p2.eclipse.type", "bundle", null, null, false, false);
+		applicability[1][0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "tooling.source.default", null, null, false, false);
+		applicability[1][1] = MetadataFactory.createRequirement("org.eclipse.equinox.p2.flavor", "tooling", null, null, false, false);
 
 		IMetadataRepository repo = getMDR("/testData/metadataRepo/wsdlTestRepo");
 		IQueryResult result = repo.query(QueryUtil.createMatchQuery("$0.exists(rcs | rcs.all(rc | this ~= rc))", (Object) applicability), new NullProgressMonitor());

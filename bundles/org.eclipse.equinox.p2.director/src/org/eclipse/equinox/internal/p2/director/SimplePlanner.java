@@ -705,11 +705,11 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private IRequirement createOptionalRequirement(IInstallableUnit iu) {
-		return MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, true, false, true);
+		return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, true, false, true);
 	}
 
 	private IRequirement createStrictRequirement(IInstallableUnit iu) {
-		return MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, false, false, true);
+		return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, false, false, true);
 	}
 
 	public IQueryResult<IInstallableUnit> updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor) {

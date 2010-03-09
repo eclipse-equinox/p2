@@ -14,7 +14,6 @@ import java.io.File;
 import java.util.Properties;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -113,7 +112,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 		IProvidedCapability act1Cap = MetadataFactory.createProvidedCapability("p2.action", "action1", DEFAULT_VERSION);
 		IInstallableUnit act1 = createIU("Action1", DEFAULT_VERSION, null, NO_REQUIRES, new IProvidedCapability[] {act1Cap}, NO_PROPERTIES, null, NO_TP_DATA, true);
 
-		IRequiredCapability[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
+		IRequirement[] metaReq = createRequiredCapabilities("p2.action", "action1", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit a = createIUWithMetaRequirement("A", DEFAULT_VERSION, true, NO_REQUIRES, metaReq);
 
 		PermissiveSlicer slicer = new PermissiveSlicer(createTestMetdataRepository(new IInstallableUnit[] {a, act1}), new Properties(), true, false, false, false, false);
@@ -134,7 +133,7 @@ public class PermissiveSlicerTest extends AbstractProvisioningTest {
 	}
 
 	public void testMissingNecessaryPiece() {
-		IRequiredCapability[] req = createRequiredCapabilities("B", "B", new VersionRange("[0.0.0, 1.0.0]"));
+		IRequirement[] req = createRequiredCapabilities("B", "B", new VersionRange("[0.0.0, 1.0.0]"));
 		IInstallableUnit iuA = createIU("A", DEFAULT_VERSION, null, req, NO_PROVIDES, NO_PROPERTIES, null, NO_TP_DATA, true);
 		PermissiveSlicer slicer = new PermissiveSlicer(createTestMetdataRepository(new IInstallableUnit[] {iuA}), new Properties(), true, false, false, false, false);
 		IQueryable result = slicer.slice(new IInstallableUnit[] {iuA}, new NullProgressMonitor());

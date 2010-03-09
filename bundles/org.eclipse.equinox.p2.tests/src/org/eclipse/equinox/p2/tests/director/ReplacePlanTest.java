@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
@@ -48,7 +47,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		frag1_4 = createIUFragment(f1, "frag1", f1_4.getVersion());
 
 		//IUs that require base IU
-		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.3.0)"));
+		IRequirement[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.3.0)"));
 		fa = createIU("fa", requires, false);
 		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.4.0)"));
 		fap = createIU("fa", Version.createOSGi(1, 1, 0), requires, NO_PROPERTIES, false);

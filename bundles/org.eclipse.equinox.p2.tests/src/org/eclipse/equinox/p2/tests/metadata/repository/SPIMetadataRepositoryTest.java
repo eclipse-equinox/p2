@@ -758,7 +758,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		iuDescription.setVersion(Version.createOSGi(1, 1, 1));
 
 		SPIRequiredCapability spiRequiredCapability1 = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "(bar=foo)", true, true, true);
-		IRequiredCapability requiredCapability1 = MetadataFactory.createRequiredCapability("com.example2", "foo", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "(bar=foo)", false, false, false);
+		IRequiredCapability requiredCapability1 = (IRequiredCapability) MetadataFactory.createRequirement("com.example2", "foo", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true), "(bar=foo)", false, false, false);
 
 		SPIRequirementChange spiRequirementChange = new SPIRequirementChange(spiRequiredCapability1, requiredCapability1);
 		iuPatchDescription.setRequirementChanges(new IRequirementChange[] {spiRequirementChange});

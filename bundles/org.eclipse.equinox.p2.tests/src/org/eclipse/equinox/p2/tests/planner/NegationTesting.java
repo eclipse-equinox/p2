@@ -213,7 +213,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		capabilities3.add(new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "ProviderOf1_1_1", Version.create("1.0.0")));
 		iud3.addProvidedCapabilities(capabilities3);
 		Collection requirements3 = new ArrayList();
-		requirements3.add(MetadataFactory.createRequiredCapability("DOES-NOT-EXIST", "NEVER", new VersionRange("[1.0.0, 2.0.0)"), null, false, false));
+		requirements3.add(MetadataFactory.createRequirement("DOES-NOT-EXIST", "NEVER", new VersionRange("[1.0.0, 2.0.0)"), null, false, false));
 		iud3.addRequiredCapabilities(requirements3);
 		IInstallableUnit iu3 = MetadataFactory.createInstallableUnit(iud3);
 

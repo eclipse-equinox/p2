@@ -9,7 +9,6 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -28,7 +27,7 @@ public class OracleTest extends AbstractProvisioningTest {
 	IProfile profile;
 
 	protected void setUp() throws Exception {
-		IRequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"));
+		IRequirement[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"));
 		a1 = createIU("A", requires, true);
 
 		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "D", new VersionRange("[1.0.0, 3.0.0)"));

@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.io.File;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -72,7 +71,7 @@ public class ExplanationLargeConflict extends AbstractProvisioningTest {
 	public void testMissingRequirement() {
 		long sTime = System.currentTimeMillis();
 		//Test the case of a missing requirement in the IU being installed
-		IRequiredCapability[] cap = createRequiredCapabilities("missing", "missing", new VersionRange("[0.0.0, 1.0.0)"));
+		IRequirement[] cap = createRequiredCapabilities("missing", "missing", new VersionRange("[0.0.0, 1.0.0)"));
 		IInstallableUnit otherIU2 = createIU("foo", Version.create("0.9.0"), null, cap, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, NO_TP_DATA, true);
 		ProfileChangeRequest pcr3 = new ProfileChangeRequest(SDKprofile);
 		pcr3.addInstallableUnits(new IInstallableUnit[] {otherIU2});

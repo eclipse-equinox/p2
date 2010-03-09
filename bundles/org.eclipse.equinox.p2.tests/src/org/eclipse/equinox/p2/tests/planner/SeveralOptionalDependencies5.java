@@ -9,7 +9,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -27,16 +26,16 @@ public class SeveralOptionalDependencies5 extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		IRequiredCapability reqA = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, true, false, true); //optional dependency, will be satisfied
-		IRequiredCapability reqC = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"), null, true, false, true); //optional dependency, will be satisfied because it is the highest version
-		IRequiredCapability reqE = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "E", new VersionRange("[1.0.0, 2.0.0)"), null, true, false, true); //optional dependency, will be satisfied because it is the highest version
-		x1 = createIU("X", Version.create("1.0.0"), new IRequiredCapability[] {reqA, reqC, reqE});
+		IRequirement reqA = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, true, false, true); //optional dependency, will be satisfied
+		IRequirement reqC = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"), null, true, false, true); //optional dependency, will be satisfied because it is the highest version
+		IRequirement reqE = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "E", new VersionRange("[1.0.0, 2.0.0)"), null, true, false, true); //optional dependency, will be satisfied because it is the highest version
+		x1 = createIU("X", Version.create("1.0.0"), new IRequirement[] {reqA, reqC, reqE});
 
-		IRequiredCapability reqB = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true); //optional dependency, will be satisfied
-		a1 = createIU("A", Version.create("1.0.0"), new IRequiredCapability[] {reqB});
+		IRequirement reqB = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true); //optional dependency, will be satisfied
+		a1 = createIU("A", Version.create("1.0.0"), new IRequirement[] {reqB});
 
-		IRequiredCapability reqD = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, false, false, true); //optional dependency, will be satisfied
-		c1 = createIU("C", Version.create("1.0.0"), new IRequiredCapability[] {reqD});
+		IRequirement reqD = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, false, false, true); //optional dependency, will be satisfied
+		c1 = createIU("C", Version.create("1.0.0"), new IRequirement[] {reqD});
 
 		b1 = createIU("B", Version.create("1.0.0"), true);
 		createTestMetdataRepository(new IInstallableUnit[] {x1, a1, b1, c1});

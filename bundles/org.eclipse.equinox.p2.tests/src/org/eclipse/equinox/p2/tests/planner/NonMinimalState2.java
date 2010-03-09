@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -34,7 +33,7 @@ public class NonMinimalState2 extends AbstractProvisioningTest {
 		IPlanner planner = createPlanner();
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.addInstallableUnits((IInstallableUnit[]) getMetadataRepositoryManager().query(QueryUtil.createIUQuery("org.mortbay.jetty.server"), null).toArray(IInstallableUnit.class));
+		request.addInstallableUnits(getMetadataRepositoryManager().query(QueryUtil.createIUQuery("org.mortbay.jetty.server"), null).toArray(IInstallableUnit.class));
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, new NullProgressMonitor());
 		assertOK("Plan OK", plan.getStatus());
 
@@ -52,9 +51,9 @@ public class NonMinimalState2 extends AbstractProvisioningTest {
 	//	}
 	//
 	public void testWithTwoTPTP() {
-		IRequiredCapability cap1 = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.iu", "org.eclipse.tptp.platform.agentcontroller", VersionRange.emptyRange, null, false, false);
-		IRequiredCapability cap2 = MetadataFactory.createRequiredCapability("org.eclipse.equinox.p2.iu", "org.eclipse.tptp.platform.iac.administrator", VersionRange.emptyRange, null, false, false);
-		IInstallableUnit iu = createEclipseIU("org.eclipse.hyades.execution", Version.createOSGi(1, 0, 0), new IRequiredCapability[] {cap1, cap2}, null);
+		IRequirement cap1 = MetadataFactory.createRequirement("org.eclipse.equinox.p2.iu", "org.eclipse.tptp.platform.agentcontroller", VersionRange.emptyRange, null, false, false);
+		IRequirement cap2 = MetadataFactory.createRequirement("org.eclipse.equinox.p2.iu", "org.eclipse.tptp.platform.iac.administrator", VersionRange.emptyRange, null, false, false);
+		IInstallableUnit iu = createEclipseIU("org.eclipse.hyades.execution", Version.createOSGi(1, 0, 0), new IRequirement[] {cap1, cap2}, null);
 		createTestMetdataRepository(new IInstallableUnit[] {iu});
 		IPlanner planner = createPlanner();
 

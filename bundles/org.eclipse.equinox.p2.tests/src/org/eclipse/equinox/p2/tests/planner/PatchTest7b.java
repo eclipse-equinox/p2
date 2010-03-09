@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -39,23 +38,23 @@ public class PatchTest7b extends AbstractProvisioningTest {
 		x1 = createIU("X", Version.createOSGi(1, 2, 0), true);
 		y1 = createIU("Y", Version.createOSGi(1, 0, 0), true);
 		y2 = createIU("Y", Version.createOSGi(1, 2, 0), true);
-		a1 = createIU("A", Version.create("1.0.0"), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "X", new VersionRange("[1.0.0, 1.1.0)"), null, false, true)});
-		b1 = createIU("B", Version.create("1.0.0"), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "X", new VersionRange("[1.0.0, 1.1.0)"), null, false, true)});
-		c1 = createIU("C", Version.create("1.0.0"), new IRequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "Y", new VersionRange("[1.0.0, 1.1.0)"), null, false, true)});
+		a1 = createIU("A", Version.create("1.0.0"), new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "X", new VersionRange("[1.0.0, 1.1.0)"), null, false, true)});
+		b1 = createIU("B", Version.create("1.0.0"), new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "X", new VersionRange("[1.0.0, 1.1.0)"), null, false, true)});
+		c1 = createIU("C", Version.create("1.0.0"), new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "Y", new VersionRange("[1.0.0, 1.1.0)"), null, false, true)});
 
-		IRequiredCapability[] req = new IRequiredCapability[3];
-		req[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.1.0)"), null, false, true);
-		req[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.1.0)"), null, false, true);
-		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 1.1.0)"), null, false, true);
+		IRequirement[] req = new IRequirement[3];
+		req[2] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.1.0)"), null, false, true);
+		req[1] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.1.0)"), null, false, true);
+		req[0] = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 1.1.0)"), null, false, true);
 		f1 = createIU("F", Version.createOSGi(1, 0, 0), req);
 
-		IRequirementChange changeX = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "X", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "X", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
-		IRequiredCapability[][] scope = new IRequiredCapability[0][0]; //new RequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, false)}};
-		p1 = createIUPatch("P", Version.create("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, new IRequirementChange[] {changeX}, scope, null, new IRequiredCapability[0]);
+		IRequirementChange changeX = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "X", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "X", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
+		IRequirement[][] scope = new IRequirement[0][0]; //new Requirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, false)}};
+		p1 = createIUPatch("P", Version.create("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, new IRequirementChange[] {changeX}, scope, null, new IRequirement[0]);
 
-		IRequirementChange changeY = MetadataFactory.createRequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "Y", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "Y", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
-		IRequiredCapability[][] scopePP = new IRequiredCapability[0][0]; //new RequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, false)}};
-		pp1 = createIUPatch("PP", Version.create("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, new IRequirementChange[] {changeY}, scopePP, null, new IRequiredCapability[0]);
+		IRequirementChange changeY = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "Y", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "Y", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
+		IRequirement[][] scopePP = new IRequirement[0][0]; //new Requirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, false)}};
+		pp1 = createIUPatch("PP", Version.create("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, ITouchpointType.NONE, NO_TP_DATA, false, null, new IRequirementChange[] {changeY}, scopePP, null, new IRequirement[0]);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1, x1, y1, y2, f1, p1, pp1});
 		//		createTestMetdataRepository(new IInstallableUnit[] {c1, y1, y2, f1, pp1});
