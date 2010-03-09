@@ -25,6 +25,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -325,9 +326,9 @@ public class TestArtifactRepository implements IArtifactRepository {
 		};
 	}
 
-	public IStatus executeBatch(Runnable runnable) {
+	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		try {
-			runnable.run();
+			runnable.run(monitor);
 		} catch (Exception e) {
 			return new Status(IStatus.ERROR, "org.eclipse.equinox.p2.tests.publisher", e.getMessage(), e);
 		}

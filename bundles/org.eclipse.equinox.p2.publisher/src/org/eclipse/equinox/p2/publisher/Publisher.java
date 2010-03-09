@@ -18,8 +18,7 @@ import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -187,20 +186,18 @@ public class Publisher {
 		this.results = results;
 	}
 
-	class ArtifactProcess implements Runnable {
+	class ArtifactProcess implements IRunnableWithProgress {
 
 		private final IPublisherAction[] actions;
 		private final IPublisherInfo info;
-		private final IProgressMonitor monitor;
 		private IStatus result = null;
 
-		public ArtifactProcess(IPublisherAction[] actions, IPublisherInfo info, IProgressMonitor monitor) {
-			this.monitor = monitor;
+		public ArtifactProcess(IPublisherAction[] actions, IPublisherInfo info) {
 			this.info = info;
 			this.actions = actions;
 		}
 
-		public void run() {
+		public void run(IProgressMonitor monitor) {
 			MultiStatus finalStatus = new MultiStatus("this", 0, "publishing result", null); //$NON-NLS-1$//$NON-NLS-2$
 			for (int i = 0; i < actions.length; i++) {
 				if (monitor.isCanceled()) {
@@ -227,17 +224,17 @@ public class Publisher {
 		if (Tracing.DEBUG_PUBLISHING)
 			Tracing.debug("Invoking publisher"); //$NON-NLS-1$
 		try {
-			ArtifactProcess artifactProcess = new ArtifactProcess(actions, info, sub);
+			ArtifactProcess artifactProcess = new ArtifactProcess(actions, info);
 
 			IStatus finalStatus = null;
 			if (info.getArtifactRepository() != null) {
-				finalStatus = info.getArtifactRepository().executeBatch(artifactProcess);
+				finalStatus = info.getArtifactRepository().executeBatch(artifactProcess, sub);
 				if (finalStatus.isOK())
 					// If the batch process didn't report any errors, then 
 					// Use the status from our actions
 					finalStatus = artifactProcess.getStatus();
 			} else {
-				artifactProcess.run();
+				artifactProcess.run(sub);
 				finalStatus = artifactProcess.getStatus();
 			}
 

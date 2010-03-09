@@ -24,8 +24,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.*;
-import org.eclipse.equinox.p2.repository.ICompositeRepository;
-import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 import org.eclipse.osgi.util.NLS;
@@ -563,12 +562,12 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		return QueryUtil.compoundQueryable(repos);
 	}
 
-	public IStatus executeBatch(Runnable runnable) {
+	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		IStatus result = null;
 		synchronized (this) {
 			try {
 				disableSave = true;
-				runnable.run();
+				runnable.run(monitor);
 			} catch (Throwable e) {
 				result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
 			} finally {

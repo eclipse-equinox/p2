@@ -18,6 +18,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 
 /**
@@ -175,6 +176,6 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	 * @return The result of running the runnable. Any exceptions thrown during
 	 * the execution will be returned in the status.
 	 */
-	public IStatus executeBatch(Runnable runnable);
+	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor);
 
 }

@@ -20,6 +20,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.artifact.*;
 
 public class UpdateSiteArtifactRepository implements IArtifactRepository {
@@ -161,7 +162,7 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 		return delegate.query(query, monitor);
 	}
 
-	public IStatus executeBatch(Runnable runnable) {
-		return delegate.executeBatch(runnable);
+	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
+		return delegate.executeBatch(runnable, monitor);
 	}
 }

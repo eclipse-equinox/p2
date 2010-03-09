@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.garbagecollector;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.util.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.query.IQuery;
-import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 
 /**
@@ -39,8 +39,8 @@ public class CoreGarbageCollector {
 		//this query will match all artifact keys that are not in the given set
 		IQuery<IArtifactKey> query = QueryUtil.createQuery(IArtifactKey.class, "unique($0)", set); //$NON-NLS-1$
 		final IQueryResult<IArtifactKey> inactive = aRepository.query(query, null);
-		aRepository.executeBatch(new Runnable() {
-			public void run() {
+		aRepository.executeBatch(new IRunnableWithProgress() {
+			public void run(IProgressMonitor monitor) {
 				for (Iterator<IArtifactKey> iterator = inactive.iterator(); iterator.hasNext();) {
 					IArtifactKey key = iterator.next();
 					aRepository.removeDescriptor(key);
@@ -49,7 +49,7 @@ public class CoreGarbageCollector {
 					}
 				}
 			}
-		});
+		}, new NullProgressMonitor());
 	}
 
 	/*

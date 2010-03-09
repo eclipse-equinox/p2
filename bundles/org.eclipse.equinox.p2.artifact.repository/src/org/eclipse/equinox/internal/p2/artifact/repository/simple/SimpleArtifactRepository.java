@@ -38,6 +38,7 @@ import org.eclipse.equinox.p2.metadata.index.IIndex;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -1010,12 +1011,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return artifactMap.keySet().iterator();
 	}
 
-	public IStatus executeBatch(Runnable runnable) {
+	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		IStatus result = null;
 		synchronized (this) {
 			try {
 				disableSave = true;
-				runnable.run();
+				runnable.run(monitor);
 			} catch (Throwable e) {
 				result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
 			} finally {

@@ -19,6 +19,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
@@ -260,9 +261,9 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return compound.query(query, monitor);
 	}
 
-	public IStatus executeBatch(Runnable runnable) {
+	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		try {
-			runnable.run();
+			runnable.run(monitor);
 		} catch (Exception e) {
 			return new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
 		}
