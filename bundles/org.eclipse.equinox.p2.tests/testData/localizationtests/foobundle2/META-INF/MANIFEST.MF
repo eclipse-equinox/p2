@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: %name
-Bundle-SymbolicName: foobundle2
-Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: %provider
-Require-Bundle: org.eclipse.core.runtime
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Localization: plugin
