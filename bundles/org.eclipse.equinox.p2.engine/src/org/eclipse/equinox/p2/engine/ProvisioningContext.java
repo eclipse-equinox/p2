@@ -64,7 +64,7 @@ public class ProvisioningContext {
 	 * queryables for obtaining metadata and artifacts.
 	 * 
 	 * @see #getMetadata(IProgressMonitor)
-	 * @see #getArtifacts(IProgressMonitor)
+	 * @see #getArtifactKeys(IProgressMonitor)
 	 */
 	public static final String FOLLOW_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followRepositoryReferences"; //$NON-NLS-1$
 
