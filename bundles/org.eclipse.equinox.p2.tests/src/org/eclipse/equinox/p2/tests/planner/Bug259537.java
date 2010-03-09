@@ -61,8 +61,8 @@ public class Bug259537 extends AbstractProvisioningTest {
 
 		createTestMetdataRepository(new IInstallableUnit[] {a2, b2, f2});
 		ProfileChangeRequest req2 = new ProfileChangeRequest(getProfile("TestProfile." + getName()));
-		req.addInstallableUnits(f2);
-		req.remove(f1);
+		req2.addInstallableUnits(f2);
+		req2.remove(f1);
 		ProvisioningPlan provisioningPlan2 = (ProvisioningPlan) planner.getProvisioningPlan(req2, null, null);
 		assertOK("Plan not OK", provisioningPlan2.getStatus());
 	}
