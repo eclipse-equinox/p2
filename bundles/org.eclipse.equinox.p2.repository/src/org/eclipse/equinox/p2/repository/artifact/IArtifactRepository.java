@@ -173,6 +173,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	 * The runnable should not execute anything in a separate thread.
 	 *  
 	 * @param runnable The runnable to execute
+	 * @param monitor A progress monitor that will be passed to the runnable
 	 * @return The result of running the runnable. Any exceptions thrown during
 	 * the execution will be returned in the status.
 	 */
