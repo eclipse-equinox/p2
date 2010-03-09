@@ -62,6 +62,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		boolean isGreedy;
 		int min;
 		int max;
+		private String description;
 
 		public SPIRequiredCapability(String namespace, String name, VersionRange versionRange, String filter, boolean isGreedy, boolean isMultiple, boolean isOptional) {
 			this.namespace = namespace;
@@ -162,6 +163,10 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		public IMatchExpression<IInstallableUnit> getMatches() {
 			return ExpressionUtil.getFactory().matchExpression(ExpressionUtil.parse("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version ~= $2"), name, namespace, versionRange);
+		}
+
+		public String getDescription() {
+			return description;
 		}
 	}
 

@@ -38,4 +38,7 @@ public interface IRequirement {
 	boolean isMatch(IInstallableUnit iu);
 
 	boolean isGreedy();
+
+	String getDescription();
+
 }

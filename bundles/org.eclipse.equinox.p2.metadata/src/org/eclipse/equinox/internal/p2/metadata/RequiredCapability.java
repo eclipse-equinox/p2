@@ -41,6 +41,7 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 	private final IMatchExpression<IInstallableUnit> matchExpression;
 	private final int min;
 	private final int max;
+	private String description;
 
 	private static final IExpression allVersionsExpression;
 	private static final IExpression range_II_Expression;
@@ -287,5 +288,9 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		if (MEMBER_MATCH == memberName)
 			return matchExpression;
 		throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
+	}
+
+	public String getDescription() {
+		return description;
 	}
 }
