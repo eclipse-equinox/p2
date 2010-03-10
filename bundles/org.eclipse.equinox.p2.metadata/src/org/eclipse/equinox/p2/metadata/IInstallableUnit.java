@@ -113,9 +113,8 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 
 	/**
 	 * A property key (value <code>"org.eclipse.equinox.p2.icon"</code>) for a String
-	 * property containing the icon that should be shown when displaying this installable
-	 * unit in a user interface.  The property value is a String containing the icon's
-	 * bytes.
+	 * property containing a URI for an icon that should be shown when displaying this 
+	 * installable unit in a user interface.  
 	 * 
 	 * @see #getProperty(String)
 	 */
