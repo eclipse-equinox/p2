@@ -22,6 +22,9 @@ import org.eclipse.equinox.p2.query.*;
  * never be updated if subsequent changes are made to this profile. A client should
  * never retain an {@link IProfile} instance, but rather retain the profile id and obtain
  * the current state of the profile from the profile registry only when required.
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
  */
 public interface IProfile extends IQueryable<IInstallableUnit> {

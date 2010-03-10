@@ -21,7 +21,10 @@ import org.eclipse.equinox.p2.query.IQueryResult;
  * profile to reshape it as requested. That is, given the current state of a 
  * profile, a description of the desired changes to that profile and metadata 
  * describing the available installable units, a planner produces a concrete plan that lists the
- * exact steps that the engine should perform.  
+ * exact steps that the engine should perform.
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
  */
 public interface IPlanner {

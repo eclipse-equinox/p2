@@ -26,6 +26,8 @@ import org.eclipse.core.runtime.IStatus;
  * a default set of phases. During each phase the changes described by the provisioning
  * plan are performed against the profile being provisioned.
  * 
+ * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
  */
 public interface IEngine {
