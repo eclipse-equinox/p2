@@ -15,7 +15,7 @@ import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
 
 /**
- * This inteface provides all the factory methods needed to create the all possible
+ * This interface provides all the factory methods needed to create the all possible
  * nodes of the expression tree.
  */
 public interface IQLFactory extends IExpressionFactory {
