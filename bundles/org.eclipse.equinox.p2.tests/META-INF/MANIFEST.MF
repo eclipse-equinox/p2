@@ -47,6 +47,7 @@ Require-Bundle: org.eclipse.equinox.p2.metadata.generator,
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  J2SE-1.4
+Eclipse-BundleShape: dir
 Bundle-ActivationPolicy: lazy
 Import-Package: javax.xml.parsers,
  org.eclipse.ant.core,
