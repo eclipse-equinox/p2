@@ -199,7 +199,7 @@ public class SimplePlanner implements IPlanner {
 		return profile.query(markerQuery, null).toUnmodifiableSet();
 	}
 
-	public static Dictionary<String, String> createSelectionContext(Map<String, String> properties) {
+	public static Map<String, String> createSelectionContext(Map<String, String> properties) {
 		Hashtable<String, String> result = new Hashtable<String, String>(properties);
 		String environments = properties.get(IProfile.PROP_ENVIRONMENTS);
 		if (environments == null)
@@ -281,7 +281,7 @@ public class SimplePlanner implements IPlanner {
 
 			Object[] updatedPlan = updatePlannerInfo(profileChangeRequest, context);
 
-			Dictionary<String, String> newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
+			Map<String, String> newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
 
 			List<IInstallableUnit> extraIUs = new ArrayList<IInstallableUnit>(profileChangeRequest.getAdditions());
 			extraIUs.addAll(profileChangeRequest.getRemovals());

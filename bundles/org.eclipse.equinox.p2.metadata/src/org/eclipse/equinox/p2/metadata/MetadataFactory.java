@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
-import org.osgi.framework.Filter;
 
 /**
  * A factory class for instantiating various p2 metadata objects.
@@ -129,7 +128,7 @@ public class MetadataFactory {
 			unit().setCopyright(copyright);
 		}
 
-		public void setFilter(Filter filter) {
+		public void setFilter(IMatchExpression<IInstallableUnit> filter) {
 			unit().setFilter(filter);
 		}
 
@@ -307,15 +306,15 @@ public class MetadataFactory {
 	 * and <code>false</code> otherwise.
 	 * @param multiple <code>true</code> if this capability can be satisfied by multiple provided capabilities, or it requires exactly one match
 	 */
-	public static IRequirement createRequirement(String namespace, String name, VersionRange range, Filter filter, boolean optional, boolean multiple) {
+	public static IRequirement createRequirement(String namespace, String name, VersionRange range, IMatchExpression<IInstallableUnit> filter, boolean optional, boolean multiple) {
 		return new RequiredCapability(namespace, name, range, filter, optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, true);
 	}
 
-	public static IRequirement createRequirement(String namespace, String name, VersionRange range, Filter filter, int minCard, int maxCard, boolean greedy) {
+	public static IRequirement createRequirement(String namespace, String name, VersionRange range, IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy) {
 		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy);
 	}
 
-	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, Filter filter, int minCard, int maxCard, boolean greedy) {
+	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy) {
 		return new RequiredCapability(requirement, filter, minCard, maxCard, greedy);
 
 	}

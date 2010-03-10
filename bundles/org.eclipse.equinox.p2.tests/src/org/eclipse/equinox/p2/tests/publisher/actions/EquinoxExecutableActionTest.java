@@ -15,9 +15,9 @@ import static org.easymock.EasyMock.*;
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxExecutableAction;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -97,7 +97,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				Collection<IRequirement> requiredCapability = fragment.getRequirements();
 				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$ 
 				assertTrue(requiredCapability.size() == 1);
-				assertTrue(fragment.getFilter().equals(ExpressionUtil.parseLDAP("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+				assertTrue(fragment.getFilter().equals(InstallableUnit.parseFilter("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 				assertTrue(fragment.getProperty("org.eclipse.equinox.p2.type.fragment").equals("true")); //$NON-NLS-1$ //$NON-NLS-2$
 				return;//pass
 			}
@@ -132,7 +132,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 			IInstallableUnit possibleExec = (IInstallableUnit) iuList.get(i);
 			if (possibleExec.getId().equals(idBase + ".executable." + configSpec)) { //$NON-NLS-1$
 				//keep checking
-				assertTrue(possibleExec.getFilter().equals(ExpressionUtil.parseLDAP("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+				assertTrue(possibleExec.getFilter().equals(InstallableUnit.parseFilter("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 				IArtifactKey eKey = possibleExec.getArtifacts().iterator().next();
 				assertTrue(eKey.getClassifier().equals("binary")); //$NON-NLS-1$
 				assertTrue(eKey.getId().equals(idBase + ".executable." + configSpec)); //$NON-NLS-1$

@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.DataLoader;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -79,7 +78,7 @@ public class ConfigCUsActionTest extends ActionTest {
 		for (int i = 0; i < IUs.size(); i++) {
 			InstallableUnit iu = (InstallableUnit) IUs.get(i);
 			if (iu.getId().equals(flavor + id + "." + cuType + "." + configSpec)) { //$NON-NLS-1$ //$NON-NLS-2$
-				assertTrue(iu.getFilter().equals(ExpressionUtil.parseLDAP("(& (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))"))); //$NON-NLS-1$
+				assertTrue(iu.getFilter().equals(InstallableUnit.parseFilter("(& (osgi.ws=win32)(osgi.os=win32)(osgi.arch=x86))"))); //$NON-NLS-1$
 				assertTrue(iu.getVersion().equals(version));
 				assertFalse(iu.isSingleton());
 				Collection<IProvidedCapability> providedCapabilities = iu.getProvidedCapabilities();

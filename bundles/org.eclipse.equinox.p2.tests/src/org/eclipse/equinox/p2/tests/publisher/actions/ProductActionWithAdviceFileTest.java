@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.metadata.*;
@@ -92,7 +93,7 @@ public class ProductActionWithAdviceFileTest extends ActionTest {
 			}
 		}
 		assertTrue("1.1", capability != null);
-		assertEquals("1.2", "(org.eclipse.update.install.features=true)", capability.getFilter().toString());
+		assertEquals("1.2", InstallableUnit.parseFilter("(org.eclipse.update.install.features=true)"), capability.getFilter());
 	}
 
 	/**

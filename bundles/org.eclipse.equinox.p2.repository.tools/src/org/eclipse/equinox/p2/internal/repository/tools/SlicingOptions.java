@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Map;
 
 public class SlicingOptions {
 	private boolean includeOptionalDependencies = true;
@@ -20,7 +20,7 @@ public class SlicingOptions {
 	private boolean considerStrictDependencyOnly = false;
 	private boolean followOnlyFilteredRequirements = false;
 	private boolean latestVersion = false;
-	private Dictionary<String, Object> filter = null;
+	private Map<String, String> filter = null;
 
 	public boolean includeOptionalDependencies() {
 		return includeOptionalDependencies;
@@ -54,13 +54,13 @@ public class SlicingOptions {
 		this.considerStrictDependencyOnly = strict;
 	}
 
-	public Dictionary<String, Object> getFilter() {
+	public Map<String, String> getFilter() {
 		if (filter == null)
-			filter = new Hashtable<String, Object>();
+			filter = new Hashtable<String, String>();
 		return filter;
 	}
 
-	public void setFilter(Dictionary<String, Object> filter) {
+	public void setFilter(Map<String, String> filter) {
 		this.filter = filter;
 	}
 

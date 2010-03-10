@@ -91,13 +91,13 @@ public class FeaturesActionTest extends ActionTest {
 		assertEquals(5, requires.size());
 		for (IRequirement require : requires) {
 			if (((IRequiredCapability) require).getName().equals("org.foo.feature.group")) {
-				assertEquals(ExpressionUtil.parseLDAP("(osgi.os=win32)"), require.getFilter());
+				assertEquals(ExpressionUtil.parseLDAP("(osgi.os=win32)"), require.getFilter().getParameters()[0]);
 			} else if (((IRequiredCapability) require).getName().equals("org.plug")) {
-				assertEquals(ExpressionUtil.parseLDAP("(&(my.prop=foo)(osgi.os=win32))"), require.getFilter());
+				assertEquals(ExpressionUtil.parseLDAP("(&(my.prop=foo)(osgi.os=win32))"), require.getFilter().getParameters()[0]);
 			} else if (((IRequiredCapability) require).getName().equals("org.plug2")) {
-				assertEquals(ExpressionUtil.parseLDAP("(my.prop=foo)"), require.getFilter());
+				assertEquals(ExpressionUtil.parseLDAP("(my.prop=foo)"), require.getFilter().getParameters()[0]);
 			} else if (((IRequiredCapability) require).getName().equals("org.foo2.feature.group")) {
-				assertEquals(ExpressionUtil.parseLDAP("(my.prop=foo)"), require.getFilter());
+				assertEquals(ExpressionUtil.parseLDAP("(my.prop=foo)"), require.getFilter().getParameters()[0]);
 			}
 		}
 	}
@@ -121,7 +121,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(foo.getProperty("key1").equals("value1")); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue(foo.getProperty("key2").equals("value2")); //$NON-NLS-1$//$NON-NLS-2$
 		assertTrue(foo.getArtifacts().iterator().next().equals(FOO_KEY));
-		assertTrue(foo.getFilter().equals(ExpressionUtil.parseLDAP("(org.eclipse.update.install.features=true)"))); //$NON-NLS-1$
+		assertEquals(foo.getFilter().getParameters()[0], ExpressionUtil.parseLDAP("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
 
 		//check touchpointType
 		assertTrue(foo.getTouchpointType().getId().equalsIgnoreCase("org.eclipse.equinox.p2.osgi")); //$NON-NLS-1$
@@ -164,7 +164,7 @@ public class FeaturesActionTest extends ActionTest {
 		assertTrue(bar.getProperties().containsKey("org.eclipse.update.installHandler")); //$NON-NLS-1$
 		assertTrue(bar.getProperties().containsValue("handler=bar handler")); //$NON-NLS-1$
 		assertTrue(bar.getArtifacts().iterator().next().equals(BAR_KEY));
-		assertTrue(bar.getFilter().equals(ExpressionUtil.parseLDAP("(org.eclipse.update.install.features=true)"))); //$NON-NLS-1$
+		assertEquals(bar.getFilter().getParameters()[0], ExpressionUtil.parseLDAP("(org.eclipse.update.install.features=true)")); //$NON-NLS-1$
 		assertTrue(bar.isSingleton());
 
 		barIUs = new ArrayList(publisherResult.getIUs("bar.feature.group", IPublisherResult.ROOT)); //$NON-NLS-1$
@@ -174,7 +174,7 @@ public class FeaturesActionTest extends ActionTest {
 		//contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar_root", new VersionRange(barVersion, true, barVersion, true), null, false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "bar.feature.jar", new VersionRange(barVersion, true, barVersion, true), "(org.eclipse.update.install.features=true)", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
 		contains(barRequiredCapabilities, IInstallableUnit.NAMESPACE_IU_ID, "org.bar.feature.feature.group", VersionRange.emptyRange, "(&(|(osgi.nl=de)(osgi.nl=en)(osgi.nl=fr)))", false /*multiple*/, false /*optional*/); //$NON-NLS-1$//$NON-NLS-2$
-		assertTrue(barGroup.getFilter().equals(ExpressionUtil.parseLDAP("(&(|(osgi.os=macosx)(osgi.os=win32))(|(osgi.ws=carbon)(osgi.ws=win32))(|(osgi.arch=ppc)(osgi.arch=x86))(osgi.nl=en))")));
+		assertEquals(barGroup.getFilter().getParameters()[0], ExpressionUtil.parseLDAP("(&(|(osgi.os=macosx)(osgi.os=win32))(|(osgi.ws=carbon)(osgi.ws=win32))(|(osgi.arch=ppc)(osgi.arch=x86))(osgi.nl=en))"));
 
 		//check zipped=true in touchpointData
 		String barValue = bar.getTouchpointData().iterator().next().getInstructions().get("zipped").getBody(); //$NON-NLS-1$

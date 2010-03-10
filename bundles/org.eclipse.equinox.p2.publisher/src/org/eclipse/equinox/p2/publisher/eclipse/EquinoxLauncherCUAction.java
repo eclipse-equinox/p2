@@ -16,10 +16,10 @@ import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.IVersionAdvice;
 import org.eclipse.osgi.service.environment.Constants;
-import org.osgi.framework.Filter;
 
 /**
  * Create CUs for all Equinox launcher related IUs for the given set of configurations
@@ -89,7 +89,7 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 				bundle.setSpecialConfigCommands("addProgramArg(programArg:--launcher.library);addProgramArg(programArg:@artifact);"); //$NON-NLS-1$
 				bundle.setSpecialUnconfigCommands("removeProgramArg(programArg:--launcher.library);removeProgramArg(programArg:@artifact);"); //$NON-NLS-1$
 			}
-			Filter filter = configSpec == null ? null : createFilterSpec(configSpec);
+			IMatchExpression<IInstallableUnit> filter = configSpec == null ? null : createFilterSpec(configSpec);
 			IInstallableUnit cu = BundlesAction.createBundleConfigurationUnit(id, version, false, bundle, flavor, filter);
 			if (cu != null)
 				results.addIU(cu, IPublisherResult.ROOT);

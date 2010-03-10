@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
@@ -31,7 +32,7 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -41,7 +42,6 @@ import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.Filter;
 
 public class Generator {
 	/**
@@ -660,7 +660,7 @@ public class Generator {
 				}
 			}
 			bundle.setVersion(configuredIU.getVersion().toString());
-			Filter filter = configuredIU == null ? null : configuredIU.getFilter();
+			IMatchExpression filter = configuredIU == null ? null : configuredIU.getFilter();
 			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.create(bundle.getVersion()), false, bundle, info.getFlavor(), filter == null ? null : filter.toString());
 			//the configuration unit should share the same platform filter as the IU being configured.
 			if (cu != null) {
@@ -802,9 +802,9 @@ public class Generator {
 		Version launcherVersion = Version.create(version);
 		iu.setVersion(launcherVersion);
 		iu.setSingleton(true);
-		Filter filter = null;
+		IMatchExpression filter = null;
 		if (!ws.equals(CONFIG_ANY) && !os.equals(CONFIG_ANY) && !arch.equals(CONFIG_ANY)) {
-			filter = ExpressionUtil.parseLDAP("(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			filter = InstallableUnit.parseFilter("(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			iu.setFilter(filter);
 		}
 

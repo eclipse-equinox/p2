@@ -17,10 +17,10 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.osgi.framework.Filter;
 
 public class RootFilesAction extends AbstractPublisherAction {
 	private String idBase;
@@ -89,7 +89,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 		String iuId = idPrefix + '.' + createIdString(configSpec);
 		iu.setId(iuId);
 		iu.setVersion(version);
-		Filter filter = createFilterSpec(configSpec);
+		IMatchExpression<IInstallableUnit> filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);
 		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(iuId, version);
 		iu.setArtifacts(new IArtifactKey[] {key});

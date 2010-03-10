@@ -14,7 +14,6 @@ package org.eclipse.equinox.internal.p2.metadata;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
-import org.osgi.framework.Filter;
 
 /**
  * A required capability represents some external constraint on an {@link IInstallableUnit}.
@@ -30,15 +29,16 @@ import org.osgi.framework.Filter;
  * @see IInstallableUnit#NAMESPACE_IU_ID
  */
 public class RequiredCapability implements IRequiredCapability, IMemberProvider {
+	private final IMatchExpression<IInstallableUnit> filter;
+	private final IMatchExpression<IInstallableUnit> matchExpression;
+
 	public static final String MEMBER_FILTER = "filter"; //$NON-NLS-1$
 	public static final String MEMBER_MIN = "min"; //$NON-NLS-1$
 	public static final String MEMBER_MAX = "max"; //$NON-NLS-1$
 	public static final String MEMBER_GREEDY = "greedy"; //$NON-NLS-1$
 	public static final String MEMBER_MATCH = "match"; //$NON-NLS-1$
 
-	private final Filter filter;
 	private final boolean greedy;
-	private final IMatchExpression<IInstallableUnit> matchExpression;
 	private final int min;
 	private final int max;
 	private String description;
@@ -87,7 +87,7 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		this(namespace, name, range, filter, optional, multiple, true);
 	}
 
-	public RequiredCapability(IMatchExpression<IInstallableUnit> requirement, Filter filter, int min, int max, boolean greedy) {
+	public RequiredCapability(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> filter, int min, int max, boolean greedy) {
 		this.matchExpression = requirement;
 		this.filter = filter;
 		this.min = min;
@@ -96,10 +96,10 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 	}
 
 	public RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
-		this(namespace, name, range, filter == null ? (Filter) null : ExpressionUtil.parseLDAP(filter), optional ? 0 : 1, multiple ? 1 : Integer.MAX_VALUE, greedy);
+		this(namespace, name, range, filter == null ? (IMatchExpression<IInstallableUnit>) null : InstallableUnit.parseFilter(filter), optional ? 0 : 1, multiple ? 1 : Integer.MAX_VALUE, greedy);
 	}
 
-	public RequiredCapability(String namespace, String name, VersionRange range, Filter filter, int min, int max, boolean greedy) {
+	public RequiredCapability(String namespace, String name, VersionRange range, IMatchExpression<IInstallableUnit> filter, int min, int max, boolean greedy) {
 		Assert.isNotNull(namespace);
 		Assert.isNotNull(name);
 		IExpressionFactory factory = ExpressionUtil.getFactory();
@@ -212,7 +212,7 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		return matchExpression;
 	}
 
-	public Filter getFilter() {
+	public IMatchExpression<IInstallableUnit> getFilter() {
 		return filter;
 	}
 

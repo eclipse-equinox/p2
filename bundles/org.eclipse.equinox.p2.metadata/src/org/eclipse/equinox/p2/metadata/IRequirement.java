@@ -10,7 +10,6 @@
 package org.eclipse.equinox.p2.metadata;
 
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
-import org.osgi.framework.Filter;
 
 /**
  * A requirement represents some external constraint on an {@link IInstallableUnit}.
@@ -48,7 +47,7 @@ public interface IRequirement {
 	/**
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	Filter getFilter();
+	IMatchExpression<IInstallableUnit> getFilter();
 
 	/**
 	 * Returns a boolean match expression that will return true for any

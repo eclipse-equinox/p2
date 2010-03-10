@@ -76,7 +76,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeMetaRequirements(iu.getMetaRequirements());
 		writeProvidedCapabilities(iu.getProvidedCapabilities());
 		writeRequirements(iu.getRequirements());
-		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter() == null ? null : iu.getFilter().toString());
+		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter() == null ? null : iu.getFilter().getParameters()[0].toString());
 
 		writeArtifactKeys(iu.getArtifacts());
 		writeTouchpointType(iu.getTouchpointType());
@@ -246,7 +246,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 		attribute(CAPABILITY_GREED_ATTRIBUTE, requirement.isGreedy(), true);
 		if (requirement.getFilter() != null)
-			writeTrimmedCdata(CAPABILITY_FILTER_ELEMENT, requirement.getFilter().toString());
+				writeTrimmedCdata(CAPABILITY_FILTER_ELEMENT, requirement.getFilter().getParameters()[0].toString());
 		end(REQUIREMENT_ELEMENT);
 	}
 

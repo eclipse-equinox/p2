@@ -18,19 +18,19 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.QuotedTokenizer;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.osgi.framework.Filter;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
 	public static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
@@ -100,7 +100,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @return the LDAP filter for the given spec.  <code>null</code> if the given spec does not 
 	 * parse into a filter.
 	 */
-	protected Filter createFilterSpec(String configSpec) {
+	protected IMatchExpression<IInstallableUnit> createFilterSpec(String configSpec) {
 		String[] config = parseConfigSpec(configSpec);
 		if (config[0] != null || config[1] != null || config[2] != null) {
 			String filterWs = config[0] != null && config[0] != CONFIG_ANY ? "(osgi.ws=" + config[0] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -108,21 +108,17 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			String filterArch = config[2] != null && config[2] != CONFIG_ANY ? "(osgi.arch=" + config[2] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (filterWs.length() == 0 && filterOs.length() == 0 && filterArch.length() == 0)
 				return null;
-			return ExpressionUtil.parseLDAP("(& " + filterWs + filterOs + filterArch + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+			return InstallableUnit.parseFilter("(& " + filterWs + filterOs + filterArch + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
 	}
 
-	protected boolean filterMatches(Filter filter, String configSpec) {
+	protected boolean filterMatches(IMatchExpression<IInstallableUnit> filter, String configSpec) {
 		if (filter == null)
 			return true;
 
 		String[] config = parseConfigSpec(configSpec);
-		Dictionary<String, String> environment = new Hashtable<String, String>(3);
-		environment.put("osgi.ws", config[0]); //$NON-NLS-1$
-		environment.put("osgi.os", config[1]); //$NON-NLS-1$
-		environment.put("osgi.arch", config[2]); //$NON-NLS-1$
-		return filter.match(environment);
+		return filter.isMatch(InstallableUnit.contextIU(config[0], config[1], config[2]));
 	}
 
 	/**
@@ -158,19 +154,19 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			} else {
 				Version version = next.getVersion();
 				VersionRange range = (version == null || Version.emptyVersion.equals(version)) ? VersionRange.emptyRange : new VersionRange(version, true, version, true);
-				Filter filter = getFilterAdvice(next);
+				IMatchExpression<IInstallableUnit> filter = getFilterAdvice(next);
 				result.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, next.getId(), range, filter, false, false));
 			}
 		}
 		return result;
 	}
 
-	private Filter getFilterAdvice(IVersionedId name) {
+	private IMatchExpression<IInstallableUnit> getFilterAdvice(IVersionedId name) {
 		if (info == null)
 			return null;
 		Collection<IFilterAdvice> filterAdvice = info.getAdvice(CONFIG_ANY, true, name.getId(), name.getVersion(), IFilterAdvice.class);
 		for (IFilterAdvice advice : filterAdvice) {
-			Filter result = advice.getFilter(name.getId(), name.getVersion(), false);
+			IMatchExpression<IInstallableUnit> result = advice.getFilter(name.getId(), name.getVersion(), false);
 			if (result != null)
 				return result;
 		}

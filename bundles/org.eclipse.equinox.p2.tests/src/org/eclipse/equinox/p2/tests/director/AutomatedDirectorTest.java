@@ -18,8 +18,8 @@ import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.osgi.framework.Filter;
 
 /**
  * Various automated tests of the {@link IDirector} API.
@@ -50,7 +50,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit requiredIU = createIU("required." + getName());
 
 		// The IU to be installed
-		Filter filter = createFilter("FilterKey", "true");
+		IMatchExpression<IInstallableUnit> filter = createFilter("FilterKey", "true");
 		IRequirement capability = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, requiredIU.getId(), ANY_VERSION, filter, false, false);
 		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new IRequirement[] {capability});
 
@@ -129,7 +129,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IProvidedCapability[] provides = new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)};
 		IInstallableUnit requiredIU = createIU("required." + getName(), createFilter("osgi.os", "blort"), provides);
 
-		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), createRequiredCapabilities("test.capability", capabilityId, ANY_VERSION, (Filter) null));
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), createRequiredCapabilities("test.capability", capabilityId, ANY_VERSION, (IMatchExpression<IInstallableUnit>) null));
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
@@ -188,7 +188,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		//The IU that exports the capability
 		IInstallableUnit requiredIU = createIU("required." + getName(), new IProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)});
 
-		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), createRequiredCapabilities("test.capability", capabilityId, ANY_VERSION, (Filter) null));
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), createRequiredCapabilities("test.capability", capabilityId, ANY_VERSION, (IMatchExpression<IInstallableUnit>) null));
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};

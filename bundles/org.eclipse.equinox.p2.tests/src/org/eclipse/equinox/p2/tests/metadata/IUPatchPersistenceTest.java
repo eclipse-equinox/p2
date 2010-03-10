@@ -18,11 +18,10 @@ import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
 import org.xml.sax.*;
 
 public class IUPatchPersistenceTest extends AbstractProvisioningTest {
@@ -33,7 +32,7 @@ public class IUPatchPersistenceTest extends AbstractProvisioningTest {
 
 	private static String id = "org.eclipse.osgi.services";
 	private static Version version = Version.create("3.1.200.v20070605");
-	private static Filter filter = ExpressionUtil.parseLDAP("(& (osgi.ws=win32) (osgi.os=win32) (osgi.arch=x86))"); // not really
+	private static IMatchExpression<IInstallableUnit> filter = InstallableUnit.parseFilter("(& (osgi.ws=win32) (osgi.os=win32) (osgi.arch=x86))"); // not really
 
 	private static String[][] properties = new String[][] {new String[] {"equinox.p2.name", "OSGi Release 4.0.1 Services"}, //
 			new String[] {"equinox.p2.description", "OSGi Service Platform Release 4.0.1 Service Interfaces and Classes"}, //

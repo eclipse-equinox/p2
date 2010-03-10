@@ -18,11 +18,12 @@ import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.ManifestElement;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 
 /**
  * Publish CUs for all the configuration data in the current result.
@@ -305,7 +306,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			return;
 
 		String cuIdPrefix = ""; //$NON-NLS-1$
-		Filter filter = null;
+		IMatchExpression<IInstallableUnit> filter = null;
 		if (configSpec != null) {
 			cuIdPrefix = createIdString(configSpec);
 			filter = createFilterSpec(configSpec);

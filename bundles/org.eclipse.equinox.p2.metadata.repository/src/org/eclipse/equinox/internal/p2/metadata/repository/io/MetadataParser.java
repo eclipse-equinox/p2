@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -26,7 +27,6 @@ import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 
@@ -615,10 +615,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		protected void finished() {
 			if (isValidXML()) {
-				Filter filter = null;
+				IMatchExpression<IInstallableUnit> filter = null;
 				if (filterHandler != null)
 					try {
-						filter = ExpressionUtil.parseLDAP(filterHandler.getText());
+						filter = InstallableUnit.parseFilter(filterHandler.getText());
 					} catch (ExpressionParseException e) {
 						if (removeWhiteSpace(filterHandler.getText()).equals("(&(|)(|)(|))")) {//$NON-NLS-1$
 							// We could log this I guess

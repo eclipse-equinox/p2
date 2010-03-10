@@ -10,37 +10,37 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.Filter;
 
 public class Slicer {
 	private static boolean DEBUG = false;
-	private IQueryable<IInstallableUnit> possibilites;
+	private final IQueryable<IInstallableUnit> possibilites;
+	private final boolean considerMetaRequirements;
+	protected final IInstallableUnit selectionContext;
+	private final Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
+	private final MultiStatus result;
 
 	private LinkedList<IInstallableUnit> toProcess;
 	private Set<IInstallableUnit> considered; //IUs to add to the slice
-	private Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
 
-	protected Dictionary<? extends Object, ? extends Object> selectionContext;
-	private MultiStatus result;
+	public Slicer(IQueryable<IInstallableUnit> input, Map<String, String> context, boolean considerMetaRequirements) {
+		this(input, InstallableUnit.contextIU(context), considerMetaRequirements);
+	}
 
-	private boolean considerMetaRequirements = false;
-
-	public Slicer(IQueryable<IInstallableUnit> input, Dictionary<? extends Object, ? extends Object> context, boolean considerMetaRequirements) {
-		possibilites = input;
-		slice = new HashMap<String, Map<Version, IInstallableUnit>>();
-		selectionContext = context;
-		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
+	public Slicer(IQueryable<IInstallableUnit> possibilites, IInstallableUnit selectionContext, boolean considerMetaRequirements) {
+		this.possibilites = possibilites;
+		this.selectionContext = selectionContext;
 		this.considerMetaRequirements = considerMetaRequirements;
+		slice = new HashMap<String, Map<Version, IInstallableUnit>>();
+		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 	}
 
 	public IQueryable<IInstallableUnit> slice(IInstallableUnit[] ius, IProgressMonitor monitor) {
@@ -89,13 +89,13 @@ public class Slicer {
 
 	// Check whether the requirement is applicable
 	protected boolean isApplicable(IRequirement req) {
-		Filter filter = req.getFilter();
-		return filter == null || filter.match(selectionContext);
+		IMatchExpression<IInstallableUnit> filter = req.getFilter();
+		return filter == null || filter.isMatch(selectionContext);
 	}
 
 	protected boolean isApplicable(IInstallableUnit iu) {
-		Filter filter = iu.getFilter();
-		return filter == null || filter.match(selectionContext);
+		IMatchExpression<IInstallableUnit> filter = iu.getFilter();
+		return filter == null || filter.isMatch(selectionContext);
 	}
 
 	protected void processIU(IInstallableUnit iu) {

@@ -15,6 +15,7 @@ import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.director.Slicer;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.*;
@@ -89,6 +90,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		env.put("osgi.os", "linux");
 		env.put("osgi.ws", "gtk");
 		env.put("osgi.arch", "x86");
+		IInstallableUnit envIU = InstallableUnit.contextIU(env);
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 		IQueryResult<IInstallableUnit> r = repo.query(QueryUtil.createIUQuery("org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2")), new NullProgressMonitor());
@@ -97,7 +99,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IInstallableUnit[] roots = new IInstallableUnit[] {(IInstallableUnit) itor.next()};
 
 		IQuery query = QueryUtil.createQuery( //
-				"$0.traverse(set(), _, { cache, parent | parent.requirements.unique(cache).select(rc | rc.filter == null || $1 ~= rc.filter).collect(rc | everything.select(iu | iu ~= rc)).flatten()})", roots, env);
+				"$0.traverse(set(), _, { cache, parent | parent.requirements.unique(cache).select(rc | rc.filter == null || $1 ~= rc.filter).collect(rc | everything.select(iu | iu ~= rc)).flatten()})", roots, envIU);
 
 		long sliceTime = 0;
 		long traverseTime = 0;

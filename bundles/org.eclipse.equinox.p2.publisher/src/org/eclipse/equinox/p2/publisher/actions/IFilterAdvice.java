@@ -9,9 +9,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
-import org.osgi.framework.Filter;
 
 /**
  * Filter advice helps actions figure out where an IU with a given id and version
@@ -35,6 +36,6 @@ public interface IFilterAdvice extends IPublisherAdvice {
 	 * @return the filter to use when depending on the given IU or <code>null</code>
 	 * if none.
 	 */
-	public Filter getFilter(String id, Version version, boolean exact);
+	public IMatchExpression<IInstallableUnit> getFilter(String id, Version version, boolean exact);
 
 }

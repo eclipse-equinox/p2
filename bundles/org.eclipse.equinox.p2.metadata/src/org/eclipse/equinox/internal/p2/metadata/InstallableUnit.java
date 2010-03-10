@@ -15,11 +15,15 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
-import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
-import org.osgi.framework.Filter;
+import org.eclipse.equinox.p2.metadata.expression.*;
 
 public class InstallableUnit implements IInstallableUnit, IMemberProvider {
+	@SuppressWarnings("serial")
+	private static final Map<IFilterExpression, IMatchExpression<IInstallableUnit>> filterCache = new LinkedHashMap<IFilterExpression, IMatchExpression<IInstallableUnit>>() {
+		public boolean removeEldestEntry(Map.Entry<IFilterExpression, IMatchExpression<IInstallableUnit>> expr) {
+			return size() > 64;
+		}
+	};
 
 	private static final OrderedProperties NO_PROPERTIES = new OrderedProperties();
 	private static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
@@ -27,6 +31,8 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	private static final IArtifactKey[] NO_ARTIFACTS = new IArtifactKey[0];
 	private static final ITouchpointData[] NO_TOUCHPOINT_DATA = new ITouchpointData[0];
 	private static final ILicense[] NO_LICENSE = new ILicense[0];
+
+	private static final IExpression filterWrap;
 
 	public static final String MEMBER_PROVIDED_CAPABILITIES = "providedCapabilities"; //$NON-NLS-1$
 	public static final String MEMBER_ID = "id"; //$NON-NLS-1$
@@ -42,8 +48,13 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	public static final String MEMBER_UPDATE_DESCRIPTOR = "updateDescriptor"; //$NON-NLS-1$
 	public static final String MEMBER_SINGLETON = "singleton"; //$NON-NLS-1$
 
+	static {
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		filterWrap = factory.matches(factory.member(factory.thisVariable(), MEMBER_PROPERTIES), factory.indexedParameter(0));
+	}
+
 	private IArtifactKey[] artifacts = NO_ARTIFACTS;
-	private Filter filter;
+	private IMatchExpression<IInstallableUnit> filter;
 
 	private String id;
 
@@ -115,7 +126,7 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		return CollectionUtils.unmodifiableList(artifacts);
 	}
 
-	public Filter getFilter() {
+	public IMatchExpression<IInstallableUnit> getFilter() {
 		return filter;
 	}
 
@@ -210,16 +221,32 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 			providedCapabilities = newCapabilities;
 	}
 
-	public void setFilter(Filter filter) {
+	public void setFilter(IMatchExpression<IInstallableUnit> filter) {
 		this.filter = filter;
 	}
 
 	public void setFilter(String filter) {
-		setFilter(filter == null ? null : ExpressionUtil.parseLDAP(filter));
+		setFilter(parseFilter(filter));
 	}
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public static IMatchExpression<IInstallableUnit> parseFilter(String filterStr) {
+		IFilterExpression filter = ExpressionUtil.parseLDAP(filterStr);
+		if (filter == null)
+			return null;
+
+		synchronized (filterCache) {
+			IMatchExpression<IInstallableUnit> matchExpr = filterCache.get(filter);
+			if (matchExpr != null)
+				return matchExpr;
+
+			matchExpr = ExpressionUtil.getFactory().<IInstallableUnit> matchExpression(filterWrap, filter);
+			filterCache.put(filter, matchExpr);
+			return matchExpr;
+		}
 	}
 
 	/*
@@ -318,7 +345,6 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 	}
 
 	public Object getMember(String memberName) {
-
 		// It is OK to use identity comparisons here since
 		// a) All constant valued strings are always interned
 		// b) The Member constructor always interns the name
@@ -350,5 +376,22 @@ public class InstallableUnit implements IInstallableUnit, IMemberProvider {
 		if (MEMBER_SINGLETON == memberName)
 			return Boolean.valueOf(singleton);
 		throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
+	}
+
+	public static IInstallableUnit contextIU(String ws, String os, String arch) {
+		InstallableUnit ctxIU = new InstallableUnit();
+		ctxIU.setId("org.eclipse.equinox.p2.context.iu"); //$NON-NLS-1$
+		ctxIU.setProperty("osgi.ws", ws); //$NON-NLS-1$
+		ctxIU.setProperty("osgi.os", os); //$NON-NLS-1$
+		ctxIU.setProperty("osgi.arch", arch); //$NON-NLS-1$
+		return ctxIU;
+	}
+
+	public static IInstallableUnit contextIU(Map<String, String> environment) {
+		InstallableUnit ctxIU = new InstallableUnit();
+		ctxIU.setId("org.eclipse.equinox.p2.context.iu"); //$NON-NLS-1$
+		for (Map.Entry<String, String> entry : environment.entrySet())
+			ctxIU.setProperty(entry.getKey(), entry.getValue());
+		return ctxIU;
 	}
 }

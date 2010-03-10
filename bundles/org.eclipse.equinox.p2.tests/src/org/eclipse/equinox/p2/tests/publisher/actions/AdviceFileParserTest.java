@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.util.*;
 import junit.framework.TestCase;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.eclipse.AdviceFileParser;
@@ -296,7 +297,7 @@ public class AdviceFileParserTest extends TestCase {
 		assertEquals("testClassifier2", key1.getClassifier());
 		assertEquals("testCopyright", iu1.getCopyright().getBody());
 		assertEquals("http://localhost/test", iu1.getCopyright().getLocation().toString());
-		assertEquals("(test=testFilter)", iu1.getFilter().toString());
+		assertEquals(InstallableUnit.parseFilter("(test=testFilter)"), iu1.getFilter());
 		assertEquals("testLicense", iu1.getLicenses().iterator().next().getBody());
 		assertEquals("http://localhost/license", iu1.getLicenses().iterator().next().getLocation().toString());
 		assertEquals("testValue1", iu1.getProperty("testName1"));

@@ -19,11 +19,11 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.environment.Constants;
-import org.osgi.framework.Filter;
 
 /**
  * Given the description of an executable, this action publishes optionally 
@@ -103,7 +103,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		String id = getExecutableId();
 		iu.setId(id);
 		iu.setVersion(version);
-		Filter filter = createFilterSpec(configSpec);
+		IMatchExpression<IInstallableUnit> filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);
 		iu.setSingleton(true);
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);

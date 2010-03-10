@@ -36,14 +36,21 @@ public class Matches extends Binary {
 	}
 
 	protected boolean match(Object lval, Object rval) {
+		if (lval == null || rval == null)
+			return false;
 		if (rval instanceof VersionRange) {
 			VersionRange range = (VersionRange) rval;
 			if (lval instanceof Version)
 				return range.isIncluded((Version) lval);
 			if (lval instanceof String)
 				return range.isIncluded(Version.create((String) lval));
-		}
-		if (rval instanceof SimplePattern) {
+		} else if (rval instanceof LDAPFilter) {
+			return ((LDAPFilter) rval).isMatch(MemberProvider.create(lval, true));
+		} else if (rval instanceof IMatchExpression<?>) {
+			@SuppressWarnings("unchecked")
+			IMatchExpression<Object> me = (IMatchExpression<Object>) rval;
+			return me.isMatch(lval);
+		} else if (rval instanceof SimplePattern) {
 			if (lval instanceof CharSequence)
 				return ((SimplePattern) rval).isMatch((CharSequence) lval);
 			if (lval instanceof Character || lval instanceof Number || lval instanceof Boolean)
@@ -59,10 +66,6 @@ public class Matches extends Binary {
 			Class<?> rclass = (Class<?>) rval;
 			return lval instanceof Class<?> ? rclass.isAssignableFrom((Class<?>) lval) : rclass.isInstance(lval);
 		}
-
-		if (lval == null || rval == null)
-			return false;
-
 		throw new IllegalArgumentException("Cannot match a " + lval.getClass().getName() + " with a " + rval.getClass().getName()); //$NON-NLS-1$//$NON-NLS-2$
 	}
 

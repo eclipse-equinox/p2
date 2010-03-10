@@ -19,13 +19,14 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.IFeatureRootAdvice;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -35,7 +36,6 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.Filter;
 
 /**
  * Publish IUs for all of the features in the given set of locations.  The locations can
@@ -250,7 +250,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (childIUs != null) {
 			for (int i = 0; i < childIUs.size(); i++) {
 				IInstallableUnit child = childIUs.get(i);
-				Filter filter = child.getFilter();
+				IMatchExpression<IInstallableUnit> filter = child.getFilter();
 				required.add(MetadataFactory.createRequirement(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), filter, false, false));
 			}
 		}
@@ -518,7 +518,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		return result.toArray(new Feature[result.size()]);
 	}
 
-	private Filter getFilter(FeatureEntry entry) {
+	private IMatchExpression<IInstallableUnit> getFilter(FeatureEntry entry) {
 		StringBuffer result = new StringBuffer();
 		result.append("(&"); //$NON-NLS-1$
 		if (entry.getFilter() != null)
@@ -530,7 +530,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (result.length() == 2)
 			return null;
 		result.append(')');
-		return ExpressionUtil.parseLDAP(result.toString());
+		return InstallableUnit.parseFilter(result.toString());
 	}
 
 	private void expandFilter(String filter, String osgiFilterValue, StringBuffer result) {

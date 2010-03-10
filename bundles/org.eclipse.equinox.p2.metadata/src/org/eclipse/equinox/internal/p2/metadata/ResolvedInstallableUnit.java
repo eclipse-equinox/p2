@@ -14,7 +14,7 @@ package org.eclipse.equinox.internal.p2.metadata;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.*;
-import org.osgi.framework.Filter;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
 public class ResolvedInstallableUnit implements IInstallableUnit {
 	private static IInstallableUnitFragment[] NO_IU = new IInstallableUnitFragment[0];
@@ -50,7 +50,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.getArtifacts();
 	}
 
-	public Filter getFilter() {
+	public IMatchExpression<IInstallableUnit> getFilter() {
 		return original.getFilter();
 	}
 

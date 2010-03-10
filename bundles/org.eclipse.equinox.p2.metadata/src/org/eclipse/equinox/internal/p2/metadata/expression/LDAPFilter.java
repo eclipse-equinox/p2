@@ -43,7 +43,7 @@ public class LDAPFilter extends Unary implements IFilterExpression {
 		return isMatch(dictionary == null ? MemberProvider.emptyProvider() : MemberProvider.create(dictionary, true));
 	}
 
-	private boolean isMatch(Object candidate) {
+	public boolean isMatch(Object candidate) {
 		Variable self = ExpressionFactory.THIS;
 		IEvaluationContext ctx = EvaluationContext.create(self);
 		self.setValue(ctx, candidate);
@@ -65,5 +65,10 @@ public class LDAPFilter extends Unary implements IFilterExpression {
 
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		operand.toLDAPString(bld);
+	}
+
+	@Override
+	public Object evaluate(IEvaluationContext context) {
+		return null;
 	}
 }

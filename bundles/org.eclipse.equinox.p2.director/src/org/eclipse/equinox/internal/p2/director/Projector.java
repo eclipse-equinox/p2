@@ -22,9 +22,9 @@ import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.Filter;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.pb.tools.DependencyHelper;
@@ -47,7 +47,7 @@ public class Projector {
 
 	private Map<String, Map<Version, IInstallableUnit>> slice; //The IUs that have been considered to be part of the problem
 
-	private Dictionary<String, String> selectionContext;
+	private IInstallableUnit selectionContext;
 
 	DependencyHelper<Object, Explanation> dependencyHelper;
 	private Collection<IInstallableUnit> solution;
@@ -127,11 +127,11 @@ public class Projector {
 
 	}
 
-	public Projector(IQueryable<IInstallableUnit> q, Dictionary<String, String> context, boolean considerMetaRequirements) {
+	public Projector(IQueryable<IInstallableUnit> q, Map<String, String> context, boolean considerMetaRequirements) {
 		picker = q;
 		noopVariables = new HashMap<IInstallableUnit, AbstractVariable>();
 		slice = new HashMap<String, Map<Version, IInstallableUnit>>();
-		selectionContext = context;
+		selectionContext = InstallableUnit.contextIU(context);
 		abstractVariables = new ArrayList<AbstractVariable>();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 		assumptions = new ArrayList<Object>();
@@ -340,13 +340,13 @@ public class Projector {
 
 	// Check whether the requirement is applicable
 	private boolean isApplicable(IRequirement req) {
-		Filter filter = req.getFilter();
-		return filter == null || filter.match(selectionContext);
+		IMatchExpression<IInstallableUnit> filter = req.getFilter();
+		return filter == null || filter.isMatch(selectionContext);
 	}
 
 	private boolean isApplicable(IInstallableUnit iu) {
-		Filter filter = iu.getFilter();
-		return filter == null || filter.match(selectionContext);
+		IMatchExpression<IInstallableUnit> filter = iu.getFilter();
+		return filter == null || filter.isMatch(selectionContext);
 	}
 
 	private void expandNegatedRequirement(IRequirement req, IInstallableUnit iu, List<AbstractVariable> optionalAbstractRequirements, boolean isRootIu) throws ContradictionException {

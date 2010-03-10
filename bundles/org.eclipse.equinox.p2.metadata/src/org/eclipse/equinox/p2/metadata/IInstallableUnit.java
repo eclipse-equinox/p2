@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.metadata;
 
 import java.util.Collection;
 import java.util.Map;
-import org.osgi.framework.Filter;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 
 /**
  * An installable unit represents an atomic, indivisible unit of installable functionality
@@ -140,7 +140,7 @@ public interface IInstallableUnit extends IVersionedId, Comparable<IInstallableU
 	 * @return The installation filter for this unit, or <code>null</code>
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
-	public Filter getFilter();
+	public IMatchExpression<IInstallableUnit> getFilter();
 
 	/**
 	 * Returns the fragments that have been bound to this installable unit, or

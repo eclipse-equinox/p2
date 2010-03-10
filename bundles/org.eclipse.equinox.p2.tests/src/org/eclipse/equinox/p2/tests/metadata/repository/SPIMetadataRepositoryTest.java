@@ -33,7 +33,6 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.osgi.framework.Filter;
 
 /**
  * Test API of the metadata interfaces with an SPI implementation.
@@ -56,7 +55,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	class SPIRequiredCapability extends MatchQuery<IInstallableUnit> implements IRequiredCapability {
-		Filter filter;
+		IMatchExpression<IInstallableUnit> filter;
 		String name;
 		String namespace;
 		VersionRange versionRange;
@@ -81,7 +80,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			this.versionRange = versionRange;
 		}
 
-		public Filter getFilter() {
+		public IMatchExpression<IInstallableUnit> getFilter() {
 			return this.filter;
 		}
 
@@ -102,7 +101,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		public void setFilter(String filter) {
-			this.filter = filter == null ? null : ExpressionUtil.parseLDAP(filter);
+			this.filter = filter == null ? null : InstallableUnit.parseFilter(filter);
 		}
 
 		public boolean equals(Object obj) {
@@ -213,7 +212,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		List providedCapabilities = new ArrayList();
 		List touchpointData = new ArrayList();
 		ICopyright copyright = null;
-		Filter filter = null;
+		IMatchExpression<IInstallableUnit> filter = null;
 		String id = null;
 		Collection<ILicense> license = null;
 		Map properties = new HashMap();
@@ -241,7 +240,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			return this.copyright;
 		}
 
-		public Filter getFilter() {
+		public IMatchExpression<IInstallableUnit> getFilter() {
 			return this.filter;
 		}
 

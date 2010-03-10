@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.BasicVersion;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
@@ -32,9 +33,8 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
-import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
@@ -42,7 +42,8 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 
 /**
  * @deprecated this class has been renamed to PublisherHelper and the vast majority
@@ -100,7 +101,7 @@ public class MetadataGeneratorHelper {
 	public static final String OSGI_BUNDLE_CLASSIFIER = "osgi.bundle"; //$NON-NLS-1$
 	public static final String BINARY_ARTIFACT_CLASSIFIER = "binary"; //$NON-NLS-1$
 
-	public static final Filter INSTALL_FEATURES_FILTER = ExpressionUtil.parseLDAP("(org.eclipse.update.install.features=true)"); //$NON-NLS-1$
+	public static final IMatchExpression INSTALL_FEATURES_FILTER = InstallableUnit.parseFilter("(org.eclipse.update.install.features=true)"); //$NON-NLS-1$
 
 	private static final String IU_NAMESPACE = IInstallableUnit.NAMESPACE_IU_ID;
 
@@ -1157,7 +1158,7 @@ public class MetadataGeneratorHelper {
 	/**
 	 * @deprecated moved to FeaturesAction
 	 */
-	public static Filter getFilter(FeatureEntry entry) {
+	public static IMatchExpression getFilter(FeatureEntry entry) {
 		StringBuffer result = new StringBuffer();
 		result.append("(&"); //$NON-NLS-1$
 		if (entry.getFilter() != null)
@@ -1173,7 +1174,7 @@ public class MetadataGeneratorHelper {
 		if (result.length() == 2)
 			return null;
 		result.append(')');
-		return ExpressionUtil.parseLDAP(result.toString());
+		return InstallableUnit.parseFilter(result.toString());
 	}
 
 	/**

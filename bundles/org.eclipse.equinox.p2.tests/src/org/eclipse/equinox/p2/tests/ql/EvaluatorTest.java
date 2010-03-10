@@ -15,6 +15,7 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
@@ -196,10 +197,11 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		env.put("osgi.os", "linux");
 		env.put("osgi.ws", "gtk");
 		env.put("osgi.arch", "x86");
+		IInstallableUnit envIU = InstallableUnit.contextIU(env);
 
 		IContextExpression<IInstallableUnit> expr = factory.contextExpression(parser.parseQuery("" + //
 				"select(x | x.id == $0 && x.version == $1).traverse(parent |" + //
-				"parent.requirements.select(rc | rc.filter == null || $2 ~= rc.filter).collect(rc | select(iu | iu ~= rc)).flatten())"), "org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2"), env);
+				"parent.requirements.select(rc | rc.filter == null || $2 ~= rc.filter).collect(rc | select(iu | iu ~= rc)).flatten())"), "org.eclipse.sdk.feature.group", Version.create("3.5.0.v20090423-7Q7bA7DPR-wM38__Q4iRsmx9z0KOjbpx3AbyvXd-Uq7J2"), envIU);
 
 		IQuery<IInstallableUnit> query = QueryUtil.createQuery(expr);
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
@@ -211,11 +213,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		// Add some filtering of requirements
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
-		Map env = new Hashtable();
-		env.put("osgi.os", "linux");
-		env.put("osgi.ws", "gtk");
-		env.put("osgi.arch", "x86");
-
+		IInstallableUnit envIU = InstallableUnit.contextIU("gtk", "linux", "x86");
 		IContextExpression<IInstallableUnit> expr = factory.contextExpression(parser.parseQuery("" + //
 				"select(x | x.id == $0 && x.version == $1).traverse(parent |" + //
 				"parent.requirements.select(rc | rc.filter == null || $4 ~= rc.filter).collect(rc | select(iu | iu ~= rc)).flatten()).intersect(" + //
@@ -225,7 +223,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				Version.create("3.5.0.v20090123-7Z7YF8NFE-z0VXhWU26Hu8gY"), //
 				"org.eclipse.gmf.feature.group", //
 				Version.create("1.1.1.v20090114-0940-7d8B0FXwkKwFanGNHeHHq8ymBgZ"), //
-				env);
+				envIU);
 
 		IQuery<IInstallableUnit> query = QueryUtil.createQuery(expr);
 		IQueryResult<IInstallableUnit> result = repo.query(query, new NullProgressMonitor());

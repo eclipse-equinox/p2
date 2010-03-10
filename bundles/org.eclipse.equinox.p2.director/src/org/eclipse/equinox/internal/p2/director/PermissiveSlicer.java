@@ -8,7 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import java.util.Dictionary;
+import java.util.Map;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
@@ -22,7 +22,7 @@ public class PermissiveSlicer extends Slicer {
 	private boolean evalFilterTo;
 	private boolean onlyFilteredRequirements;
 
-	public PermissiveSlicer(IQueryable<IInstallableUnit> input, Dictionary<? extends Object, ? extends Object> context, boolean includeOptionalDependencies, boolean everythingGreedy, boolean evalFilterTo, boolean considerOnlyStrictDependency, boolean onlyFilteredRequirements) {
+	public PermissiveSlicer(IQueryable<IInstallableUnit> input, Map<String, String> context, boolean includeOptionalDependencies, boolean everythingGreedy, boolean evalFilterTo, boolean considerOnlyStrictDependency, boolean onlyFilteredRequirements) {
 		super(input, context, true);
 		this.considerFilter = (context != null && context.size() > 1) ? true : false;
 		this.includeOptionalDependencies = includeOptionalDependencies;
