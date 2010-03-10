@@ -14,9 +14,7 @@ package org.eclipse.equinox.p2.engine;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.DebugHelper;
-import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
@@ -67,25 +65,6 @@ public class ProvisioningContext {
 	 * @see #getArtifactKeys(IProgressMonitor)
 	 */
 	public static final String FOLLOW_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followRepositoryReferences"; //$NON-NLS-1$
-
-	/**
-	 * @deprecated 
-	 * @see #ProvisioningContext(IProvisioningAgent)
-	 * @see #setMetadataRepositories(URI[])
-	 */
-	public ProvisioningContext() {
-		this((IProvisioningAgent) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningAgent.SERVICE_NAME));
-	}
-
-	/**
-	 * @deprecated 
-	 * @see #ProvisioningContext(IProvisioningAgent)
-	 * @see #setMetadataRepositories(URI[])
-	 */
-	public ProvisioningContext(URI[] metadataRepositories) {
-		this();
-		setMetadataRepositories(metadataRepositories);
-	}
 
 	/**
 	 * Creates a new provisioning context that includes all available metadata and
@@ -322,7 +301,8 @@ public class ProvisioningContext {
 	 * Return the array of repository locations for artifact repositories.
 	 * @return an array of repository locations.  This is never <code>null</code>.
 	 * 
-	 * @deprecated
+	 * @deprecated This method will be removed before the final release of 3.6
+	 * @noreference This method will be removed before the final release of 3.6
 	 * @see #getArtifactRepositories()
 	 * @see #getArtifactDescriptors(IProgressMonitor)
 	 * @see #getArtifactKeys(IProgressMonitor)
