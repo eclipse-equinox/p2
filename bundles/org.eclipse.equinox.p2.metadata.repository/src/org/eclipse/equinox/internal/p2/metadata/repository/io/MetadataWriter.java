@@ -17,13 +17,11 @@ import java.net.MalformedURLException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
-import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.metadata.expression.*;
 
 public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 
@@ -57,9 +55,13 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		attribute(SINGLETON_ATTRIBUTE, iu.isSingleton(), true);
 		//		attribute(FRAGMENT_ATTRIBUTE, iu.isFragment(), false);
 
-		if (QueryUtil.isFragment(iu) && iu instanceof IInstallableUnitFragment) {
+		boolean simpleRequirements = hasOnlySimpleRequirements(iu);
+		if (!simpleRequirements)
+			attribute(GENERATION_ATTRIBUTE, 2);
+
+		if (iu instanceof IInstallableUnitFragment) {
 			IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
-			writeHostRequiredCapabilities(fragment.getHost());
+			writeHostRequirements(fragment.getHost());
 		}
 
 		if (iu instanceof IInstallableUnitPatch) {
@@ -71,9 +73,9 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 
 		writeUpdateDescriptor(resolvedIU, resolvedIU.getUpdateDescriptor());
 		writeProperties(iu.getProperties());
-		writeMetaRequiredCapabilities(iu.getMetaRequirements());
+		writeMetaRequirements(iu.getMetaRequirements());
 		writeProvidedCapabilities(iu.getProvidedCapabilities());
-		writeRequiredCapabilities(iu.getRequirements());
+		writeRequirements(iu.getRequirements());
 		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter() == null ? null : iu.getFilter().toString());
 
 		writeArtifactKeys(iu.getArtifacts());
@@ -85,22 +87,51 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		end(INSTALLABLE_UNIT_ELEMENT);
 	}
 
+	private boolean hasOnlySimpleRequirements(IInstallableUnit iu) {
+		for (IRequirement r : iu.getRequirements())
+			if (!RequiredCapability.isSimpleRequirement(r.getMatches()))
+				return false;
+
+		for (IRequirement r : iu.getMetaRequirements())
+			if (!RequiredCapability.isSimpleRequirement(r.getMatches()))
+				return false;
+
+		if (iu instanceof IInstallableUnitFragment) {
+			for (IRequirement r : ((IInstallableUnitFragment) iu).getHost())
+				if (!RequiredCapability.isSimpleRequirement(r.getMatches()))
+					return false;
+		}
+
+		if (iu instanceof IInstallableUnitPatch) {
+			IInstallableUnitPatch iuPatch = (IInstallableUnitPatch) iu;
+			for (IRequirement[] rArr : iuPatch.getApplicabilityScope())
+				for (IRequirement r : rArr)
+					if (!RequiredCapability.isSimpleRequirement(r.getMatches()))
+						return false;
+
+			IRequirement lifeCycle = iuPatch.getLifeCycle();
+			if (lifeCycle != null && !RequiredCapability.isSimpleRequirement(lifeCycle.getMatches()))
+				return false;
+		}
+		return true;
+	}
+
 	protected void writeLifeCycle(IRequirement capability) {
 		if (capability == null)
 			return;
 		start(LIFECYCLE);
-		writeRequiredCapability(capability);
+		writeRequirement(capability);
 		end(LIFECYCLE);
 	}
 
-	protected void writeHostRequiredCapabilities(Collection<IRequirement> hostRequirements) {
+	protected void writeHostRequirements(Collection<IRequirement> hostRequirements) {
 		if (hostRequirements != null && hostRequirements.size() > 0) {
-			start(HOST_REQUIRED_CAPABILITIES_ELEMENT);
+			start(HOST_REQUIREMENTS_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, hostRequirements.size());
 			for (IRequirement req : hostRequirements) {
-				writeRequiredCapability(req);
+				writeRequirement(req);
 			}
-			end(HOST_REQUIRED_CAPABILITIES_ELEMENT);
+			end(HOST_REQUIREMENTS_ELEMENT);
 		}
 	}
 
@@ -119,25 +150,25 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 	}
 
-	protected void writeMetaRequiredCapabilities(Collection<IRequirement> metaRequirements) {
+	protected void writeMetaRequirements(Collection<IRequirement> metaRequirements) {
 		if (metaRequirements != null && metaRequirements.size() > 0) {
-			start(META_REQUIRED_CAPABILITIES_ELEMENT);
+			start(META_REQUIREMENTS_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, metaRequirements.size());
 			for (IRequirement req : metaRequirements) {
-				writeRequiredCapability(req);
+				writeRequirement(req);
 			}
-			end(META_REQUIRED_CAPABILITIES_ELEMENT);
+			end(META_REQUIREMENTS_ELEMENT);
 		}
 	}
 
-	protected void writeRequiredCapabilities(Collection<IRequirement> requirements) {
+	protected void writeRequirements(Collection<IRequirement> requirements) {
 		if (requirements != null && requirements.size() > 0) {
-			start(REQUIRED_CAPABILITIES_ELEMENT);
+			start(REQUIREMENTS_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, requirements.size());
 			for (IRequirement req : requirements) {
-				writeRequiredCapability(req);
+				writeRequirement(req);
 			}
-			end(REQUIRED_CAPABILITIES_ELEMENT);
+			end(REQUIREMENTS_ELEMENT);
 		}
 	}
 
@@ -160,7 +191,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		start(APPLICABILITY_SCOPE);
 		for (int i = 0; i < capabilities.length; i++) {
 			start(APPLY_ON);
-			writeRequiredCapabilities(Arrays.asList(capabilities[i]));
+			writeRequirements(Arrays.asList(capabilities[i]));
 			end(APPLY_ON);
 		}
 		end(APPLICABILITY_SCOPE);
@@ -178,34 +209,45 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		start(REQUIREMENT_CHANGE);
 		if (change.applyOn() != null) {
 			start(REQUIREMENT_FROM);
-			writeRequiredCapability(change.applyOn());
+			writeRequirement(change.applyOn());
 			end(REQUIREMENT_FROM);
 		}
 		if (change.newValue() != null) {
 			start(REQUIREMENT_TO);
-			writeRequiredCapability(change.newValue());
+			writeRequirement(change.newValue());
 			end(REQUIREMENT_TO);
 		}
 		end(REQUIREMENT_CHANGE);
 	}
 
-	protected void writeRequiredCapability(IRequirement requirement) {
-		if (requirement instanceof IRequiredCapability) {
-			IRequiredCapability reqCapability = (IRequiredCapability) requirement;
-			start(REQUIRED_CAPABILITY_ELEMENT);
-			attribute(NAMESPACE_ATTRIBUTE, reqCapability.getNamespace());
-			attribute(NAME_ATTRIBUTE, reqCapability.getName());
-			attribute(VERSION_RANGE_ATTRIBUTE, reqCapability.getRange());
+	protected void writeRequirement(IRequirement requirement) {
+		start(REQUIREMENT_ELEMENT);
+		IMatchExpression<IInstallableUnit> match = requirement.getMatches();
+		if (RequiredCapability.isSimpleRequirement(match)) {
+			attribute(NAMESPACE_ATTRIBUTE, RequiredCapability.extractNamespace(match));
+			attribute(NAME_ATTRIBUTE, RequiredCapability.extractName(match));
+			attribute(VERSION_RANGE_ATTRIBUTE, RequiredCapability.extractRange(match));
 			attribute(CAPABILITY_OPTIONAL_ATTRIBUTE, requirement.getMin() == 0, false);
 			attribute(CAPABILITY_MULTIPLE_ATTRIBUTE, requirement.getMax() > 1, false);
-			attribute(CAPABILITY_GREED_ATTRIBUTE, requirement.isGreedy(), true);
-			if (requirement.getFilter() != null)
-				writeTrimmedCdata(CAPABILITY_FILTER_ELEMENT, requirement.getFilter().toString());
-			end(REQUIRED_CAPABILITY_ELEMENT);
 		} else {
-			throw new IllegalStateException();
+			attribute(MATCH_ATTRIBUTE, ExpressionUtil.getOperand(match));
+			Object[] params = match.getParameters();
+			if (params.length > 0) {
+				IExpressionFactory factory = ExpressionUtil.getFactory();
+				IExpression[] constantArray = new IExpression[params.length];
+				for (int idx = 0; idx < params.length; ++idx)
+					constantArray[idx] = factory.constant(params[idx]);
+				attribute(MATCH_PARAMETERS_ATTRIBUTE, factory.array(constantArray));
+			}
+			if (requirement.getMin() != 1)
+				attribute(MIN_ATTRIBUTE, requirement.getMin());
+			if (requirement.getMax() != 1)
+				attribute(MAX_ATTRIBUTE, requirement.getMax());
 		}
-
+		attribute(CAPABILITY_GREED_ATTRIBUTE, requirement.isGreedy(), true);
+		if (requirement.getFilter() != null)
+			writeTrimmedCdata(CAPABILITY_FILTER_ELEMENT, requirement.getFilter().toString());
+		end(REQUIREMENT_ELEMENT);
 	}
 
 	protected void writeArtifactKeys(Collection<IArtifactKey> artifactKeys) {

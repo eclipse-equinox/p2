@@ -315,8 +315,8 @@ public class MetadataFactory {
 		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy);
 	}
 
-	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement) {
-		return new RequiredCapability(requirement);
+	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, Filter filter, int minCard, int maxCard, boolean greedy) {
+		return new RequiredCapability(requirement, filter, minCard, maxCard, greedy);
 
 	}
 

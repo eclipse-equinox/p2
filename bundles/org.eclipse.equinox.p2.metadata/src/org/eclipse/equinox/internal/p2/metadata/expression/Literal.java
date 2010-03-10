@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
+import java.util.*;
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.metadata.expression.SimplePattern;
 import org.osgi.framework.Filter;
@@ -95,26 +97,77 @@ public final class Literal extends Expression {
 	}
 
 	public void toString(StringBuffer bld, Variable rootVariable) {
-		if (value == null)
-			bld.append("null"); //$NON-NLS-1$
-		else if (value instanceof String || value instanceof Version) {
-			String str = value.toString();
-			char sep = str.indexOf('\'') >= 0 ? '"' : '\'';
-			bld.append(sep);
-			bld.append(str);
-			bld.append(sep);
-		} else if (value instanceof SimplePattern) {
-			appendEscaped(bld, '/', value.toString());
-		} else
-			bld.append(value);
+		appendValue(bld, value);
 	}
 
-	private void appendEscaped(StringBuffer bld, char delimiter, String str) {
+	private static void appendValue(StringBuffer bld, Object value) {
+		if (value == null)
+			bld.append("null"); //$NON-NLS-1$
+		else if (value == Boolean.TRUE)
+			bld.append("true"); //$NON-NLS-1$
+		else if (value == Boolean.FALSE)
+			bld.append("false"); //$NON-NLS-1$
+		else if (value instanceof String)
+			appendQuotedString(bld, (String) value);
+		else if (value instanceof Number)
+			bld.append(value.toString());
+		else if (value instanceof SimplePattern) {
+			appendEscaped(bld, '/', value.toString());
+		} else if (value instanceof Version) {
+			bld.append("version("); //$NON-NLS-1$
+			appendQuotedString(bld, value.toString());
+			bld.append(')');
+		} else if (value instanceof VersionRange) {
+			bld.append("range("); //$NON-NLS-1$
+			appendQuotedString(bld, value.toString());
+			bld.append(')');
+		} else if (value instanceof Class<?>) {
+			bld.append("class("); //$NON-NLS-1$
+			appendQuotedString(bld, value.toString());
+			bld.append(')');
+		} else if (value instanceof Filter) {
+			bld.append("filter("); //$NON-NLS-1$
+			appendQuotedString(bld, value.toString());
+			bld.append(')');
+		} else if (value instanceof Set<?>) {
+			bld.append("set("); //$NON-NLS-1$
+			appendLiteralCollection(bld, (Collection<?>) value);
+			bld.append(')');
+		} else if (value instanceof Collection<?>)
+			appendLiteralCollection(bld, (Collection<?>) value);
+		else
+			bld.append(value);
+
+	}
+
+	private static void appendLiteralCollection(StringBuffer bld, Collection<?> collection) {
+		bld.append('[');
+		Iterator<?> iter = collection.iterator();
+		if (iter.hasNext()) {
+			appendValue(bld, iter.next());
+			while (iter.hasNext()) {
+				bld.append(',');
+				appendValue(bld, iter.next());
+			}
+		}
+		bld.append(']');
+	}
+
+	private static void appendQuotedString(StringBuffer bld, String str) {
+		if (str.indexOf('\'') < 0) {
+			bld.append('\'');
+			bld.append(str);
+			bld.append('\'');
+		} else
+			appendEscaped(bld, '"', str);
+	}
+
+	private static void appendEscaped(StringBuffer bld, char delimiter, String str) {
 		bld.append(delimiter);
 		int top = str.length();
 		for (int idx = 0; idx < top; ++idx) {
 			char c = str.charAt(idx);
-			if (c == delimiter)
+			if (c == delimiter || c == '\\')
 				bld.append('\\');
 			bld.append(c);
 		}

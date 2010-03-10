@@ -45,6 +45,13 @@ public interface IExpressionFactory {
 	IExpression and(IExpression... operands);
 
 	/**
+	 * Create an array of elements.
+	 * @param elements The elements of the array
+	 * @return An array expression
+	 */
+	IExpression array(IExpression... elements);
+
+	/**
 	 * Create an lookup of <code>key</code> in the <code>target</code>.
 	 * The key expression should evaluate to a string or an integer.
 	 * @param target The target for the lookup

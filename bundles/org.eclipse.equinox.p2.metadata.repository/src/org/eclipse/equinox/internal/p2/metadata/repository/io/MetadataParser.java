@@ -22,8 +22,7 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescription;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionParseException;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.osgi.framework.BundleContext;
@@ -174,19 +173,19 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				} else {
 					duplicateElement(this, name, attributes);
 				}
-			} else if (REQUIRED_CAPABILITIES_ELEMENT.equals(name)) {
+			} else if (REQUIREMENTS_ELEMENT.equals(name)) {
 				if (requiredCapabilitiesHandler == null) {
 					requiredCapabilitiesHandler = new RequiredCapabilitiesHandler(this, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
-			} else if (HOST_REQUIRED_CAPABILITIES_ELEMENT.equals(name)) {
+			} else if (HOST_REQUIREMENTS_ELEMENT.equals(name)) {
 				if (hostRequiredCapabilitiesHandler == null) {
 					hostRequiredCapabilitiesHandler = new HostRequiredCapabilitiesHandler(this, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
-			} else if (META_REQUIRED_CAPABILITIES_ELEMENT.equals(name)) {
+			} else if (META_REQUIREMENTS_ELEMENT.equals(name)) {
 				if (metaRequiredCapabilitiesHandler == null) {
 					metaRequiredCapabilitiesHandler = new MetaRequiredCapabilitiesHandler(this, attributes);
 				} else {
@@ -364,7 +363,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (REQUIRED_CAPABILITIES_ELEMENT.equals(name)) {
+			if (REQUIREMENTS_ELEMENT.equals(name)) {
 				children = new RequiredCapabilitiesHandler(this, attributes);
 			} else {
 				duplicateElement(this, name, attributes);
@@ -438,8 +437,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (REQUIRED_CAPABILITY_ELEMENT.equals(name))
-				new RequiredCapabilityHandler(this, attributes, requirement);
+			if (REQUIREMENT_ELEMENT.equals(name))
+				new RequirementHandler(this, attributes, requirement);
 			else {
 				invalidElement(name, attributes);
 			}
@@ -462,8 +461,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (REQUIRED_CAPABILITY_ELEMENT.equals(name)) {
-				new RequiredCapabilityHandler(this, attributes, lifeCycleRequirement);
+			if (REQUIREMENT_ELEMENT.equals(name)) {
+				new RequirementHandler(this, attributes, lifeCycleRequirement);
 			} else {
 				invalidElement(name, attributes);
 			}
@@ -509,7 +508,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private List<IRequirement> requiredCapabilities;
 
 		public HostRequiredCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
-			super(parentHandler, HOST_REQUIRED_CAPABILITIES_ELEMENT);
+			super(parentHandler, HOST_REQUIREMENTS_ELEMENT);
 			requiredCapabilities = new ArrayList<IRequirement>(getOptionalSize(attributes, 4));
 		}
 
@@ -518,8 +517,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equals(REQUIRED_CAPABILITY_ELEMENT)) {
-				new RequiredCapabilityHandler(this, attributes, requiredCapabilities);
+			if (name.equals(REQUIREMENT_ELEMENT)) {
+				new RequirementHandler(this, attributes, requiredCapabilities);
 			} else {
 				invalidElement(name, attributes);
 			}
@@ -530,7 +529,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private List<IRequirement> requiredCapabilities;
 
 		public MetaRequiredCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
-			super(parentHandler, META_REQUIRED_CAPABILITIES_ELEMENT);
+			super(parentHandler, META_REQUIREMENTS_ELEMENT);
 			requiredCapabilities = new ArrayList<IRequirement>(getOptionalSize(attributes, 4));
 		}
 
@@ -539,8 +538,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equals(REQUIRED_CAPABILITY_ELEMENT)) {
-				new RequiredCapabilityHandler(this, attributes, requiredCapabilities);
+			if (name.equals(REQUIREMENT_ELEMENT)) {
+				new RequirementHandler(this, attributes, requiredCapabilities);
 			} else {
 				invalidElement(name, attributes);
 			}
@@ -551,7 +550,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private List<IRequirement> requiredCapabilities;
 
 		public RequiredCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
-			super(parentHandler, REQUIRED_CAPABILITIES_ELEMENT);
+			super(parentHandler, REQUIREMENTS_ELEMENT);
 			requiredCapabilities = new ArrayList<IRequirement>(getOptionalSize(attributes, 4));
 		}
 
@@ -560,17 +559,19 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equals(REQUIRED_CAPABILITY_ELEMENT)) {
-				new RequiredCapabilityHandler(this, attributes, requiredCapabilities);
+			if (name.equals(REQUIREMENT_ELEMENT)) {
+				new RequirementHandler(this, attributes, requiredCapabilities);
 			} else {
 				invalidElement(name, attributes);
 			}
 		}
 	}
 
-	protected class RequiredCapabilityHandler extends AbstractHandler {
+	protected class RequirementHandler extends AbstractHandler {
 		private List<IRequirement> capabilities;
 
+		private String match;
+		private String matchParams;
 		private String namespace;
 		private String name;
 		private VersionRange range;
@@ -580,18 +581,28 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		private TextHandler filterHandler = null;
 
-		public RequiredCapabilityHandler(AbstractHandler parentHandler, Attributes attributes, List<IRequirement> capabilities) {
-			super(parentHandler, REQUIRED_CAPABILITY_ELEMENT);
+		public RequirementHandler(AbstractHandler parentHandler, Attributes attributes, List<IRequirement> capabilities) {
+			super(parentHandler, REQUIREMENT_ELEMENT);
 			this.capabilities = capabilities;
-			String[] values = parseAttributes(attributes, REQIURED_CAPABILITY_ATTRIBUTES, OPTIONAL_CAPABILITY_ATTRIBUTES);
-			namespace = values[0];
-			name = values[1];
-			range = checkVersionRange(REQUIRED_CAPABILITY_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[2]);
-			boolean isOptional = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_OPTIONAL_ATTRIBUTE, values[3], false).booleanValue();
-			min = isOptional ? 0 : 1;
-			boolean isMultiple = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_MULTIPLE_ATTRIBUTE, values[4], false).booleanValue();
-			max = isMultiple ? Integer.MAX_VALUE : 1;
-			greedy = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_GREED_ATTRIBUTE, values[5], true).booleanValue();
+			if (attributes.getIndex(NAMESPACE_ATTRIBUTE) >= 0) {
+				String[] values = parseAttributes(attributes, REQIURED_CAPABILITY_ATTRIBUTES, OPTIONAL_CAPABILITY_ATTRIBUTES);
+				namespace = values[0];
+				name = values[1];
+				range = checkVersionRange(REQUIREMENT_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[2]);
+				boolean isOptional = checkBoolean(REQUIREMENT_ELEMENT, CAPABILITY_OPTIONAL_ATTRIBUTE, values[3], false).booleanValue();
+				min = isOptional ? 0 : 1;
+				boolean isMultiple = checkBoolean(REQUIREMENT_ELEMENT, CAPABILITY_MULTIPLE_ATTRIBUTE, values[4], false).booleanValue();
+				max = isMultiple ? Integer.MAX_VALUE : 1;
+				greedy = checkBoolean(REQUIREMENT_ELEMENT, CAPABILITY_GREED_ATTRIBUTE, values[5], true).booleanValue();
+			} else {
+				// Expression based requirement
+				String[] values = parseAttributes(attributes, REQIUREMENT_ATTRIBUTES, OPTIONAL_REQUIREMENT_ATTRIBUTES);
+				match = values[0];
+				matchParams = values[1];
+				min = values[2] == null ? 1 : checkInteger(REQUIREMENT_ELEMENT, MIN_ATTRIBUTE, values[2]);
+				max = values[3] == null ? 1 : checkInteger(REQUIREMENT_ELEMENT, MAX_ATTRIBUTE, values[3]);
+				greedy = checkBoolean(REQUIREMENT_ELEMENT, CAPABILITY_GREED_ATTRIBUTE, values[4], true).booleanValue();
+			}
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -615,7 +626,24 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 							throw e;
 						}
 					}
-				capabilities.add(MetadataFactory.createRequirement(namespace, name, range, filter, min, max, greedy));
+				IRequirement requirement;
+				if (match != null) {
+					IExpressionFactory factory = ExpressionUtil.getFactory();
+					IExpression expr = ExpressionUtil.parse(match);
+					Object[] params;
+					if (matchParams == null)
+						params = new Object[0];
+					else {
+						IExpression[] arrayExpr = ExpressionUtil.getOperands(ExpressionUtil.parse(matchParams));
+						params = new Object[arrayExpr.length];
+						for (int idx = 0; idx < arrayExpr.length; ++idx)
+							params[idx] = arrayExpr[idx].evaluate(null);
+					}
+					IMatchExpression<IInstallableUnit> matchExpr = factory.matchExpression(expr, params);
+					requirement = MetadataFactory.createRequirement(matchExpr, filter, min, max, greedy);
+				} else
+					requirement = MetadataFactory.createRequirement(namespace, name, range, filter, min, max, greedy);
+				capabilities.add(requirement);
 			}
 		}
 
@@ -778,7 +806,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public UpdateDescriptorHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, INSTALLABLE_UNIT_ELEMENT);
 			String[] values = parseAttributes(attributes, required, optional);
-			VersionRange range = checkVersionRange(REQUIRED_CAPABILITY_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[1]);
+			VersionRange range = checkVersionRange(REQUIREMENT_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[1]);
 			int severity = new Integer(values[2]).intValue();
 			descriptor = MetadataFactory.createUpdateDescriptor(values[0], range, severity, values[3]);
 		}

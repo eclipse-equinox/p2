@@ -549,43 +549,15 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 				break;
 
 			case '"' :
-			case '\'' : {
-				int start = ++tokenPos;
-				while (tokenPos < top && expression.charAt(tokenPos) != c)
-					++tokenPos;
-				if (tokenPos == top) {
-					tokenPos = start - 1;
-					currentToken = TOKEN_ERROR;
-				} else {
-					tokenValue = expression.substring(start, tokenPos++);
-					currentToken = TOKEN_LITERAL;
-				}
+			case '\'' :
+				parseDelimitedString(c);
 				break;
-			}
 
-			case '/' : {
-				int start = ++tokenPos;
-				StringBuffer buf = new StringBuffer();
-				while (tokenPos < top) {
-					c = expression.charAt(tokenPos);
-					if (c == '\\' && tokenPos + 1 < top) {
-						c = expression.charAt(++tokenPos);
-						if (c != '/')
-							buf.append('\\');
-					} else if (c == '/')
-						break;
-					buf.append(c);
-					++tokenPos;
-				}
-				if (tokenPos == top) {
-					tokenPos = start - 1;
-					currentToken = TOKEN_ERROR;
-				} else {
-					tokenValue = SimplePattern.compile(expression.substring(start, tokenPos++));
-					currentToken = TOKEN_LITERAL;
-				}
+			case '/' :
+				parseDelimitedString(c);
+				if (currentToken == TOKEN_LITERAL)
+					tokenValue = SimplePattern.compile((String) tokenValue);
 				break;
-			}
 
 			default :
 				if (Character.isDigit(c)) {
@@ -623,7 +595,7 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 		Object tv = tokenValue;
 		if (tv == null) {
 			if (lastTokenPos >= expression.length())
-				return syntaxError("Unexpeced end of expression"); //$NON-NLS-1$
+				return syntaxError("Unexpected end of expression"); //$NON-NLS-1$
 			tv = expression.substring(lastTokenPos, lastTokenPos + 1);
 		}
 		return syntaxError("Unexpected token \"" + tv + '"'); //$NON-NLS-1$
@@ -631,5 +603,31 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 
 	protected ExpressionParseException syntaxError(String message) {
 		return new ExpressionParseException(expression, message, tokenPos);
+	}
+
+	private void parseDelimitedString(char delim) {
+		int start = ++tokenPos;
+		StringBuffer buf = new StringBuffer();
+		int top = expression.length();
+		while (tokenPos < top) {
+			char ec = expression.charAt(tokenPos);
+			if (ec == delim)
+				break;
+			if (ec == '\\') {
+				if (++tokenPos == top)
+					break;
+				ec = expression.charAt(tokenPos);
+			}
+			buf.append(ec);
+			++tokenPos;
+		}
+		if (tokenPos == top) {
+			tokenPos = start - 1;
+			currentToken = TOKEN_ERROR;
+		} else {
+			++tokenPos;
+			tokenValue = buf.toString();
+			currentToken = TOKEN_LITERAL;
+		}
 	}
 }

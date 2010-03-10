@@ -19,6 +19,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -71,7 +72,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 			setFilter(filter);
 			this.isGreedy = isGreedy;
 			this.min = isOptional ? 0 : 1;
-			this.max = 1;
+			this.max = isMultiple ? Integer.MAX_VALUE : 1;
 		}
 
 		public SPIRequiredCapability(String namespace, String name, VersionRange versionRange) {
@@ -107,27 +108,18 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
-			if (obj == null)
+
+			if (!(obj instanceof IRequirement))
 				return false;
-			if (!(obj instanceof IRequiredCapability))
-				return false;
-			final IRequiredCapability other = (IRequiredCapability) obj;
+
+			IRequirement other = (IRequirement) obj;
 			if (filter == null) {
 				if (other.getFilter() != null)
 					return false;
 			} else if (!filter.equals(other.getFilter()))
 				return false;
-			if (!name.equals(other.getName()))
-				return false;
-			if (!namespace.equals(other.getNamespace()))
-				return false;
-			if (other.getMin() != this.getMin())
-				return false;
-			if (other.getMax() != this.getMax())
-				return false;
-			if (!versionRange.equals(other.getRange()))
-				return false;
-			return true;
+
+			return min == other.getMin() && max == other.getMax() && isGreedy == other.isGreedy() && getMatches().equals(other.getMatches());
 		}
 
 		public boolean isNegation() {
@@ -162,7 +154,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		public IMatchExpression<IInstallableUnit> getMatches() {
-			return ExpressionUtil.getFactory().matchExpression(ExpressionUtil.parse("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version ~= $2"), name, namespace, versionRange);
+			return ExpressionUtil.getFactory().matchExpression(ExpressionUtil.parse("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version ~= $2)"), name, namespace, versionRange);
 		}
 
 		public String getDescription() {
@@ -326,7 +318,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 
 		public List<IRequirement> getMetaRequirements() {
-			return null;
+			return CollectionUtils.emptyList();
 		}
 
 		public String getProperty(String key, String locale) {

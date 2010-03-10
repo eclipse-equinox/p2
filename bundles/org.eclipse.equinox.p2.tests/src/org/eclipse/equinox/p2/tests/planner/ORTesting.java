@@ -27,7 +27,7 @@ public class ORTesting extends AbstractProvisioningTest {
 		String orExpression = "providedCapabilities.exists(pc | pc.namespace == 'org.eclipse.equinox.p2.iu' && (pc.name == 'org.eclipse.mylyn34' || pc.name == 'org.eclipse.mylyn35'))";
 		IExpression expr = ExpressionUtil.parse(orExpression);
 		IMatchExpression matchExpression = ExpressionUtil.getFactory().matchExpression(expr);
-		IRequirement orRequirement = MetadataFactory.createRequirement(matchExpression);
+		IRequirement orRequirement = MetadataFactory.createRequirement(matchExpression, null, 0, 1, true);
 
 		InstallableUnitDescription iudA = new MetadataFactory.InstallableUnitDescription();
 		iudA.setId("A");

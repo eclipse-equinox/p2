@@ -39,6 +39,10 @@ public interface XMLConstants {
 	public static final String VERSION_ATTRIBUTE = "version"; //$NON-NLS-1$
 	public static final String VERSION_RANGE_ATTRIBUTE = "range"; //$NON-NLS-1$
 	public static final String NAMESPACE_ATTRIBUTE = "namespace"; //$NON-NLS-1$
+	public static final String MATCH_ATTRIBUTE = "match"; //$NON-NLS-1$
+	public static final String MATCH_PARAMETERS_ATTRIBUTE = "matchParameters"; //$NON-NLS-1$
+	public static final String MIN_ATTRIBUTE = "min"; //$NON-NLS-1$
+	public static final String MAX_ATTRIBUTE = "max"; //$NON-NLS-1$
 	public static final String CLASSIFIER_ATTRIBUTE = "classifier"; //$NON-NLS-1$
 	public static final String DESCRIPTION_ATTRIBUTE = "description"; //$NON-NLS-1$
 	public static final String PROVIDER_ATTRIBUTE = "provider"; //$NON-NLS-1$

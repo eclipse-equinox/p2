@@ -87,12 +87,12 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 		this(namespace, name, range, filter, optional, multiple, true);
 	}
 
-	public RequiredCapability(IMatchExpression<IInstallableUnit> requirement) {
-		matchExpression = requirement;
-		filter = null;
-		min = 0;
-		max = 1;
-		greedy = true;
+	public RequiredCapability(IMatchExpression<IInstallableUnit> requirement, Filter filter, int min, int max, boolean greedy) {
+		this.matchExpression = requirement;
+		this.filter = filter;
+		this.min = min;
+		this.max = max;
+		this.greedy = greedy;
 	}
 
 	public RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
@@ -130,26 +130,18 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj instanceof RequiredCapability) {
-			RequiredCapability other = (RequiredCapability) obj;
-			if (filter == null) {
-				if (other.getFilter() != null)
-					return false;
-			} else if (!filter.equals(other.getFilter()))
+
+		if (!(obj instanceof IRequirement))
+			return false;
+
+		IRequirement other = (IRequirement) obj;
+		if (filter == null) {
+			if (other.getFilter() != null)
 				return false;
-			return min == other.min && max == other.max && greedy == other.greedy && matchExpression.equals(other.matchExpression);
-		}
-		if (obj instanceof IRequiredCapability) {
-			// Some other type of RequiredCapability
-			IRequiredCapability other = (IRequiredCapability) obj;
-			if (filter == null) {
-				if (other.getFilter() != null)
-					return false;
-			} else if (!filter.equals(other.getFilter()))
-				return false;
-			return min == other.getMin() && max == other.getMax() && greedy == other.isGreedy() && getName().equals(other.getName()) && getNamespace().equals(other.getNamespace()) && getRange().equals(other.getRange());
-		}
-		return false;
+		} else if (!filter.equals(other.getFilter()))
+			return false;
+
+		return min == other.getMin() && max == other.getMax() && greedy == other.isGreedy() && matchExpression.equals(other.getMatches());
 	}
 
 	public String getName() {

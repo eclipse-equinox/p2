@@ -27,6 +27,10 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		return new And(convertArray(operands));
 	}
 
+	public IExpression array(IExpression... elements) {
+		throw failNoQL();
+	}
+
 	public IExpression at(IExpression target, IExpression key) {
 		return new At((Expression) target, (Expression) key);
 	}
