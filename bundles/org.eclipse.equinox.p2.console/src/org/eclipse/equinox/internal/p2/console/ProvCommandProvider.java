@@ -237,6 +237,36 @@ public class ProvCommandProvider implements CommandProvider {
 	}
 
 	/**
+	 * Lists the installable units that match the given URL and query. A third
+	 * boolean argument can be provided where <code>true</code> means &quot;full query&quot;
+	 * and <code>false</code> means &quote;match query&quote;. The default is <code>false</code>.
+	 * 
+	 * @param interpreter
+	 */
+	public void _provlquery(CommandInterpreter interpreter) {
+		String urlString = processArgument(interpreter.nextArgument());
+		String expression = processArgument(interpreter.nextArgument());
+		if (expression == null) {
+			interpreter.println("Please enter a query");
+			return;
+		}
+		boolean useFull = Boolean.valueOf(processArgument(interpreter.nextArgument())).booleanValue();
+		URI repoURL = null;
+		if (urlString != null && !urlString.equals(WILDCARD_ANY))
+			repoURL = toURI(interpreter, urlString);
+
+		IQuery<IInstallableUnit> query = useFull ? QueryUtil.createQuery(expression) : QueryUtil.createMatchQuery(expression);
+		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(agent, repoURL, query, null));
+		// Now print out results
+		if (units.length == 0)
+			interpreter.println("No units found");
+		else {
+			for (int i = 0; i < units.length; i++)
+				println(interpreter, units[i]);
+		}
+	}
+
+	/**
 	 * Lists the known metadata repositories, or the contents of a given
 	 * metadata repository.
 	 * 
@@ -474,7 +504,44 @@ public class ProvCommandProvider implements CommandProvider {
 		// Now print out results
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
+	}
 
+	/**
+	 * Lists the installable units that match the given profile id and query. The id can be
+	 * &quot;this&quot; to denote the self profile. A third boolean argument can be provided
+	 * where <code>true</code> means &quot;full query&quot; and <code>false</code> means
+	 * &quote;match query&quote;. The default is <code>false</code>.
+	 * 
+	 * @param interpreter
+	 */
+	public void _provlpquery(CommandInterpreter interpreter) {
+		String profileId = processArgument(interpreter.nextArgument());
+		if (profileId == null || profileId.equals("this")) {
+			profileId = IProfileRegistry.SELF;
+		}
+
+		String expression = processArgument(interpreter.nextArgument());
+		if (expression == null) {
+			interpreter.println("Please enter a query");
+			return;
+		}
+
+		boolean useFull = Boolean.valueOf(processArgument(interpreter.nextArgument())).booleanValue();
+		IQuery<IInstallableUnit> query = useFull ? QueryUtil.createQuery(expression) : QueryUtil.createMatchQuery(expression);
+
+		IProfile profile = ProvisioningHelper.getProfile(agent, profileId);
+		if (profile == null) {
+			interpreter.println("Profile " + profileId + " not found");
+			return;
+		}
+		IInstallableUnit[] units = sort(profile.query(query, new NullProgressMonitor()));
+		// Now print out results
+		if (units.length == 0)
+			interpreter.println("No units found");
+		else {
+			for (int i = 0; i < units.length; i++)
+				println(interpreter, units[i]);
+		}
 	}
 
 	public void _provremove(CommandInterpreter interpreter) {
@@ -573,6 +640,8 @@ public class ProvCommandProvider implements CommandProvider {
 		help.append(NEW_LINE);
 		help.append("\tprovliu [<repository URI | *> <iu id | *> <version range | *>] - Lists the IUs that match the pattern in the given repo.  * matches all");
 		help.append(NEW_LINE);
+		help.append("\tprovlquery <repository URI | *> <expression> [ true | false ] - Lists the IUs that match the query expression in the given repo.  * matches all. The expression is expected to be a boolean match expression unless the third argument is true, in which case the expression is a full query");
+		help.append(NEW_LINE);
 
 		help.append("---");
 		help.append("Profile Registry Commands");
@@ -588,6 +657,8 @@ public class ProvCommandProvider implements CommandProvider {
 		help.append("\tprovlgp [<profileid>] - Lists all IUs with group capabilities in the given profile, or current profile if profileid is omitted");
 		help.append(NEW_LINE);
 		help.append("\tprovlpts [<profileid>] - Lists timestamps for given profile, or if no profileid given then the default profile timestamps are reported");
+		help.append(NEW_LINE);
+		help.append("\tprovlpquery <profileid | this> <expression> [ true | false ] - Lists the IUs that match the query expression in the given profile. The expression is expected to be a boolean match expression unless the third argument is true, in which case the expression is a full query");
 		help.append(NEW_LINE);
 
 		help.append("---");
