@@ -298,18 +298,39 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 		URI installArea = EquinoxUtils.getInstallLocationURI(context);
 
 		URL configURL = null;
+		InputStream stream = null;
+
 		if (infoPath == null) {
 			SimpleConfiguratorImpl simpleImpl = new SimpleConfiguratorImpl(context, null);
 			configURL = simpleImpl.getConfigurationURL();
 		} else {
-			//if == SOURCE_INFO (not .equals) use the default source info, currently SOURCE_INFO_PATH
-			if (infoPath == SOURCE_INFO)
+			// == (not .equals) use the default source info, currently SOURCE_INFO_PATH
+			boolean defaultSource = (infoPath == SOURCE_INFO);
+			if (defaultSource)
 				infoPath = SOURCE_INFO_PATH;
+
 			Location configLocation = EquinoxUtils.getConfigLocation(context);
 			configURL = configLocation.getDataArea(infoPath);
+			try {
+				stream = configURL.openStream();
+			} catch (FileNotFoundException e) {
+				if (defaultSource && configLocation.getParentLocation() != null) {
+					configURL = configLocation.getParentLocation().getDataArea(infoPath);
+				} else {
+					return new BundleInfo[0];
+				}
+			}
+		}
+		if (stream == null) {
+			try {
+				stream = configURL.openStream();
+			} catch (FileNotFoundException e) {
+				return new BundleInfo[0];
+			}
 		}
 
-		return loadConfiguration(configURL.openStream(), installArea);
+		//stream will be closed
+		return loadConfiguration(stream, installArea);
 	}
 
 	/*
