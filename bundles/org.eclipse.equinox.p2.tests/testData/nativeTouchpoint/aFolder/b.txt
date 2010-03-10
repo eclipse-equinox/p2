@@ -1,3 +1,0 @@
-B
-// This b.txt should have the first line being a single B
-

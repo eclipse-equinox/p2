@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bookmarks>
-   <site name="Eclemma" url="http://update.eclemma.org" web="false" selected="false" local="false"/>
-   <site name="Install Handler Test" url="http://www.developer.com/img/2007/03/upd-install-site.xml" web="false" selected="false" local="false"/>
-   <site name="FindBugs" url="http://findbugs.cs.umd.edu/eclipse" web="false" selected="false" local="false"/>
-   <site name="Testing" url="http://www.eclipse.org/equinox/p2/testing/updateSite" web="false" selected="false" local="false"/>
-</bookmarks>
