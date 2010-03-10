@@ -227,7 +227,7 @@ public class TranslationSupport {
 	 */
 	private synchronized IQueryResult<IInstallableUnit> getLocalizationFragments(List<String> localeVariants, String locale) {
 		if (fragmentSource == null) {
-			LogHelper.log(new Status(IStatus.ERROR, MetadataActivator.PI_METADATA, "Profile registry unavailable. Default language will be used.", new RuntimeException())); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.INFO, MetadataActivator.PI_METADATA, "No translation source unavailable. Default language will be used.")); //$NON-NLS-1$
 			return Collector.emptyCollector();
 		}
 
