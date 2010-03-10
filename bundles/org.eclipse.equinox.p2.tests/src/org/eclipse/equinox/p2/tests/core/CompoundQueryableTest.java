@@ -9,12 +9,13 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
+import org.eclipse.equinox.p2.query.MatchQuery;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.tests.harness.TestProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.query.MatchQuery;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 

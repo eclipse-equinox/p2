@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.query;
 
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
-import org.eclipse.equinox.internal.p2.metadata.query.IMatchQuery;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.metadata.index.IQueryWithIndex;

@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2010 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -8,27 +8,23 @@
 *   EclipseSource - initial API and implementation
 *   IBM Corporation - ongoing development
 ******************************************************************************/
-package org.eclipse.equinox.internal.p2.metadata.query;
-
-import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
+package org.eclipse.equinox.p2.query;
 
 import java.util.Iterator;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.query.*;
 
 /**
- * This class represents the superclass of most of p2's queries.  Every element
- * in the query can be evaluated by calling isMatch on it. If {@link #isMatch(Object)} returns true, 
- * then the element WILL be included in the query result.  If {@link #isMatch(Object)} returns false, then 
- * the element WILL NOT be included in the query result.
+ * This class represents a simple Java-based query. Clients may subclass and
+ * override the {@link #isMatch(Object)} method in order to write simple
+ * queries against p2 metadata.
  * <p>
- * This class may be subclassed by clients. Subclasses should specify the type
- * of object they support querying on. Subclasses are also encouraged to clearly
- * specify their match algorithm, and expose the parameters involved in the match
- * computation, to allow {@link IQueryable} implementations to optimize their
- * execution of the query. 
+ * Note that hand-written queries cannot be optimized for queryables containing
+ * indices, or for remote queryables. In general you should use one of the pre-defined
+ * queries found in {@link QueryUtil} if possible, to obtain queries optimized for indexing and
+ * remote execution. This class is intended for simple queries against small data
+ * sources where indexed lookup and remote query execution are not needed.
+ * </p>
  * @since 2.0
- * @deprecated Clients should use {@link ExpressionMatchQuery} instead.
  */
 public abstract class MatchQuery<T> implements IMatchQuery<T> {
 
