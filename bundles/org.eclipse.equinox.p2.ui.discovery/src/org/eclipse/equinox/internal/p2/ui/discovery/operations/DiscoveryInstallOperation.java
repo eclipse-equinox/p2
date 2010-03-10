@@ -152,18 +152,14 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		// at least one selected connector could not be found in a repository
 		Set<String> foundIds = new HashSet<String>();
 		for (IInstallableUnit unit : installableUnits) {
-			String id = unit.getId();
-			if (id.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
-				id = id.substring(0, id.indexOf(P2_FEATURE_GROUP_SUFFIX));
-			}
-			foundIds.add(id);
+			foundIds.add(unit.getId());
 		}
 
 		String message = ""; //$NON-NLS-1$
 		String detailedMessage = ""; //$NON-NLS-1$
 		for (CatalogItem descriptor : installableConnectors) {
 			StringBuilder unavailableIds = null;
-			for (String id : descriptor.getInstallableUnits()) {
+			for (String id : getFeatureIds(descriptor)) {
 				if (!foundIds.contains(id)) {
 					if (unavailableIds == null) {
 						unavailableIds = new StringBuilder();
@@ -244,7 +240,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			for (Iterator<IInstallableUnit> iter = result.iterator(); iter.hasNext();) {
 				IInstallableUnit iu = iter.next();
 				String id = iu.getId();
-				if (installableUnitIdsThisRepository.contains(id.substring(0, id.length() - P2_FEATURE_GROUP_SUFFIX.length())))
+				if (installableUnitIdsThisRepository.contains(id))
 					installableUnits.add(iu);
 			}
 		}
@@ -287,13 +283,24 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		for (CatalogItem descriptor : installableConnectors) {
 			try {
 				if (repository.getLocation().equals(new URL(descriptor.getSiteUrl()).toURI())) {
-					installableUnitIdsThisRepository.addAll(descriptor.getInstallableUnits());
+					installableUnitIdsThisRepository.addAll(getFeatureIds(descriptor));
 				}
 			} catch (MalformedURLException e) {
 				// will never happen, ignore
 			}
 		}
 		return installableUnitIdsThisRepository;
+	}
+
+	private Set<String> getFeatureIds(CatalogItem descriptor) {
+		Set<String> featureIds = new HashSet<String>();
+		for (String id : descriptor.getInstallableUnits()) {
+			if (!id.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
+				id += P2_FEATURE_GROUP_SUFFIX;
+			}
+			featureIds.add(id);
+		}
+		return featureIds;
 	}
 
 }
