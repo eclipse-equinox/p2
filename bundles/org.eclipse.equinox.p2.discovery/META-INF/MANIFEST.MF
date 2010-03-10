@@ -7,7 +7,7 @@ Bundle-Vendor: %Bundle-Vendor
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.0",
  org.eclipse.equinox.p2.core;bundle-version="2.0.0"
-Export-Package: org.eclipse.equinox.internal.p2.discovery;x-friends:="org.eclipse.equinox.p2.discovery.compatiblity,org.eclipse.equinox.p2.ui.discovery,org.eclipse.equinox.p2.discovery.repository",
- org.eclipse.equinox.internal.p2.discovery.model;x-friends:="org.eclipse.equinox.p2.discovery.compatiblity,org.eclipse.equinox.p2.ui.discovery,org.eclipse.equinox.p2.discovery.repository",
- org.eclipse.equinox.internal.p2.discovery.util;x-friends:="org.eclipse.equinox.p2.discovery.compatiblity,org.eclipse.equinox.p2.ui.discovery,org.eclipse.equinox.p2.discovery.repository"
+Export-Package: org.eclipse.equinox.internal.p2.discovery;x-friends:="org.eclipse.equinox.p2.discovery.compatibility,org.eclipse.equinox.p2.ui.discovery,org.eclipse.equinox.p2.discovery.repository",
+ org.eclipse.equinox.internal.p2.discovery.model;x-friends:="org.eclipse.equinox.p2.discovery.compatibility,org.eclipse.equinox.p2.ui.discovery,org.eclipse.equinox.p2.discovery.repository",
+ org.eclipse.equinox.internal.p2.discovery.util;x-friends:="org.eclipse.equinox.p2.discovery.compatibility,org.eclipse.equinox.p2.ui.discovery,org.eclipse.equinox.p2.discovery.repository"
 Bundle-Localization: plugin

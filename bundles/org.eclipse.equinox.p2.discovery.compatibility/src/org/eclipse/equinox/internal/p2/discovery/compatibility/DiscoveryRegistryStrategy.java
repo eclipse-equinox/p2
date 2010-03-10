@@ -55,7 +55,7 @@ class DiscoveryRegistryStrategy extends RegistryStrategy {
 		// we must add a contribution from the core bundle so that we get the
 		// extension point itself
 		try {
-			Bundle bundle = Platform.getBundle("org.eclipse.equinox.p2.discovery.compatiblity"); //$NON-NLS-1$
+			Bundle bundle = Platform.getBundle("org.eclipse.equinox.p2.discovery.compatibility"); //$NON-NLS-1$
 			IContributor contributor = new RegistryContributor(bundle.getSymbolicName(), bundle.getSymbolicName(), null, null);
 
 			InputStream inputStream = bundle.getEntry("plugin.xml").openStream(); //$NON-NLS-1$
