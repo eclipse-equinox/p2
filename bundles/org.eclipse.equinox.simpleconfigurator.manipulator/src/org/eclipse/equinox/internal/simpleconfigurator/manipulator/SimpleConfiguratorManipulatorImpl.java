@@ -321,7 +321,9 @@ public class SimpleConfiguratorManipulatorImpl implements SimpleConfiguratorMani
 				}
 			}
 		}
-		if (stream == null) {
+		if (configURL == null)
+			return new BundleInfo[0];
+		else if (stream == null) {
 			try {
 				stream = configURL.openStream();
 			} catch (FileNotFoundException e) {
