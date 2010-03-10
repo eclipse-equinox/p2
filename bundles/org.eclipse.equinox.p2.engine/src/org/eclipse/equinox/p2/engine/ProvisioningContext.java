@@ -59,10 +59,18 @@ public class ProvisioningContext {
 
 	/**
 	 * Instructs the provisioning context to follow repository references when providing
-	 * queryables for obtaining metadata and artifacts.
+	 * queryables for obtaining metadata and artifacts.  When this property is set to
+	 * "true", then both enabled and disabled repository references that are encountered 
+	 * while loading the specified metadata repositories will be included in the provisioning 
+	 * context.  In this mode, the provisioning context has a distinct lifecycle, whereby 
+	 * the metadata and artifact repositories to be used are determined when the client 
+	 * retrieves the metadata queryable.  Clients using this property should not reset the 
+	 * list of metadata repository locations or artifact repository locations once the 
+	 * metadata queryable has been retrieved.
 	 * 
 	 * @see #getMetadata(IProgressMonitor)
-	 * @see #getArtifactKeys(IProgressMonitor)
+	 * @see #setMetadataRepositories(URI[])
+	 * @see #setArtifactRepositories(URI[])
 	 */
 	public static final String FOLLOW_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followRepositoryReferences"; //$NON-NLS-1$
 
@@ -248,7 +256,14 @@ public class ProvisioningContext {
 
 	/**
 	 * Sets the artifact repositories to consult when performing an operation.
+	 * <p>
+	 * When the {@link #FOLLOW_REPOSITORY_REFERENCES} property is set, this
+	 * method should be called prior to calling {@link #getMetadata(IProgressMonitor)},
+	 * because setting the repositories after retrieving metadata will have no
+	 * effect.
+	 * 
 	 * @param artifactRepositories the artifact repository locations
+	 * @see #FOLLOW_REPOSITORY_REFERENCES
 	*/
 	public void setArtifactRepositories(URI[] artifactRepositories) {
 		this.artifactRepositories = artifactRepositories;
