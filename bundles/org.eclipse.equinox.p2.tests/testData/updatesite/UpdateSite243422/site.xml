@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site>
-   <description url="http://www.eclipse.org/jdt/ui/update-site">
-      Update site for JDT UI
-   </description>
-   <feature url="features/org.eclipse.jdt.astview.feature_1.0.1.jar" id="org.eclipse.jdt.astview.feature" version="1.0.1">
-      <category name="ast-view-for-3.0"/>
-   </feature>
-</site>

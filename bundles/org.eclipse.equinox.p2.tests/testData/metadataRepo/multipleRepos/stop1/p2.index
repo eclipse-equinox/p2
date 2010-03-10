@@ -1,2 +1,0 @@
-metadata.repository.factory.order= foo, bar, broken.xml, site.xml,!
-version=1
