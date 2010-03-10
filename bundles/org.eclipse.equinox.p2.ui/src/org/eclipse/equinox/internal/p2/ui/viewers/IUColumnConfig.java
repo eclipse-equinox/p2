@@ -125,6 +125,7 @@ public class IUColumnConfig {
 		GC gc = new GC(control);
 		FontMetrics fm = gc.getFontMetrics();
 		columnWidthInPixels = Dialog.convertWidthInCharsToPixels(fm, columnWidth);
+		gc.dispose();
 		return columnWidthInPixels;
 	}
 
