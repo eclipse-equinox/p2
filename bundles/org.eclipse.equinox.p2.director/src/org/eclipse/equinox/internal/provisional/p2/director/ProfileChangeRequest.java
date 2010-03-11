@@ -19,6 +19,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
 public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
@@ -31,6 +32,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	private HashMap<IInstallableUnit, Map<String, String>> iuPropertiesToAdd = null; // map iu->map of key->value pairs for properties to be added for an iu
 	private HashMap<IInstallableUnit, List<String>> iuPropertiesToRemove = null; // map of iu->list of property keys to be removed for an iu
 	private boolean isAbsolute = false; //Indicate whether or not the request is an absolute one
+	private ArrayList<IRequirement> additionalRequirements;
 
 	public static ProfileChangeRequest createByProfileId(IProvisioningAgent agent, String profileId) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
@@ -257,5 +259,15 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 			result.append('\n');
 		}
 		return result.toString();
+	}
+
+	public void addExtraRequirements(Collection<IRequirement> requirements) {
+		if (additionalRequirements == null)
+			additionalRequirements = new ArrayList<IRequirement>(requirements.size());
+		additionalRequirements.addAll(requirements);
+	}
+
+	public Collection<IRequirement> getExtraRequirements() {
+		return additionalRequirements;
 	}
 }

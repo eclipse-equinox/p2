@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.planner;
 
 import java.util.Collection;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IRequirement;
 
 /**
  *  A profile change request is a description of a set of changes that a client
@@ -51,6 +52,13 @@ public interface IProfileChangeRequest {
 	 * @param toUninstall the installable units to be remove from the profile
 	 */
 	public abstract void removeAll(Collection<IInstallableUnit> toUninstall);
+
+	/**
+	 * Add extra requirements that must be satisfied by the planner.
+	 * 
+	 * @param requirements the additional requirements
+	 */
+	public void addExtraRequirements(Collection<IRequirement> requirements);
 
 	/**
 	 * Associate an inclusion rule with the installable unit. An inclusion rule will dictate how

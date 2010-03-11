@@ -17,7 +17,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.DebugHelper;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.*;
@@ -28,11 +29,11 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
  * A provisioning context defines the scope in which a provisioning operation
  * occurs. A context can be used to specify the set of repositories available
  * to the planner and engine as they perform provisioning work.
+ * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
 public class ProvisioningContext {
 	private IProvisioningAgent agent;
-	private Collection<IRequirement> additionalRequirements;
 	private URI[] artifactRepositories; //artifact repositories to consult
 	private final List<IInstallableUnit> extraIUs = Collections.synchronizedList(new ArrayList<IInstallableUnit>());
 	private URI[] metadataRepositories; //metadata repositories to consult
@@ -85,17 +86,6 @@ public class ProvisioningContext {
 		// null repos means look at them all
 		metadataRepositories = null;
 		artifactRepositories = null;
-	}
-
-	/**
-	 * Returns a collection of additional requirements that must be satisfied by the planner,
-	 * or <code>null</code> if there are no additional requirements.
-	 * This method has no effect on the execution of the engine.
-	 * 
-	 * @return a collection of additional requirements
-	 */
-	public Collection<IRequirement> getAdditionalRequirements() {
-		return additionalRequirements;
 	}
 
 	/**
@@ -242,16 +232,6 @@ public class ProvisioningContext {
 	 */
 	public String getProperty(String key) {
 		return properties.get(key);
-	}
-
-	/**
-	 * Sets the additional requirements that must be satisfied by the planner.
-	 * This method has no effect on the execution of the engine.
-	 * 
-	 * @param requirements the additional requirements
-	 */
-	public void setAdditionalRequirements(Collection<IRequirement> requirements) {
-		additionalRequirements = requirements;
 	}
 
 	/**

@@ -687,8 +687,8 @@ public class SimplePlanner implements IPlanner {
 		}
 
 		//Now add any other requirement that we need to see satisfied
-		if (context != null && context.getAdditionalRequirements() != null)
-			gatheredRequirements.addAll(context.getAdditionalRequirements());
+		if (profileChangeRequest.getExtraRequirements() != null)
+			gatheredRequirements.addAll(profileChangeRequest.getExtraRequirements());
 		return new Object[] {createIURepresentingTheProfile(gatheredRequirements), alreadyInstalled.toArray(IInstallableUnit.class)};
 	}
 
