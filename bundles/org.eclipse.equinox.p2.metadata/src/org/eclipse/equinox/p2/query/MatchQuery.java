@@ -24,6 +24,15 @@ import org.eclipse.equinox.p2.metadata.expression.IExpression;
  * remote execution. This class is intended for simple queries against small data
  * sources where indexed lookup and remote query execution are not needed.
  * </p>
+ * @deprecated This class is likely to be removed in 3.6M7. If possible, use one of the
+ * predefined queries in {@link QueryUtil} or use the {@link QueryUtil#createMatchQuery(String, Object...)}
+ * to create a custom expression based query. If the query cannot be expressed using
+ * the p2QL, then use a predefined or custom expression query as a first filter
+ * (in worst case, use {@link QueryUtil#createIUAnyQuery()}) and then provide further filtering
+ * like so:<pre>
+ * for(iter = queryable.query(someExpressionQuery).iterator(); iter.hasNext();) {
+ *   // do your match here
+ * }</pre>
  * @since 2.0
  */
 public abstract class MatchQuery<T> implements IMatchQuery<T> {
