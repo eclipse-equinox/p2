@@ -27,13 +27,8 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 
 	public ExpressionMatchQuery(Class<? extends T> matchingClass, IExpression expression, Object... parameters) {
 		this.matchingClass = matchingClass;
-		if (expression == ExpressionUtil.TRUE_EXPRESSION) {
-			this.expression = null;
-			this.context = null;
-		} else {
-			this.expression = ExpressionUtil.getFactory().<T> matchExpression(expression, parameters);
-			this.context = this.expression.createContext();
-		}
+		this.expression = ExpressionUtil.getFactory().<T> matchExpression(expression, parameters);
+		this.context = this.expression.createContext();
 		this.indexedMembers = Expression.getIndexCandidateMembers(matchingClass, ExpressionFactory.THIS, (Expression) expression);
 	}
 
@@ -50,7 +45,7 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 	}
 
 	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
-		if (expression == null)
+		if (((MatchExpression<T>) expression).operand == ExpressionUtil.TRUE_EXPRESSION)
 			return new QueryResult<T>(indexProvider.everything());
 
 		Iterator<T> iterator = null;
