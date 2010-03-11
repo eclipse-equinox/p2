@@ -190,14 +190,14 @@ public class ProvisioningContext {
 		URI[] repositories = metadataRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : metadataRepositories;
 		List<IMetadataRepository> repos = new ArrayList<IMetadataRepository>();
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100);
-		try {
-			for (int i = 0; i < repositories.length; i++) {
+		for (int i = 0; i < repositories.length; i++) {
+			try {
 				if (sub.isCanceled())
 					throw new OperationCanceledException();
 				repos.add(repoManager.loadRepository(repositories[i], sub.newChild(100)));
+			} catch (ProvisionException e) {
+				//skip unreadable repositories
 			}
-		} catch (ProvisionException e) {
-			//skip unreadable repositories
 		}
 		return QueryUtil.compoundQueryable(repos);
 	}
