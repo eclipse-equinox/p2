@@ -15,7 +15,7 @@ import java.util.*;
 /**
  * @since 2.0
  */
-public class Memento {
+public final class Memento {
 	private static final long serialVersionUID = 3257399736837461585L;
 	private static final Collection<Class<?>> simples = Arrays.<Class<?>> asList(String.class, Integer.class, Long.class, Float.class, Double.class, Byte.class, Short.class, Character.class, Boolean.class);
 	private static final Collection<Class<?>> simpleArrays = Arrays.<Class<?>> asList(String[].class, Integer[].class, Long[].class, Float[].class, Double[].class, Byte[].class, Short[].class, Character[].class, Boolean[].class);

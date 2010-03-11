@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.p2.engine.phases.*;
 /**
  * @since 2.0
  */
-public class PhaseSetFactory {
+public final class PhaseSetFactory {
 
 	private static final boolean forcedUninstall = Boolean.valueOf(EngineActivator.getContext().getProperty("org.eclipse.equinox.p2.engine.forcedUninstall")).booleanValue(); //$NON-NLS-1$
 
