@@ -17,12 +17,49 @@ import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.expression.SimplePattern;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PerformanceTest extends AbstractProvisioningTest {
+	public void testMatchQueryVersusExpressionPerformance() throws Exception {
+
+		IMetadataRepository repo = getMDR("/testData/galileoM7");
+
+		IQuery<IInstallableUnit> expressionQuery = QueryUtil.createMatchQuery("id ~= /org.eclipse.*.feature.group/");
+		final SimplePattern pattern = SimplePattern.compile("org.eclipse.*.feature.group");
+		IQuery<IInstallableUnit> matchQuery = new MatchQuery<IInstallableUnit>() {
+			@Override
+			public boolean isMatch(IInstallableUnit candidate) {
+				return pattern.isMatch(candidate.getId());
+			}
+		};
+		IQueryResult<IInstallableUnit> result;
+		long tradQueryMS = 0;
+		long exprQueryMS = 0;
+
+		for (int i = 0; i < 5; ++i) {
+			long start = System.currentTimeMillis();
+			for (int idx = 0; idx < 80; ++idx) {
+				result = repo.query(expressionQuery, new NullProgressMonitor());
+				assertEquals(queryResultSize(result), 482);
+			}
+			tradQueryMS += (System.currentTimeMillis() - start);
+
+			start = System.currentTimeMillis();
+			for (int idx = 0; idx < 80; ++idx) {
+				result = repo.query(matchQuery, new NullProgressMonitor());
+				assertEquals(queryResultSize(result), 482);
+			}
+			exprQueryMS += (System.currentTimeMillis() - start);
+		}
+		System.out.println("ExpressionQuery took: " + tradQueryMS + " milliseconds");
+		System.out.println("MatchQuery took: " + exprQueryMS + " milliseconds");
+		System.out.println();
+	}
+
 	public void testCapabilityQueryPerformance() throws Exception {
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");

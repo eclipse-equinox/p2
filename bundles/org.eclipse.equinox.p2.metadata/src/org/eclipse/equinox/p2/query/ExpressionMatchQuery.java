@@ -10,11 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.query;
 
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
 import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.index.*;
 
@@ -25,12 +23,14 @@ import org.eclipse.equinox.p2.metadata.index.*;
 public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<T> {
 	private final IMatchExpression<T> expression;
 	private final Class<? extends T> matchingClass;
-	private IEvaluationContext context;
+	private final IEvaluationContext context;
+	private final List<String> indexedMembers;
 
 	public ExpressionMatchQuery(Class<? extends T> matchingClass, IExpression expression, Object... parameters) {
 		this.matchingClass = matchingClass;
 		this.expression = ExpressionUtil.getFactory().<T> matchExpression(expression, parameters);
 		this.context = this.expression.createContext();
+		this.indexedMembers = Expression.getIndexCandidateMembers(matchingClass, ExpressionFactory.THIS, (Expression) expression);
 	}
 
 	public ExpressionMatchQuery(Class<? extends T> matchingClass, String expression, Object... parameters) {
@@ -47,8 +47,9 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 
 	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
 		Iterator<T> iterator = null;
-		for (String member : Expression.getIndexCandidateMembers(IArtifactKey.class, ExpressionFactory.THIS, (Expression) expression)) {
-			IIndex<T> index = indexProvider.getIndex(member);
+		int top = indexedMembers.size();
+		for (int idx = 0; idx < top; ++idx) {
+			IIndex<T> index = indexProvider.getIndex(indexedMembers.get(idx));
 			if (index != null) {
 				iterator = index.getCandidates(context, ExpressionFactory.THIS, expression);
 				if (iterator != null)
