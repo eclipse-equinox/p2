@@ -45,8 +45,8 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 	}
 
 	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
-		if (((MatchExpression<T>) expression).operand == ExpressionUtil.TRUE_EXPRESSION)
-			return new QueryResult<T>(indexProvider.everything());
+		//if (((MatchExpression<T>) expression).operand == ExpressionUtil.TRUE_EXPRESSION)
+		//	return new QueryResult<T>(indexProvider.everything());
 
 		Iterator<T> iterator = null;
 		int top = indexedMembers.size();
