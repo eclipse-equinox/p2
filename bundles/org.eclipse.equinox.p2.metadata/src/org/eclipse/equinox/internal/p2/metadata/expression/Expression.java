@@ -95,7 +95,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		}
 	}
 
-	public static Collection<String> getIndexCandidateMembers(Class<?> elementClass, Variable itemVariable, Expression operand) {
+	public static List<String> getIndexCandidateMembers(Class<?> elementClass, Variable itemVariable, Expression operand) {
 		MembersFinder finder = new MembersFinder(elementClass, itemVariable);
 		operand.accept(finder);
 		return finder.getMembers();
@@ -329,7 +329,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 			return true;
 		}
 
-		Collection<String> getMembers() {
+		List<String> getMembers() {
 			return members;
 		}
 	}
