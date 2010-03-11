@@ -51,8 +51,8 @@ public class QueryResult<T> implements IQueryResult<T> {
 
 	public Iterator<T> iterator() {
 		if (firstUsed) {
-			if (iterator instanceof RepeatableIterator<?>)
-				return ((RepeatableIterator<T>) iterator).getCopy();
+			if (iterator instanceof IRepeatableIterator<?>)
+				return ((IRepeatableIterator<T>) iterator).getCopy();
 			throw new IllegalStateException("The one shot iterator has been used"); //$NON-NLS-1$
 		}
 		firstUsed = true;
@@ -77,7 +77,7 @@ public class QueryResult<T> implements IQueryResult<T> {
 		// that as the provider, should an iterator be queried after
 		// this call.
 		Iterator<T> iter = iterator();
-		ArrayList<T> c = new ArrayList<T>();
+		HashSet<T> c = new HashSet<T>();
 		while (iter.hasNext())
 			c.add(iter.next());
 		iterator = RepeatableIterator.create(c);
