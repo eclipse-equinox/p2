@@ -11,8 +11,7 @@
 package org.eclipse.equinox.p2.query;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
-import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.index.*;
 
@@ -28,8 +27,13 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 
 	public ExpressionMatchQuery(Class<? extends T> matchingClass, IExpression expression, Object... parameters) {
 		this.matchingClass = matchingClass;
-		this.expression = ExpressionUtil.getFactory().<T> matchExpression(expression, parameters);
-		this.context = this.expression.createContext();
+		if (expression == ExpressionUtil.TRUE_EXPRESSION) {
+			this.expression = null;
+			this.context = null;
+		} else {
+			this.expression = ExpressionUtil.getFactory().<T> matchExpression(expression, parameters);
+			this.context = this.expression.createContext();
+		}
 		this.indexedMembers = Expression.getIndexCandidateMembers(matchingClass, ExpressionFactory.THIS, (Expression) expression);
 	}
 
@@ -46,6 +50,9 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 	}
 
 	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
+		if (expression == null)
+			return new QueryResult<T>(indexProvider.everything());
+
 		Iterator<T> iterator = null;
 		int top = indexedMembers.size();
 		for (int idx = 0; idx < top; ++idx) {
@@ -63,6 +70,9 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 	}
 
 	public IQueryResult<T> perform(Iterator<T> iterator) {
+		if (expression == null)
+			return new QueryResult<T>(iterator);
+
 		HashSet<T> result = null;
 		while (iterator.hasNext()) {
 			T value = iterator.next();
