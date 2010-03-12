@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
@@ -41,8 +40,8 @@ import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
- * This director implementation is a complete replacement for the old director application
- * found in {@link Application}. This implementation has simplified command line 
+ * This director implementation is a complete replacement for the old director application. 
+ * This implementation has simplified command line 
  * arguments, and doesn't require the user to set system property such as the
  * p2 data location. See bug 268138 for related discussion.
  */
