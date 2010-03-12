@@ -14,6 +14,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -26,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.osgi.service.datalocation.Location;
+import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
@@ -82,6 +85,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	private static final String PROFILE_EXT = ".profile"; //$NON-NLS-1$
+	private static final String PROFILE_GZ_EXT = ".profile.gz"; //$NON-NLS-1$
 	public static final String DEFAULT_STORAGE_DIR = "profileRegistry"; //$NON-NLS-1$
 	/**
 	 * Reference to Map of String(Profile id)->Profile. 
@@ -354,7 +358,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		long latestTimestamp = 0;
 		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
 			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(PROFILE_EXT) && !pathname.isDirectory();
+				return (pathname.getName().endsWith(PROFILE_GZ_EXT) || pathname.getName().endsWith(PROFILE_EXT)) && !pathname.isDirectory();
 			}
 		});
 		for (int i = 0; i < profileFiles.length; i++) {
@@ -380,13 +384,17 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		long previousTimestamp = profile.getTimestamp();
 		long currentTimestamp = System.currentTimeMillis();
-		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + PROFILE_EXT);
+		boolean shouldGzipFile = shouldGzipFile(profile);
+		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + (shouldGzipFile ? PROFILE_GZ_EXT : PROFILE_EXT));
 
 		profile.setTimestamp(currentTimestamp);
 		profile.setChanged(false);
 		OutputStream os = null;
 		try {
-			os = new BufferedOutputStream(new FileOutputStream(profileFile));
+			if (shouldGzipFile)
+				os = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(profileFile)));
+			else
+				os = new BufferedOutputStream(new FileOutputStream(profileFile));
 			Writer writer = new Writer(os);
 			writer.writeProfile(profile);
 		} catch (IOException e) {
@@ -401,6 +409,19 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				// ignore
 			}
 		}
+	}
+
+	/**
+	 * Returns whether the profile file for the given profile should be written in gzip format.
+	 */
+	private boolean shouldGzipFile(Profile profile) {
+		//check system property controlling compression
+		String format = EngineActivator.getContext().getProperty(EngineActivator.PROP_PROFILE_FORMAT);
+		if (format != null && format.equals(EngineActivator.PROFILE_FORMAT_UNCOMPRESSED))
+			return false;
+
+		//check whether the profile contains the p2 engine from 3.5.0 or earlier
+		return profile.available(new InstallableUnitQuery("org.eclipse.equinox.p2.engine", new VersionRange("[0.0.0, 1.0.5)")), new Collector(), null).isEmpty(); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private void deleteProfile(String profileId) {
@@ -452,7 +473,13 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		}
 
 		public void parse(File file) throws IOException {
-			parse(new BufferedInputStream(new FileInputStream(file)));
+			InputStream is;
+			if (file.getName().endsWith(PROFILE_GZ_EXT)) {
+				is = new BufferedInputStream(new GZIPInputStream(new FileInputStream(file)));
+			} else { // backward compatibility. SimpleProfileRegistry doesn't write non-gzipped profiles any more. 
+				is = new BufferedInputStream(new FileInputStream(file));
+			}
+			parse(is);
 		}
 
 		public synchronized void parse(InputStream stream) throws IOException {

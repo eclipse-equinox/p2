@@ -21,6 +21,17 @@ public class EngineActivator implements BundleActivator, ServiceTrackerCustomize
 	private static BundleContext context;
 	public static final String ID = "org.eclipse.equinox.p2.engine"; //$NON-NLS-1$
 
+	/**
+	 * System property describing the profile registry file format
+	 */
+	public static final String PROP_PROFILE_FORMAT = "eclipse.p2.profileFormat"; //$NON-NLS-1$
+
+	/**
+	 * Value for the PROP_PROFILE_FORMAT system property specifying raw XML file
+	 * format (used in p2 until and including 3.5.0 release).
+	 */
+	public static final String PROFILE_FORMAT_UNCOMPRESSED = "uncompressed"; //$NON-NLS-1$
+
 	private ServiceRegistration registration;
 
 	private ServiceTracker tracker;

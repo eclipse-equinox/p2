@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.engine;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 1.0.4.qualifier
+Bundle-Version: 1.0.5.qualifier
 Export-Package: org.eclipse.equinox.internal.p2.engine;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.touchpoint.natives",
  org.eclipse.equinox.internal.provisional.p2.engine;
   x-friends:="org.eclipse.equinox.p2.director.app,
