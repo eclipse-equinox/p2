@@ -29,7 +29,6 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SingletonTest.class);
 		suite.addTestSuite(UninstallTest.class);
 		suite.addTestSuite(UpdateTest.class);
-		suite.addTestSuite(DirectorAppTest.class);
 		suite.addTestSuite(DirectorApplicationTest.class);
 		return suite;
 	}
