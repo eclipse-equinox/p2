@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository
  * implementations must subclass {@link AbstractMetadataRepository} rather than 
  * implementing this interface directly.
  * </p>
- * @noimplement This interface is not intended to be implemented by clients.
+ * @noimplement This interface is not intended to be implemented by clients. Instead subclass {@link AbstractMetadataRepository}
  * @since 2.0
  */
 public interface IMetadataRepository extends IRepository<IInstallableUnit> {

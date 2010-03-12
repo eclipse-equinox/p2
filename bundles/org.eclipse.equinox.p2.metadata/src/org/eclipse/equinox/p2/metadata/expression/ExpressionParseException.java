@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.metadata.expression;
 /**
  * An exception used by an expression parser that indicates that something went wrong when
  * parsing.
+ * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
 public class ExpressionParseException extends RuntimeException {

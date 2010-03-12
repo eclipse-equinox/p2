@@ -35,6 +35,7 @@ import org.eclipse.equinox.internal.p2.metadata.*;
  * to use it as such might render a {@link UnsupportedOperationException} in case the
  * raw vector holds incompatible values. The method {@link #isOSGiCompatible()} can be used
  * to test.
+ * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
 public abstract class Version implements Comparable<Version>, Serializable {

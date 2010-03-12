@@ -22,7 +22,8 @@ import org.eclipse.equinox.p2.query.IQueryable;
  * of repositories.
  * @param <T> The type of contents contained in this repository
  * 
- * @noimplement This interface is not intended to be implemented by clients.
+ * @noimplement This interface is not intended to be implemented by clients. Instead the abstract classes implementing this interface should be used.
+ * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
  */
 public interface IRepository<T> extends IAdaptable, IQueryable<T> {

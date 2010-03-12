@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.repository.artifact;
 
 import java.util.Map;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 
 /**
  * An artifact descriptor describes an artifact stored in some artifact repository. The
@@ -19,6 +20,8 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
  * must be performed when the artifact is transferred out of the repository (such
  * as decompression, error checking, etc).
  * 
+ * @noextend This interface is not intended to be extended by clients.
+ * @noimplement This interface is not intended to be implemented by clients. Instead subclass the {@link ArtifactDescriptor} class
  * @since 2.0
  */
 public interface IArtifactDescriptor {

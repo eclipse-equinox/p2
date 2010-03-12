@@ -9,6 +9,8 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.repository.artifact;
 
+import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+
 /**
  * Describes a processing step. Processing steps are pieces of code that participate
  * in the the transfer of an artifact between artifact repositories. A step may alter
@@ -16,6 +18,8 @@ package org.eclipse.equinox.p2.repository.artifact;
  * compression), or it may perform additional checks on the transferred bytes such as 
  * checksums or signature verification.
  * 
+ * @noextend This interface is not intended to be extended by clients.
+ * @noimplement This interface is not intended to be implemented by clients. Instead subclass the {@link ProcessingStepDescriptor}.
  * @see IArtifactDescriptor#getProcessingSteps()
  * @since 2.0
  */

@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
  * 
  * @since 2.0
  */
-public class ArtifactKeyQuery extends ExpressionMatchQuery<IArtifactKey> {
+public final class ArtifactKeyQuery extends ExpressionMatchQuery<IArtifactKey> {
 	private static final IExpression matchKey = ExpressionUtil.parse("this == $0"); //$NON-NLS-1$
 	private static final IExpression matchID = ExpressionUtil.parse("id == $0"); //$NON-NLS-1$
 	private static final IExpression matchIDClassifierRange = ExpressionUtil.parse("id == $0 && version ~= $2 && (null == $1 || classifier == $1)"); //$NON-NLS-1$

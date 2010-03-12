@@ -24,6 +24,8 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  * of its children. 
  * @param <T> The type of repository content. Typically this is either {@link IInstallableUnit}
  * or {@link IArtifactKey}.
+ * @noextend This interface is not intended to be extended by clients.
+ * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
 public interface ICompositeRepository<T> extends IRepository<T> {

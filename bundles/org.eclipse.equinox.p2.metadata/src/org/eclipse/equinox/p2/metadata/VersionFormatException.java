@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.metadata;
 
 /**
  * Exception thrown when parsing Omni Version formats.
+ * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
 public class VersionFormatException extends Exception {

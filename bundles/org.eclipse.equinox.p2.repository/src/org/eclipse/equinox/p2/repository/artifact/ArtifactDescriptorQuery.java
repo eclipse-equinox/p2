@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.query.ExpressionMatchQuery;
  * 
  * @since 2.0
  */
-public class ArtifactDescriptorQuery extends ExpressionMatchQuery<IArtifactDescriptor> {
+public final class ArtifactDescriptorQuery extends ExpressionMatchQuery<IArtifactDescriptor> {
 
 	private static final IExpression descriptorMatch = ExpressionUtil.parse(//
 			"artifactKey.id == $0 && artifactKey.version ~= $1 && ($2.empty || $2.all(x | properties[x.key] == x.value))"); //$NON-NLS-1$

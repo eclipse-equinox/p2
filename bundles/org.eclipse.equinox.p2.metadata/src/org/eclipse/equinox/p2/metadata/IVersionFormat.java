@@ -15,6 +15,8 @@ package org.eclipse.equinox.p2.metadata;
  * is also a parser for versions of that format.</p>
  * <p>An instance of IVersionFormat is immutable and thus thread safe. The parser
  * does not maintain any state.</p>
+ * @noextend This interface is not intended to be extended by clients.
+ * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
 public interface IVersionFormat {

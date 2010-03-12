@@ -15,6 +15,8 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
 /**
  * An artifact repository whose artifacts are available in the local file system.
+ * @noextend This interface is not intended to be extended by clients.
+ * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
 public interface IFileArtifactRepository extends IArtifactRepository {

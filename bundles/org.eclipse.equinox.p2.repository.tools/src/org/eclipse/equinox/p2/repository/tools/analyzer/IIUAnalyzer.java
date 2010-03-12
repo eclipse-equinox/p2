@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients.
  * 
- * Clients are encouraged to extend IUAnalysis, an abstract class that implements
+ * Clients are encouraged to extend {@link IUAnalyzer}, an abstract class that implements
  * this interface.
  * 
  * @since 2.0

@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.repository.IRepositoryManager;
  * for a general description of the characteristics of repository managers.
  * 
  * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
  */
 public interface IMetadataRepositoryManager extends IRepositoryManager<IInstallableUnit> {

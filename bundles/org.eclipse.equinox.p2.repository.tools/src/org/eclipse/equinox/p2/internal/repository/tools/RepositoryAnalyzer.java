@@ -7,11 +7,13 @@
 * Contributors:
 *   EclipseSource - initial API and implementation
 ******************************************************************************/
-package org.eclipse.equinox.p2.repository.tools.analyzer;
+package org.eclipse.equinox.p2.internal.repository.tools;
+
+import org.eclipse.equinox.p2.repository.tools.analyzer.IIUAnalyzer;
+import org.eclipse.equinox.p2.repository.tools.analyzer.IUAnalyzer;
 
 import java.util.Iterator;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.internal.repository.tools.Activator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;

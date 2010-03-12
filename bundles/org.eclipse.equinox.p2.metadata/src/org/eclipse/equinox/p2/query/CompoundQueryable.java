@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
  * a mechanism for querying the entire set.
  * @since 2.0
  */
-public class CompoundQueryable<T> extends IndexProvider<T> {
+public final class CompoundQueryable<T> extends IndexProvider<T> {
 
 	static class PassThroughIndex<T> implements IIndex<T> {
 		private final Iterator<T> iterator;

@@ -26,6 +26,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
  * </p>
  * @param <T> the type of contents in the repositories controlled by this manager
  * @noimplement This interface is not intended to be implemented by clients.
+ * @noextend This interface is not intended to be extended by clients.
  * @since 2.0
  */
 public interface IRepositoryManager<T> extends IQueryable<T> {

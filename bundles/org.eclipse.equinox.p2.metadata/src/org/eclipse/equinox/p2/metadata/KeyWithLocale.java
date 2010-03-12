@@ -15,9 +15,10 @@ import java.util.Locale;
 
 /**
  * A key that can be used to extract a localized property for a specified Locale
+ * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
-public class KeyWithLocale implements Serializable {
+public final class KeyWithLocale implements Serializable {
 	private static final long serialVersionUID = 8818242663547645188L;
 	private final String key;
 	private final Locale locale;

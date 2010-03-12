@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.metadata.expression.*;
  * A factory class for instantiating various p2 metadata objects.
  * @since 2.0
  */
-public class MetadataFactory {
+public final class MetadataFactory {
 	/**
 	 * A description containing information about an installable unit. Once created,
 	 * installable units are immutable. This description class allows a client to build

@@ -16,12 +16,18 @@ import org.eclipse.equinox.internal.p2.metadata.expression.parser.LDAPFilterPars
 
 /**
  * Global access to factory, parser, and methods for introspection
+ * @noextend This class is not intended to be subclassed by clients.
+ * @noinstantiate This class is not intended to be instantiated by clients.
  * @since 2.0
  */
-public abstract class ExpressionUtil {
+public final class ExpressionUtil {
 	private static final LDAPFilterParser ldapFilterParser = new LDAPFilterParser(ExpressionFactory.INSTANCE);
 	public static final IExpression TRUE_EXPRESSION = getFactory().constant(Boolean.TRUE);
 	public static final IExpression FALSE_EXPRESSION = getFactory().constant(Boolean.FALSE);
+
+	private ExpressionUtil() {
+		//We don't want to ppl to instantiate this class
+	}
 
 	/**
 	 * Returns the global expression factory
