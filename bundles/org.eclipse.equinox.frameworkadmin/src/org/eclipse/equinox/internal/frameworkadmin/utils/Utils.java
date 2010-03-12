@@ -61,10 +61,8 @@ public class Utils {
 		ZipFile jarFile = null;
 		try {
 			try {
-				String fileExtention = bundleLocation.getName();
-				fileExtention = fileExtention.substring(fileExtention.lastIndexOf('.') + 1);
 				// Handle a JAR'd bundle
-				if ("jar".equalsIgnoreCase(fileExtention) && bundleLocation.isFile()) { //$NON-NLS-1$
+				if (bundleLocation.isFile()) {
 					jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
 					ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
 					if (manifestEntry != null) {
