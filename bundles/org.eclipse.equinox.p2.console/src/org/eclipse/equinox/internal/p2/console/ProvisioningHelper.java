@@ -34,7 +34,7 @@ import org.eclipse.osgi.service.environment.EnvironmentInfo;
 
 public class ProvisioningHelper {
 
-	public static IMetadataRepository addMetadataRepository(IProvisioningAgent agent, URI location) {
+	static IMetadataRepository addMetadataRepository(IProvisioningAgent agent, URI location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("No metadata repository manager found");
@@ -53,7 +53,7 @@ public class ProvisioningHelper {
 		}
 	}
 
-	public static IMetadataRepository getMetadataRepository(IProvisioningAgent agent, URI location) {
+	static IMetadataRepository getMetadataRepository(IProvisioningAgent agent, URI location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("No metadata repository manager found");
@@ -64,14 +64,14 @@ public class ProvisioningHelper {
 		}
 	}
 
-	public static void removeMetadataRepository(IProvisioningAgent agent, URI location) {
+	static void removeMetadataRepository(IProvisioningAgent agent, URI location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			throw new IllegalStateException("No metadata repository manager found");
 		manager.removeRepository(location);
 	}
 
-	public static IArtifactRepository addArtifactRepository(IProvisioningAgent agent, URI location) {
+	static IArtifactRepository addArtifactRepository(IProvisioningAgent agent, URI location) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			// TODO log here
@@ -90,7 +90,7 @@ public class ProvisioningHelper {
 		}
 	}
 
-	public static void removeArtifactRepository(IProvisioningAgent agent, URI location) {
+	static void removeArtifactRepository(IProvisioningAgent agent, URI location) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			// TODO log here
@@ -98,7 +98,7 @@ public class ProvisioningHelper {
 		manager.removeRepository(location);
 	}
 
-	public static IProfile addProfile(IProvisioningAgent agent, String profileId, Map<String, String> properties) throws ProvisionException {
+	static IProfile addProfile(IProvisioningAgent agent, String profileId, Map<String, String> properties) throws ProvisionException {
 		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			return null;
@@ -118,21 +118,21 @@ public class ProvisioningHelper {
 		return profileRegistry.addProfile(profileId, profileProperties);
 	}
 
-	public static void removeProfile(IProvisioningAgent agent, String profileId) {
+	static void removeProfile(IProvisioningAgent agent, String profileId) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			return;
 		profileRegistry.removeProfile(profileId);
 	}
 
-	public static IProfile[] getProfiles(IProvisioningAgent agent) {
+	static IProfile[] getProfiles(IProvisioningAgent agent) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			return new IProfile[0];
 		return profileRegistry.getProfiles();
 	}
 
-	public static IProfile getProfile(IProvisioningAgent agent, String id) {
+	static IProfile getProfile(IProvisioningAgent agent, String id) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry == null)
 			return null;
@@ -149,7 +149,7 @@ public class ProvisioningHelper {
 	 * @param monitor A progress monitor, or <code>null</code>
 	 * @return The IUs that match the query
 	 */
-	public static IQueryResult<IInstallableUnit> getInstallableUnits(IProvisioningAgent agent, URI location, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+	static IQueryResult<IInstallableUnit> getInstallableUnits(IProvisioningAgent agent, URI location, IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		IQueryable<IInstallableUnit> queryable = null;
 		if (location == null) {
 			queryable = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
@@ -161,7 +161,7 @@ public class ProvisioningHelper {
 		return Collector.emptyCollector();
 	}
 
-	public static URI[] getMetadataRepositories(IProvisioningAgent agent) {
+	static URI[] getMetadataRepositories(IProvisioningAgent agent) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			// TODO log here
@@ -175,7 +175,7 @@ public class ProvisioningHelper {
 	/**
 	 * Install the described IU
 	 */
-	public static IStatus install(IProvisioningAgent agent, String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
+	static IStatus install(IProvisioningAgent agent, String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
 		IQueryResult<IInstallableUnit> units = getInstallableUnits(agent, (URI) null, QueryUtil.createIUQuery(unitId, Version.create(version)), progress);
@@ -205,7 +205,7 @@ public class ProvisioningHelper {
 		return PlanExecutionHelper.executePlan(result, engine, context, progress);
 	}
 
-	public static URI[] getArtifactRepositories(IProvisioningAgent agent) {
+	static URI[] getArtifactRepositories(IProvisioningAgent agent) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (manager == null)
 			// TODO log here
@@ -216,7 +216,7 @@ public class ProvisioningHelper {
 		return null;
 	}
 
-	public static IArtifactRepository getArtifactRepository(IProvisioningAgent agent, URI repoURL) {
+	static IArtifactRepository getArtifactRepository(IProvisioningAgent agent, URI repoURL) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		try {
 			if (manager != null)
@@ -227,7 +227,7 @@ public class ProvisioningHelper {
 		return null;
 	}
 
-	public static long[] getProfileTimestamps(IProvisioningAgent agent, String profileId) {
+	static long[] getProfileTimestamps(IProvisioningAgent agent, String profileId) {
 		if (profileId == null) {
 			profileId = IProfileRegistry.SELF;
 		}
@@ -237,7 +237,7 @@ public class ProvisioningHelper {
 		return profileRegistry.listProfileTimestamps(profileId);
 	}
 
-	public static IStatus revertToPreviousState(IProvisioningAgent agent, IProfile profile, long revertToPreviousState) throws ProvisionException {
+	static IStatus revertToPreviousState(IProvisioningAgent agent, IProfile profile, long revertToPreviousState) throws ProvisionException {
 		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new ProvisionException("No p2 engine found.");
@@ -275,7 +275,7 @@ public class ProvisioningHelper {
 	/**
 	 * Install the described IU
 	 */
-	public static IStatus uninstall(IProvisioningAgent agent, String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
+	static IStatus uninstall(IProvisioningAgent agent, String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
 		IQueryResult<IInstallableUnit> units = profile.query(QueryUtil.createIUQuery(unitId, Version.create(version)), progress);
