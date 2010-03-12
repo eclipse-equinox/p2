@@ -117,7 +117,9 @@ public class EclipseMarkSetProvider extends MarkSetProvider {
 	private List<IArtifactKey> findCorrespondinArtifacts(BundleInfo[] bis, IArtifactRepository repo) {
 		ArrayList<IArtifactKey> toRetain = new ArrayList<IArtifactKey>();
 		for (int i = 0; i < bis.length; i++) {
-			IArtifactKey match = searchArtifact(bis[i].getSymbolicName(), Version.create(bis[i].getVersion()), ARTIFACT_CLASSIFIER_OSGI_BUNDLE, repo);
+			// if version is "0.0.0", we will use null to find all versions, see bug 305710
+			Version version = BundleInfo.EMPTY_VERSION.equals(bis[i].getVersion()) ? null : Version.create(bis[i].getVersion());
+			IArtifactKey match = searchArtifact(bis[i].getSymbolicName(), version, ARTIFACT_CLASSIFIER_OSGI_BUNDLE, repo);
 			if (match != null)
 				toRetain.add(match);
 		}
