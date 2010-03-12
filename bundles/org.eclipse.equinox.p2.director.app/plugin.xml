@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
-	<extension id="application" point="org.eclipse.core.runtime.applications"> 
-		<application> 
-			<run class="org.eclipse.equinox.internal.p2.director.app.Application"/> 
-		</application> 
-	</extension>
 	<extension id="org.eclipse.equinox.p2.director" point="org.eclipse.core.runtime.applications"> 
 		<application
         cardinality="singleton-global"
@@ -14,9 +9,6 @@
 			<run class="org.eclipse.equinox.internal.p2.director.app.DirectorApplication"/> 
 		</application> 
 	</extension>
-	<extension id="product" point="org.eclipse.core.runtime.products">
-		<product application="org.eclipse.equinox.p2.director.app.application" name="Equinox Provisioning Director" />
-	</extension> 
 	<extension id="org.eclipse.equinox.p2.director.product" point="org.eclipse.core.runtime.products">
 		<product application="org.eclipse.equinox.p2.director" name="Equinox P2 Director" />
 	</extension> 

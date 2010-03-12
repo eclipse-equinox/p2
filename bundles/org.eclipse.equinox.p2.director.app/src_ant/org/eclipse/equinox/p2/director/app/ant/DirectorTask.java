@@ -159,11 +159,11 @@ public class DirectorTask extends Task implements ILog {
 			result.add(nl);
 		}
 		if (list) {
-			result.add(Application.COMMAND_NAMES[Application.COMMAND_LIST]);
+			result.add("-list"); //$NON-NLS-1$
 		}
 
 		if (uninstallIU != null) {
-			result.add(Application.COMMAND_NAMES[Application.COMMAND_UNINSTALL]);
+			result.add("-uninstallIU"); //$NON-NLS-1$
 			result.add(uninstallIU);
 		}
 		return result.toArray(new String[result.size()]);
