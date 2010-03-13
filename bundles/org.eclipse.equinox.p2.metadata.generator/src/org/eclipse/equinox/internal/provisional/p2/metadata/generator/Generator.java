@@ -661,7 +661,7 @@ public class Generator {
 			}
 			bundle.setVersion(configuredIU.getVersion().toString());
 			IMatchExpression filter = configuredIU == null ? null : configuredIU.getFilter();
-			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.create(bundle.getVersion()), false, bundle, info.getFlavor(), filter == null ? null : filter.toString());
+			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), Version.create(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
 			//the configuration unit should share the same platform filter as the IU being configured.
 			if (cu != null) {
 				result.rootIUs.add(cu);
