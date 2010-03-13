@@ -23,9 +23,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.p2.metadata.BasicVersion;
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.LocalizationHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.SiteCategory;
@@ -202,7 +200,12 @@ public class MetadataGeneratorHelper {
 	/**
 	 * @deprecated moved to BundlesAction
 	 */
-	public static IInstallableUnit createBundleConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
+	public static IInstallableUnit createBundleConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String ldapFilter) {
+		IMatchExpression filter = ldapFilter == null ? null : InstallableUnit.parseFilter(ldapFilter);
+		return createBundleConfigurationUnit(iuId, iuVersion, isBundleFragment, configInfo, configurationFlavor, filter);
+	}
+
+	public static IInstallableUnit createBundleConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, IMatchExpression filter) {
 		if (configInfo == null)
 			return null;
 
