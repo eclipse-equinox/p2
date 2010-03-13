@@ -42,7 +42,7 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	public static int LOCK_UNINSTALL = 1 << 0;
 	/**
 	 * Constant used to indicate that an installable unit is locked so that it may
-	 * not be updated. updates.
+	 * not be updated.
 	 * @see #PROP_PROFILE_LOCKED_IU
 	 */
 	public static int LOCK_UPDATE = 1 << 1;
