@@ -51,11 +51,11 @@ public class DiscoveryResources {
 	private FontDescriptor createFontDescriptor(int style, float heightMultiplier) {
 		Font baseFont = JFaceResources.getDialogFont();
 		FontData[] fontData = baseFont.getFontData();
-		for (FontData data : fontData) {
-			data.setStyle(data.getStyle() | style);
-			data.height = data.height * heightMultiplier;
+		FontData[] newFontData = new FontData[fontData.length];
+		for (int i = 0; i < newFontData.length; i++) {
+			newFontData[i] = new FontData(fontData[i].getName(), (int) (fontData[i].getHeight() * heightMultiplier), fontData[i].getStyle() | style);
 		}
-		return FontDescriptor.createFrom(fontData);
+		return FontDescriptor.createFrom(newFontData);
 	}
 
 	public void dispose() {
