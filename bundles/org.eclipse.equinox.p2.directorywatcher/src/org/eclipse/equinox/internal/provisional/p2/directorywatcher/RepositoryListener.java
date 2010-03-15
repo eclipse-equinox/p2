@@ -377,7 +377,13 @@ public class RepositoryListener extends DirectoryChangeListener {
 				if (!(candidate instanceof IInstallableUnit))
 					return false;
 				IInstallableUnit iu = (IInstallableUnit) candidate;
-				File iuFile = new File(iu.getProperty(FILE_NAME));
+				String filename = iu.getProperty(FILE_NAME);
+				if (filename == null) {
+					String message = NLS.bind(Messages.filename_missing, "installable unit", iu.getId()); //$NON-NLS-1$
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
+					return false;
+				}
+				File iuFile = new File(filename);
 				return removedFiles.contains(iuFile);
 			}
 		};
@@ -394,9 +400,15 @@ public class RepositoryListener extends DirectoryChangeListener {
 			IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key);
 			for (int i = 0; i < descriptors.length; i++) {
 				ArtifactDescriptor descriptor = (ArtifactDescriptor) descriptors[i];
-				File artifactFile = new File(descriptor.getRepositoryProperty(FILE_NAME));
-				if (removedFiles.contains(artifactFile))
-					artifactRepository.removeDescriptor(descriptor);
+				String filename = descriptor.getRepositoryProperty(FILE_NAME);
+				if (filename == null) {
+					String message = NLS.bind(Messages.filename_missing, "artifact", descriptor.getArtifactKey()); //$NON-NLS-1$
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
+				} else {
+					File artifactFile = new File(filename);
+					if (removedFiles.contains(artifactFile))
+						artifactRepository.removeDescriptor(descriptor);
+				}
 			}
 		}
 
@@ -410,9 +422,15 @@ public class RepositoryListener extends DirectoryChangeListener {
 			Collector ius = metadataRepository.query(InstallableUnitQuery.ANY, new Collector(), null);
 			for (Iterator it = ius.iterator(); it.hasNext();) {
 				IInstallableUnit iu = (IInstallableUnit) it.next();
-				File iuFile = new File(iu.getProperty(FILE_NAME));
-				Long iuLastModified = new Long(iu.getProperty(FILE_LAST_MODIFIED));
-				currentFiles.put(iuFile, iuLastModified);
+				String filename = iu.getProperty(FILE_NAME);
+				if (filename == null) {
+					String message = NLS.bind(Messages.filename_missing, "installable unit", iu.getId()); //$NON-NLS-1$
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
+				} else {
+					File iuFile = new File(filename);
+					Long iuLastModified = new Long(iu.getProperty(FILE_LAST_MODIFIED));
+					currentFiles.put(iuFile, iuLastModified);
+				}
 			}
 		}
 
@@ -423,9 +441,15 @@ public class RepositoryListener extends DirectoryChangeListener {
 				IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key);
 				for (int i = 0; i < descriptors.length; i++) {
 					ArtifactDescriptor descriptor = (ArtifactDescriptor) descriptors[i];
-					File artifactFile = new File(descriptor.getRepositoryProperty(FILE_NAME));
-					Long artifactLastModified = new Long(descriptor.getRepositoryProperty(FILE_LAST_MODIFIED));
-					currentFiles.put(artifactFile, artifactLastModified);
+					String filename = descriptor.getRepositoryProperty(FILE_NAME);
+					if (filename == null) {
+						String message = NLS.bind(Messages.filename_missing, "artifact", descriptor.getArtifactKey()); //$NON-NLS-1$
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
+					} else {
+						File artifactFile = new File(filename);
+						Long artifactLastModified = new Long(descriptor.getRepositoryProperty(FILE_LAST_MODIFIED));
+						currentFiles.put(artifactFile, artifactLastModified);
+					}
 				}
 			}
 		}

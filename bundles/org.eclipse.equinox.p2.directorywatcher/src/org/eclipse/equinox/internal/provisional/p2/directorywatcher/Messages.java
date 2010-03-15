@@ -1,3 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: 
+ * IBM Corporation - initial implementation and ideas 
+ ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
 import org.eclipse.osgi.util.NLS;
@@ -9,6 +18,7 @@ public class Messages extends NLS {
 	public static String error_processing;
 	public static String failed_create_artifact_repo;
 	public static String failed_create_metadata_repo;
+	public static String filename_missing;
 	public static String metadata_repo_manager_not_registered;
 	public static String multiple_bundle_ius;
 	public static String null_folder;
