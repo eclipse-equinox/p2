@@ -25,8 +25,8 @@ Export-Package: org.eclipse.equinox.internal.p2.director;x-friends:="org.eclipse
    org.eclipse.pde.ui",
  org.eclipse.equinox.p2.planner;version="2.0.0"
 Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.3.0,4.0.0)",
- org.sat4j.core;bundle-version="2.1.0",
- org.sat4j.pb;bundle-version="2.1.0",
+ org.sat4j.core;bundle-version="2.2.0",
+ org.sat4j.pb;bundle-version="2.2.0",
  org.eclipse.core.jobs;bundle-version="3.3.0",
  org.eclipse.equinox.p2.metadata
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
