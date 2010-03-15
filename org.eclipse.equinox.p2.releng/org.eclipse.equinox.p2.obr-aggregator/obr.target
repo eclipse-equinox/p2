@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.6"?>
+
+<target name="p2">
+<locations>
+<location includeAllPlatforms="false" includeMode="planner" type="InstallableUnit">
+<unit id="org.eclipse.sdk.ide" version="3.6.0.I20100312-1448"/>
+<repository location="http://download.eclipse.org/eclipse/updates/3.6-I-builds"/>
+</location>
+</locations>
+<includeBundles>
+<plugin id="org.eclipse.ecf.filetransfer"/>
+<plugin id="org.sat4j.core"/>
+<plugin id="org.eclipse.core.net"/>
+<plugin id="org.eclipse.ecf.provider.filetransfer.ssl"/>
+<plugin id="org.eclipse.ecf.provider.filetransfer"/>
+<plugin id="org.eclipse.osgi"/>
+<plugin id="org.eclipse.osgi.services"/>
+<plugin id="org.eclipse.ecf"/>
+<plugin id="org.eclipse.core.jobs"/>
+<plugin id="org.eclipse.equinox.preferences"/>
+<plugin id="org.eclipse.ecf.ssl"/>
+<plugin id="org.eclipse.ecf.identity"/>
+<plugin id="org.eclipse.equinox.security"/>
+<plugin id="org.eclipse.equinox.common"/>
+<plugin id="org.eclipse.equinox.registry"/>
+<plugin id="org.sat4j.pb"/>
+<plugin id="org.eclipse.equinox.ds"/>
+<plugin id="org.eclipse.equinox.security.macosx"/>
+</includeBundles>
+</target>
