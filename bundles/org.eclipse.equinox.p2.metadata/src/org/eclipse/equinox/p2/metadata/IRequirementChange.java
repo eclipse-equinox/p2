@@ -18,9 +18,23 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
  */
 public interface IRequirementChange {
 
+	/**
+	 * 
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
 	public IRequiredCapability applyOn();
 
+	/**
+	 * 
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+
 	public IRequiredCapability newValue();
+
+	/**
+	 * 
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
 
 	public boolean matches(IRequiredCapability toMatch);
 
