@@ -335,6 +335,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		internal.setRepository(this);
 		if (isFolderBased(descriptor))
 			internal.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
+
+		//clear out the UUID if we aren't using the blobstore.
+		if (flatButPackedEnabled(descriptor) && internal.getProperty(ARTIFACT_UUID) != null) {
+			internal.setProperty(ARTIFACT_UUID, null);
+		}
+
 		if (descriptor instanceof SimpleArtifactDescriptor) {
 			Map<String, String> repoProperties = ((SimpleArtifactDescriptor) descriptor).getRepositoryProperties();
 			for (Map.Entry<String, String> entry : repoProperties.entrySet()) {
@@ -666,14 +672,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized URI getLocation(IArtifactDescriptor descriptor) {
+		if (flatButPackedEnabled(descriptor)) {
+			return getLocationForPackedButFlatArtifacts(descriptor);
+		}
+
 		// if the artifact has a uuid then use it
 		String uuid = descriptor.getProperty(ARTIFACT_UUID);
 		if (uuid != null)
 			return blobStore.fileFor(bytesFromHexString(uuid));
-
-		if (flatButPackedEnabled(descriptor)) {
-			return getLocationForPackedButFlatArtifacts(descriptor);
-		}
 
 		try {
 			// if the artifact is just a reference then return the reference location
