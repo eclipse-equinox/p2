@@ -29,6 +29,7 @@ public class FeaturePatchTest extends AbstractReconcilerTest {
 	 */
 	public static Test suite() {
 		TestSuite suite = new ReconcilerTestSuite();
+		suite.setName(FeaturePatchTest.class.getName());
 		suite.addTest(new FeaturePatchTest("testPatchingDroppedInFeature"));
 		suite.addTest(new FeaturePatchTest("testAddBundle"));
 		return suite;

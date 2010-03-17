@@ -40,6 +40,7 @@ public class ConfigurationTests extends AbstractReconcilerTest {
 	 */
 	public static Test suite() {
 		TestSuite suite = new ReconcilerTestSuite();
+		suite.setName(ConfigurationTests.class.getName());
 		suite.addTest(new ConfigurationTests("testDiscoverOne"));
 		suite.addTest(new ConfigurationTests("test_247095"));
 		suite.addTest(new ConfigurationTests("test_247095b"));
