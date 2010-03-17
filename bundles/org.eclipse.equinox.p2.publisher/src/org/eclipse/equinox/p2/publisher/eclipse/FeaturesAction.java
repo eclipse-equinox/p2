@@ -548,7 +548,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	private VersionRange getVersionRange(FeatureEntry entry) {
+	protected VersionRange getVersionRange(FeatureEntry entry) {
 		String versionSpec = entry.getVersion();
 		if (versionSpec == null)
 			return VersionRange.emptyRange;
