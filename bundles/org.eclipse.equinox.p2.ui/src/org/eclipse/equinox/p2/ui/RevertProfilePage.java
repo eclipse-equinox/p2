@@ -10,22 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import org.eclipse.compare.*;
-import org.eclipse.compare.structuremergeviewer.Differencer;
-import org.eclipse.compare.structuremergeviewer.IStructureComparator;
+import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.CopyUtils;
 import org.eclipse.equinox.internal.p2.ui.dialogs.InstalledIUGroup;
-import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.p2.ui.model.ProfileSnapshots;
+import org.eclipse.equinox.internal.p2.ui.model.RollbackProfileElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.jface.action.Action;
@@ -36,7 +31,6 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.*;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -61,12 +55,11 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 	private static final int REVERT_ID = IDialogConstants.CLIENT_ID;
 	private static final int DELETE_ID = IDialogConstants.CLIENT_ID + 1;
-	private static final int COMPARE_ID = IDialogConstants.CLIENT_ID + 2;
 	TableViewer configsViewer;
 	TreeViewer configContentsViewer;
 	IUDetailsLabelProvider labelProvider;
 	IAction revertAction;
-	Button revertButton, deleteButton, compareButton;
+	Button revertButton, deleteButton;
 	String profileId;
 	AbstractContributionFactory factory;
 	Text detailsArea;
@@ -80,9 +73,6 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	public void createPageButtons(Composite parent) {
 		if (profileId == null)
 			return;
-		compareButton = createButton(parent, COMPARE_ID, ProvUIMessages.RevertProfilePage_CompareLabel);
-		compareButton.setToolTipText(ProvUIMessages.RevertProfilePage_CompareTooltip);
-		compareButton.setEnabled(computeCompareEnablement());
 		deleteButton = createButton(parent, DELETE_ID, ProvUIMessages.RevertProfilePage_Delete);
 		deleteButton.setToolTipText(ProvUIMessages.RevertProfilePage_DeleteTooltip);
 		deleteButton.setEnabled(computeDeleteEnablement());
@@ -232,16 +222,13 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			case REVERT_ID :
 				revertAction.run();
 				break;
-			case COMPARE_ID :
-				compare();
-				break;
 			case DELETE_ID :
 				deleteSelectedSnapshots();
 				break;
 		}
 	}
 
-	void handleSelectionChanged(IStructuredSelection selection) {
+	protected void handleSelectionChanged(IStructuredSelection selection) {
 		if (!selection.isEmpty()) {
 			if (selection.size() == 1) {
 				final Object selected = selection.getFirstElement();
@@ -257,8 +244,6 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 						revertButton.setEnabled(isNotCurrentProfile);
 					if (deleteButton != null)
 						deleteButton.setEnabled(isNotCurrentProfile);
-					if (compareButton != null)
-						compareButton.setEnabled(false);
 					return;
 				}
 			} else {
@@ -269,7 +254,6 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 				}
 				configContentsViewer.setInput(null);
 				deleteButton.setEnabled(computeDeleteEnablement());
-				compareButton.setEnabled(computeCompareEnablement());
 				return;
 			}
 		}
@@ -297,19 +281,6 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		return okToDelete;
 	}
 
-	boolean computeCompareEnablement() {
-		// compare is enabled if there are two elements selected
-		Object[] selection = ((IStructuredSelection) configsViewer.getSelection()).toArray();
-		if (selection.length == 2) {
-			for (int i = 0; i < selection.length; i++) {
-				if (!(selection[i] instanceof RollbackProfileElement))
-					return false;
-			}
-			return true;
-		}
-		return false;
-	}
-
 	private void setTreeColumns(Tree tree) {
 		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
 		tree.setHeaderVisible(true);
@@ -327,21 +298,6 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		if (selected != null && selected instanceof RollbackProfileElement)
 			return ((RollbackProfileElement) selected).getProfileSnapshot(new NullProgressMonitor());
 		return null;
-	}
-
-	private RollbackProfileElement[] getRollbackProfileElementsToCompare() {
-		// expecting two items selected
-		RollbackProfileElement[] result = new RollbackProfileElement[2];
-		IStructuredSelection selection = ((IStructuredSelection) configsViewer.getSelection());
-		int i = 0;
-		for (Object selected : selection.toList()) {
-			if (selected != null && selected instanceof RollbackProfileElement) {
-				result[i++] = (RollbackProfileElement) selected;
-			}
-			if (i == 2)
-				break;
-		}
-		return result;
 	}
 
 	boolean revert() {
@@ -388,118 +344,6 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 			}
 		}
 		return reverted;
-	}
-
-	void compare() {
-		final RollbackProfileElement[] rpe = getRollbackProfileElementsToCompare();
-		CompareUI.openCompareDialog(new ProfileCompareEditorInput(rpe));
-	}
-
-	private class ProfileCompareEditorInput extends CompareEditorInput {
-		private Object root;
-		private ProvElementNode l;
-		private ProvElementNode r;
-
-		public ProfileCompareEditorInput(RollbackProfileElement[] rpe) {
-			super(new CompareConfiguration());
-			Assert.isTrue(rpe.length == 2);
-			l = new ProvElementNode(rpe[0]);
-			r = new ProvElementNode(rpe[1]);
-		}
-
-		protected Object prepareInput(IProgressMonitor monitor) {
-			initLabels();
-			Differencer d = new Differencer();
-			root = d.findDifferences(false, monitor, null, null, l, r);
-			return root;
-		}
-
-		private void initLabels() {
-			CompareConfiguration cc = getCompareConfiguration();
-			cc.setLeftEditable(false);
-			cc.setRightEditable(false);
-			cc.setLeftLabel(l.getName());
-			cc.setLeftImage(l.getImage());
-			cc.setRightLabel(r.getName());
-			cc.setRightImage(r.getImage());
-		}
-
-		public String getOKButtonLabel() {
-			return IDialogConstants.OK_LABEL;
-		}
-	}
-
-	private class ProvElementNode implements IStructureComparator, ITypedElement, IStreamContentAccessor {
-		private ProvElement pe;
-		private IInstallableUnit iu;
-		final static String BLANK = ""; //$NON-NLS-1$
-		private String id = BLANK;
-
-		public ProvElementNode(Object input) {
-			pe = (ProvElement) input;
-			iu = ProvUI.getAdapter(pe, IInstallableUnit.class);
-			if (iu != null) {
-				id = iu.getId();
-			}
-		}
-
-		public Object[] getChildren() {
-			Set<ProvElementNode> children = new HashSet<ProvElementNode>();
-			if (pe instanceof RollbackProfileElement) {
-				Object[] c = ((RollbackProfileElement) pe).getChildren(null);
-				for (int i = 0; i < c.length; i++) {
-					children.add(new ProvElementNode(c[i]));
-				}
-			} else if (pe instanceof InstalledIUElement) {
-				Object[] c = ((InstalledIUElement) pe).getChildren(null);
-				for (int i = 0; i < c.length; i++) {
-					children.add(new ProvElementNode(c[i]));
-				}
-			}
-			return children.toArray();
-		}
-
-		/**
-		 * Implementation based on <code>id</code>.
-		 * @param other the object to compare this <code>ProvElementNode</code> against.
-		 * @return <code>true</code> if the <code>ProvElementNodes</code>are equal; <code>false</code> otherwise.
-		 */
-		public boolean equals(Object other) {
-			if (other instanceof ProvElementNode)
-				return id.equals(((ProvElementNode) other).id);
-			return super.equals(other);
-		}
-
-		/**
-		 * Implementation based on <code>id</code>.
-		 * @return a hash code for this object.
-		 */
-		public int hashCode() {
-			return id.hashCode();
-		}
-
-		public Image getImage() {
-			return pe.getImage(null);
-		}
-
-		public String getName() {
-			if (iu != null) {
-				return iu.getProperty(IInstallableUnit.PROP_NAME, null);
-			}
-			return pe.getLabel(null);
-		}
-
-		public String getType() {
-			return ITypedElement.UNKNOWN_TYPE;
-		}
-
-		public InputStream getContents() {
-			String contents = BLANK;
-			if (iu != null) {
-				contents = iu.getVersion().toString();
-			}
-			return new ByteArrayInputStream(contents.getBytes());
-		}
 	}
 
 	/*
@@ -564,4 +408,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	ProvisioningUI getProvisioningUI() {
 		return ProvisioningUI.getDefaultUI();
 	}
+
+	protected IStructuredSelection getSelection() {
+		return (IStructuredSelection) configsViewer.getSelection();
+	}
+
 }
