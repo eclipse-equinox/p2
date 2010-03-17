@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.sdk.RevertProfilePageWithCompare;
 import org.eclipse.equinox.internal.p2.ui.viewers.ProvElementContentProvider;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 import org.eclipse.equinox.p2.ui.RevertProfilePage;
@@ -42,6 +43,21 @@ public class InstallationHistoryPageTest extends AbstractProvisioningUITest {
 		protected Control createDialogArea(Composite parent) {
 			Composite composite = new Composite(parent, SWT.NONE);
 			page = new RevertProfilePage();
+			page.createControl(composite);
+			return composite;
+		}
+	}
+
+	class TestDialog2 extends Dialog {
+		RevertProfilePageWithCompare page;
+
+		TestDialog2() {
+			super(ProvUI.getDefaultParentShell());
+		}
+
+		protected Control createDialogArea(Composite parent) {
+			Composite composite = new Composite(parent, SWT.NONE);
+			page = new RevertProfilePageWithCompare();
 			page.createControl(composite);
 			return composite;
 		}
@@ -109,6 +125,16 @@ public class InstallationHistoryPageTest extends AbstractProvisioningUITest {
 		dialog.setBlockOnOpen(false);
 		dialog.open();
 		dialog.close();
+	}
 
+	/**
+	 * Tests the dialog - just launches it for now
+	 */
+	public void testDialogWithCompare() {
+		TestDialog2 dialog = new TestDialog2();
+		dialog.setBlockOnOpen(false);
+		dialog.open();
+
+		dialog.close();
 	}
 }
