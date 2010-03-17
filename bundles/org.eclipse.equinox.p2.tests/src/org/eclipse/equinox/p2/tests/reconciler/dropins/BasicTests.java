@@ -56,7 +56,7 @@ public class BasicTests extends AbstractReconcilerTest {
 		suite.addTest(new BasicTests("testSimpleRepo"));
 
 		// suite.addTest(new BasicTests("test_251167"));
-		// suite.addTest(new BasicTests("test_p2Repo"));
+		suite.addTest(new BasicTests("test_p2Repo"));
 		suite.addTest(new BasicTests("testDisabledBundleInLink"));
 
 		return suite;
