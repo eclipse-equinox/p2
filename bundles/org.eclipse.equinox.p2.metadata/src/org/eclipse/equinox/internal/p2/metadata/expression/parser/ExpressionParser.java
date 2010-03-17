@@ -95,8 +95,7 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 			assertToken(TOKEN_END);
 			return expr;
 		} finally {
-			if (thisVariable != null)
-				popVariable(); // pop item
+			clear(); // pop all items
 		}
 	}
 
@@ -114,7 +113,7 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 			assertToken(TOKEN_END);
 			return expr;
 		} finally {
-			popVariable(); // pop context
+			clear(); // pop all items
 		}
 	}
 
