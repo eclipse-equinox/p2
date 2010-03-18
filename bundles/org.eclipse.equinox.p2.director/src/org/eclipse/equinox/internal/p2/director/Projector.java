@@ -221,7 +221,7 @@ public class Projector {
 		if (newRoots.isEmpty()) {
 			transitiveClosure = CollectionUtils.emptySet();
 		} else {
-			IQueryable<IInstallableUnit> queryable = new Slicer(picker, selectionContext, false).slice(newRoots.toArray(new InstallableUnit[newRoots.size()]), new NullProgressMonitor());
+			IQueryable<IInstallableUnit> queryable = new Slicer(picker, selectionContext, false).slice(newRoots.toArray(new IInstallableUnit[newRoots.size()]), new NullProgressMonitor());
 			if (queryable == null) {
 				transitiveClosure = CollectionUtils.emptySet();
 			} else {
