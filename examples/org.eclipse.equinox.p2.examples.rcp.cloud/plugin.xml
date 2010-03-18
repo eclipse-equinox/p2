@@ -97,12 +97,12 @@
          point="org.eclipse.ui.installationPages">
           <page
             name="%installedSoftwarePage"
-            class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstalledSoftwarePage"
+            class="org.eclipse.equinox.p2.ui.dialogs.InstalledSoftwarePage"
             id="10.org.eclipse.equinox.p2.examples.rcp.cloud.InstalledSoftwarePage">
           </page>
           <page
             name="%installHistoryPage"
-            class="org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RevertProfilePage"
+            class="org.eclipse.equinox.p2.ui.dialogs.RevertProfilePage"
             id="11.org.eclipse.equinox.p2.examples.rcp.cloud.RevertProfilePage">
           </page>
           
