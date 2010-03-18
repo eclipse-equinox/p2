@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
+import java.util.*;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
+import org.osgi.framework.Filter;
 
 /**
  * <p>A class that performs &quot;matching&quot; The actual algorithm used for
@@ -38,30 +39,46 @@ public class Matches extends Binary {
 	protected boolean match(Object lval, Object rval) {
 		if (lval == null || rval == null)
 			return false;
-		if (rval instanceof VersionRange) {
+
+		if (rval instanceof IRequirement) {
+			IRequirement requirement = (IRequirement) rval;
+			if (lval instanceof IInstallableUnit)
+				return Boolean.valueOf(((IInstallableUnit) lval).satisfies(requirement));
+		} else if (rval instanceof VersionRange) {
 			VersionRange range = (VersionRange) rval;
 			if (lval instanceof Version)
-				return range.isIncluded((Version) lval);
+				return Boolean.valueOf(range.isIncluded((Version) lval));
 			if (lval instanceof String)
 				return range.isIncluded(Version.create((String) lval));
-		} else if (rval instanceof LDAPFilter) {
-			return ((LDAPFilter) rval).isMatch(MemberProvider.create(lval, true));
-		} else if (rval instanceof IMatchExpression<?>) {
-			@SuppressWarnings("unchecked")
-			IMatchExpression<Object> me = (IMatchExpression<Object>) rval;
-			return me.isMatch(lval);
 		} else if (rval instanceof SimplePattern) {
 			if (lval instanceof CharSequence)
 				return ((SimplePattern) rval).isMatch((CharSequence) lval);
 			if (lval instanceof Character || lval instanceof Number || lval instanceof Boolean)
 				return ((SimplePattern) rval).isMatch(lval.toString());
-
+		} else if (rval instanceof LDAPFilter) {
+			return ((LDAPFilter) rval).isMatch(MemberProvider.create(lval, true));
+		} else if (rval instanceof Filter) {
+			if (lval instanceof IInstallableUnit)
+				return Boolean.valueOf(((Filter) rval).match(new Hashtable<String, String>(((IInstallableUnit) lval).getProperties())));
+			if (lval instanceof Dictionary<?, ?>)
+				return Boolean.valueOf(((Filter) rval).match((Dictionary<?, ?>) lval));
+			if (lval instanceof Map<?, ?>)
+				return Boolean.valueOf(((Filter) rval).match(new Hashtable<Object, Object>((Map<?, ?>) lval)));
+		} else if (rval instanceof Locale) {
+			if (lval instanceof String)
+				return Boolean.valueOf(matchLocaleVariants((Locale) rval, (String) lval));
+		} else if (rval instanceof IMatchExpression<?>) {
+			@SuppressWarnings("unchecked")
+			IMatchExpression<Object> me = (IMatchExpression<Object>) rval;
+			return me.isMatch(lval);
+		} else if (rval instanceof IUpdateDescriptor) {
+			if (lval instanceof IInstallableUnit)
+				return Boolean.valueOf(((IUpdateDescriptor) rval).isUpdateOf((IInstallableUnit) lval));
 		} else if (rval instanceof LDAPApproximation) {
 			if (lval instanceof CharSequence)
 				return ((LDAPApproximation) rval).isMatch((CharSequence) lval);
 			if (lval instanceof Character || lval instanceof Number || lval instanceof Boolean)
 				return ((LDAPApproximation) rval).isMatch(lval.toString());
-
 		} else if (rval instanceof Class<?>) {
 			Class<?> rclass = (Class<?>) rval;
 			return lval instanceof Class<?> ? rclass.isAssignableFrom((Class<?>) lval) : rclass.isInstance(lval);
@@ -95,4 +112,33 @@ public class Matches extends Binary {
 		appendLDAPEscaped(buf, val.toString(), escapeWild);
 		buf.append(')');
 	}
+
+	private static boolean equals(String a, String b, int startPos, int endPos) {
+		if (endPos - startPos != b.length())
+			return false;
+
+		int bidx = 0;
+		while (startPos < endPos)
+			if (a.charAt(startPos++) != b.charAt(bidx++))
+				return false;
+		return true;
+	}
+
+	private static boolean matchLocaleVariants(Locale rval, String lval) {
+		int uscore = lval.indexOf('_');
+		if (uscore < 0)
+			// No country and no variant. Just match language
+			return lval.equals(rval.getLanguage());
+
+		if (!equals(lval, rval.getLanguage(), 0, uscore))
+			// Language part doesn't match. Give up.
+			return false;
+
+		// Check country and variant
+		int countryStart = uscore + 1;
+		uscore = lval.indexOf('_', countryStart);
+		return uscore < 0 ? equals(lval, rval.getCountry(), countryStart, lval.length()) //
+				: equals(lval, rval.getCountry(), countryStart, uscore) && equals(lval, rval.getVariant(), uscore + 1, lval.length());
+	}
+
 }

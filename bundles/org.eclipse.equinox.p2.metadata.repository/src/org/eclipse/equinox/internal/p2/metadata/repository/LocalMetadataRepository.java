@@ -54,6 +54,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	private IIndex<IInstallableUnit> idIndex;
 	private IIndex<IInstallableUnit> capabilityIndex;
 	private TranslationSupport translationSupport;
+	private boolean snapshotNeeded = false;
 
 	private static File getActualLocation(URI location, String extension) {
 		File spec = URIUtil.toFile(location);
@@ -101,6 +102,11 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	public synchronized void addInstallableUnits(Collection<IInstallableUnit> installableUnits) {
 		if (installableUnits == null || installableUnits.isEmpty())
 			return;
+		if (snapshotNeeded) {
+			units = units.clone();
+			idIndex = null; // Backed by units
+			snapshotNeeded = false;
+		}
 		units.addAll(installableUnits);
 		capabilityIndex = null; // Generated, not backed by units
 		save();
@@ -128,12 +134,14 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	 */
 	public synchronized IIndex<IInstallableUnit> getIndex(String memberName) {
 		if (InstallableUnit.MEMBER_ID.equals(memberName)) {
+			snapshotNeeded = true;
 			if (idIndex == null)
 				idIndex = new IdIndex(units);
 			return idIndex;
 		}
 
 		if (InstallableUnit.MEMBER_PROVIDED_CAPABILITIES.equals(memberName)) {
+			snapshotNeeded = true;
 			if (capabilityIndex == null)
 				capabilityIndex = new CapabilityIndex(units.iterator());
 			return capabilityIndex;
@@ -209,14 +217,15 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.IQuery, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public synchronized IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
+	public IQueryResult<IInstallableUnit> query(IQuery<IInstallableUnit> query, IProgressMonitor monitor) {
 		return IndexProvider.query(this, query, monitor);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.metadata.index.IIndexProvider#everything()
 	 */
-	public Iterator<IInstallableUnit> everything() {
+	public synchronized Iterator<IInstallableUnit> everything() {
+		snapshotNeeded = true;
 		return units.iterator();
 	}
 
@@ -225,7 +234,12 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	 */
 	@Override
 	public synchronized void removeAll() {
-		units.clear();
+		if (snapshotNeeded) {
+			units = new IUMap();
+			idIndex = null; // Backed by units
+			snapshotNeeded = false;
+		} else
+			units.clear();
 		capabilityIndex = null; // Generated, not backed by units.
 		save();
 	}
@@ -238,6 +252,11 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		boolean changed = false;
 		if (installableUnits != null && !installableUnits.isEmpty()) {
 			changed = true;
+			if (snapshotNeeded) {
+				units = units.clone();
+				idIndex = null; // Backed by units
+				snapshotNeeded = false;
+			}
 			units.removeAll(installableUnits);
 			capabilityIndex = null; // Generated, not backed by units.
 		}

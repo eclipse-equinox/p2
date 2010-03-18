@@ -12,8 +12,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.p2.query.MatchQuery;
-
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -266,7 +264,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertContains("Assert child1's content is in composite repo", repo1, compRepo);
 		assertContains("Assert child2's content is in composite repo", repo2, compRepo);
 		//checks that the destination has the correct number of keys (no extras)
-		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(QueryUtil.createIUAnyQuery(), null), repo2.query(QueryUtil.createIUAnyQuery(), null)), queryResultSize(compRepo.query(QueryUtil.createIUAnyQuery(), null)));
+		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(QueryUtil.createIUAnyQuery(), null), repo2.query(QueryUtil.createIUAnyQuery(), null)), compRepo.query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet().size());
 	}
 
 	public void testRemoveNonexistantChild() {
@@ -528,7 +526,7 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		assertContains("Assert child1's content is in composite repo", repo1, compRepo);
 		assertContains("Assert child2's content is in composite repo", repo2, compRepo);
 		//checks that the destination has the correct number of keys (no extras)
-		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(QueryUtil.createIUAnyQuery(), null), repo2.query(QueryUtil.createIUAnyQuery(), null)), queryResultSize(compRepo.query(QueryUtil.createIUAnyQuery(), null)));
+		assertEquals("Assert correct number of IUs", getNumUnique(repo1.query(QueryUtil.createIUAnyQuery(), null), repo2.query(QueryUtil.createIUAnyQuery(), null)), compRepo.query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet().size());
 	}
 
 	private CompositeMetadataRepository createRepo(boolean compressed) {
@@ -553,16 +551,16 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	 * Takes 2 collectors, compares them, and returns the number of unique keys
 	 * Needed to verify that only the appropriate number of files have been transfered by the mirror application
 	 */
-	private int getNumUnique(IQueryResult c1, IQueryResult c2) {
-		Object[] repo1 = c1.toArray(IInstallableUnit.class);
-		Object[] repo2 = c2.toArray(IInstallableUnit.class);
+	private int getNumUnique(IQueryResult<IInstallableUnit> c1, IQueryResult<IInstallableUnit> c2) {
+		Set<IInstallableUnit> set1 = c1.toUnmodifiableSet();
+		Set<IInstallableUnit> set2 = c2.toUnmodifiableSet();
 
 		//initialize to the size of both collectors
-		int numKeys = repo1.length + repo2.length;
+		int numKeys = set1.size() + set2.size();
 
-		for (int i = 0; i < repo1.length; i++) {
-			for (int j = 0; j < repo2.length; j++) {
-				if (isEqual((IInstallableUnit) repo1[i], (IInstallableUnit) repo2[j]))
+		for (IInstallableUnit iu1 : set1) {
+			for (IInstallableUnit iu2 : set2) {
+				if (isEqual(iu1, iu2))
 					numKeys--;
 				//identical keys has bee found, therefore the number of unique keys is one less than previously thought
 			}

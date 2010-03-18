@@ -31,10 +31,6 @@ public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConst
 		}
 	}
 
-	public IExpression at(IExpression target, IExpression key) {
-		return new At((Expression) target, (Expression) key);
-	}
-
 	public IExpression intersect(IExpression c1, IExpression c2) {
 		return new Intersect((Expression) c1, (Expression) c2);
 	}
@@ -102,10 +98,6 @@ public class QLFactory extends ExpressionFactory implements IQLFactory, IQLConst
 
 	public IExpression limit(IExpression collection, IExpression limit) {
 		return new Limit((Expression) collection, (Expression) limit);
-	}
-
-	public IExpression matches(IExpression lhs, IExpression rhs) {
-		return new Matches((Expression) lhs, (Expression) rhs);
 	}
 
 	public IExpression memberCall(IExpression target, String name, IExpression... args) {

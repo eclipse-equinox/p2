@@ -16,6 +16,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
@@ -210,10 +211,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	/**
 	 * Map<IArtifactKey,List<IArtifactDescriptor>> containing the index of artifacts in the repository.
 	 */
-	protected final Map<IArtifactKey, List<IArtifactDescriptor>> artifactMap = new HashMap<IArtifactKey, List<IArtifactDescriptor>>();
+	private Map<IArtifactKey, List<IArtifactDescriptor>> artifactMap = new HashMap<IArtifactKey, List<IArtifactDescriptor>>();
 	private transient BlobStore blobStore;
 	transient private Mapper mapper = new Mapper();
 	private KeyIndex keyIndex;
+	private boolean snapshotNeeded = false;
 
 	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 
@@ -272,28 +274,43 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			mapDescriptor(desc);
 	}
 
-	private void mapDescriptor(IArtifactDescriptor descriptor) {
+	private synchronized void mapDescriptor(IArtifactDescriptor descriptor) {
 		IArtifactKey key = descriptor.getArtifactKey();
+		if (snapshotNeeded) {
+			cloneAritfactMap();
+			snapshotNeeded = false;
+		}
 		List<IArtifactDescriptor> descriptors = artifactMap.get(key);
 		if (descriptors == null) {
 			descriptors = new ArrayList<IArtifactDescriptor>();
 			artifactMap.put(key, descriptors);
-			keyIndex = null;
 		}
 		descriptors.add(descriptor);
+		keyIndex = null;
 	}
 
-	private void unmapDescriptor(IArtifactDescriptor descriptor) {
+	private synchronized void unmapDescriptor(IArtifactDescriptor descriptor) {
 		IArtifactKey key = descriptor.getArtifactKey();
 		List<IArtifactDescriptor> descriptors = artifactMap.get(key);
 		if (descriptors == null)
 			return;
 
-		descriptors.remove(descriptor);
-		if (descriptors.isEmpty()) {
-			artifactMap.remove(key);
-			keyIndex = null;
+		if (snapshotNeeded) {
+			cloneAritfactMap();
+			snapshotNeeded = false;
+			descriptors = artifactMap.get(key);
 		}
+		descriptors.remove(descriptor);
+		if (descriptors.isEmpty())
+			artifactMap.remove(key);
+		keyIndex = null;
+	}
+
+	private void cloneAritfactMap() {
+		HashMap<IArtifactKey, List<IArtifactDescriptor>> clone = new HashMap<IArtifactKey, List<IArtifactDescriptor>>(artifactMap.size());
+		for (Entry<IArtifactKey, List<IArtifactDescriptor>> entry : artifactMap.entrySet())
+			clone.put(entry.getKey(), new ArrayList<IArtifactDescriptor>(entry.getValue()));
+		artifactMap = clone;
 	}
 
 	public SimpleArtifactRepository(IProvisioningAgent agent, String repositoryName, URI location, Map<String, String> properties) {
@@ -1002,6 +1019,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return new IQueryable<IArtifactDescriptor>() {
 			public IQueryResult<IArtifactDescriptor> query(IQuery<IArtifactDescriptor> query, IProgressMonitor monitor) {
 				synchronized (SimpleArtifactRepository.this) {
+					snapshotNeeded = true;
 					Collection<List<IArtifactDescriptor>> descs = SimpleArtifactRepository.this.artifactMap.values();
 					return query.perform(new CompoundIterator<IArtifactDescriptor>(descs.iterator()));
 				}
@@ -1009,11 +1027,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		};
 	}
 
-	public synchronized IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
+	public IQueryResult<IArtifactKey> query(IQuery<IArtifactKey> query, IProgressMonitor monitor) {
 		return IndexProvider.query(this, query, monitor);
 	}
 
-	public Iterator<IArtifactKey> everything() {
+	public synchronized Iterator<IArtifactKey> everything() {
+		snapshotNeeded = true;
 		return artifactMap.keySet().iterator();
 	}
 
@@ -1044,6 +1063,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public synchronized IIndex<IArtifactKey> getIndex(String memberName) {
 		if (ArtifactKey.MEMBER_ID.equals(memberName)) {
+			snapshotNeeded = true;
 			if (keyIndex == null)
 				keyIndex = new KeyIndex(artifactMap.keySet());
 			return keyIndex;

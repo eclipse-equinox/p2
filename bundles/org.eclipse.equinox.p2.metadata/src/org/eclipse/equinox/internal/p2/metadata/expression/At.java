@@ -11,9 +11,11 @@
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.*;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.expression.Member.DynamicMember;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 
 /**
  * This class represents indexed or keyed access to an indexed collection
@@ -24,26 +26,24 @@ public class At extends Binary {
 		super(lhs, rhs);
 	}
 
-	protected Object handleMember(IEvaluationContext context, Member member, Object instance, boolean[] handled) {
-		if (instance instanceof IInstallableUnit) {
-			if ("properties".equals(member.getName())) { //$NON-NLS-1$
-				// Avoid full copy of the properties map just to get one member
-				handled[0] = true;
-				return ((IInstallableUnit) instance).getProperty((String) rhs.evaluate(context));
-			}
-		}
-		return null;
-	}
-
 	public Object evaluate(org.eclipse.equinox.p2.metadata.expression.IEvaluationContext context) {
 		Object lval;
 		if (lhs instanceof DynamicMember) {
 			DynamicMember lm = (DynamicMember) lhs;
 			Object instance = lm.operand.evaluate(context);
-			boolean[] handled = new boolean[] {false};
-			Object result = handleMember(context, lm, instance, handled);
-			if (handled[0])
-				return result;
+			if (instance instanceof IInstallableUnit) {
+				String name = lm.getName();
+				if (InstallableUnit.MEMBER_TRANSLATED_PROPERTIES == name || InstallableUnit.MEMBER_PROFILE_PROPERTIES == name) {
+					IIndexProvider<?> indexProvider = context.getIndexProvider();
+					if (indexProvider == null)
+						throw new UnsupportedOperationException("No managed properties available to QL"); //$NON-NLS-1$
+					return indexProvider.getManagedProperty(instance, name, rhs.evaluate(context));
+				}
+				if (InstallableUnit.MEMBER_PROPERTIES == name) {
+					// Avoid full copy of the properties map just to get one member
+					return ((IInstallableUnit) instance).getProperty((String) rhs.evaluate(context));
+				}
+			}
 			lval = lm.invoke(instance);
 		} else
 			lval = lhs.evaluate(context);

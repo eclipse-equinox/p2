@@ -19,13 +19,24 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.expression.MatchIteratorFilter;
 import org.eclipse.equinox.internal.p2.metadata.expression.QueryResult;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.SimplePattern;
+import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PerformanceTest extends AbstractProvisioningTest {
+	public void testParserPerformance() throws Exception {
+		long start = System.currentTimeMillis();
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		IExpressionParser parser = ExpressionUtil.getParser();
+		for (int i = 0; i < 20000; i++) {
+			factory.matchExpression(parser.parse("providedCapabilities.exists(x | x.name == foo)"));
+		}
+		long end = System.currentTimeMillis();
+		System.out.println(end - start);
+	}
+
 	public void testMatchQueryVersusExpressionPerformance() throws Exception {
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
@@ -88,14 +99,14 @@ public class PerformanceTest extends AbstractProvisioningTest {
 					}
 				};
 				result = new QueryResult<IInstallableUnit>(matchIter);
-				assertEquals(queryResultSize(result), 3465);
+				assertEquals(result.toUnmodifiableSet().size(), 3465);
 			}
 			matchFilterMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
 				result = repo.query(matchQuery, new NullProgressMonitor());
-				assertEquals(queryResultSize(result), 3465);
+				assertEquals(result.toUnmodifiableSet().size(), 3465);
 			}
 			matchQueryMS += (System.currentTimeMillis() - start);
 		}
@@ -166,7 +177,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 	}
 
 	public void testSlicerPerformance() throws Exception {
-		Hashtable env = new Hashtable();
+		HashMap<String, String> env = new HashMap<String, String>();
 		env.put("osgi.os", "linux");
 		env.put("osgi.ws", "gtk");
 		env.put("osgi.arch", "x86");

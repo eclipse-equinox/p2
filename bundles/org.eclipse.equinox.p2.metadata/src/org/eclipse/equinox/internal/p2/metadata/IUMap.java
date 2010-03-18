@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.query.*;
 /**
  * A map that stores {@link IInstallableUnit} instances in a way that is efficient to query
  */
-public class IUMap {
+public class IUMap implements Cloneable {
 	/**
 	 * Iterator over all the {@link IInstallableUnit} instances in the map.
 	 */
@@ -86,6 +86,14 @@ public class IUMap {
 	 */
 	final Map<String, Object> units = new HashMap<String, Object>();
 
+	public IUMap() {
+		//
+	}
+
+	private IUMap(IUMap cloneSource) {
+		units.putAll(cloneSource.units);
+	}
+
 	public void add(IInstallableUnit unit) {
 		String key = unit.getId();
 		Object matching = units.get(key);
@@ -129,6 +137,11 @@ public class IUMap {
 
 	public void clear() {
 		units.clear();
+	}
+
+	@Override
+	public IUMap clone() {
+		return new IUMap(this);
 	}
 
 	public Iterator<IInstallableUnit> iterator() {

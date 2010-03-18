@@ -26,7 +26,6 @@ public class PatchTestOptional3 extends AbstractProvisioningTest {
 	private IInstallableUnit p2;
 	private IInstallableUnitPatch pp1;
 	private IInstallableUnit p2b;
-	private IInstallableUnit p1b;
 	private IProfile profile1;
 	private IPlanner planner;
 	private IEngine engine;
@@ -44,7 +43,7 @@ public class PatchTestOptional3 extends AbstractProvisioningTest {
 		IRequirement[][] scopepp1 = new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, P2_FEATURE, new VersionRange("[1.0.0,1.0.0]"), null, false, false)}};
 		pp1 = createIUPatch(PP1, Version.create("3.0.0"), true, new IRequirementChange[] {changepp1, changepp2}, scopepp1, lifeCyclepp1);
 
-		createTestMetdataRepository(new IInstallableUnit[] {p2Feature, p1, p2, p1b, p2b, pp1});
+		createTestMetdataRepository(new IInstallableUnit[] {p2Feature, p1, p2, p2b, pp1});
 
 		profile1 = createProfile("TestProfile." + getName());
 		planner = createPlanner();
