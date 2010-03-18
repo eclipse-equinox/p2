@@ -1,25 +1,30 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.net.MalformedURLException;
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.URIUtil;
-import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.Update;
 import org.eclipse.equinox.p2.operations.UpdateOperation;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.statushandlers.StatusManager;
 
-public class UpdateSingleIUPage extends ProvisioningWizardPage implements ISelectableIUsPage {
+public class UpdateSingleIUPage extends ProvisioningWizardPage {
 
 	UpdateOperation operation;
 
-	protected UpdateSingleIUPage(UpdateOperation operation, ProvisioningUI ui, ProvisioningOperationWizard wizard) {
-		super("UpdateSingleIUPage", ui, wizard); //$NON-NLS-1$
+	protected UpdateSingleIUPage(UpdateOperation operation, ProvisioningUI ui) {
+		super("UpdateSingleIUPage", ui, null); //$NON-NLS-1$
+		setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
+		IProduct product = Platform.getProduct();
+		String productName = product != null && product.getName() != null ? product.getName() : ProvUIMessages.ApplicationInRestartDialog;
+		setDescription(NLS.bind(ProvUIMessages.UpdateSingleIUPage_SingleUpdateDescription, productName));
 		Assert.isNotNull(operation);
 		Assert.isTrue(operation.hasResolved());
 		Assert.isTrue(operation.getSelectedUpdates().length == 1);
@@ -41,19 +46,23 @@ public class UpdateSingleIUPage extends ProvisioningWizardPage implements ISelec
 			try {
 				browser = new Browser(parent, SWT.NONE);
 				browser.setUrl(url);
+				browser.setBackground(parent.getBackground());
+				setControl(browser);
 				return;
 			} catch (SWTError e) {
 				// Fall through to backup plan.
 			}
 		}
 		// Create a text description of the update.
-		Text text = new Text(parent, SWT.MULTI | SWT.V_SCROLL);
+		Text text = new Text(parent, SWT.MULTI | SWT.V_SCROLL | SWT.READ_ONLY);
+		text.setBackground(parent.getBackground());
 		text.setText(getUpdateText(updateIU));
+		setControl(text);
 	}
 
 	private String getUpdateText(IInstallableUnit iu) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(new IUDetailsLabelProvider().getClipboardText(getCheckedIUElements()[0], CopyUtils.DELIMITER));
+		buffer.append(new IUDetailsLabelProvider().getClipboardText(getUpdate().replacement, CopyUtils.DELIMITER));
 		buffer.append(CopyUtils.NEWLINE);
 		buffer.append(CopyUtils.NEWLINE);
 		String text = iu.getUpdateDescriptor().getDescription();
@@ -68,17 +77,12 @@ public class UpdateSingleIUPage extends ProvisioningWizardPage implements ISelec
 
 	}
 
-	public Object[] getCheckedIUElements() {
-		Update update = getUpdate();
-		return new Object[] {new AvailableUpdateElement(null, update.replacement, update.toUpdate, getProfileId(), false)};
-	}
-
-	public Object[] getSelectedIUElements() {
-		return getCheckedIUElements();
-	}
-
-	public void setCheckedElements(Object[] elements) {
-		// ignored
+	public boolean performFinish() {
+		if (operation.getResolutionResult().getSeverity() != IStatus.ERROR) {
+			getProvisioningUI().schedule(operation.getProvisioningJob(null), StatusManager.SHOW | StatusManager.LOG);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
