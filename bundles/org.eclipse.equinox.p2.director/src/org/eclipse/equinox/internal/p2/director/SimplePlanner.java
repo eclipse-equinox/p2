@@ -777,7 +777,6 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	public IProfileChangeRequest createChangeRequest(IProfile profileToChange) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ProfileChangeRequest(profileToChange);
 	}
 }
