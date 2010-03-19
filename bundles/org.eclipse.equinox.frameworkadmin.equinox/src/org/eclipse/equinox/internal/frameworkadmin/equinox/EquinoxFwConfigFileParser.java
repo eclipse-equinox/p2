@@ -150,7 +150,7 @@ public class EquinoxFwConfigFileParser {
 		return (BundleInfo[]) bundles.toArray(new BundleInfo[bundles.size()]);
 	}
 
-	private void writeBundlesList(File fwJar, Properties props, URI base, BundleInfo[] bundles) {
+	private void writeBundlesList(File fwJar, Properties props, BundleInfo[] bundles) {
 		StringBuffer osgiBundlesList = new StringBuffer();
 		StringBuffer osgiFrameworkExtensionsList = new StringBuffer();
 		for (int j = 0; j < bundles.length; j++) {
@@ -204,10 +204,6 @@ public class EquinoxFwConfigFileParser {
 		configData.initialize();
 		configData.setBundles(null);
 
-		// TODO commented out to prevent dead code warning, but is it really needed?
-		//		String launcherName = null;
-		//		String launcherPath = null;
-
 		// load configuration properties
 		Properties props = loadProperties(inputFile);
 
@@ -237,10 +233,6 @@ public class EquinoxFwConfigFileParser {
 			String value = props.getProperty(key);
 			configData.setProperty(key, value);
 		}
-		// TODO commented out to prevent dead code warning, but is it really needed?
-		//		if (launcherName != null && launcherPath != null) {
-		//			launcherData.setLauncher(new File(launcherPath, launcherName + EquinoxConstants.EXE_EXTENSION));
-		//		}
 		Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_configFile, inputFile.getAbsolutePath()));
 	}
 
@@ -268,7 +260,7 @@ public class EquinoxFwConfigFileParser {
 		File fwJar = null;
 		if (props.getProperty(EquinoxConstants.PROP_OSGI_FW) != null) {
 			URI absoluteFwJar = null;
-			absoluteFwJar = URIUtil.makeAbsolute(FileUtils.fromFileURL(props.getProperty(EquinoxConstants.PROP_OSGI_FW)), ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configData.getProperties(), launcherData).toURI());
+			absoluteFwJar = URIUtil.makeAbsolute(FileUtils.fromFileURL(props.getProperty(EquinoxConstants.PROP_OSGI_FW)), ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), props, launcherData).toURI());
 
 			props.setProperty(EquinoxConstants.PROP_OSGI_FW, absoluteFwJar.toString());
 			String fwJarString = props.getProperty(EquinoxConstants.PROP_OSGI_FW);
@@ -450,7 +442,7 @@ public class EquinoxFwConfigFileParser {
 			URI configArea = manipulator.getLauncherData().getFwConfigLocation().toURI();
 			writep2DataArea(configData, configProps, configArea);
 			writeSimpleConfiguratorURL(configData, configProps, configArea);
-			writeBundlesList(launcherData.getFwJar(), configProps, ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), configProps, launcherData).toURI(), bInfos);
+			writeBundlesList(launcherData.getFwJar(), configProps, bInfos);
 			writeInitialStartLevel(configData, configProps);
 			writeDefaultStartLevel(configData, configProps);
 		} catch (URISyntaxException e) {

@@ -29,10 +29,18 @@ public class ParserUtils {
 		if (launcherData == null)
 			return null;
 
-		//TODO This is not enough because if you only have -startup then osgi.install.area from the config.ini is used
-		File result = getOSGiInstallArea(programArgs, properties, launcherData.getLauncher() == null ? null : launcherData.getLauncher().getParentFile().toURI());
+		URI base = null;
+		if (launcherData.getLauncher() != null)
+			base = launcherData.getLauncher().getParentFile().toURI();
+		else if (launcherData.getHome() != null)
+			base = launcherData.getHome().toURI();
+		File result = getOSGiInstallArea(programArgs, properties, base);
 		if (result != null)
 			return result;
+
+		if (launcherData.getHome() != null) {
+			return launcherData.getHome();
+		}
 
 		if (launcherData.getFwJar() != null)
 			return fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath());

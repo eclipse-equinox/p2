@@ -289,25 +289,28 @@ public class EclipseLauncherParser {
 				Log.log(LogService.LOG_INFO, this, "save()", NLS.bind(Messages.log_renameSuccessful, launcherConfigFile, dest)); //$NON-NLS-1$
 			}
 
-		BufferedWriter bw = null;
-		try {
-			bw = new BufferedWriter(new FileWriter(launcherConfigFile));
-			for (int j = 0; j < newlines.size(); j++) {
-				String arg = (String) newlines.get(j);
-				if (arg == null)
-					continue;
-				bw.write(arg);
-				bw.newLine();
+		//only write the file if we actually have content
+		if (newlines.size() > 0) {
+			BufferedWriter bw = null;
+			try {
+				bw = new BufferedWriter(new FileWriter(launcherConfigFile));
+				for (int j = 0; j < newlines.size(); j++) {
+					String arg = (String) newlines.get(j);
+					if (arg == null)
+						continue;
+					bw.write(arg);
+					bw.newLine();
+				}
+				bw.flush();
+				Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_launcherConfigSave, launcherConfigFile));
+			} finally {
+				if (bw != null)
+					bw.close();
 			}
-			bw.flush();
-			Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_launcherConfigSave, launcherConfigFile));
-		} finally {
-			if (bw != null)
-				bw.close();
-			File previousLauncherIni = launcherData.getPreviousLauncherIni();
-			if (previousLauncherIni != null && !previousLauncherIni.equals(launcherConfigFile))
-				previousLauncherIni.delete();
 		}
+		File previousLauncherIni = launcherData.getPreviousLauncherIni();
+		if (previousLauncherIni != null && !previousLauncherIni.equals(launcherConfigFile))
+			previousLauncherIni.delete();
 		launcherData.setLauncherConfigLocation(launcherConfigFile);
 	}
 }
