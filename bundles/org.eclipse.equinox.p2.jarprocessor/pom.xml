@@ -8,7 +8,7 @@
     <version>0.0.1-SNAPSHOT</version><relativePath>../org.eclipse.equinox.p2-parent</relativePath>
   </parent>
   <groupId>org.eclipse</groupId>
-  <artifactId>org.eclipse.equinox.p2.repository.tools</artifactId>
-  <version>2.0.0.qualifier</version>
+  <artifactId>org.eclipse.equinox.p2.jarprocessor</artifactId>
+  <version>1.0.200.qualifier</version>
   <packaging>eclipse-plugin</packaging>
 </project>

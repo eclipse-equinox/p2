@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>org.eclipse.equinox.p2-parent</artifactId>
+		<groupId>org.eclipse</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../org.eclipse.equinox.p2-parent</relativePath>
+	</parent>
+	<groupId>org.eclipse</groupId>
+	<artifactId>org.eclipse.equinox.p2.tests</artifactId>
+	<version>1.2.0.qualifier</version>
+	<packaging>eclipse-test-plugin</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.sonatype.tycho</groupId>
+				<artifactId>maven-osgi-test-plugin</artifactId>
+				<configuration>
+					<testSuite>org.eclipse.equinox.p2.tests</testSuite>
+					<testClass>org.eclipse.equinox.p2.tests.AutomatedTests</testClass>
+					<argLine>-Xmx512m</argLine>
+					<bundleStartLevel>
+						<bundle>
+							<id>org.eclipse.equinox.ds</id>
+							<level>1</level>
+							<autoStart>true</autoStart>
+						</bundle>
+					</bundleStartLevel>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

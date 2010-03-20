@@ -15,6 +15,11 @@
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/eclipse/updates/3.6-I-builds</url>
 		</repository>
+		<repository>
+			<id>galileoTest</id>
+			<layout>p2</layout>
+			<url>file:/Users/Pascal/Downloads/eclipse-testing/eclipse-junit-tests-I20100312-0800</url>
+		</repository>
 	</repositories>
 
 	<build>
@@ -63,4 +68,20 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>osx</id>
+			<activation>
+				<property>
+					<name>java.vendor.url</name>
+					<value>http://www.apple.com/</value>
+				</property>
+			</activation>
+			<properties>
+				<tycho.test.jvmArgs>-Xmx800m -XX:MaxPermSize=256m -Dosgi.ws=cocoa -XstartOnFirstThread</tycho.test.jvmArgs>
+				<osgi.ws>cocoa</osgi.ws>
+			</properties>
+		</profile>
+	</profiles>
 </project>
