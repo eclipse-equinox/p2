@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<parent>
+		<artifactId>org.eclipse.equinox.p2-parent</artifactId>
+		<groupId>org.eclipse</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../org.eclipse.equinox.p2-parent</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.eclipse</groupId>
+	<artifactId>org.eclipse.equinox.p2-aggregator</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>../ie.wombat.jbdiff</module>
+		<module>../ie.wombat.jbdiff.test</module>
+		<module>../org.eclipse.equinox.frameworkadmin</module>
+		<module>../org.eclipse.equinox.frameworkadmin.equinox</module>
+		<module>../org.eclipse.equinox.frameworkadmin.test</module>
+		<module>../org.eclipse.equinox.p2.artifact.optimizers</module>
+		<module>../org.eclipse.equinox.p2.artifact.processors</module>
+		<module>../org.eclipse.equinox.p2.artifact.repository</module>
+		<module>../org.eclipse.equinox.p2.console</module>
+		<module>../org.eclipse.equinox.p2.core</module>
+		<module>../org.eclipse.equinox.p2.director</module>
+		<module>../org.eclipse.equinox.p2.director.app</module>
+		<module>../org.eclipse.equinox.p2.directorywatcher</module>
+		<module>../org.eclipse.equinox.p2.discovery</module>
+		<module>../org.eclipse.equinox.p2.discovery.compatibility</module>
+		<module>../org.eclipse.equinox.p2.engine</module>
+		<module>../org.eclipse.equinox.p2.examples.rcp.cloud</module>
+		<module>../org.eclipse.equinox.p2.examples.rcp.prestartupdate</module>
+		<module>../org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility</module>
+		<module>../org.eclipse.equinox.p2.extensionlocation</module>
+		<module>../org.eclipse.equinox.p2.garbagecollector</module>
+		<module>../org.eclipse.equinox.p2.installer</module>
+		<module>../org.eclipse.equinox.p2.jarprocessor</module>
+		<module>../org.eclipse.equinox.p2.metadata</module>
+		<module>../org.eclipse.equinox.p2.metadata.generator</module>
+		<module>../org.eclipse.equinox.p2.metadata.repository</module>
+		<module>../org.eclipse.equinox.p2.operations</module>
+		<module>../org.eclipse.equinox.p2.p2repo</module>
+		<module>../org.eclipse.equinox.p2.publisher</module>
+		<module>../org.eclipse.equinox.p2.ql</module>
+		<module>../org.eclipse.equinox.p2.reconciler.dropins</module>
+		<module>../org.eclipse.equinox.p2.repository</module>
+		<module>../org.eclipse.equinox.p2.repository.tools</module>
+		<module>../org.eclipse.equinox.p2.sar</module>
+<!--		<module>../org.eclipse.equinox.p2.tests</module>-->
+		<module>../org.eclipse.equinox.p2.tests.ui</module>
+		<module>../org.eclipse.equinox.p2.testserver</module>
+		<module>../org.eclipse.equinox.p2.touchpoint.eclipse</module>
+		<module>../org.eclipse.equinox.p2.touchpoint.natives</module>
+		<module>../org.eclipse.equinox.p2.ui</module>
+		<module>../org.eclipse.equinox.p2.ui.admin</module>
+		<module>../org.eclipse.equinox.p2.ui.admin.rcp</module>
+		<module>../org.eclipse.equinox.p2.ui.discovery</module>
+		<module>../org.eclipse.equinox.p2.ui.sdk</module>
+		<module>../org.eclipse.equinox.p2.ui.sdk.scheduler</module>
+		<module>../org.eclipse.equinox.p2.updatechecker</module>
+		<module>../org.eclipse.equinox.p2.updatesite</module>
+		<module>../org.eclipse.equinox.p2.user.ui</module>
+		<module>../org.eclipse.equinox.simpleconfigurator</module>
+		<module>../org.eclipse.equinox.simpleconfigurator.manipulator</module>
+		<module>../org.eclipse.equinox.p2.director.product</module>
+	</modules>
+</project>
