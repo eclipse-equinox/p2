@@ -14,3 +14,4 @@ Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Export-Package: org.eclipse.equinox.frameworkadmin.tests
 Bundle-ActivationPolicy: lazy
+Eclipse-BundleShape: dir
