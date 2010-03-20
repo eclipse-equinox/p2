@@ -43,7 +43,12 @@ Require-Bundle: org.eclipse.equinox.p2.metadata.generator,
  org.eclipse.equinox.p2.garbagecollector;bundle-version="1.0.100",
  org.sat4j.core;bundle-version="2.2.0",
  org.sat4j.pb;bundle-version="2.2.0",
- org.eclipse.equinox.ds;bundle-version="1.2.0"
+ org.eclipse.equinox.ds;bundle-version="1.2.0",
+ org.eclipse.ecf;bundle-version="3.1.0",
+ org.eclipse.ecf.filetransfer;bundle-version="4.0.0",
+ org.eclipse.ecf.identity;bundle-version="3.1.0",
+ org.eclipse.ecf.provider.filetransfer;bundle-version="3.1.0",
+ org.eclipse.ecf.provider.filetransfer.httpclient;bundle-version="4.0.0"
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  J2SE-1.4
