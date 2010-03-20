@@ -13,8 +13,7 @@ package org.eclipse.equinox.p2.query;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.internal.p2.metadata.expression.ContextExpression;
-import org.eclipse.equinox.internal.p2.metadata.expression.ExpressionFactory;
+import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.Expression.VariableFinder;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
@@ -31,11 +30,11 @@ public class QueryUtil {
 
 	public static final IQuery<IInstallableUnit> NO_UNITS = QueryUtil.createQuery("limit(0)"); //$NON-NLS-1$
 
-	public static final String PROP_TYPE_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
+	private static final String PROP_TYPE_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
 
-	public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
+	private static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
 
-	public static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
+	private static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
 
 	private static final IExpression matchesRequirementsExpression = ExpressionUtil.parse("$0.exists(r | this ~= r)"); //$NON-NLS-1$
 
