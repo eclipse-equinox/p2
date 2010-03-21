@@ -11,4 +11,4 @@
   <artifactId>org.eclipse.equinox.p2.ui.admin.rcp</artifactId>
   <version>1.0.0.qualifier</version>
   <packaging>eclipse-plugin</packaging>
-</project>
+</project
