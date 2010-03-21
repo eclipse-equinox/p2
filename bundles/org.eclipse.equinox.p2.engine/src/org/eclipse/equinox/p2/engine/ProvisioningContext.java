@@ -4,7 +4,7 @@
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  * 	IBM Corporation - initial API and implementation
  *     WindRiver - https://bugs.eclipse.org/bugs/show_bug.cgi?id=227372
@@ -61,14 +61,14 @@ public class ProvisioningContext {
 	/**
 	 * Instructs the provisioning context to follow repository references when providing
 	 * queryables for obtaining metadata and artifacts.  When this property is set to
-	 * "true", then both enabled and disabled repository references that are encountered 
-	 * while loading the specified metadata repositories will be included in the provisioning 
-	 * context.  In this mode, the provisioning context has a distinct lifecycle, whereby 
-	 * the metadata and artifact repositories to be used are determined when the client 
-	 * retrieves the metadata queryable.  Clients using this property should not reset the 
-	 * list of metadata repository locations or artifact repository locations once the 
+	 * "true", then both enabled and disabled repository references that are encountered
+	 * while loading the specified metadata repositories will be included in the provisioning
+	 * context.  In this mode, the provisioning context has a distinct lifecycle, whereby
+	 * the metadata and artifact repositories to be used are determined when the client
+	 * retrieves the metadata queryable.  Clients using this property should not reset the
+	 * list of metadata repository locations or artifact repository locations once the
 	 * metadata queryable has been retrieved.
-	 * 
+	 *
 	 * @see #getMetadata(IProgressMonitor)
 	 * @see #setMetadataRepositories(URI[])
 	 * @see #setArtifactRepositories(URI[])
@@ -78,7 +78,7 @@ public class ProvisioningContext {
 	/**
 	 * Creates a new provisioning context that includes all available metadata and
 	 * artifact repositories available to the specified provisioning agent.
-	 * 
+	 *
 	 * @param agent the provisioning agent from which to obtain any necessary services.
 	 */
 	public ProvisioningContext(IProvisioningAgent agent) {
@@ -91,10 +91,10 @@ public class ProvisioningContext {
 	/**
 	 * Returns a queryable that can be used to obtain any artifact keys that
 	 * are needed for the provisioning operation.
-	 * 
+	 *
 	 * @param monitor a progress monitor to be used when creating the queryable
 	 * @return a queryable that can be used to query available artifact keys.
-	 * 
+	 *
 	 * @see #setArtifactRepositories(URI[])
 	 * @see #FOLLOW_REPOSITORY_REFERENCES
 	 */
@@ -118,10 +118,10 @@ public class ProvisioningContext {
 	/**
 	 * Returns a queryable that can be used to obtain any artifact descriptors that
 	 * are needed for the provisioning operation.
-	 * 
+	 *
 	 * @param monitor a progress monitor to be used when creating the queryable
 	 * @return a queryable that can be used to query available artifact descriptors.
-	 * 
+	 *
 	 * @see #setArtifactRepositories(URI[])
 	 * @see #FOLLOW_REPOSITORY_REFERENCES
 	 */
@@ -146,10 +146,10 @@ public class ProvisioningContext {
 	/**
 	 * Returns a queryable that can be used to obtain any artifact repositories that
 	 * are needed for the provisioning operation.
-	 * 
+	 *
 	 * @param monitor a progress monitor to be used when creating the queryable
 	 * @return a queryable that can be used to query available artifact repositories.
-	 * 
+	 *
 	 * @see #setArtifactRepositories(URI[])
 	 * @see #FOLLOW_REPOSITORY_REFERENCES
 	 */
@@ -178,10 +178,10 @@ public class ProvisioningContext {
 	/**
 	 * Returns a queryable that can be used to obtain any metadata (installable units)
 	 * that are needed for the provisioning operation.
-	 * 
+	 *
 	 * @param monitor a progress monitor to be used when creating the queryable
 	 * @return a queryable that can be used to query available metadata.
-	 * 
+	 *
 	 * @see #setMetadataRepositories(URI[])
 	 * @see #FOLLOW_REPOSITORY_REFERENCES
 	 */
@@ -207,7 +207,7 @@ public class ProvisioningContext {
 	 * available for installation by the planner. Returns an empty list if
 	 * there are no extra installable units to consider. This method has no effect on the
 	 * execution of the engine.
-	 * 
+	 *
 	 * @return The extra installable units that are available
 	 */
 	public List<IInstallableUnit> getExtraInstallableUnits() {
@@ -217,7 +217,7 @@ public class ProvisioningContext {
 	/**
 	 * Returns the properties that are defined in this context. Context properties can
 	 * be used to influence the behavior of either the planner or engine.
-	 * 
+	 *
 	 * @return the defined provisioning context properties
 	 */
 	public Map<String, String> getProperties() {
@@ -241,7 +241,7 @@ public class ProvisioningContext {
 	 * method should be called prior to calling {@link #getMetadata(IProgressMonitor)},
 	 * because setting the repositories after retrieving metadata will have no
 	 * effect.
-	 * 
+	 *
 	 * @param artifactRepositories the artifact repository locations
 	 * @see #FOLLOW_REPOSITORY_REFERENCES
 	*/
@@ -286,8 +286,8 @@ public class ProvisioningContext {
 	 */
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("{artifactRepos=" + DebugHelper.formatArray(Arrays.asList(artifactRepositories), true, false)); //$NON-NLS-1$
-		buffer.append(", metadataRepos=" + DebugHelper.formatArray(Arrays.asList(metadataRepositories), true, false)); //$NON-NLS-1$
+		buffer.append("{artifactRepos=" + DebugHelper.formatArray(null != artifactRepositories ? Arrays.asList(artifactRepositories) : null, true, false)); //$NON-NLS-1$
+		buffer.append(", metadataRepos=" + DebugHelper.formatArray(null != metadataRepositories ? Arrays.asList(metadataRepositories) : null, true, false)); //$NON-NLS-1$
 		buffer.append(", properties=" + getProperties() + "}"); //$NON-NLS-1$ //$NON-NLS-2$
 		return buffer.toString();
 	}
@@ -295,7 +295,7 @@ public class ProvisioningContext {
 	/**
 	 * Return the array of repository locations for artifact repositories.
 	 * @return an array of repository locations.  This is never <code>null</code>.
-	 * 
+	 *
 	 * @deprecated This method will be removed before the final release of 3.6
 	 * @noreference This method will be removed before the final release of 3.6
 	 * @see #getArtifactRepositories()
