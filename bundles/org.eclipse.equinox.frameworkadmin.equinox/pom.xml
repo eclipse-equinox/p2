@@ -11,4 +11,4 @@
   <artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
   <version>1.0.200.qualifier</version>
   <packaging>eclipse-plugin</packaging>
-</project>
+</project
