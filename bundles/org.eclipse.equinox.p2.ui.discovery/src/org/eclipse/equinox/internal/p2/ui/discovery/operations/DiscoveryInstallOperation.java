@@ -32,9 +32,9 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 
 /**
- * A job that configures a p2 {@link #getInstallAction() install action} for installing one or more {@link CatalogItem
+ * A job that configures a p2 install action for installing one or more {@link CatalogItem
  * connectors}. The bulk of the installation work is done by p2; this class just sets up the p2 repository meta-data and
- * selects the appropriate features to install. After running the job the {@link #getInstallAction() install action}
+ * selects the appropriate features to install. After running the job the install action
  * must be run to perform the installation.
  * 
  * @author David Green

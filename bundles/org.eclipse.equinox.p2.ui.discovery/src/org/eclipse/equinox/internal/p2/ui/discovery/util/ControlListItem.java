@@ -83,7 +83,7 @@ public abstract class ControlListItem<T> extends Composite {
 	 * 
 	 * @param parent
 	 * @param style
-	 * @param progressInfo
+	 * @param element
 	 */
 	public ControlListItem(Composite parent, int style, T element) {
 		super(parent, style | SWT.NO_FOCUS);
