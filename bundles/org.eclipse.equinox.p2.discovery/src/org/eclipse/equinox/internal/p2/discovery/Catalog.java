@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Tasktop Technologies and others.
+ * Copyright (c) 2009, 2010 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -141,14 +141,14 @@ public class Catalog {
 	/**
 	 * get a list of known certifications
 	 * 
-	 * @return the certifications, or an ampty list if there are none.
+	 * @return the certifications, or an empty list if there are none.
 	 */
 	public List<Certification> getCertifications() {
 		return certifications;
 	}
 
 	/**
-	 * The environment used to resolve {@link AbstractCatalogItem#getPlatformFilter() platform filters}. Defaults to the
+	 * The environment used to resolve {@link CatalogItem#getPlatformFilter() platform filters}. Defaults to the
 	 * current environment.
 	 */
 	public Dictionary<Object, Object> getEnvironment() {
@@ -156,7 +156,7 @@ public class Catalog {
 	}
 
 	/**
-	 * The environment used to resolve {@link AbstractCatalogItem#getPlatformFilter() platform filters}. Defaults to the
+	 * The environment used to resolve {@link CatalogItem#getPlatformFilter() platform filters}. Defaults to the
 	 * current environment.
 	 */
 	public void setEnvironment(Dictionary<Object, Object> environment) {
@@ -170,7 +170,7 @@ public class Catalog {
 	 * indicate if update site availability should be verified. The default is false.
 	 * 
 	 * @see CatalogItem#getAvailable()
-	 * @see #verifySiteAvailability(IProgressMonitor)
+	 * @see #setVerifyUpdateSiteAvailability(boolean)
 	 */
 	public boolean isVerifyUpdateSiteAvailability() {
 		return verifyUpdateSiteAvailability;
@@ -180,7 +180,7 @@ public class Catalog {
 	 * indicate if update site availability should be verified. The default is false.
 	 * 
 	 * @see CatalogItem#getAvailable()
-	 * @see #verifySiteAvailability(IProgressMonitor)
+	 * @see #isVerifyUpdateSiteAvailability()
 	 */
 	public void setVerifyUpdateSiteAvailability(boolean verifyUpdateSiteAvailability) {
 		this.verifyUpdateSiteAvailability = verifyUpdateSiteAvailability;
@@ -188,7 +188,7 @@ public class Catalog {
 
 	/**
 	 * <em>not for general use: public for testing purposes only</em> A map of installed features to their version. Used
-	 * to resolve {@link AbstractCatalogItem#getFeatureFilter() feature filters}.
+	 * to resolve {@link CatalogItem#getFeatureFilter() feature filters}.
 	 */
 	public Map<String, Version> getFeatureToVersion() {
 		return featureToVersion;
@@ -196,7 +196,7 @@ public class Catalog {
 
 	/**
 	 * <em>not for general use: public for testing purposes only</em> A map of installed features to their version. Used
-	 * to resolve {@link AbstractCatalogItem#getFeatureFilter() feature filters}.
+	 * to resolve {@link CatalogItem#getFeatureFilter() feature filters}.
 	 */
 	public void setFeatureToVersion(Map<String, Version> featureToVersion) {
 		this.featureToVersion = featureToVersion;
@@ -246,7 +246,7 @@ public class Catalog {
 	}
 
 	/**
-	 * eliminate any connectors whose {@link AbstractCatalogItem#getPlatformFilter() platform filters} don't match
+	 * eliminate any connectors whose {@link CatalogItem#getPlatformFilter() platform filters} don't match
 	 */
 	private void filterDescriptors() {
 		for (CatalogItem connector : new ArrayList<CatalogItem>(items)) {
