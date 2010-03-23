@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Cloudsmith Inc. and others.
+ * Copyright (c) 2009 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,17 +8,17 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
+
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 
 /**
- * A function that obtains a class based on a String
+ * A function that creates an OSGi filter based on a String
  */
-public final class ClassFunction extends Function {
-
-	public ClassFunction(Expression[] operands) {
-		super(assertLength(operands, 1, 1, KEYWORD_CLASS));
+public final class FilterFunction extends Function {
+	public FilterFunction(Expression[] operands) {
+		super(assertLength(operands, 1, 1, KEYWORD_FILTER));
 	}
 
 	boolean assertSingleArgumentClass(Object v) {
@@ -26,14 +26,10 @@ public final class ClassFunction extends Function {
 	}
 
 	Object createInstance(Object arg) {
-		try {
-			return Class.forName((String) arg);
-		} catch (ClassNotFoundException e) {
-			throw new IllegalArgumentException(e.getMessage());
-		}
+		return ExpressionUtil.parseLDAP((String) arg);
 	}
 
 	public String getOperator() {
-		return KEYWORD_CLASS;
+		return KEYWORD_FILTER;
 	}
 }

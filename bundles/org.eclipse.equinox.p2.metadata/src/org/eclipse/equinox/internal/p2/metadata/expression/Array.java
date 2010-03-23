@@ -8,18 +8,16 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
-import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * An array of expressions
  */
-final class Array extends NAry implements IQLConstants, IQLExpression {
+final class Array extends NAry {
 	final class ArrayIterator implements Iterator<Object> {
 		private final IEvaluationContext context;
 

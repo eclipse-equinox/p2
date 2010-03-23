@@ -8,15 +8,14 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.query.IMatchQuery;
 import org.eclipse.equinox.p2.query.IQuery;
 
-public final class WrappedIQuery extends Function implements IQLConstants {
+public final class WrappedIQuery extends Function {
 
 	/**
 	 * <p>The WrappedIQuery constructor takes an array with one or two arguments.

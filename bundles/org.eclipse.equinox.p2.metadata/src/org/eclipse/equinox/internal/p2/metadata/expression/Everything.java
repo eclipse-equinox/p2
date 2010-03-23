@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.expression.IExpressionVisitor;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
+import org.eclipse.equinox.p2.query.IMatchQuery;
 
 /**
  * The immutable context used when evaluating an expression.
@@ -78,18 +79,33 @@ public final class Everything<T> extends MatchIteratorFilter<T> implements IRepe
 	 * @return <code>true</code> if repeated requests will be made, <code>false</code> if not.
 	 */
 	private static boolean needsRepeadedAccessToEverything(Expression expression) {
-		final boolean[] repeatedAccessNeeded = new boolean[] {false};
+		final int[] accessCount = new int[] {0};
+
 		expression.accept(new IExpressionVisitor() {
+			int accessMultiplier = 1;
+
 			public boolean visit(IExpression expr) {
-				// FIXME Needs proper counting
-				if (expr == ExpressionFactory.EVERYTHING) {
-					repeatedAccessNeeded[0] = true;
+				if (expr instanceof CollectionFilter) {
+					CollectionFilter cf = (CollectionFilter) expr;
+					if (cf.operand.accept(this)) {
+						accessMultiplier++;
+						cf.lambda.accept(this);
+						--accessMultiplier;
+					}
 					return false;
+				}
+				if (expr == ExpressionFactory.EVERYTHING) {
+					accessCount[0] += accessMultiplier;
+					return false;
+				}
+				if (expr instanceof WrappedIQuery) {
+					Expression queryArg = ((WrappedIQuery) expr).operands[0];
+					if (!(queryArg instanceof Literal && ((Literal) queryArg).value instanceof IMatchQuery<?>))
+						accessCount[0] += accessMultiplier;
 				}
 				return true;
 			}
 		});
-		// return repeatedAccessNeeded[0];
-		return true;
+		return accessCount[0] > 1;
 	}
 }

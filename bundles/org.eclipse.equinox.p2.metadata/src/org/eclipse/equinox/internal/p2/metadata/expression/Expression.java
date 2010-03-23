@@ -11,9 +11,11 @@
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.*;
+import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.query.IQueryResult;
 
 /**
  * The base class of the expression tree.
@@ -296,7 +298,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 	}
 
 	private static class MembersFinder implements IExpressionVisitor {
-		private final ArrayList<String> members = new ArrayList<String>();
+		private List<String> members;
 		private final Class<?> elementClass;
 		private final IExpression operand;
 
@@ -306,23 +308,33 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		}
 
 		public boolean visit(IExpression expression) {
+			if (expression instanceof Matches) {
+				if (IInstallableUnit.class.isAssignableFrom(elementClass)) {
+					// This one is a bit special since an
+					// IInstallableUnit ~= IRequirement often
+					// means that we can reuse the requirement
+					// expression.
+					Matches matches = (Matches) expression;
+					if (matches.lhs == operand) {
+						if (members == null)
+							members = new ArrayList<String>();
+						if (!members.contains(InstallableUnit.MEMBER_PROVIDED_CAPABILITIES))
+							members.add(InstallableUnit.MEMBER_PROVIDED_CAPABILITIES);
+					}
+				}
+
+				// No point in scanning for more index candidates in a matches expression
+				return false;
+			}
+
 			if (expression instanceof Member) {
 				Member member = (Member) expression;
 				if (member.getOperand() == operand) {
 					String name = member.getName();
+					if (members == null)
+						members = new ArrayList<String>();
 					if (!members.contains(name))
 						members.add(member.getName());
-					return false;
-				}
-			} else if (expression instanceof Matches && IInstallableUnit.class.isAssignableFrom(elementClass)) {
-				// This one is a bit special since an
-				// IInstallableUnit ~= IRequirement often
-				// means that we can reuse the requirement
-				// expression.
-				Matches matches = (Matches) expression;
-				if (matches.lhs == operand) {
-					if (!members.contains(InstallableUnit.MEMBER_PROVIDED_CAPABILITIES))
-						members.add(InstallableUnit.MEMBER_PROVIDED_CAPABILITIES);
 					return false;
 				}
 			}
@@ -330,7 +342,7 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		}
 
 		List<String> getMembers() {
-			return members;
+			return members == null ? CollectionUtils.<String> emptyList() : members;
 		}
 	}
 
@@ -407,5 +419,68 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		if (expression instanceof NAry)
 			return ((NAry) expression).operands;
 		throw new IllegalArgumentException();
+	}
+
+	static Set<?> asSet(Object val, boolean forcePrivateCopy) {
+		if (val == null)
+			throw new IllegalArgumentException("Cannot convert null into an set"); //$NON-NLS-1$
+
+		if (val instanceof IRepeatableIterator<?>) {
+			Object provider = ((IRepeatableIterator<?>) val).getIteratorProvider();
+			if (!forcePrivateCopy) {
+				if (provider instanceof Set<?>)
+					return (Set<?>) provider;
+				if (provider instanceof IQueryResult<?>)
+					return ((IQueryResult<?>) provider).toUnmodifiableSet();
+			}
+
+			if (provider instanceof Collection<?>)
+				val = provider;
+		} else {
+			if (!forcePrivateCopy) {
+				if (val instanceof Set<?>)
+					return (Set<?>) val;
+				if (val instanceof IQueryResult<?>)
+					return ((IQueryResult<?>) val).toUnmodifiableSet();
+			}
+		}
+
+		HashSet<Object> result;
+		if (val instanceof Collection<?>)
+			result = new HashSet<Object>((Collection<?>) val);
+		else {
+			result = new HashSet<Object>();
+			Iterator<?> iterator = RepeatableIterator.create(val);
+			while (iterator.hasNext())
+				result.add(iterator.next());
+		}
+		return result;
+	}
+
+	private static class TranslationSupportFinder implements IExpressionVisitor {
+		private boolean found;
+
+		TranslationSupportFinder() { //
+		}
+
+		public boolean visit(IExpression expression) {
+			if (expression.getExpressionType() == TYPE_MEMBER && InstallableUnit.MEMBER_TRANSLATED_PROPERTIES.equals(((Member) expression).getName()))
+				found = true;
+			return !found;
+		}
+
+		boolean isFound() {
+			return found;
+		}
+	}
+
+	/**
+	 * Checks if the expression will make repeated requests for the 'everything' iterator.
+	 * @return <code>true</code> if repeated requests will be made, <code>false</code> if not.
+	 */
+	public boolean needsTranslationSupport() {
+		TranslationSupportFinder tsFinder = new TranslationSupportFinder();
+		accept(tsFinder);
+		return tsFinder.isFound();
 	}
 }

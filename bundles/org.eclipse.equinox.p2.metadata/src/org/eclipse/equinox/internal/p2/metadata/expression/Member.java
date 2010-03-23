@@ -121,7 +121,7 @@ public abstract class Member extends Unary {
 				return 0;
 
 			if (val.getClass().isArray())
-				return Array.getLength(val);
+				return java.lang.reflect.Array.getLength(val);
 
 			if (val instanceof Collection<?>)
 				return ((Collection<?>) val).size();

@@ -8,18 +8,16 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
-import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * An expression that ensures that the elements of its collection is only returned
  * once throughout the whole query.
  */
-final class Unique extends Binary implements IQLConstants, IQLExpression {
+final class Unique extends Binary {
 	/**
 	 * A UniqueIterator that uses a set as a discriminator, ensuring that
 	 * no element is returned twice.

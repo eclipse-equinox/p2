@@ -4,29 +4,12 @@ Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.ql;singleton:=true
 Bundle-Version: 2.0.0.qualifier
 Bundle-ClassPath: .
-Bundle-Activator: org.eclipse.equinox.internal.p2.ql.QLActivator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Export-Package: org.eclipse.equinox.internal.p2.ql.expression;x-internal:=true,
- org.eclipse.equinox.p2.ql;version="2.0.0"
+Export-Package: org.eclipse.equinox.p2.ql;version="2.0.0"
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.5.1"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  J2SE-1.4,
  CDC-1.1/Foundation-1.1
 Bundle-ActivationPolicy: lazy
-Service-Component: OSGI-INF/qlFactory.xml, OSGI-INF/qlParser.xml
-Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
- org.eclipse.equinox.internal.p2.metadata,
- org.eclipse.equinox.internal.p2.metadata.expression,
- org.eclipse.equinox.internal.p2.metadata.expression.parser,
- org.eclipse.equinox.internal.p2.metadata.index,
- org.eclipse.equinox.internal.p2.metadata.query,
- org.eclipse.equinox.p2.core;version="[2.0.0,3.0.0)",
- org.eclipse.equinox.p2.engine;version="[2.0.0,3.0.0)",
- org.eclipse.equinox.p2.metadata;version="[2.0.0,3.0.0)",
- org.eclipse.equinox.p2.metadata.expression;version="[2.0.0,3.0.0)",
- org.eclipse.equinox.p2.metadata.index;version="[2.0.0,3.0.0)",
- org.eclipse.equinox.p2.query;version="[2.0.0,3.0.0)",
- org.eclipse.equinox.p2.repository.artifact;version="[2.0.0,3.0.0)",
- org.eclipse.osgi.service.localization,
- org.osgi.framework
+Import-Package: org.eclipse.equinox.p2.metadata.expression;version="[2.0.0,3.0.0)"

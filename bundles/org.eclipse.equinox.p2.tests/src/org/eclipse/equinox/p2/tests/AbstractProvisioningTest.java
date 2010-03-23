@@ -642,16 +642,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	public static int queryResultSize(IQueryResult queryResult) {
-		if (queryResult instanceof Collector)
-			return ((Collector) queryResult).size();
-
-		int cnt = 0;
-		Iterator itor = queryResult.iterator();
-		while (itor.hasNext()) {
-			itor.next();
-			++cnt;
-		}
-		return cnt;
+		return queryResult.toUnmodifiableSet().size();
 	}
 
 	public static int queryResultUniqueSize(IQueryResult queryResult) {

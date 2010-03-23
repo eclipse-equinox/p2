@@ -8,17 +8,15 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.metadata.expression.IExpressionVisitor;
-import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * A function that executes some code
  */
-final class CurryedLambdaExpression extends LambdaExpression implements IQLConstants, IQLExpression {
+final class CurryedLambdaExpression extends LambdaExpression {
 	private static final Assignment[] emptyAssignmentArray = new Assignment[0];
 	private final Assignment[] assignments;
 
@@ -61,7 +59,7 @@ final class CurryedLambdaExpression extends LambdaExpression implements IQLConst
 				appendOperand(bld, rootVariable, assignments[idx].rhs, IExpressionConstants.PRIORITY_COMMA);
 				bld.append(", "); //$NON-NLS-1$
 			}
-			bld.append(IQLConstants.OPERATOR_EACH);
+			bld.append(OPERATOR_EACH);
 			bld.append(", {"); //$NON-NLS-1$
 			for (int idx = 0; idx < top; ++idx) {
 				appendOperand(bld, rootVariable, assignments[idx].lhs, IExpressionConstants.PRIORITY_COMMA);

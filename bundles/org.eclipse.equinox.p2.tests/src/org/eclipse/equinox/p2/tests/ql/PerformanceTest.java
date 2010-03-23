@@ -17,9 +17,9 @@ import org.eclipse.equinox.internal.p2.director.QueryableArray;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.expression.MatchIteratorFilter;
-import org.eclipse.equinox.internal.p2.metadata.expression.QueryResult;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.expression.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IExpressionParser;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -27,26 +27,22 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class PerformanceTest extends AbstractProvisioningTest {
 	public void testParserPerformance() throws Exception {
-		long start = System.currentTimeMillis();
-		IExpressionFactory factory = ExpressionUtil.getFactory();
 		IExpressionParser parser = ExpressionUtil.getParser();
-		for (int i = 0; i < 20000; i++) {
-			factory.matchExpression(parser.parse("providedCapabilities.exists(x | x.name == foo)"));
-		}
-		long end = System.currentTimeMillis();
-		System.out.println(end - start);
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < 50000; i++)
+			parser.parse("providedCapabilities.exists(x | x.name == foo)");
+		System.out.println("Parse of 50000 expressions took: " + (System.currentTimeMillis() - start) + " milliseconds");
 	}
 
 	public void testMatchQueryVersusExpressionPerformance() throws Exception {
 
 		IMetadataRepository repo = getMDR("/testData/galileoM7");
 
-		IQuery<IInstallableUnit> expressionQuery = QueryUtil.createMatchQuery("id ~= /org.eclipse.*.feature.group/");
-		final SimplePattern pattern = SimplePattern.compile("org.eclipse.*.feature.group");
+		IQuery<IInstallableUnit> expressionQuery = QueryUtil.createMatchQuery("id ~= /com.ibm.*/");
 		IQuery<IInstallableUnit> matchQuery = new MatchQuery<IInstallableUnit>() {
 			@Override
 			public boolean isMatch(IInstallableUnit candidate) {
-				return pattern.isMatch(candidate.getId());
+				return candidate.getId().startsWith("com.ibm.");
 			}
 		};
 		IQueryResult<IInstallableUnit> result;
@@ -55,20 +51,93 @@ public class PerformanceTest extends AbstractProvisioningTest {
 
 		for (int i = 0; i < 5; ++i) {
 			long start = System.currentTimeMillis();
-			for (int idx = 0; idx < 80; ++idx) {
+			for (int idx = 0; idx < 200; ++idx) {
 				result = repo.query(expressionQuery, new NullProgressMonitor());
-				assertEquals(queryResultSize(result), 482);
+				assertEquals(queryResultSize(result), 2);
 			}
 			exprQueryMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
-			for (int idx = 0; idx < 80; ++idx) {
+			for (int idx = 0; idx < 200; ++idx) {
 				result = repo.query(matchQuery, new NullProgressMonitor());
-				assertEquals(queryResultSize(result), 482);
+				assertEquals(queryResultSize(result), 2);
 			}
 			matchQueryMS += (System.currentTimeMillis() - start);
 		}
 		System.out.println("ExpressionQuery took: " + exprQueryMS + " milliseconds");
+		System.out.println("MatchQuery took: " + matchQueryMS + " milliseconds");
+		System.out.println();
+	}
+
+	public void testMatchQueryVersusIndexedExpressionPerformance() throws Exception {
+
+		IMetadataRepository repo = getMDR("/testData/galileoM7");
+
+		IQuery<IInstallableUnit> expressionQuery = QueryUtil.createMatchQuery("id == 'org.eclipse.core.resources'");
+		IQuery<IInstallableUnit> matchQuery = new MatchQuery<IInstallableUnit>() {
+			@Override
+			public boolean isMatch(IInstallableUnit candidate) {
+				return candidate.getId().equals("org.eclipse.core.resources");
+			}
+		};
+		IQueryResult<IInstallableUnit> result;
+		long matchQueryMS = 0;
+		long exprQueryMS = 0;
+
+		for (int i = 0; i < 5; ++i) {
+			long start = System.currentTimeMillis();
+			for (int idx = 0; idx < 200; ++idx) {
+				result = repo.query(expressionQuery, new NullProgressMonitor());
+				assertEquals(queryResultSize(result), 1);
+			}
+			exprQueryMS += (System.currentTimeMillis() - start);
+
+			start = System.currentTimeMillis();
+			for (int idx = 0; idx < 200; ++idx) {
+				result = repo.query(matchQuery, new NullProgressMonitor());
+				assertEquals(queryResultSize(result), 1);
+			}
+			matchQueryMS += (System.currentTimeMillis() - start);
+		}
+		System.out.println("IndexedExpressionQuery took: " + exprQueryMS + " milliseconds");
+		System.out.println("MatchQuery took: " + matchQueryMS + " milliseconds");
+		System.out.println();
+	}
+
+	public void testMatchQueryVersusIndexedExpressionPerformance2() throws Exception {
+
+		IMetadataRepository repo = getMDR("/testData/galileoM7");
+
+		IQuery<IInstallableUnit> expressionQuery = QueryUtil.createMatchQuery("providedCapabilities.exists(x | x.namespace == 'org.eclipse.equinox.p2.iu' && x.name == 'org.eclipse.core.resources')");
+		IQuery<IInstallableUnit> matchQuery = new MatchQuery<IInstallableUnit>() {
+			@Override
+			public boolean isMatch(IInstallableUnit candidate) {
+				for (IProvidedCapability capability : candidate.getProvidedCapabilities())
+					if ("org.eclipse.equinox.p2.iu".equals(capability.getNamespace()) && "org.eclipse.core.resources".equals(capability.getName()))
+						return true;
+				return false;
+			}
+		};
+		IQueryResult<IInstallableUnit> result;
+		long matchQueryMS = 0;
+		long exprQueryMS = 0;
+
+		for (int i = 0; i < 5; ++i) {
+			long start = System.currentTimeMillis();
+			for (int idx = 0; idx < 200; ++idx) {
+				result = repo.query(expressionQuery, new NullProgressMonitor());
+				assertEquals(queryResultSize(result), 1);
+			}
+			exprQueryMS += (System.currentTimeMillis() - start);
+
+			start = System.currentTimeMillis();
+			for (int idx = 0; idx < 200; ++idx) {
+				result = repo.query(matchQuery, new NullProgressMonitor());
+				assertEquals(queryResultSize(result), 1);
+			}
+			matchQueryMS += (System.currentTimeMillis() - start);
+		}
+		System.out.println("IndexedExpressionQuery took: " + exprQueryMS + " milliseconds");
 		System.out.println("MatchQuery took: " + matchQueryMS + " milliseconds");
 		System.out.println();
 	}
@@ -80,12 +149,12 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		IQuery<IInstallableUnit> matchQuery = new MatchQuery<IInstallableUnit>() {
 			@Override
 			public boolean isMatch(IInstallableUnit candidate) {
-				return true;
+				return candidate.getId().startsWith("org.eclipse.");
 			}
 		};
 
-		IQueryResult<IInstallableUnit> result;
 		long matchFilterMS = 0;
+		long iterationFilterMS = 0;
 		long matchQueryMS = 0;
 
 		for (int i = 0; i < 5; ++i) {
@@ -95,22 +164,43 @@ public class PerformanceTest extends AbstractProvisioningTest {
 				Iterator<IInstallableUnit> matchIter = new MatchIteratorFilter<IInstallableUnit>(everything.iterator()) {
 					@Override
 					protected boolean isMatch(IInstallableUnit candidate) {
-						return true;
+						return candidate.getId().startsWith("org.eclipse.");
 					}
 				};
-				result = new QueryResult<IInstallableUnit>(matchIter);
-				assertEquals(result.toUnmodifiableSet().size(), 3465);
+				int sz = 0;
+				while (matchIter.hasNext()) {
+					matchIter.next();
+					sz++;
+				}
+				assertEquals(sz, 3240);
 			}
 			matchFilterMS += (System.currentTimeMillis() - start);
 
 			start = System.currentTimeMillis();
 			for (int idx = 0; idx < 80; ++idx) {
-				result = repo.query(matchQuery, new NullProgressMonitor());
-				assertEquals(result.toUnmodifiableSet().size(), 3465);
+				int sz = 0;
+				for (Iterator<IInstallableUnit> iter = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).iterator(); iter.hasNext();) {
+					IInstallableUnit candidate = iter.next();
+					if (candidate.getId().startsWith("org.eclipse."))
+						sz++;
+				}
+				assertEquals(sz, 3240);
+			}
+			iterationFilterMS += (System.currentTimeMillis() - start);
+
+			start = System.currentTimeMillis();
+			for (int idx = 0; idx < 80; ++idx) {
+				int sz = 0;
+				for (Iterator<IInstallableUnit> iter = repo.query(matchQuery, new NullProgressMonitor()).iterator(); iter.hasNext();) {
+					iter.next();
+					sz++;
+				}
+				assertEquals(sz, 3240);
 			}
 			matchQueryMS += (System.currentTimeMillis() - start);
 		}
 		System.out.println("MatchFilter took: " + matchFilterMS + " milliseconds");
+		System.out.println("IteratorFilter took: " + iterationFilterMS + " milliseconds");
 		System.out.println("MatchQuery took: " + matchQueryMS + " milliseconds");
 		System.out.println();
 	}

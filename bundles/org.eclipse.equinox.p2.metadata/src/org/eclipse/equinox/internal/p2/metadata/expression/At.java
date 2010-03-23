@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
  * This class represents indexed or keyed access to an indexed collection
  * or a map.
  */
-public class At extends Binary {
+class At extends Binary {
 	protected At(Expression lhs, Expression rhs) {
 		super(lhs, rhs);
 	}

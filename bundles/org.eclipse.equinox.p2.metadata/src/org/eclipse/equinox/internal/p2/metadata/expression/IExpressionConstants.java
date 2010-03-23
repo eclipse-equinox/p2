@@ -21,8 +21,25 @@ public interface IExpressionConstants {
 	String KEYWORD_NULL = "null"; //$NON-NLS-1$
 	String KEYWORD_RANGE = "range"; //$NON-NLS-1$
 	String KEYWORD_TRUE = "true"; //$NON-NLS-1$
-
+	String KEYWORD_COLLECT = "collect"; //$NON-NLS-1$
+	String KEYWORD_FIRST = "first"; //$NON-NLS-1$
+	String KEYWORD_FLATTEN = "flatten"; //$NON-NLS-1$
+	String KEYWORD_INTERSECT = "intersect"; //$NON-NLS-1$
+	String KEYWORD_IQUERY = "iquery"; //$NON-NLS-1$
+	String KEYWORD_LATEST = "latest"; //$NON-NLS-1$
+	String KEYWORD_LIMIT = "limit"; //$NON-NLS-1$
+	String KEYWORD_LOCALIZED_KEYS = "localizedKeys"; //$NON-NLS-1$
+	String KEYWORD_LOCALIZED_MAP = "localizedMap"; //$NON-NLS-1$
+	String KEYWORD_LOCALIZED_PROPERTY = "localizedProperty"; //$NON-NLS-1$
+	String KEYWORD_SATISFIES_ALL = "satisfiesAll"; //$NON-NLS-1$
+	String KEYWORD_SATISFIES_ANY = "satisfiesAny"; //$NON-NLS-1$
+	String KEYWORD_SELECT = "select"; //$NON-NLS-1$
+	String KEYWORD_SET = "set"; //$NON-NLS-1$
+	String KEYWORD_TRAVERSE = "traverse"; //$NON-NLS-1$
+	String KEYWORD_UNION = "union"; //$NON-NLS-1$
+	String KEYWORD_UNIQUE = "unique"; //$NON-NLS-1$
 	String KEYWORD_VERSION = "version"; //$NON-NLS-1$
+
 	String OPERATOR_AND = "&&"; //$NON-NLS-1$
 	String OPERATOR_AT = "[]"; //$NON-NLS-1$
 	String OPERATOR_EQUALS = "=="; //$NON-NLS-1$
@@ -34,9 +51,13 @@ public interface IExpressionConstants {
 	String OPERATOR_MEMBER = "."; //$NON-NLS-1$
 	String OPERATOR_NOT = "!"; //$NON-NLS-1$
 	String OPERATOR_NOT_EQUALS = "!="; //$NON-NLS-1$
-
 	String OPERATOR_OR = "||"; //$NON-NLS-1$
 	String OPERATOR_PARAMETER = "$"; //$NON-NLS-1$
+	String OPERATOR_ARRAY = "[]"; //$NON-NLS-1$
+	String OPERATOR_ASSIGN = "="; //$NON-NLS-1$
+	String OPERATOR_EACH = "_"; //$NON-NLS-1$
+	String OPERATOR_ELSE = ":"; //$NON-NLS-1$
+	String OPERATOR_IF = "?"; //$NON-NLS-1$
 
 	int PRIORITY_LITERAL = 1;
 	int PRIORITY_VARIABLE = 1;

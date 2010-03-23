@@ -8,32 +8,32 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
+
 
 /**
  * A function that obtains a class based on a String
  */
-public final class BooleanFunction extends Function {
+public final class ClassFunction extends Function {
 
-	public BooleanFunction(Expression[] operands) {
-		super(assertLength(operands, 1, 1, KEYWORD_BOOLEAN));
+	public ClassFunction(Expression[] operands) {
+		super(assertLength(operands, 1, 1, KEYWORD_CLASS));
 	}
 
 	boolean assertSingleArgumentClass(Object v) {
-		return v instanceof String || v instanceof Boolean;
+		return v instanceof String;
 	}
 
 	Object createInstance(Object arg) {
-		if (arg instanceof String)
-			return Boolean.valueOf("true".equalsIgnoreCase((String) arg)); //$NON-NLS-1$
-		if (arg instanceof Boolean)
-			return arg;
-		return Boolean.FALSE;
+		try {
+			return Class.forName((String) arg);
+		} catch (ClassNotFoundException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
 	}
 
 	public String getOperator() {
-		return KEYWORD_BOOLEAN;
+		return KEYWORD_CLASS;
 	}
 }

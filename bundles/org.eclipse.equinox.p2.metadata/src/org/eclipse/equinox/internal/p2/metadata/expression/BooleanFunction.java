@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Cloudsmith Inc. and others.
+ * Copyright (c) 2010 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,29 +8,32 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
-import org.eclipse.equinox.p2.metadata.VersionRange;
+
 
 /**
- * A function that creates a {@link VersionRange} from a String
+ * A function that obtains a class based on a String
  */
-public final class RangeFunction extends Function {
+public final class BooleanFunction extends Function {
 
-	public RangeFunction(Expression[] operands) {
-		super(assertLength(operands, 1, 1, KEYWORD_RANGE));
+	public BooleanFunction(Expression[] operands) {
+		super(assertLength(operands, 1, 1, KEYWORD_BOOLEAN));
 	}
 
 	boolean assertSingleArgumentClass(Object v) {
-		return v instanceof String;
+		return v instanceof String || v instanceof Boolean;
 	}
 
 	Object createInstance(Object arg) {
-		return new VersionRange((String) arg);
+		if (arg instanceof String)
+			return Boolean.valueOf("true".equalsIgnoreCase((String) arg)); //$NON-NLS-1$
+		if (arg instanceof Boolean)
+			return arg;
+		return Boolean.FALSE;
 	}
 
 	public String getOperator() {
-		return KEYWORD_RANGE;
+		return KEYWORD_BOOLEAN;
 	}
 }

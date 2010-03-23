@@ -8,18 +8,16 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
-import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * A collection filter that yields the first element of the <code>collection</code> for which
  * the <code>filter</code> yields <code>true</code>
  */
-final class First extends CollectionFilter implements IQLExpression {
+final class First extends CollectionFilter {
 	First(Expression collection, LambdaExpression lambda) {
 		super(collection, lambda);
 	}
@@ -40,6 +38,6 @@ final class First extends CollectionFilter implements IQLExpression {
 	}
 
 	public String getOperator() {
-		return IQLConstants.KEYWORD_FIRST;
+		return KEYWORD_FIRST;
 	}
 }

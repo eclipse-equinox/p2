@@ -1,13 +1,34 @@
 package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import java.util.List;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.query.IQuery;
 
 public class ExpressionFactory implements IExpressionFactory, IExpressionConstants {
-	public static final IExpressionFactory INSTANCE = new ExpressionFactory();
-	public static final Variable THIS = new Variable(VARIABLE_THIS);
 	public static final Variable EVERYTHING = new Variable(VARIABLE_EVERYTHING);
+	protected static final Map<String, Constructor<?>> functionMap;
+	public static final IExpressionFactory INSTANCE = new ExpressionFactory();
+
+	public static final Variable THIS = new Variable(VARIABLE_THIS);
+
+	static {
+		Class<?>[] args = new Class[] {Expression[].class};
+		Map<String, Constructor<?>> f = new HashMap<String, Constructor<?>>();
+		try {
+			f.put(KEYWORD_BOOLEAN, BooleanFunction.class.getConstructor(args));
+			f.put(KEYWORD_FILTER, FilterFunction.class.getConstructor(args));
+			f.put(KEYWORD_VERSION, VersionFunction.class.getConstructor(args));
+			f.put(KEYWORD_RANGE, RangeFunction.class.getConstructor(args));
+			f.put(KEYWORD_CLASS, ClassFunction.class.getConstructor(args));
+			f.put(KEYWORD_SET, SetFunction.class.getConstructor(args));
+			f.put(KEYWORD_IQUERY, WrappedIQuery.class.getConstructor(args));
+			functionMap = Collections.unmodifiableMap(f);
+		} catch (Exception e) {
+			throw new ExceptionInInitializerError(e);
+		}
+	}
 
 	protected static Expression[] convertArray(IExpression[] operands) {
 		Expression[] ops = new Expression[operands.length];
@@ -27,29 +48,28 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		return new And(convertArray(operands));
 	}
 
-	public IExpression array(IExpression... elements) {
-		throw failNoQL();
+	public IExpression array(IExpression... operands) {
+		return new Array(convertArray(operands));
+	}
+
+	public IExpression assignment(IExpression variable, IExpression expression) {
+		return new Assignment((Variable) variable, (Expression) expression);
 	}
 
 	public IExpression at(IExpression target, IExpression key) {
 		return new At((Expression) target, (Expression) key);
 	}
 
-	@SuppressWarnings("unchecked")
-	public IExpression normalize(List<? extends IExpression> operands, int expressionType) {
-		return Expression.normalize((List<Expression>) operands, expressionType);
+	public IExpression collect(IExpression collection, IExpression lambda) {
+		return new Collect((Expression) collection, (LambdaExpression) lambda);
+	}
+
+	public IExpression condition(IExpression test, IExpression ifTrue, IExpression ifFalse) {
+		return new Condition((Expression) test, (Expression) ifTrue, (Expression) ifFalse);
 	}
 
 	public IExpression constant(Object value) {
 		return Literal.create(value);
-	}
-
-	public IEvaluationContext createContext(Object... parameters) {
-		return EvaluationContext.create(parameters, (Variable[]) null);
-	}
-
-	public IEvaluationContext createContext(IExpression[] variables, Object... parameters) {
-		return EvaluationContext.create(parameters, variables);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -66,8 +86,12 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		return new ContextExpression<T>((Expression) expression, parameters);
 	}
 
-	public IFilterExpression filterExpression(IExpression expression) {
-		return new LDAPFilter((Expression) expression);
+	public IEvaluationContext createContext(IExpression[] variables, Object... parameters) {
+		return EvaluationContext.create(parameters, variables);
+	}
+
+	public IEvaluationContext createContext(Object... parameters) {
+		return EvaluationContext.create(parameters, (Variable[]) null);
 	}
 
 	public IExpression equals(IExpression lhs, IExpression rhs) {
@@ -76,6 +100,39 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 
 	public IExpression exists(IExpression collection, IExpression lambda) {
 		return new Exists((Expression) collection, (LambdaExpression) lambda);
+	}
+
+	public IFilterExpression filterExpression(IExpression expression) {
+		return new LDAPFilter((Expression) expression);
+	}
+
+	public IExpression first(IExpression collection, IExpression lambda) {
+		return new First((Expression) collection, (LambdaExpression) lambda);
+	}
+
+	public IExpression flatten(IExpression collection) {
+		return new Flatten((Expression) collection);
+	}
+
+	public IExpression function(Object function, IExpression... args) {
+		try {
+			return (IExpression) ((Constructor<?>) function).newInstance(new Object[] {convertArray(args)});
+		} catch (IllegalArgumentException e) {
+			throw e;
+		} catch (InvocationTargetException e) {
+			Throwable t = e.getCause();
+			if (t instanceof RuntimeException)
+				throw (RuntimeException) t;
+			throw new RuntimeException(t);
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public Map<String, ? extends Object> getFunctionMap() {
+		return functionMap;
 	}
 
 	public IExpression greater(IExpression lhs, IExpression rhs) {
@@ -90,16 +147,24 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		return new Parameter(index);
 	}
 
+	public IExpression intersect(IExpression c1, IExpression c2) {
+		return new Intersect((Expression) c1, (Expression) c2);
+	}
+
 	public IExpression lambda(IExpression variable, IExpression body) {
 		return new LambdaExpression((Variable) variable, (Expression) body);
 	}
 
-	public IExpression intersect(IExpression c1, IExpression c2) {
-		throw failNoQL();
+	public IExpression lambda(IExpression variable, IExpression[] assignments, IExpression body) {
+		if (assignments.length == 0)
+			return lambda(variable, body);
+		Assignment[] asgns = new Assignment[assignments.length];
+		System.arraycopy(assignments, 0, asgns, 0, assignments.length);
+		return new CurryedLambdaExpression((Variable) variable, asgns, (Expression) body);
 	}
 
 	public IExpression latest(IExpression collection) {
-		throw failNoQL();
+		return new Latest((Expression) collection);
 	}
 
 	public IExpression less(IExpression lhs, IExpression rhs) {
@@ -110,12 +175,12 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		return new Compare((Expression) lhs, (Expression) rhs, true, true);
 	}
 
-	public IExpression limit(IExpression collection, int count) {
-		throw failNoQL();
+	public IExpression limit(IExpression collection, IExpression limit) {
+		return new Limit((Expression) collection, (Expression) limit);
 	}
 
-	public IExpression limit(IExpression collection, IExpression limit) {
-		throw failNoQL();
+	public IExpression limit(IExpression collection, int count) {
+		return new Limit((Expression) collection, Literal.create(new Integer(count)));
 	}
 
 	public IExpression matches(IExpression lhs, IExpression rhs) {
@@ -143,6 +208,29 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		return new Member.DynamicMember((Expression) target, name);
 	}
 
+	public IExpression memberCall(IExpression target, String name, IExpression... args) {
+		if (args.length == 0)
+			return member(target, name);
+
+		Expression[] eargs = convertArray(args);
+
+		// Insert functions that takes arguments here
+
+		//
+		StringBuffer bld = new StringBuffer();
+		bld.append("Don't know how to do a member call with "); //$NON-NLS-1$
+		bld.append(name);
+		bld.append('(');
+		Expression.elementsToString(bld, null, eargs);
+		bld.append(')');
+		throw new IllegalArgumentException(bld.toString());
+	}
+
+	@SuppressWarnings("unchecked")
+	public IExpression normalize(List<? extends IExpression> operands, int expressionType) {
+		return Expression.normalize((List<Expression>) operands, expressionType);
+	}
+
 	public IExpression not(IExpression operand) {
 		if (operand instanceof Equals) {
 			Equals eq = (Equals) operand;
@@ -167,11 +255,11 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 	}
 
 	public IExpression pipe(IExpression... operands) {
-		throw failNoQL();
+		return Pipe.createPipe(convertArray(operands));
 	}
 
 	public IExpression select(IExpression collection, IExpression lambda) {
-		throw failNoQL();
+		return new Select((Expression) collection, (LambdaExpression) lambda);
 	}
 
 	public IExpression thisVariable() {
@@ -179,11 +267,20 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 	}
 
 	public IExpression toExpression(IQuery<?> query) {
-		throw failNoQL();
+		Literal queryConstant = Literal.create(query);
+		return new WrappedIQuery(new Expression[] {queryConstant});
+	}
+
+	public IExpression traverse(IExpression collection, IExpression lambda) {
+		return new Traverse((Expression) collection, (LambdaExpression) lambda);
 	}
 
 	public IExpression union(IExpression c1, IExpression c2) {
-		throw failNoQL();
+		return new Union((Expression) c1, (Expression) c2);
+	}
+
+	public IExpression unique(IExpression collection, IExpression cache) {
+		return new Unique((Expression) collection, (Expression) cache);
 	}
 
 	public IExpression variable(String name) {
@@ -192,9 +289,5 @@ public class ExpressionFactory implements IExpressionFactory, IExpressionConstan
 		if (VARIABLE_THIS.equals(name))
 			return THIS;
 		return new Variable(name);
-	}
-
-	private static UnsupportedOperationException failNoQL() {
-		return new UnsupportedOperationException("org.eclipse.equinox.p2.ql not installed"); //$NON-NLS-1$		
 	}
 }

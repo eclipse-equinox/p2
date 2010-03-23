@@ -8,17 +8,15 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
-import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * An expression that represents a function such as filter(&lt;expr&gt;) or version(&lt;expr&gt;)
  */
-public abstract class Function extends NAry implements IQLExpression {
+public abstract class Function extends NAry {
 
 	private Object instance;
 

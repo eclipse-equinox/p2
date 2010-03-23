@@ -8,17 +8,15 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Iterator;
 import java.util.Set;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
-import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  */
-final class Union extends Binary implements IQLConstants, IQLExpression {
+final class Union extends Binary {
 	Union(Expression operand, Expression param) {
 		super(operand, param);
 	}
@@ -29,7 +27,7 @@ final class Union extends Binary implements IQLConstants, IQLExpression {
 
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
 		@SuppressWarnings("unchecked")
-		Set<Object> resultSet = (Set<Object>) QLUtil.asSet(lhs.evaluate(context), true);
+		Set<Object> resultSet = (Set<Object>) asSet(lhs.evaluate(context), true);
 		Iterator<?> itor = rhs.evaluateAsIterator(context);
 		while (itor.hasNext())
 			resultSet.add(itor.next());

@@ -8,17 +8,15 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
-import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * n-ary <code>intersect</code> operator. The result is the set of elements that were found in all operands. 
  */
-final class Intersect extends Binary implements IQLConstants, IQLExpression {
+final class Intersect extends Binary {
 	Intersect(Expression operand, Expression param) {
 		super(operand, param);
 	}
@@ -28,7 +26,7 @@ final class Intersect extends Binary implements IQLConstants, IQLExpression {
 	}
 
 	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
-		Set<?> resultSet = QLUtil.asSet(lhs.evaluate(context), false); // Safe since it will not be modified
+		Set<?> resultSet = asSet(lhs.evaluate(context), false); // Safe since it will not be modified
 		Iterator<?> itor = rhs.evaluateAsIterator(context);
 		Set<Object> retained = new HashSet<Object>();
 		while (itor.hasNext()) {

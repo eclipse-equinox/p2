@@ -8,9 +8,9 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
+
 import org.eclipse.equinox.p2.metadata.Version;
 
 /**

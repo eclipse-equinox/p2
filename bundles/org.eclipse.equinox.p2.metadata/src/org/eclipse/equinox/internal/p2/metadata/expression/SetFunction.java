@@ -8,13 +8,12 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.HashSet;
-import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
-public final class SetFunction extends Function implements IQLConstants {
+public final class SetFunction extends Function {
 
 	public SetFunction(Expression[] operands) {
 		super(operands);

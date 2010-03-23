@@ -8,10 +8,9 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
@@ -89,6 +88,6 @@ final class Latest extends UnaryCollectionFilter {
 	}
 
 	public String getOperator() {
-		return KEYWORD_LATEST;
+		return IExpressionConstants.KEYWORD_LATEST;
 	}
 }

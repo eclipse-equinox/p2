@@ -8,21 +8,18 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.KeyWithLocale;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.index.IIndex;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
-import org.eclipse.equinox.p2.ql.IQLExpression;
-import org.eclipse.equinox.p2.ql.IQLFactory;
 
-public class Pipe extends NAry implements IQLExpression {
+public class Pipe extends NAry {
 
 	private class NoIndexProvider implements IIndexProvider<Object> {
 		private final IIndexProvider<?> indexProvider;
@@ -69,7 +66,7 @@ public class Pipe extends NAry implements IQLExpression {
 		// make one more optimization:
 		//  <expr1>, <expr2> becomes select(x | <expr1> && <expr2>)
 
-		IQLFactory factory = (IQLFactory) ExpressionUtil.getFactory();
+		IExpressionFactory factory = ExpressionUtil.getFactory();
 		ArrayList<Expression> pipeables = new ArrayList<Expression>();
 		ArrayList<Expression> booleans = new ArrayList<Expression>();
 		VariableFinder finder = new VariableFinder(ExpressionFactory.EVERYTHING);
@@ -111,7 +108,7 @@ public class Pipe extends NAry implements IQLExpression {
 		return boolExpr;
 	}
 
-	private static Expression makePipeableOfBooleans(IQLFactory factory, ArrayList<Expression> booleans) {
+	private static Expression makePipeableOfBooleans(IExpressionFactory factory, ArrayList<Expression> booleans) {
 		Expression boolExpr = normalizeBoolean(factory, booleans);
 		return (Expression) factory.select(ExpressionFactory.EVERYTHING, factory.lambda(ExpressionFactory.THIS, boolExpr));
 	}

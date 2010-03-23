@@ -15,8 +15,8 @@ import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.IQueryResult;
 
 public class RepeatableIterator<T> implements IRepeatableIterator<T> {
-	private final List<T> values;
-	private int position = -1;
+	private final Collection<T> values;
+	private final Iterator<T> iterator;
 
 	@SuppressWarnings("unchecked")
 	public static <T> IRepeatableIterator<T> create(Object unknown) {
@@ -38,15 +38,11 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 	}
 
 	public static <T> IRepeatableIterator<T> create(Iterator<T> iterator) {
-		return iterator instanceof IRepeatableIterator<?> ? ((IRepeatableIterator<T>) iterator).getCopy() : new ElementRetainingIterator<T>(iterator);
-	}
-
-	public static <T> IRepeatableIterator<T> create(List<T> values) {
-		return new RepeatableIterator<T>(values);
+		return iterator instanceof IRepeatableIterator<?> ? ((IRepeatableIterator<T>) iterator).getCopy() : new RepeatableIterator<T>(iterator);
 	}
 
 	public static <T> IRepeatableIterator<T> create(Collection<T> values) {
-		return new CollectionIterator<T>(values);
+		return new RepeatableIterator<T>(values);
 	}
 
 	public static <T> IRepeatableIterator<T> create(IQueryResult<T> values) {
@@ -61,8 +57,17 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 		return new IndexProviderIterator<T>(values);
 	}
 
-	RepeatableIterator(List<T> values) {
+	RepeatableIterator(Iterator<T> iterator) {
+		HashSet<T> v = new HashSet<T>();
+		while (iterator.hasNext())
+			v.add(iterator.next());
+		values = v;
+		this.iterator = v.iterator();
+	}
+
+	RepeatableIterator(Collection<T> values) {
 		this.values = values;
+		this.iterator = values.iterator();
 	}
 
 	public IRepeatableIterator<T> getCopy() {
@@ -70,15 +75,11 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 	}
 
 	public boolean hasNext() {
-		return position + 1 < values.size();
+		return iterator.hasNext();
 	}
 
 	public T next() {
-		if (++position == values.size()) {
-			--position;
-			throw new NoSuchElementException();
-		}
-		return values.get(position);
+		return iterator.next();
 	}
 
 	public void remove() {
@@ -86,14 +87,6 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 	}
 
 	public Object getIteratorProvider() {
-		return values;
-	}
-
-	void setPosition(int position) {
-		this.position = position;
-	}
-
-	List<T> getValues() {
 		return values;
 	}
 
@@ -128,52 +121,12 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 		}
 	}
 
-	static abstract class DeferredIterator<T> implements IRepeatableIterator<T> {
-		private Iterator<T> iterator;
-
-		public boolean hasNext() {
-			if (iterator == null)
-				iterator = getIterator();
-			return iterator.hasNext();
-		}
-
-		public T next() {
-			if (iterator == null)
-				iterator = getIterator();
-			return iterator.next();
-		}
-
-		public void remove() {
-			throw new UnsupportedOperationException();
-		}
-
-		abstract Iterator<T> getIterator();
-	}
-
-	static class CollectionIterator<T> extends DeferredIterator<T> {
-		private final Collection<T> collection;
-
-		CollectionIterator(Collection<T> collection) {
-			this.collection = collection;
-		}
-
-		public IRepeatableIterator<T> getCopy() {
-			return new CollectionIterator<T>(collection);
-		}
-
-		public Object getIteratorProvider() {
-			return collection;
-		}
-
-		Iterator<T> getIterator() {
-			return collection.iterator();
-		}
-	}
-
-	static class IndexProviderIterator<T> extends DeferredIterator<T> {
+	static class IndexProviderIterator<T> implements IRepeatableIterator<T> {
 		private final IIndexProvider<T> indexProvider;
+		private final Iterator<T> iterator;
 
 		IndexProviderIterator(IIndexProvider<T> indexProvider) {
+			this.iterator = indexProvider.everything();
 			this.indexProvider = indexProvider;
 		}
 
@@ -185,8 +138,16 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 			return indexProvider;
 		}
 
-		Iterator<T> getIterator() {
-			return indexProvider.everything();
+		public boolean hasNext() {
+			return iterator.hasNext();
+		}
+
+		public T next() {
+			return iterator.next();
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException();
 		}
 	}
 
@@ -218,58 +179,6 @@ public class RepeatableIterator<T> implements IRepeatableIterator<T> {
 
 		public void remove() {
 			throw new UnsupportedOperationException();
-		}
-	}
-
-	static class ElementRetainingIterator<T> extends RepeatableIterator<T> {
-
-		private Iterator<T> innerIterator;
-
-		ElementRetainingIterator(Iterator<T> iterator) {
-			super(new ArrayList<T>());
-			innerIterator = iterator;
-		}
-
-		public synchronized boolean hasNext() {
-			if (innerIterator != null) {
-				if (innerIterator.hasNext())
-					return true;
-				innerIterator = null;
-				setPosition(getValues().size());
-			}
-			return super.hasNext();
-		}
-
-		public synchronized T next() {
-			if (innerIterator != null) {
-				T val = innerIterator.next();
-				getValues().add(val);
-				return val;
-			}
-			return super.next();
-		}
-
-		public synchronized IRepeatableIterator<T> getCopy() {
-			// If the current iterator still exists, we must exhaust it first
-			//
-			exhaustInnerIterator();
-			return super.getCopy();
-		}
-
-		public synchronized Object getIteratorProvider() {
-			exhaustInnerIterator();
-			return super.getIteratorProvider();
-		}
-
-		private void exhaustInnerIterator() {
-			if (innerIterator != null) {
-				List<T> values = getValues();
-				int savePos = values.size() - 1;
-				while (innerIterator.hasNext())
-					values.add(innerIterator.next());
-				innerIterator = null;
-				setPosition(savePos);
-			}
 		}
 	}
 }

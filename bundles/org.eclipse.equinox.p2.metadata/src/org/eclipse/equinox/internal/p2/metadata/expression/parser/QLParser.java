@@ -8,17 +8,14 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.parser;
+package org.eclipse.equinox.internal.p2.metadata.expression.parser;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.Variable;
-import org.eclipse.equinox.internal.p2.metadata.expression.parser.ExpressionParser;
-import org.eclipse.equinox.internal.p2.ql.expression.IQLConstants;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
 import org.eclipse.equinox.p2.metadata.expression.IExpressionFactory;
-import org.eclipse.equinox.p2.ql.IQLFactory;
 
-public class QLParser extends ExpressionParser implements IQLConstants {
+public class QLParser extends ExpressionParser {
 	private static final long serialVersionUID = 882034383978853143L;
 
 	private static final int TOKEN_ANY = 42;
@@ -65,7 +62,7 @@ public class QLParser extends ExpressionParser implements IQLConstants {
 			IExpression ifTrue = parseOr();
 			assertToken(TOKEN_ELSE);
 			nextToken();
-			expr = qlFactory().condition(expr, ifTrue, parseOr());
+			expr = factory.condition(expr, ifTrue, parseOr());
 		}
 		return expr;
 	}
@@ -88,7 +85,7 @@ public class QLParser extends ExpressionParser implements IQLConstants {
 							IExpression[] callArgs = parseArray();
 							assertToken(TOKEN_RP);
 							nextToken();
-							expr = qlFactory().memberCall(expr, name, callArgs);
+							expr = factory.memberCall(expr, name, callArgs);
 						} else
 							expr = factory.member(expr, name);
 						break;
@@ -111,7 +108,7 @@ public class QLParser extends ExpressionParser implements IQLConstants {
 
 	protected IExpression parseFunction() {
 		if (currentToken == TOKEN_IDENTIFIER) {
-			Object function = qlFactory().getFunctionMap().get(tokenValue);
+			Object function = factory.getFunctionMap().get(tokenValue);
 			if (function != null) {
 				int savePos = tokenPos;
 				int saveToken = currentToken;
@@ -123,7 +120,7 @@ public class QLParser extends ExpressionParser implements IQLConstants {
 					IExpression[] args = currentToken == TOKEN_RP ? IExpressionFactory.NO_ARGS : parseArray();
 					assertToken(TOKEN_RP);
 					nextToken();
-					return qlFactory().function(function, args);
+					return factory.function(function, args);
 				}
 				tokenPos = savePos;
 				currentToken = saveToken;
@@ -131,10 +128,6 @@ public class QLParser extends ExpressionParser implements IQLConstants {
 			}
 		}
 		return parseUnary();
-	}
-
-	protected IQLFactory qlFactory() {
-		return (IQLFactory) factory;
 	}
 
 	protected IExpression parseCollectionLHS() {
@@ -161,53 +154,53 @@ public class QLParser extends ExpressionParser implements IQLConstants {
 	protected IExpression parseCollectionRHS(IExpression expr, int funcToken) {
 		switch (funcToken) {
 			case TOKEN_SELECT :
-				expr = qlFactory().select(expr, parseLambdaDefinition());
+				expr = factory.select(expr, parseLambdaDefinition());
 				break;
 			case TOKEN_COLLECT :
-				expr = qlFactory().collect(expr, parseLambdaDefinition());
+				expr = factory.collect(expr, parseLambdaDefinition());
 				break;
 			case TOKEN_FIRST :
-				expr = qlFactory().first(expr, parseLambdaDefinition());
+				expr = factory.first(expr, parseLambdaDefinition());
 				break;
 			case TOKEN_TRAVERSE :
-				expr = qlFactory().traverse(expr, parseLambdaDefinition());
+				expr = factory.traverse(expr, parseLambdaDefinition());
 				break;
 			case TOKEN_LATEST :
 				if (currentToken == TOKEN_RP) {
-					expr = qlFactory().latest(expr);
+					expr = factory.latest(expr);
 					assertToken(TOKEN_RP);
 					nextToken();
 				} else
-					expr = qlFactory().latest(qlFactory().select(expr, parseLambdaDefinition()));
+					expr = factory.latest(factory.select(expr, parseLambdaDefinition()));
 				break;
 			case TOKEN_FLATTEN :
 				if (currentToken == TOKEN_RP) {
-					expr = qlFactory().flatten(expr);
+					expr = factory.flatten(expr);
 					assertToken(TOKEN_RP);
 					nextToken();
 				} else
-					expr = qlFactory().flatten(qlFactory().select(expr, parseLambdaDefinition()));
+					expr = factory.flatten(factory.select(expr, parseLambdaDefinition()));
 				break;
 			case TOKEN_LIMIT :
-				expr = qlFactory().limit(expr, parseCondition());
+				expr = factory.limit(expr, parseCondition());
 				assertToken(TOKEN_RP);
 				nextToken();
 				break;
 			case TOKEN_INTERSECT :
-				expr = qlFactory().intersect(expr, parseCondition());
+				expr = factory.intersect(expr, parseCondition());
 				assertToken(TOKEN_RP);
 				nextToken();
 				break;
 			case TOKEN_UNION :
-				expr = qlFactory().union(expr, parseCondition());
+				expr = factory.union(expr, parseCondition());
 				assertToken(TOKEN_RP);
 				nextToken();
 				break;
 			case TOKEN_UNIQUE :
 				if (currentToken == TOKEN_RP)
-					expr = qlFactory().unique(expr, factory.constant(null));
+					expr = factory.unique(expr, factory.constant(null));
 				else {
-					expr = qlFactory().unique(expr, parseMember());
+					expr = factory.unique(expr, parseMember());
 					assertToken(TOKEN_RP);
 					nextToken();
 				}
@@ -223,12 +216,12 @@ public class QLParser extends ExpressionParser implements IQLConstants {
 		switch (currentToken) {
 			case TOKEN_LB :
 				nextToken();
-				expr = qlFactory().array(parseArray());
+				expr = factory.array(parseArray());
 				assertToken(TOKEN_RB);
 				nextToken();
 				break;
 			case TOKEN_ANY :
-				expr = factory.variable(IQLConstants.OPERATOR_EACH);
+				expr = factory.variable(OPERATOR_EACH);
 				nextToken();
 				break;
 			default :
@@ -262,7 +255,7 @@ public class QLParser extends ExpressionParser implements IQLConstants {
 				endingRC = true;
 				for (int idx = 0; idx < initializers.length; ++idx) {
 					IExpression initializer = initializers[idx];
-					if (initializer instanceof Variable && IQLConstants.OPERATOR_EACH.equals(initializer.toString())) {
+					if (initializer instanceof Variable && OPERATOR_EACH.equals(initializer.toString())) {
 						if (anyIndex == -1)
 							anyIndex = idx;
 						else
@@ -291,7 +284,6 @@ public class QLParser extends ExpressionParser implements IQLConstants {
 		nextToken();
 		IExpression each;
 		IExpression[] assignments;
-		IQLFactory qlFactory = qlFactory();
 		if (initializers.length == 0) {
 			if (variables.length != 1)
 				throw new IllegalArgumentException("Must have exactly one variable unless currying is used"); //$NON-NLS-1$
@@ -310,12 +302,12 @@ public class QLParser extends ExpressionParser implements IQLConstants {
 				each = variables[anyIndex];
 				assignments = new IExpression[initializers.length - 1];
 				for (idx = 0; idx < anyIndex; ++idx)
-					assignments[idx] = qlFactory.assignment(variables[idx], initializers[idx]);
+					assignments[idx] = factory.assignment(variables[idx], initializers[idx]);
 				for (++idx; idx < initializers.length; ++idx)
-					assignments[idx] = qlFactory.assignment(variables[idx], initializers[idx]);
+					assignments[idx] = factory.assignment(variables[idx], initializers[idx]);
 			}
 		}
-		return qlFactory.lambda(each, assignments, body);
+		return factory.lambda(each, assignments, body);
 	}
 
 	private IExpression[] parseVariables() {

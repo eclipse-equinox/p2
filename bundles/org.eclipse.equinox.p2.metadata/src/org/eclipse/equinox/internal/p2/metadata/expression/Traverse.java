@@ -8,12 +8,10 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
-import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * An expression that will collect items recursively based on a <code>rule</code>.
@@ -22,7 +20,7 @@ import org.eclipse.equinox.p2.ql.IQLExpression;
  * in the new collection. All items are collected into a set and items that are already
  * in that set will not be perused again. The set becomes the result of the traversal.
  */
-final class Traverse extends CollectionFilter implements IQLExpression {
+final class Traverse extends CollectionFilter {
 
 	Traverse(Expression collection, LambdaExpression lambda) {
 		super(collection, lambda);
@@ -44,7 +42,7 @@ final class Traverse extends CollectionFilter implements IQLExpression {
 	}
 
 	public String getOperator() {
-		return IQLConstants.KEYWORD_TRAVERSE;
+		return KEYWORD_TRAVERSE;
 	}
 
 	void traverse(Set<Object> collector, Object parent, IEvaluationContext context) {

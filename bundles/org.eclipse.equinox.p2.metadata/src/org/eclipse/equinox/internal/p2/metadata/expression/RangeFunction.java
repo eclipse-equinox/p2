@@ -8,17 +8,18 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
-import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 /**
- * A function that creates an OSGi filter based on a String
+ * A function that creates a {@link VersionRange} from a String
  */
-public final class FilterFunction extends Function {
-	public FilterFunction(Expression[] operands) {
-		super(assertLength(operands, 1, 1, KEYWORD_FILTER));
+public final class RangeFunction extends Function {
+
+	public RangeFunction(Expression[] operands) {
+		super(assertLength(operands, 1, 1, KEYWORD_RANGE));
 	}
 
 	boolean assertSingleArgumentClass(Object v) {
@@ -26,10 +27,10 @@ public final class FilterFunction extends Function {
 	}
 
 	Object createInstance(Object arg) {
-		return ExpressionUtil.parseLDAP((String) arg);
+		return new VersionRange((String) arg);
 	}
 
 	public String getOperator() {
-		return KEYWORD_FILTER;
+		return KEYWORD_RANGE;
 	}
 }

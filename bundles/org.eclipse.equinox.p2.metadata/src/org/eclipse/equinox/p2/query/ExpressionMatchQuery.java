@@ -46,7 +46,7 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 
 	public IQueryResult<T> perform(IIndexProvider<T> indexProvider) {
 		if (((MatchExpression<T>) expression).operand == ExpressionUtil.TRUE_EXPRESSION)
-			return new QueryResult<T>(indexProvider.everything());
+			return new QueryResult<T>(RepeatableIterator.create(indexProvider));
 		Iterator<T> iterator = null;
 		int top = indexedMembers.size();
 		for (int idx = 0; idx < top; ++idx) {
@@ -58,7 +58,7 @@ public class ExpressionMatchQuery<T> implements IMatchQuery<T>, IQueryWithIndex<
 			}
 		}
 		if (iterator == null)
-			iterator = indexProvider.everything();
+			iterator = RepeatableIterator.create(indexProvider);
 		context.setIndexProvider(indexProvider);
 		return perform(iterator);
 	}

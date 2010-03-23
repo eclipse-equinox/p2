@@ -8,17 +8,15 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 import org.eclipse.equinox.p2.metadata.expression.IExpression;
-import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  */
-final class Collect extends CollectionFilter implements IQLExpression {
+final class Collect extends CollectionFilter {
 	final class CollectIterator implements Iterator<Object> {
 		private final IEvaluationContext context;
 
@@ -63,6 +61,6 @@ final class Collect extends CollectionFilter implements IQLExpression {
 	}
 
 	public String getOperator() {
-		return IQLConstants.KEYWORD_COLLECT;
+		return KEYWORD_COLLECT;
 	}
 }

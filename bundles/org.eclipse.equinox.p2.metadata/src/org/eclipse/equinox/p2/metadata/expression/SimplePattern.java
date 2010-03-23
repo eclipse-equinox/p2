@@ -27,7 +27,7 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 	 * @param value The value to match
 	 * @return <code>true</code> if the value was a match.
 	 */
-	public synchronized boolean isMatch(CharSequence value) {
+	public boolean isMatch(CharSequence value) {
 		if (node == null)
 			node = parse(pattern, 0);
 		return node.match(value, 0);
@@ -52,21 +52,38 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 	private final String pattern;
 	private transient Node node;
 
-	private SimplePattern(String pattern, Node node) {
+	private SimplePattern(String pattern) {
 		this.pattern = pattern;
-		this.node = node;
 	}
 
-	private static class RubberBandNode extends Node {
+	static class AllNode extends Node {
+		boolean match(CharSequence value, int pos) {
+			return true;
+		}
+	}
+
+	static class RubberBandNode extends Node {
+		final Node next;
+
 		RubberBandNode(Node next) {
-			super(next);
+			this.next = next;
 		}
 
 		boolean match(CharSequence value, int pos) {
-			if (next == null)
-				return true;
-
 			int top = value.length();
+			String ending = next.getEndingConstant();
+			if (ending != null) {
+				// value must end with this constant. It will be faster
+				// to scan backwards from the end.
+				int clen = ending.length();
+				if (clen > top - pos)
+					return false;
+				while (clen > 0)
+					if (ending.charAt(--clen) != value.charAt(--top))
+						return false;
+				return true;
+			}
+
 			while (pos < top) {
 				if (next.match(value, pos++))
 					return true;
@@ -75,9 +92,11 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 		}
 	}
 
-	private static class AnyCharacterNode extends Node {
+	static class AnyCharacterNode extends Node {
+		final Node next;
+
 		AnyCharacterNode(Node next) {
-			super(next);
+			this.next = next;
 		}
 
 		boolean match(CharSequence value, int pos) {
@@ -86,42 +105,66 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 		}
 	}
 
-	private static class ConstantNode extends Node {
+	static class EndConstantNode extends Node {
 		final String constant;
 
-		ConstantNode(Node next, String constant) {
-			super(next);
+		EndConstantNode(String constant) {
 			this.constant = constant;
 		}
 
 		boolean match(CharSequence value, int pos) {
-			int vtop = value.length();
-			int ctop = constant.length();
-			if (ctop + pos > vtop)
+			int max = constant.length() + pos;
+			int top = value.length();
+			if (top != max)
 				return false;
 
-			for (int idx = 0; idx < ctop; ++idx, ++pos)
-				if (constant.charAt(idx) != value.charAt(pos))
+			int idx = 0;
+			while (pos < max)
+				if (value.charAt(pos++) != constant.charAt(idx++))
 					return false;
+			return true;
+		}
 
-			return next == null ? true : next.match(value, pos);
+		String getEndingConstant() {
+			return constant;
 		}
 	}
 
-	private static abstract class Node {
+	static class ConstantNode extends Node {
 		final Node next;
+		final String constant;
 
-		Node(Node next) {
+		ConstantNode(Node next, String constant) {
 			this.next = next;
+			this.constant = constant;
 		}
 
+		boolean match(CharSequence value, int pos) {
+			int max = constant.length() + pos;
+			int top = value.length();
+			if (top < max)
+				return false;
+
+			int idx = 0;
+			while (pos < max)
+				if (value.charAt(pos++) != constant.charAt(idx++))
+					return false;
+			return next == null ? (pos == top) : next.match(value, pos);
+		}
+	}
+
+	static abstract class Node {
 		abstract boolean match(CharSequence value, int pos);
+
+		String getEndingConstant() {
+			return null;
+		}
 	}
 
 	public static SimplePattern compile(String pattern) {
 		if (pattern == null)
 			throw new IllegalArgumentException("Pattern can not be null"); //$NON-NLS-1$
-		return new SimplePattern(pattern, null);
+		return new SimplePattern(pattern);
 	}
 
 	private static Node parse(String pattern, int pos) {
@@ -132,7 +175,8 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 			char c = pattern.charAt(pos);
 			switch (c) {
 				case '*' :
-					parsedNode = new RubberBandNode(parse(pattern, pos + 1));
+					++pos;
+					parsedNode = pos == top ? new AllNode() : new RubberBandNode(parse(pattern, pos));
 					break;
 				case '?' :
 					parsedNode = new AnyCharacterNode(parse(pattern, pos + 1));
@@ -152,8 +196,10 @@ public class SimplePattern implements Serializable, Comparable<SimplePattern> {
 			break;
 		}
 
-		if (bld != null)
-			parsedNode = new ConstantNode(parsedNode, bld.toString());
+		if (bld != null) {
+			String constant = bld.toString();
+			parsedNode = parsedNode == null ? new EndConstantNode(constant) : new ConstantNode(parsedNode, constant);
+		}
 		return parsedNode;
 	}
 }

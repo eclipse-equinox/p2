@@ -21,7 +21,6 @@ import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.publisher.PublisherInfo;
 import org.eclipse.equinox.p2.publisher.PublisherResult;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
-import org.eclipse.equinox.p2.ql.IQLFactory;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -111,7 +110,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		IExpression cmp2 = factory.equals(factory.at(factory.member(item, "properties"), factory.indexedParameter(1)), factory.indexedParameter(2));
 
 		IExpression lambda = factory.lambda(item, factory.and(cmp1, cmp2));
-		IExpression latest = ((IQLFactory) factory).latest(((IQLFactory) factory).select(factory.variable("everything"), lambda));
+		IExpression latest = factory.latest(factory.select(factory.variable("everything"), lambda));
 
 		// Create the query
 		IContextExpression<IInstallableUnit> e3 = factory.contextExpression(latest, "test.bundle", "org.eclipse.equinox.p2.type.group", "true");
@@ -180,6 +179,13 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 				"select(x | x ~= class('org.eclipse.equinox.p2.metadata.IInstallableUnitFragment'))"), new NullProgressMonitor());
 		assertEquals(queryResultSize(result), 4);
 		repo = getMDR("/testData/galileoM7");
+	}
+
+	public void testTouchpoints() throws Exception {
+		IMetadataRepository repo = getMDR("/testData/galileoM7");
+		IQueryResult result = repo.query(QueryUtil.createMatchQuery(//
+				"touchpointType != null && touchpointType.id == 'org.eclipse.equinox.p2.osgi' && touchpointData.exists(t | t.instructions.exists(entry | entry.key == 'zipped'))"), new NullProgressMonitor());
+		assertEquals(queryResultSize(result), 616);
 	}
 
 	public void testTraverse() throws Exception {
@@ -278,7 +284,7 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 		IExpression everything = factory.variable("everything");
 		IExpression lambda = factory.lambda(item, cmp1);
 
-		IContextExpression e3 = factory.contextExpression(((IQLFactory) factory).select(everything, lambda));
+		IContextExpression e3 = factory.contextExpression(factory.select(everything, lambda));
 
 		IContextExpression<Object> contextExpression = factory.contextExpression(parser.parseQuery(e3.toString()), "ian bull");
 		IQuery<Object> query = QueryUtil.createQuery(Object.class, contextExpression);

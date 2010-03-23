@@ -8,19 +8,17 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
-import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * A collection filter that limits the number of entries in the collection
  */
-final class Limit extends Binary implements IQLConstants, IQLExpression {
+final class Limit extends Binary {
 
 	/**
 	 * An iterator that stops iterating after a given number of iterations.
@@ -56,7 +54,7 @@ final class Limit extends Binary implements IQLConstants, IQLExpression {
 	}
 
 	Limit(Expression operand, int limit) {
-		this(operand, (Expression) QLFactory.INSTANCE.constant(new Integer(limit)));
+		this(operand, (Expression) ExpressionFactory.INSTANCE.constant(new Integer(limit)));
 	}
 
 	public Object evaluate(IEvaluationContext context) {

@@ -8,32 +8,42 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
-
-import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.metadata.expression.Expression;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
 
 /**
  * An expression that yields a new collection consisting of all elements of the
  * <code>collection</code> for which the <code>filter</code> yields <code>true</code>.
  */
-final class Flatten extends UnaryCollectionFilter {
-	Flatten(Expression collection) {
-		super(collection);
+final class Select extends CollectionFilter {
+	Select(Expression collection, LambdaExpression lambda) {
+		super(collection, lambda);
 	}
 
-	public Iterator<?> evaluateAsIterator(IEvaluationContext context) {
-		return new CompoundIterator<Object>(operand.evaluateAsIterator(context));
+	protected Object evaluate(IEvaluationContext context, Iterator<?> itor) {
+		return evaluateAsIterator(context, itor);
+	}
+
+	protected Iterator<?> evaluateAsIterator(final IEvaluationContext context, Iterator<?> itor) {
+		return new MatchIteratorFilter<Object>(itor) {
+			protected boolean isMatch(Object val) {
+				lambda.getItemVariable().setValue(context, val);
+				return lambda.evaluate(context) == Boolean.TRUE;
+			}
+		};
 	}
 
 	public int getExpressionType() {
-		return TYPE_FLATTEN;
+		return TYPE_SELECT;
 	}
 
 	public String getOperator() {
-		return KEYWORD_FLATTEN;
+		return KEYWORD_SELECT;
+	}
+
+	boolean isCollection() {
+		return true;
 	}
 }

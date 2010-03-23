@@ -8,17 +8,15 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
-import org.eclipse.equinox.p2.ql.IQLExpression;
 
 /**
  * Comparisons for magnitude.
  */
-final class Condition extends Binary implements IQLConstants, IQLExpression {
+final class Condition extends Binary {
 	final Expression ifFalse;
 
 	Condition(Expression test, Expression ifTrue, Expression ifFalse) {

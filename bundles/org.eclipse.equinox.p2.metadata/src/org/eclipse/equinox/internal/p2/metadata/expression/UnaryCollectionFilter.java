@@ -8,13 +8,11 @@
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ql.expression;
+package org.eclipse.equinox.internal.p2.metadata.expression;
 
-import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.metadata.expression.IEvaluationContext;
-import org.eclipse.equinox.p2.ql.IQLExpression;
 
-abstract class UnaryCollectionFilter extends Unary implements IQLConstants, IQLExpression {
+abstract class UnaryCollectionFilter extends Unary {
 
 	UnaryCollectionFilter(Expression collection) {
 		super(collection);
