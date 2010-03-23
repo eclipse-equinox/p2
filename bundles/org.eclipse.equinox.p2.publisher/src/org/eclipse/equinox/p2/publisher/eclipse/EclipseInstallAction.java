@@ -65,7 +65,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 		createAdvice();
 		ArrayList<IPublisherAction> actions = new ArrayList<IPublisherAction>();
 		// create an action that just publishes the raw bundles and features
-		IPublisherAction action = new MergeResultsAction(new IPublisherAction[] {createFeaturesAction(), createBundlesAction()}, IPublisherResult.MERGE_ALL_NON_ROOT);
+		IPublisherAction action = new MergeResultsAction(new IPublisherAction[] {createFeaturesAction(), createBundlesAction()}, IPublisherResult.MERGE_ALL_ROOT);
 		actions.add(action);
 		actions.add(createApplicationExecutableAction(info.getConfigurations()));
 		actions.add(createRootFilesAction());
@@ -109,12 +109,13 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 	}
 
 	protected Collection<IPublisherAction> createAccumulateConfigDataActions(String[] configs) {
+		File configuration = new File(source, "configuration/config.ini"); //$NON-NLS-1$
+		if (!configuration.exists())
+			configuration = null;
+
 		Collection<IPublisherAction> result = new ArrayList<IPublisherAction>(configs.length);
 		for (int i = 0; i < configs.length; i++) {
 			String configSpec = configs[i];
-			File configuration = computeConfigurationLocation(configSpec);
-			if (!configuration.exists())
-				configuration = null;
 			String os = AbstractPublisherAction.parseConfigSpec(configSpec)[1];
 			File executable = ExecutablesDescriptor.findExecutable(os, computeExecutableLocation(configSpec), "eclipse"); //$NON-NLS-1$
 			if (!executable.exists())
@@ -122,6 +123,7 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 			IPublisherAction action = new AccumulateConfigDataAction(info, configSpec, configuration, executable);
 			result.add(action);
 		}
+
 		return result;
 	}
 
@@ -209,34 +211,9 @@ public class EclipseInstallAction extends AbstractPublisherAction {
 		return new File(source);
 	}
 
-	protected File computeConfigurationLocation(String configSpec) {
-		return new File(source, "configuration/config.ini"); //$NON-NLS-1$
-	}
-
 	protected IPublisherAction createBundlesAction() {
 		// TODO need to add in the simple configorator and reconciler bundle descriptions.
 		// TODO bundles action needs to take bundleDescriptions directly rather than just files.
 		return new BundlesAction(new File[] {new File(source, "plugins")}); //$NON-NLS-1$
 	}
-
-	//TODO reconsitute these methods
-	//	private GeneratorBundleInfo createSimpleConfiguratorBundleInfo() {
-	//		GeneratorBundleInfo result = new GeneratorBundleInfo();
-	//		result.setSymbolicName(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR);
-	//		result.setVersion("0.0.0"); //$NON-NLS-1$
-	//		result.setStartLevel(1);
-	//		result.setMarkedAsStarted(true);
-	//		return result;
-	//	}
-	//
-	//	private GeneratorBundleInfo createDropinsReconcilerBundleInfo() {
-	//		GeneratorBundleInfo result = new GeneratorBundleInfo();
-	//		result.setSymbolicName(ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS);
-	//		result.setVersion("0.0.0"); //$NON-NLS-1$
-	//		result.setMarkedAsStarted(true);
-	//		result.setSpecialConfigCommands("mkdir(path:${installFolder}/dropins)"); //$NON-NLS-1$
-	//		result.setSpecialUnconfigCommands("rmdir(path:${installFolder}/dropins)"); //$NON-NLS-1$
-	//		return result;
-	//	}
-
 }

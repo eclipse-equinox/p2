@@ -12,7 +12,10 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.actions.RootIUAction;
+import org.eclipse.equinox.p2.publisher.actions.RootIUResultFilterAdvice;
 
 /**
  * <p>
@@ -29,6 +32,9 @@ public class FeaturesAndBundlesPublisherApplication extends AbstractPublisherApp
 	protected File[] features = null;
 	protected File[] bundles = null;
 
+	protected String rootIU = null;
+	protected String rootVersion = null;
+
 	public FeaturesAndBundlesPublisherApplication() {
 		// nothing to do
 	}
@@ -41,6 +47,12 @@ public class FeaturesAndBundlesPublisherApplication extends AbstractPublisherApp
 
 		if (arg.equalsIgnoreCase("-bundles")) //$NON-NLS-1$
 			bundles = createFiles(parameter);
+
+		if (arg.equalsIgnoreCase("-iu")) //$NON-NLS-1$
+			rootIU = parameter;
+
+		if (arg.equalsIgnoreCase("-version")) //$NON-NLS-1$
+			rootVersion = parameter;
 	}
 
 	private File[] createFiles(String parameter) {
@@ -59,6 +71,12 @@ public class FeaturesAndBundlesPublisherApplication extends AbstractPublisherApp
 		if (bundles == null)
 			bundles = new File[] {new File(source, "plugins")}; //$NON-NLS-1$
 		result.add(new BundlesAction(bundles));
+
+		if (rootIU != null) {
+			result.add(new RootIUAction(rootIU, Version.parseVersion(rootVersion), rootIU));
+			info.addAdvice(new RootIUResultFilterAdvice(null));
+		}
+
 		return result.toArray(new IPublisherAction[result.size()]);
 	}
 }

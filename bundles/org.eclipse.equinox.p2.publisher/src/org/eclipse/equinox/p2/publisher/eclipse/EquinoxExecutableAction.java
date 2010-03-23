@@ -63,8 +63,8 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		setPublisherInfo(publisherinfo);
 		ExecutablesDescriptor brandedExecutables = brandExecutables(executables);
 		try {
-			publishExecutableIU(brandedExecutables, result);
-			publishExecutableCU(brandedExecutables, result);
+			if (publishExecutableIU(brandedExecutables, result))
+				publishExecutableCU(brandedExecutables, result);
 			publishExecutableSetter(brandedExecutables, result);
 		} finally {
 			if (brandedExecutables.isTemporary())
@@ -97,7 +97,13 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	 * Publishes IUs and CUs for the files that make up the launcher for a given
 	 * ws/os/arch combination.
 	 */
-	protected void publishExecutableIU(ExecutablesDescriptor execDescriptor, IPublisherResult result) {
+	protected boolean publishExecutableIU(ExecutablesDescriptor execDescriptor, IPublisherResult result) {
+		String[] config = parseConfigSpec(configSpec);
+		if (execDescriptor.getFiles().length == 0 && (config.length == 0 || CONFIG_ANY.equalsIgnoreCase(config[0]))) {
+			return false; //no cu required
+		}
+		boolean publishCU = true;
+
 		// Create the IU for the executable
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getExecutableId();
@@ -114,23 +120,28 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		iu.setCapabilities(new IProvidedCapability[] {selfCapability, executableCapability});
 
 		//Create the artifact descriptor.  we have several files so no path on disk
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(id, version);
-		iu.setArtifacts(new IArtifactKey[] {key});
-		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(info.getArtifactRepository(), key, null);
-		publishArtifact(descriptor, execDescriptor.getFiles(), null, info, createRootPrefixComputer(execDescriptor.getLocation()));
-		if (execDescriptor.isTemporary())
-			FileUtils.deleteAll(execDescriptor.getLocation());
-
+		if (execDescriptor.getFiles().length == 0) {
+			publishCU = false;
+		} else {
+			IArtifactKey key = PublisherHelper.createBinaryArtifactKey(id, version);
+			iu.setArtifacts(new IArtifactKey[] {key});
+			IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(info.getArtifactRepository(), key, null);
+			publishArtifact(descriptor, execDescriptor.getFiles(), null, info, createRootPrefixComputer(execDescriptor.getLocation()));
+			if (execDescriptor.isTemporary())
+				FileUtils.deleteAll(execDescriptor.getLocation());
+		}
 		// setup a requirement between the executable and the launcher fragment that has the shared library
-		String[] config = parseConfigSpec(configSpec);
-		String ws = config[0];
-		String os = config[1];
-		String arch = config[2];
-		String launcherFragment = EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
-		if (!(Constants.OS_MACOSX.equals(os) && !Constants.ARCH_X86_64.equals(arch)))
-			launcherFragment += '.' + arch;
-		iu.setRequiredCapabilities(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
+		if (config.length > 0 && !CONFIG_ANY.equalsIgnoreCase(config[0])) {
+			String ws = config[0];
+			String os = config[1];
+			String arch = config[2];
+			String launcherFragment = EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
+			if (!(Constants.OS_MACOSX.equals(os) && !Constants.ARCH_X86_64.equals(arch)))
+				launcherFragment += '.' + arch;
+			iu.setRequiredCapabilities(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
+		}
 		result.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
+		return publishCU;
 	}
 
 	private String getExecutableId() {

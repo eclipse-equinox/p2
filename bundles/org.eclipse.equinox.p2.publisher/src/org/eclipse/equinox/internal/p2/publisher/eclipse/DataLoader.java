@@ -54,6 +54,8 @@ public class DataLoader {
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setFwPersistentDataLocation(config, true);
 		launcherData.setLauncher(executable);
+		if (executable == null)
+			launcherData.setHome(config.getParentFile());
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e2) {

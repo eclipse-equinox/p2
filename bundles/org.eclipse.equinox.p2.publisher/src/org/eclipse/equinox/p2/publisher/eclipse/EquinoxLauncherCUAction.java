@@ -58,13 +58,15 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 		for (int i = 0; i < configSpecs.length; i++) {
 			String configSpec = configSpecs[i];
 			String[] specs = Utils.getTokens(configSpec, "."); //$NON-NLS-1$
-			if (specs.length > 2 && Constants.OS_MACOSX.equals(specs[1]) && !Constants.ARCH_X86_64.equals(specs[2])) {
-				//launcher fragment for mac only has arch for x86_64
-				id = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + specs[0] + '.' + specs[1];
-			} else {
-				id = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + configSpec;
+			if (specs.length > 0 && !AbstractPublisherAction.CONFIG_ANY.equalsIgnoreCase(specs[0])) {
+				if (specs.length > 2 && Constants.OS_MACOSX.equals(specs[1]) && !Constants.ARCH_X86_64.equals(specs[2])) {
+					//launcher fragment for mac only has arch for x86_64
+					id = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + specs[0] + '.' + specs[1];
+				} else {
+					id = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + configSpec;
+				}
+				publishCU(id, configSpec, results);
 			}
-			publishCU(id, configSpec, results);
 		}
 	}
 

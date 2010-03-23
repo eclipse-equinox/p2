@@ -80,8 +80,12 @@ public class GeneratorApplication implements IApplication {
 		if (args.containsKey(IGeneratorConstants.PAR))
 			args.put(IGeneratorConstants.PUBLISH_ATIFACT_REPOSITORY, args.remove(IGeneratorConstants.PAR));
 
-		if (args.containsKey(IGeneratorConstants.ROOT))
-			args.put(IGeneratorConstants.IU, args.remove(IGeneratorConstants.ROOT));
+		if (args.containsKey(IGeneratorConstants.ROOT)) {
+			String rootId = args.remove(IGeneratorConstants.ROOT);
+			args.put(IGeneratorConstants.IU, rootId);
+			args.put(IGeneratorConstants.ID, rootId);
+		}
+
 		if (args.containsKey(IGeneratorConstants.ROOT_VERSION))
 			args.put(IGeneratorConstants.VERSION, args.remove(IGeneratorConstants.ROOT_VERSION));
 
@@ -103,7 +107,11 @@ public class GeneratorApplication implements IApplication {
 				args.put(IGeneratorConstants.METADATA_REPO, repoLocation);
 		}
 
-		if (args.containsKey(IGeneratorConstants.SITE)) {
+		File base = new File(args.get(IGeneratorConstants.SOURCE));
+		File configuration = new File(base, "configuration"); //$NON-NLS-1$
+		if (configuration.exists()) {
+			applicationMap.put(APP_ID, INSTALL_APPLICATION);
+		} else if (args.containsKey(IGeneratorConstants.SITE)) {
 			applicationMap.put(APP_ID, UPDATE_SITE_APPLICATION);
 		} else if (args.containsKey(IGeneratorConstants.CONFIG)) {
 			applicationMap.put(APP_ID, INSTALL_APPLICATION);

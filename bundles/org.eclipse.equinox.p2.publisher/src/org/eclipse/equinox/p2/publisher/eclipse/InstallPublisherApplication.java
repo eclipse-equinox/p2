@@ -10,13 +10,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-
-
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import org.eclipse.equinox.p2.metadata.VersionedId;
-import org.eclipse.equinox.p2.metadata.IVersionedId;
-import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
 
 public class InstallPublisherApplication extends AbstractPublisherApplication {
@@ -39,6 +36,12 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 
 		if (arg.equalsIgnoreCase("-startAll")) //$NON-NLS-1$
 			start = true;
+	}
+
+	protected void initialize(PublisherInfo publisherInfo) throws ProvisionException {
+		super.initialize(publisherInfo);
+
+		publisherInfo.setConfigurations(new String[] {""}); //$NON-NLS-1$
 	}
 
 	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {

@@ -49,5 +49,6 @@ public interface IGeneratorConstants {
 	public static final String P2_OS = "-p2.os"; //$NON-NLS-1$
 	public static final String SITE = "-site"; //$NON-NLS-1$
 	public static final String IU = "-iu"; //$NON-NLS-1$
+	public static final String ID = "-id"; //$NON-NLS-1$
 	public static final String VERSION = "-version"; //$NON-NLS-1$
 }
