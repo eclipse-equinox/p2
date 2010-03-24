@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.engine.SurrogateProfileHandler;
+import org.eclipse.equinox.internal.p2.jarprocessor.StreamProcessor;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -87,18 +88,10 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Run the given command.
 	 */
 	protected static int run(String message, String[] commandArray) {
-		BufferedReader reader = null;
 		try {
 			Process process = Runtime.getRuntime().exec(commandArray, null, output);
-			reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			try {
-				String line;
-				while ((line = reader.readLine()) != null) {
-					System.err.println(line);
-				}
-			} finally {
-				reader.close();
-			}
+			StreamProcessor.start(process.getErrorStream(), StreamProcessor.STDERR, true);
+			StreamProcessor.start(process.getInputStream(), StreamProcessor.STDOUT, true);
 			process.waitFor();
 			return process.exitValue();
 		} catch (IOException e) {
@@ -585,7 +578,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		File exe = new File(root, "javaw.exe");
 		if (!exe.exists())
 			exe = new File(root, "java");
-		String[] command = new String[] {(new File(destination, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-dev", "bin", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
+		String[] command = new String[] {(new File(destination, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-consoleLog", "-dev", "bin", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
 		// command-line if you want to run and allow a remote debugger to connect
 		//String[] command = new String[] {(new File(destination, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"};
 		return run(message, command);

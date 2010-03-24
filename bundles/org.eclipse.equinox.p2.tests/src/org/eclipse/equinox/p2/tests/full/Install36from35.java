@@ -30,12 +30,17 @@ public class Install36from35 extends AbstractReconcilerTest {
 		File exe = new File(root, "javaw.exe");
 		if (!exe.exists())
 			exe = new File(root, "java");
-		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-installIU", iuToInstall,
+		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", //
+				"-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), //
+				"-repository", sourceRepo, "-installIU", iuToInstall, //
+				"-destination", installFolder.getAbsolutePath(), //
+				"-bundlepool", installFolder.getAbsolutePath(), //
+				"-roaming", "-profile", "PlatformProfile", "-profileProperties", "org.eclipse.update.install.features=true", // 
+				"-p2.os", Platform.getOS(), "-p2.ws", Platform.getWS(), "-p2.arch", Platform.getOSArch(), //
+				"-vmArgs", "-Dosgi.checkConfiguration=true" //
+		//, "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000" //for debugging	
+		};
 
-		"-destination", installFolder.getAbsolutePath(), "-profile", "PlatformProfile", "-profileProperties", "org.eclipse.update.install.features=true", "-bundlepool", installFolder.getAbsolutePath(), "-p2.os", Platform.getOS(), "-p2.ws", Platform.getWS(), "-p2.arch", Platform.getOSArch(), "-roaming", "-vmArgs", "-Dosgi.checkConfiguration=true"};
-
-		// command-line if you want to run and allow a remote debugger to connect
-		// String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-repository", sourceRepo, "-installIU", iuToInstall, "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"};
 		return run(message, command);
 	}
 
@@ -47,7 +52,7 @@ public class Install36from35 extends AbstractReconcilerTest {
 
 	public void install36From35() {
 		//Create a new installation of 3.6 using 3.5
-		File installFolder = getTempFolder();
+		File installFolder = getTestFolder("install36From35");
 		System.out.println(installFolder);
 		assertEquals(0, runDirectorToInstall("Installing 3.6 from 3.5", new File(installFolder, "eclipse"), "http://download.eclipse.org/eclipse/updates/3.6-I-builds", "org.eclipse.platform.ide"));
 		assertEquals(0, installAndRunVerifierBundle(installFolder));
