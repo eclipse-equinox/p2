@@ -29,7 +29,6 @@ import org.eclipse.equinox.p2.publisher.actions.ILicenseAdvice;
  * launching as well as the configuration (bundles, properties, ...)
  */
 public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice, IExecutableAdvice, IConfigAdvice, IBrandingAdvice {
-	private final static String EMPTY_VERSION = "0.0.0"; //$NON-NLS-1$
 	private final static String OSGI_SPLASH_PATH = "osgi.splashPath"; //$NON-NLS-1$
 	private final static String SPLASH_PREFIX = "platform:/base/plugins/"; //$NON-NLS-1$
 	private IProductDescriptor product;
@@ -160,7 +159,6 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		ConfigData result;
 		if (loader != null) {
 			result = loader.getConfigData();
-			normalizeBundleVersions(result);
 		} else
 			result = generateConfigData();
 
@@ -177,15 +175,6 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 		return result;
 	}
 
-	private void normalizeBundleVersions(ConfigData data) {
-		BundleInfo[] bundles = data.getBundles();
-		for (int i = 0; i < bundles.length; i++) {
-			// If the bundle doesn't have a version set it to 0.0.0
-			if (bundles[i].getVersion() == null)
-				bundles[i].setVersion(EMPTY_VERSION);
-		}
-	}
-
 	private void addProductFileConfigBundles(ConfigData data) {
 		Set<BundleInfo> versionBoundBundles = new HashSet<BundleInfo>();
 		Map<String, List<BundleInfo>> unboundedBundles = new HashMap<String, List<BundleInfo>>();
@@ -195,8 +184,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 			// For each bundle we know about, cache it.  If the bundle doesn't have a version
 			// add it to a list of bundles by name
 			BundleInfo bundleInfo = bundles[i];
-			if (bundleInfo.getVersion() == null || bundleInfo.getVersion().equals(EMPTY_VERSION)) {
-				bundleInfo.setVersion(EMPTY_VERSION);
+			if (bundleInfo.getVersion().equals(BundleInfo.EMPTY_VERSION)) {
 				addUnboundedBundle(unboundedBundles, bundleInfo);
 			} else {
 				versionBoundBundles.add(bundleInfo);
@@ -214,7 +202,7 @@ public class ProductFileAdvice extends AbstractAdvice implements ILicenseAdvice,
 				// If we found a version with the same name and version, replace it with the "configured" bundle
 				data.removeBundle(bundleInfo);
 				data.addBundle(bundleInfo);
-			} else if (bundleInfo.getVersion() == null || bundleInfo.getVersion().equals("0.0.0")) {//$NON-NLS-1$
+			} else if (bundleInfo.getVersion().equals(BundleInfo.EMPTY_VERSION)) {
 				// If we don't have a version number, look for all bundles that match by name
 				List<BundleInfo> list = unboundedBundles.get(bundleInfo.getSymbolicName());
 				if (list == null)
