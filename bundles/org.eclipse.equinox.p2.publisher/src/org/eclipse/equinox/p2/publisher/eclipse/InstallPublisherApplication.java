@@ -41,7 +41,8 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 	protected void initialize(PublisherInfo publisherInfo) throws ProvisionException {
 		super.initialize(publisherInfo);
 
-		publisherInfo.setConfigurations(new String[] {""}); //$NON-NLS-1$
+		if (publisherInfo.getConfigurations().length == 0)
+			publisherInfo.setConfigurations(new String[] {""}); //$NON-NLS-1$
 	}
 
 	protected void processParameter(String arg, String parameter, PublisherInfo publisherInfo) throws URISyntaxException {
