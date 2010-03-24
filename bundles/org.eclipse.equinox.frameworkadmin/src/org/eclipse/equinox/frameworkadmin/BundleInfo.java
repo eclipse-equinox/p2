@@ -234,7 +234,10 @@ public class BundleInfo {
 	 * @param value
 	 */
 	public void setVersion(String value) {
-		this.version = value;
+		if (value == null)
+			this.version = EMPTY_VERSION;
+		else
+			this.version = value;
 	}
 
 	/**
@@ -254,8 +257,7 @@ public class BundleInfo {
 		if (symbolicName != null)
 			buffer.append(symbolicName);
 		buffer.append(", "); //$NON-NLS-1$
-		if (version != null)
-			buffer.append(version);
+		buffer.append(version);
 
 		if (fragmentHost != null) {
 			buffer.append(", fragmentHost="); //$NON-NLS-1$
@@ -285,7 +287,7 @@ public class BundleInfo {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((symbolicName == null) ? 0 : symbolicName.hashCode());
-		result = prime * result + ((version == null) ? 0 : version.hashCode());
+		result = prime * result + version.hashCode();
 		return result;
 	}
 
@@ -306,10 +308,7 @@ public class BundleInfo {
 		} else if (!symbolicName.equals(other.symbolicName))
 			return false;
 
-		if (version == null) {
-			if (other.version != null)
-				return false;
-		} else if (!version.equals(other.version))
+		if (!version.equals(other.getVersion()))
 			return false;
 
 		if (location == null || other.location == null)

@@ -74,5 +74,9 @@ public class SimpleConfiguratorTest extends AbstractFwkAdminTest {
 		
 		b3.setBaseLocation(URIUtil.fromString("C:/sp ace"));
 		assertEquals(b1, b3);
+		
+		b3.setVersion(null);
+		b1.setVersion("0.0.0");
+		assertEquals(b1, b3);
 	}
 }
