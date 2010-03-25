@@ -21,7 +21,7 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(End2EndTest.class);
 		//		suite.addTest(From35to36.suite());
-		//		suite.addTest(Install36from35.suite());
+		suite.addTest(Install36from35.suite());
 		return suite;
 	}
 
