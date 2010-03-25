@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -21,8 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProv
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -281,7 +280,7 @@ public class FormerState {
 			if (slice == null)
 				throw new ProvisionException(slicer.getStatus());
 
-			Projector projector = new Projector(slice, snapshotSelectionContext);
+			IProjector projector = ProjectorFactory.create(slice, snapshotSelectionContext);
 			projector.encode(allIUs, new NullProgressMonitor());
 			IStatus s = projector.invokeSolver(new NullProgressMonitor());
 

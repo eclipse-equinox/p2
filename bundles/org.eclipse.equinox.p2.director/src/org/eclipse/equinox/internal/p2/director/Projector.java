@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -32,7 +32,7 @@ import org.sat4j.specs.*;
  * boolean satisfiability problem, invokes the solver, and converts the solver result
  * back into information understandable by the planner.
  */
-public class Projector {
+public class Projector implements IProjector {
 	private static boolean DEBUG = Tracing.DEBUG_PLANNER_PROJECTOR;
 	private IQueryable picker;
 

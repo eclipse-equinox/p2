@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,5 +45,18 @@ public class Messages extends NLS {
 
 	public static String Old_Resolver_Several_Versions;
 	public static String Old_Resolver_Incompatible_Versions;
+
+	public static String Explanation_alreadyInstalled;
+	public static String Explanation_from;
+	public static String Explanation_fromPatch;
+	public static String Explanation_hardDependency;
+	public static String Explanation_patchedHardDependency;
+	public static String Explanation_missingRequired;
+	public static String Explanation_missingRequiredFilter;
+	public static String Explanation_optionalDependency;
+	public static String Explanation_singleton;
+	public static String Explanation_to;
+	public static String Explanation_toInstall;
+	public static String Explanation_unsatisfied;
 
 }

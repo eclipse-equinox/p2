@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.director;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 1.0.5.qualifier
+Bundle-Version: 1.0.6.qualifier
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.provisional.p2.core,
  org.eclipse.equinox.internal.provisional.p2.core.eventbus,
@@ -37,5 +37,5 @@ Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Require-Bundle: org.eclipse.equinox.common,
- org.sat4j.core;bundle-version="2.0.0",
- org.sat4j.pb;bundle-version="2.0.0"
+ org.sat4j.core;bundle-version="2.2.0",
+ org.sat4j.pb;bundle-version="2.2.0"
