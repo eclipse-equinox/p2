@@ -29,7 +29,7 @@ import org.osgi.service.prefs.Preferences;
  * @since 3.6
  */
 public class SimpleLicenseManager extends LicenseManager {
-	java.util.Set accepted = new HashSet();
+	java.util.Set<String> accepted = new HashSet<String>();
 	String profileId;
 
 	public SimpleLicenseManager(String profileId) {
