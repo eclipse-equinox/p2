@@ -39,6 +39,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.spi.AbstractRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.StringBufferStream;
 import org.w3c.dom.*;
 
 /**
@@ -285,11 +286,17 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
+		StringBuffer buffer = new StringBuffer();
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream(buffer)));
 			updatesite.loadFeatures(new NullProgressMonitor());
 		} catch (ProvisionException e) {
 			fail("0.4", e);
+		} finally {
+			System.setOut(out);
 		}
+		assertTrue(buffer.toString().contains("Content is not allowed in prolog."));
 	}
 
 	public void testBadDigestBadSite() {
@@ -344,12 +351,19 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
+		StringBuffer buffer = new StringBuffer();
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream(buffer)));
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(0, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.5");
+
+		} finally {
+			System.setOut(out);
 		}
+		assertTrue(buffer.toString().contains("Error reading feature"));
 	}
 
 	public void testGoodFeatureURL() {
@@ -427,12 +441,18 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
+		StringBuffer buffer = new StringBuffer();
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream(buffer)));
 			int featureCount = updatesite.loadFeatures(new NullProgressMonitor()).length;
 			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.5");
+		} finally {
+			System.setOut(out);
 		}
+		assertTrue(buffer.toString().contains("Error reading feature"));
 	}
 
 	public void testNoFeatureIdAndVersion() {
@@ -571,15 +591,21 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	}
 
 	public void testRepoWithFeatureWithNullUpdateURL() {
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(repoMan);
 		File site = getTestData("Update site", "/testData/updatesite/missingUpdateURLFeature/");
 		IMetadataRepository metadataRepo = null;
+		StringBuffer buffer = new StringBuffer();
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream(buffer)));
 			metadataRepo = repoMan.loadRepository(site.toURI(), null);
 		} catch (ProvisionException e) {
 			fail("Can't load repository missingUpdateURLFeature");
+		} finally {
+			System.setOut(out);
 		}
+		assertTrue(buffer.toString().contains("Invalid site reference null in feature test.featurewithmissingupdateurl."));
 		IQuery<IInstallableUnit> query = QueryUtil.createIUQuery("test.featurewithmissingupdateurl.feature.group", Version.create("1.0.0"));
 		IQueryResult result = metadataRepo.query(query, null);
 		assertEquals("1.0", 1, queryResultSize(result));
@@ -686,7 +712,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		URI siteURI = site.toURI();
 
-		IMetadataRepositoryManager metadataRepoMan = (IMetadataRepositoryManager) (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		IMetadataRepositoryManager metadataRepoMan = (IMetadataRepositoryManager) getAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
 		assertNotNull(metadataRepoMan);
 
 		URI[] knownRepos = metadataRepoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);

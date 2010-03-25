@@ -13,6 +13,7 @@
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -28,8 +29,7 @@ import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.p2.tests.core.CompoundQueryableTest.CompoundQueryTestProgressMonitor;
 
 /**
@@ -306,10 +306,15 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		File knownGoodRepoLocation = getTestData("0.1", "/testData/metadataRepo/composite/good.remote");
 
 		CompositeMetadataRepository compRepo = null;
+
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
 			compRepo = (CompositeMetadataRepository) getMetadataRepositoryManager().loadRepository(knownGoodRepoLocation.toURI(), null);
 		} catch (ProvisionException e) {
 			fail("0.99", e);
+		} finally {
+			System.setOut(out);
 		}
 
 		List children = compRepo.getChildren();
@@ -380,13 +385,17 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testSyntaxErrorWhileParsing() {
 		File badCompositeContent = getTestData("1", "/testData/metadataRepo/composite/Bad/syntaxError");
 
+		StringBuffer buffer = new StringBuffer();
+		PrintStream err = System.err;
 		try {
+			System.setErr(new PrintStream(new StringBufferStream(buffer)));
 			getMetadataRepositoryManager().loadRepository(badCompositeContent.toURI(), null);
 			//Error while parsing expected
 			fail("Expected ProvisionException has not been thrown");
 		} catch (ProvisionException e) {
-			//expected.
-			//TODO more meaningful verification?
+			assertTrue(buffer.toString().contains("The element type \"children\" must be terminated by the matching end-tag \"</children>\"."));
+		} finally {
+			System.setErr(err);
 		}
 	}
 
@@ -395,10 +404,14 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		copy("0.2", badCompositeContent, repoLocation);
 
 		CompositeMetadataRepository compRepo = null;
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
 			compRepo = (CompositeMetadataRepository) getMetadataRepositoryManager().loadRepository(repoLocation.toURI(), null);
 		} catch (ProvisionException e) {
 			fail("1.99", e);
+		} finally {
+			System.setOut(out);
 		}
 		assertEquals("2.0", 1, compRepo.getChildren().size());
 	}
@@ -574,7 +587,9 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	 * behaviour of the composite repos to aggressively load the children.
 	 */
 	public void testNonLocalRepo() {
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
 			URI location = new URI("http://foo.org/in/memory");
 			URI childOne = new URI("http://foo.org/in/memory/one");
 			URI childTwo = new URI("http://foo.org/in/memory/two");
@@ -594,6 +609,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			assertEquals("1.3", 2, repository.getChildren().size());
 		} catch (URISyntaxException e) {
 			fail("99.0", e);
+		} finally {
+			System.setOut(out);
 		}
 	}
 
@@ -640,7 +657,9 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testRelativeRemoveChild() {
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
 			URI location = new URI("http://foo.org/in/memory");
 			URI one = new URI("one");
 			URI two = new URI("two");
@@ -657,6 +676,8 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 			assertEquals("1.2", 0, repository.getChildren().size());
 		} catch (URISyntaxException e) {
 			fail("99.0", e);
+		} finally {
+			System.setOut(out);
 		}
 	}
 

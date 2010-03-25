@@ -11,16 +11,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import java.io.*;
+import java.io.File;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.app.DirectorApplication;
+import org.eclipse.equinox.internal.simpleconfigurator.utils.URIUtil;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.StringBufferStream;
 
 /**
  * Various automated tests of the {@link IDirector} API.
@@ -30,9 +33,21 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * runs default director app.
 	 */
-	private void runDirectorApp(String message, final String[] args) throws Exception {
-		DirectorApplication application = new DirectorApplication();
-		application.run(args);
+	private StringBuffer runDirectorApp(String message, final String[] args) throws Exception {
+		PrintStream out = System.out;
+		PrintStream err = System.err;
+		StringBuffer buffer = new StringBuffer();
+		try {
+			PrintStream newStream = new PrintStream(new StringBufferStream(buffer));
+			System.setOut(newStream);
+			System.setErr(newStream);
+			DirectorApplication application = new DirectorApplication();
+			application.run(args);
+		} finally {
+			System.setOut(out);
+			System.setErr(err);
+		}
+		return buffer;
 	}
 
 	/**
@@ -52,13 +67,7 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	 * creates the director app arguments based on the arguments submitted with bug 248045
 	 */
 	private String[] getSingleRepoArgs(String message, File metadataRepo, File artifactRepo, File destinationRepo, String installIU) {
-		String[] args = new String[0];
-		try {
-			args = new String[] {"-metadataRepository", metadataRepo.toURL().toExternalForm(), "-artifactRepository", artifactRepo.toURL().toExternalForm(), "-installIU", installIU, "-destination", destinationRepo.toURL().toExternalForm(), "-profile", "PlatformSDKProfile", "-profileProperties", "org.eclipse.update.install.features=true", "-bundlepool", destinationRepo.getAbsolutePath(), "-roaming"};
-		} catch (MalformedURLException e) {
-			fail(message, e);
-		}
-		return args;
+		return new String[] {"-metadataRepository", URIUtil.toUnencodedString(metadataRepo.toURI()), "-artifactRepository", URIUtil.toUnencodedString(artifactRepo.toURI()), "-installIU", installIU, "-destination", URIUtil.toUnencodedString(destinationRepo.toURI()), "-profile", "PlatformSDKProfile", "-profileProperties", "org.eclipse.update.install.features=true", "-bundlepool", destinationRepo.getAbsolutePath(), "-roaming"};
 	}
 
 	/**
@@ -92,13 +101,18 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: use default arguments
 		String[] args = getSingleRepoArgs("1.0", metadataRepo, artifactRepo, destinationRepo, installIU);
 
+		StringBuffer outputBuffer = null;
 		try {
-			runDirectorApp("1.1", args);
+			outputBuffer = runDirectorApp("1.1", args);
 		} catch (ProvisionException e) {
 			//expected, fall through
 		} catch (Exception e) {
 			fail("1.2", e);
 		}
+		String outputString = outputBuffer.toString();
+		assertTrue(outputString.contains("No repository found at " + metadataRepo.toURI().toString()));
+		assertTrue(outputString.contains("No repository found at " + artifactRepo.toURI().toString()));
+
 		//remove the agent data produced by the director
 		delete(new File(destinationRepo, "p2"));
 		//this will only succeed if the destination is empty, which is what we expect because the install failed
@@ -133,13 +147,17 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		//Setup: use default arguments
 		String[] args = getSingleRepoArgs("2.1", metadataRepo, artifactRepo, destinationRepo, installIU);
 
+		StringBuffer outputBuffer = null;
 		try {
-			runDirectorApp("2.2", args);
+			outputBuffer = runDirectorApp("2.2", args);
 		} catch (ProvisionException e) {
 			//expected, fall through
 		} catch (Exception e) {
 			fail("2.3", e);
 		}
+
+		assertTrue(outputBuffer.toString().contains("No repository found at " + metadataRepo.toURI().toString()));
+
 		//remove the agent data produced by the director
 		delete(new File(destinationRepo, "p2"));
 		//this will only succeed if the destination is empty, which is what we expect because the install failed
@@ -172,14 +190,17 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 
 		//Setup: use default arguments
 		String[] args = getSingleRepoArgs("3.1", metadataRepo, artifactRepo, destinationRepo, installIU);
-
+		StringBuffer outputBuffer = null;
 		try {
-			runDirectorApp("3.2", args);
+			outputBuffer = runDirectorApp("3.2", args);
 		} catch (ProvisionException e) {
 			//expected, fall through
 		} catch (Exception e) {
 			fail("3.3", e);
 		}
+
+		assertTrue(outputBuffer.toString().contains("No repository found at " + artifactRepo.toURI().toString()));
+
 		//remove the agent data produced by the director
 		delete(new File(destinationRepo, "p2"));
 		//this will only succeed if the destination is empty, which is what we expect because the install failed
@@ -583,18 +604,9 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		String[] args = getSingleRepoArgs("12.4", metadataRepo2, artifactRepo2, destinationRepo, "yetanotherplugin");
 
 		destinationRepo.mkdirs();
-		PrintStream oldErr = System.err;
-		PrintStream newErr = new PrintStream(new FileOutputStream(destinationRepo + "/err.out"));
-		System.setErr(newErr);
 
-		try {
-			runDirectorApp("12.5", args);
-		} finally {
-			System.setErr(oldErr);
-			newErr.close();
-		}
-
-		assertLogContainsLine(new File(destinationRepo, "err.out"), "The installable unit yetanotherplugin has not been found.");
+		StringBuffer buffer = runDirectorApp("12.5", args);
+		assertTrue(buffer.toString().contains("The installable unit yetanotherplugin has not been found."));
 
 		final URI[] afterArtifactRepos = artifactManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		final URI[] afterMetadataRepos = metadataManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
@@ -630,18 +642,8 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		String[] args = getSingleRepoArgs("13.4", metadataRepo2, artifactRepo2, destinationRepo, "helloworld");
 
 		destinationRepo.mkdirs();
-		PrintStream oldOut = System.out;
-		PrintStream newOut = new PrintStream(new FileOutputStream(destinationRepo + "/out.out"));
-		System.setOut(newOut);
-
-		try {
-			runDirectorApp("13.5", args);
-		} finally {
-			System.setOut(oldOut);
-			newOut.close();
-		}
-
-		assertLogContainsLine(new File(destinationRepo, "out.out"), "Installing helloworld 1.0.0.");
+		StringBuffer buffer = runDirectorApp("13.5", args);
+		assertTrue(buffer.toString().contains("Installing helloworld 1.0.0."));
 
 		artifactManager.removeRepository(artifactRepo1.toURI());
 		metadataManager.removeRepository(metadataRepo1.toURI());
@@ -665,18 +667,9 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		String[] args = getSingleRepoUninstallArgs("14.1", srcRepo, destinationRepo, "helloworld");
 
 		destinationRepo.mkdirs();
-		PrintStream oldErr = System.err;
-		PrintStream newErr = new PrintStream(new FileOutputStream(destinationRepo + "/err.out"));
-		System.setErr(newErr);
 
-		try {
-			runDirectorApp("14.2", args);
-		} finally {
-			System.setOut(oldErr);
-			newErr.close();
-		}
-
-		assertLogContainsLine(new File(destinationRepo, "err.out"), "The installable unit helloworld has not been found.");
+		StringBuffer buffer = runDirectorApp("14.2", args);
+		assertTrue(buffer.toString().contains("The installable unit helloworld has not been found."));
 
 		artifactManager.removeRepository(srcRepo.toURI());
 		metadataManager.removeRepository(srcRepo.toURI());

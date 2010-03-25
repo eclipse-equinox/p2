@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.updatesite;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Iterator;
@@ -47,7 +48,13 @@ public class SiteXMLActionTest extends AbstractProvisioningTest {
 		featuresAction.perform(info, actionResult, new NullProgressMonitor());
 
 		SiteXMLAction action = new SiteXMLAction(siteLocation, null);
-		action.perform(info, actionResult, getMonitor());
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			action.perform(info, actionResult, getMonitor());
+		} finally {
+			System.setOut(out);
+		}
 	}
 
 	public void testQualifier() {

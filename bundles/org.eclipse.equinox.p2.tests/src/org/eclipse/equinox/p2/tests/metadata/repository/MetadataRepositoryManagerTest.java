@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -261,12 +260,16 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		File tempFile = File.createTempFile("testLoadMissingArtifactRepository", null);
 		tempFile.delete();
 		URI location = tempFile.toURI();
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
 			manager.loadRepository(location, null);
 			fail("1.0");//should fail
 		} catch (ProvisionException e) {
 			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
 			assertEquals("1.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+		} finally {
+			System.setOut(out);
 		}
 	}
 
@@ -300,12 +303,16 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	public void testLoadBrokenRepository() {
 		File site = getTestData("Repository", "/testData/metadataRepo/bad/");
 		URI location = site.toURI();
+		PrintStream err = System.err;
 		try {
+			System.setErr(new PrintStream(new StringBufferStream()));
 			manager.loadRepository(location, null);
 			fail("1.0");//should fail
 		} catch (ProvisionException e) {
 			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
 			assertEquals("1.2", ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
+		} finally {
+			System.setErr(err);
 		}
 	}
 
@@ -317,12 +324,16 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	public void testLoadBrokenSimpleRepositoryWithGoodUpdateSite() {
 		File site = getTestData("Repository", "/testData/metadataRepo/badSimpleGoodUpdateSite/");
 		URI location = site.toURI();
+		PrintStream err = System.err;
 		try {
+			System.setErr(new PrintStream(new StringBufferStream()));
 			manager.loadRepository(location, null);
 			fail("1.0");//should fail
 		} catch (ProvisionException e) {
 			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
 			assertEquals("1.2", ProvisionException.REPOSITORY_FAILED_READ, e.getStatus().getCode());
+		} finally {
+			System.setErr(err);
 		}
 	}
 
@@ -544,10 +555,14 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 
 	public void testUnreadableFailingFilter() throws ProvisionException {
 		File site = getTestData("unreadable", "/testData/metadataRepo/badFilter/unreadable");
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
 			manager.loadRepository(site.toURI(), null);
 		} catch (ProvisionException e) {
 			return;
+		} finally {
+			System.setOut(out);
 		}
 		fail("Unexpected code path, the unreadable repo should not have loaded");
 

@@ -11,10 +11,12 @@
 package org.eclipse.equinox.p2.tests.mirror;
 
 import java.io.File;
+import java.io.PrintStream;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.MirrorApplication;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.StringBufferStream;
 
 /**
  * Test to ensure MirrorApplication handles loading an removing repositories correctly
@@ -54,7 +56,14 @@ public class MetadataRepositoryCleanupTest extends AbstractProvisioningTest {
 		MirrorApplication application = new MirrorApplication();
 		String[] args = new String[] {"-source", source.toURL().toExternalForm(), "-destination", destination.toURL().toExternalForm(), append ? "-append" : ""};
 		application.initializeFromArguments(args);
-		application.run(null);
+
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			application.run(null);
+		} finally {
+			System.setOut(out);
+		}
 	}
 
 	/**

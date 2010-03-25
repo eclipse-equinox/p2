@@ -150,7 +150,6 @@ public class FeaturesActionTest extends ActionTest {
 		ITouchpointInstruction instruction = tpData.iterator().next().getInstruction("install");
 		assertNotNull(instruction);
 		assertEquals("ln(targetDir:@artifact,linkTarget:foo/lib.1.so,linkName:lib.so);chmod(targetDir:@artifact,targetFile:lib/lib.so,permissions:755);", instruction.getBody());
-		System.out.println(fooGroup.getFilter());
 		assertNull(fooGroup.getFilter());
 
 		/*verify bar*/

@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import junit.framework.Test;
@@ -74,13 +73,16 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	public void testLoadMissingRepository() throws IOException {
 		File tempFile = File.createTempFile("testLoadMissingArtifactRepository", null);
 		URI location = tempFile.toURI();
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
 			manager.loadRepository(location, null);
 			fail("1.0");//should fail
 		} catch (ProvisionException e) {
 			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
 			assertEquals("1.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
 		} finally {
+			System.setOut(out);
 			tempFile.delete();
 		}
 	}
@@ -277,7 +279,13 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	 */
 	public void testDuplicateElement() {
 		File duplicateElementXML = getTestData("testDuplicateElement", "testData/artifactRepo/duplicateElement");
-		assertEquals("Ensure correct number of artifact keys exist", 2, getArtifactKeyCount(duplicateElementXML.toURI()));
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			assertEquals("Ensure correct number of artifact keys exist", 2, getArtifactKeyCount(duplicateElementXML.toURI()));
+		} finally {
+			System.setOut(out);
+		}
 	}
 
 	public void testEnablement() {

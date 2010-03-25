@@ -29,8 +29,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.util.NLS;
@@ -80,13 +79,25 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	/**
 	 * runs the mirror application with arguments args
 	 */
-	private void runMirrorApplication(String message, final String[] args) throws Exception {
-		MirrorApplication application = new MirrorApplication();
-		Map map = new HashMap();
-		map.put("metadataOrArtifacts", "artifacts");
-		application.setInitializationData(null, null, map);
-		application.initializeFromArguments(args);
-		application.run(null);
+	private StringBuffer runMirrorApplication(String message, final String[] args) throws Exception {
+		StringBuffer buffer = new StringBuffer();
+		PrintStream out = System.out;
+		PrintStream err = System.err;
+		try {
+			PrintStream stream = new PrintStream(new StringBufferStream(buffer));
+			System.setOut(stream);
+			System.setErr(stream);
+			MirrorApplication application = new MirrorApplication();
+			Map map = new HashMap();
+			map.put("metadataOrArtifacts", "artifacts");
+			application.setInitializationData(null, null, map);
+			application.initializeFromArguments(args);
+			application.run(null);
+		} finally {
+			System.setOut(out);
+			System.setErr(err);
+		}
+		return buffer;
 	}
 
 	/**
@@ -1079,22 +1090,9 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 
 	//for Bug 250527
 	public void testIgnoreErrorsArguement() {
-		//Error prints to stderr, redirect that to a file
-		PrintStream oldErr = System.err;
-		PrintStream newErr = null;
-		try {
-			destRepoLocation.mkdir();
-			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
-		} catch (FileNotFoundException e) {
-			fail("Error redirecting outputs", e);
-		}
-		System.setErr(newErr);
-
+		destRepoLocation.mkdir();
 		//run test without verbose
 		mirrorWithError(false);
-
-		System.setErr(oldErr);
-		newErr.close();
 
 		assertEquals("Verifying correct number of Keys", 1, getArtifactKeyCount(destRepoLocation.toURI()));
 		//Because only 1 of the artifacts exists on disk, the number of artifacts in the destination should only be 1.
@@ -1126,19 +1124,6 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			fail("Error creating repositories", e);
 		}
 
-		//Comparator prints to stderr, redirect that to a file
-		PrintStream oldErr = System.err;
-		PrintStream newErr = null;
-		PrintStream oldOut = System.out;
-		PrintStream newOut = null;
-		try {
-			newErr = new PrintStream(new FileOutputStream(new File(repo2Location, "sys.err")));
-			newOut = new PrintStream(new FileOutputStream(new File(repo2Location, "sys.out")));
-		} catch (FileNotFoundException e) {
-			fail("Error redirecting outputs", e);
-		}
-		System.setErr(newErr);
-		System.setOut(newOut);
 		try {
 			//Set compare flag.
 			String[] args = new String[] {"-source", repo1Location.toURL().toExternalForm(), "-destination", repo2Location.toURL().toExternalForm(), "-verbose", "-compare", "-comparator", MD5ArtifactComparator.MD5_COMPARATOR_ID};
@@ -1147,10 +1132,6 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail("Running mirror application with duplicate descriptors with different md5 values failed", e);
 		}
-		System.setErr(oldErr);
-		newErr.close();
-		System.setOut(oldOut);
-		newOut.close();
 
 		IArtifactDescriptor[] destDescriptors = repo2.getArtifactDescriptors(descriptor2.getArtifactKey());
 		assertEquals("Ensuring destination has correct number of descriptors", 1, destDescriptors.length);
@@ -1195,20 +1176,6 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			fail("Error creating repositories", e);
 		}
 
-		//Comparator prints to stderr, redirect that to a file
-		PrintStream oldErr = System.err;
-		PrintStream newErr = null;
-		PrintStream oldOut = System.out;
-		PrintStream newOut = null;
-		try {
-			destRepoLocation.mkdir();
-			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
-			newOut = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.out")));
-		} catch (FileNotFoundException e) {
-			fail("Error redirecting outputs", e);
-		}
-		System.setErr(newErr);
-		System.setOut(newOut);
 		try {
 			//Set compareAgaist
 			String[] args = new String[] {"-source", repoLocation.toURL().toExternalForm(), "-destination", destRepoLocation.toURL().toExternalForm(), "-compareAgainst", baselineLocation.toURL().toExternalForm(), "-verbose", "-compare", "-comparator", MD5ArtifactComparator.MD5_COMPARATOR_ID};
@@ -1217,10 +1184,6 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail("Running mirror application with baseline compare", e);
 		}
-		System.setErr(oldErr);
-		newErr.close();
-		System.setOut(oldOut);
-		newOut.close();
 
 		IArtifactRepository destination = null;
 		try {
@@ -1317,22 +1280,8 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		assertNotNull("Assert log file is not null", log);
 		assertTrue("Clearing log file", log.getFile().delete());
 
-		//Comparator prints to stderr, redirect that to a file
-		PrintStream oldErr = System.err;
-		PrintStream newErr = null;
-		try {
-			destRepoLocation.mkdir();
-			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
-		} catch (FileNotFoundException e) {
-			fail("Error redirecting outputs", e);
-		}
-		System.setErr(newErr);
-
 		//run test without verbose resulting in error
 		mirrorWithError(false);
-
-		System.setErr(oldErr);
-		newErr.close();
 
 		//verify log
 		try {
@@ -1371,21 +1320,6 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		assertNotNull("Assert log file is not null", log);
 		assertTrue("Clearing log file", log.getFile().delete());
 
-		//Comparator prints to stdout, redirect that to a file
-		PrintStream oldOut = System.out;
-		PrintStream newOut = null;
-		PrintStream oldErr = System.err;
-		PrintStream newErr = null;
-		try {
-			destRepoLocation.mkdir();
-			newOut = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.out")));
-			newErr = new PrintStream(new FileOutputStream(new File(destRepoLocation, "sys.err")));
-		} catch (FileNotFoundException e) {
-			fail("Error redirecting output", e);
-		}
-		System.setOut(newOut);
-		System.setErr(newErr);
-
 		//run test with verbose, results in error
 		mirrorWithError(true);
 
@@ -1411,11 +1345,6 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 		} catch (Exception e) {
 			fail("Error running mirror application to generate INFO items", e);
 		}
-
-		System.setOut(oldOut);
-		newOut.close();
-		System.setErr(oldErr);
-		newErr.close();
 
 		IArtifactRepository sourceRepository = null;
 		try {

@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
@@ -23,6 +24,7 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.StringBufferStream;
 
 /**
  * Simple test of the engine API.
@@ -132,6 +134,23 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public EngineTest() {
 		this("");
+	}
+
+	private IStatus perform(IProvisioningPlan plan, IPhaseSet phaseSet, StringBuffer buffer) {
+		PrintStream out = System.out;
+		IStatus result = null;
+		if (buffer == null)
+			buffer = new StringBuffer();
+		try {
+			System.setOut(new PrintStream(new StringBufferStream(buffer)));
+			if (phaseSet != null)
+				result = engine.perform(plan, phaseSet, new NullProgressMonitor());
+			else
+				result = engine.perform(plan, new NullProgressMonitor());
+		} finally {
+			System.setOut(out);
+		}
+		return result;
 	}
 
 	private static boolean deleteDirectory(File directory) {
@@ -475,7 +494,10 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		IProvisioningPlan plan = engine.createPlan(profile, null);
 		plan.addInstallableUnit(createOSGiIU());
-		IStatus result = engine.perform(plan, phaseSet, new NullProgressMonitor());
+
+		StringBuffer buffer = new StringBuffer();
+		IStatus result = perform(plan, phaseSet, buffer);
+		assertTrue(buffer.toString().contains("java.lang.NullPointerException"));
 		assertFalse(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
@@ -514,7 +536,10 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		IProvisioningPlan plan = engine.createPlan(profile, null);
 		plan.addInstallableUnit(createOSGiIU());
-		IStatus result = engine.perform(plan, phaseSet, new NullProgressMonitor());
+
+		StringBuffer buffer = new StringBuffer();
+		IStatus result = perform(plan, phaseSet, buffer);
+		assertTrue(buffer.toString().contains("An error occurred during the org.eclipse.equinox.p2.tests.engine.EngineTest$ActionNPEPhase phase"));
 		assertTrue(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
@@ -551,7 +576,10 @@ public class EngineTest extends AbstractProvisioningTest {
 		phaseSet = new TestPhaseSet(true);
 		plan = engine.createPlan(profile, null);
 		plan.removeInstallableUnit(badUninstallIU);
-		result = engine.perform(plan, phaseSet, new NullProgressMonitor());
+
+		StringBuffer buffer = new StringBuffer();
+		result = perform(plan, phaseSet, buffer);
+		assertTrue(buffer.toString().contains("An error occurred while uninstalling"));
 		assertTrue(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
@@ -587,7 +615,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		IPhaseSet phaseSet = new TestPhaseSet(true);
 		plan = engine.createPlan(profile, null);
 		plan.removeInstallableUnit(badUninstallIU);
-		result = engine.perform(plan, phaseSet, new NullProgressMonitor());
+		result = perform(plan, phaseSet, null);
 		assertTrue(result.isOK());
 		ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
@@ -605,7 +633,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		plan = engine.createPlan(profile, null);
 		plan.addInstallableUnit(iu);
 		plan.setInstallableUnitProfileProperty(iu, "adifferentkey", "value");
-		result = engine.perform(plan, new NullProgressMonitor());
+		result = perform(plan, null, null);
 		assertTrue(result.isOK());
 		assertTrue(profile.getInstallableUnitProperties(iu).containsKey("adifferentkey"));
 		assertFalse(profile.getInstallableUnitProperties(iu).containsKey("key"));

@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.generator;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Map;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -23,8 +24,7 @@ import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAndBundlesPublisherAppli
 import org.eclipse.equinox.p2.publisher.eclipse.InstallPublisherApplication;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 
@@ -51,7 +51,22 @@ public class GeneratorTests extends AbstractProvisioningTest {
 		}
 
 		public Object go(String[] arguments) throws Exception {
-			Object result = run(arguments);
+			return go(arguments, new StringBuffer());
+		}
+
+		public Object go(String[] arguments, StringBuffer buffer) throws Exception {
+			Object result = null;
+			PrintStream out = System.out;
+			PrintStream err = System.err;
+			try {
+				PrintStream stream = new PrintStream(new StringBufferStream(buffer));
+				System.setOut(stream);
+				System.setErr(stream);
+				result = run(arguments);
+			} finally {
+				System.setOut(out);
+				System.setErr(err);
+			}
 			if (result instanceof Exception)
 				throw (Exception) result;
 			return result;
@@ -87,13 +102,16 @@ public class GeneratorTests extends AbstractProvisioningTest {
 
 		//Taunt you one more time
 		application = new TestGeneratorApplication();
+		StringBuffer buffer = new StringBuffer();
 		try {
-			application.go(arguments);
+			application.go(arguments, buffer);
 			fail("3.0 - Expected Illegal Argument Exception not thrown.");
 		} catch (IllegalArgumentException e) {
 			assertTrue("3.0 - Expected Illegal Argument", e.getMessage().equals(NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput, rootFolder.toURI())));
 		}
-
+		String outputString = buffer.toString();
+		assertTrue(outputString.contains("Not appending to artifact repository"));
+		assertTrue(outputString.contains("may destroy input files."));
 		assertTrue("3.1 - artifact repo existance", new File(rootFolder, "artifacts.xml").exists());
 
 		//with -updateSite

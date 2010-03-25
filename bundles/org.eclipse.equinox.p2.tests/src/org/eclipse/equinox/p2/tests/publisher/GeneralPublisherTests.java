@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher;
 
+import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.NoSuchElementException;
 import junit.framework.TestCase;
@@ -17,6 +18,7 @@ import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.QuotedTokenizer;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAndBundlesPublisherApplication;
+import org.eclipse.equinox.p2.tests.StringBufferStream;
 
 public class GeneralPublisherTests extends TestCase {
 
@@ -32,11 +34,17 @@ public class GeneralPublisherTests extends TestCase {
 	public void testInvalidConfiguration1() {
 		FeaturesAndBundlesPublisherApplication application = new FeaturesAndBundlesPublisherApplication();
 		Integer retValue = 0;
+		StringBuffer buffer = new StringBuffer();
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream(buffer)));
 			retValue = (Integer) application.run(new String[0]);
 		} catch (Exception e) {
 			fail("0.99");
+		} finally {
+			System.setOut(out);
 		}
+		assertTrue(buffer.toString().contains("A metadata repository must be specified."));
 		assertEquals("1.0", 1, retValue.intValue());
 		assertEquals("1.1", Messages.exception_noMetadataRepo, application.getStatus().getMessage());
 	}
@@ -44,11 +52,17 @@ public class GeneralPublisherTests extends TestCase {
 	public void testInvalidConfiguration2() {
 		FeaturesAndBundlesPublisherApplication application = new FeaturesAndBundlesPublisherApplication();
 		Integer retValue = 0;
+		StringBuffer buffer = new StringBuffer();
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream(buffer)));
 			retValue = (Integer) application.run(new String[] {"-metadataRepository foo", "-publishArtifacts"});
 		} catch (Exception e) {
 			fail("0.99");
+		} finally {
+			System.setOut(out);
 		}
+		assertTrue(buffer.toString().contains("An artifact repository must be specified in order to publish artifacts."));
 		assertEquals("1.0", 1, retValue.intValue());
 		assertEquals("1.1", Messages.exception_noArtifactRepo, application.getStatus().getMessage());
 

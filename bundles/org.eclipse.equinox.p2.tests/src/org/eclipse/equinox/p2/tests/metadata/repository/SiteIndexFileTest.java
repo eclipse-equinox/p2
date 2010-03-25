@@ -183,7 +183,15 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 	public void testBadIndex1() throws Exception {
 		File indexFile = TestData.getFile("metadataRepo/indexfiles", "badIndex.p2");
 		InputStream inputStream = new FileInputStream(indexFile);
-		LocationProperties locationProperties = LocationProperties.create(inputStream);
+
+		PrintStream out = System.out;
+		LocationProperties locationProperties = null;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			locationProperties = LocationProperties.create(inputStream);
+		} finally {
+			System.setOut(out);
+		}
 		assertNotNull(locationProperties);
 		assertFalse(locationProperties.exists());
 	}
@@ -243,62 +251,104 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 	 */
 	public void testSingleRepository1() throws Exception {
 		URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "test1").toURI();
-		IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
-		assertTrue(repository instanceof UpdateSiteMetadataRepository);
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
+			assertTrue(repository instanceof UpdateSiteMetadataRepository);
+		} finally {
+			System.setOut(out);
+		}
 	}
 
 	/*
 	 * Tests that metadata repository manager can read a simple index.p2 file
 	 */
 	public void testSingleRepository2() throws Exception {
-		URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "test2").toURI();
-		IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
-		assertTrue(repository instanceof LocalMetadataRepository);
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "test2").toURI();
+			IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
+			assertTrue(repository instanceof LocalMetadataRepository);
+		} finally {
+			System.setOut(out);
+		}
 	}
 
 	/*
 	 * Tests that when a bad index.p2 file is specified, the metadata repository manager can work just fine
 	 */
 	public void testBadIndexFileInRepository() throws Exception {
-		URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "badtest1").toURI();
-		IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
-		assertTrue(repository instanceof LocalMetadataRepository || repository instanceof UpdateSiteMetadataRepository);
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "badtest1").toURI();
+			IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
+			assertTrue(repository instanceof LocalMetadataRepository || repository instanceof UpdateSiteMetadataRepository);
+		} finally {
+			System.setOut(out);
+		}
 	}
 
 	/*
 	 * Tests that when a simple index.p2 file is specified, the metadata repository manager can read and handle it just fine
 	 */
 	public void testMultiRepository1() throws Exception {
-		URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "test3").toURI();
-		IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
-		assertTrue(repository instanceof UpdateSiteMetadataRepository);
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "test3").toURI();
+			IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
+			assertTrue(repository instanceof UpdateSiteMetadataRepository);
+		} finally {
+			System.setOut(out);
+		}
 	}
 
 	/*
 	 * Tests that when a simple index.p2 file is specified, the metadata repository manager can read and handle it just fine
 	 */
 	public void testMultiRepository2() throws Exception {
-		URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "test4").toURI();
-		IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
-		assertTrue(repository instanceof UpdateSiteMetadataRepository);
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "test4").toURI();
+			IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
+			assertTrue(repository instanceof UpdateSiteMetadataRepository);
+		} finally {
+			System.setOut(out);
+		}
 	}
 
 	/*
 	 * Tests that when a simple index.p2 file is specified, the metadata repository manager can read and handle it just fine
 	 */
 	public void testDuplicateEntries() throws Exception {
-		URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "test5").toURI();
-		IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
-		assertTrue(repository instanceof UpdateSiteMetadataRepository);
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "test5").toURI();
+			IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
+			assertTrue(repository instanceof UpdateSiteMetadataRepository);
+		} finally {
+			System.setOut(out);
+		}
 	}
 
 	/*
 	 * Tests that the STOP token is handled properly by the metadata repository manager
 	 */
 	public void testStop1() throws Exception {
-		URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "stop1").toURI();
-		IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
-		assertTrue(repository instanceof UpdateSiteMetadataRepository);
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "stop1").toURI();
+			IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
+			assertTrue(repository instanceof UpdateSiteMetadataRepository);
+		} finally {
+			System.setOut(out);
+		}
 	}
 
 	/*
@@ -319,24 +369,36 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 	 * Tests a composite repository to ensure it loads fine as well as all its children
 	 */
 	public void testCompositeRepo() throws Exception {
-		URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "compositeRepo").toURI();
-		IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
-		assertTrue("1.0", repository instanceof CompositeMetadataRepository);
-		CompositeMetadataRepository compositeMetadataRepository = (CompositeMetadataRepository) repository;
-		assertEquals("1.1", 2, compositeMetadataRepository.getChildren().size());
-		IMetadataRepository child1 = getMetadataRepositoryManager().loadRepository(compositeMetadataRepository.getChildren().get(0), new NullProgressMonitor());
-		IMetadataRepository child2 = getMetadataRepositoryManager().loadRepository(compositeMetadataRepository.getChildren().get(1), new NullProgressMonitor());
-		assertTrue("1.2", child1 instanceof UpdateSiteMetadataRepository);
-		assertTrue("1.2", child2 instanceof LocalMetadataRepository);
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "compositeRepo").toURI();
+			IMetadataRepository repository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
+			assertTrue("1.0", repository instanceof CompositeMetadataRepository);
+			CompositeMetadataRepository compositeMetadataRepository = (CompositeMetadataRepository) repository;
+			assertEquals("1.1", 2, compositeMetadataRepository.getChildren().size());
+			IMetadataRepository child1 = getMetadataRepositoryManager().loadRepository(compositeMetadataRepository.getChildren().get(0), new NullProgressMonitor());
+			IMetadataRepository child2 = getMetadataRepositoryManager().loadRepository(compositeMetadataRepository.getChildren().get(1), new NullProgressMonitor());
+			assertTrue("1.2", child1 instanceof UpdateSiteMetadataRepository);
+			assertTrue("1.2", child2 instanceof LocalMetadataRepository);
+		} finally {
+			System.setOut(out);
+		}
 	}
 
 	/*
 	 * Tests that an artifact repository manager can handle an index.p2 file
 	 */
 	public void testSimpleArtifact() throws Exception {
-		URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "artifactTest1").toURI();
-		IArtifactRepository repository = getArtifactRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
-		assertTrue(repository instanceof SimpleArtifactRepository);
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "artifactTest1").toURI();
+			IArtifactRepository repository = getArtifactRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
+			assertTrue(repository instanceof SimpleArtifactRepository);
+		} finally {
+			System.setOut(out);
+		}
 	}
 
 	/*
@@ -358,10 +420,16 @@ public class SiteIndexFileTest extends AbstractProvisioningTest {
 	 * can fully loaded
 	 */
 	public void testFullRepository() throws Exception {
-		URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "fullRepository").toURI();
-		IMetadataRepository metadataRepository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
-		IArtifactRepository artifactRepository = getArtifactRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
-		assertTrue(metadataRepository instanceof UpdateSiteMetadataRepository);
-		assertTrue(artifactRepository instanceof SimpleArtifactRepository);
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			URI repositoryLocation = TestData.getFile("metadataRepo/multipleRepos", "fullRepository").toURI();
+			IMetadataRepository metadataRepository = getMetadataRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
+			IArtifactRepository artifactRepository = getArtifactRepositoryManager().loadRepository(repositoryLocation, new NullProgressMonitor());
+			assertTrue(metadataRepository instanceof UpdateSiteMetadataRepository);
+			assertTrue(artifactRepository instanceof SimpleArtifactRepository);
+		} finally {
+			System.setOut(out);
+		}
 	}
 }

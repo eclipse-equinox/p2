@@ -10,11 +10,11 @@
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.updatesite.CategoryPublisherApplication;
 import org.eclipse.equinox.p2.publisher.AbstractPublisherApplication;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.*;
 
 /**
  *
@@ -24,8 +24,16 @@ public class CategoryPublisherTest extends AbstractProvisioningTest {
 	/**
 	 * runs default director app.
 	 */
-	protected void runPublisherApp(AbstractPublisherApplication application, final String[] args) throws Exception {
-		application.run(args);
+	protected StringBuffer runPublisherApp(AbstractPublisherApplication application, final String[] args) throws Exception {
+		PrintStream out = System.out;
+		StringBuffer buffer = new StringBuffer();
+		try {
+			System.setOut(new PrintStream(new StringBufferStream(buffer)));
+			application.run(args);
+		} finally {
+			System.setOut(out);
+		}
+		return buffer;
 	}
 
 	public void testCompressCategoryRepo() throws Exception {

@@ -30,8 +30,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestArtifactRepository;
+import org.eclipse.equinox.p2.tests.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
@@ -577,10 +576,14 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 		File knownGoodRepoLocation = getTestData("0.1", "/testData/artifactRepo/composite/good.remote");
 
 		CompositeArtifactRepository compRepo = null;
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
 			compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager().loadRepository(knownGoodRepoLocation.toURI(), null);
 		} catch (ProvisionException e) {
 			fail("0.99", e);
+		} finally {
+			System.setOut(out);
 		}
 
 		List children = compRepo.getChildren();
@@ -647,25 +650,33 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 
 	public void testSyntaxErrorWhileParsing() {
 		File badCompositeArtifacts = getTestData("1", "/testData/artifactRepo/composite/Bad/syntaxError");
-
+		PrintStream err = System.err;
+		StringBuffer buffer = new StringBuffer();
 		try {
+			System.setErr(new PrintStream(new StringBufferStream(buffer)));
 			getArtifactRepositoryManager().loadRepository(badCompositeArtifacts.toURI(), null);
 			//Error while parsing expected
 			fail("Expected ProvisionException has not been thrown");
 		} catch (ProvisionException e) {
-			//expected.
-			//TODO more meaningful verification?
+			assertTrue(buffer.toString().contains("The element type \"children\" must be terminated by the matching end-tag \"</children>\""));
+		} finally {
+			System.setErr(err);
 		}
 	}
 
 	public void testMissingRequireattributeWhileParsing() {
 		File badCompositeArtifacts = getTestData("1", "/testData/artifactRepo/composite/Bad/missingRequiredAttribute");
 		CompositeArtifactRepository compRepo = null;
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
 			compRepo = (CompositeArtifactRepository) getArtifactRepositoryManager().loadRepository(badCompositeArtifacts.toURI(), null);
 		} catch (ProvisionException e) {
 			fail("Error loading repository", e);
+		} finally {
+			System.setOut(out);
 		}
+
 		assertEquals("Repository should only have 1 child", 1, compRepo.getChildren().size());
 	}
 
@@ -845,7 +856,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	 * Ensure that we can create a non-local composite repository.
 	 */
 	public void testNonLocalRepo() {
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
 			URI location = new URI("memory:/in/memory");
 			URI childOne = new URI("memory:/in/memory/one");
 			URI childTwo = new URI("memory:/in/memory/two");
@@ -865,6 +878,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			assertEquals("1.3", 2, repository.getChildren().size());
 		} catch (URISyntaxException e) {
 			fail("99.0", e);
+		} finally {
+			System.setOut(out);
 		}
 	}
 
@@ -904,7 +919,9 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testRelativeRemoveChild() {
+		PrintStream out = System.out;
 		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
 			URI location = new URI("memory:/in/memory");
 			URI one = new URI("one");
 			URI two = new URI("two");
@@ -921,6 +938,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			assertEquals("1.2", 0, repository.getChildren().size());
 		} catch (URISyntaxException e) {
 			fail("99.0", e);
+		} finally {
+			System.setOut(out);
 		}
 	}
 

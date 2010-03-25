@@ -10,10 +10,7 @@
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
-import org.eclipse.equinox.p2.query.MatchQuery;
-
-import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,10 +27,12 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitPatchDescr
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.StringBufferStream;
 
 /**
  * Test API of the metadata interfaces with an SPI implementation.
@@ -779,7 +778,13 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		repo.addInstallableUnits(Arrays.asList(MetadataFactory.createInstallableUnit(iuDescription), MetadataFactory.createInstallableUnitPatch(iuPatchDescription)));
 
-		repo = manager.refreshRepository(repoLocation.toURI(), null);
+		PrintStream out = System.out;
+		try {
+			System.setOut(new PrintStream(new StringBufferStream()));
+			repo = manager.refreshRepository(repoLocation.toURI(), null);
+		} finally {
+			System.setOut(out);
+		}
 		IQueryResult queryResult = repo.query(new AllAcceptingQuery(), new NullProgressMonitor());
 
 		assertEquals(2, queryResultSize(queryResult));
