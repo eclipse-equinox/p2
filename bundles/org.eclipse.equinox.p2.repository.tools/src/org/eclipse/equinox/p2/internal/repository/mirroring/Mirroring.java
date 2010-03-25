@@ -183,7 +183,7 @@ public class Mirroring {
 
 	private IStatus compare(IArtifactRepository sourceRepository, IArtifactDescriptor sourceDescriptor, IArtifactRepository destRepository, IArtifactDescriptor destDescriptor) {
 		IStatus comparison = getComparator().compare(sourceRepository, sourceDescriptor, destRepository, destDescriptor);
-		if (comparatorLog != null)
+		if (comparatorLog != null && !comparison.isOK())
 			comparatorLog.log(sourceDescriptor, comparison);
 		return comparison;
 	}
