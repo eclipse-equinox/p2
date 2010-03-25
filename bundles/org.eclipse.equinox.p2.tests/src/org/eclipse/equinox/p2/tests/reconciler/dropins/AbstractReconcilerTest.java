@@ -102,6 +102,26 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return -1;
 	}
 
+	protected static int run(String message, String[] commandArray, File outputFile) {
+		PrintStream out = System.out;
+		PrintStream err = System.err;
+		PrintStream fileStream = null;
+		try {
+			outputFile.getParentFile().mkdirs();
+			fileStream = new PrintStream(new FileOutputStream(outputFile));
+			System.setErr(fileStream);
+			System.setOut(fileStream);
+			return run(message, commandArray);
+		} catch (FileNotFoundException e) {
+			return -1;
+		} finally {
+			System.setOut(out);
+			System.setErr(err);
+			if (fileStream != null)
+				fileStream.close();
+		}
+	}
+
 	/*
 	 * Untar the given file in the output directory.
 	 */
