@@ -37,7 +37,7 @@ public class Install36from35 extends AbstractReconcilerTest {
 				"-bundlepool", installFolder.getAbsolutePath(), //
 				"-roaming", "-profile", "PlatformProfile", "-profileProperties", "org.eclipse.update.install.features=true", // 
 				"-p2.os", Platform.getOS(), "-p2.ws", Platform.getWS(), "-p2.arch", Platform.getOSArch(), //
-				"-vmArgs", "-Dosgi.checkConfiguration=true" //
+				"-vmArgs", "-Dosgi.checkConfiguration=true", "-Xms40m", "-Xmx256m", //
 		//, "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000" //for debugging	
 		};
 
