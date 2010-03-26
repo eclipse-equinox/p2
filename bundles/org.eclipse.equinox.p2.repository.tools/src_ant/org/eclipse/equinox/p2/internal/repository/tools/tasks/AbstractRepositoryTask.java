@@ -34,17 +34,19 @@ public abstract class AbstractRepositoryTask extends Task {
 	protected List<FileSet> sourceRepos = new ArrayList<FileSet>();
 	protected List<DestinationRepository> destinations = new ArrayList<DestinationRepository>();
 
-	protected void addMetadataSourceRepository(URI repoLocation) {
+	protected void addMetadataSourceRepository(URI repoLocation, boolean optional) {
 		RepositoryDescriptor source = new RepositoryDescriptor();
 		source.setLocation(repoLocation);
 		source.setKind(RepositoryDescriptor.KIND_METADATA);
+		source.setOptional(optional);
 		application.addSource(source);
 	}
 
-	protected void addArtifactSourceRepository(URI repoLocation) {
+	protected void addArtifactSourceRepository(URI repoLocation, boolean optional) {
 		RepositoryDescriptor source = new RepositoryDescriptor();
 		source.setLocation(repoLocation);
 		source.setKind(RepositoryDescriptor.KIND_ARTIFACT);
+		source.setOptional(optional);
 		application.addSource(source);
 	}
 
@@ -138,9 +140,9 @@ public abstract class AbstractRepositoryTask extends Task {
 			if (fileset.getRepoLocation() != null) {
 				if (!fileset.getRepoLocation().startsWith(ANT_PREFIX)) {
 					if (fileset.isArtifact())
-						addArtifactSourceRepository(fileset.getRepoLocationURI());
+						addArtifactSourceRepository(fileset.getRepoLocationURI(), fileset.isOptional());
 					if (fileset.isMetadata())
-						addMetadataSourceRepository(fileset.getRepoLocationURI());
+						addMetadataSourceRepository(fileset.getRepoLocationURI(), fileset.isOptional());
 				}
 			} else if (fileset.getDir() != null) {
 				DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
@@ -154,12 +156,12 @@ public abstract class AbstractRepositoryTask extends Task {
 							uri = URIUtil.toJarURI(uri, null);
 						}
 						if (fileset.isBoth()) {
-							addArtifactSourceRepository(uri);
-							addMetadataSourceRepository(uri);
+							addArtifactSourceRepository(uri, fileset.isOptional());
+							addMetadataSourceRepository(uri, fileset.isOptional());
 						} else if (fileset.isArtifact())
-							addArtifactSourceRepository(uri);
+							addArtifactSourceRepository(uri, fileset.isOptional());
 						else if (fileset.isMetadata())
-							addMetadataSourceRepository(uri);
+							addMetadataSourceRepository(uri, fileset.isOptional());
 						else
 							throw new BuildException(NLS.bind(Messages.unknown_repository_type, uri));
 					}

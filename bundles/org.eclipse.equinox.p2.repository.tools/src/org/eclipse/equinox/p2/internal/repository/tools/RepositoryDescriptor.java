@@ -28,6 +28,7 @@ public class RepositoryDescriptor {
 	private URI format = null;
 	private int kind = TYPE_BOTH;
 	private URI originalLocation = null;
+	private boolean optional = false;
 
 	public void setCompressed(boolean compress) {
 		compressed = compress;
@@ -35,6 +36,14 @@ public class RepositoryDescriptor {
 
 	public void setName(String repoName) {
 		name = repoName;
+	}
+
+	public void setOptional(boolean optional) {
+		this.optional = optional;
+	}
+
+	public boolean isOptional() {
+		return optional;
 	}
 
 	public void setLocation(URI repoLocation) {

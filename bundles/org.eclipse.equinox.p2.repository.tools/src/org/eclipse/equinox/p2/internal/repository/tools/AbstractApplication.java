@@ -10,15 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
-import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
-import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -110,8 +109,8 @@ public abstract class AbstractApplication {
 		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
 		URI curLocation = null;
-		try {
-			for (RepositoryDescriptor repo : sourceRepositories) {
+		for (RepositoryDescriptor repo : sourceRepositories) {
+			try {
 				curLocation = repo.getRepoLocation();
 				if (repo.isBoth()) {
 					addRepository(artifactRepositoryManager, curLocation, 0, progress);
@@ -122,12 +121,14 @@ public abstract class AbstractApplication {
 					addRepository(metadataRepositoryManager, curLocation, 0, progress);
 				else
 					throw new ProvisionException(NLS.bind(Messages.unknown_repository_type, repo.getRepoLocation()));
+			} catch (ProvisionException e) {
+				if (e.getCause() instanceof MalformedURLException) {
+					throw new ProvisionException(NLS.bind(Messages.exception_invalidSource, curLocation), e);
+				} else if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND && repo.isOptional()) {
+					continue;
+				}
+				throw e;
 			}
-		} catch (ProvisionException e) {
-			if (e.getCause() instanceof MalformedURLException) {
-				throw new ProvisionException(NLS.bind(Messages.exception_invalidSource, curLocation), e);
-			}
-			throw e;
 		}
 		processDestinationRepos(artifactRepositoryManager, metadataRepositoryManager);
 	}
@@ -249,13 +250,7 @@ public abstract class AbstractApplication {
 
 	public IMetadataRepository getCompositeMetadataRepository() {
 		if (compositeMetadataRepository == null) {
-			try {
-				CompositeMetadataRepositoryFactory factory = new CompositeMetadataRepositoryFactory();
-				factory.setAgent(agent);
-				compositeMetadataRepository = (CompositeMetadataRepository) factory.create(new URI("memory:/composite"), "parent metadata repo", CompositeMetadataRepository.REPOSITORY_TYPE, null);//$NON-NLS-1$ //$NON-NLS-2$
-			} catch (URISyntaxException e) {
-				//Can't happen
-			}
+			compositeMetadataRepository = CompositeMetadataRepository.createMemoryComposite(agent);
 			for (RepositoryDescriptor repo : sourceRepositories) {
 				if (repo.isMetadata())
 					compositeMetadataRepository.addChild(repo.getRepoLocation());
@@ -266,13 +261,7 @@ public abstract class AbstractApplication {
 
 	public IArtifactRepository getCompositeArtifactRepository() {
 		if (compositeArtifactRepository == null) {
-			try {
-				CompositeArtifactRepositoryFactory factory = new CompositeArtifactRepositoryFactory();
-				factory.setAgent(agent);
-				compositeArtifactRepository = (CompositeArtifactRepository) factory.create(new URI("memory:/composite"), "parent artifact repo", CompositeArtifactRepository.REPOSITORY_TYPE, null);//$NON-NLS-1$ //$NON-NLS-2$
-			} catch (URISyntaxException e) {
-				//Can't happen
-			}
+			compositeArtifactRepository = CompositeArtifactRepository.createMemoryComposite(agent);
 			for (RepositoryDescriptor repo : sourceRepositories) {
 				if (repo.isArtifact())
 					compositeArtifactRepository.addChild(repo.getRepoLocation());

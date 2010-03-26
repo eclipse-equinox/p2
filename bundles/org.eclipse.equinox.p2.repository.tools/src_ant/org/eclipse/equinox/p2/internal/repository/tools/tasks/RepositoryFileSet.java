@@ -24,6 +24,7 @@ public class RepositoryFileSet extends FileSet {
 	public final static int TYPE_METADATA = IRepository.TYPE_METADATA;
 
 	private int kind = RepositoryDescriptor.TYPE_BOTH;
+	private boolean optional = false;
 	protected String myLocation = null;
 
 	public void setKind(String repoKind) {
@@ -32,6 +33,14 @@ public class RepositoryFileSet extends FileSet {
 
 	public int getKind() {
 		return kind;
+	}
+
+	public void setOptional(boolean optional) {
+		this.optional = optional;
+	}
+
+	public boolean isOptional() {
+		return optional;
 	}
 
 	public boolean isBoth() {
