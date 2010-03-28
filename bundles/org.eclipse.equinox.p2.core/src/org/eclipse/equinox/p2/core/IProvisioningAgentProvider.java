@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.core;
 import java.net.URI;
 
 /**
- * A service that is used to create or obtain instances of an
+ * An OSGi service that is used to create or obtain instances of an
  * {@link IProvisioningAgent}.
  * @since 2.0
  */
@@ -36,7 +36,7 @@ public interface IProvisioningAgentProvider {
 	 * </p>
 	 * @param location The location where the agent metadata is stored
 	 * @return A provisioning agent, or <code>null</code> if a <code>null</code>
-	 * parameter is provided an there is no currently running agent.
+	 * parameter is provided and there is no currently running agent.
 	 * @throws ProvisionException If agent creation failed. Reasons include:
 	 * <ul>
 	 * <li>The location is not writeable.</li>
