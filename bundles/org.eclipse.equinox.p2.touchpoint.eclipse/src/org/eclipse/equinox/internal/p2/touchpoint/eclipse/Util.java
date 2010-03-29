@@ -246,14 +246,14 @@ public class Util {
 		String name = profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);
 		if (name == null || name.length() == 0)
 			name = "eclipse"; //$NON-NLS-1$
-		String launcherName = getLauncherName(name, getOSFromProfile(profile));
+		String launcherName = getLauncherName(name, getOSFromProfile(profile), getInstallFolder(profile));
 		return launcherName == null ? null : new File(getInstallFolder(profile), launcherName);
 	}
 
 	/**
 	 * Returns the name of the Eclipse application launcher.
 	 */
-	private static String getLauncherName(String name, String os) {
+	private static String getLauncherName(String name, String os, File installFolder) {
 		if (os == null) {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 			if (info == null)
@@ -269,13 +269,31 @@ public class Util {
 		}
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
 			IPath path = new Path(name);
-			if ("app".equals(path.getFileExtension())) //$NON-NLS-1$
+			if (path.segment(0).endsWith(".app")) //$NON-NLS-1$
 				return name;
+
+			String appName = null;
+			if (installFolder != null) {
+				File appFolder = new File(installFolder, name + ".app"); //$NON-NLS-1$
+				if (appFolder.exists()) {
+					try {
+						appName = appFolder.getCanonicalFile().getName();
+					} catch (IOException e) {
+						appName = appFolder.getName();
+					}
+				}
+			}
+
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(name.substring(0, 1).toUpperCase());
-			buffer.append(name.substring(1));
-			buffer.append(".app/Contents/MacOS/"); //$NON-NLS-1$
-			buffer.append(name.toLowerCase());
+			if (appName != null) {
+				buffer.append(appName);
+			} else {
+				buffer.append(name.substring(0, 1).toUpperCase());
+				buffer.append(name.substring(1));
+				buffer.append(".app"); //$NON-NLS-1$
+			}
+			buffer.append("/Contents/MacOS/"); //$NON-NLS-1$
+			buffer.append(name);
 			return buffer.toString();
 		}
 		return name;
