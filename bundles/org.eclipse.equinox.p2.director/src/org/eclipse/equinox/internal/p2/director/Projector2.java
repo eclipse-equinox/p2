@@ -655,7 +655,7 @@ public class Projector2 implements IProjector {
 
 	private void createAtMostOne(PropositionalVariable[] vars) throws ContradictionException {
 		if (DEBUG) {
-			Tracing.debug("At most 1 of " + Arrays.toString(vars)); //$NON-NLS-1$
+			Tracing.debug("At most 1 of " + Arrays.asList(vars)); //$NON-NLS-1$
 		}
 		IInstallableUnit[] ius = new IInstallableUnit[vars.length];
 		int i = 0;
@@ -668,7 +668,7 @@ public class Projector2 implements IProjector {
 	private void createIncompatibleValues(PropositionalVariable v1, PropositionalVariable v2) throws ContradictionException {
 		PropositionalVariable[] vars = {v1, v2};
 		if (DEBUG) {
-			Tracing.debug("At most 1 of " + Arrays.toString(vars)); //$NON-NLS-1$
+			Tracing.debug("At most 1 of " + Arrays.asList(vars)); //$NON-NLS-1$
 		}
 		dependencyHelper.atMost(1, vars).named(Explanation.OPTIONAL_REQUIREMENT);
 	}
