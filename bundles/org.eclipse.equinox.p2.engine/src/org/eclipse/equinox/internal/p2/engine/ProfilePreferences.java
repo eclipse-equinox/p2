@@ -48,6 +48,10 @@ public class ProfilePreferences extends EclipsePreferences {
 			try {
 				doSave(agent);
 			} catch (IllegalStateException e) {
+				if (Tracing.DEBUG_PROFILE_PREFERENCES) {
+					Tracing.debug("Attempt to save preferences after agent has been stopped"); //$NON-NLS-1$
+					e.printStackTrace();
+				}
 				//ignore - this means the provisioning agent has already been stopped, and since
 				//this job is joined during agent stop, it means this job has been scheduled after the 
 				//agent stopped and therefore can't have any interesting changes to save
