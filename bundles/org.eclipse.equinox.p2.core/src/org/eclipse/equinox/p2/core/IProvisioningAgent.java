@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,7 @@ public interface IProvisioningAgent {
 	/**
 	 * Returns the service with the given service name, or <code>null</code>
 	 * if no such service is available in this agent.
+	 * @exception IllegalStateException if this agent has been stopped
 	 */
 	public Object getService(String serviceName);
 
@@ -60,6 +61,7 @@ public interface IProvisioningAgent {
 	 * 
 	 * @param serviceName The name of the service to register
 	 * @param service The service implementation
+	 * @exception IllegalStateException if this agent has been stopped
 	 */
 	public void registerService(String serviceName, Object service);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2009 IBM Corporation and others.
+ * Copyright (c) 2004, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,6 +47,10 @@ public class ProfilePreferences extends EclipsePreferences {
 		protected IStatus run(IProgressMonitor monitor) {
 			try {
 				doSave(agent);
+			} catch (IllegalStateException e) {
+				//ignore - this means the provisioning agent has already been stopped, and since
+				//this job is joined during agent stop, it means this job has been scheduled after the 
+				//agent stopped and therefore can't have any interesting changes to save
 			} catch (BackingStoreException e) {
 				LogHelper.log(new Status(IStatus.WARNING, EngineActivator.ID, "Exception saving profile preferences", e)); //$NON-NLS-1$
 			} catch (RuntimeException e) {
