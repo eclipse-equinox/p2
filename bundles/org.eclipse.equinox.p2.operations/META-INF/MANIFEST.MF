@@ -8,15 +8,13 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Export-Package: org.eclipse.equinox.internal.p2.operations;x-friends:="org.eclipse.pde.ui",
  org.eclipse.equinox.p2.operations;version="2.0.0"
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.equinox.common;bundle-version="[3.3.0,4.0)"
+Require-Bundle: org.eclipse.equinox.common;bundle-version="3.6.0",
+ org.eclipse.core.jobs;bundle-version="3.5.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  J2SE-1.4,
  CDC-1.1/Foundation-1.1
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
- org.eclipse.equinox.internal.p2.metadata,
- org.eclipse.equinox.internal.p2.metadata.index,
  org.eclipse.equinox.internal.p2.repository.helpers,
  org.eclipse.equinox.internal.provisional.configurator,
  org.eclipse.equinox.internal.provisional.p2.core.eventbus,
@@ -30,4 +28,5 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.p2.repository;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.p2.repository.artifact;version="[2.0.0,3.0.0)",
  org.eclipse.equinox.p2.repository.metadata;version="[2.0.0,3.0.0)",
+ org.eclipse.osgi.util;version="1.1.0",
  org.osgi.framework;version="1.4.0"
