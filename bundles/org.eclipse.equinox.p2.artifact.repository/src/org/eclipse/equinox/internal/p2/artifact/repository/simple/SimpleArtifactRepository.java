@@ -1042,6 +1042,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			try {
 				disableSave = true;
 				runnable.run(monitor);
+			} catch (OperationCanceledException oce) {
+				return new Status(IStatus.CANCEL, Activator.ID, oce.getMessage(), oce);
 			} catch (Throwable e) {
 				result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
 			} finally {

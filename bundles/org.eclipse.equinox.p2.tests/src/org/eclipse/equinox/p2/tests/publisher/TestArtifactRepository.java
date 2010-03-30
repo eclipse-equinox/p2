@@ -329,6 +329,8 @@ public class TestArtifactRepository implements IArtifactRepository {
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		try {
 			runnable.run(monitor);
+		} catch (OperationCanceledException oce) {
+			return new Status(IStatus.CANCEL, "org.eclipse.equinox.p2.tests.publisher", oce.getMessage(), oce);
 		} catch (Exception e) {
 			return new Status(IStatus.ERROR, "org.eclipse.equinox.p2.tests.publisher", e.getMessage(), e);
 		}

@@ -90,7 +90,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
 		return new ArtifactDescriptor(key);
 	}
-	
+
 	public IArtifactKey createArtifactKey(String classifier, String id, Version version) {
 		return new ArtifactKey(classifier, id, version);
 	}
@@ -98,6 +98,8 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		try {
 			runnable.run(monitor);
+		} catch (OperationCanceledException oce) {
+			return new Status(IStatus.CANCEL, Activator.ID, oce.getMessage(), oce);
 		} catch (Exception e) {
 			return new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
 		}

@@ -302,6 +302,31 @@ public class BatchExecuteArtifactRepositoryTest extends AbstractProvisioningTest
 	/*
 	 * This tests that exceptions are properly propagated for a CompositeRepository
 	 */
+	public void testBatchProcessingCancelled() {
+		try {
+			Map properties = new HashMap();
+			repositoryFile = getTempFolder();
+			repositoryURI = repositoryFile.toURI();
+			SimpleArtifactRepository repo = (SimpleArtifactRepository) getArtifactRepositoryManager().createRepository(repositoryURI, "My Repo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+			IProgressMonitor monitor = new NullProgressMonitor();
+			monitor.setCanceled(true);
+
+			IStatus status = repo.executeBatch(new IRunnableWithProgress() {
+				public void run(IProgressMonitor monitor) {
+					if (monitor.isCanceled())
+						throw new OperationCanceledException();
+				}
+			}, monitor);
+
+			assertTrue(status.getSeverity() == IStatus.CANCEL);
+		} catch (Exception e) {
+			fail("Test failed", e);
+		}
+	}
+
+	/*
+	 * This tests that exceptions are properly propagated for a CompositeRepository
+	 */
 	public void testBatchProcessingExceptionsComposite() {
 		try {
 			FailingCompositeArtifactRepository compositeArtifactRepository = new FailingCompositeArtifactRepository(getArtifactRepositoryManager(), "foo", new URI("http://foo.bar"), null);

@@ -264,6 +264,8 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		try {
 			runnable.run(monitor);
+		} catch (OperationCanceledException oce) {
+			return new Status(IStatus.CANCEL, Activator.ID, oce.getMessage(), oce);
 		} catch (Exception e) {
 			return new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
 		}
