@@ -168,7 +168,17 @@ public class Activator implements BundleActivator {
 		if (agentDataLocation == null)
 			return;
 		ServiceReference agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
-		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) context.getService(agentProviderRef);
+		IProvisioningAgentProvider provider = null;
+		if (agentProviderRef != null)
+			provider = (IProvisioningAgentProvider) context.getService(agentProviderRef);
+
+		if (provider == null) {
+			// If we don't have a provider, which could happen if the p2.core bundle is
+			// eagerly started, we should create one.
+			provider = new DefaultAgentProvider();
+			((DefaultAgentProvider) provider).activate(context);
+		}
+
 		try {
 			agent = provider.createAgent(null);
 		} catch (Exception e) {
