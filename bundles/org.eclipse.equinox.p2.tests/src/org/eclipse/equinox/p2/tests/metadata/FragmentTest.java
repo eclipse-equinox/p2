@@ -14,82 +14,124 @@ import java.util.*;
 import junit.framework.AssertionFailedError;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class FragmentTest extends AbstractProvisioningTest {
 
+	/**
+	 * Tests that a fragment gets attached to host.
+	 */
 	public void testAssociation() {
-		String ID = "ui.test1";
-		IInstallableUnit iu1 = createEclipseIU(ID);
-		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
+		String ID1 = "iu.1";
+		String IDF1 = "iu.fragment.1";
+		IInstallableUnit iu1 = createEclipseIU(ID1);
+		IInstallableUnit iuf1 = createBundleFragment(IDF1);
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
-		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2});
-		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(QueryUtil.createIUAnyQuery(), null).iterator();
+		req.addInstallableUnits(iu1, iuf1);
+		createTestMetdataRepository(new IInstallableUnit[] {iu1, iuf1});
+		IQueryable<IInstallableUnit> additions = createPlanner().getProvisioningPlan(req, null, null).getAdditions();
+		{
+			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(ID1), null).iterator();
+			assertTrue("Solution contains IU " + ID1, iterator.hasNext());
+			IInstallableUnit iu = iterator.next();
+			assertEquals("Number of attached fragments to IU " + ID1, 1, iu.getFragments().size());
+			assertEquals("Attached fragment to IU " + ID1, IDF1, iu.getFragments().iterator().next().getId());
+		}
+		{
+			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(IDF1), null).iterator();
+			assertTrue("Solution contains IU " + IDF1, iterator.hasNext());
+			IInstallableUnit iu = iterator.next();
+			assertEquals("Number of attached fragments to IU " + IDF1, 0, iu.getFragments().size());
+		}
 		//		ResolutionHelper rh = new ResolutionHelper(new Hashtable(), null);
 		//		HashSet set = new HashSet();
 		//		set.add(iu1);
 		//		set.add(iu2);
 		//		Collection result = rh.attachCUs(set);
-		for (; iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			if (iu.getId().equals(ID)) {
-				assertEquals(iu.getFragments().size(), 1);
-				assertEquals(iu.getFragments().iterator().next().getId(), "iuFragment.test1");
-			}
-		}
 	}
 
+	/**
+	 * Tests that a fragment gets attached to multiple hosts that matches the host requirements.
+	 */
 	public void testAssociation2() {
-		String ID1 = "ui.test1";
-		String ID3 = "ui.test3";
+		String ID1 = "iu.1";
+		String ID2 = "iu.2";
+		String IDF1 = "iu.fragment.1";
 		IInstallableUnit iu1 = createEclipseIU(ID1);
-		IInstallableUnit iu3 = createEclipseIU(ID3);
-		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
+		IInstallableUnit iu2 = createEclipseIU(ID2);
+		IInstallableUnit iuf1 = createBundleFragment(IDF1);
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
-		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3});
-		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(QueryUtil.createIUAnyQuery(), null).iterator();
-		for (; iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			if (iu.getId().equals(ID1)) {
-				assertEquals(iu.getFragments().size(), 1);
-				assertEquals(iu.getFragments().iterator().next().getId(), "iuFragment.test1");
-			}
-			if (iu.getId().equals(ID3)) {
-				assertEquals(iu.getFragments().size(), 1);
-				assertEquals(iu.getFragments().iterator().next().getId(), "iuFragment.test1");
-			}
+		req.addInstallableUnits(iu1, iuf1, iu2);
+		createTestMetdataRepository(new IInstallableUnit[] {iu1, iuf1, iu2});
+		IQueryable<IInstallableUnit> additions = createPlanner().getProvisioningPlan(req, null, null).getAdditions();
+		{
+			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(ID1), null).iterator();
+			assertTrue("Solution contains IU " + ID1, iterator.hasNext());
+			IInstallableUnit iu = iterator.next();
+			assertEquals("Number of attached fragments to IU " + ID1, 1, iu.getFragments().size());
+			assertEquals("Attached fragment to IU " + ID1, IDF1, iu.getFragments().iterator().next().getId());
+		}
+		{
+			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(ID2), null).iterator();
+			assertTrue("Solution contains IU " + ID2, iterator.hasNext());
+			IInstallableUnit iu = iterator.next();
+			assertEquals("Number of attached fragments to IU " + ID2, 1, iu.getFragments().size());
+			assertEquals("Attached fragment to IU " + ID2, IDF1, iu.getFragments().iterator().next().getId());
+		}
+		{
+			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(IDF1), null).iterator();
+			assertTrue("Solution contains IU " + IDF1, iterator.hasNext());
+			IInstallableUnit iu = iterator.next();
+			assertEquals("Number of attached fragments to IU " + IDF1, 0, iu.getFragments().size());
 		}
 	}
 
+	/**
+	 * Tests that when a fragment is attached the touchpoint data from host IU gets merged with touchpoint data from fragment.
+	 */
 	public void testTouchpointData() {
-		assertEquals(createIUWithTouchpointData().getTouchpointData().size(), 1);
-		assertEquals(createBundleFragment("iuFragment.test1").getTouchpointData().size(), 1);
+		String IDF1 = "iu.fragment.1";
 		IInstallableUnit iu1 = createIUWithTouchpointData();
-		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
-		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
-		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2});
-		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(QueryUtil.createIUAnyQuery(), null).iterator();
-		for (; iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			if (iu.getId().equals(iu1.getId()))
-				assertEquals(2, iu.getTouchpointData().size());
+		IInstallableUnit iuf1 = createBundleFragment(IDF1);
+		String ID1 = iu1.getId();
 
+		assertEquals("Number of touchpoint instructions of IU " + ID1, 1, iu1.getTouchpointData().size());
+		assertEquals("Number of touchpoint instructions of IU " + IDF1, 1, iuf1.getTouchpointData().size());
+
+		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
+		req.addInstallableUnits(iu1, iuf1);
+		createTestMetdataRepository(new IInstallableUnit[] {iu1, iuf1});
+		IQueryable<IInstallableUnit> additions = createPlanner().getProvisioningPlan(req, null, null).getAdditions();
+		{
+			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(ID1), null).iterator();
+			assertTrue("Solution contains IU " + ID1, iterator.hasNext());
+			IInstallableUnit iu = iterator.next();
+			assertEquals("Number of attached fragments to IU " + ID1, 1, iu.getFragments().size());
+			assertEquals("Attached fragment to IU " + ID1, IDF1, iu.getFragments().iterator().next().getId());
+			assertEquals("Number of touchpoint instructions of IU " + ID1, 2, iu.getTouchpointData().size());
+		}
+		{
+			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(IDF1), null).iterator();
+			assertTrue("Solution contains IU " + IDF1, iterator.hasNext());
+			IInstallableUnit iu = iterator.next();
+			assertEquals("Number of attached fragments to IU " + IDF1, 0, iu.getFragments().size());
 		}
 	}
 
 	public void testFragmentCapability() {
-		IInstallableUnit iu = createBundleFragment("iuFragment.test1");
-		assertTrue(QueryUtil.isFragment(iu));
+		IInstallableUnit iuf1 = createBundleFragment("iu.fragment.1");
+		assertTrue(QueryUtil.isFragment(iuf1));
 	}
 
 	public void testDefaultIUCapability() {
-		IInstallableUnit iu = createEclipseIU("ui.test1");
-		Collection<IProvidedCapability> capabilities = iu.getProvidedCapabilities();
+		IInstallableUnit iu1 = createEclipseIU("iu.1");
+		Collection<IProvidedCapability> capabilities = iu1.getProvidedCapabilities();
 		for (IProvidedCapability c : capabilities) {
 			if (c.getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
 				assertEquals(c.getNamespace(), IInstallableUnit.NAMESPACE_IU_ID);
-				assertEquals(c.getName(), iu.getId());
+				assertEquals(c.getName(), iu1.getId());
 				return;
 			}
 		}
@@ -113,7 +155,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 
 	private IInstallableUnit createIUWithTouchpointData() {
 		ITouchpointData data = MetadataFactory.createTouchpointData(new HashMap());
-		return createEclipseIU("ui.test1", DEFAULT_VERSION, NO_REQUIRES, data);
+		return createEclipseIU("iu.1", DEFAULT_VERSION, NO_REQUIRES, data);
 	}
 
 	//	private IInstallableUnit createIUFragmentWithTouchpointData() {

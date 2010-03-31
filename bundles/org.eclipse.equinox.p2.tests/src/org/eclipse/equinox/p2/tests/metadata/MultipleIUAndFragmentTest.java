@@ -14,14 +14,20 @@ import java.util.Collection;
 import java.util.Iterator;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 
+	private static final String ID1 = "iu.1";
+	private static final String ID2 = "iu.2";
+	private static final String IDF1 = "iu.fragment.1";
+
 	IInstallableUnit iu1;
 	IInstallableUnit iu2;
 	IInstallableUnit iu3;
+
 	Collection result;
 
 	protected void tearDown() throws Exception {
@@ -32,28 +38,33 @@ public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 	}
 
 	public void testAttachment() {
-		iu1 = createEclipseIU("one");
-		iu2 = createIUWithDependencyOn("two", "one");
-		iu3 = createBundleFragment("fragment");
+		iu1 = createEclipseIU(ID1);
+		iu2 = createIUWithDependencyOn(ID2, ID1);
+		iu3 = createBundleFragment(IDF1);
 		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
+		req.addInstallableUnits(iu1, iu2, iu3);
 		createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3});
-		Iterator iterator = createPlanner().getProvisioningPlan(req, null, null).getAdditions().query(QueryUtil.createIUAnyQuery(), null).iterator();
-		for (; iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			if (iu.getId().equals(iu1.getId())) {
-				assertEquals(1, iu.getFragments().size());
-				assertEquals(iu.getFragments().iterator().next().getId(), iu3.getId());
-			}
-			if (iu.getId().equals(iu2.getId())) {
-				assertEquals(1, iu.getFragments().size());
-				assertEquals(iu.getFragments().iterator().next().getId(), iu3.getId());
-			}
-			if (iu.getId().equals(iu3.getId())) {
-				//fragments don't have fragments
-				assertNull(iu.getFragments());
-			}
+		IQueryable<IInstallableUnit> additions = createPlanner().getProvisioningPlan(req, null, null).getAdditions();
+		{
+			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(ID1), null).iterator();
+			assertTrue("Solution contains IU " + ID1, iterator.hasNext());
+			IInstallableUnit iu = iterator.next();
+			assertEquals("Number of attached fragments to IU " + ID1, 1, iu.getFragments().size());
+			assertEquals("Attached fragment to IU " + ID1, IDF1, iu.getFragments().iterator().next().getId());
 		}
-
+		{
+			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(ID2), null).iterator();
+			assertTrue("Solution contains IU " + ID2, iterator.hasNext());
+			IInstallableUnit iu = iterator.next();
+			assertEquals("Number of attached fragments to IU " + ID2, 1, iu.getFragments().size());
+			assertEquals("Attached fragment to IU " + ID2, IDF1, iu.getFragments().iterator().next().getId());
+		}
+		{
+			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(IDF1), null).iterator();
+			assertTrue("Solution contains IU " + IDF1, iterator.hasNext());
+			IInstallableUnit iu = iterator.next();
+			assertEquals("Number of attached fragments to IU " + IDF1, 0, iu.getFragments().size());
+		}
 	}
 
 	private static IInstallableUnit createIUWithDependencyOn(String iuName, String dependencyOn) {

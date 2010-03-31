@@ -211,6 +211,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		fragment.setTouchpointType(TOUCHPOINT_OSGI);
 		fragment.addTouchpointData(NO_TP_DATA);
 		fragment.setHost(BUNDLE_REQUIREMENT);
+		fragment.setCapabilities(new IProvidedCapability[] {getSelfCapability(name, fragment.getVersion())});
 		return MetadataFactory.createInstallableUnitFragment(fragment);
 
 		//		return createIUFragment(null, name, DEFAULT_VERSION, BUNDLE_REQUIREMENT, TOUCHPOINT_OSGI, NO_TP_DATA);
