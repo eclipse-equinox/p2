@@ -135,7 +135,13 @@ public class BrandingIron {
 		//Because java does not support the rename of a folder, files are copied.
 
 		//Initialize the target folders
-		String target = root + '/' + name + ".app/Contents"; //$NON-NLS-1$
+		String appName = name;
+		if (appName.equals("eclipse")) //$NON-NLS-1$
+			appName = "Eclipse"; //$NON-NLS-1$
+		else if (appName.equals("launcher")) //$NON-NLS-1$
+			appName = "Launcher"; //$NON-NLS-1$
+
+		String target = root + '/' + appName + ".app/Contents"; //$NON-NLS-1$
 		new File(target).mkdirs();
 		new File(target + "/MacOS").mkdirs(); //$NON-NLS-1$
 		new File(target + "/Resources").mkdirs(); //$NON-NLS-1$
@@ -302,13 +308,19 @@ public class BrandingIron {
 		File brandedIni = new File(initialRoot, "/MacOS/" + name + ".ini"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		File ini = new File(initialRoot, "/MacOS/eclipse.ini"); //$NON-NLS-1$
-		if (!ini.exists() && !brandedIni.exists())
-			return;
-
-		if (brandedIni.exists() && ini.exists()) {
-			//take the one that is already branded
-			ini.delete();
+		if (ini.equals(brandedIni)) {
 			ini = brandedIni;
+			if (!ini.exists())
+				return;
+		} else {
+			if (!ini.exists() && !brandedIni.exists())
+				return;
+
+			if (brandedIni.exists() && ini.exists()) {
+				//take the one that is already branded
+				ini.delete();
+				ini = brandedIni;
+			}
 		}
 
 		StringBuffer buffer;
