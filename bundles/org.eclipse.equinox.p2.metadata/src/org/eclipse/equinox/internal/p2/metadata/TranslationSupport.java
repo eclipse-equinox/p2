@@ -46,6 +46,7 @@ public class TranslationSupport {
 	private final Map<String, SoftReference<IQueryResult<IInstallableUnit>>> localeCollectorCache = new HashMap<String, SoftReference<IQueryResult<IInstallableUnit>>>(2);
 
 	private LocaleProvider localeProvider;
+	private boolean loggedMissingSource = false;;
 
 	public synchronized static TranslationSupport getInstance() {
 		if (instance == null)
@@ -227,7 +228,10 @@ public class TranslationSupport {
 	 */
 	private synchronized IQueryResult<IInstallableUnit> getLocalizationFragments(List<String> localeVariants, String locale) {
 		if (fragmentSource == null) {
-			LogHelper.log(new Status(IStatus.INFO, MetadataActivator.PI_METADATA, "No translation source unavailable. Default language will be used.")); //$NON-NLS-1$
+			if (!loggedMissingSource) {
+				loggedMissingSource = true;
+				LogHelper.log(new Status(IStatus.INFO, MetadataActivator.PI_METADATA, "No translation source unavailable. Default language will be used.")); //$NON-NLS-1$
+			}
 			return Collector.emptyCollector();
 		}
 
