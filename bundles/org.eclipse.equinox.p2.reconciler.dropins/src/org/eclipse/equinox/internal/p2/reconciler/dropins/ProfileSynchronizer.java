@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
@@ -55,6 +56,15 @@ public class ProfileSynchronizer {
 	private Map<String, String> timestamps;
 	private final IProvisioningAgent agent;
 
+	static class ReconcilerProfileChangeRequest extends ProfileChangeRequest {
+		boolean isMove = false;
+
+		public ReconcilerProfileChangeRequest(IProfile profile, boolean isMove) {
+			super(profile);
+			this.isMove = isMove;
+		}
+	}
+
 	/*
 	 * Constructor for the class.
 	 */
@@ -78,45 +88,51 @@ public class ProfileSynchronizer {
 		ProvisioningContext context = getContext();
 		context.setProperty(EXPLANATION, new Boolean(Tracing.DEBUG_RECONCILER).toString());
 
-		ProfileChangeRequest request = createProfileChangeRequest(context);
-		String updatedCacheExtensions = synchronizeCacheExtensions();
-		if (request == null) {
-			if (updatedCacheExtensions != null) {
-				IStatus engineResult = setProperty(CACHE_EXTENSIONS, updatedCacheExtensions, context, null);
-				if (engineResult.getSeverity() != IStatus.ERROR && engineResult.getSeverity() != IStatus.CANCEL)
+		boolean done = false;
+		while (!done) {
+			// figure out if we really have anything to install/uninstall
+			ReconcilerProfileChangeRequest request = createProfileChangeRequest(context);
+			String updatedCacheExtensions = synchronizeCacheExtensions();
+			if (request == null) {
+				if (updatedCacheExtensions != null) {
+					IStatus engineResult = setProperty(CACHE_EXTENSIONS, updatedCacheExtensions, context, null);
+					if (engineResult.getSeverity() != IStatus.ERROR && engineResult.getSeverity() != IStatus.CANCEL)
+						writeTimestamps();
+					return engineResult;
+				}
+				return Status.OK_STATUS;
+			}
+			if (updatedCacheExtensions != null)
+				request.setProfileProperty(CACHE_EXTENSIONS, updatedCacheExtensions);
+
+			SubMonitor sub = SubMonitor.convert(monitor, 100);
+			try {
+				//create the provisioning plan
+				IProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
+				IStatus status = plan.getStatus();
+				if (status.getSeverity() == IStatus.ERROR || status.getSeverity() == IStatus.CANCEL)
+					return status;
+				debug(request, plan);
+
+				// if there is no work to do then just write out the timestamps and return.
+				if (plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null).isEmpty() && plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null).isEmpty()) {
 					writeTimestamps();
-				return engineResult;
+					return status;
+				}
+
+				//invoke the engine to perform installs/uninstalls
+				IStatus engineResult = executePlan(plan, context, sub.newChild(50));
+				if (engineResult.getSeverity() == IStatus.ERROR || engineResult.getSeverity() == IStatus.CANCEL)
+					return engineResult;
+
+			} finally {
+				done = !request.isMove;
+				sub.done();
 			}
-			return Status.OK_STATUS;
 		}
-		if (updatedCacheExtensions != null)
-			request.setProfileProperty(CACHE_EXTENSIONS, updatedCacheExtensions);
-
-		SubMonitor sub = SubMonitor.convert(monitor, 100);
-		try {
-			//create the provisioning plan
-			IProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
-			IStatus status = plan.getStatus();
-			if (status.getSeverity() == IStatus.ERROR || status.getSeverity() == IStatus.CANCEL)
-				return status;
-			debug(request, plan);
-
-			if (plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null).isEmpty() && plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null).isEmpty()) {
-				writeTimestamps();
-				return status;
-			}
-
-			//invoke the engine to perform installs/uninstalls
-			IStatus engineResult = executePlan(plan, context, sub.newChild(50));
-			if (engineResult.getSeverity() == IStatus.ERROR || engineResult.getSeverity() == IStatus.CANCEL)
-				return engineResult;
-
-			writeTimestamps();
-
-			return applyConfiguration(false);
-		} finally {
-			sub.done();
-		}
+		// write out the new timestamps (for caching) and apply the configuration
+		writeTimestamps();
+		return applyConfiguration(false);
 	}
 
 	private void writeTimestamps() {
@@ -286,8 +302,44 @@ public class ProfileSynchronizer {
 		return result;
 	}
 
-	public ProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+	/*
+	 * Return a map of all the IUs in the profile
+	 * Use a map here so we have a copy of the original IU from the profile... we will need it later.
+	 */
+	private Map<IInstallableUnit, IInstallableUnit> getProfileIUs() {
+		IQueryResult<IInstallableUnit> profileQueryResult = profile.query(QueryUtil.createIUAnyQuery(), null);
+		Map<IInstallableUnit, IInstallableUnit> result = new HashMap<IInstallableUnit, IInstallableUnit>();
+		for (Iterator<IInstallableUnit> it = profileQueryResult.iterator(); it.hasNext();) {
+			IInstallableUnit iu = it.next();
+			result.put(iu, iu);
+		}
+		return result;
+	}
+
+	/*
+	 * Return a map of all the IUs available in the profile. This takes the shared parents into consideration, if applicable.
+	 * Use a map here so we have a copy of the original IU from the profile... we will need it later.
+	 */
+	private Map<IInstallableUnit, IInstallableUnit> getAvailableProfileIUs() {
+		IQueryResult<IInstallableUnit> profileQueryResult = profile.available(QueryUtil.createIUAnyQuery(), null);
+		Map<IInstallableUnit, IInstallableUnit> result = new HashMap<IInstallableUnit, IInstallableUnit>();
+		for (Iterator<IInstallableUnit> it = profileQueryResult.iterator(); it.hasNext();) {
+			IInstallableUnit iu = it.next();
+			result.put(iu, iu);
+		}
+		return result;
+	}
+
+	/*
+	 * Return the profile change requests that we need to execute in order to install everything from the
+	 * dropins folder(s). (or uninstall things that have been removed) We use a collection here because if
+	 * the user has moved bundles from the dropins to the plugins (for instance) then we need to uninstall
+	 * the old bundle and then re-install the new one. This is because the IUs for the moved bundles are
+	 * considered the same but they really differ in an IU property. (file location, which is not considered
+	 * as part of equality)
+	 */
+	public ReconcilerProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
+		ReconcilerProfileChangeRequest request = new ReconcilerProfileChangeRequest(profile, false);
 
 		boolean resolve = Boolean.valueOf(profile.getProperty("org.eclipse.equinox.p2.resolve")).booleanValue(); //$NON-NLS-1$
 		if (resolve)
@@ -295,19 +347,21 @@ public class ProfileSynchronizer {
 
 		List<IInstallableUnit> toAdd = new ArrayList<IInstallableUnit>();
 		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>();
+		List<IInstallableUnit> toMove = new ArrayList<IInstallableUnit>();
 
 		boolean foundIUsToAdd = false;
-		Set<IInstallableUnit> profileIUs = profile.query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet();
+		Map<IInstallableUnit, IInstallableUnit> profileIUs = getProfileIUs();
 
 		// we use IProfile.available(...) here so that we also gather any shared IUs
-		Set<IInstallableUnit> availableProfileIUs = profile.available(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet();
+		Map<IInstallableUnit, IInstallableUnit> availableProfileIUs = getAvailableProfileIUs();
 
 		// get all IUs from all our repos (toAdd)
 		IQueryResult<IInstallableUnit> allIUs = getAllIUsFromRepos();
 		for (Iterator<IInstallableUnit> iter = allIUs.iterator(); iter.hasNext();) {
 			final IInstallableUnit iu = iter.next();
-			// if the IU is already installed in the profile then skip it
-			if (!profileIUs.contains(iu)) {
+			IInstallableUnit existing = profileIUs.get(iu);
+			// check to see if it is really the same IU
+			if (existing == null) {
 				if (QueryUtil.isGroup(iu))
 					request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 				// mark all IUs with special property
@@ -318,9 +372,16 @@ public class ProfileSynchronizer {
 
 				// as soon as we find something locally that needs to be installed, then 
 				// everything from the parent's dropins must be installed locally as well.
-				if (!foundIUsToAdd && !availableProfileIUs.contains(iu)) {
+				if (!foundIUsToAdd && availableProfileIUs.get(iu) == null) {
 					foundIUsToAdd = true;
 				}
+			} else {
+				// if the IU is already installed in the profile then check to see if it was moved.
+				String one = iu.getProperty(RepositoryListener.FILE_NAME);
+				String two = existing.getProperty(RepositoryListener.FILE_NAME);
+				// if we have an IU which has been moved, keep track of it
+				if (one != null && !one.equals(two))
+					toMove.add(iu);
 			}
 		}
 
@@ -339,23 +400,35 @@ public class ProfileSynchronizer {
 				request.removeInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU);
 				continue;
 			}
-			// remove the IUs that are in the intersection between the 2 sets
+			// if the IU from the profile is in the "all available" list, then it is already added
+			// otherwise if it isn't in the repo then we have to remove it from the profile.
 			if (all.contains(iu))
 				toAdd.remove(iu);
 			else
 				toRemove.add(iu);
 		}
 
-		if (!foundIUsToAdd && toRemove.isEmpty() && !resolve) {
+		if (!foundIUsToAdd && toRemove.isEmpty() && !resolve && toMove.isEmpty()) {
 			if (Tracing.DEBUG_RECONCILER)
 				Tracing.debug("[reconciler] Nothing to do."); //$NON-NLS-1$
 			return null;
+		}
+
+		// if we had some bundles which moved locations then we need to create 2 change requests.
+		// one will remove the bundle from the profile and then the other will add it back in 
+		// at the new location
+		if (!toMove.isEmpty()) {
+			ReconcilerProfileChangeRequest moveRequest = new ReconcilerProfileChangeRequest(profile, true);
+			moveRequest.removeAll(toMove);
+			debug(request);
+			return moveRequest;
 		}
 
 		context.setExtraInstallableUnits(toAdd);
 		request.addAll(toAdd);
 		request.removeAll(toRemove);
 		debug(request);
+
 		return request;
 	}
 
@@ -434,6 +507,10 @@ public class ProfileSynchronizer {
 		}
 	}
 
+	/*
+	 * Return all of the IUs available in all of our repos. This usually includes the dropins and plugins folders
+	 * as well as any sites specified in the platform.xml file.
+	 */
 	private IQueryResult<IInstallableUnit> getAllIUsFromRepos() {
 		// TODO: Should consider using a sequenced iterator here instead of collecting
 		Collector<IInstallableUnit> allRepos = new Collector<IInstallableUnit>();
