@@ -1,5 +1,5 @@
 /******************************************************************************* 
-* Copyright (c) 2009 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009-2010 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
@@ -10,8 +10,8 @@
 package org.eclipse.equinox.p2.internal.repository.tools;
 
 import java.net.URI;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import java.net.URISyntaxException;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -24,13 +24,15 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
  */
 public class RepositoryAnalyzerApplication implements IApplication {
 
+	private URI uri = null;
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) throws Exception {
 
 		long start = System.currentTimeMillis();
-		URI uri = new URI("http://download.eclipse.org/releases/galileo");
+		processArguments((String[]) context.getArguments().get("application.args"));
 		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getBundleContext(), IProvisioningAgent.SERVICE_NAME);
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		IMetadataRepository repository = manager.loadRepository(uri, new NullProgressMonitor());
@@ -56,6 +58,21 @@ public class RepositoryAnalyzerApplication implements IApplication {
 			}
 		}
 		return IApplication.EXIT_OK;
+	}
+
+	private void processArguments(String[] args) throws CoreException, URISyntaxException {
+		for (int i = 0; i < args.length; i++) {
+			if ("-m".equals(args[i]) || "-metadataRepository".equals(args[i])) { //$NON-NLS-1$ //$NON-NLS-2$
+				if (i + 1 < args.length)
+					uri = new URI(args[i + 1]);
+			}
+		}
+		validateLaunch();
+	}
+
+	private void validateLaunch() throws CoreException {
+		if (uri == null)
+			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, "-metadataRepository <metadataURI> must be specified"));
 	}
 
 	/* (non-Javadoc)
