@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,6 @@ import java.net.*;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -115,12 +114,7 @@ public class PlatformConfigurationWrapper {
 	 */
 	private Site createSite(URI location, String policy) {
 		Site result = new Site();
-		try {
-			result.setUrl(URIUtil.toURL(location).toExternalForm());
-		} catch (MalformedURLException e) {
-			// TODO
-			result.setUrl(location.toString());
-		}
+		result.setUrl(location.toString());
 		result.setPolicy(policy);
 		result.setEnabled(true);
 		return result;
@@ -135,12 +129,12 @@ public class PlatformConfigurationWrapper {
 		File file = URIUtil.toFile(url);
 		for (Site nextSite : sites) {
 			try {
-				File nextFile = URLUtil.toFile(new URL(nextSite.getUrl()));
+				File nextFile = URIUtil.toFile(new URI(nextSite.getUrl()));
 				if (nextFile == null)
 					continue;
 				if (nextFile.equals(file))
 					return nextSite;
-			} catch (MalformedURLException e) {
+			} catch (URISyntaxException e) {
 				//ignore incorrectly formed site
 			}
 		}

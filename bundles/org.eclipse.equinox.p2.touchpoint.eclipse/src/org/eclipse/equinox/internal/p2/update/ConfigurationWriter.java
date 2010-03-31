@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,12 +11,10 @@
 package org.eclipse.equinox.internal.p2.update;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
@@ -88,8 +86,14 @@ public class ConfigurationWriter implements ConfigurationConstants {
 			args.put(ATTRIBUTE_POLICY, value);
 
 		value = site.getUrl();
-		if (value != null)
+		if (value != null) {
+			try {
+				value = URIUtil.toUnencodedString(new URI(value));
+			} catch (URISyntaxException e) {
+				// ignore this error and just use the value straight as-is
+			}
 			args.put(ATTRIBUTE_URL, getLocation(value, osgiInstallArea));
+		}
 
 		value = toString(site.getList());
 		if (value != null)

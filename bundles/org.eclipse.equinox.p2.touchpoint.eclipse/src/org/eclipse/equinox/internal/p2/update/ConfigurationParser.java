@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,11 +11,11 @@
 package org.eclipse.equinox.internal.p2.update;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 import org.w3c.dom.*;
@@ -128,8 +128,16 @@ public class ConfigurationParser implements ConfigurationConstants {
 		if (updateable != null)
 			result.setUpdateable(Boolean.valueOf(updateable).booleanValue());
 		String url = getAttribute(node, ATTRIBUTE_URL);
-		if (url != null)
-			result.setUrl(getLocation(url));
+		if (url != null) {
+			try {
+				// do this to ensure the location is an encoded URI
+				URI uri = URIUtil.fromString(url);
+				URI osgiURI = URIUtil.toURI(osgiInstallArea);
+				result.setUrl(getLocation(uri, osgiURI).toString());
+			} catch (URISyntaxException e) {
+				result.setUrl(url);
+			}
+		}
 		String linkFile = getAttribute(node, ATTRIBUTE_LINKFILE);
 		if (linkFile != null)
 			result.setLinkFile(linkFile);
@@ -146,12 +154,12 @@ public class ConfigurationParser implements ConfigurationConstants {
 	 * platform:/base/ then return a string which represents the osgi
 	 * install area.
 	 */
-	private String getLocation(String urlString) {
-		if (osgiInstallArea == null)
-			return urlString;
-		if (PLATFORM_BASE.equals(urlString))
-			return osgiInstallArea.toExternalForm();
-		return PathUtil.makeAbsolute(urlString, osgiInstallArea);
+	private URI getLocation(URI location, URI osgiArea) {
+		if (osgiArea == null)
+			return location;
+		if (PLATFORM_BASE.equals(location.toString()))
+			return osgiArea;
+		return URIUtil.makeAbsolute(location, osgiArea);
 	}
 
 	/*
