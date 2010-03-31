@@ -145,10 +145,15 @@ public class DirectorApplication implements IApplication {
 		String[] urlSpecs = StringHelper.getArrayFromString(spec, ',');
 		for (int i = 0; i < urlSpecs.length; i++) {
 			try {
-				uris.add(URIUtil.fromString(urlSpecs[i]));
-			} catch (URISyntaxException e) {
-				throw new ProvisionException(NLS.bind(Messages.unable_to_parse_0_to_uri_1, urlSpecs[i], e.getMessage()));
+				uris.add(new URI(urlSpecs[i]));
+			} catch (URISyntaxException e1) {
+				try {
+					uris.add(URIUtil.fromString(urlSpecs[i]));
+				} catch (URISyntaxException e) {
+					throw new ProvisionException(NLS.bind(Messages.unable_to_parse_0_to_uri_1, urlSpecs[i], e.getMessage()));
+				}
 			}
+
 		}
 	}
 
