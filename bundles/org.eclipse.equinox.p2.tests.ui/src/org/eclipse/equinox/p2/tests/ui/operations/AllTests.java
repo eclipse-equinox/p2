@@ -20,6 +20,7 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(SizingTest.class);
+		suite.addTestSuite(InstallerPlanTest.class);
 		return suite;
 	}
 }

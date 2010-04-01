@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+
+<repository name='Installer Plan' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1'>
+  
+<properties size='1'>
+    
+<property name='p2.timestamp' value='1239212031654'/>
+  
+</properties>
+  
+<units size='4'>
+
+<unit id='TestCategory' version='0.0.0'>
+<properties size='3'>
+  <property name='org.eclipse.equinox.p2.name' value='Test Category' /> 
+  <property name='org.eclipse.equinox.p2.description' value='This is a test category.' /> 
+  <property name='org.eclipse.equinox.p2.type.category' value='true' /> 
+  </properties>
+<requires size='1'>
+<required namespace="org.eclipse.equinox.p2.iu" name='A' range='[0.0.0,1.1.0]' /> 
+</requires>
+</unit> 
+<unit id='Action1' version='1.0.0'>
+
+<provides size='2'>
+
+<provided namespace='org.eclipse.equinox.p2.iu' name='Action1' version='1.0.0'/>
+ 
+<provided namespace='p2.action' name='action1' version='1.0.0'/>
+</provides>
+      <touchpoint id='null' version='0.0.0'/>
+<touchpointData size='1'/>
+</unit>
+
+<unit id='A' version='1.0.0'>
+ 
+<properties>
+<property name='org.eclipse.equinox.p2.type.group' value='true'/>
+
+</properties>
+<metaRequirements size='1'>
+<required namespace='p2.action' name='action1' range='[0.0.0,1.0.0]'/>
+
+</metaRequirements>
+
+<provides size='1'>
+<provided namespace='org.eclipse.equinox.p2.iu' name='A' version='1.0.0'/>
+</provides>
+      
+<touchpoint id='null' version='0.0.0'/>
+      
+<touchpointData size='1'/>
+    
+</unit>
+    
+<unit id='B' version='1.0.0' singleton='false'>
+
+<properties>
+<property name='org.eclipse.equinox.p2.type.group' value='true'/>
+</properties>
+
+<provides size='2'>
+<provided namespace='org.eclipse.equinox.p2.iu' name='B' version='1.0.0'/>
+<provided namespace='eclipse.touchpoint' name='bundle' version='1.0.0'/>
+</provides>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+<touchpointData size='1'/>
+
+</unit>
+</units>
+
+</repository>
