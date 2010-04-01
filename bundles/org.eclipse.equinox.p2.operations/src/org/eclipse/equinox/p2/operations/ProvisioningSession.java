@@ -138,10 +138,10 @@ public class ProvisioningSession {
 		IProfile profile = plan.getProfile();
 
 		if (plan.getInstallerPlan() != null) {
-			if (set instanceof PhaseSetFactory) {
-				// If the phase set calls for download and install, then we want to download everything atomically before 
-				// applying the install plan.  This way, we can be sure to install the install handler only if we know 
-				// we will be able to get everything else.
+			if (doesPhaseSetIncludeDownload(set)) {
+				// If the phase set calls for download, then we want to download the install plan artifacts
+				// at the same time as the actual install artifacts.  This way, we will only install the install handler
+				// after already knowing we have successfully obtained the artifacts that will be installed afterward.
 				ProfileChangeRequest downloadRequest = new ProfileChangeRequest(profile);
 				downloadRequest.setAbsoluteMode(true);
 				downloadRequest.addAll(QueryUtil.compoundQueryable(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet());
@@ -155,7 +155,7 @@ public class ProvisioningSession {
 				}
 				ticksUsed = 300;
 			}
-			// we pre-downloaded if necessary.  Now perform the plan against the original phase set.
+			// we pre-downloaded if necessary.  Now perform the install plan against the original phase set.
 			IStatus installerPlanStatus = getEngine().perform(plan.getInstallerPlan(), set, mon.newChild(100));
 			if (!installerPlanStatus.isOK()) {
 				mon.done();
@@ -172,6 +172,14 @@ public class ProvisioningSession {
 			}
 		}
 		return getEngine().perform(plan, set, mon.newChild(500 - ticksUsed));
+	}
+
+	private boolean doesPhaseSetIncludeDownload(IPhaseSet set) {
+		String[] phaseIds = set.getPhaseIds();
+		for (int i = 0; i < phaseIds.length; i++)
+			if (phaseIds[i].equals(PhaseSetFactory.PHASE_COLLECT))
+				return true;
+		return false;
 	}
 
 	/**
