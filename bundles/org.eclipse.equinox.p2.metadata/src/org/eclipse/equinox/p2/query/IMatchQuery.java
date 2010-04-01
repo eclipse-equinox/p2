@@ -17,8 +17,8 @@ package org.eclipse.equinox.p2.query;
  * 
  * @noimplement This interface is not intended to be implemented by clients. Clients
  * creating custom queries must extend {@link ExpressionMatchQuery}.
- * @deprecated This interface is likely to be removed in 3.6M7. If possible, use one of the
- * predefined queries in {@link QueryUtil} or use the {@link QueryUtil#createMatchQuery(String, Object...)}
+ * @deprecated If possible, use one of the predefined queries in {@link QueryUtil} or 
+ * use the {@link QueryUtil#createMatchQuery(String, Object...)}
  * to create a custom expression based query. If the query cannot be expressed using
  * the p2QL, then use a predefined or custom expression query as a first filter
  * (in worst case, use {@link QueryUtil#createIUAnyQuery()}) and then provide further filtering
