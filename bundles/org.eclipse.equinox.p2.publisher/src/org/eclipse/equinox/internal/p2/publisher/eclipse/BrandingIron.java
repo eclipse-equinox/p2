@@ -166,13 +166,16 @@ public class BrandingIron {
 			brandMacSplash(initialRoot, target, iconName);
 		}
 
-		File rootFolder = new File(initialRoot);
-		rootFolder.delete();
-		if (rootFolder.exists()) {
-			//if the rootFolder still exists, its because there were other files that need to be moved over
-			moveContents(rootFolder, new File(target));
+		File rootFolder = getCanonicalFile(new File(initialRoot));
+		File targetFolder = getCanonicalFile(new File(target));
+		if (!rootFolder.equals(targetFolder)) {
+			rootFolder.delete();
+			if (rootFolder.exists()) {
+				//if the rootFolder still exists, its because there were other files that need to be moved over
+				moveContents(rootFolder, targetFolder);
+			}
+			rootFolder.getParentFile().delete();
 		}
-		rootFolder.getParentFile().delete();
 	}
 
 	/**
@@ -251,16 +254,21 @@ public class BrandingIron {
 	}
 
 	private void brandWindows() throws Exception {
-		File templateLauncher = new File(root, "launcher.exe"); //$NON-NLS-1$
+		File templateLauncher = new File(root, name + ".exe"); //$NON-NLS-1$
+		if (!templateLauncher.exists())
+			templateLauncher = new File(root, "launcher.exe"); //$NON-NLS-1$
 		if (!templateLauncher.exists())
 			templateLauncher = new File(root, "eclipse.exe"); //$NON-NLS-1$
 		if (brandIcons) {
-			String[] args = new String[icons.length + 1];
-			args[0] = templateLauncher.getAbsolutePath();
-			System.arraycopy(icons, 0, args, 1, icons.length);
-			IconExe.main(args);
+			if (templateLauncher.exists()) {
+				String[] args = new String[icons.length + 1];
+				args[0] = templateLauncher.getAbsolutePath();
+				System.arraycopy(icons, 0, args, 1, icons.length);
+				IconExe.main(args);
+			}
 		}
-		templateLauncher.renameTo(new File(root, name + ".exe")); //$NON-NLS-1$
+		if (templateLauncher.exists() && !templateLauncher.getName().equals(name + ".exe")) //$NON-NLS-1$
+			templateLauncher.renameTo(new File(root, name + ".exe")); //$NON-NLS-1$
 	}
 
 	private void renameLauncher() {
@@ -270,17 +278,17 @@ public class BrandingIron {
 
 	private void copyMacLauncher(String initialRoot, String target) {
 		String targetLauncher = target + "/MacOS/"; //$NON-NLS-1$
-		File launcher = new File(initialRoot + "/MacOS/launcher"); //$NON-NLS-1$
-		File eclipseLauncher = new File(initialRoot + "/MacOS/eclipse"); //$NON-NLS-1$
+		File launcher = getCanonicalFile(new File(initialRoot + "/MacOS/launcher")); //$NON-NLS-1$
+		File eclipseLauncher = getCanonicalFile(new File(initialRoot + "/MacOS/eclipse")); //$NON-NLS-1$
+		File targetFile = getCanonicalFile(new File(targetLauncher, name));
 		if (!launcher.exists()) {
 			launcher = eclipseLauncher;
-		} else if (eclipseLauncher.exists()) {
+		} else if (eclipseLauncher.exists() && !targetFile.equals(eclipseLauncher)) {
 			//we may actually have both if exporting from the mac
 			eclipseLauncher.delete();
 		}
-		File targetFile = new File(targetLauncher, name);
 		try {
-			if (targetFile.getCanonicalFile().equals(launcher.getCanonicalFile())) {
+			if (targetFile.equals(launcher)) {
 				try {
 					//Force the executable bit on the exe because it has been lost when copying the file
 					Runtime.getRuntime().exec(new String[] {"chmod", "755", targetFile.getAbsolutePath()}); //$NON-NLS-1$ //$NON-NLS-2$
@@ -304,29 +312,42 @@ public class BrandingIron {
 		launcher.getParentFile().delete();
 	}
 
+	private File getCanonicalFile(File file) {
+		try {
+			return file.getCanonicalFile();
+		} catch (IOException e) {
+			return file;
+		}
+	}
+
 	private void copyMacIni(String initialRoot, String target, String iconName) {
-		File brandedIni = new File(initialRoot, "/MacOS/" + name + ".ini"); //$NON-NLS-1$ //$NON-NLS-2$
+		// 3 possibilities, in order of preference:
+		// rcp.app/Contents/MacOS/rcp.ini   		(targetFile)
+		// Eclipse.app/Contents/MacOS/rcp.ini		(brandedIni)
+		// Eclipse.app/Contents/MacOs/eclipse.ini	(ini)
+		File targetFile = getCanonicalFile(new File(target, "/MacOS/" + name + ".ini")); //$NON-NLS-1$//$NON-NLS-2$
+		File brandedIni = getCanonicalFile(new File(initialRoot, "/MacOS/" + name + ".ini")); //$NON-NLS-1$ //$NON-NLS-2$
+		File ini = getCanonicalFile(new File(initialRoot, "/MacOS/eclipse.ini")); //$NON-NLS-1$
 
-		File ini = new File(initialRoot, "/MacOS/eclipse.ini"); //$NON-NLS-1$
-		if (ini.equals(brandedIni)) {
-			ini = brandedIni;
-			if (!ini.exists())
-				return;
-		} else {
-			if (!ini.exists() && !brandedIni.exists())
-				return;
-
-			if (brandedIni.exists() && ini.exists()) {
-				//take the one that is already branded
+		if (targetFile.exists()) {
+			//an ini already exists at the target, use that
+			if (brandedIni.exists() && !brandedIni.equals(targetFile))
+				brandedIni.delete();
+			if (ini.exists() && !ini.equals(targetFile))
 				ini.delete();
-				ini = brandedIni;
-			}
+			ini = targetFile;
+		} else if (brandedIni.exists()) {
+			//take the one that is already branded
+			if (ini.exists() && !ini.equals(brandedIni))
+				ini.delete();
+			ini = brandedIni;
+		} else if (!ini.exists()) {
+			return;
 		}
 
 		StringBuffer buffer;
 		try {
 			buffer = readFile(ini);
-			ini.delete();
 		} catch (IOException e) {
 			System.out.println("Impossible to brand ini file"); //$NON-NLS-1$
 			return;
@@ -341,8 +362,9 @@ public class BrandingIron {
 		}
 
 		try {
-			File targetFile = new File(target, "/MacOS/" + name + ".ini"); //$NON-NLS-1$//$NON-NLS-2$
 			transferStreams(new ByteArrayInputStream(buffer.toString().getBytes()), new FileOutputStream(targetFile));
+			if (!ini.equals(targetFile))
+				ini.delete();
 		} catch (FileNotFoundException e) {
 			System.out.println("Impossible to brand ini file"); //$NON-NLS-1$
 			return;
