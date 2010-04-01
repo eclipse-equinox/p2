@@ -120,6 +120,11 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		return list;
 	}
 
+	protected void updateCachesForPreferences() {
+		// We want to reconstruct the input's query context based on the latest preferences
+		input = null;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.admin.RepositoriesView#getRepositoryTracker()
 	 */

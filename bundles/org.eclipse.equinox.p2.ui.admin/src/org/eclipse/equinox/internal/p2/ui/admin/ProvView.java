@@ -13,6 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.p2.ui.actions.RefreshAction;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
@@ -154,13 +156,17 @@ abstract class ProvView extends ViewPart {
 		preferenceListener = new IPropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
 				if (getVisualProperties().contains(event.getProperty())) {
-					ProvAdminUIActivator.getDefault().initializePolicy();
+					updateCachesForPreferences();
 					ProvView.this.refreshAll(false);
 				}
 			}
 
 		};
 		store.addPropertyChangeListener(preferenceListener);
+	}
+
+	protected void updateCachesForPreferences() {
+		// default is to do nothing
 	}
 
 	protected void removeListeners() {
@@ -244,8 +250,10 @@ abstract class ProvView extends ViewPart {
 	}
 
 	protected ProvisioningUI getProvisioningUI() {
-		if (ui == null)
+		if (ui == null) {
 			ui = ProvAdminUIActivator.getDefault().getProvisioningUI(getProfileId());
+			ProvUI.setQueryProvider(new QueryProvider(ui));
+		}
 		return ui;
 	}
 }
