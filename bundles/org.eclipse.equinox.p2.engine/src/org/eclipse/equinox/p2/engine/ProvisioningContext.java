@@ -20,16 +20,16 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
-import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 
 /**
  * A provisioning context defines the scope in which a provisioning operation
  * occurs. A context can be used to specify the set of repositories available
  * to the planner and engine as they perform provisioning work.
- * @noextend This class is not intended to be subclassed by clients.
  * @since 2.0
  */
 public class ProvisioningContext {
@@ -38,8 +38,23 @@ public class ProvisioningContext {
 	private final List<IInstallableUnit> extraIUs = Collections.synchronizedList(new ArrayList<IInstallableUnit>());
 	private URI[] metadataRepositories; //metadata repositories to consult
 	private final Map<String, String> properties = new HashMap<String, String>();
+	private Map<String, IRepositoryReference> metadataRepositorySnapshot = null;
+	private Map<String, IRepositoryReference> artifactRepositorySnapshot = null;
+	private Map<String, IArtifactRepository> referencedArtifactRepositories = null;
 
 	private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
+
+	class ArtifactRepositoryQueryable implements IQueryable<IArtifactRepository> {
+		List<IArtifactRepository> repositories;
+
+		ArtifactRepositoryQueryable(List<IArtifactRepository> repositories) {
+			this.repositories = repositories;
+		}
+
+		public IQueryResult<IArtifactRepository> query(IQuery<IArtifactRepository> query, IProgressMonitor mon) {
+			return query.perform(repositories.listIterator());
+		}
+	}
 
 	/**
 	 * This Comparator sorts the repositories such that local repositories are first
@@ -99,20 +114,7 @@ public class ProvisioningContext {
 	 * @see #FOLLOW_REPOSITORY_REFERENCES
 	 */
 	public IQueryable<IArtifactKey> getArtifactKeys(IProgressMonitor monitor) {
-		IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-		URI[] repositories = getArtifactRepositories();
-		List<IArtifactRepository> repos = new ArrayList<IArtifactRepository>();
-		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100);
-		try {
-			for (int i = 0; i < repositories.length; i++) {
-				if (sub.isCanceled())
-					throw new OperationCanceledException();
-				repos.add(repoManager.loadRepository(repositories[i], sub.newChild(100)));
-			}
-		} catch (ProvisionException e) {
-			//skip unreadable repositories
-		}
-		return QueryUtil.compoundQueryable(repos);
+		return QueryUtil.compoundQueryable(getLoadedArtifactRepositories(monitor));
 	}
 
 	/**
@@ -126,19 +128,10 @@ public class ProvisioningContext {
 	 * @see #FOLLOW_REPOSITORY_REFERENCES
 	 */
 	public IQueryable<IArtifactDescriptor> getArtifactDescriptors(IProgressMonitor monitor) {
-		IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-		URI[] repositories = getArtifactRepositories();
+		List<IArtifactRepository> repos = getLoadedArtifactRepositories(monitor);
 		List<IQueryable<IArtifactDescriptor>> descriptorQueryables = new ArrayList<IQueryable<IArtifactDescriptor>>();
-		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100);
-		try {
-			for (int i = 0; i < repositories.length; i++) {
-				if (sub.isCanceled())
-					throw new OperationCanceledException();
-				IArtifactRepository repo = repoManager.loadRepository(repositories[i], sub.newChild(100));
-				descriptorQueryables.add(repo.descriptorQueryable());
-			}
-		} catch (ProvisionException e) {
-			//skip unreadable repositories
+		for (IArtifactRepository repo : repos) {
+			descriptorQueryables.add(repo.descriptorQueryable());
 		}
 		return QueryUtil.compoundQueryable(descriptorQueryables);
 	}
@@ -154,25 +147,176 @@ public class ProvisioningContext {
 	 * @see #FOLLOW_REPOSITORY_REFERENCES
 	 */
 	public IQueryable<IArtifactRepository> getArtifactRepositories(IProgressMonitor monitor) {
+		return new ArtifactRepositoryQueryable(getLoadedArtifactRepositories(monitor));
+	}
+
+	/**
+	 * Return an array of loaded artifact repositories.
+	 */
+	private List<IArtifactRepository> getLoadedArtifactRepositories(IProgressMonitor monitor) {
 		IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-		URI[] repositories = getArtifactRepositories();
-		final List<IArtifactRepository> repos = new ArrayList<IArtifactRepository>();
+		URI[] repositories = artifactRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : artifactRepositories;
+		Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
+
+		List<IArtifactRepository> repos = new ArrayList<IArtifactRepository>();
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100);
-		try {
-			for (int i = 0; i < repositories.length; i++) {
-				if (sub.isCanceled())
-					throw new OperationCanceledException();
+		for (int i = 0; i < repositories.length; i++) {
+			if (sub.isCanceled())
+				throw new OperationCanceledException();
+			try {
 				repos.add(repoManager.loadRepository(repositories[i], sub.newChild(100)));
+			} catch (ProvisionException e) {
+				//skip unreadable repositories
+			}
+		}
+		if (referencedArtifactRepositories != null)
+			for (IArtifactRepository repo : referencedArtifactRepositories.values())
+				repos.add(repo);
+		return repos;
+	}
+
+	private Set<IMetadataRepository> getLoadedMetadataRepositories(IProgressMonitor monitor) {
+		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		URI[] repositories = metadataRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : metadataRepositories;
+		Set<IMetadataRepository> repos = new HashSet<IMetadataRepository>();
+		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100 + 100);
+		// We always load the repositories explicitly specified first.  This way, the side effects of loading 
+		// the top level repositories (reading repository references and remembering them in the manager)
+		// are the same regardless of whether we choose to follow those references.
+		for (int i = 0; i < repositories.length; i++) {
+			if (sub.isCanceled())
+				throw new OperationCanceledException();
+			try {
+				repos.add(repoManager.loadRepository(repositories[i], sub.newChild(100)));
+			} catch (ProvisionException e) {
+				//skip unreadable repositories
+			}
+		}
+		if (!shouldFollowReferences()) {
+			sub.done();
+			return repos;
+		}
+		// Those last 100 ticks are now converted to be based on the repository reference following
+		sub = SubMonitor.convert(sub.newChild(100), 100 * repositories.length);
+		// Snapshot the repository state.  Anything else we enable or add as part of traversing references should be
+		// forgotten when we are done.
+		snapShotRepositoryState();
+		// We need to remember the loaded artifact repositories because we will be 
+		// restoring the enable/disable state of the referenced repos in the manager after traversing
+		// the metadata repos.  
+		referencedArtifactRepositories = new HashMap<String, IArtifactRepository>();
+
+		for (int i = 0; i < repositories.length; i++) {
+			if (sub.isCanceled())
+				throw new OperationCanceledException();
+			loadMetadataRepository(repoManager, repositories[i], repos, shouldFollowReferences(), sub.newChild(100));
+		}
+		restoreRepositoryState();
+		return repos;
+	}
+
+	private void snapShotRepositoryState() {
+		metadataRepositorySnapshot = new HashMap<String, IRepositoryReference>();
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		List<URI> all = new ArrayList<URI>();
+		all.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL)));
+		all.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED)));
+		for (URI location : all) {
+			int options = manager.isEnabled(location) ? IRepository.ENABLED : IRepository.NONE;
+			metadataRepositorySnapshot.put(location.toString(), new RepositoryReference(location, manager.getRepositoryProperty(location, IRepository.PROP_NICKNAME), IRepository.TYPE_METADATA, options));
+		}
+		artifactRepositorySnapshot = new HashMap<String, IRepositoryReference>();
+		IArtifactRepositoryManager artManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		all = new ArrayList<URI>();
+		all.addAll(Arrays.asList(artManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL)));
+		all.addAll(Arrays.asList(artManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED)));
+		for (URI location : all) {
+			int options = artManager.isEnabled(location) ? IRepository.ENABLED : IRepository.NONE;
+			artifactRepositorySnapshot.put(location.toString(), new RepositoryReference(location, artManager.getRepositoryProperty(location, IRepository.PROP_NICKNAME), IRepository.TYPE_ARTIFACT, options));
+		}
+	}
+
+	private void restoreRepositoryState() {
+		if (metadataRepositorySnapshot != null) {
+			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+			List<URI> all = new ArrayList<URI>();
+			all.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL)));
+			all.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED)));
+			for (URI location : all) {
+				IRepositoryReference reference = metadataRepositorySnapshot.get(location.toString());
+				if (reference == null) {
+					manager.removeRepository(location);
+				} else {
+					manager.setEnabled(location, (reference.getOptions() & IRepository.ENABLED) == IRepository.ENABLED);
+					manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, reference.getNickname());
+					metadataRepositorySnapshot.remove(location);
+				}
+			}
+			// Anything left in the map is no longer known by the manager, so add it back.  (This is not likely)
+			for (IRepositoryReference ref : metadataRepositorySnapshot.values()) {
+				manager.addRepository(ref.getLocation());
+				manager.setEnabled(ref.getLocation(), (ref.getOptions() & IRepository.ENABLED) == IRepository.ENABLED);
+				manager.setRepositoryProperty(ref.getLocation(), IRepository.PROP_NICKNAME, ref.getNickname());
+			}
+			metadataRepositorySnapshot = null;
+		}
+		if (artifactRepositorySnapshot != null) {
+			IArtifactRepositoryManager manager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+			List<URI> all = new ArrayList<URI>();
+			all.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL)));
+			all.addAll(Arrays.asList(manager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED)));
+			for (URI location : all) {
+				IRepositoryReference reference = artifactRepositorySnapshot.get(location.toString());
+				if (reference == null) {
+					manager.removeRepository(location);
+				} else {
+					manager.setEnabled(location, (reference.getOptions() & IRepository.ENABLED) == IRepository.ENABLED);
+					manager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, reference.getNickname());
+					artifactRepositorySnapshot.remove(location);
+				}
+			}
+			// Anything left in the map is no longer known by the manager, so add it back. (This is not likely)
+			for (IRepositoryReference ref : artifactRepositorySnapshot.values()) {
+				manager.addRepository(ref.getLocation());
+				manager.setEnabled(ref.getLocation(), (ref.getOptions() & IRepository.ENABLED) == IRepository.ENABLED);
+				manager.setRepositoryProperty(ref.getLocation(), IRepository.PROP_NICKNAME, ref.getNickname());
+			}
+			artifactRepositorySnapshot = null;
+		}
+	}
+
+	private void loadMetadataRepository(IMetadataRepositoryManager manager, URI location, Set<IMetadataRepository> repos, boolean followReferences, IProgressMonitor monitor) {
+		try {
+			if (!followReferences) {
+				repos.add(manager.loadRepository(location, monitor));
+				return;
+			}
+			// We want to load all repositories referenced by this repository
+			SubMonitor sub = SubMonitor.convert(monitor, 1000);
+			IMetadataRepository repository = manager.loadRepository(location, sub.newChild(500));
+			repos.add(repository);
+			Collection<IRepositoryReference> references = repository.getReferences();
+			if (references.size() > 0) {
+				IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+				SubMonitor repoSubMon = SubMonitor.convert(sub.newChild(500), 100 * references.size());
+				for (IRepositoryReference ref : references) {
+					if (ref.getType() == IRepository.TYPE_METADATA) {
+						loadMetadataRepository(manager, ref.getLocation(), repos, followReferences, repoSubMon.newChild(100));
+					} else {
+						// keyed by location so that duplicate instances are treated as one.  We can't rely on "equals"
+						referencedArtifactRepositories.put(ref.getLocation().toString(), artifactManager.loadRepository(ref.getLocation(), repoSubMon.newChild(100)));
+					}
+				}
+			} else {
+				sub.done();
 			}
 		} catch (ProvisionException e) {
 			//skip unreadable repositories
 		}
-		return new IQueryable<IArtifactRepository>() {
-			public IQueryResult<IArtifactRepository> query(IQuery<IArtifactRepository> query, IProgressMonitor mon) {
-				return query.perform(repos.iterator());
-			}
+	}
 
-		};
+	private boolean shouldFollowReferences() {
+		return Boolean.valueOf(getProperty(FOLLOW_REPOSITORY_REFERENCES)).booleanValue();
 	}
 
 	/**
@@ -186,20 +330,7 @@ public class ProvisioningContext {
 	 * @see #FOLLOW_REPOSITORY_REFERENCES
 	 */
 	public IQueryable<IInstallableUnit> getMetadata(IProgressMonitor monitor) {
-		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-		URI[] repositories = metadataRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : metadataRepositories;
-		List<IMetadataRepository> repos = new ArrayList<IMetadataRepository>();
-		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100);
-		for (int i = 0; i < repositories.length; i++) {
-			try {
-				if (sub.isCanceled())
-					throw new OperationCanceledException();
-				repos.add(repoManager.loadRepository(repositories[i], sub.newChild(100)));
-			} catch (ProvisionException e) {
-				//skip unreadable repositories
-			}
-		}
-		return QueryUtil.compoundQueryable(repos);
+		return QueryUtil.compoundQueryable(getLoadedMetadataRepositories(monitor));
 	}
 
 	/**

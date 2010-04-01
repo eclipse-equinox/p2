@@ -10,18 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine.phases;
 
-import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.ITouchpointType;
-import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 
 public class Sizing extends InstallableUnitPhase {
@@ -73,7 +72,6 @@ public class Sizing extends InstallableUnitPhase {
 		@SuppressWarnings("unchecked")
 		List<IArtifactRequest[]> artifactRequests = (List<IArtifactRequest[]>) parameters.get(Collect.PARM_ARTIFACT_REQUESTS);
 		ProvisioningContext context = (ProvisioningContext) parameters.get(PARM_CONTEXT);
-		IProvisioningAgent agent = (IProvisioningAgent) parameters.get(PARM_AGENT);
 		int statusCode = 0;
 
 		Set<IArtifactRequest> artifactsToObtain = new HashSet<IArtifactRequest>(artifactRequests.size());
@@ -89,25 +87,18 @@ public class Sizing extends InstallableUnitPhase {
 		if (monitor.isCanceled())
 			return Status.CANCEL_STATUS;
 
-		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-		URI[] repositories = null;
-		if (context == null || context.getArtifactRepositories() == null)
-			repositories = repoMgr.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
-		else
-			repositories = context.getArtifactRepositories();
+		SubMonitor sub = SubMonitor.convert(monitor, 1000);
+		IQueryable<IArtifactRepository> repoQueryable = context.getArtifactRepositories(sub.newChild(500));
+		IQuery<IArtifactRepository> all = new ExpressionMatchQuery<IArtifactRepository>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
+		IArtifactRepository[] repositories = repoQueryable.query(all, sub.newChild(500)).toArray(IArtifactRepository.class);
 
 		for (IArtifactRequest artifactRequest : artifactsToObtain) {
-			if (monitor.isCanceled())
+			if (sub.isCanceled())
 				break;
 			boolean found = false;
 			for (int i = 0; i < repositories.length; i++) {
-				IArtifactRepository repo;
-				try {
-					repo = repoMgr.loadRepository(repositories[i], monitor);
-				} catch (ProvisionException e) {
-					continue;//skip unresponsive repositories
-				}
-				if (monitor.isCanceled())
+				IArtifactRepository repo = repositories[i];
+				if (sub.isCanceled())
 					return Status.CANCEL_STATUS;
 				IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(artifactRequest.getArtifactKey());
 				if (descriptors.length > 0) {

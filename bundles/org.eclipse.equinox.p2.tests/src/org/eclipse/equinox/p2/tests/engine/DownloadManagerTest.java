@@ -26,6 +26,9 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
  * Simple tests of {@link DownloadManager} API.
  */
 public class DownloadManagerTest extends AbstractProvisioningTest {
+	private static final String testDataFileLocation = "testData/artifactRepo/simple/artifacts.xml";
+	private static final String testDataFileZipLocation = "testData/artifactRepo/jarfiles/artifacts.jar";
+
 	public static Test suite() {
 		return new TestSuite(DownloadManagerTest.class);
 	}
@@ -159,12 +162,8 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 	public void testFileFirstArtifactRepositoryListContext() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
 		URI[] artifactRepos = new URI[2];
-		try {
-			artifactRepos[0] = new URI("file:/test");
-			artifactRepos[1] = new URI("jar:file:/test!/");
-		} catch (URISyntaxException e) {
-			fail(e.getMessage());
-		}
+		artifactRepos[0] = getTestData("Simple Artifact Repo", testDataFileLocation).toURI();
+		artifactRepos[1] = URIUtil.toJarURI(getTestData("Simple Artifact Repo Zip", testDataFileZipLocation).toURI(), null);
 
 		context.setArtifactRepositories(artifactRepos);
 		DownloadManager manager = createDownloadManager(context);
@@ -173,17 +172,18 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		manager.add(requests);
 		IStatus result = manager.start(null);
 		assertTrue("1.0", result.isOK());
+
+		// Right now the provisioning context adds these to the manager so
+		// we have to remove them so as not to affect other tests.
+		getArtifactRepositoryManager().removeRepository(artifactRepos[0]);
+		getArtifactRepositoryManager().removeRepository(artifactRepos[1]);
 	}
 
 	public void testFileLastArtifactRepositoryListContext() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
 		URI[] artifactRepos = new URI[2];
-		try {
-			artifactRepos[0] = new URI("jar:file:/test!/");
-			artifactRepos[1] = new URI("file:/test");
-		} catch (URISyntaxException e) {
-			fail(e.getMessage());
-		}
+		artifactRepos[0] = URIUtil.toJarURI(getTestData("Simple Artifact Repo Zip", testDataFileZipLocation).toURI(), null);
+		artifactRepos[1] = getTestData("Simple Artifact Repo", testDataFileLocation).toURI();
 
 		context.setArtifactRepositories(artifactRepos);
 		DownloadManager manager = createDownloadManager(context);
@@ -192,14 +192,22 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		manager.add(requests);
 		IStatus result = manager.start(null);
 		assertTrue("1.0", result.isOK());
+
+		// Right now the provisioning context adds these to the manager so
+		// we have to remove them so as not to affect other tests.
+		getArtifactRepositoryManager().removeRepository(artifactRepos[0]);
+		getArtifactRepositoryManager().removeRepository(artifactRepos[1]);
+
 	}
 
 	public void testNoFileArtifactRepositoryListContext() {
 		ProvisioningContext context = new ProvisioningContext(getAgent());
 		URI[] artifactRepos = new URI[2];
 		try {
-			artifactRepos[0] = new URI("jar:file:/test1!/");
-			artifactRepos[1] = new URI("jar:file:/test2!/");
+			artifactRepos[0] = URIUtil.toJarURI(getTestData("Simple Artifact Repo Zip", testDataFileZipLocation).toURI(), null);
+			// This file doesn't exist, but we need an absolute path anyway so we can remove the URI later
+			String absolute = getTempFolder() + "/test2";
+			artifactRepos[1] = URIUtil.toJarURI(URIUtil.fromString(absolute), null);
 		} catch (URISyntaxException e) {
 			fail(e.getMessage());
 		}
@@ -211,6 +219,12 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		manager.add(requests);
 		IStatus result = manager.start(null);
 		assertTrue("1.0", result.isOK());
+
+		// Right now the provisioning context adds these to the manager so
+		// we have to remove them so as not to affect other tests.
+		getArtifactRepositoryManager().removeRepository(artifactRepos[0]);
+		getArtifactRepositoryManager().removeRepository(artifactRepos[1]);
+
 	}
 
 	private DownloadManager createDownloadManager(ProvisioningContext context) {

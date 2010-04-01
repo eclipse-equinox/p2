@@ -11,15 +11,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.p2.repository.artifact.*;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
 
 public class DownloadManager {
 	private ProvisioningContext provContext = null;
@@ -68,12 +69,9 @@ public class DownloadManager {
 			if (provContext == null)
 				provContext = new ProvisioningContext(agent);
 
-			if (requestsToProcess.isEmpty())
-				return Status.OK_STATUS;
-
-			// Should be using queryable here
-			URI[] repositories = provContext.getArtifactRepositories();
-			subMonitor.worked(500);
+			IQueryable<IArtifactRepository> repoQueryable = provContext.getArtifactRepositories(subMonitor.newChild(250));
+			IQuery<IArtifactRepository> all = new ExpressionMatchQuery<IArtifactRepository>(IArtifactRepository.class, ExpressionUtil.TRUE_EXPRESSION);
+			IArtifactRepository[] repositories = repoQueryable.query(all, subMonitor.newChild(250)).toArray(IArtifactRepository.class);
 			if (repositories.length == 0)
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository, new Exception(Collect.NO_ARTIFACT_REPOSITORIES_AVAILABLE));
 			fetch(repositories, subMonitor.newChild(500));
@@ -83,20 +81,15 @@ public class DownloadManager {
 		}
 	}
 
-	private void fetch(URI[] repositories, SubMonitor monitor) {
-		IArtifactRepositoryManager repositoryManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+	private void fetch(IArtifactRepository[] repositories, IProgressMonitor mon) {
+		SubMonitor monitor = SubMonitor.convert(mon, requestsToProcess.size());
 		for (int i = 0; i < repositories.length && !requestsToProcess.isEmpty() && !monitor.isCanceled(); i++) {
-			try {
-				IArtifactRepository current = repositoryManager.loadRepository(repositories[i], monitor.newChild(0));
-				IArtifactRequest[] requests = getRequestsForRepository(current);
-				IStatus dlStatus = current.getArtifacts(requests, monitor.newChild(requests.length));
-				if (dlStatus.getSeverity() == IStatus.CANCEL)
-					return;
-				filterUnfetched();
-				monitor.setWorkRemaining(requestsToProcess.size());
-			} catch (ProvisionException e) {
-				//skip unreachable repositories
-			}
+			IArtifactRequest[] requests = getRequestsForRepository(repositories[i]);
+			IStatus dlStatus = repositories[i].getArtifacts(requests, monitor.newChild(requests.length));
+			if (dlStatus.getSeverity() == IStatus.CANCEL)
+				return;
+			filterUnfetched();
+			monitor.setWorkRemaining(requestsToProcess.size());
 		}
 	}
 

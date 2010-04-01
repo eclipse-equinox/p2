@@ -31,6 +31,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ProfileTest.class);
 		suite.addTestSuite(ProfilePreferencesTest.class);
 		suite.addTestSuite(ProfileRegistryTest.class);
+		suite.addTestSuite(ProvisioningContextTest.class);
 		suite.addTestSuite(SurrogateProfileHandlerTest.class);
 		suite.addTestSuite(ActionManagerTest.class);
 		suite.addTestSuite(TouchpointManagerTest.class);

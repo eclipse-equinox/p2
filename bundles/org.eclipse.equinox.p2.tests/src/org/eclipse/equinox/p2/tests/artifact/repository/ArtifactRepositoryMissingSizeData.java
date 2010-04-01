@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
+import java.net.URI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.Phase;
@@ -32,21 +33,32 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 	private static final String testDataLocation = "testData/artifactRepo/missingArtifact";
 	IArtifactRepository source = null;
 	IMetadataRepository metaRepo;
+	URI uri;
 	IInstallableUnit missingArtifactIU, missingSizeIU;
+	ProvisioningContext context;
 	IEngine engine;
 
 	protected void setUp() throws Exception {
 		super.setUp();
 		IMetadataRepositoryManager mmgr = getMetadataRepositoryManager();
-		metaRepo = mmgr.loadRepository((getTestData("MissingArtifact repo", testDataLocation).toURI()), null);
-
-		missingArtifactIU = (IInstallableUnit) metaRepo.query(QueryUtil.createIUQuery("javax.wsdl", new VersionRange("[1.5, 1.6)")), null).iterator().next();
-		missingSizeIU = (IInstallableUnit) metaRepo.query(QueryUtil.createIUQuery("javax.wsdl", new VersionRange("[1.4, 1.5)")), null).iterator().next();
+		uri = getTestData("MissingArtifact repo", testDataLocation).toURI();
+		metaRepo = mmgr.loadRepository(uri, null);
+		missingArtifactIU = metaRepo.query(QueryUtil.createIUQuery("javax.wsdl", new VersionRange("[1.5, 1.6)")), null).iterator().next();
+		missingSizeIU = metaRepo.query(QueryUtil.createIUQuery("javax.wsdl", new VersionRange("[1.4, 1.5)")), null).iterator().next();
 
 		IArtifactRepositoryManager mgr = getArtifactRepositoryManager();
-		source = mgr.loadRepository((getTestData("MissingArtifact repo", testDataLocation).toURI()), null);
+		source = mgr.loadRepository(uri, null);
 
+		context = new ProvisioningContext(getAgent());
+		context.setMetadataRepositories(new URI[] {metaRepo.getLocation()});
+		context.setArtifactRepositories(new URI[] {source.getLocation()});
 		engine = getEngine();
+	}
+
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		getMetadataRepositoryManager().removeRepository(uri);
+		getArtifactRepositoryManager().removeRepository(uri);
 	}
 
 	public void testMissingArtifact() {
@@ -55,7 +67,7 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		req.add(missingArtifactIU);
 		req.setInstallableUnitInclusionRules(missingArtifactIU, ProfileInclusionRules.createStrictInclusionRule(missingArtifactIU));
 
-		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, context, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 		Sizing sizing = new Sizing(100);
@@ -73,7 +85,7 @@ public class ArtifactRepositoryMissingSizeData extends AbstractProvisioningTest 
 		req.add(missingSizeIU);
 		req.setInstallableUnitInclusionRules(missingSizeIU, ProfileInclusionRules.createStrictInclusionRule(missingSizeIU));
 
-		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
+		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, context, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 
 		Sizing sizing = new Sizing(100);
