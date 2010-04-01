@@ -85,19 +85,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		ProvUIActivator.context = bundleContext;
 		packageAdminRef = bundleContext.getServiceReference(PackageAdmin.class.getName());
 		packageAdmin = (PackageAdmin) bundleContext.getService(packageAdminRef);
-
-		initializeProvisioningUI();
-	}
-
-	private void initializeProvisioningUI() {
-		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
-		session = new ProvisioningSession(agent);
-
-		Policy policy = (Policy) ServiceHelper.getService(ProvUIActivator.getContext(), Policy.class.getName());
-		if (policy == null)
-			policy = new Policy();
-
-		ui = new ProvisioningUI(session, IProfileRegistry.SELF, policy);
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
@@ -146,6 +133,14 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	}
 
 	public ProvisioningUI getProvisioningUI() {
+		if (ui == null) {
+			IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
+			session = new ProvisioningSession(agent);
+			Policy policy = (Policy) ServiceHelper.getService(ProvUIActivator.getContext(), Policy.class.getName());
+			if (policy == null)
+				policy = new Policy();
+			ui = new ProvisioningUI(session, IProfileRegistry.SELF, policy);
+		}
 		return ui;
 	}
 
