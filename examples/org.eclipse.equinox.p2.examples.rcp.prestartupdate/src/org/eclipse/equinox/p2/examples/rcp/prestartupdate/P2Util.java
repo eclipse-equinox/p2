@@ -20,6 +20,21 @@ import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.UpdateOperation;
 
+/**
+ * This class shows an example for checking for updates and performing the
+ * update synchronously.  It is up to the caller to run this in a job if 
+ * a background update check is desired.  This is a reasonable way to run an
+ * operation when user intervention is not required.   Another approach is
+ * to separately perform the resolution and provisioning steps, deciding
+ * whether to perform these synchronously or in a job.
+ * 
+ * Any p2 operation can be run modally (synchronously), or the job
+ * can be requested and scheduled by the caller.
+ * 
+ * @see UpdateOperation#resolveModal(IProgressMonitor)
+ * @see UpdateOperation#getResolveJob(IProgressMonitor)
+ * @see UpdateOperation#getProvisioningJob(IProgressMonitor)
+ */
 public class P2Util {
 	// XXX Check for updates to this application and return a status.
 	static IStatus checkForUpdates(IProvisioningAgent agent, IProgressMonitor monitor) throws OperationCanceledException {
