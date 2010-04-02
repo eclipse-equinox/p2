@@ -55,7 +55,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ExplanationDeepConflict.class);
 		suite.addTestSuite(ExplanationForOptionalDependencies.class);
 		suite.addTestSuite(ExplanationForPartialInstallation.class);
-		//		suite.addTestSuite(ExplanationLargeConflict.class);
+		suite.addTestSuite(ExplanationLargeConflict.class);
 		suite.addTestSuite(ExplanationSeveralConflictingRoots.class);
 		suite.addTestSuite(GreedyRequirement.class);
 		suite.addTestSuite(InclusionRuleTest.class);
@@ -99,6 +99,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(PatchTest7b.class);
 		suite.addTestSuite(PatchTest8.class);
 		suite.addTestSuite(PatchTest9.class);
+		suite.addTestSuite(PatchTest10.class);
+		suite.addTestSuite(PatchTest12.class);
 		suite.addTestSuite(PatchTestMultiplePatch.class);
 		suite.addTestSuite(PatchTestMultiplePatch2.class);
 		suite.addTestSuite(PatchTestMultiplePatch3.class);
