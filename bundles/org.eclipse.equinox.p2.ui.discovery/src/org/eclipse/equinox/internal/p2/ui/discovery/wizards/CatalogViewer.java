@@ -267,12 +267,6 @@ public class CatalogViewer extends FilteredViewer {
 		return Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 	}
 
-	public void dispose() {
-		if (catalog != null) {
-			catalog.dispose();
-		}
-	}
-
 	@Override
 	protected PatternFilter doCreateFilter() {
 		return new FindFilter();
@@ -393,6 +387,8 @@ public class CatalogViewer extends FilteredViewer {
 		viewer.getControl().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				resources.dispose();
+				if (catalog != null)
+					catalog.dispose();
 			}
 		});
 		viewer.addFilter(new Filter());
