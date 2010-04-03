@@ -52,8 +52,6 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 
 	private final IShellProvider shellProvider;
 
-	private ToolItem updateButton;
-
 	private final CatalogViewer viewer;
 
 	public DiscoveryItem(Composite parent, int style, DiscoveryResources resources, IShellProvider shellProvider, final T connector, CatalogViewer viewer) {
@@ -111,12 +109,6 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 			ToolBar toolBar = new ToolBar(this, SWT.FLAT);
 			GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).applyTo(toolBar);
 
-			if (connector.isInstalled()) {
-				updateButton = new ToolItem(toolBar, SWT.PUSH);
-				updateButton.setImage(resources.getUpdateImage());
-				updateButton.setToolTipText("Check for Updates");
-			}
-
 			if (hasTooltip(connector)) {
 				infoButton = new ToolItem(toolBar, SWT.PUSH);
 				infoButton.setImage(resources.getInfoImage());
@@ -163,8 +155,10 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 			overview.setUrl(connector.getCertification().getUrl());
 			Image image = resources.getIconImage(connector.getSource(), connector.getCertification().getIcon(), 48, true);
 			hookTooltip(providerLabel, providerLabel, this, providerLabel, connector.getSource(), overview, image);
-		} else {
+		} else if (connector.getLicense() != null) {
 			providerLabel.setText(NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_provider_and_license, connector.getProvider(), connector.getLicense()));
+		} else {
+			providerLabel.setText(connector.getProvider());
 		}
 	}
 
@@ -204,7 +198,7 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 	protected boolean maybeModifySelection(boolean selected) {
 		if (selected) {
 			if (connector.isInstalled()) {
-				MessageDialog.openWarning(shellProvider.getShell(), "Install Connector", NLS.bind("{0} is already installed.", connector.getName()));
+				MessageDialog.openWarning(shellProvider.getShell(), Messages.DiscoveryItem_Connector_already_installed_Error_Title, NLS.bind(Messages.DiscoveryItem_Connector_already_installed_Error_Message, connector.getName()));
 				return false;
 			}
 			if (connector.getAvailable() != null && !connector.getAvailable()) {

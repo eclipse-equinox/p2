@@ -20,13 +20,9 @@ public class Messages extends NLS {
 
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.ui.discovery.wizards.messages"; //$NON-NLS-1$
 
-	public static String CatalogViewer_All_Categories;
-
 	public static String ConnectorDescriptorToolTip_detailsLink;
 
 	public static String ConnectorDescriptorToolTip_detailsLink_tooltip;
-
-	public static String ConnectorDiscoveryWizard_connectorDiscovery;
 
 	public static String ConnectorDiscoveryWizard_installProblems;
 
@@ -68,9 +64,15 @@ public class Messages extends NLS {
 
 	public static String ConnectorDiscoveryWizardMainPage_warningTitleConnectorUnavailable;
 
+	public static String DiscoveryItem_Connector_already_installed_Error_Message;
+
+	public static String DiscoveryItem_Connector_already_installed_Error_Title;
+
 	public static String DiscoveryViewer_Certification_Label0;
 
 	public static String DiscoveryViewer_Show_Installed;
+
+	public static String DiscoveryWizard_Install_Window_Title;
 
 	public static String PrepareInstallProfileJob_notFoundDescriptorDetail;
 
@@ -81,4 +83,5 @@ public class Messages extends NLS {
 
 	private Messages() {
 	}
+
 }

@@ -39,7 +39,7 @@ public class DiscoveryWizard extends Wizard {
 		Assert.isNotNull(configuration);
 		this.catalog = catalog;
 		this.configuration = configuration;
-		setWindowTitle(Messages.ConnectorDiscoveryWizard_connectorDiscovery);
+		setWindowTitle(Messages.DiscoveryWizard_Install_Window_Title);
 		setNeedsProgressMonitor(true);
 		setDefaultPageImageDescriptor(DiscoveryImages.BANNER_DISOVERY);
 	}
