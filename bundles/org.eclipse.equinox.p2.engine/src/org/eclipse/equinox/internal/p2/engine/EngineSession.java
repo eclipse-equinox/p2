@@ -222,7 +222,9 @@ public class EngineSession {
 
 			for (ListIterator<ActionsRecord> it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
 				ActionsRecord record = it.previous();
-				ProvisioningAction[] actions = record.actions.toArray(new ProvisioningAction[record.actions.size()]);
+				List<ProvisioningAction> reversedActions = new ArrayList<ProvisioningAction>(record.actions);
+				Collections.reverse(reversedActions);
+				ProvisioningAction[] actions = reversedActions.toArray(new ProvisioningAction[record.actions.size()]);
 				try {
 					phase.undo(result, this, profile, record.operand, actions, context);
 				} catch (RuntimeException e) {
