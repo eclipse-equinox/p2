@@ -19,6 +19,8 @@ import org.eclipse.equinox.p2.query.IQuery;
  * This interface provides all the factory methods needed to create the
  * nodes of the expression tree.
  * @since 2.0
+ * @noimplement This interface is not intended to be implemented directly by clients.
+ * @noextend This interface is not intended to be extended directly by clients.
  */
 public interface IExpressionFactory {
 	String FUNC_BOOLEAN = "boolean"; //$NON-NLS-1$
