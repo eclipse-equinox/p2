@@ -55,9 +55,11 @@ public class BasicTests extends AbstractReconcilerTest {
 		suite.addTest(new BasicTests("testSimpleRepoWithSiteXMLPlaceHolder"));
 		suite.addTest(new BasicTests("testSimpleRepo"));
 
-		// suite.addTest(new BasicTests("test_251167"));
+		//suite.addTest(new BasicTests("test_251167"));
 		suite.addTest(new BasicTests("test_p2Repo"));
 		suite.addTest(new BasicTests("testDisabledBundleInLink"));
+		suite.addTest(new BasicTests("testMove1"));
+		//suite.addTest(new BasicTests("testMove2"));
 
 		return suite;
 	}
@@ -76,6 +78,93 @@ public class BasicTests extends AbstractReconcilerTest {
 		remove("2.0", "dropins", "directoryBased_1.0.0");
 		reconcile("2.1");
 		assertDoesNotExistInBundlesInfo("2.2", "directoryBased");
+	}
+
+	/*
+	 * Basic bundle
+	 * - add to dropins
+	 * - reconcile
+	 * - installed OK
+	 * - move from dropins to plugins
+	 * - reconcile
+	 * - check to see if bundles.info was updated with the new location
+	 */
+	public void testMove1() {
+		// assert initial state
+		assertInitialized();
+		assertDoesNotExistInBundlesInfo("0.1", "b");
+
+		// add bundle to dropins
+		File jar = getTestData("2.0", "testData/reconciler/move/b_1.0.0.jar");
+		add("2.1", "dropins", jar);
+
+		// reconcile
+		reconcile("3.0");
+
+		// assert bundle installed
+		assertExistsInBundlesInfo("4.0", "b", "1.0.0", "dropins");
+
+		// move bundle to plugins
+		remove("5.0", "dropins", "b_1.0.0.jar");
+		add("5.1", "plugins", jar);
+
+		// reconcile
+		reconcile("6.0");
+
+		// assert bundle still installed
+		assertExistsInBundlesInfo("7.0", "b", "1.0.0", "plugins");
+
+		// cleanup
+		remove("99.0", "plugins", "b_1.0.0.jar");
+		reconcile("99.1");
+		assertDoesNotExistInBundlesInfo("99.2", "b");
+	}
+
+	/*
+	 * A depends on B
+	 * - add B to dropins
+	 * - reconcile
+	 * - add A to dropins
+	 * - reconcile
+	 * - move B from dropins to plugins
+	 * - reconcile
+	 * - ensure A is still ok
+	 * - ensure location of B has been updated in bundles.info
+	 */
+	public void testMove2() {
+		// assert initial state
+		assertInitialized();
+		assertDoesNotExistInBundlesInfo("0.1", "a");
+		assertDoesNotExistInBundlesInfo("0.2", "b");
+
+		// add first bundle to dropins
+		File jar = getTestData("2.0", "testData/reconciler/move/b_1.0.0.jar");
+		add("2.1", "dropins", jar);
+		reconcile("2.2");
+		assertExistsInBundlesInfo("2.3", "b", "1.0.0", "dropins");
+
+		// add second bundle to dropins
+		jar = getTestData("3.0", "testData/reconciler/move/a_1.0.0.jar");
+		add("3.1", "dropins", jar);
+		reconcile("3.2");
+		assertExistsInBundlesInfo("3.3", "a", "1.0.0", "dropins");
+
+		// move bundle to plugins
+		remove("5.0", "dropins", "b_1.0.0.jar");
+		jar = getTestData("5.1", "testData/reconciler/move/b_1.0.0.jar");
+		add("5.2", "plugins", jar);
+		reconcile("5.3");
+
+		// assert bundle still installed
+		assertExistsInBundlesInfo("7.0", "b", "1.0.0", "plugins");
+		assertExistsInBundlesInfo("7.1", "a", "1.0.0", "dropins");
+
+		// cleanup
+		remove("99.0", "dropins", "a_1.0.0.jar");
+		remove("99.1", "plugins", "b_1.0.0.jar");
+		reconcile("99.2");
+		assertDoesNotExistInBundlesInfo("99.3", "a");
+		assertDoesNotExistInBundlesInfo("99.4", "b");
 	}
 
 	/*
@@ -279,6 +368,11 @@ public class BasicTests extends AbstractReconcilerTest {
 		assertDoesNotExistInBundlesInfo("5.1", "B");
 		assertTrue("5.2", isInstalled("A", "1.0.0"));
 		assertFalse("5.3", isInstalled("B", "1.0.0"));
+
+		// cleanup
+		remove("6.0", "dropins", "A_1.0.0.jar");
+		reconcile("6.1");
+		assertFalse("6.2", isInstalled("A", "1.0.0"));
 	}
 
 	/*
@@ -301,6 +395,13 @@ public class BasicTests extends AbstractReconcilerTest {
 		assertTrue("3.2", isInstalled("zFeature.feature.group", "1.0.0"));
 		IInstallableUnit unit = getRemoteIU("zzz", "1.0.0");
 		assertEquals("3.3", "foo", unit.getProperty("test"));
+
+		// cleanup
+		remove("4.0", "dropins", "basicRepo.jar");
+		reconcile("4.1");
+		assertDoesNotExistInBundlesInfo("4.2", "zzz");
+		assertFalse("4.3", isInstalled("zzz", "1.0.0"));
+		assertFalse("4.4", isInstalled("zFeature.feature.group", "1.0.0"));
 	}
 
 	/*
@@ -323,6 +424,7 @@ public class BasicTests extends AbstractReconcilerTest {
 		assertExistsInBundlesInfo("3.3", "ccc");
 		assertTrue("3.4", isInstalled("ccc", "1.0.0"));
 
+		// cleanup
 		removeLinkFile("4.0", linkFilename);
 		reconcile("4.1");
 		assertDoesNotExistInBundlesInfo("5.0", "bbb");

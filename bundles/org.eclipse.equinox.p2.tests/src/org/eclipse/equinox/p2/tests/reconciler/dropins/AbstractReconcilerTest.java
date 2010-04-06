@@ -15,12 +15,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.engine.SurrogateProfileHandler;
 import org.eclipse.equinox.internal.p2.jarprocessor.StreamProcessor;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
+import org.eclipse.equinox.internal.simpleconfigurator.manipulator.SimpleConfiguratorManipulatorImpl;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -29,6 +31,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.Bundle;
 
@@ -300,40 +303,49 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return isInBundlesInfo(bundleId, null);
 	}
 
+	private File getBundlesInfo() {
+		return new File(output, "eclipse/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
+	}
+
 	public boolean isInBundlesInfo(String bundleId, String version) throws IOException {
-		File bundlesInfo = new File(output, "eclipse/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
-		return isInBundlesInfo(bundleId, version, bundlesInfo);
+		return isInBundlesInfo(bundleId, version, null);
+	}
+
+	public boolean isInBundlesInfo(String bundleId, String version, String location) throws IOException {
+		return isInBundlesInfo(getBundlesInfo(), bundleId, version, location);
+	}
+
+	public boolean isInBundlesInfo(File bundlesInfo, String bundleId, String version) throws IOException {
+		return isInBundlesInfo(bundlesInfo, bundleId, version, null);
 	}
 
 	/*
 	 * Return a boolean value indicating whether or not a bundle with the given id
 	 * is listed in the bundles.info file. If the version is non-null, check to ensure the
-	 * version is the expected one.
+	 * version is the expected one. If the location is non-null then do a String#contains check.
 	 */
-	public boolean isInBundlesInfo(String bundleId, String version, File bundlesInfo) throws IOException {
-		if (!bundlesInfo.exists())
-			return false;
-		String line;
-		Exception exception = null;
-		BufferedReader reader = new BufferedReader(new FileReader(bundlesInfo));
+	public boolean isInBundlesInfo(File bundlesInfo, String bundleId, String version, String location) throws IOException {
+		SimpleConfiguratorManipulator manipulator = new SimpleConfiguratorManipulatorImpl();
+		InputStream input = null;
 		try {
-			while ((line = reader.readLine()) != null) {
-				StringTokenizer tokenizer = new StringTokenizer(line, ",");
-				if (bundleId.equals(tokenizer.nextToken())) {
-					if (version == null)
-						return true;
-					if (version.equals(tokenizer.nextToken()))
-						return true;
-				}
+			input = new BufferedInputStream(new FileInputStream(bundlesInfo));
+			BundleInfo[] infos = manipulator.loadConfiguration(input, output.toURI());
+			for (int i = 0; i < infos.length; i++) {
+				BundleInfo info = infos[i];
+				if (!bundleId.equals(info.getSymbolicName()))
+					continue;
+				if (version != null && !version.equals(info.getVersion()))
+					continue;
+				if (location == null)
+					return true;
+				return info.getLocation().toString().contains(location);
 			}
-		} catch (IOException e) {
-			exception = e;
 		} finally {
 			try {
-				reader.close();
-			} catch (IOException ex) {
-				if (exception == null)
-					throw ex;
+				if (input != null)
+					input.close();
+			} catch (IOException e) {
+				// ignore
 			}
 		}
 		return false;
@@ -378,8 +390,12 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * throw an AssertionFailedException.
 	 */
 	public void assertExistsInBundlesInfo(String message, String bundleId, String version) {
+		assertExistsInBundlesInfo(message, bundleId, version, null);
+	}
+
+	public void assertExistsInBundlesInfo(String message, String bundleId, String version, String location) {
 		try {
-			assertTrue(message, isInBundlesInfo(bundleId, version));
+			assertTrue(message, isInBundlesInfo(bundleId, version, location));
 		} catch (IOException e) {
 			fail(message, e);
 		}

@@ -128,7 +128,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 			assertTrue("0.3", userBundlesInfo.exists());
 			assertTrue("0.4", userConfigIni.exists());
 
-			assertTrue(isInBundlesInfo("myBundle", null, userBundlesInfo));
+			assertTrue(isInBundlesInfo(userBundlesInfo, "myBundle", null));
 
 			// remove the bundle from the dropins and reconcile
 			setReadOnly(readOnlyBase, false);
@@ -138,7 +138,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 			assertFalse("0.7", readOnlyBase.canWrite());
 
 			reconcileReadOnly("0.21");
-			assertFalse(isInBundlesInfo("myBundle", null, userBundlesInfo));
+			assertFalse(isInBundlesInfo(userBundlesInfo, "myBundle", null));
 		} finally {
 			cleanupReadOnlyInstall();
 			// try to remove it in case an exception was thrown
@@ -170,13 +170,13 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 			assertTrue("0.3", userBundlesInfo.exists());
 			assertTrue("0.4", userConfigIni.exists());
 
-			assertTrue(isInBundlesInfo("myBundle", null, userBundlesInfo));
+			assertTrue(isInBundlesInfo(userBundlesInfo, "myBundle", null));
 
 			// remove the bundle from the dropins and reconcile
 			delete(dropins);
 
 			reconcileReadOnly("0.21");
-			assertFalse(isInBundlesInfo("myBundle", null, userBundlesInfo));
+			assertFalse(isInBundlesInfo(userBundlesInfo, "myBundle", null));
 		} finally {
 			delete(dropins);
 			cleanupReadOnlyInstall();
