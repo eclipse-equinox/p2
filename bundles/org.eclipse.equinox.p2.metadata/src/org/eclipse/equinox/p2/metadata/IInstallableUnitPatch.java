@@ -32,6 +32,7 @@ public interface IInstallableUnitPatch extends IInstallableUnit {
 	 * AND operators, and each of the arrays are separated by OR operators. For example
 	 * a scope of [[r1, r2, r3], [r4, r5]] will match any unit whose provided capabilities
 	 * satisfy the expression ((r1 ^ r2 ^ r3) | (r4 ^ r5)).
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	IRequirement[][] getApplicabilityScope();
 
