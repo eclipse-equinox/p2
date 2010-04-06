@@ -47,6 +47,7 @@ public interface IRequirementChange {
 	 *  <li> The result of <b>applyOn()</b> on both objects are equal
 	 *  <li> The result of <b>newValue()</b> on both objects are equal
 	 * </ul> 
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public boolean equals(Object other);
 }
