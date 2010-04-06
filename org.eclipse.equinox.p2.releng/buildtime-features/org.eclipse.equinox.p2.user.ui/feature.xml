@@ -309,6 +309,14 @@
          unpack="false"/>
 
    <plugin
+         id="org.apache.commons.logging"
+         download-size="0"
+         install-size="0"
+         version="1.0.4.qualifier"
+         unpack="false"/>
+
+
+   <plugin
          id="org.eclipse.equinox.p2.operations"
          download-size="0"
          install-size="0"
