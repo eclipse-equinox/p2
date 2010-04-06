@@ -709,7 +709,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 		IRequiredCapability spiRequiredCapability = new SPIRequiredCapability("com.example", "bar", new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), true));
 		Collection list = new ArrayList();
 		list.add(spiRequiredCapability);
-		iuDescription.addRequiredCapabilities(list);
+		iuDescription.addRequirements(list);
 
 		repo.addInstallableUnits(Arrays.asList(MetadataFactory.createInstallableUnit(iuDescription)));
 
@@ -770,7 +770,7 @@ public class SPIMetadataRepositoryTest extends AbstractProvisioningTest {
 
 		Collection requiredCapabilityList = new ArrayList();
 		requiredCapabilityList.add(spiRequiredCapability);
-		iuDescription.addRequiredCapabilities(requiredCapabilityList);
+		iuDescription.addRequirements(requiredCapabilityList);
 
 		Collection providedCapabilityList = new ArrayList();
 		providedCapabilityList.add(spiProvidedCapability);

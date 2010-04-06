@@ -155,7 +155,7 @@ public class RootIUAction extends AbstractPublisherAction {
 		Collection<IRequirement> requiredCapabilities = createIURequirements(children);
 		if (requires != null)
 			requiredCapabilities.addAll(requires);
-		root.setRequiredCapabilities(requiredCapabilities.toArray(new IRequirement[requiredCapabilities.size()]));
+		root.setRequirements(requiredCapabilities.toArray(new IRequirement[requiredCapabilities.size()]));
 		root.setArtifacts(new IArtifactKey[0]);
 
 		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$

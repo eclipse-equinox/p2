@@ -394,10 +394,10 @@ public class AdviceFileParser {
 			description.setCapabilities(unitProvides.toArray(new IProvidedCapability[unitProvides.size()]));
 
 		if (!unitRequires.isEmpty())
-			description.setRequiredCapabilities(unitRequires.toArray(new IRequirement[unitRequires.size()]));
+			description.setRequirements(unitRequires.toArray(new IRequirement[unitRequires.size()]));
 
 		if (!unitMetaRequirements.isEmpty())
-			description.setMetaRequiredCapabilities(unitMetaRequirements.toArray(new IRequirement[unitMetaRequirements.size()]));
+			description.setMetaRequirements(unitMetaRequirements.toArray(new IRequirement[unitMetaRequirements.size()]));
 
 		if (!unitInstructions.isEmpty())
 			description.addTouchpointData(MetadataFactory.createTouchpointData(unitInstructions));

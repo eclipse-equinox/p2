@@ -196,7 +196,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 	protected InstallableUnitDescription createParentIU(Collection<? extends IVersionedId> children, String id, Version version) {
 		InstallableUnitDescription root = createIUShell(id, version);
-		root.addRequiredCapabilities(createIURequirements(children));
+		root.addRequirements(createIURequirements(children));
 		addSelfCapability(root);
 		return root;
 	}
@@ -282,7 +282,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			//process required capabilities
 			IRequirement[] requiredAdvice = entry.getRequiredCapabilities(iu);
 			if (requiredAdvice != null) {
-				List<IRequirement> current = iu.getRequiredCapabilities();
+				List<IRequirement> current = iu.getRequirements();
 				Set<IRequirement> resultRequiredCapabilities = new HashSet<IRequirement>(current);
 
 				// remove current required capabilities that match (same name and namespace) advice.
@@ -307,13 +307,13 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				}
 				// add all advice
 				resultRequiredCapabilities.addAll(Arrays.asList(requiredAdvice));
-				iu.setRequiredCapabilities(resultRequiredCapabilities.toArray(new IRequirement[resultRequiredCapabilities.size()]));
+				iu.setRequirements(resultRequiredCapabilities.toArray(new IRequirement[resultRequiredCapabilities.size()]));
 			}
 
 			//process meta required capabilities
 			IRequirement[] metaRequiredAdvice = entry.getMetaRequiredCapabilities(iu);
 			if (metaRequiredAdvice != null) {
-				Collection<IRequirement> current = iu.getMetaRequiredCapabilities();
+				Collection<IRequirement> current = iu.getMetaRequirements();
 				Set<IRequirement> resultMetaRequiredCapabilities = new HashSet<IRequirement>(current);
 
 				// remove current meta-required capabilities that match (same name and namespace) advice.
@@ -338,7 +338,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 				// add all advice
 				resultMetaRequiredCapabilities.addAll(Arrays.asList(metaRequiredAdvice));
-				iu.setMetaRequiredCapabilities(resultMetaRequiredCapabilities.toArray(new IRequirement[resultMetaRequiredCapabilities.size()]));
+				iu.setMetaRequirements(resultMetaRequiredCapabilities.toArray(new IRequirement[resultMetaRequiredCapabilities.size()]));
 			}
 
 			//process provided capabilities

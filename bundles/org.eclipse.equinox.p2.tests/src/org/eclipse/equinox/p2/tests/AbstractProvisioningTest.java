@@ -404,7 +404,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			iu.setProperty(nextKey, nextValue);
 		}
 		iu.setCapabilities(provides);
-		iu.setRequiredCapabilities(required);
+		iu.setRequirements(required);
 		iu.setTouchpointType(tpType);
 		if (tpData != null)
 			iu.addTouchpointData(tpData);
@@ -413,7 +413,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		iu.setRequirementChanges(reqChanges);
 		iu.setApplicabilityScope(scope);
 		iu.setLifeCycle(lifeCycle);
-		iu.setMetaRequiredCapabilities(metaRequirements);
+		iu.setMetaRequirements(metaRequirements);
 		return MetadataFactory.createInstallableUnitPatch(iu);
 	}
 
@@ -433,7 +433,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			iu.setProperty(nextKey, nextValue);
 		}
 		iu.setCapabilities(provides);
-		iu.setRequiredCapabilities(required);
+		iu.setRequirements(required);
 		iu.setTouchpointType(tpType);
 		if (tpData != null)
 			iu.addTouchpointData(tpData);
@@ -441,7 +441,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		iu.setUpdateDescriptor(update);
 		if (metaRequirements == null)
 			metaRequirements = NO_REQUIRES;
-		iu.setMetaRequiredCapabilities(metaRequirements);
+		iu.setMetaRequirements(metaRequirements);
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
@@ -462,7 +462,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		fragment.setId(name);
 		fragment.setVersion(version);
 		fragment.setProperty(org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		fragment.setRequiredCapabilities(required);
+		fragment.setRequirements(required);
 		fragment.setTouchpointType(tpType);
 		if (tpData != null)
 			fragment.addTouchpointData(tpData);
@@ -497,9 +497,9 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		Collection<ILicense> originalLicenses = prototype.getLicenses();
 		desc.setLicenses(originalLicenses.toArray(new ILicense[originalLicenses.size()]));
 		Collection<IRequirement> originalRequirements = prototype.getRequirements();
-		desc.setRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
+		desc.setRequirements(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
 		originalRequirements = prototype.getMetaRequirements();
-		desc.setMetaRequiredCapabilities(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
+		desc.setMetaRequirements(originalRequirements.toArray(new IRequirement[originalRequirements.size()]));
 		desc.setSingleton(prototype.isSingleton());
 		desc.setTouchpointType(MetadataFactory.createTouchpointType(prototype.getTouchpointType().getId(), prototype.getTouchpointType().getVersion()));
 		desc.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(prototype.getUpdateDescriptor().getIUsBeingUpdated(), prototype.getUpdateDescriptor().getSeverity(), prototype.getUpdateDescriptor().getDescription(), null));

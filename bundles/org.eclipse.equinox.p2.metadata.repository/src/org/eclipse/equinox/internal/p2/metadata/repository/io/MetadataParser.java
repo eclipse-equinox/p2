@@ -309,9 +309,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				IProvidedCapability[] providedCapabilities = (providedCapabilitiesHandler == null ? new IProvidedCapability[0] : providedCapabilitiesHandler.getProvidedCapabilities());
 				currentUnit.setCapabilities(providedCapabilities);
 				IRequirement[] requiredCapabilities = (requiredCapabilitiesHandler == null ? new IRequirement[0] : requiredCapabilitiesHandler.getRequiredCapabilities());
-				currentUnit.setRequiredCapabilities(requiredCapabilities);
+				currentUnit.setRequirements(requiredCapabilities);
 				IRequirement[] metaRequiredCapabilities = (metaRequiredCapabilitiesHandler == null ? new IRequirement[0] : metaRequiredCapabilitiesHandler.getMetaRequiredCapabilities());
-				currentUnit.setMetaRequiredCapabilities(metaRequiredCapabilities);
+				currentUnit.setMetaRequirements(metaRequiredCapabilities);
 				if (filterHandler != null) {
 					currentUnit.setFilter(filterHandler.getText());
 				}

@@ -173,7 +173,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			//TODO this needs to be refined to take into account all the attribute handled by imports
 			reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
 		}
-		iu.setRequiredCapabilities(reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
+		iu.setRequirements(reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
 
 		// Create set of provided capabilities
 		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();

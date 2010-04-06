@@ -608,7 +608,7 @@ public class SimplePlanner implements IPlanner {
 		description.setId(id);
 		Version version = Version.createOSGi(1, 0, 0, Long.toString(profile.getTimestamp()));
 		description.setVersion(version);
-		description.addRequiredCapabilities(metaRequirements);
+		description.addRequirements(metaRequirements);
 
 		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();
 		IProvidedCapability providedCapability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, id, version);
@@ -624,7 +624,7 @@ public class SimplePlanner implements IPlanner {
 		String time = Long.toString(System.currentTimeMillis());
 		iud.setId(time);
 		iud.setVersion(Version.createOSGi(0, 0, 0, time));
-		iud.setRequiredCapabilities(allRequirements.toArray(new IRequirement[allRequirements.size()]));
+		iud.setRequirements(allRequirements.toArray(new IRequirement[allRequirements.size()]));
 		return MetadataFactory.createInstallableUnit(iud);
 	}
 

@@ -52,7 +52,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		Collection requirements = new ArrayList();
 		requirements.add(req1);
 		requirements.add(req2);
-		iud1.addRequiredCapabilities(requirements);
+		iud1.addRequirements(requirements);
 		Collection capabilities = new ArrayList();
 		capabilities.add(new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "TestNegation4", Version.create("1.0.0")));
 		iud1.addProvidedCapabilities(capabilities);
@@ -110,7 +110,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		Collection requirements = new ArrayList();
 		requirements.add(req1);
 		requirements.add(req2);
-		iud1.addRequiredCapabilities(requirements);
+		iud1.addRequirements(requirements);
 		Collection capabilities = new ArrayList();
 		capabilities.add(new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "TestNegation4", Version.create("1.0.0")));
 		iud1.addProvidedCapabilities(capabilities);
@@ -151,7 +151,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		Collection requirements = new ArrayList();
 		requirements.add(req1);
 		requirements.add(req2);
-		iud1.addRequiredCapabilities(requirements);
+		iud1.addRequirements(requirements);
 		Collection capabilities = new ArrayList();
 		capabilities.add(new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "TestNegation4", Version.create("1.0.0")));
 		iud1.addProvidedCapabilities(capabilities);
@@ -193,7 +193,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		Collection requirements = new ArrayList();
 		requirements.add(req1);
 		requirements.add(req2);
-		iud1.addRequiredCapabilities(requirements);
+		iud1.addRequirements(requirements);
 		Collection capabilities = new ArrayList();
 		capabilities.add(new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "TestNegation4", Version.create("1.0.0")));
 		iud1.addProvidedCapabilities(capabilities);
@@ -216,7 +216,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		iud3.addProvidedCapabilities(capabilities3);
 		Collection requirements3 = new ArrayList();
 		requirements3.add(MetadataFactory.createRequirement("DOES-NOT-EXIST", "NEVER", new VersionRange("[1.0.0, 2.0.0)"), null, false, false));
-		iud3.addRequiredCapabilities(requirements3);
+		iud3.addRequirements(requirements3);
 		IInstallableUnit iu3 = MetadataFactory.createInstallableUnit(iud3);
 
 		IMetadataRepository repo = createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3});
@@ -254,7 +254,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		Collection requirements = new ArrayList();
 		requirements.add(req1);
 		requirements.add(req2);
-		iud1.addRequiredCapabilities(requirements);
+		iud1.addRequirements(requirements);
 		Collection capabilities = new ArrayList();
 		capabilities.add(new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "TestNegation4", Version.create("1.0.0")));
 		iud1.addProvidedCapabilities(capabilities);
@@ -285,7 +285,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		iud4.addProvidedCapabilities(capabilities4);
 		Collection reqs4 = new ArrayList();
 		reqs4.add(new RequiredCapability(NS, N, new VersionRange("[1.1.1, 1.1.1]"), null, false, false));
-		iud4.addRequiredCapabilities(reqs4);
+		iud4.addRequirements(reqs4);
 		IInstallableUnit iu4 = MetadataFactory.createInstallableUnit(iud4);
 
 		IMetadataRepository repo = createTestMetdataRepository(new IInstallableUnit[] {iu1, iu2, iu3, iu4});

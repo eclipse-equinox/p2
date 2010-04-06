@@ -35,7 +35,7 @@ public class ORTesting extends AbstractProvisioningTest {
 		iudA.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability("org.eclipse.equinox.p2.iu", "A", Version.parseVersion("1.0.0"))});
 		Collection reqs = new ArrayList();
 		reqs.add(orRequirement);
-		iudA.addRequiredCapabilities(reqs);
+		iudA.addRequirements(reqs);
 
 		IInstallableUnit mylyn34 = createIU("org.eclipse.mylyn34");
 		IInstallableUnit mylyn35 = createIU("org.eclipse.mylyn35");

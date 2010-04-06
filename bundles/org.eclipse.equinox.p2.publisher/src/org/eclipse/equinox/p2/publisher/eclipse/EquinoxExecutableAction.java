@@ -138,7 +138,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 			String launcherFragment = EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
 			if (!(Constants.OS_MACOSX.equals(os) && !Constants.ARCH_X86_64.equals(arch)))
 				launcherFragment += '.' + arch;
-			iu.setRequiredCapabilities(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
+			iu.setRequirements(new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
 		}
 		result.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 		return publishCU;

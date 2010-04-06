@@ -34,7 +34,7 @@ public class OracleTest2 extends AbstractProvisioningTest {
 
 		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[2.0.0, 3.0.0)"));
 		InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
-		desc.setRequiredCapabilities(requires);
+		desc.setRequirements(requires);
 		desc.setId("A");
 		desc.setVersion(Version.createOSGi(2, 0, 0));
 		desc.setSingleton(true);

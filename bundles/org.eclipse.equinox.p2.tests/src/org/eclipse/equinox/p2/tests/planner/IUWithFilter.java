@@ -29,7 +29,7 @@ public class IUWithFilter extends AbstractProvisioningTest {
 		iud.setId("A");
 		iud.setVersion(Version.create("1.0.0"));
 		iud.setCapabilities(new IProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", Version.createOSGi(1, 0, 0))});
-		iud.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]")));
+		iud.setRequirements(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]")));
 		iud.setFilter("(invalid=true)");
 		a1 = MetadataFactory.createInstallableUnit(iud);
 		createTestMetdataRepository(new IInstallableUnit[] {a1});

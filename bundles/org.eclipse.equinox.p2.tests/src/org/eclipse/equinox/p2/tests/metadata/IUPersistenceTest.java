@@ -319,7 +319,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 			iu1.setProperty(nextKey, nextValue);
 		}
 		iu1.setCapabilities(provides1);
-		iu1.setRequiredCapabilities(requirements);
+		iu1.setRequirements(requirements);
 		iu1.setTouchpointType(TOUCHPOINT_OSGI);
 		if (tpData != null)
 			iu1.addTouchpointData(tpData);
@@ -327,7 +327,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		iu1.setUpdateDescriptor(update);
 		if (metaRequirements == null)
 			metaRequirements = NO_REQUIRES;
-		iu1.setMetaRequiredCapabilities(metaRequirements);
+		iu1.setMetaRequirements(metaRequirements);
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iu1);
 		return iu;
 	}

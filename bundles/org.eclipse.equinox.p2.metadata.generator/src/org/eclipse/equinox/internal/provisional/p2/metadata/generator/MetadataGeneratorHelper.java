@@ -298,7 +298,7 @@ public class MetadataGeneratorHelper {
 			//TODO this needs to be refined to take into account all the attribute handled by imports
 			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
 		}
-		iu.setRequiredCapabilities((IRequirement[]) reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
+		iu.setRequirements((IRequirement[]) reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
 
 		// Create set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
@@ -494,7 +494,7 @@ public class MetadataGeneratorHelper {
 		if (parentCategory != null) {
 			reqsConfigurationUnits.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, parentCategory.getId(), VersionRange.emptyRange, parentCategory.getFilter() == null ? null : parentCategory.getFilter(), false, false));
 		}
-		cat.setRequiredCapabilities((IRequirement[]) reqsConfigurationUnits.toArray(new IRequirement[reqsConfigurationUnits.size()]));
+		cat.setRequirements((IRequirement[]) reqsConfigurationUnits.toArray(new IRequirement[reqsConfigurationUnits.size()]));
 
 		// Create set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
@@ -783,7 +783,7 @@ public class MetadataGeneratorHelper {
 		// actual features.
 		if (featureIU != null)
 			required[entries.length] = MetadataFactory.createRequirement(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
-		iu.setRequiredCapabilities(required);
+		iu.setRequirements(required);
 		iu.setTouchpointType(ITouchpointType.NONE);
 		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
@@ -863,7 +863,7 @@ public class MetadataGeneratorHelper {
 		}
 		//Always add a requirement on the IU containing the feature jar
 		patchRequirements.add(MetadataFactory.createRequirement(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false));
-		iu.setRequiredCapabilities((IRequirement[]) patchRequirements.toArray(new IRequirement[patchRequirements.size()]));
+		iu.setRequirements((IRequirement[]) patchRequirements.toArray(new IRequirement[patchRequirements.size()]));
 		iu.setApplicabilityScope(new IRequirement[][] {(IRequirement[]) applicabilityScope.toArray(new IRequirement[applicabilityScope.size()])});
 		iu.setRequirementChanges((IRequirementChange[]) requirementChanges.toArray(new IRequirementChange[requirementChanges.size()]));
 

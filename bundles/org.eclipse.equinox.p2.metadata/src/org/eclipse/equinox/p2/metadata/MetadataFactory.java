@@ -70,7 +70,12 @@ public final class MetadataFactory {
 			unit().setCapabilities(all.toArray(new IProvidedCapability[all.size()]));
 		}
 
+		/** @deprecated Use addRequirements(additional) instead */
 		public void addRequiredCapabilities(Collection<IRequirement> additional) {
+			addRequirements(additional);
+		}
+
+		public void addRequirements(Collection<IRequirement> additional) {
 			if (additional == null || additional.size() == 0)
 				return;
 			List<IRequirement> current = unit().getRequirements();
@@ -93,11 +98,21 @@ public final class MetadataFactory {
 			return unit().getProvidedCapabilities();
 		}
 
+		/** @deprecated Use getRequirements() instead */
 		public List<IRequirement> getRequiredCapabilities() {
+			return getRequirements();
+		}
+
+		public List<IRequirement> getRequirements() {
 			return unit().getRequirements();
 		}
 
+		/** @deprecated Use getMetaRequirements() instead */
 		public Collection<IRequirement> getMetaRequiredCapabilities() {
+			return getMetaRequirements();
+		}
+
+		public Collection<IRequirement> getMetaRequirements() {
 			return unit().getMetaRequirements();
 		}
 
@@ -148,11 +163,21 @@ public final class MetadataFactory {
 			unit().setProperty(key, value);
 		}
 
+		/** @deprecated Use setRequirements(requirements) instead */
 		public void setRequiredCapabilities(IRequirement[] requirements) {
+			setRequirements(requirements);
+		}
+
+		public void setRequirements(IRequirement[] requirements) {
 			unit().setRequiredCapabilities(requirements);
 		}
 
+		/** @deprecated Use setMetaRequirements(requirements) instead */
 		public void setMetaRequiredCapabilities(IRequirement[] metaRequirements) {
+			setMetaRequirements(metaRequirements);
+		}
+
+		public void setMetaRequirements(IRequirement[] metaRequirements) {
 			unit().setMetaRequiredCapabilities(metaRequirements);
 		}
 

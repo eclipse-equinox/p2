@@ -254,7 +254,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 				required.add(MetadataFactory.createRequirement(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), filter, false, false));
 			}
 		}
-		iu.setRequiredCapabilities(required.toArray(new IRequirement[required.size()]));
+		iu.setRequirements(required.toArray(new IRequirement[required.size()]));
 		iu.setTouchpointType(ITouchpointType.NONE);
 		iu.setProperty(InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		processTouchpointAdvice(iu, null, publisherInfo);
@@ -338,7 +338,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 				patchRequirements.add(MetadataFactory.createRequirement(PublisherHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), child.getFilter(), false, false));
 			}
 		}
-		iu.setRequiredCapabilities(patchRequirements.toArray(new IRequirement[patchRequirements.size()]));
+		iu.setRequirements(patchRequirements.toArray(new IRequirement[patchRequirements.size()]));
 		iu.setApplicabilityScope(new IRequirement[][] {applicabilityScope.toArray(new IRequirement[applicabilityScope.size()])});
 		iu.setRequirementChanges(requirementChanges.toArray(new IRequirementChange[requirementChanges.size()]));
 

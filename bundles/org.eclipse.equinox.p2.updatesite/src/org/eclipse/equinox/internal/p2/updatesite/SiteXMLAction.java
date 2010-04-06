@@ -369,7 +369,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		if (parentCategory != null) {
 			reqsConfigurationUnits.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, parentCategory.getId(), VersionRange.emptyRange, parentCategory.getFilter(), false, false));
 		}
-		cat.setRequiredCapabilities(reqsConfigurationUnits.toArray(new IRequirement[reqsConfigurationUnits.size()]));
+		cat.setRequirements(reqsConfigurationUnits.toArray(new IRequirement[reqsConfigurationUnits.size()]));
 
 		// Create set of provided capabilities
 		ArrayList<IProvidedCapability> providedCapabilities = new ArrayList<IProvidedCapability>();
