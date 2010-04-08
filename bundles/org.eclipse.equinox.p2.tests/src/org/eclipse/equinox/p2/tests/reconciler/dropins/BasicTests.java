@@ -59,7 +59,7 @@ public class BasicTests extends AbstractReconcilerTest {
 		suite.addTest(new BasicTests("test_p2Repo"));
 		suite.addTest(new BasicTests("testDisabledBundleInLink"));
 		suite.addTest(new BasicTests("testMove1"));
-		//suite.addTest(new BasicTests("testMove2"));
+		//suite.addTest(new BasicTests("testMove2")); Disabled, see bug 306424
 
 		return suite;
 	}
