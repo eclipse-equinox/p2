@@ -48,9 +48,10 @@ public class Application implements IApplication {
 		initializeServices();
 		IProfile profile = getProfile(profileId);
 		if (profile == null)
-			throw new IllegalArgumentException("\"" + profileId + "\" is not a valid profile identifier.");
+			throw new IllegalArgumentException("\"" + profileId + "\" is not a valid profile identifier."); //$NON-NLS-1$//$NON-NLS-2$
 		GarbageCollector gc = (GarbageCollector) agent.getService(GarbageCollector.SERVICE_NAME);
 		gc.runGC(profile);
+		agent.stop();
 		return null;
 	}
 
