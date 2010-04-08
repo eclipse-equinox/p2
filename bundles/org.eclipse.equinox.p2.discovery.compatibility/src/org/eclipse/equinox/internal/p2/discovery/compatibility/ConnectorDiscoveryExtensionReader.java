@@ -21,6 +21,8 @@ import org.eclipse.equinox.internal.p2.discovery.model.*;
  */
 public class ConnectorDiscoveryExtensionReader {
 
+	private static final String P2_FEATURE_GROUP_SUFFIX = ".feature.group"; //$NON-NLS-1$
+
 	public static final String EXTENSION_POINT_ID = "org.eclipse.mylyn.discovery.core.connectorDiscovery"; //$NON-NLS-1$
 
 	public static final String CONNECTOR_DESCRIPTOR = "connectorDescriptor"; //$NON-NLS-1$
@@ -103,11 +105,11 @@ public class ConnectorDiscoveryExtensionReader {
 		IConfigurationElement[] children = element.getChildren("iu"); //$NON-NLS-1$
 		if (children.length > 0) {
 			for (IConfigurationElement child : children) {
-				connectorDescriptor.getInstallableUnits().add(child.getAttribute("id")); //$NON-NLS-1$
+				connectorDescriptor.getInstallableUnits().add(getFeatureId(child.getAttribute("id"))); //$NON-NLS-1$
 			}
 		} else {
 			// no particular iu specified, use connector id
-			connectorDescriptor.getInstallableUnits().add(connectorDescriptor.getId());
+			connectorDescriptor.getInstallableUnits().add(getFeatureId(connectorDescriptor.getId()));
 		}
 		for (IConfigurationElement child : element.getChildren("featureFilter")) { //$NON-NLS-1$
 			FeatureFilter featureFilterItem = readFeatureFilter(child);
@@ -133,6 +135,13 @@ public class ConnectorDiscoveryExtensionReader {
 		connectorDescriptor.validate();
 
 		return connectorDescriptor;
+	}
+
+	private String getFeatureId(String id) {
+		if (!id.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
+			return id + P2_FEATURE_GROUP_SUFFIX;
+		}
+		return id;
 	}
 
 	public CatalogCategory readConnectorCategory(IConfigurationElement element) throws ValidationException {

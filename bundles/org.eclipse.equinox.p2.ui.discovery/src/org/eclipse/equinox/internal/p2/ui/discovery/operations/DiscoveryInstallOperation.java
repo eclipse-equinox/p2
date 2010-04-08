@@ -42,8 +42,6 @@ import org.eclipse.swt.widgets.Display;
  */
 public class DiscoveryInstallOperation implements IRunnableWithProgress {
 
-	private static final String P2_FEATURE_GROUP_SUFFIX = ".feature.group"; //$NON-NLS-1$
-
 	private final List<CatalogItem> installableConnectors;
 
 	private final ProvisioningUI provisioningUI;
@@ -159,7 +157,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		String detailedMessage = ""; //$NON-NLS-1$
 		for (CatalogItem descriptor : installableConnectors) {
 			StringBuilder unavailableIds = null;
-			for (String id : getFeatureIds(descriptor)) {
+			for (String id : descriptor.getInstallableUnits()) {
 				if (!foundIds.contains(id)) {
 					if (unavailableIds == null) {
 						unavailableIds = new StringBuilder();
@@ -233,10 +231,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		for (final IMetadataRepository repository : repositories) {
 			checkCancelled(monitor);
 			final Set<String> installableUnitIdsThisRepository = getDescriptorIds(repository);
-			IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery( //
-					"id ~= /*.feature.group/ && " + //$NON-NLS-1$
-							"properties['org.eclipse.equinox.p2.type.group'] == true ");//$NON-NLS-1$
-			IQueryResult<IInstallableUnit> result = repository.query(query, monitor.newChild(1));
+			IQueryResult<IInstallableUnit> result = repository.query(createInstalledIUsQuery(), monitor.newChild(1));
 			for (Iterator<IInstallableUnit> iter = result.iterator(); iter.hasNext();) {
 				IInstallableUnit iu = iter.next();
 				String id = iu.getId();
@@ -245,6 +240,10 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 			}
 		}
 		return installableUnits;
+	}
+
+	protected IQuery<IInstallableUnit> createInstalledIUsQuery() {
+		return QueryUtil.createIUGroupQuery();
 	}
 
 	private List<IMetadataRepository> addRepositories(SubMonitor monitor) throws MalformedURLException, URISyntaxException, ProvisionException {
@@ -283,24 +282,13 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		for (CatalogItem descriptor : installableConnectors) {
 			try {
 				if (repository.getLocation().equals(new URL(descriptor.getSiteUrl()).toURI())) {
-					installableUnitIdsThisRepository.addAll(getFeatureIds(descriptor));
+					installableUnitIdsThisRepository.addAll(descriptor.getInstallableUnits());
 				}
 			} catch (MalformedURLException e) {
 				// will never happen, ignore
 			}
 		}
 		return installableUnitIdsThisRepository;
-	}
-
-	private Set<String> getFeatureIds(CatalogItem descriptor) {
-		Set<String> featureIds = new HashSet<String>();
-		for (String id : descriptor.getInstallableUnits()) {
-			if (!id.endsWith(P2_FEATURE_GROUP_SUFFIX)) {
-				id += P2_FEATURE_GROUP_SUFFIX;
-			}
-			featureIds.add(id);
-		}
-		return featureIds;
 	}
 
 }
