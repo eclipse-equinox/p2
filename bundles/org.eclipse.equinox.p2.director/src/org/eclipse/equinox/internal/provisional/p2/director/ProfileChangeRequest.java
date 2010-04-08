@@ -244,19 +244,23 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 		result.append("==Profile change request for "); //$NON-NLS-1$
 		result.append(profile.getProfileId());
 		result.append('\n');
-		result.append("==Additions=="); //$NON-NLS-1$
-		result.append('\n');
-		for (IInstallableUnit iu : iusToAdd) {
-			result.append('\t');
-			result.append(iu);
+		if (iusToAdd != null) {
+			result.append("==Additions=="); //$NON-NLS-1$
 			result.append('\n');
+			for (IInstallableUnit iu : iusToAdd) {
+				result.append('\t');
+				result.append(iu);
+				result.append('\n');
+			}
 		}
-		result.append("==Removals=="); //$NON-NLS-1$
-		result.append('\n');
-		for (IInstallableUnit iu : iusToRemove) {
-			result.append('\t');
-			result.append(iu);
+		if (iusToRemove != null) {
+			result.append("==Removals=="); //$NON-NLS-1$
 			result.append('\n');
+			for (IInstallableUnit iu : iusToRemove) {
+				result.append('\t');
+				result.append(iu);
+				result.append('\n');
+			}
 		}
 		return result.toString();
 	}
