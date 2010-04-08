@@ -136,9 +136,11 @@ public class MetadataGeneratorHelper {
 			// TODO - this is wrong but I'm testing a work-around for bug 205842
 			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
 		}
-		String md5 = computeMD5(pathOnDisk);
-		if (md5 != null)
-			result.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
+		if (asIs) {
+			String md5 = computeMD5(pathOnDisk);
+			if (md5 != null)
+				result.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
+		}
 		return result;
 	}
 
