@@ -68,6 +68,8 @@ public class Messages extends NLS {
 
 	public static String DiscoveryItem_Connector_already_installed_Error_Title;
 
+	public static String DiscoveryItem_Extension_installed;
+
 	public static String DiscoveryViewer_Certification_Label0;
 
 	public static String DiscoveryViewer_Show_Installed;

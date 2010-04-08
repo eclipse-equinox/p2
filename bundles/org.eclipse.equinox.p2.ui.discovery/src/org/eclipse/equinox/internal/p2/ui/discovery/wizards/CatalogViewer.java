@@ -19,8 +19,14 @@ import org.eclipse.equinox.internal.p2.discovery.Catalog;
 import org.eclipse.equinox.internal.p2.discovery.model.*;
 import org.eclipse.equinox.internal.p2.discovery.util.CatalogCategoryComparator;
 import org.eclipse.equinox.internal.p2.discovery.util.CatalogItemComparator;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.discovery.DiscoveryUi;
 import org.eclipse.equinox.internal.p2.ui.discovery.util.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -439,17 +445,13 @@ public class CatalogViewer extends FilteredViewer {
 		return configuration;
 	}
 
-	protected Set<String> getInstalledFeatures(IProgressMonitor monitor) throws InterruptedException {
+	protected Set<String> getInstalledFeatures(IProgressMonitor monitor) {
 		Set<String> features = new HashSet<String>();
-		IBundleGroupProvider[] bundleGroupProviders = Platform.getBundleGroupProviders();
-		for (IBundleGroupProvider provider : bundleGroupProviders) {
-			if (monitor.isCanceled()) {
-				throw new InterruptedException();
-			}
-			IBundleGroup[] bundleGroups = provider.getBundleGroups();
-			for (IBundleGroup group : bundleGroups) {
-				features.add(group.getIdentifier());
-			}
+		IProfile profile = ProvUI.getProfileRegistry(ProvisioningUI.getDefaultUI().getSession()).getProfile(ProvisioningUI.getDefaultUI().getProfileId());
+		IQueryResult<IInstallableUnit> result = profile.available(QueryUtil.createIUGroupQuery(), monitor);
+		for (Iterator<IInstallableUnit> it = result.iterator(); it.hasNext();) {
+			IInstallableUnit unit = it.next();
+			features.add(unit.getId());
 		}
 		return features;
 	}
@@ -608,4 +610,5 @@ public class CatalogViewer extends FilteredViewer {
 		setComplete(!checkedItems.isEmpty());
 		selectionProvider.setSelection(new StructuredSelection(getCheckedItems()));
 	}
+
 }

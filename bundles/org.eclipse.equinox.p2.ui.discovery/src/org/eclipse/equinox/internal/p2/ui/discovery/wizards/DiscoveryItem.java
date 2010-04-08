@@ -34,11 +34,11 @@ import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
  */
 public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<T> implements PropertyChangeListener {
 
-	private Button checkbox;
+	Button checkbox;
 
 	private Composite checkboxContainer;
 
-	private final CatalogItem connector;
+	private final CatalogItem item;
 
 	private Label description;
 
@@ -54,15 +54,15 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 
 	private final CatalogViewer viewer;
 
-	public DiscoveryItem(Composite parent, int style, DiscoveryResources resources, IShellProvider shellProvider, final T connector, CatalogViewer viewer) {
-		super(parent, style, resources, connector);
+	public DiscoveryItem(Composite parent, int style, DiscoveryResources resources, IShellProvider shellProvider, final T item, CatalogViewer viewer) {
+		super(parent, style, resources, item);
 		this.shellProvider = shellProvider;
-		this.connector = connector;
+		this.item = item;
 		this.viewer = viewer;
-		connector.addPropertyChangeListener(this);
+		item.addPropertyChangeListener(this);
 		this.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
-				connector.removePropertyChangeListener(DiscoveryItem.this);
+				item.removePropertyChangeListener(DiscoveryItem.this);
 			}
 		});
 		createContent();
@@ -81,10 +81,10 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 		GridLayoutFactory.fillDefaults().spacing(1, 1).numColumns(2).applyTo(checkboxContainer);
 
 		checkbox = new Button(checkboxContainer, SWT.CHECK | SWT.INHERIT_FORCE);
-		checkbox.setSelection(connector.isSelected());
+		checkbox.setSelection(item.isSelected());
 		checkbox.setText(" "); //$NON-NLS-1$
 		// help UI tests
-		checkbox.setData("connectorId", connector.getId()); //$NON-NLS-1$
+		checkbox.setData("connectorId", item.getId()); //$NON-NLS-1$
 		// FIXME
 		//		checkbox.addFocusListener(new FocusAdapter() {
 		//			@Override
@@ -96,25 +96,27 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 
 		iconLabel = new Label(checkboxContainer, SWT.NONE);
 		GridDataFactory.swtDefaults().align(SWT.CENTER, SWT.CENTER).applyTo(iconLabel);
-		if (connector.getIcon() != null) {
-			iconLabel.setImage(resources.getIconImage(connector.getSource(), connector.getIcon(), 32, false));
+		if (item.getIcon() != null) {
+			iconLabel.setImage(resources.getIconImage(item.getSource(), item.getIcon(), 32, false));
 		}
 
 		nameLabel = new Label(this, SWT.NONE);
 		GridDataFactory.fillDefaults().grab(true, false).align(SWT.BEGINNING, SWT.CENTER).applyTo(nameLabel);
 		nameLabel.setFont(resources.getSmallHeaderFont());
-		nameLabel.setText(connector.getName());
+		if (item.isInstalled()) {
+			nameLabel.setText(NLS.bind(Messages.DiscoveryItem_Extension_installed, item.getName()));
+		} else {
+			nameLabel.setText(item.getName());
+		}
 
-		if (hasTooltip(connector) || connector.isInstalled()) {
+		if (hasTooltip()) {
 			ToolBar toolBar = new ToolBar(this, SWT.FLAT);
 			GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).applyTo(toolBar);
 
-			if (hasTooltip(connector)) {
-				infoButton = new ToolItem(toolBar, SWT.PUSH);
-				infoButton.setImage(resources.getInfoImage());
-				infoButton.setToolTipText(Messages.ConnectorDiscoveryWizardMainPage_tooltip_showOverview);
-				hookTooltip(toolBar, infoButton, this, nameLabel, connector.getSource(), connector.getOverview(), null);
-			}
+			infoButton = new ToolItem(toolBar, SWT.PUSH);
+			infoButton.setImage(resources.getInfoImage());
+			infoButton.setToolTipText(Messages.ConnectorDiscoveryWizardMainPage_tooltip_showOverview);
+			hookTooltip(toolBar, infoButton, this, nameLabel, item.getSource(), item.getOverview(), null);
 		} else {
 			Label label = new Label(this, SWT.NULL);
 			label.setText(" "); //$NON-NLS-1$
@@ -122,7 +124,7 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 
 		description = new Label(this, SWT.NULL | SWT.WRAP);
 		GridDataFactory.fillDefaults().grab(true, false).span(3, 1).hint(100, SWT.DEFAULT).applyTo(description);
-		String descriptionText = connector.getDescription();
+		String descriptionText = item.getDescription();
 		int maxDescriptionLength = 162;
 		if (descriptionText == null) {
 			descriptionText = ""; //$NON-NLS-1$
@@ -140,30 +142,30 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 		GridDataFactory.fillDefaults().span(3, 1).align(SWT.BEGINNING, SWT.CENTER).applyTo(providerLabel);
 		// always disabled color to make it less prominent
 		providerLabel.setForeground(resources.getColorDisabled());
-		if (connector.getCertification() != null) {
-			providerLabel.setText(NLS.bind(Messages.DiscoveryViewer_Certification_Label0, new String[] {connector.getProvider(), connector.getLicense(), connector.getCertification().getName()}));
-			if (connector.getCertification().getUrl() != null) {
+		if (item.getCertification() != null) {
+			providerLabel.setText(NLS.bind(Messages.DiscoveryViewer_Certification_Label0, new String[] {item.getProvider(), item.getLicense(), item.getCertification().getName()}));
+			if (item.getCertification().getUrl() != null) {
 				providerLabel.addSelectionListener(new SelectionAdapter() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						WorkbenchUtil.openUrl(connector.getCertification().getUrl(), IWorkbenchBrowserSupport.AS_EXTERNAL);
+						WorkbenchUtil.openUrl(item.getCertification().getUrl(), IWorkbenchBrowserSupport.AS_EXTERNAL);
 					}
 				});
 			}
 			Overview overview = new Overview();
-			overview.setSummary(connector.getCertification().getDescription());
-			overview.setUrl(connector.getCertification().getUrl());
-			Image image = resources.getIconImage(connector.getSource(), connector.getCertification().getIcon(), 48, true);
-			hookTooltip(providerLabel, providerLabel, this, providerLabel, connector.getSource(), overview, image);
-		} else if (connector.getLicense() != null) {
-			providerLabel.setText(NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_provider_and_license, connector.getProvider(), connector.getLicense()));
+			overview.setSummary(item.getCertification().getDescription());
+			overview.setUrl(item.getCertification().getUrl());
+			Image image = resources.getIconImage(item.getSource(), item.getCertification().getIcon(), 48, true);
+			hookTooltip(providerLabel, providerLabel, this, providerLabel, item.getSource(), overview, image);
+		} else if (item.getLicense() != null) {
+			providerLabel.setText(NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_provider_and_license, item.getProvider(), item.getLicense()));
 		} else {
-			providerLabel.setText(connector.getProvider());
+			providerLabel.setText(item.getProvider());
 		}
 	}
 
-	protected boolean hasTooltip(final CatalogItem connector) {
-		return connector.getOverview() != null && connector.getOverview().getSummary() != null && connector.getOverview().getSummary().length() > 0;
+	protected boolean hasTooltip() {
+		return item.getOverview() != null && item.getOverview().getSummary() != null && item.getOverview().getSummary().length() > 0;
 	}
 
 	public void initializeListeners() {
@@ -197,16 +199,16 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 
 	protected boolean maybeModifySelection(boolean selected) {
 		if (selected) {
-			if (connector.isInstalled()) {
-				MessageDialog.openWarning(shellProvider.getShell(), Messages.DiscoveryItem_Connector_already_installed_Error_Title, NLS.bind(Messages.DiscoveryItem_Connector_already_installed_Error_Message, connector.getName()));
+			if (item.isInstalled()) {
+				MessageDialog.openWarning(shellProvider.getShell(), Messages.DiscoveryItem_Connector_already_installed_Error_Title, NLS.bind(Messages.DiscoveryItem_Connector_already_installed_Error_Message, item.getName()));
 				return false;
 			}
-			if (connector.getAvailable() != null && !connector.getAvailable()) {
-				MessageDialog.openWarning(shellProvider.getShell(), Messages.ConnectorDiscoveryWizardMainPage_warningTitleConnectorUnavailable, NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_warningMessageConnectorUnavailable, connector.getName()));
+			if (item.getAvailable() != null && !item.getAvailable()) {
+				MessageDialog.openWarning(shellProvider.getShell(), Messages.ConnectorDiscoveryWizardMainPage_warningTitleConnectorUnavailable, NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_warningMessageConnectorUnavailable, item.getName()));
 				return false;
 			}
 		}
-		viewer.modifySelection(connector, selected);
+		viewer.modifySelection(item, selected);
 		return true;
 	}
 
@@ -224,14 +226,15 @@ public class DiscoveryItem<T extends CatalogItem> extends AbstractDiscoveryItem<
 
 	@Override
 	protected void refresh() {
-		boolean enabled = connector.getAvailable() == null || connector.getAvailable();
+		boolean enabled = !item.isInstalled() && (item.getAvailable() == null || item.getAvailable());
 
-		checkbox.setEnabled(!connector.isInstalled() && enabled);
-		nameLabel.setEnabled(connector.isInstalled() || enabled);
-		providerLabel.setEnabled(connector.isInstalled() || enabled);
-		description.setEnabled(connector.isInstalled() || enabled);
+		checkbox.setEnabled(enabled);
+		nameLabel.setEnabled(enabled);
+		providerLabel.setEnabled(enabled);
+		description.setEnabled(enabled);
+
 		Color foreground;
-		if (connector.isInstalled() || enabled) {
+		if (enabled) {
 			foreground = getForeground();
 		} else {
 			foreground = resources.getColorDisabled();
