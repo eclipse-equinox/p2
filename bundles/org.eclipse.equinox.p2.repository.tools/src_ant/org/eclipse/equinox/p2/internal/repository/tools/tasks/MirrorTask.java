@@ -60,7 +60,7 @@ public class MirrorTask extends AbstractRepositoryTask {
 			application.setSourceIUs(ius);
 			IStatus result = application.run(null);
 			if (result.matches(IStatus.ERROR))
-				throw new BuildException(TaskHelper.statusToString(result, null).toString());
+				throw new BuildException(TaskHelper.statusToString(result, IStatus.ERROR, null).toString());
 		} catch (ProvisionException e) {
 			throw new BuildException(e);
 		} catch (NoSuchMethodException e) {

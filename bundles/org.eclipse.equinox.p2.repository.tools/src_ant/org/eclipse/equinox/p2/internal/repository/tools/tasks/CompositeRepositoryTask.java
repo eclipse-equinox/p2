@@ -34,7 +34,7 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 		try {
 			IStatus result = application.run(null);
 			if (result.matches(IStatus.ERROR)) {
-				throw new BuildException(TaskHelper.statusToString(result, null).toString());
+				throw new BuildException(TaskHelper.statusToString(result, IStatus.ERROR, null).toString());
 			}
 		} catch (ProvisionException e) {
 			throw new BuildException(e);
