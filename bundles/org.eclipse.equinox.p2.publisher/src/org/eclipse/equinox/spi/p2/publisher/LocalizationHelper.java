@@ -65,7 +65,7 @@ public final class LocalizationHelper {
 
 		HashMap<Locale, Map<String, String>> localizations = null;
 
-		if (localizationFiles != null) {
+		if (localizationFiles != null && localizationFiles.length > 0) {
 			localizations = new HashMap<Locale, Map<String, String>>(localizationFiles.length);
 			for (int i = 0; i < localizationFiles.length; i++) {
 				String nextFile = localizationFiles[i];
