@@ -51,6 +51,10 @@ public class QLParser extends ExpressionParser {
 		qlKeywords.put(OPERATOR_EACH, new Integer(TOKEN_ANY));
 	}
 
+	public QLParser(IExpressionFactory factory) {
+		super(factory);
+	}
+
 	protected Map<String, Integer> keywordToTokenMap() {
 		return qlKeywords;
 	}

@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.metadata.expression.parser;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.MetadataActivator;
 import org.eclipse.equinox.internal.p2.metadata.expression.IExpressionConstants;
 import org.eclipse.equinox.internal.p2.metadata.expression.LDAPApproximation;
 import org.eclipse.equinox.p2.metadata.expression.*;
@@ -77,8 +76,8 @@ public class ExpressionParser extends Stack<IExpression> implements IExpressionC
 	protected Object tokenValue;
 	protected String rootVariable;
 
-	public ExpressionParser() {
-		factory = MetadataActivator.getExpressionFactory();
+	public ExpressionParser(IExpressionFactory factory) {
+		this.factory = factory;
 	}
 
 	public synchronized IExpression parse(String exprString) {

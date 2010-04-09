@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.expression;
 
-import org.eclipse.equinox.internal.p2.metadata.MetadataActivator;
 import org.eclipse.equinox.internal.p2.metadata.expression.*;
 import org.eclipse.equinox.internal.p2.metadata.expression.parser.LDAPFilterParser;
+import org.eclipse.equinox.internal.p2.metadata.expression.parser.QLParser;
 
 /**
  * Global access to factory, parser, and methods for introspection
@@ -21,9 +21,10 @@ import org.eclipse.equinox.internal.p2.metadata.expression.parser.LDAPFilterPars
  * @since 2.0
  */
 public final class ExpressionUtil {
+	private static final IExpressionParser expressionParser = new QLParser(ExpressionFactory.INSTANCE);
 	private static final LDAPFilterParser ldapFilterParser = new LDAPFilterParser(ExpressionFactory.INSTANCE);
-	public static final IExpression TRUE_EXPRESSION = getFactory().constant(Boolean.TRUE);
-	public static final IExpression FALSE_EXPRESSION = getFactory().constant(Boolean.FALSE);
+	public static final IExpression TRUE_EXPRESSION = ExpressionFactory.INSTANCE.constant(Boolean.TRUE);
+	public static final IExpression FALSE_EXPRESSION = ExpressionFactory.INSTANCE.constant(Boolean.FALSE);
 
 	private ExpressionUtil() {
 		//We don't want to ppl to instantiate this class
@@ -34,7 +35,7 @@ public final class ExpressionUtil {
 	 * @return The global expression factory.
 	 */
 	public static IExpressionFactory getFactory() {
-		return MetadataActivator.getExpressionFactory();
+		return ExpressionFactory.INSTANCE;
 	}
 
 	/**
@@ -42,7 +43,7 @@ public final class ExpressionUtil {
 	 * @return The new parser
 	 */
 	public static IExpressionParser getParser() {
-		return MetadataActivator.getExpressionParser();
+		return expressionParser;
 	}
 
 	/**
