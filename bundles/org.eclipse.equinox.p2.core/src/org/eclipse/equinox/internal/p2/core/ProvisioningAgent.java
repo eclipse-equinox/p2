@@ -36,6 +36,8 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 	 */
 	public ProvisioningAgent() {
 		super();
+		registerService(IProvisioningAgent.INSTALLER_AGENT, this);
+		registerService(IProvisioningAgent.INSTALLER_PROFILEID, "_SELF_"); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -122,7 +124,8 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		//give services a chance to do their own shutdown
 		for (Object service : agentServices.values()) {
 			if (service instanceof IAgentService)
-				((IAgentService) service).stop();
+				if (service != this)
+					((IAgentService) service).stop();
 		}
 		synchronized (this) {
 			stopped = true;

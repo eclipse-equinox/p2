@@ -228,7 +228,7 @@ public class DirectorApplication implements IApplication {
 	private IPlanner planner;
 	private ILog log = null;
 
-	private IProvisioningAgent agent;
+	private IProvisioningAgent targetAgent;
 	private boolean noArtifactRepositorySpecified = false;
 
 	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collection<IInstallableUnit> installs, Collection<IInstallableUnit> uninstalls) {
@@ -320,7 +320,7 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private IProfile getProfile() {
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileId == null) {
 			profileId = IProfileRegistry.SELF;
 			noProfileId = true;
@@ -350,7 +350,7 @@ public class DirectorApplication implements IApplication {
 				props.put(IProfile.PROP_ENVIRONMENTS, env);
 			if (profileProperties != null)
 				putProperties(profileProperties, props);
-			profile = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).addProfile(profileId, props);
+			profile = ((IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME)).addProfile(profileId, props);
 		}
 		return profile;
 	}
@@ -362,7 +362,7 @@ public class DirectorApplication implements IApplication {
 		if (artifactRepositoryLocations == null)
 			missingArgument("-artifactRepository"); //$NON-NLS-1$
 
-		artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+		artifactManager = (IArtifactRepositoryManager) targetAgent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 		if (artifactManager == null)
 			throw new ProvisionException(Messages.Application_NoManager);
 
@@ -388,7 +388,7 @@ public class DirectorApplication implements IApplication {
 		if (metadataRepositoryLocations == null)
 			missingArgument("metadataRepository"); //$NON-NLS-1$
 
-		metadataManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+		metadataManager = (IMetadataRepositoryManager) targetAgent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		if (metadataManager == null)
 			throw new ProvisionException(Messages.Application_NoManager);
 
@@ -427,7 +427,9 @@ public class DirectorApplication implements IApplication {
 		} else {
 			p2DataArea = null;
 		}
-		agent = provider.createAgent(p2DataArea);
+		targetAgent = provider.createAgent(p2DataArea);
+		targetAgent.registerService(IProvisioningAgent.INSTALLER_AGENT, provider.createAgent(null));
+
 		context.ungetService(agentProviderRef);
 		if (profileId == null) {
 			if (destination != null) {
@@ -453,23 +455,23 @@ public class DirectorApplication implements IApplication {
 			}
 		}
 		if (profileId != null)
-			agent.registerService(PROP_P2_PROFILE, profileId);
+			targetAgent.registerService(PROP_P2_PROFILE, profileId);
 		else
-			agent.unregisterService(PROP_P2_PROFILE, null);
+			targetAgent.unregisterService(PROP_P2_PROFILE, null);
 
-		IDirector director = (IDirector) agent.getService(IDirector.SERVICE_NAME);
+		IDirector director = (IDirector) targetAgent.getService(IDirector.SERVICE_NAME);
 		if (director == null)
 			throw new ProvisionException(Messages.Missing_director);
 
-		planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		planner = (IPlanner) targetAgent.getService(IPlanner.SERVICE_NAME);
 		if (planner == null)
 			throw new ProvisionException(Messages.Missing_planner);
 
-		engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
+		engine = (IEngine) targetAgent.getService(IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new ProvisionException(Messages.Missing_Engine);
 
-		agent.registerService(UIServices.SERVICE_NAME, new AvoidTrustPromptService());
+		targetAgent.registerService(UIServices.SERVICE_NAME, new AvoidTrustPromptService());
 	}
 
 	private void logStatus(IStatus status) {
@@ -540,7 +542,7 @@ public class DirectorApplication implements IApplication {
 		boolean wasRoaming = Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue();
 		try {
 			updateRoamingProperties(profile);
-			ProvisioningContext context = new ProvisioningContext(agent);
+			ProvisioningContext context = new ProvisioningContext(targetAgent);
 			context.setMetadataRepositories(metadataRepositoryLocations.toArray(new URI[metadataRepositoryLocations.size()]));
 			context.setArtifactRepositories(artifactRepositoryLocations.toArray(new URI[artifactRepositoryLocations.size()]));
 			ProfileChangeRequest request = buildProvisioningRequest(profile, installs, uninstalls);
@@ -763,9 +765,9 @@ public class DirectorApplication implements IApplication {
 	private void cleanupServices() {
 		BundleContext context = Activator.getContext();
 		//dispose agent
-		if (agent != null) {
-			agent.stop();
-			agent = null;
+		if (targetAgent != null) {
+			targetAgent.stop();
+			targetAgent = null;
 		}
 		if (packageAdminRef != null)
 			context.ungetService(packageAdminRef);
@@ -810,7 +812,7 @@ public class DirectorApplication implements IApplication {
 	private void purgeRegistry() throws ProvisionException {
 		if (getProfile() == null)
 			return;
-		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry registry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
 		long[] allProfiles = registry.listProfileTimestamps(profileId);
 		for (int i = 0; i < allProfiles.length - 1; i++) {
 			registry.removeProfile(profileId, allProfiles[i]);
@@ -819,7 +821,7 @@ public class DirectorApplication implements IApplication {
 
 	private void revertToPreviousState() throws CoreException {
 		IProfile profile = initializeProfile();
-		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		IProfileRegistry profileRegistry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
 		IProfile targetProfile = null;
 		if (revertToPreviousState == 0) {
 			long[] profiles = profileRegistry.listProfileTimestamps(profile.getProfileId());
@@ -833,7 +835,7 @@ public class DirectorApplication implements IApplication {
 			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.Missing_profile));
 		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
 
-		ProvisioningContext context = new ProvisioningContext(agent);
+		ProvisioningContext context = new ProvisioningContext(targetAgent);
 		context.setMetadataRepositories(metadataRepositoryLocations.toArray(new URI[metadataRepositoryLocations.size()]));
 		context.setArtifactRepositories(artifactRepositoryLocations.toArray(new URI[artifactRepositoryLocations.size()]));
 		executePlan(context, plan);
@@ -928,7 +930,7 @@ public class DirectorApplication implements IApplication {
 	private IStatus setRoaming(IProfile profile) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.setProfileProperty(IProfile.PROP_ROAMING, "true"); //$NON-NLS-1$
-		ProvisioningContext context = new ProvisioningContext(agent);
+		ProvisioningContext context = new ProvisioningContext(targetAgent);
 		context.setMetadataRepositories(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
@@ -980,7 +982,7 @@ public class DirectorApplication implements IApplication {
 		// will set it back later (see bug 269468)
 		request.setProfileProperty(IProfile.PROP_ROAMING, "false"); //$NON-NLS-1$
 
-		ProvisioningContext context = new ProvisioningContext(agent);
+		ProvisioningContext context = new ProvisioningContext(targetAgent);
 		context.setMetadataRepositories(new URI[0]);
 		context.setArtifactRepositories(new URI[0]);
 		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());

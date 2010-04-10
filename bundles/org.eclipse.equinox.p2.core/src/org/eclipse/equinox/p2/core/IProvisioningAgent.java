@@ -36,6 +36,9 @@ public interface IProvisioningAgent {
 	 */
 	public static final String SERVICE_NAME = IProvisioningAgent.class.getName();
 
+	public static final String INSTALLER_AGENT = "org.eclipse.equinox.p2.installer.agent"; //$NON-NLS-1$
+	public static final String INSTALLER_PROFILEID = "org.eclipse.equinox.p2.installer.profile.id"; //$NON-NLS-1$
+
 	/**
 	 * Service property identifying whether an agent is the default agent.
 	 * 

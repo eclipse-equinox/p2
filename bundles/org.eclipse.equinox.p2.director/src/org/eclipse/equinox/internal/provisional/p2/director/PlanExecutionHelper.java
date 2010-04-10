@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.director;
 
-import org.eclipse.equinox.p2.engine.PhaseSetFactory;
-
 import java.io.IOException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -30,7 +28,7 @@ public class PlanExecutionHelper {
 			return result.getStatus();
 
 		if (result.getInstallerPlan() != null) {
-			IStatus installerPlanStatus = engine.perform(result.getInstallerPlan(), phaseSet, progress);
+			IStatus installerPlanStatus = ((IEngine) result.getInstallerPlan().getProfile().getProvisioningAgent().getService(IEngine.SERVICE_NAME)).perform(result.getInstallerPlan(), phaseSet, progress);
 			if (!installerPlanStatus.isOK())
 				return installerPlanStatus;
 			Configurator configChanger = (Configurator) ServiceHelper.getService(DirectorActivator.context, Configurator.class.getName());

@@ -57,5 +57,6 @@ public class Messages extends NLS {
 	public static String Planner_no_profile_registry;
 	public static String Planner_profile_out_of_sync;
 	public static String RequestStatus_message;
+	public static String Planner_no_installer_agent;
 
 }
