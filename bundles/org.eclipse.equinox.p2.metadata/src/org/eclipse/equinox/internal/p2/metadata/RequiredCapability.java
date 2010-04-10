@@ -96,7 +96,7 @@ public class RequiredCapability implements IRequiredCapability, IMemberProvider 
 	}
 
 	public RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
-		this(namespace, name, range, filter == null ? (IMatchExpression<IInstallableUnit>) null : InstallableUnit.parseFilter(filter), optional ? 0 : 1, multiple ? 1 : Integer.MAX_VALUE, greedy);
+		this(namespace, name, range, filter == null ? (IMatchExpression<IInstallableUnit>) null : InstallableUnit.parseFilter(filter), optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, greedy);
 	}
 
 	public RequiredCapability(String namespace, String name, VersionRange range, IMatchExpression<IInstallableUnit> filter, int min, int max, boolean greedy) {
