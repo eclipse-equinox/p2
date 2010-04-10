@@ -10,20 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.garbagecollector;
 
-import org.eclipse.equinox.internal.p2.engine.CommitOperationEvent;
-import org.eclipse.equinox.internal.p2.engine.RollbackOperationEvent;
-
-import org.eclipse.equinox.internal.p2.engine.InstallableUnitEvent;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentService;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.osgi.service.prefs.Preferences;
@@ -79,7 +76,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 	final IProvisioningAgent agent;
 
 	//The GC is triggered when an uninstall event occurred during a "transaction" and the transaction is committed.   
-	boolean uninstallEventOccurred = false;
+	String uninstallEventProfileId = null;
 
 	/**
 	 * Maps IArtifactRepository objects to their respective "marked set" of IArtifactKeys
@@ -142,17 +139,18 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 		if (o instanceof InstallableUnitEvent) {
 			InstallableUnitEvent event = (InstallableUnitEvent) o;
 			if (event.isUninstall() && event.isPost()) {
-				uninstallEventOccurred = true;
+				uninstallEventProfileId = event.getProfile().getProfileId();
 			}
 		} else if (o instanceof CommitOperationEvent) {
-			if (uninstallEventOccurred == true) {
+			if (uninstallEventProfileId != null) {
 				CommitOperationEvent event = (CommitOperationEvent) o;
-				if (getBooleanPreference(GCActivator.GC_ENABLED, true))
+				if (uninstallEventProfileId.equals(event.getProfile().getProfileId()) && getBooleanPreference(GCActivator.GC_ENABLED, true))
 					runGC(event.getProfile());
-				uninstallEventOccurred = false;
+				uninstallEventProfileId = null;
 			}
 		} else if (o instanceof RollbackOperationEvent) {
-			uninstallEventOccurred = false;
+			if (uninstallEventProfileId != null && uninstallEventProfileId.equals(((InstallableUnitEvent) o).getProfile().getProfileId()))
+				uninstallEventProfileId = null;
 		}
 	}
 
