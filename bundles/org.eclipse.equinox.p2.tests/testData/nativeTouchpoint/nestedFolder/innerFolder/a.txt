@@ -1,0 +1,2 @@
+A
+// This a.txt should have the first line being a single A

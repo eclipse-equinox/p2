@@ -134,4 +134,57 @@ public class CleanupzipActionTest extends AbstractProvisioningTest {
 		assertEquals(1, profile.getInstallableUnitProperties(iu).size());
 
 	}
+
+	/**
+	 * Test that directories are removed when nested zip is unzipped.
+	 */
+	public void testDirectoryCleanup() {
+		Properties profileProperties = new Properties();
+		File installFolder = getTempFolder();
+		profileProperties.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.toString());
+		IProfile profile = createProfile("testExecuteUndo", profileProperties);
+
+		File zipSource = getTestData("1.0", "/testData/nativeTouchpoint/nestedFolder.zip");
+		File zipTarget = new File(installFolder, "nestedFolder.zip");
+		copy("2.0", zipSource, zipTarget);
+
+		InstallableUnitDescription iuDesc = new MetadataFactory.InstallableUnitDescription();
+		iuDesc.setId("test");
+		iuDesc.setVersion(DEFAULT_VERSION);
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testDirectoryCleanup", DEFAULT_VERSION);
+		iuDesc.setArtifacts(new IArtifactKey[] {key});
+		iuDesc.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iuDesc);
+
+		Map parameters = new HashMap();
+		parameters.put(ActionConstants.PARM_PROFILE, profile);
+		parameters.put("iu", iu);
+		NativeTouchpoint touchpoint = new NativeTouchpoint();
+		touchpoint.initializePhase(null, profile, "testDirectoryCleanup", parameters);
+		store = (IBackupStore) parameters.get(NativeTouchpoint.PARM_BACKUP);
+
+		parameters.put(ActionConstants.PARM_SOURCE, zipTarget.getAbsolutePath());
+		parameters.put(ActionConstants.PARM_TARGET, installFolder.getAbsolutePath());
+		parameters = Collections.unmodifiableMap(parameters);
+
+		new UnzipAction().execute(parameters);
+		assertEquals(1, profile.getInstallableUnitProperties(iu).size());
+
+		File aTxt = new File(installFolder, "nestedFolder/innerFolder/a.txt");
+		File innerFolder = new File(installFolder, "nestedFolder/innerFolder");
+		File nestedFolder = new File(installFolder, "nestedFolder");
+
+		assertTrue("File " + aTxt.getAbsolutePath() + " should exist", aTxt.exists());
+		assertTrue("Folder " + innerFolder.getAbsolutePath() + " should exist", innerFolder.exists());
+		assertTrue("Folder " + nestedFolder.getAbsolutePath() + " should exist", nestedFolder.exists());
+
+		CleanupzipAction action = new CleanupzipAction();
+		action.execute(parameters);
+
+		assertEquals(0, profile.getInstallableUnitProperties(iu).size());
+
+		assertFalse("File " + aTxt.getAbsolutePath() + " should not exist", aTxt.exists());
+		assertFalse("Folder " + innerFolder.getAbsolutePath() + " should not exist", innerFolder.exists());
+		assertFalse("Folder " + nestedFolder.getAbsolutePath() + " should not exist", nestedFolder.exists());
+	}
 }

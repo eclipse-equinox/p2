@@ -90,14 +90,30 @@ public class CleanupzipAction extends ProvisioningAction {
 					file.delete();
 			}
 		}
-		// TODO: this will most likely leave garbage behind as directories must
-		// be empty to be deleted - there is not guarantee that this structure has
-		// the leafs first in the list of directories.
-		// Since backup will deny backup of non empty directory a check must be made
-		// 
+		// sort directories by path length longest path is in top
+		// this will make sure that a sub folder will be removed before its parent
+		Collections.sort(directories, new Comparator<File>() {
+
+			public int compare(File f1, File f2) {
+				if (f1 == f2)
+					return 0;
+				if (f1 != null && f2 == null)
+					return -1;
+				if (f1 == null)
+					return 1;
+				try {
+					return Integer.valueOf(f2.getCanonicalPath().length()).compareTo(f1.getCanonicalPath().length());
+				} catch (IOException e) {
+					// did our best. try an absolute path compare
+					return Integer.valueOf(f2.getAbsolutePath().length()).compareTo(f1.getAbsolutePath().length());
+				}
+			}
+
+		});
 		for (File directory : directories) {
 			if (store != null) {
 				File[] children = directory.listFiles();
+				// Since backup will deny backup of non empty directory a check must be made
 				if (children == null || children.length == 0)
 					try {
 						store.backupDirectory(directory);
