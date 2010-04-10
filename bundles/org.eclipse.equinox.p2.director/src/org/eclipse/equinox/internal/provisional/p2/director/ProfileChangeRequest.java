@@ -31,7 +31,6 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	private HashMap<String, String> propertiesToAdd = null; // map of key->value for properties to be added
 	private HashMap<IInstallableUnit, Map<String, String>> iuPropertiesToAdd = null; // map iu->map of key->value pairs for properties to be added for an iu
 	private HashMap<IInstallableUnit, List<String>> iuPropertiesToRemove = null; // map of iu->list of property keys to be removed for an iu
-	private boolean isAbsolute = false; //Indicate whether or not the request is an absolute one
 	private ArrayList<IRequirement> additionalRequirements;
 
 	public static ProfileChangeRequest createByProfileId(IProvisioningAgent agent, String profileId) {
@@ -217,14 +216,6 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	 */
 	public void removeInstallableUnitInclusionRules(IInstallableUnit iu) {
 		removeInstallableUnitProfileProperty(iu, SimplePlanner.INCLUSION_RULES);
-	}
-
-	public void setAbsoluteMode(boolean absolute) {
-		isAbsolute = absolute;
-	}
-
-	public boolean getAbsolute() {
-		return isAbsolute;
 	}
 
 	@SuppressWarnings("unchecked")

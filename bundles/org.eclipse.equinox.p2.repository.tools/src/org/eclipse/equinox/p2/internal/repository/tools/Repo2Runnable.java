@@ -18,14 +18,12 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.spi.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -123,18 +121,14 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 		// call the engine with only the "collect" phase so all we do is download
 		IProfile profile = createProfile();
 		try {
-			ProfileChangeRequest request = new ProfileChangeRequest(profile);
-			request.setAbsoluteMode(true);
-			request.addAll(processedIUs);
-			ProvisioningContext context = new ProvisioningContext(agent);
 			IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 			if (engine == null)
 				throw new ProvisionException(Messages.exception_noEngineService);
-			IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
-			if (planner == null)
-				throw new ProvisionException(Messages.exception_noPlannerService);
-
-			IProvisioningPlan plan = planner.getProvisioningPlan(request, context, monitor);
+			ProvisioningContext context = new ProvisioningContext(agent);
+			IProvisioningPlan plan = engine.createPlan(profile, context);
+			for (Iterator<IInstallableUnit> iterator = processedIUs.iterator(); iterator.hasNext();) {
+				plan.addInstallableUnit(iterator.next());
+			}
 			IStatus result = engine.perform(plan, getPhaseSet(), progress.newChild(1));
 			PhaseSet nativeSet = getNativePhase();
 			if (nativeSet != null)

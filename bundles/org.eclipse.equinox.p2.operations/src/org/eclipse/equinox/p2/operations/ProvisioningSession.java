@@ -21,10 +21,10 @@ import org.eclipse.equinox.internal.p2.operations.Activator;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -142,12 +142,12 @@ public class ProvisioningSession {
 				// If the phase set calls for download, then we want to download the install plan artifacts
 				// at the same time as the actual install artifacts.  This way, we will only install the install handler
 				// after already knowing we have successfully obtained the artifacts that will be installed afterward.
-				ProfileChangeRequest downloadRequest = new ProfileChangeRequest(profile);
-				downloadRequest.setAbsoluteMode(true);
-				downloadRequest.addAll(QueryUtil.compoundQueryable(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(QueryUtil.createIUAnyQuery(), null).toUnmodifiableSet());
-
+				IProvisioningPlan downloadPlan = getEngine().createPlan(profile, context);
+				Iterator<IInstallableUnit> it = QueryUtil.compoundQueryable(plan.getAdditions(), plan.getInstallerPlan().getAdditions()).query(QueryUtil.createIUAnyQuery(), null).iterator();
+				while (it.hasNext()) {
+					downloadPlan.addInstallableUnit(it.next());
+				}
 				IPhaseSet download = PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_COLLECT});
-				IProvisioningPlan downloadPlan = getPlanner().getProvisioningPlan(downloadRequest, context, mon.newChild(100));
 				IStatus downloadStatus = getEngine().perform(downloadPlan, download, mon.newChild(300));
 				if (!downloadStatus.isOK()) {
 					mon.done();

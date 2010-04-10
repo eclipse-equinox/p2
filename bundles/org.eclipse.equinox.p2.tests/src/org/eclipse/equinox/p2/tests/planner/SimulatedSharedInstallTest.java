@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.planner;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.provisional.p2.director.PlanExecutionHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -45,33 +46,28 @@ public class SimulatedSharedInstallTest extends AbstractProvisioningTest {
 	}
 
 	public void testRemoveUnresolvedIU() {
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.setAbsoluteMode(true);
-		request.addInstallableUnits(new IInstallableUnit[] {a1});
-		request.setInstallableUnitInclusionRules(a1, ProfileInclusionRules.createStrictInclusionRule(a1));
 		final ProvisioningContext context = new ProvisioningContext(getAgent());
+		IProvisioningPlan plan = engine.createPlan(profile, context);
+		plan.addInstallableUnit(a1);
+		plan.setInstallableUnitProfileProperty(a1, SimplePlanner.INCLUSION_RULES, ProfileInclusionRules.createStrictInclusionRule(a1));
 		context.setMetadataRepositories(new URI[0]);
-		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		assertEquals(IStatus.OK, engine.perform(plan, new NullProgressMonitor()).getSeverity());
 		assertContains(profile.query(QueryUtil.createIUAnyQuery(), null), a1);
 
-		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.removeInstallableUnits(new IInstallableUnit[] {a1});
+		IProvisioningPlan plan2 = engine.createPlan(profile, context);
+		plan2.removeInstallableUnit(a1);
 
-		IProvisioningPlan plan2 = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 		assertEquals(IStatus.OK, PlanExecutionHelper.executePlan(plan2, engine, context, new NullProgressMonitor()).getSeverity());
 		assertNotContains(profile.query(QueryUtil.createIUAnyQuery(), null), a1);
 	}
 
 	public void testAvailableVsQueryInProfile() {
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.setAbsoluteMode(true);
-		request.addInstallableUnits(new IInstallableUnit[] {c1});
-		request.setInstallableUnitInclusionRules(c1, ProfileInclusionRules.createStrictInclusionRule(c1));
 		final ProvisioningContext context = new ProvisioningContext(getAgent());
+		IProvisioningPlan plan = engine.createPlan(profile, context);
+		plan.addInstallableUnit(c1);
+		plan.setInstallableUnitProfileProperty(c1, SimplePlanner.INCLUSION_RULES, ProfileInclusionRules.createStrictInclusionRule(c1));
 		context.setMetadataRepositories(new URI[0]);
-		IProvisioningPlan plan = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 		assertEquals(IStatus.OK, engine.perform(plan, new NullProgressMonitor()).getSeverity());
 		assertContains(profile.query(QueryUtil.createIUAnyQuery(), null), c1);
 

@@ -343,8 +343,6 @@ public class SimplePlanner implements IPlanner {
 
 	public IProvisioningPlan getProvisioningPlan(IProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
 		ProfileChangeRequest pcr = (ProfileChangeRequest) request;
-		if (pcr.getAbsolute())
-			return generateAbsoluteProvisioningPlan(pcr, context, monitor);
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
@@ -371,36 +369,36 @@ public class SimplePlanner implements IPlanner {
 		}
 	}
 
-	private IProvisioningPlan generateAbsoluteProvisioningPlan(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor) {
-		Set<IInstallableUnit> toState = profileChangeRequest.getProfile().query(QueryUtil.createIUAnyQuery(), null).toSet();
-		HashSet<IInstallableUnit> fromState = new HashSet<IInstallableUnit>(toState);
-		toState.removeAll(profileChangeRequest.getRemovals());
-		toState.addAll(profileChangeRequest.getAdditions());
-
-		IProvisioningPlan plan = engine.createPlan(profileChangeRequest.getProfile(), context);
-		planIUOperations(plan, fromState, toState);
-		planPropertyOperations(plan, profileChangeRequest);
-
-		if (DEBUG) {
-			Object[] operands = new Object[0];
-			try {
-				Method getOperands = plan.getClass().getMethod("getOperands", new Class[0]); //$NON-NLS-1$
-				operands = (Object[]) getOperands.invoke(plan, new Object[0]);
-			} catch (Throwable e) {
-				// ignore
-			}
-			for (int i = 0; i < operands.length; i++) {
-				Tracing.debug(operands[i].toString());
-			}
-		}
-		Map<IInstallableUnit, RequestStatus>[] changes = computeActualChangeRequest(toState, profileChangeRequest);
-		Map<IInstallableUnit, RequestStatus> requestChanges = (changes == null) ? null : changes[0];
-		Map<IInstallableUnit, RequestStatus> requestSideEffects = (changes == null) ? null : changes[1];
-		QueryableArray plannedState = new QueryableArray(toState.toArray(new IInstallableUnit[toState.size()]));
-		PlannerStatus plannerStatus = new PlannerStatus(Status.OK_STATUS, null, requestChanges, requestSideEffects, plannedState);
-		plan.setStatus(plannerStatus);
-		return plan;
-	}
+	//	private IProvisioningPlan generateAbsoluteProvisioningPlan(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor) {
+	//		Set<IInstallableUnit> toState = profileChangeRequest.getProfile().query(QueryUtil.createIUAnyQuery(), null).toSet();
+	//		HashSet<IInstallableUnit> fromState = new HashSet<IInstallableUnit>(toState);
+	//		toState.removeAll(profileChangeRequest.getRemovals());
+	//		toState.addAll(profileChangeRequest.getAdditions());
+	//
+	//		IProvisioningPlan plan = engine.createPlan(profileChangeRequest.getProfile(), context);
+	//		planIUOperations(plan, fromState, toState);
+	//		planPropertyOperations(plan, profileChangeRequest);
+	//
+	//		if (DEBUG) {
+	//			Object[] operands = new Object[0];
+	//			try {
+	//				Method getOperands = plan.getClass().getMethod("getOperands", new Class[0]); //$NON-NLS-1$
+	//				operands = (Object[]) getOperands.invoke(plan, new Object[0]);
+	//			} catch (Throwable e) {
+	//				// ignore
+	//			}
+	//			for (int i = 0; i < operands.length; i++) {
+	//				Tracing.debug(operands[i].toString());
+	//			}
+	//		}
+	//		Map<IInstallableUnit, RequestStatus>[] changes = computeActualChangeRequest(toState, profileChangeRequest);
+	//		Map<IInstallableUnit, RequestStatus> requestChanges = (changes == null) ? null : changes[0];
+	//		Map<IInstallableUnit, RequestStatus> requestSideEffects = (changes == null) ? null : changes[1];
+	//		QueryableArray plannedState = new QueryableArray(toState.toArray(new IInstallableUnit[toState.size()]));
+	//		PlannerStatus plannerStatus = new PlannerStatus(Status.OK_STATUS, null, requestChanges, requestSideEffects, plannedState);
+	//		plan.setStatus(plannerStatus);
+	//		return plan;
+	//	}
 
 	//Verify that all the meta requirements necessary to perform the uninstallation (if necessary) and all t
 	private Collection<IRequirement> areMetaRequirementsSatisfied(IProfile oldProfile, Collection<IInstallableUnit> newProfile, IProvisioningPlan initialPlan) {

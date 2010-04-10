@@ -1,10 +1,8 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /*******************************************************************************
@@ -20,36 +18,33 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 public class AbsolutePlanTest extends AbstractProvisioningTest {
 	public void testAddAndRemoveIU() {
 		IProfile profile = createProfile(getName());
-		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.setAbsoluteMode(true);
+		IEngine engine = createEngine();
+		IProvisioningPlan plan = engine.createPlan(profile, new ProvisioningContext(getAgent()));
 		IInstallableUnit iuA = createEclipseIU("A");
-		pcr.addInstallableUnits(new IInstallableUnit[] {iuA, createEclipseIU("B"), createEclipseIU("C")});
-		IPlanner planner = createPlanner();
-		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, new ProvisioningContext(getAgent()), null);
+		plan.addInstallableUnit(iuA);
+		plan.addInstallableUnit(createEclipseIU("B"));
+		plan.addInstallableUnit(createEclipseIU("C"));
 		assertEquals(3, countPlanElements(plan));
-		createEngine().perform(plan, null);
+		engine.perform(plan, null);
 
-		ProfileChangeRequest removeRequest = new ProfileChangeRequest(profile);
-		removeRequest.setAbsoluteMode(true);
-		removeRequest.removeInstallableUnits(new IInstallableUnit[] {iuA});
-		assertEquals(1, countPlanElements(planner.getProvisioningPlan(removeRequest, new ProvisioningContext(getAgent()), null)));
+		IProvisioningPlan plan2 = engine.createPlan(profile, new ProvisioningContext(getAgent()));
+		plan2.removeInstallableUnit(iuA);
+		assertEquals(1, countPlanElements(plan2));
 	}
 
 	public void testAddAndRemoveProperty() {
 		IInstallableUnit iuA = createEclipseIU("A");
 		IProfile profile = createProfile(getName());
 
-		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.setAbsoluteMode(true);
-		pcr.addInstallableUnits(new IInstallableUnit[] {iuA});
-		pcr.setInstallableUnitProfileProperty(iuA, "key", "value");
+		IEngine engine = createEngine();
+		IProvisioningPlan plan = engine.createPlan(profile, new ProvisioningContext(getAgent()));
+		plan.addInstallableUnit(iuA);
+		plan.setInstallableUnitProfileProperty(iuA, "key", "value");
 
-		IPlanner planner = createPlanner();
-		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(pcr, new ProvisioningContext(getAgent()), null);
 		assertEquals(1, countPlanElements(plan));
-		createEngine().perform(plan, null);
+		engine.perform(plan, null);
 
-		Operand[] ops = plan.getOperands();
+		Operand[] ops = ((ProvisioningPlan) plan).getOperands();
 		boolean found = false;
 		for (int i = 0; i < ops.length; i++) {
 			if (ops[i] instanceof InstallableUnitPropertyOperand)
@@ -57,24 +52,20 @@ public class AbsolutePlanTest extends AbstractProvisioningTest {
 		}
 		assertTrue(found);
 
-		ProfileChangeRequest removeRequest = new ProfileChangeRequest(profile);
-		removeRequest.setAbsoluteMode(true);
-		removeRequest.removeInstallableUnits(new IInstallableUnit[] {iuA});
-		removeRequest.removeInstallableUnitProfileProperty(iuA, "key");
+		IProvisioningPlan plan2 = engine.createPlan(profile, new ProvisioningContext(getAgent()));
+		plan2.removeInstallableUnit(iuA);
+		plan2.setInstallableUnitProfileProperty(iuA, "key", null);
 
-		assertEquals(1, countPlanElements(planner.getProvisioningPlan(removeRequest, new ProvisioningContext(getAgent()), null)));
+		assertEquals(1, countPlanElements(plan2));
 	}
 
 	public void testAddProperty() {
 		IProfile profile = createProfile(getName());
+		IEngine engine = createEngine();
 
-		ProfileChangeRequest pcr = new ProfileChangeRequest(profile);
-		pcr.setAbsoluteMode(true);
-		pcr.setProfileProperty("foo", "bar");
-
-		IPlanner planner = createPlanner();
-		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, new ProvisioningContext(getAgent()), null);
-		createEngine().perform(plan, null);
+		IProvisioningPlan plan = engine.createPlan(profile, new ProvisioningContext(getAgent()));
+		plan.setProfileProperty("foo", "bar");
+		engine.perform(plan, null);
 
 		assertEquals("bar", getProfileRegistry().getProfile(getName()).getProperty("foo"));
 	}
