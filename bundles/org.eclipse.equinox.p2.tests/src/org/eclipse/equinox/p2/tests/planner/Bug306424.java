@@ -17,7 +17,6 @@ import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
@@ -73,7 +72,7 @@ public class Bug306424 extends AbstractProvisioningTest {
 	public void testInstall() {
 		IPlanner planner = createPlanner();
 
-		IInstallableUnit b = createIU("b", Version.create("1.0"));
+		IInstallableUnit b = profile.query(QueryUtil.createIUQuery("b"), new NullProgressMonitor()).iterator().next();
 		IProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.remove(b);
 		IProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, new NullProgressMonitor());
