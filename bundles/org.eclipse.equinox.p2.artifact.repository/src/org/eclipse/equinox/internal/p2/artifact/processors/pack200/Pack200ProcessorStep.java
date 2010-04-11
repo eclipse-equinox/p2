@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.artifact.processing.AbstractBufferingStep
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.jarprocessor.UnpackStep;
+import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
@@ -29,6 +30,7 @@ import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExec
  */
 public class Pack200ProcessorStep extends AbstractBufferingStep {
 	public static final String PACKED_SUFFIX = ".pack.gz"; //$NON-NLS-1$
+	private static boolean detailedResult = false;
 
 	private File incoming;
 
@@ -39,8 +41,21 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 
 	public void initialize(IProvisioningAgent agent, IProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(agent, descriptor, context);
-		if (!UnpackStep.canUnpack())
-			setStatus(new Status(IStatus.ERROR, Activator.ID, "Unpack facility not configured")); //$NON-NLS-1$
+		if (!UnpackStep.canUnpack()) {
+			IStatus status = null;
+			if (detailedResult) {
+				status = new Status(IStatus.ERROR, Activator.ID, "Unpack facility not configured."); //$NON-NLS-1$
+				detailedResult = true;
+			} else {
+				String[] locations = Utils.getPack200Commands("unpack200"); //$NON-NLS-1$
+				StringBuffer locationTried = new StringBuffer(100);
+				for (int i = 0; i < locations.length; i++) {
+					locationTried.append(locations[i]).append(", "); //$NON-NLS-1$
+				}
+				status = new Status(IStatus.ERROR, Activator.ID, "Unpack facility not configured. The locations searched for unpack200 are: " + locationTried); //$NON-NLS-1$
+			}
+			setStatus(status);
+		}
 	}
 
 	protected void cleanupTempFiles() {
