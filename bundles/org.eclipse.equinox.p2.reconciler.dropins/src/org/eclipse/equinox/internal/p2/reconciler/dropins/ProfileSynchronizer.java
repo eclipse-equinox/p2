@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
 import org.eclipse.equinox.p2.query.*;
@@ -424,6 +424,15 @@ public class ProfileSynchronizer {
 		if (!toMove.isEmpty()) {
 			ReconcilerProfileChangeRequest moveRequest = new ReconcilerProfileChangeRequest(profile, true);
 			moveRequest.removeAll(toMove);
+			// force removal of all moved IUs, which will also remove anything which depends on them
+			// see: https://bugs.eclipse.org/bugs/show_bug.cgi?id=306424#c6
+			Collection<IRequirement> extraReqs = new ArrayList<IRequirement>();
+			for (IInstallableUnit unit : toMove) {
+				IRequirement negation = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(), //
+						new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null, 0, 0, false);
+				extraReqs.add(negation);
+			}
+			moveRequest.addExtraRequirements(extraReqs);
 			debug(request);
 			return moveRequest;
 		}

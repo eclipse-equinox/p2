@@ -12,11 +12,14 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
@@ -75,6 +78,12 @@ public class Bug306424 extends AbstractProvisioningTest {
 		IInstallableUnit b = profile.query(QueryUtil.createIUQuery("b"), new NullProgressMonitor()).iterator().next();
 		IProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.remove(b);
+
+		IRequirement negateB = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, b.getId(), new VersionRange(b.getVersion(), true, b.getVersion(), true), null, 0, 0, false);
+		Collection<IRequirement> extraReqs = new ArrayList<IRequirement>();
+		extraReqs.add(negateB);
+		changeRequest.addExtraRequirements(extraReqs);
+
 		IProvisioningPlan plan = planner.getProvisioningPlan(changeRequest, null, new NullProgressMonitor());
 		IQueryable result = plan.getRemovals();
 		IQueryResult<IInstallableUnit> r = result.query(QueryUtil.ALL_UNITS, getMonitor());
