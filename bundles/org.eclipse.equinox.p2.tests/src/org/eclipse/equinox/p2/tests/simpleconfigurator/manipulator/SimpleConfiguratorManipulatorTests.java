@@ -48,4 +48,20 @@ public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest
 		bundles = manipulator.loadConfiguration(new FileInputStream(infoFile), baseFile);
 		assertEquals(bundles[0].getLocation(), absolute);
 	}
+
+	public void testLocationEncoding() throws Exception {
+		File folder = getTestFolder("locationEncoding");
+		File configurationFile = new File(folder, "bundle.info");
+
+		BundleInfo[] bundles = new BundleInfo[2];
+		bundles[0] = new BundleInfo("a", "1.0.0", new File(folder, "plu%2Cins/a_1.0.0.jar").toURI(), BundleInfo.NO_LEVEL, false);
+		bundles[1] = new BundleInfo("b", "1.0.0", new File(folder, "plu,ins/b_1.0.0.jar").toURI(), BundleInfo.NO_LEVEL, false);
+
+		SimpleConfiguratorManipulator manipulator = new SimpleConfiguratorManipulatorImpl();
+		manipulator.saveConfiguration(bundles, configurationFile, folder.toURI());
+
+		bundles = manipulator.loadConfiguration(new FileInputStream(configurationFile), folder.toURI());
+		assertEquals(bundles[0].getLocation(), new File(folder, "plu%2Cins/a_1.0.0.jar").toURI());
+		assertEquals(bundles[1].getLocation(), new File(folder, "plu,ins/b_1.0.0.jar").toURI());
+	}
 }
