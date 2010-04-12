@@ -18,6 +18,7 @@ public class SimpleConfiguratorUtils {
 
 	private static final String UNC_PREFIX = "//";
 	private static final String VERSION_PREFIX = "#version=";
+	public static final String ENCODING_UTF8 = "#encoding=UTF-8";
 	public static final Version COMPATIBLE_VERSION = new Version(1, 0, 0);
 	public static final VersionRange VERSION_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
 
@@ -56,7 +57,10 @@ public class SimpleConfiguratorUtils {
 	public static List readConfiguration(InputStream stream, URI base) throws IOException {
 		List bundles = new ArrayList();
 
-		BufferedReader r = new BufferedReader(new InputStreamReader(stream));
+		BufferedInputStream bufferedStream = new BufferedInputStream(stream);
+		String encoding = determineEncoding(bufferedStream);
+		BufferedReader r = new BufferedReader(encoding == null ? new InputStreamReader(bufferedStream) : new InputStreamReader(bufferedStream, encoding));
+
 		String line;
 		try {
 			while ((line = r.readLine()) != null) {
@@ -82,6 +86,36 @@ public class SimpleConfiguratorUtils {
 			}
 		}
 		return bundles;
+	}
+
+	/*
+	 * We expect the first line of the bundles.info to be 
+	 *    #encoding=UTF-8
+	 * if it isn't, then it is an older bundles.info and should be 
+	 * read with the default encoding
+	 */
+	private static String determineEncoding(BufferedInputStream stream) {
+		byte[] utfBytes = ENCODING_UTF8.getBytes();
+		byte[] buffer = new byte[utfBytes.length];
+
+		int bytesRead = -1;
+		stream.mark(utfBytes.length + 1);
+		try {
+			bytesRead = stream.read(buffer);
+		} catch (IOException e) {
+			//do nothing
+		}
+
+		if (bytesRead == utfBytes.length && Arrays.equals(utfBytes, buffer))
+			return "UTF-8";
+
+		//if the first bytes weren't the encoding, need to reset
+		try {
+			stream.reset();
+		} catch (IOException e) {
+			// nothing
+		}
+		return null;
 	}
 
 	public static void parseCommentLine(String line) {

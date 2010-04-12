@@ -64,4 +64,19 @@ public class SimpleConfiguratorManipulatorTests extends AbstractProvisioningTest
 		assertEquals(bundles[0].getLocation(), new File(folder, "plu%2Cins/a_1.0.0.jar").toURI());
 		assertEquals(bundles[1].getLocation(), new File(folder, "plu,ins/b_1.0.0.jar").toURI());
 	}
+
+	public void testUTF8Encoding() throws Exception {
+		File folder = getTestFolder("utf8Test");
+
+		File configurationFile = new File(folder, "bundle.info");
+
+		BundleInfo[] bundles = new BundleInfo[1];
+		bundles[0] = new BundleInfo("a", "1.0.0", new File(folder, "\u0CA0_\u0CA0.jar").toURI(), BundleInfo.NO_LEVEL, false);
+
+		SimpleConfiguratorManipulator manipulator = new SimpleConfiguratorManipulatorImpl();
+		manipulator.saveConfiguration(bundles, configurationFile, folder.toURI());
+
+		bundles = manipulator.loadConfiguration(new FileInputStream(configurationFile), folder.toURI());
+		assertEquals(bundles[0].getLocation(), new File(folder, "\u0CA0_\u0CA0.jar").toURI());
+	}
 }

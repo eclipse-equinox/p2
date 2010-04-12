@@ -15,6 +15,7 @@ import java.util.Comparator;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.Messages;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo;
+import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorUtils;
 import org.eclipse.equinox.simpleconfigurator.manipulator.SimpleConfiguratorManipulator;
 import org.osgi.framework.Version;
 
@@ -23,6 +24,7 @@ public class SimpleConfiguratorManipulatorUtils {
 	private static final String VERSION_PREFIX = "#version="; //$NON-NLS-1$
 	private static final String VERSION_1 = "1"; //$NON-NLS-1$
 	private static final Version OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION = new Version("1.0.100.v20081206"); //$NON-NLS-1$
+	private static final Version DEFAULT_ENCODING_CONFIGURATOR_VERSION = new Version("2.0.0.v20100329"); //$NON-NLS-1$
 
 	public static void writeConfiguration(BundleInfo[] simpleInfos, File outputFile) throws IOException {
 		if (!Utils.createParentDir(outputFile)) {
@@ -69,17 +71,26 @@ public class SimpleConfiguratorManipulatorUtils {
 
 		BufferedWriter writer = null;
 		boolean oldStyle = false;
+		boolean utf8 = true;
 		for (int i = 0; i < simpleInfos.length; i++) {
 			if (SimpleConfiguratorManipulator.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(simpleInfos[i].getSymbolicName())) {
 				Version version = new Version(simpleInfos[i].getVersion());
 				if (version.compareTo(OLD_STYLE_SIMPLE_CONFIGURATOR_VERSION) < 0)
 					oldStyle = true;
+				if (version.compareTo(DEFAULT_ENCODING_CONFIGURATOR_VERSION) <= 0)
+					utf8 = false;
 				break;
 			}
 		}
 
-		writer = new BufferedWriter(new OutputStreamWriter(stream));
-		// version line
+		if (utf8) {
+			writer = new BufferedWriter(new OutputStreamWriter(stream, "UTF-8")); //$NON-NLS-1$
+			//encoding is expected to be the first line
+			writer.write(SimpleConfiguratorUtils.ENCODING_UTF8);
+			writer.newLine();
+		} else {
+			writer = new BufferedWriter(new OutputStreamWriter(stream));
+		}
 		writer.write(createVersionLine());
 		writer.newLine();
 
