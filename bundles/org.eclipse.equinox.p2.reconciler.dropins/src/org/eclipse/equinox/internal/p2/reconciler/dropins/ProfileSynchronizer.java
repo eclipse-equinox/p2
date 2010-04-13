@@ -418,30 +418,29 @@ public class ProfileSynchronizer {
 			return null;
 		}
 
-		// if we had some bundles which moved locations then we need to create 2 change requests.
-		// one will remove the bundle from the profile and then the other will add it back in 
-		// at the new location
-		if (!toMove.isEmpty()) {
-			ReconcilerProfileChangeRequest moveRequest = new ReconcilerProfileChangeRequest(profile, true);
-			moveRequest.removeAll(toMove);
-			// force removal of all moved IUs, which will also remove anything which depends on them
-			// see: https://bugs.eclipse.org/bugs/show_bug.cgi?id=306424#c6
-			Collection<IRequirement> extraReqs = new ArrayList<IRequirement>();
-			for (IInstallableUnit unit : toMove) {
-				IRequirement negation = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(), //
-						new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null, 0, 0, false);
-				extraReqs.add(negation);
-			}
-			moveRequest.addExtraRequirements(extraReqs);
-			debug(request);
-			return moveRequest;
+		// if we have just a regular add/remove then set up the change request as per normal
+		if (toMove.isEmpty()) {
+			context.setExtraInstallableUnits(toAdd);
+			request.addAll(toAdd);
+			request.removeAll(toRemove);
+		} else {
+			// if we had some bundles which moved locations then we need to create a move change request
+			// and remove the moved bundles first. The caller of this method will take care of calling us again
+			// to re-add the bundles at their new location (and other bundles which need adding)
+			request = new ReconcilerProfileChangeRequest(profile, true);
+			request.removeAll(toMove);
 		}
 
-		context.setExtraInstallableUnits(toAdd);
-		request.addAll(toAdd);
-		request.removeAll(toRemove);
+		// force removal of all moved and removed IUs, which will also remove anything which depends on them
+		// see: bug 306424#c6 and bug 308934.
+		Collection<IRequirement> extraReqs = new ArrayList<IRequirement>();
+		for (IInstallableUnit unit : request.getRemovals()) {
+			IRequirement negation = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(), //
+					new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null, 0, 0, false);
+			extraReqs.add(negation);
+		}
+		request.addExtraRequirements(extraReqs);
 		debug(request);
-
 		return request;
 	}
 
@@ -517,6 +516,14 @@ public class ProfileSynchronizer {
 			for (Entry<IInstallableUnit, List<String>> entry : propsToRemove.entrySet()) {
 				Tracing.debug(PREFIX + "Removing IU property: " + entry.getKey() + "->" + entry.getValue()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
+		}
+
+		Collection<IRequirement> extra = request.getExtraRequirements();
+		if (extra == null || extra.isEmpty()) {
+			Tracing.debug(PREFIX + "No extra requirements."); //$NON-NLS-1$
+		} else {
+			for (IRequirement requirement : extra)
+				Tracing.debug(PREFIX + "Extra requirement: " + requirement); //$NON-NLS-1$
 		}
 	}
 
