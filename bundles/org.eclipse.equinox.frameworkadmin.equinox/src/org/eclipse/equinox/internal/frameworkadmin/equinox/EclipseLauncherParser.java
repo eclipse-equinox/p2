@@ -108,11 +108,27 @@ public class EclipseLauncherParser {
 
 	private void setVM(List lines, File vm, URI launcherFolder) {
 		if (vm == null) {
+			if (ParserUtils.getValueForArgument(EquinoxConstants.OPTION_VM, lines) != null)
+				return;
+
 			ParserUtils.removeArgument(EquinoxConstants.OPTION_VM, lines);
 			return;
 		}
-		URI VMRelativePath = launcherFolder.relativize(vm.toURI());
-		ParserUtils.setValueForArgument(EquinoxConstants.OPTION_VM, FileUtils.toPath(VMRelativePath).replace('\\', '/'), lines);
+
+		URI vmRelativePath = null;
+		if (vm.isAbsolute()) {
+			vmRelativePath = launcherFolder.relativize(vm.toURI());
+		} else {
+			//For relative files, File#toURI will create an absolute URI by resolving against the current working directory, we don't want that
+			String path = vm.getPath().replace('\\', '/');
+			try {
+				vmRelativePath = URIUtil.fromString(path);
+			} catch (URISyntaxException e) {
+				vmRelativePath = launcherFolder.relativize(vm.toURI());
+			}
+		}
+
+		ParserUtils.setValueForArgument(EquinoxConstants.OPTION_VM, FileUtils.toPath(vmRelativePath).replace('\\', '/'), lines);
 	}
 
 	private void getJVMArgs(List lines, LauncherData launcherData) {

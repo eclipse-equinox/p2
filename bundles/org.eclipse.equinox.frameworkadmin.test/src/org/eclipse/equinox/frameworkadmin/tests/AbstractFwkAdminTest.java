@@ -99,6 +99,10 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 	}
 
 	protected File getTestFolder(String name) {
+		return getTestFolder(name, true);
+	}
+	
+	protected File getTestFolder(String name, boolean clean) {
 		Location instanceLocation = Platform.getInstanceLocation();
 		URL url = instanceLocation != null ? instanceLocation.getURL() : null;
 		if (instanceLocation == null || !instanceLocation.isSet() || url == null) {
@@ -107,7 +111,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			testFolder = new File(url.getFile(), name);
 		}
 
-		if (testFolder.exists())
+		if (clean && testFolder.exists())
 			delete(testFolder);
 		testFolder.mkdirs();
 		return testFolder;

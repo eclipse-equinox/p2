@@ -178,6 +178,8 @@ public class LauncherData {
 
 	public void setJvm(File file) {
 		this.jvm = file;
+		if (file == null)
+			removeProgramArg("-vm"); //$NON-NLS-1$
 	}
 
 	public void setJvmArgs(String[] args) {

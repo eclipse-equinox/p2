@@ -75,4 +75,34 @@ public class TestVMArg  extends FwkAdminAndSimpleConfiguratorTest {
 		m.load();
 		assertEquals(jreLocation, m.getLauncherData().getJvm());
 	}
+	/**
+	 * But 282303: 
+	 * Have -vm ../jre as program arguments.
+	 * See them vanish during the save operation of the manipulator 
+	 * 
+	 * @throws FrameworkAdminRuntimeException
+	 * @throws IOException
+	 */
+	public void test282303() throws FrameworkAdminRuntimeException, IOException {
+		assertNotContent(new File(getInstallFolder(), "eclipse.ini"), "-vm");
+		assertNotContent(new File(getInstallFolder(), "eclipse.ini"), "../mylocation");		
+		assertNotContent(new File(getInstallFolder(), "eclipse.ini"), "-otherarg");		
+		m.getLauncherData().addProgramArg("-vm");
+		m.getLauncherData().addProgramArg("../mylocation");
+		m.getLauncherData().addProgramArg("-otherarg");
+		m.getLauncherData().setJvm(new File("../mylocation"));
+		m.save(false);
+		m.load();
+		String[] args = m.getLauncherData().getProgramArgs();
+		boolean found = false;
+		for(int i = 0; i < args.length; i++) {
+			if("-vm".equals(args[i]) && i != args.length - 1) {
+				if("../mylocation".equals(args[++i])) {
+					found = true;
+					break;
+				}
+			}
+		}
+		assertTrue("Can't find vm argument.", found);
+	}
 }
