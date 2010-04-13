@@ -150,7 +150,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		// default is to do nothing
 	}
 
-	private void makeResolveJob(IProgressMonitor monitor) {
+	void makeResolveJob(IProgressMonitor monitor) {
 		noChangeRequest = PlanAnalyzer.getProfileChangeAlteredStatus();
 		if (session.hasScheduledOperationsFor(profileId)) {
 			noChangeRequest.add(PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null));
@@ -204,14 +204,17 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * if resolution has not yet occurred.
 	 */
 	public IStatus getResolutionResult() {
+		if (request == null) {
+			if (noChangeRequest != null) {
+				// If there is only one child message, use the specific message
+				if (noChangeRequest.getChildren().length == 1)
+					return noChangeRequest.getChildren()[0];
+				return noChangeRequest;
+			}
+			return null;
+		}
 		if (job != null && job.getResolutionResult() != null)
 			return job.getResolutionResult().getSummaryStatus();
-		if (request == null && noChangeRequest != null) {
-			// If there is only one child message, use the specific message
-			if (noChangeRequest.getChildren().length == 1)
-				return noChangeRequest.getChildren()[0];
-			return noChangeRequest;
-		}
 		return null;
 	}
 

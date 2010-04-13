@@ -21,6 +21,7 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(SizingTest.class);
 		suite.addTestSuite(InstallerPlanTest.class);
+		suite.addTestSuite(UpdatePlanning.class);
 		return suite;
 	}
 }

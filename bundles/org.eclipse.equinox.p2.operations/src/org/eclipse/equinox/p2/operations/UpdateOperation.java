@@ -14,6 +14,7 @@ package org.eclipse.equinox.p2.operations;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
@@ -22,6 +23,7 @@ import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
 import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
 
 /**
  * An UpdateOperation describes an operation that updates {@link IInstallableUnit}s in
@@ -299,4 +301,43 @@ public class UpdateOperation extends ProfileChangeOperation {
 		return queryResult.toUnmodifiableSet();
 	}
 
+	/*
+	 * Overridden to delay computation of the profile change request until the resolution
+	 * occurs.  This is done because computing the request is expensive (it involves searching
+	 * for updates).
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#makeResolveJob(org.eclipse.core.runtime.IProgressMonitor)
+	 */
+	void makeResolveJob(IProgressMonitor monitor) {
+		// throw away any previous requests
+		request = null;
+		noChangeRequest = PlanAnalyzer.getProfileChangeAlteredStatus();
+		// the requestHolder is a hack to work around the fact that there is no public API
+		// for the resolution job to get the request from the operation after it has been
+		// computed.
+		final ProfileChangeRequest[] requestHolder = new ProfileChangeRequest[1];
+		job = new SearchForUpdatesResolutionJob(getResolveJobName(), session, profileId, request, context, noChangeRequest, new IRunnableWithProgress() {
+			public void run(IProgressMonitor mon) throws OperationCanceledException {
+				// We only check for other jobs running if this job is *not* scheduled
+				if (job.getState() == Job.NONE && session.hasScheduledOperationsFor(profileId)) {
+					noChangeRequest.add(PlanAnalyzer.getStatus(IStatusCodes.OPERATION_ALREADY_IN_PROGRESS, null));
+				} else {
+					computeProfileChangeRequest(noChangeRequest, mon);
+					requestHolder[0] = UpdateOperation.this.request;
+				}
+			}
+		}, requestHolder, this);
+	}
+
+	/*
+	 * Overridden because our resolution job life cycle is different.  We have a job
+	 * before we've computed the profile change request, so we must ensure that we
+	 * have already computed the profile change request.
+	 * 
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.operations.ProfileChangeOperation#hasResolved()
+	 */
+	public boolean hasResolved() {
+		return request != null && super.hasResolved();
+	}
 }

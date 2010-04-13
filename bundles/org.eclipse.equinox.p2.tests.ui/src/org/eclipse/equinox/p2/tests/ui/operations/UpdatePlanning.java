@@ -8,15 +8,15 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.tests.ui.planning;
+package org.eclipse.equinox.p2.tests.ui.operations;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import org.eclipse.equinox.internal.p2.operations.SearchForUpdatesResolutionJob;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.operations.Update;
-import org.eclipse.equinox.p2.operations.UpdateOperation;
+import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
@@ -181,6 +181,22 @@ public class UpdatePlanning extends AbstractProvisioningUITest {
 		op.setSelectedUpdates(new Update[] {updates[0]});
 		op.resolveModal(getMonitor());
 		assertEquals("1.1", 1, op.getSelectedUpdates().length);
+	}
+
+	// bug 290858
+	public void testSearchForUpdatesInJob() throws ProvisionException {
+		createTestMetdataRepository(new IInstallableUnit[] {a1, a130, b1, b12});
+		install(a1, true, false);
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(a1);
+		iusInvolved.add(b1);
+		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
+		ProvisioningJob job = op.getResolveJob(getMonitor());
+		assertTrue("1.0", job instanceof SearchForUpdatesResolutionJob);
+		// getting the job should not compute the request.
+		assertNull("1.1", ((SearchForUpdatesResolutionJob) job).getProfileChangeRequest());
+		job.runModal(getMonitor());
+		assertNotNull("1.2", ((SearchForUpdatesResolutionJob) job).getProfileChangeRequest());
 
 	}
 }

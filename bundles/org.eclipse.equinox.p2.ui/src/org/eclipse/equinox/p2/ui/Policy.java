@@ -94,7 +94,7 @@ public class Policy {
 	 * not.  It is up to the implementor to report any errors to the user when answering <code>false</code>.
 	 */
 	public boolean continueWorkingWithOperation(ProfileChangeOperation operation, Shell shell) {
-		Assert.isTrue(operation.hasResolved());
+		Assert.isTrue(operation.getResolutionResult() != null);
 		IStatus status = operation.getResolutionResult();
 		// user cancelled
 		if (status.getSeverity() == IStatus.CANCEL)
