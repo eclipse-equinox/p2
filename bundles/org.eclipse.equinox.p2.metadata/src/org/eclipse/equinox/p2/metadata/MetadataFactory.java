@@ -21,13 +21,15 @@ import org.eclipse.equinox.p2.metadata.expression.*;
 
 /**
  * A factory class for instantiating various p2 metadata objects.
+ * @noextend 
+ * @noimplement
  * @since 2.0
  */
 public final class MetadataFactory {
 	/**
 	 * A description containing information about an installable unit. Once created,
 	 * installable units are immutable. This description class allows a client to build
-	 * up the state for an installable unit incrementally, and then finally product
+	 * up the state for an installable unit incrementally, and then finally produce
 	 * the resulting immutable unit.
 	 */
 	public static class InstallableUnitDescription {
@@ -329,23 +331,95 @@ public final class MetadataFactory {
 	 * current environment, or <code>null</code> to indicate this capability is always applicable
 	 * @param optional <code>true</code> if this required capability is optional,
 	 * and <code>false</code> otherwise.
-	 * @param multiple <code>true</code> if this capability can be satisfied by multiple provided capabilities, or it requires exactly one match
+	 * @param multiple <code>true</code> if this capability can be satisfied by multiple provided capabilities, 
+	 * or <code>false</code> if it requires exactly one match
+	 * @return the requirement
 	 */
 	public static IRequirement createRequirement(String namespace, String name, VersionRange range, IMatchExpression<IInstallableUnit> filter, boolean optional, boolean multiple) {
-		return new RequiredCapability(namespace, name, range, filter, optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, true);
+		return new RequiredCapability(namespace, name, range, filter, optional ? 0 : 1, multiple ? Integer.MAX_VALUE : 1, true, null);
 	}
 
+	/**
+	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
+	 * 
+	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
+	 * @param name the name for the requirement. Must not be <code>null</code>.
+	 * @param range the version range. A value of <code>null</code> is equivalent to {@link VersionRange#emptyRange} and matches all versions.
+	 * @param filter The filter used to evaluate whether this capability is applicable in the
+	 * 	current environment, or <code>null</code> to indicate this capability is always applicable
+	 * @param minCard minimum cardinality
+	 * @param maxCard maximum cardinality
+	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
+	 * @return the requirement
+	 */
 	public static IRequirement createRequirement(String namespace, String name, VersionRange range, IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy) {
-		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy);
+		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy, null);
 	}
 
+	/**
+	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
+	 * 
+	 * @param requirement the match expression
+	 * @param filter The filter used to evaluate whether this capability is applicable in the
+	 * 	current environment, or <code>null</code> to indicate this capability is always applicable
+	 * @param minCard minimum cardinality
+	 * @param maxCard maximum cardinality
+	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
+	 * @return the requirement
+	 */
 	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy) {
-		return new RequiredCapability(requirement, filter, minCard, maxCard, greedy);
-
+		return new RequiredCapability(requirement, filter, minCard, maxCard, greedy, null);
 	}
 
+	/**
+	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
+	 * 
+	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
+	 * @param name the name for the requirement. Must not be <code>null</code>.
+	 * @param range the version range. A value of <code>null</code> is equivalent to {@link VersionRange#emptyRange} and matches all versions.
+	 * @param filter The filter used to evaluate whether this capability is applicable in the
+	 * 	current environment, or <code>null</code> to indicate this capability is always applicable
+	 * @param optional <code>true</code> if this requirement is optional, and <code>false</code> otherwise.
+	 * @param multiple <code>true</code> if this requirement can be satisfied by multiple provided capabilities, or <code>false</code> 
+	 * 	if it requires exactly one match
+	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
+	 * @return the requirement
+	 */
 	public static IRequirement createRequirement(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
 		return new RequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
+	}
+
+	/**
+	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
+	 * 
+	 * @param namespace the namespace for the requirement. Must not be <code>null</code>.
+	 * @param name the name for the requirement. Must not be <code>null</code>.
+	 * @param range the version range. A value of <code>null</code> is equivalent to {@link VersionRange#emptyRange} and matches all versions.
+	 * @param filter The filter used to evaluate whether this capability is applicable in the
+	 * 	current environment, or <code>null</code> to indicate this capability is always applicable
+	 * @param minCard minimum cardinality
+	 * @param maxCard maximum cardinality
+	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
+	 * @param description a <code>String</code> description of the requirement, or <code>null</code>
+	 * @return the requirement
+	 */
+	public static IRequirement createRequirement(String namespace, String name, VersionRange range, IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy, String description) {
+		return new RequiredCapability(namespace, name, range, filter, minCard, maxCard, greedy, description);
+	}
+
+	/**
+	 * Create and return a new requirement ({@link IRequirement}) with the specified values.
+	 *  
+	 * @param requirement the match expression
+	 * @param filter the filter, or <code>null</code>
+	 * @param minCard minimum cardinality
+	 * @param maxCard maximum cardinality
+	 * @param greedy <code>true</code> if the requirement should be considered greedy and <code>false</code> otherwise
+	 * @param description a <code>String</code> description of the requirement, or <code>null</code>
+	 * @return the requirement
+	 */
+	public static IRequirement createRequirement(IMatchExpression<IInstallableUnit> requirement, IMatchExpression<IInstallableUnit> filter, int minCard, int maxCard, boolean greedy, String description) {
+		return new RequiredCapability(requirement, filter, minCard, maxCard, greedy, description);
 	}
 
 	/**
@@ -496,13 +570,27 @@ public final class MetadataFactory {
 	}
 
 	public static IUpdateDescriptor createUpdateDescriptor(Collection<IMatchExpression<IInstallableUnit>> descriptors, int severity, String description, URI location) {
-		return new UpdateDescriptor(descriptors, severity, description, null);
+		return new UpdateDescriptor(descriptors, severity, description, location);
 	}
 
 	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description) {
+		return createUpdateDescriptor(id, range, severity, description, null);
+	}
+
+	/**
+	 * Create and return a new update descriptor {@link IUpdateDescriptor} with the specified values.
+	 * 
+	 * @param id the identifiter for the update. Must not be <code>null</code>.
+	 * @param range the version range. A <code>null</code> range is equivalent to {@link VersionRange#emptyRange} and matches all versions.
+	 * @param severity the severity
+	 * @param description a <code>String</code> description or <code>null</code>
+	 * @param location a {@link URI} specifying the location or <code>null</code> 
+	 * @return the update descriptor
+	 */
+	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description, URI location) {
 		Collection<IMatchExpression<IInstallableUnit>> descriptors = new ArrayList<IMatchExpression<IInstallableUnit>>(1);
 		descriptors.add(createMatchExpressionFromRange(IInstallableUnit.NAMESPACE_IU_ID, id, range));
-		return new UpdateDescriptor(descriptors, severity, description, null);
+		return createUpdateDescriptor(descriptors, severity, description, location);
 	}
 
 	private static final IExpression allVersionsExpression;

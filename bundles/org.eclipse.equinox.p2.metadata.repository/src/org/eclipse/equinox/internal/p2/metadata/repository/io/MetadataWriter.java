@@ -246,7 +246,9 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		}
 		attribute(CAPABILITY_GREED_ATTRIBUTE, requirement.isGreedy(), true);
 		if (requirement.getFilter() != null)
-				writeTrimmedCdata(CAPABILITY_FILTER_ELEMENT, requirement.getFilter().getParameters()[0].toString());
+			writeTrimmedCdata(CAPABILITY_FILTER_ELEMENT, requirement.getFilter().getParameters()[0].toString());
+		if (requirement.getDescription() != null)
+			writeTrimmedCdata(REQUIREMENT_DESCRIPTION_ELEMENT, requirement.getDescription());
 		end(REQUIREMENT_ELEMENT);
 	}
 

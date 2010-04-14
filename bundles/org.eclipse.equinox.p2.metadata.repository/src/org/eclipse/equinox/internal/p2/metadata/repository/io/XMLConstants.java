@@ -65,6 +65,7 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 
 	// Constants for sub-elements of a required capability element
 	public static final String CAPABILITY_FILTER_ELEMENT = "filter"; //$NON-NLS-1$
+	public static final String REQUIREMENT_DESCRIPTION_ELEMENT = "description"; //$NON-NLS-1$
 
 	// Constants for attributes of a required capability element
 	public static final String CAPABILITY_OPTIONAL_ATTRIBUTE = "optional"; //$NON-NLS-1$

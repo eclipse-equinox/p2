@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
@@ -79,7 +78,7 @@ public class Bug306424 extends AbstractProvisioningTest {
 		IProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
 		changeRequest.remove(b);
 
-		IRequirement negateB = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, b.getId(), new VersionRange(b.getVersion(), true, b.getVersion(), true), null, 0, 0, false);
+		IRequirement negateB = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, b.getId(), new VersionRange(b.getVersion(), true, b.getVersion(), true), null, 0, 0, false);
 		Collection<IRequirement> extraReqs = new ArrayList<IRequirement>();
 		extraReqs.add(negateB);
 		changeRequest.addExtraRequirements(extraReqs);
