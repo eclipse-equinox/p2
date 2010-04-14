@@ -48,4 +48,9 @@ public class InstallNewSoftwareHandler extends PreloadingRepositoryHandler {
 			loadJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_REPOSITORY_EVENTS, Boolean.toString(true));
 		}
 	}
+
+	@Override
+	protected String getProgressTaskName() {
+		return ProvSDKMessages.InstallNewSoftwareHandler_ProgressTaskName;
+	}
 }

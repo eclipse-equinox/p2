@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
@@ -45,7 +46,20 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 		if (preloadRepositories()) {
 			//cancel any load that is already running
 			Job.getJobManager().cancel(LoadMetadataRepositoryJob.LOAD_FAMILY);
-			final LoadMetadataRepositoryJob loadJob = new LoadMetadataRepositoryJob(getProvisioningUI());
+			final LoadMetadataRepositoryJob loadJob = new LoadMetadataRepositoryJob(getProvisioningUI()) {
+				public IStatus runModal(IProgressMonitor monitor) {
+					SubMonitor sub = SubMonitor.convert(monitor, getProgressTaskName(), 1000);
+					IStatus status = super.runModal(sub.newChild(500));
+					if (status.getSeverity() == IStatus.CANCEL)
+						return status;
+					try {
+						doPostLoadBackgroundWork(sub.newChild(500));
+					} catch (OperationCanceledException e) {
+						return Status.CANCEL_STATUS;
+					}
+					return status;
+				}
+			};
 			setLoadJobProperties(loadJob);
 			if (waitForPreload()) {
 				loadJob.addJobChangeListener(new JobChangeAdapter() {
@@ -66,18 +80,24 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 			} else {
 				loadJob.setSystem(true);
 				loadJob.setUser(false);
-				loadJob.setProperty(LoadMetadataRepositoryJob.WIZARD_CLIENT_SHOULD_SCHEDULE, Boolean.toString(true));
-				doExecute(loadJob);
+				loadJob.schedule();
+				doExecute(null);
 			}
 		} else {
 			doExecute(null);
 		}
 	}
 
+	protected abstract String getProgressTaskName();
+
 	protected abstract void doExecute(LoadMetadataRepositoryJob job);
 
 	protected boolean preloadRepositories() {
 		return true;
+	}
+
+	protected void doPostLoadBackgroundWork(IProgressMonitor monitor) throws OperationCanceledException {
+		// default is to do nothing more.
 	}
 
 	protected boolean waitForPreload() {

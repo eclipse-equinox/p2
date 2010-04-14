@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.operations.UpdateOperation;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
@@ -23,6 +24,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 public class UpdateHandler extends PreloadingRepositoryHandler {
 
 	boolean hasNoRepos = false;
+	UpdateOperation operation;
 
 	protected void doExecute(LoadMetadataRepositoryJob job) {
 		if (hasNoRepos) {
@@ -34,12 +36,17 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 			}
 			return;
 		}
-		UpdateOperation operation = getProvisioningUI().getUpdateOperation(null, null);
-		// check for updates
-		operation.resolveModal(null);
 		if (getProvisioningUI().getPolicy().continueWorkingWithOperation(operation, getShell())) {
 			getProvisioningUI().openUpdateWizard(false, operation, job);
 		}
+	}
+
+	protected void doPostLoadBackgroundWork(IProgressMonitor monitor) throws OperationCanceledException {
+		operation = getProvisioningUI().getUpdateOperation(null, null);
+		// check for updates
+		IStatus resolveStatus = operation.resolveModal(monitor);
+		if (resolveStatus.getSeverity() == IStatus.CANCEL)
+			throw new OperationCanceledException();
 	}
 
 	protected boolean preloadRepositories() {
@@ -50,5 +57,10 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 			return false;
 		}
 		return super.preloadRepositories();
+	}
+
+	@Override
+	protected String getProgressTaskName() {
+		return ProvSDKMessages.UpdateHandler_ProgressTaskName;
 	}
 }

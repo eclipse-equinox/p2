@@ -24,6 +24,7 @@ public class ProvSDKMessages extends NLS {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, ProvSDKMessages.class);
 	}
+	public static String InstallNewSoftwareHandler_ProgressTaskName;
 	public static String PreferenceInitializer_Error;
 	public static String ProvisioningPreferencePage_AlwaysOpenWizard;
 	public static String ProvisioningPreferencePage_BrowsingPrefsGroup;
@@ -39,4 +40,5 @@ public class ProvSDKMessages extends NLS {
 	public static String SDKPolicy_PrefPageName;
 	public static String UpdateHandler_NoSitesMessage;
 	public static String UpdateHandler_NoSitesTitle;
+	public static String UpdateHandler_ProgressTaskName;
 }
