@@ -67,12 +67,31 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				// previously checked items if the user unchecked them.
 				if (!event.getChecked() && checkState != null) {
 					ArrayList<Object> toRemove = new ArrayList<Object>(1);
-					for (Object element : checkState) {
-						if (checkboxViewer.getComparer().equals(element, event.getElement())) {
-							toRemove.add(element);
-							// Do not break out of the loop.  We may have duplicate equal
-							// elements in the cache.  Since the cache is additive, we want
-							// to be sure we've gotten everything.
+					// See bug 258117.  Ideally we would get check state changes 
+					// for children when the parent state changed, but we aren't, so
+					// we need to remove all children from the additive check state
+					// cache.
+					if (contentProvider.hasChildren(event.getElement())) {
+						Set<Object> unchecked = new HashSet<Object>();
+						Object[] children = contentProvider.getChildren(event.getElement());
+						for (int i = 0; i < children.length; i++) {
+							unchecked.add(children[i]);
+						}
+						Iterator<Object> iter = checkState.iterator();
+						while (iter.hasNext()) {
+							Object current = iter.next();
+							if (current != null && unchecked.contains(current)) {
+								toRemove.add(current);
+							}
+						}
+					} else {
+						for (Object element : checkState) {
+							if (checkboxViewer.getComparer().equals(element, event.getElement())) {
+								toRemove.add(element);
+								// Do not break out of the loop.  We may have duplicate equal
+								// elements in the cache.  Since the cache is additive, we want
+								// to be sure we've gotten everything.
+							}
 						}
 					}
 					checkState.removeAll(toRemove);
