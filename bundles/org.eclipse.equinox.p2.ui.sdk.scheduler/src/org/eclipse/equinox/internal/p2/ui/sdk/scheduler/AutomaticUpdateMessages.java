@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -75,6 +75,7 @@ public class AutomaticUpdateMessages extends NLS {
 	public static String AutomaticUpdatesPreferencePage_searchAndNotify;
 	public static String AutomaticUpdatesPreferencePage_downloadAndNotify;
 	public static String AutomaticUpdatesPreferencePage_at;
+	public static String AutomaticUpdatesPreferencePage_GenericProductName;
 	public static String AutomaticUpdatesPreferencePage_RemindGroup;
 	public static String AutomaticUpdatesPreferencePage_RemindSchedule;
 	public static String AutomaticUpdatesPreferencePage_RemindOnce;
