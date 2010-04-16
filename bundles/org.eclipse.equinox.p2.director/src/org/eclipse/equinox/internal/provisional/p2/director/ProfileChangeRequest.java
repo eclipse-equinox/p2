@@ -157,7 +157,8 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 			keys = new ArrayList<String>();
 			iuPropertiesToRemove.put(iu, keys);
 		}
-		keys.add(key);
+		if (!keys.contains(key))
+			keys.add(key);
 	}
 
 	public Collection<IInstallableUnit> getRemovals() {
