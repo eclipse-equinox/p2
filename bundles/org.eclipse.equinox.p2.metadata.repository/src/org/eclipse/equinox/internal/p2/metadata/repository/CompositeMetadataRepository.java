@@ -24,6 +24,8 @@ import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.index.IIndex;
+import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -31,7 +33,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
-public class CompositeMetadataRepository extends AbstractMetadataRepository implements ICompositeRepository<IInstallableUnit> {
+public class CompositeMetadataRepository extends AbstractMetadataRepository implements ICompositeRepository<IInstallableUnit>, IIndexProvider<IInstallableUnit> {
 
 	static final public String REPOSITORY_TYPE = CompositeMetadataRepository.class.getName();
 	public static final String PI_REPOSITORY_TYPE = "compositeMetadataRepository"; //$NON-NLS-1$
@@ -332,4 +334,41 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		setLocation(state.Location);
 		setProperties(state.Properties);
 	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.metadata.index.IIndexProvider#getIndex(java.lang.String)
+	 */
+	@SuppressWarnings("unchecked")
+	public IIndex<IInstallableUnit> getIndex(String memberName) {
+		IQueryable<IInstallableUnit> queryable = QueryUtil.compoundQueryable(loadedRepos);
+		if (queryable instanceof IIndexProvider<?>) {
+			return ((IIndexProvider<IInstallableUnit>) queryable).getIndex(memberName);
+		}
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.metadata.index.IIndexProvider#everything()
+	 */
+	@SuppressWarnings("unchecked")
+	public Iterator<IInstallableUnit> everything() {
+		IQueryable<IInstallableUnit> queryable = QueryUtil.compoundQueryable(loadedRepos);
+		if (queryable instanceof IIndexProvider<?>) {
+			return ((IIndexProvider<IInstallableUnit>) queryable).everything();
+		}
+		return Collections.EMPTY_LIST.iterator();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.metadata.index.IIndexProvider#getManagedProperty(java.lang.Object, java.lang.String, java.lang.Object)
+	 */
+	@SuppressWarnings("unchecked")
+	public Object getManagedProperty(Object client, String memberName, Object key) {
+		IQueryable<IInstallableUnit> queryable = QueryUtil.compoundQueryable(loadedRepos);
+		if (queryable instanceof IIndexProvider<?>) {
+			return ((IIndexProvider<IInstallableUnit>) queryable).getManagedProperty(client, memberName, key);
+		}
+		return null;
+	}
+
 }
