@@ -15,7 +15,9 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
 
 public class ProductPublisherApplication extends AbstractPublisherApplication {
 
@@ -54,6 +56,15 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 			executables = parameter;
 		if (arg.equalsIgnoreCase("-flavor")) //$NON-NLS-1$
 			flavor = parameter;
+		if (arg.equalsIgnoreCase("-pluginVersionsAdvice")) { //$NON-NLS-1$
+			VersionAdvice versionAdvice = new VersionAdvice();
+			versionAdvice.load(IInstallableUnit.NAMESPACE_IU_ID, parameter, null);
+			info.addAdvice(versionAdvice);
+		}
+		if (arg.equalsIgnoreCase("-featureVersionsAdvice")) { //$NON-NLS-1$
+			VersionAdvice versionAdvice = new VersionAdvice();
+			versionAdvice.load(IInstallableUnit.NAMESPACE_IU_ID, parameter, ".feature.group"); //$NON-NLS-1$
+			info.addAdvice(versionAdvice);
+		}
 	}
-
 }
