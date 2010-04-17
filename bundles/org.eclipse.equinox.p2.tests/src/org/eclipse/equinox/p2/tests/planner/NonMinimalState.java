@@ -25,6 +25,9 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
+/*
+ * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=276133 for details.
+ */
 public class NonMinimalState extends AbstractProvisioningTest {
 	IProfile profile = null;
 	IMetadataRepository repo = null;
