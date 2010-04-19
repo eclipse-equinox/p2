@@ -31,7 +31,7 @@ public class Bug306279 extends AbstractProvisioningTest {
 	public void testGreedy() throws ProvisionException, OperationCanceledException, URISyntaxException {
 		IMetadataRepository repo1 = getMetadataRepositoryManager().loadRepository(new URI("http://download.eclipse.org/releases/helios"), null);
 		assertFalse(repo1.query(QueryUtil.createIUQuery("org.eclipse.rap.jface.databinding"), new NullProgressMonitor()).isEmpty());
-		IMetadataRepository repo2 = getMetadataRepositoryManager().loadRepository(new URI("http://download.eclipse.org/rt/riena/updatesites/rienatoolbox"), null);
+		IMetadataRepository repo2 = getMetadataRepositoryManager().loadRepository(new URI("http://download.eclipse.org/rt/riena/updatesites/rienatoolbox-a"), null);
 
 		IPlanner planner = getPlanner(getAgent());
 		IProfile profile = createProfile(getName());
@@ -39,7 +39,7 @@ public class Bug306279 extends AbstractProvisioningTest {
 		Set<IInstallableUnit> ius = repo2.query(QueryUtil.createIUQuery("org.eclipse.riena.toolbox.feature.feature.group"), new NullProgressMonitor()).toUnmodifiableSet();
 		request.addAll(ius);
 		ProvisioningContext ctx = new ProvisioningContext(getAgent());
-		ctx.setMetadataRepositories(new URI[] {new URI("http://download.eclipse.org/releases/helios"), new URI("http://download.eclipse.org/rt/riena/updatesites/rienatoolbox")});
+		ctx.setMetadataRepositories(new URI[] {new URI("http://download.eclipse.org/releases/helios"), new URI("http://download.eclipse.org/rt/riena/updatesites/rienatoolbox-a")});
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, ctx, new NullProgressMonitor());
 
 		assertOK("resolution failed", plan.getStatus());
