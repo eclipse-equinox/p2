@@ -266,4 +266,8 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 	public Collection<IRequirement> getExtraRequirements() {
 		return additionalRequirements;
 	}
+
+	public void clearExtraRequirements() {
+		additionalRequirements = null;
+	}
 }
