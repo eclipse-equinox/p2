@@ -13,10 +13,10 @@ package org.eclipse.equinox.p2.tests.ql;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.director.QueryableArray;
-import org.eclipse.equinox.internal.p2.director.Slicer;
+import org.eclipse.equinox.internal.p2.director.*;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.expression.MatchIteratorFilter;
+import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
 import org.eclipse.equinox.p2.metadata.expression.IExpressionParser;
@@ -307,6 +307,52 @@ public class PerformanceTest extends AbstractProvisioningTest {
 		System.out.print("100 * Slicing took: ");
 		System.out.println(sliceTime);
 		System.out.print("100 * Indexed Traverse expression took: ");
+		System.out.println(traverseTime);
+		System.out.println();
+	}
+
+	public void testPermissiveSlicerPerformance() throws Exception {
+		HashMap<String, String> env = new HashMap<String, String>();
+		//env.put("osgi.os", "linux");
+		//env.put("osgi.ws", "gtk");
+		//env.put("osgi.arch", "x86");
+		IInstallableUnit envIU = InstallableUnit.contextIU(env);
+
+		CompositeMetadataRepository compositeMetadataRepository = CompositeMetadataRepository.createMemoryComposite(getMetadataRepositoryManager().getAgent());
+		// compositeMetadataRepository.addChild(new URI("http://download.eclipse.org/releases/galileo"));
+		compositeMetadataRepository.addChild(new URI("file:/home/thhal/tools/galileo"));
+		IMetadataRepository repo = compositeMetadataRepository;
+		IQueryResult<IInstallableUnit> r = repo.query(QueryUtil.createIUQuery("org.eclipse.sdk.ide"), new NullProgressMonitor());
+		IInstallableUnit[] roots = r.toArray(IInstallableUnit.class);
+
+		IQuery query = QueryUtil.createQuery( //
+				"$0.traverse(set(), _, { cache, parent | parent.requirements.unique(cache).collect(rc | everything.select(iu | iu ~= rc)).flatten()})", roots, envIU);
+
+		long sliceTime = 0;
+		long traverseTime = 0;
+		IQueryable slice = null;
+		for (int idx = 0; idx < 10; ++idx) {
+			long startTime = System.currentTimeMillis();
+			r = repo.query(query, new NullProgressMonitor());
+			traverseTime += (System.currentTimeMillis() - startTime);
+			assertEquals(queryResultSize(r), 4704);
+
+			startTime = System.currentTimeMillis();
+			Slicer slicer = new PermissiveSlicer(repo, env, true, true, true, false, false);
+			slice = slicer.slice(roots, new NullProgressMonitor());
+			sliceTime += (System.currentTimeMillis() - startTime);
+		}
+		// Check the size of the last slice to verify that it's the same as the traverse size
+		r = slice.query(new MatchQuery() {
+			public boolean isMatch(Object value) {
+				return true;
+			}
+		}, new NullProgressMonitor());
+		assertEquals(queryResultSize(r), 4704);
+
+		System.out.print("10 * Slicing took: ");
+		System.out.println(sliceTime);
+		System.out.print("10 * Indexed Traverse expression took: ");
 		System.out.println(traverseTime);
 		System.out.println();
 	}
