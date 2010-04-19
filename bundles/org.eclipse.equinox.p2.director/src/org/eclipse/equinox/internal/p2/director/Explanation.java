@@ -10,12 +10,9 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnitPatch;
-
 import java.util.Arrays;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class Explanation implements Comparable<Explanation> {
@@ -148,6 +145,30 @@ public abstract class Explanation implements Comparable<Explanation> {
 				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRequired, getUserReadableName(iu), req));
 			}
 			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRequiredFilter, new Object[] {req.getFilter(), getUserReadableName(iu), req}));
+		}
+	}
+
+	public static class MissingGreedyIU extends Explanation {
+		public final IInstallableUnit iu;
+
+		public MissingGreedyIU(IInstallableUnit iu) {
+			this.iu = iu;
+		}
+
+		public int orderValue() {
+			return 3;
+		}
+
+		public int shortAnswer() {
+			return MISSING_REQUIREMENT;
+		}
+
+		public String toString() {
+			return NLS.bind(Messages.Explanation_missingNonGreedyRequired, iu);
+		}
+
+		public IStatus toStatus() {
+			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingNonGreedyRequired, getUserReadableName(iu)));
 		}
 	}
 
