@@ -51,7 +51,6 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		PROPERTIES_TO_SKIP.add("eof"); //$NON-NLS-1$
 		PROPERTIES_TO_SKIP.add("eclipse.p2.profile"); //$NON-NLS-1$
 		PROPERTIES_TO_SKIP.add("eclipse.p2.data.area"); //$NON-NLS-1$
-		PROPERTIES_TO_SKIP.add("osgi.launcherPath"); //$NON-NLS-1$
 		PROPERTIES_TO_SKIP.add("org.eclipse.update.reconcile"); //$NON-NLS-1$
 		PROPERTIES_TO_SKIP.add("org.eclipse.equinox.simpleconfigurator.configUrl"); //$NON-NLS-1$
 

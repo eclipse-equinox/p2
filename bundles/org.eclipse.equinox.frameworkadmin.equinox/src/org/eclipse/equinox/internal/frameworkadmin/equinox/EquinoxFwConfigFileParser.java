@@ -215,11 +215,11 @@ public class EquinoxFwConfigFileParser {
 		}
 
 		//Start figuring out stuffs
-		URI rootURI = launcherData.getLauncher() != null ? launcherData.getLauncher().getParentFile().toURI() : null;
+		//URI rootURI = launcherData.getLauncher() != null ? launcherData.getLauncher().getParentFile().toURI() : null;
 
 		readFwJarLocation(configData, launcherData, props);
 		URI configArea = inputFile.getParentFile().toURI();
-		readLauncherPath(props, rootURI);
+		//readLauncherPath(props, rootURI);
 		readp2DataArea(props, configArea);
 		readSimpleConfiguratorURL(props, configArea);
 		readBundlesList(manipulator, ParserUtils.getOSGiInstallArea(Arrays.asList(launcherData.getProgramArgs()), props, launcherData).toURI(), props);
@@ -377,21 +377,23 @@ public class EquinoxFwConfigFileParser {
 		}
 	}
 
-	private void readLauncherPath(Properties props, URI root) throws URISyntaxException {
-		if (props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH) != null)
-			props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, URIUtil.makeAbsolute(URIUtil.fromString(props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH)), root).toString());
-	}
-
-	private void writeLauncherPath(ConfigData configData, Properties props, URI root) throws URISyntaxException {
-		String value = getFwProperty(configData, EquinoxConstants.PROP_LAUNCHER_PATH);
-		if (value != null) {
-			URI launcherPathURI = FileUtils.fromPath(value);
-			String launcherPath = URIUtil.toUnencodedString(URIUtil.makeRelative(launcherPathURI, root));
-			if ("/".equals(launcherPath) || "".equals(launcherPath)) //$NON-NLS-1$ //$NON-NLS-2$
-				launcherPath = "."; //$NON-NLS-1$
-			props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, launcherPath);
-		}
-	}
+	//	private void readLauncherPath(Properties props, URI root) throws URISyntaxException {
+	//		if (props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH) != null) {
+	//			URI absoluteURI = URIUtil.makeAbsolute(URIUtil.fromString(props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH)), root);
+	//			props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, URIUtil.toUnencodedString(absoluteURI));
+	//		}
+	//	}
+	//
+	//	private void writeLauncherPath(ConfigData configData, Properties props, URI root) throws URISyntaxException {
+	//		String value = getFwProperty(configData, EquinoxConstants.PROP_LAUNCHER_PATH);
+	//		if (value != null) {
+	//			URI launcherPathURI = FileUtils.fromPath(value);
+	//			String launcherPath = URIUtil.toUnencodedString(URIUtil.makeRelative(launcherPathURI, root));
+	//			if ("/".equals(launcherPath) || "".equals(launcherPath)) //$NON-NLS-1$ //$NON-NLS-2$
+	//				launcherPath = "."; //$NON-NLS-1$
+	//			props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, launcherPath);
+	//		}
+	//	}
 
 	private void readSimpleConfiguratorURL(Properties props, URI configArea) throws URISyntaxException {
 		if (props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL) != null)
@@ -434,11 +436,11 @@ public class EquinoxFwConfigFileParser {
 		String header = "This configuration file was written by: " + this.getClass().getName(); //$NON-NLS-1$
 
 		Properties configProps = new Properties();
-		URI rootURI = launcherData.getLauncher() != null ? launcherData.getLauncher().getParentFile().toURI() : null;
+		//URI rootURI = launcherData.getLauncher() != null ? launcherData.getLauncher().getParentFile().toURI() : null;
 
 		writeFwJarLocation(configData, launcherData, configProps);
 		try {
-			writeLauncherPath(configData, configProps, rootURI);
+			//writeLauncherPath(configData, configProps, rootURI);
 			URI configArea = manipulator.getLauncherData().getFwConfigLocation().toURI();
 			writep2DataArea(configData, configProps, configArea);
 			writeSimpleConfiguratorURL(configData, configProps, configArea);
