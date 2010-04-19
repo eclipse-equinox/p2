@@ -34,6 +34,20 @@ import org.eclipse.osgi.util.NLS;
  * A request to mirror (copy) an artifact into a given destination artifact repository.
  */
 public class MirrorRequest extends ArtifactRequest {
+	/**
+	 * The name of a repository property on an artifact repository, indicating the base URI
+	 * to be used for reporting download statistics.
+	 */
+	private static final String PROP_STATS_URI = "p2.statsURI"; //$NON-NLS-1$
+
+	/**
+	 * The name of a property on an artifact descriptor, indicating the relative download URI
+	 * to be used to report download statistics for that artifact. The value of this property,
+	 * if present, is appended to the {@link #PROP_STATS_URI} to create the full URI
+	 * for reporting download statistics for that artifact.
+	 */
+	private static final String PROP_DOWNLOAD_STATS = "download.stats"; //$NON-NLS-1$
+
 	protected final IArtifactRepository target;
 
 	private final Map<String, String> targetDescriptorProperties;
@@ -173,10 +187,10 @@ public class MirrorRequest extends ArtifactRequest {
 	 * Collect download statistics, if specified by the descriptor and the source repository
 	 */
 	private void collectStats(IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
-		final String statsProperty = sourceDescriptor.getProperty("download.stats"); //$NON-NLS-1$
+		final String statsProperty = sourceDescriptor.getProperty(PROP_DOWNLOAD_STATS);
 		if (statsProperty == null)
 			return;
-		String statsRoot = sourceDescriptor.getRepository().getProperties().get("stats.url"); //$NON-NLS-1$
+		String statsRoot = sourceDescriptor.getRepository().getProperties().get(PROP_STATS_URI);
 		if (statsRoot == null)
 			return;
 		URI statsURI;
@@ -188,6 +202,8 @@ public class MirrorRequest extends ArtifactRequest {
 		}
 		try {
 			RepositoryTransport.getInstance().getLastModified(statsURI, monitor);
+		} catch (FileNotFoundException e) {
+			//ignore because it is expected that the statistics URI doesn't represent an existing file
 		} catch (Exception e) {
 			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Failure reporting download statistics to URL: " + statsURI, e)); //$NON-NLS-1$
 		}
