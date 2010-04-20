@@ -68,12 +68,19 @@ class Messages extends NLS {
 
 	public static String RemoteBundleDiscoveryStrategy_unrecognized_discovery_url;
 
+	public static String SiteVerifier_Error_with_cause;
+
+	public static String SiteVerifier_Unexpected_Error;
+
+	public static String SiteVerifier_Verify_Job_Label;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
 
 	private Messages() {
+		// constructor
 	}
 
 }

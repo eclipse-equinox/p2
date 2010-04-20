@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.discovery.Catalog;
+import org.eclipse.equinox.internal.p2.discovery.compatibility.SiteVerifier;
 import org.eclipse.equinox.internal.p2.discovery.model.*;
 import org.eclipse.equinox.internal.p2.discovery.util.CatalogCategoryComparator;
 import org.eclipse.equinox.internal.p2.discovery.util.CatalogItemComparator;
@@ -590,7 +591,8 @@ public class CatalogViewer extends FilteredViewer {
 				try {
 					context.run(true, true, new IRunnableWithProgress() {
 						public void run(IProgressMonitor monitor) {
-							//discovery.verifySiteAvailability(monitor);
+							SiteVerifier verifier = new SiteVerifier(catalog);
+							verifier.verifySiteAvailability(monitor);
 						}
 					});
 				} catch (InvocationTargetException e) {
