@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.discovery.tests.core.*;
 public class AllDiscoveryTests {
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Tests for org.eclipse.mylyn.discovery"); //$NON-NLS-1$
+		TestSuite suite = new TestSuite("Tests for org.eclipse.equinox.p2.discovery.tests"); //$NON-NLS-1$
 		suite.addTestSuite(ConnectorDiscoveryTest.class);
 		suite.addTestSuite(DirectoryParserTest.class);
 		suite.addTestSuite(BundleDiscoveryStrategyTest.class);

@@ -21,6 +21,11 @@
                name="Directory URL"
                optional="true">
          </commandParameter>
+         <commandParameter
+               id="org.eclipse.equinox.p2.ui.discovery.commands.TagsParameter"
+               name="Tags"
+               optional="true">
+         </commandParameter>
       </command>
       <command
             id="org.eclipse.equinox.p2.ui.discovery.commands.ShowRepositoryCatalog"

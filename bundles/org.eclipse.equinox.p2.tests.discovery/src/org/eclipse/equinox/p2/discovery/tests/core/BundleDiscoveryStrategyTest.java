@@ -11,8 +11,7 @@
 
 package org.eclipse.equinox.p2.discovery.tests.core;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -33,6 +32,8 @@ public class BundleDiscoveryStrategyTest extends TestCase {
 
 	private final List<Certification> certifications = new ArrayList<Certification>();
 
+	private final List<Tag> tags = new ArrayList();
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -41,6 +42,7 @@ public class BundleDiscoveryStrategyTest extends TestCase {
 		discoveryStrategy.setCategories(categories);
 		discoveryStrategy.setItems(connectors);
 		discoveryStrategy.setCertifications(certifications);
+		discoveryStrategy.setTags(tags);
 	}
 
 	public void testDiscovery() throws CoreException {
@@ -54,6 +56,14 @@ public class BundleDiscoveryStrategyTest extends TestCase {
 		assertNotNull(connector);
 		Certification certification = findCertificationById("org.eclipse.mylyn.discovery.tests.certification1");
 		assertNotNull(certification);
+	}
+
+	public void testCustomTag() throws CoreException {
+		discoveryStrategy.performDiscovery(new NullProgressMonitor());
+
+		CatalogItem connector = findConnectorById("org.eclipse.mylyn.discovery.test.tagged");
+		assertEquals(new HashSet<Tag>(Arrays.asList(new Tag("Custom", "Custom"))), connector.getTags());
+		assertEquals(Arrays.asList(new Tag("task", "Tasks"), new Tag("Custom", "Custom")), discoveryStrategy.getTags());
 	}
 
 	public void testDiscoveryNoCategoriesPolicy() throws CoreException {

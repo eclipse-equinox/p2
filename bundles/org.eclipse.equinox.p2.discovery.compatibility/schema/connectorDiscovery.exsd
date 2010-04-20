@@ -62,7 +62,7 @@
             <element ref="overview" minOccurs="0" maxOccurs="1"/>
             <element ref="iu" minOccurs="0" maxOccurs="unbounded"/>
          </sequence>
-         <attribute name="kind" type="string" use="required">
+         <attribute name="kind" type="string">
             <annotation>
                <documentation>
                   must be a comma-delimited list of the following values: &apos;document&apos;, &apos;task&apos;, &apos;vcs&apos;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Task top Technologies and others.
+ * Copyright (c) 2009 Tasktop Technologies and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
+import java.util.*;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.equinox.internal.p2.discovery.model.*;
 
@@ -45,7 +46,13 @@ public class ConnectorDiscoveryExtensionReader {
 
 	public static Tag VCS = new Tag("vcs", Messages.ConnectorDiscoveryExtensionReader_Version_Control); //$NON-NLS-1$
 
-	public static final Tag[] TAGS = new Tag[] {DOCUMENT, TASK, VCS};
+	public static final Tag[] DEFAULT_TAGS = new Tag[] {DOCUMENT, TASK, VCS};
+
+	private Map<String, Tag> tagById = new HashMap<String, Tag>();
+
+	public ConnectorDiscoveryExtensionReader() {
+		// constructor
+	}
 
 	/**
 	 * return the enum constant whose {@link Tag#getValue() value} is the same as the given value.
@@ -60,12 +67,38 @@ public class ConnectorDiscoveryExtensionReader {
 		if (value == null) {
 			return null;
 		}
-		for (Tag tag : TAGS) {
+		for (Tag tag : DEFAULT_TAGS) {
 			if (tag.getValue().equals(value)) {
 				return tag;
 			}
 		}
 		throw new IllegalArgumentException(value);
+	}
+
+	public Set<Tag> getTags() {
+		return new HashSet<Tag>(tagById.values());
+	}
+
+	private Tag getTag(String id) {
+		if (id == null) {
+			return null;
+		}
+		// first, look for known tag
+		Tag result = tagById.get(id);
+		if (result != null) {
+			return result;
+		}
+		// second, search default tags
+		for (Tag tag : DEFAULT_TAGS) {
+			if (tag.getValue().equals(id)) {
+				tagById.put(id, tag);
+				return tag;
+			}
+		}
+		// third, create new tag
+		result = new Tag(id, id);
+		tagById.put(id, result);
+		return result;
 	}
 
 	public CatalogItem readConnectorDescriptor(IConfigurationElement element) throws ValidationException {
@@ -85,7 +118,10 @@ public class ConnectorDiscoveryExtensionReader {
 			if (kinds != null) {
 				String[] akinds = kinds.split("\\s*,\\s*"); //$NON-NLS-1$
 				for (String kind : akinds) {
-					connectorDescriptor.addTag(fromValue(kind));
+					Tag tag = getTag(kind);
+					if (tag != null) {
+						connectorDescriptor.addTag(tag);
+					}
 				}
 			}
 		} catch (IllegalArgumentException e) {

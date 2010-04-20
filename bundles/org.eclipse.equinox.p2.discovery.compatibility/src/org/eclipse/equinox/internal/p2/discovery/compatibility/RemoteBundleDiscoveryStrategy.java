@@ -42,7 +42,7 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 
 	@Override
 	public void performDiscovery(IProgressMonitor monitor) throws CoreException {
-		if (items == null || categories == null || directoryUrl == null) {
+		if (items == null || categories == null || directoryUrl == null || tags == null) {
 			throw new IllegalStateException();
 		}
 		if (registryStrategy != null) {

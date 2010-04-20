@@ -30,7 +30,7 @@
       </connectorDescriptor>
       <connectorDescriptor
             categoryId="org.eclipse.mylyn.discovery.tests.connectorCategory1"
-            description="Trac Connector"
+            description="Connector with id org.eclipse.mylyn.discovery.test1"
             id="org.eclipse.mylyn.discovery.test1"
             kind="task"
             license="License"
@@ -40,7 +40,7 @@
       </connectorDescriptor>
       <connectorDescriptor
             categoryId="org.eclipse.mylyn.discovery.tests.connectorCategory1"
-            description="Trac Connector"
+            description="Connector with id org.eclipse.mylyn.discovery.2tests"
             id="org.eclipse.mylyn.discovery.2tests"
             kind="task"
             license="License"
@@ -62,6 +62,16 @@
             %certification.description
          </description>
       </certification>
+      <connectorDescriptor
+            categoryId="org.eclipse.mylyn.discovery.tests.connectorCategory1"
+            description="Tagged as Custom"
+            id="org.eclipse.mylyn.discovery.test.tagged"
+            kind="Custom"
+            license="License"
+            name="Tagged Connector"
+            provider="Eclipse Mylyn"
+            siteUrl="http://localhost/discovery/">
+      </connectorDescriptor>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -74,6 +84,10 @@
             <parameter
                   name="org.eclipse.equinox.p2.ui.discovery.commands.DirectoryParameter"
                   value="http://www.eclipse.org/mylyn/discovery/directory-3.3.xml">
+            </parameter>
+            <parameter
+                  name="org.eclipse.equinox.p2.ui.discovery.commands.TagsParameter"
+                  value="document=Documents,task=Tasks,vcs=Version Control">
             </parameter>
          </command>
          <command
