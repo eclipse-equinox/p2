@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.io.File;
 import java.lang.ref.SoftReference;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -23,7 +22,8 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
@@ -40,6 +40,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private static final String PROP_BASE = "org.eclipse.equinox.p2.base"; //$NON-NLS-1$
 	private static final String PROP_RESOLVE = "org.eclipse.equinox.p2.resolve"; //$NON-NLS-1$
 	private static final String OPTIONAL = "OPTIONAL"; //$NON-NLS-1$
+	private static final String STRICT = "STRICT"; //$NON-NLS-1$
 	private static final String PROP_INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
 
 	private final IProvisioningAgent agent;
@@ -60,11 +61,40 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 			userProfile.setInstallableUnitProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, IU_LOCKED);
 			userProfile.setInstallableUnitProperty(iu, PROP_BASE, Boolean.TRUE.toString());
 		}
+
+		IInstallableUnit sharedProfileIU = createSharedProfileIU(sharedProfile);
+		userProfile.addInstallableUnit(sharedProfileIU);
+		userProfile.setInstallableUnitProperty(sharedProfileIU, PROP_INCLUSION_RULES, STRICT);
+		userProfile.setInstallableUnitProperty(sharedProfileIU, PROP_BASE, Boolean.TRUE.toString());
+	}
+
+	private static IInstallableUnit createSharedProfileIU(final IProfile sharedProfile) {
+		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
+		iuDescription.setId(sharedProfile.getProfileId());
+		iuDescription.setVersion(Version.createOSGi(1, 0, 0, Long.toString(sharedProfile.getTimestamp())));
+
+		ArrayList<IProvidedCapability> iuCapabilities = new ArrayList<IProvidedCapability>();
+		IProvidedCapability selfCapability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, iuDescription.getId(), iuDescription.getVersion());
+		iuCapabilities.add(selfCapability);
+		iuDescription.addProvidedCapabilities(iuCapabilities);
+
+		ArrayList<IRequirement> iuRequirements = new ArrayList<IRequirement>();
+		IQueryResult<IInstallableUnit> allIUs = sharedProfile.query(QueryUtil.createIUAnyQuery(), null);
+		for (Iterator<IInstallableUnit> iterator = allIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = iterator.next();
+			IRequirement iuRequirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, false, false, true);
+			iuRequirements.add(iuRequirement);
+		}
+		iuDescription.addRequirements(iuRequirements);
+		iuDescription.setProperty(IInstallableUnit.PROP_NAME, NLS.bind(Messages.Shared_Profile, null));
+
+		IInstallableUnit sharedProfileIU = MetadataFactory.createInstallableUnit(iuDescription);
+		return sharedProfileIU;
 	}
 
 	private static void removeUserProfileBaseIUs(final Profile userProfile) {
-		IQuery<IInstallableUnit> rootIUQuery = new IUProfilePropertyQuery(PROP_BASE, Boolean.TRUE.toString());
-		IQueryResult<IInstallableUnit> rootIUs = userProfile.query(rootIUQuery, null);
+		IQuery<IInstallableUnit> baseIUQuery = new IUProfilePropertyQuery(PROP_BASE, Boolean.TRUE.toString());
+		IQueryResult<IInstallableUnit> rootIUs = userProfile.query(baseIUQuery, null);
 		for (Iterator<IInstallableUnit> iterator = rootIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
 			userProfile.removeInstallableUnit(iu);

@@ -91,6 +91,7 @@ public class Messages extends NLS {
 	public static String session_context;
 	public static String session_prepare_error;
 	public static String shared_profile_not_found;
+	public static String Shared_Profile;
 
 	public static String SimpleProfileRegistry_Bad_profile_location;
 	public static String SimpleProfileRegistry_CannotRemoveCurrentSnapshot;
