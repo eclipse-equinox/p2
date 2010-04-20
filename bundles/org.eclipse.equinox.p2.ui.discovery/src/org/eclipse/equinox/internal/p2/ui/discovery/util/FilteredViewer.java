@@ -96,11 +96,13 @@ public abstract class FilteredViewer {
 		label.setText(Messages.ConnectorDiscoveryWizardMainPage_filterLabel);
 
 		filterText = new TextSearchControl(parent, automaticFind);
-		filterText.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				filterTextChanged();
-			}
-		});
+		if (automaticFind) {
+			filterText.addModifyListener(new ModifyListener() {
+				public void modifyText(ModifyEvent e) {
+					filterTextChanged();
+				}
+			});
+		}
 		filterText.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
