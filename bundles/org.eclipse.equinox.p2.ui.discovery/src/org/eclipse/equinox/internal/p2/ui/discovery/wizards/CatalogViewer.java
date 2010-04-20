@@ -234,13 +234,13 @@ public class CatalogViewer extends FilteredViewer {
 		selectionProvider.addSelectionChangedListener(listener);
 	}
 
-	protected void catalogUpdated(boolean wasCancelled) {
+	protected void catalogUpdated(boolean wasCancelled, boolean wasError) {
 		if (catalog != null && !wasCancelled) {
 			int categoryWithConnectorCount = 0;
 			for (CatalogCategory category : catalog.getCategories()) {
 				categoryWithConnectorCount += category.getItems().size();
 			}
-			if (categoryWithConnectorCount == 0) {
+			if (categoryWithConnectorCount == 0 && !wasError) {
 				// nothing was discovered: notify the user
 				MessageDialog.openWarning(getShell(), Messages.ConnectorDiscoveryWizardMainPage_noConnectorsFound, Messages.ConnectorDiscoveryWizardMainPage_noConnectorsFound_description);
 			}
@@ -249,19 +249,12 @@ public class CatalogViewer extends FilteredViewer {
 		selectionProvider.setSelection(StructuredSelection.EMPTY);
 	}
 
-	protected IStatus computeStatus(InvocationTargetException e, String message) {
+	private IStatus computeStatus(InvocationTargetException e, String message) {
 		Throwable cause = e.getCause();
-		IStatus statusCause;
-		if (cause instanceof CoreException) {
-			statusCause = ((CoreException) cause).getStatus();
-		} else {
-			statusCause = new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, cause.getMessage(), cause);
+		if (cause.getMessage() != null) {
+			message = NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_message_with_cause, message, cause.getMessage());
 		}
-		if (statusCause.getMessage() != null) {
-			message = NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_message_with_cause, message, statusCause.getMessage());
-		}
-		IStatus status = new MultiStatus(DiscoveryUi.ID_PLUGIN, 0, new IStatus[] {statusCause}, message, cause);
-		return status;
+		return new Status(IStatus.ERROR, DiscoveryUi.ID_PLUGIN, message, e);
 	}
 
 	protected Pattern createPattern(String filterText) {
@@ -557,6 +550,7 @@ public class CatalogViewer extends FilteredViewer {
 
 	public void updateCatalog() {
 		boolean wasCancelled = false;
+		boolean wasError = false;
 		try {
 			final IStatus[] result = new IStatus[1];
 			context.run(true, true, new IRunnableWithProgress() {
@@ -576,16 +570,18 @@ public class CatalogViewer extends FilteredViewer {
 
 			if (result[0] != null && !result[0].isOK()) {
 				StatusManager.getManager().handle(result[0], StatusManager.SHOW | StatusManager.BLOCK | StatusManager.LOG);
+				wasError = true;
 			}
 		} catch (InvocationTargetException e) {
 			IStatus status = computeStatus(e, Messages.ConnectorDiscoveryWizardMainPage_unexpectedException);
 			StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.BLOCK | StatusManager.LOG);
+			wasError = true;
 		} catch (InterruptedException e) {
 			// cancelled by user so nothing to do here.
 			wasCancelled = true;
 		}
 		if (catalog != null) {
-			catalogUpdated(wasCancelled);
+			catalogUpdated(wasCancelled, wasError);
 			if (configuration.isVerifyUpdateSiteAvailability() && !catalog.getItems().isEmpty()) {
 				try {
 					context.run(true, true, new IRunnableWithProgress() {
@@ -596,6 +592,7 @@ public class CatalogViewer extends FilteredViewer {
 				} catch (InvocationTargetException e) {
 					IStatus status = computeStatus(e, Messages.ConnectorDiscoveryWizardMainPage_unexpectedException);
 					StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.BLOCK | StatusManager.LOG);
+					wasError = true;
 				} catch (InterruptedException e) {
 					// cancelled by user so nothing to do here.
 					wasCancelled = true;
