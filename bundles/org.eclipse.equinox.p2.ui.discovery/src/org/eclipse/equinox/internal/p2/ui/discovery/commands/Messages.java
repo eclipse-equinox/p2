@@ -13,16 +13,13 @@ package org.eclipse.equinox.internal.p2.ui.discovery.commands;
 
 import org.eclipse.osgi.util.NLS;
 
-/**
- * @author David Green
- */
 public class Messages extends NLS {
 
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.ui.discovery.commands.messages"; //$NON-NLS-1$
 
-	public static String ShowConnectorDiscoveryWizardCommandHandler_Install_Connectors;
+	public static String ShowRepositoryCatalogCommandHandler_Location_not_valid_Error;
 
-	public static String ShowConnectorDiscoveryWizardCommandHandler_Unable_To_Install_No_P2;
+	public static String ShowRepositoryCatalogCommandHandler_Required_parameter_not_specified_Error;
 
 	static {
 		// initialize resource bundle
@@ -30,6 +27,7 @@ public class Messages extends NLS {
 	}
 
 	private Messages() {
+		// constructor
 	}
 
 }

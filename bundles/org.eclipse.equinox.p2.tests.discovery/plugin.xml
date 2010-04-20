@@ -71,11 +71,19 @@
                commandId="org.eclipse.equinox.p2.ui.discovery.commands.ShowBundleCatalog"
                label="Show Bundle Catalog..."
                style="push">
+            <parameter
+                  name="org.eclipse.equinox.p2.ui.discovery.commands.DirectoryParameter"
+                  value="http://www.eclipse.org/mylyn/discovery/directory-3.3.xml">
+            </parameter>
          </command>
          <command
                commandId="org.eclipse.equinox.p2.ui.discovery.commands.ShowRepositoryCatalog"
                label="Show Repository Catalog..."
                style="push">
+            <parameter
+                  name="org.eclipse.equinox.p2.ui.discovery.commands.RepositoryParameter"
+                  value="http://download.eclipse.org/tools/mylyn/update/e3.4">
+            </parameter>
          </command>
       </menuContribution>
    </extension>
