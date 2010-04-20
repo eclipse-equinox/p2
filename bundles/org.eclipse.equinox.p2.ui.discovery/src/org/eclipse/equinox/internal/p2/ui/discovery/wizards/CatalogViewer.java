@@ -235,18 +235,22 @@ public class CatalogViewer extends FilteredViewer {
 	}
 
 	protected void catalogUpdated(boolean wasCancelled, boolean wasError) {
-		if (catalog != null && !wasCancelled) {
-			int categoryWithConnectorCount = 0;
-			for (CatalogCategory category : catalog.getCategories()) {
-				categoryWithConnectorCount += category.getItems().size();
-			}
-			if (categoryWithConnectorCount == 0 && !wasError) {
-				// nothing was discovered: notify the user
-				MessageDialog.openWarning(getShell(), Messages.ConnectorDiscoveryWizardMainPage_noConnectorsFound, Messages.ConnectorDiscoveryWizardMainPage_noConnectorsFound_description);
-			}
+		if (catalog != null && !wasCancelled && !wasError) {
+			doCheckCatalog();
 		}
 		viewer.setInput(catalog);
 		selectionProvider.setSelection(StructuredSelection.EMPTY);
+	}
+
+	protected void doCheckCatalog() {
+		int categoryWithConnectorCount = 0;
+		for (CatalogCategory category : catalog.getCategories()) {
+			categoryWithConnectorCount += category.getItems().size();
+		}
+		if (categoryWithConnectorCount == 0) {
+			// nothing was discovered: notify the user
+			MessageDialog.openWarning(getShell(), Messages.ConnectorDiscoveryWizardMainPage_noConnectorsFound, Messages.ConnectorDiscoveryWizardMainPage_noConnectorsFound_description);
+		}
 	}
 
 	private IStatus computeStatus(InvocationTargetException e, String message) {
