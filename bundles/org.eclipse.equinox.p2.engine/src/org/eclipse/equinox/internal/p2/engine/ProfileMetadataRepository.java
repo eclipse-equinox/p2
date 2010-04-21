@@ -15,7 +15,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -29,6 +28,7 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
+import org.eclipse.equinox.p2.repository.spi.RepositoryReference;
 import org.eclipse.osgi.util.NLS;
 
 public class ProfileMetadataRepository extends AbstractMetadataRepository {
@@ -40,6 +40,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	public static final String TYPE = "org.eclipse.equinox.p2.engine.repo.metadataRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = new Integer(1);
 	private IProfile profile;
+	private HashSet<IRepositoryReference> repositories = new HashSet<IRepositoryReference>();
 
 	public ProfileMetadataRepository(IProvisioningAgent agent, URI location, IProgressMonitor monitor) throws ProvisionException {
 		super(agent, location.toString(), TYPE, VERSION.toString(), location, null, null, null);
@@ -59,6 +60,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		if (bus == null)
 			return;
 		for (URI repo : artifactRepos) {
+			repositories.add(new RepositoryReference(repo, null, IRepository.TYPE_ARTIFACT, IRepository.ENABLED));
 			bus.publishEvent(new RepositoryEvent(repo, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, true));
 		}
 	}
@@ -154,7 +156,7 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public Collection<IRepositoryReference> getReferences() {
-		return CollectionUtils.emptyList();
+		return Collections.unmodifiableCollection(repositories);
 	}
 
 	public void initialize(RepositoryState state) {

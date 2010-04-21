@@ -181,7 +181,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	protected abstract void initializeResolutionModelElements(Object[] selectedElements);
 
 	protected ProvisioningContext getProvisioningContext() {
-		return null;
+		return new ProvisioningContext(ui.getSession().getProvisioningAgent());
 	}
 
 	/**
