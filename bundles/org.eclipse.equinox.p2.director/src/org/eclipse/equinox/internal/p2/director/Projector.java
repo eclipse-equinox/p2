@@ -158,6 +158,7 @@ public class Projector {
 		return !lastState.query(QueryUtil.createIUQuery(iu), null).isEmpty();
 	}
 
+	@SuppressWarnings("unchecked")
 	public void encode(IInstallableUnit entryPointIU, IInstallableUnit[] alreadyExistingRoots, IQueryable<IInstallableUnit> installedIUs, Collection<IInstallableUnit> newRoots, IProgressMonitor monitor) {
 		alreadyInstalledIUs = Arrays.asList(alreadyExistingRoots);
 		numberOfInstalledIUs = sizeOf(installedIUs);
@@ -1066,7 +1067,8 @@ public class Projector {
 					Tracing.debug("Unsatisfiable !"); //$NON-NLS-1$
 					Tracing.debug("Solver solution NOT found: " + (stop - start)); //$NON-NLS-1$
 				}
-				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Unsatisfiable_problem));
+				result = new MultiStatus(DirectorActivator.PI_DIRECTOR, SimplePlanner.UNSATISFIABLE, result.getChildren(), Messages.Planner_Unsatisfiable_problem, null);
+				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, SimplePlanner.UNSATISFIABLE, Messages.Planner_Unsatisfiable_problem, null));
 			}
 		} catch (TimeoutException e) {
 			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, Messages.Planner_Timeout));

@@ -39,6 +39,9 @@ public class SimplePlanner implements IPlanner {
 	private static final String ID_IU_FOR_ACTIONS = "org.eclipse.equinox.p2.engine.actions.root"; //$NON-NLS-1$
 	private static final String EXPLANATION = "org.eclipse.equinox.p2.director.explain"; //$NON-NLS-1$
 	private static final String CONSIDER_METAREQUIREMENTS = "org.eclipse.equinox.p2.planner.resolveMetaRequirements"; //$NON-NLS-1$
+
+	static final int UNSATISFIABLE = 1; //status code indicating that the problem is not satisfiable
+
 	private final IProvisioningAgent agent;
 	private final IProfileRegistry profileRegistry;
 	private final IEngine engine;
@@ -312,7 +315,7 @@ public class SimplePlanner implements IPlanner {
 			}
 			if (s.getSeverity() == IStatus.ERROR) {
 				sub.setTaskName(Messages.Planner_NoSolution);
-				if (context != null && !(context.getProperty(EXPLANATION) == null || Boolean.TRUE.toString().equalsIgnoreCase(context.getProperty(EXPLANATION)))) {
+				if (s.getCode() != UNSATISFIABLE || (context != null && !(context.getProperty(EXPLANATION) == null || Boolean.TRUE.toString().equalsIgnoreCase(context.getProperty(EXPLANATION))))) {
 					IProvisioningPlan plan = engine.createPlan(profile, context);
 					plan.setStatus(s);
 					return plan;
