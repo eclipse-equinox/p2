@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -81,17 +81,20 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	 */
 	private void findSelf() {
 		//the location for the currently running system is registered as a service
-		ServiceReference ref = EngineActivator.getContext().getServiceReference(IAgentLocation.SERVICE_NAME);
+		final BundleContext context = EngineActivator.getContext();
+		if (context == null)
+			return;
+		ServiceReference ref = context.getServiceReference(IAgentLocation.SERVICE_NAME);
 		if (ref == null)
 			return;
-		IAgentLocation location = (IAgentLocation) EngineActivator.getContext().getService(ref);
+		IAgentLocation location = (IAgentLocation) context.getService(ref);
 		if (location == null)
 			return;
 		if (store.equals(getDefaultRegistryDirectory(location))) {
 			//we are the registry for the currently running system
-			self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
+			self = context.getProperty("eclipse.p2.profile"); //$NON-NLS-1$
 		}
-		EngineActivator.getContext().ungetService(ref);
+		context.ungetService(ref);
 	}
 
 	public static File getDefaultRegistryDirectory(IAgentLocation agent) {
