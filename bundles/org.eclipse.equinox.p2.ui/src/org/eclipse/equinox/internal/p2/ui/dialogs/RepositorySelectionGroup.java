@@ -20,10 +20,11 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
-import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.*;
+import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.Action;
@@ -570,14 +571,42 @@ public class RepositorySelectionGroup {
 		if (locals.length > 0 && siteSel == repoCombo.getItemCount() - 1) {
 			ProvisioningContext context = new ProvisioningContext(ui.getSession().getProvisioningAgent());
 			context.setMetadataRepositories(locals);
-			context.setArtifactRepositories(locals);
+			setArtifactRepositories(context, locals);
 			return context;
 		}
 		// A single site is selected.
 		ProvisioningContext context = new ProvisioningContext(ui.getSession().getProvisioningAgent());
 		context.setMetadataRepositories(new URI[] {comboRepos[siteSel]});
-		context.setArtifactRepositories(new URI[] {comboRepos[siteSel]});
+		setArtifactRepositories(context, (new URI[] {comboRepos[siteSel]}));
 		return context;
+	}
+
+	private void setArtifactRepositories(ProvisioningContext context, URI[] metadataRepos) {
+		ArrayList<URI> list = new ArrayList<URI>(metadataRepos.length);
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ui.getSession().getProvisioningAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+		if (manager == null)
+			return;
+
+		for (int i = 0; i < metadataRepos.length; i++) {
+			// first assume a colocated artifact repository
+			list.add(metadataRepos[i]);
+			// Load the repository so that we can get its references.
+			// Since this method is only called when the repositories are selected, we can safely
+			// assume that the repo has already been loaded (so this is fast).
+			IMetadataRepository repository;
+			try {
+				repository = manager.loadRepository(metadataRepos[i], new NullProgressMonitor());
+				Collection<IRepositoryReference> references = repository.getReferences();
+				for (IRepositoryReference ref : references) {
+					if (ref.getType() == IRepository.TYPE_ARTIFACT && (ref.getOptions() | IRepository.ENABLED) != 0) {
+						list.add(ref.getLocation());
+					}
+				}
+			} catch (ProvisionException e) {
+				// ignore, this will have been reported elsewhere.
+			}
+		}
+		context.setArtifactRepositories(list.toArray(new URI[list.size()]));
 	}
 
 	void repoComboSelectionChanged() {
