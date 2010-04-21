@@ -94,6 +94,7 @@ public abstract class FilteredViewer {
 	private void doCreateFindControl(Composite parent) {
 		Label label = new Label(parent, SWT.NONE);
 		label.setText(Messages.ConnectorDiscoveryWizardMainPage_filterLabel);
+		GridDataFactory.swtDefaults().align(SWT.BEGINNING, SWT.CENTER).applyTo(label);
 
 		filterText = new TextSearchControl(parent, automaticFind);
 		if (automaticFind) {
@@ -114,7 +115,7 @@ public abstract class FilteredViewer {
 				}
 			}
 		});
-		GridDataFactory.fillDefaults().grab(true, false).applyTo(filterText);
+		GridDataFactory.fillDefaults().grab(true, false).align(SWT.FILL, SWT.CENTER).applyTo(filterText);
 	}
 
 	private void doCreateHeader() {
@@ -175,13 +176,23 @@ public abstract class FilteredViewer {
 		viewer.refresh(true);
 	}
 
-	void filterTextChanged() {
+	/**
+	 * Invoked whenever the filter text is changed or the user otherwise causes the filter text to change.
+	 */
+	protected void filterTextChanged() {
 		if (refreshJob == null) {
 			refreshJob = doCreateRefreshJob();
 		} else {
 			refreshJob.cancel();
 		}
 		refreshJob.schedule(refreshJobDelay);
+	}
+
+	/**
+	 * Provides the text string of the search widget.
+	 */
+	protected String getFilterText() {
+		return filterText == null ? null : filterText.getTextControl().getText();
 	}
 
 	public Control getControl() {

@@ -254,7 +254,7 @@ public class CatalogViewer extends FilteredViewer {
 		}
 	}
 
-	private IStatus computeStatus(InvocationTargetException e, String message) {
+	protected IStatus computeStatus(InvocationTargetException e, String message) {
 		Throwable cause = e.getCause();
 		if (cause.getMessage() != null) {
 			message = NLS.bind(Messages.ConnectorDiscoveryWizardMainPage_message_with_cause, message, cause.getMessage());
@@ -587,26 +587,28 @@ public class CatalogViewer extends FilteredViewer {
 		}
 		if (catalog != null) {
 			catalogUpdated(wasCancelled, wasError);
-			if (configuration.isVerifyUpdateSiteAvailability() && !catalog.getItems().isEmpty()) {
-				try {
-					context.run(true, true, new IRunnableWithProgress() {
-						public void run(IProgressMonitor monitor) {
-							SiteVerifier verifier = new SiteVerifier(catalog);
-							verifier.verifySiteAvailability(monitor);
-						}
-					});
-				} catch (InvocationTargetException e) {
-					IStatus status = computeStatus(e, Messages.ConnectorDiscoveryWizardMainPage_unexpectedException);
-					StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.BLOCK | StatusManager.LOG);
-					wasError = true;
-				} catch (InterruptedException e) {
-					// cancelled by user so nothing to do here.
-					wasCancelled = true;
-				}
-			}
+			verifyUpdateSiteAvailability();
 		}
 		// help UI tests
 		viewer.setData("discoveryComplete", "true"); //$NON-NLS-1$//$NON-NLS-2$
+	}
+
+	protected void verifyUpdateSiteAvailability() {
+		if (configuration.isVerifyUpdateSiteAvailability() && !catalog.getItems().isEmpty()) {
+			try {
+				context.run(true, true, new IRunnableWithProgress() {
+					public void run(IProgressMonitor monitor) {
+						SiteVerifier verifier = new SiteVerifier(catalog);
+						verifier.verifySiteAvailability(monitor);
+					}
+				});
+			} catch (InvocationTargetException e) {
+				IStatus status = computeStatus(e, Messages.ConnectorDiscoveryWizardMainPage_unexpectedException);
+				StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.BLOCK | StatusManager.LOG);
+			} catch (InterruptedException e) {
+				// cancelled by user so nothing to do here.
+			}
+		}
 	}
 
 	private void updateState() {

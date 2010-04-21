@@ -37,6 +37,9 @@ public class SiteVerifier {
 
 		for (CatalogItem descriptor : catalog.getItems()) {
 			String url = descriptor.getSiteUrl();
+			if (url == null) {
+				continue;
+			}
 			if (!url.endsWith("/")) { //$NON-NLS-1$
 				url += "/"; //$NON-NLS-1$
 			}
