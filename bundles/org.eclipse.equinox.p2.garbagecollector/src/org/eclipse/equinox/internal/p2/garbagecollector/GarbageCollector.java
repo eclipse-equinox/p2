@@ -149,7 +149,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 				uninstallEventProfileId = null;
 			}
 		} else if (o instanceof RollbackOperationEvent) {
-			if (uninstallEventProfileId != null && uninstallEventProfileId.equals(((InstallableUnitEvent) o).getProfile().getProfileId()))
+			if (uninstallEventProfileId != null && uninstallEventProfileId.equals(((RollbackOperationEvent) o).getProfile().getProfileId()))
 				uninstallEventProfileId = null;
 		}
 	}
