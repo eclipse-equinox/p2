@@ -12,15 +12,15 @@
 
 package org.eclipse.equinox.p2.operations;
 
-import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
-
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.planner.ProfileInclusionRules;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 
@@ -46,6 +46,7 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 public class InstallOperation extends ProfileChangeOperation {
 
 	private Collection<IInstallableUnit> toInstall;
+	private static final String CUSTOM_PROVISIONING_CONTEXT_MARKER = "org.eclipse.equinox.p2.operations.customContext"; //$NON-NLS-1$
 
 	/**
 	 * Create an install operation on the specified provisioning session that installs
@@ -143,5 +144,15 @@ public class InstallOperation extends ProfileChangeOperation {
 	protected String getProvisioningJobName() {
 		return Messages.InstallOperation_InstallJobName;
 
+	}
+
+	@Override
+	ProvisioningContext getSecondPassProvisioningContext() {
+		// If we were already contacting all sites, then let's go ahead
+		// and follow references if the first try fails
+		if (context.getProperty(CUSTOM_PROVISIONING_CONTEXT_MARKER) == null) {
+			context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, Boolean.toString(true));
+		}
+		return context;
 	}
 }

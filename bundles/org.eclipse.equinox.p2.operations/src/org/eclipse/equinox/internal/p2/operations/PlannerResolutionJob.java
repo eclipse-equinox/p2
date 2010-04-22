@@ -29,20 +29,21 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 	IProvisioningPlan plan;
 	MultiStatus additionalStatus;
 	ResolutionResult report;
-	ProvisioningContext provisioningContext;
+	ProvisioningContext firstPass, secondPass, successful;
 
 	public static MultiStatus getProfileChangeRequestAlteredStatus() {
 		return PlanAnalyzer.getProfileChangeAlteredStatus();
 	}
 
-	public PlannerResolutionJob(String label, ProvisioningSession session, String profileId, ProfileChangeRequest request, ProvisioningContext provisioningContext, MultiStatus additionalStatus) {
+	public PlannerResolutionJob(String label, ProvisioningSession session, String profileId, ProfileChangeRequest request, ProvisioningContext firstPass, ProvisioningContext secondPass, MultiStatus additionalStatus) {
 		super(label, session);
 		this.request = request;
 		this.profileId = profileId;
-		if (provisioningContext == null)
-			this.provisioningContext = new ProvisioningContext(session.getProvisioningAgent());
+		if (firstPass == null)
+			this.firstPass = new ProvisioningContext(session.getProvisioningAgent());
 		else
-			this.provisioningContext = provisioningContext;
+			this.firstPass = firstPass;
+		this.secondPass = secondPass;
 		Assert.isNotNull(additionalStatus);
 		this.additionalStatus = additionalStatus;
 	}
@@ -55,21 +56,46 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 		return request;
 	}
 
-	public ProvisioningContext getProvisioningContext() {
-		return provisioningContext;
+	public ProvisioningContext getActualProvisioningContext() {
+		return successful;
 	}
 
-	public void setProvisioningContext(ProvisioningContext context) {
-		this.provisioningContext = context;
+	public void setFirstPassProvisioningContext(ProvisioningContext firstPass) {
+		this.firstPass = firstPass;
+	}
+
+	public void setSecondPassProvisioningContext(ProvisioningContext secondPass) {
+		this.secondPass = firstPass;
 	}
 
 	public IStatus runModal(IProgressMonitor monitor) {
-		plan = ((IPlanner) getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME)).getProvisioningPlan(request, provisioningContext, monitor);
+		SubMonitor sub;
+		if (secondPass != null) {
+			sub = SubMonitor.convert(monitor, 1000);
+		} else {
+			sub = SubMonitor.convert(monitor, 500);
+		}
+
+		plan = ((IPlanner) getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME)).getProvisioningPlan(request, firstPass, sub.newChild(500));
+		IStatus status;
+		if (plan == null) {
+			status = new Status(IStatus.ERROR, Activator.ID, Messages.PlannerResolutionJob_NullProvisioningPlan);
+		} else {
+			status = plan.getStatus();
+		}
+
+		if (status.getSeverity() != IStatus.ERROR || secondPass == null) {
+			successful = firstPass;
+			return status;
+		}
+
+		// First resolution was in error, try again with an alternate provisioning context
+		successful = secondPass;
+		plan = ((IPlanner) getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME)).getProvisioningPlan(request, secondPass, sub.newChild(500));
 		if (plan == null) {
 			return new Status(IStatus.ERROR, Activator.ID, Messages.PlannerResolutionJob_NullProvisioningPlan);
 		}
 		return plan.getStatus();
-
 	}
 
 	public ResolutionResult getResolutionResult() {

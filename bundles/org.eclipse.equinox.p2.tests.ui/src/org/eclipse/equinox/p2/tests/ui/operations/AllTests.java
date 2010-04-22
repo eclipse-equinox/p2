@@ -22,6 +22,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SizingTest.class);
 		suite.addTestSuite(InstallerPlanTest.class);
 		suite.addTestSuite(UpdatePlanning.class);
+		suite.addTestSuite(UninstallTest.class);
 		return suite;
 	}
 }

@@ -178,7 +178,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	protected abstract void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor);
 
 	private void createPlannerResolutionJob() {
-		job = new PlannerResolutionJob(getResolveJobName(), session, profileId, request, context, noChangeRequest);
+		job = new PlannerResolutionJob(getResolveJobName(), session, profileId, request, getFirstPassProvisioningContext(), getSecondPassProvisioningContext(), noChangeRequest);
 	}
 
 	/**
@@ -311,7 +311,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		IStatus status = getResolutionResult();
 		if (status.getSeverity() != IStatus.CANCEL && status.getSeverity() != IStatus.ERROR) {
 			if (job.getProvisioningPlan() != null) {
-				ProfileModificationJob pJob = new ProfileModificationJob(getProvisioningJobName(), session, profileId, job.getProvisioningPlan(), context);
+				ProfileModificationJob pJob = new ProfileModificationJob(getProvisioningJobName(), session, profileId, job.getProvisioningPlan(), job.getActualProvisioningContext());
 				pJob.setAdditionalProgressMonitor(monitor);
 				return pJob;
 			}
@@ -329,7 +329,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	public void setProvisioningContext(ProvisioningContext context) {
 		this.context = context;
 		if (job != null)
-			job.setProvisioningContext(context);
+			updateJobProvisioningContexts(job, context);
 	}
 
 	/**
@@ -362,6 +362,18 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 */
 	public boolean hasResolved() {
 		return getResolutionResult() != null;
+	}
+
+	ProvisioningContext getFirstPassProvisioningContext() {
+		return getProvisioningContext();
+	}
+
+	ProvisioningContext getSecondPassProvisioningContext() {
+		return null;
+	}
+
+	protected void updateJobProvisioningContexts(PlannerResolutionJob job, ProvisioningContext context) {
+		job.setFirstPassProvisioningContext(context);
 	}
 
 }

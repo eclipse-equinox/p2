@@ -316,7 +316,7 @@ public class UpdateOperation extends ProfileChangeOperation {
 		// for the resolution job to get the request from the operation after it has been
 		// computed.
 		final ProfileChangeRequest[] requestHolder = new ProfileChangeRequest[1];
-		job = new SearchForUpdatesResolutionJob(getResolveJobName(), session, profileId, request, context, noChangeRequest, new IRunnableWithProgress() {
+		job = new SearchForUpdatesResolutionJob(getResolveJobName(), session, profileId, request, getFirstPassProvisioningContext(), getSecondPassProvisioningContext(), noChangeRequest, new IRunnableWithProgress() {
 			public void run(IProgressMonitor mon) throws OperationCanceledException {
 				// We only check for other jobs running if this job is *not* scheduled
 				if (job.getState() == Job.NONE && session.hasScheduledOperationsFor(profileId)) {

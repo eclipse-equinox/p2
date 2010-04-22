@@ -12,12 +12,14 @@
 
 package org.eclipse.equinox.p2.operations;
 
+import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
@@ -85,4 +87,16 @@ public class UninstallOperation extends ProfileChangeOperation {
 		return Messages.UninstallOperation_ResolveJobName;
 	}
 
+	@Override
+	ProvisioningContext getFirstPassProvisioningContext() {
+		ProvisioningContext pc = new ProvisioningContext(session.getProvisioningAgent());
+		pc.setMetadataRepositories(new URI[0]);
+		pc.setArtifactRepositories(new URI[0]);
+		return pc;
+	}
+
+	@Override
+	ProvisioningContext getSecondPassProvisioningContext() {
+		return context;
+	}
 }
