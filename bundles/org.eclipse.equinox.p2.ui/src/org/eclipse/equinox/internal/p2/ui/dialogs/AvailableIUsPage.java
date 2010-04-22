@@ -568,10 +568,6 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		if (resolveAllCheckbox.getSelection())
 			return new ProvisioningContext(getProvisioningUI().getSession().getProvisioningAgent());
 		// Use the contents of the combo to determine the context
-		ProvisioningContext context = repoSelector.getProvisioningContext();
-		// This should really be a property value retrieved by API
-		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=303258
-		context.setProperty("org.eclipse.equinox.p2.operations.customContext", Boolean.toString(true)); //$NON-NLS-1$
-		return context;
+		return repoSelector.getProvisioningContext();
 	}
 }
