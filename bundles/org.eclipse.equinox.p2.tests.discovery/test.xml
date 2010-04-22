@@ -45,7 +45,7 @@
 		<ant target="ui-test" antfile="${library-file}" dir="${eclipse-home}">
 			<property name="data-dir" value="${p2discovery_location}" />
 			<property name="plugin-name" value="org.eclipse.equinox.p2.tests.discovery" />
-			<property name="classname" value="org.eclipse.equinox.p2.tests.discovery.AllDiscoveryTests" />
+			<property name="classname" value="org.eclipse.equinox.p2.discovery.tests.AllDiscoveryTests" />
 		</ant>
 	</target>
 
