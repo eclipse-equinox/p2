@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/com.ibm.team.filesystem.feature.internal_0.4.0.200612121046.jar" id="com.ibm.team.filesystem.feature.internal" version="0.4.0.200612121046">
+      <category name="Dev Tools (3.3-3.5 Only)"/>
+   </feature>
+   <feature url="features/com.ibm.team.filesystem.feature.internal_0.4.0.200612010851.jar" id="com.ibm.team.filesystem.feature.internal" version="0.4.0.200612010851">
+      <category name="Dev Tools (3.3-3.5 Only)"/>
+   </feature>
+   <feature url="features/com.ibm.team.tools.transform.feature_1.0.107.jar" id="com.ibm.team.tools.transform.feature" version="1.0.107">
+      <category name="Transform Tools (RSA Only)"/>
+   </feature>
+   <feature url="features/com.ibm.team.tools.codegen.feature_1.1.34.200906171732.jar" id="com.ibm.team.tools.codegen.feature" version="1.1.34.200906171732">
+      <category name="Codegen Tools (3.3-3.5 Only)"/>
+   </feature>
+   <feature url="features/com.ibm.team.web.nls.feature_1.0.0.200904011300.jar" id="com.ibm.team.web.nls.feature" version="1.0.0.200904011300">
+      <category name="Web NLS"/>
+   </feature>
+   <category-def name="Transform Tools (RSA Only)" label="Transform Tools (RSA Only)"/>
+   <category-def name="Codegen Tools (3.3-3.5 Only)" label="Codegen Tools (3.3-3.5 Only)">
+      <description>
+         Tools for processing Jazz Storage and DTO Ecore models.
+         NOTE: This requires installing EMF SDK 2.3.2
+         from the EMF update site: http://www.eclipse.org/modeling/emf/updates/
+      </description>
+   </category-def>
+   <category-def name="Dev Tools (3.3-3.5 Only)" label="Dev Tools (3.3-3.5 Only)">
+      <description>
+         Tools for developing Jazz such as Metronome and the hit counter.
+      </description>
+   </category-def>
+   <category-def name="Web NLS" label="Web NLS">
+      <description>
+         Tools for internationalizing the Jazz web ui
+      </description>
+   </category-def>
+</site>
