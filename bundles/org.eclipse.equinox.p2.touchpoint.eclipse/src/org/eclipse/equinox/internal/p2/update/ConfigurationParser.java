@@ -132,7 +132,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 			try {
 				// do this to ensure the location is an encoded URI
 				URI uri = URIUtil.fromString(url);
-				URI osgiURI = URIUtil.toURI(osgiInstallArea);
+				URI osgiURI = osgiInstallArea != null ? URIUtil.toURI(osgiInstallArea) : null;
 				result.setUrl(getLocation(uri, osgiURI).toString());
 			} catch (URISyntaxException e) {
 				result.setUrl(url);
