@@ -88,6 +88,9 @@ public class OSGiVersion extends BasicVersion {
 		this.micro = micro;
 		if (!isValidOSGiQualifier(qualifier))
 			throw new IllegalArgumentException(NLS.bind(Messages._0_is_not_a_valid_qualifier_in_osgi_1, "qualifier", this)); //$NON-NLS-1$
+		//intern the qualifier string to avoid duplication
+		if (qualifier instanceof String)
+			qualifier = ((String) qualifier).intern();
 		this.qualifier = qualifier;
 	}
 
