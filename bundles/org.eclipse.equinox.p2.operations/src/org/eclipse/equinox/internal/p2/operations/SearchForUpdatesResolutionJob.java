@@ -24,8 +24,8 @@ public class SearchForUpdatesResolutionJob extends PlannerResolutionJob {
 	ProfileChangeRequest[] requestHolder;
 	UpdateOperation operation;
 
-	public SearchForUpdatesResolutionJob(String label, ProvisioningSession session, String profileId, ProfileChangeRequest request, ProvisioningContext firstPass, ProvisioningContext secondPass, MultiStatus additionalStatus, IRunnableWithProgress searchForUpdatesRunnable, ProfileChangeRequest[] requestHolder, UpdateOperation operation) {
-		super(label, session, profileId, request, firstPass, secondPass, additionalStatus);
+	public SearchForUpdatesResolutionJob(String label, ProvisioningSession session, String profileId, ProfileChangeRequest request, ProvisioningContext context, IFailedStatusEvaluator evaluator, MultiStatus additionalStatus, IRunnableWithProgress searchForUpdatesRunnable, ProfileChangeRequest[] requestHolder, UpdateOperation operation) {
+		super(label, session, profileId, request, context, evaluator, additionalStatus);
 		this.searchForUpdatesRunnable = searchForUpdatesRunnable;
 		this.requestHolder = requestHolder;
 		this.operation = operation;

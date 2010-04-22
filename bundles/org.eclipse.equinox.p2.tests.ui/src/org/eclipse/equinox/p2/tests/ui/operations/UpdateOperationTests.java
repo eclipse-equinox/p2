@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
 
-public class UpdatePlanning extends AbstractProvisioningUITest {
+public class UpdateOperationTests extends AbstractProvisioningUITest {
 	IInstallableUnit a1, b1;
 	IInstallableUnit b12;
 	IInstallableUnit a120WithDifferentId;

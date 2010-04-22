@@ -15,6 +15,7 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  CDC-1.1/Foundation-1.1
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.internal.p2.director,
  org.eclipse.equinox.internal.p2.repository.helpers,
  org.eclipse.equinox.internal.provisional.configurator,
  org.eclipse.equinox.internal.provisional.p2.core.eventbus,

@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
  * Tests for the ability to install an IU that has an installer plan by
  * using the operation API.
  */
-public class UninstallTest extends AbstractProvisioningUITest {
+public class UninstallOperationTests extends AbstractProvisioningUITest {
 	public void testUninstallContactsNoRepositories() throws ProvisionException, URISyntaxException {
 
 		HashSet<IInstallableUnit> ius = new HashSet<IInstallableUnit>();

@@ -29,21 +29,22 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 	IProvisioningPlan plan;
 	MultiStatus additionalStatus;
 	ResolutionResult report;
-	ProvisioningContext firstPass, secondPass, successful;
+	ProvisioningContext firstPass, successful;
+	IFailedStatusEvaluator evaluator;
 
 	public static MultiStatus getProfileChangeRequestAlteredStatus() {
 		return PlanAnalyzer.getProfileChangeAlteredStatus();
 	}
 
-	public PlannerResolutionJob(String label, ProvisioningSession session, String profileId, ProfileChangeRequest request, ProvisioningContext firstPass, ProvisioningContext secondPass, MultiStatus additionalStatus) {
+	public PlannerResolutionJob(String label, ProvisioningSession session, String profileId, ProfileChangeRequest request, ProvisioningContext context, IFailedStatusEvaluator evaluator, MultiStatus additionalStatus) {
 		super(label, session);
 		this.request = request;
 		this.profileId = profileId;
-		if (firstPass == null)
-			this.firstPass = new ProvisioningContext(session.getProvisioningAgent());
+		if (context == null)
+			firstPass = new ProvisioningContext(session.getProvisioningAgent());
 		else
-			this.firstPass = firstPass;
-		this.secondPass = secondPass;
+			firstPass = context;
+		this.evaluator = evaluator;
 		Assert.isNotNull(additionalStatus);
 		this.additionalStatus = additionalStatus;
 	}
@@ -64,13 +65,9 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 		this.firstPass = firstPass;
 	}
 
-	public void setSecondPassProvisioningContext(ProvisioningContext secondPass) {
-		this.secondPass = firstPass;
-	}
-
 	public IStatus runModal(IProgressMonitor monitor) {
 		SubMonitor sub;
-		if (secondPass != null) {
+		if (evaluator != null) {
 			sub = SubMonitor.convert(monitor, 1000);
 		} else {
 			sub = SubMonitor.convert(monitor, 500);
@@ -84,12 +81,16 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 			status = plan.getStatus();
 		}
 
-		if (status.getSeverity() != IStatus.ERROR || secondPass == null) {
+		if (status.getSeverity() != IStatus.ERROR || evaluator == null) {
 			successful = firstPass;
 			return status;
 		}
 
 		// First resolution was in error, try again with an alternate provisioning context
+		ProvisioningContext secondPass = evaluator.getSecondPassProvisioningContext(plan);
+		if (secondPass == null)
+			return status;
+
 		successful = secondPass;
 		plan = ((IPlanner) getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME)).getProvisioningPlan(request, secondPass, sub.newChild(500));
 		if (plan == null) {

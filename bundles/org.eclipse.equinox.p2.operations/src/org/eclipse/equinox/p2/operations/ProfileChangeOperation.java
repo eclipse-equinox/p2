@@ -178,7 +178,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	protected abstract void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor);
 
 	private void createPlannerResolutionJob() {
-		job = new PlannerResolutionJob(getResolveJobName(), session, profileId, request, getFirstPassProvisioningContext(), getSecondPassProvisioningContext(), noChangeRequest);
+		job = new PlannerResolutionJob(getResolveJobName(), session, profileId, request, getFirstPassProvisioningContext(), getSecondPassEvaluator(), noChangeRequest);
 	}
 
 	/**
@@ -368,8 +368,12 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		return getProvisioningContext();
 	}
 
-	ProvisioningContext getSecondPassProvisioningContext() {
-		return null;
+	IFailedStatusEvaluator getSecondPassEvaluator() {
+		return new IFailedStatusEvaluator() {
+			public ProvisioningContext getSecondPassProvisioningContext(IProvisioningPlan failedPlan) {
+				return null;
+			}
+		};
 	}
 
 	protected void updateJobProvisioningContexts(PlannerResolutionJob job, ProvisioningContext context) {

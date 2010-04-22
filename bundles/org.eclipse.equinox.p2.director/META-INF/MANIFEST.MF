@@ -7,7 +7,7 @@ Bundle-ClassPath: .
 Bundle-Activator: org.eclipse.equinox.internal.p2.director.DirectorActivator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Export-Package: org.eclipse.equinox.internal.p2.director;x-friends:="org.eclipse.equinox.p2.repository.tools,org.eclipse.pde.core",
+Export-Package: org.eclipse.equinox.internal.p2.director;x-friends:="org.eclipse.equinox.p2.repository.tools,org.eclipse.equinox.p2.operations,org.eclipse.pde.core",
  org.eclipse.equinox.internal.p2.rollback;x-internal:=true,
  org.eclipse.equinox.internal.provisional.p2.director;
   x-friends:="org.eclipse.equinox.p2.console,
