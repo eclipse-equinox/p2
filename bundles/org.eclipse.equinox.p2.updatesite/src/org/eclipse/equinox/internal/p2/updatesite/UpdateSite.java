@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.io.*;
+import java.lang.ref.SoftReference;
 import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,9 +49,9 @@ public class UpdateSite {
 	 * Some variables for caching.
 	 */
 	// map of String (URI.toString()) to UpdateSite
-	private static Map<String, UpdateSite> siteCache = new HashMap<String, UpdateSite>();
+	private static Map<String, SoftReference<UpdateSite>> siteCache = new HashMap<String, SoftReference<UpdateSite>>();
 	// map of String (URI.toString()) to UpdateSite (for category xmls)
-	private static Map<String, UpdateSite> categoryCache = new HashMap<String, UpdateSite>();
+	private static Map<String, SoftReference<UpdateSite>> categoryCache = new HashMap<String, SoftReference<UpdateSite>>();
 	// map of String (featureID_featureVersion) to Feature
 	private Map<String, Feature> featureCache = new HashMap<String, Feature>();
 
@@ -81,9 +82,15 @@ public class UpdateSite {
 	public static synchronized UpdateSite loadCategoryFile(URI location, IProgressMonitor monitor) throws ProvisionException {
 		if (location == null)
 			return null;
-		UpdateSite result = categoryCache.get(location.toString());
-		if (result != null)
-			return result;
+		UpdateSite result = null;
+		if (!PROTOCOL_FILE.equals(location.getScheme()) && categoryCache.containsKey(location.toString())) {
+			result = categoryCache.get(location.toString()).get();
+			if (result != null)
+				return result;
+			//else soft reference has been cleared, take it out of the cache
+			categoryCache.remove(location.toString());
+		}
+
 		InputStream input = null;
 		File siteFile = loadActualSiteFile(location, location, monitor);
 		try {
@@ -93,7 +100,8 @@ public class UpdateSite {
 			SiteModel siteModel = siteParser.parse(input);
 			String checksumString = Long.toString(checksum.getValue());
 			result = new UpdateSite(siteModel, location, checksumString);
-			categoryCache.put(location.toString(), result);
+			if (!PROTOCOL_FILE.equals(location.getScheme()))
+				categoryCache.put(location.toString(), new SoftReference<UpdateSite>(result));
 			return result;
 		} catch (SAXException e) {
 			String msg = NLS.bind(Messages.ErrorReadingSite, location);
@@ -119,9 +127,17 @@ public class UpdateSite {
 	public static synchronized UpdateSite load(URI location, IProgressMonitor monitor) throws ProvisionException {
 		if (location == null)
 			return null;
-		UpdateSite result = siteCache.get(location.toString());
-		if (result != null)
-			return result;
+
+		UpdateSite result = null;
+		//only caching remote sites
+		if (!PROTOCOL_FILE.equals(location.getScheme()) && siteCache.containsKey(location.toString())) {
+			result = siteCache.get(location.toString()).get();
+			if (result != null)
+				return result;
+			//else soft reference has been cleared, take it out of the cache
+			siteCache.remove(location.toString());
+		}
+
 		InputStream input = null;
 		File siteFile = loadSiteFile(location, monitor);
 		try {
@@ -131,7 +147,8 @@ public class UpdateSite {
 			SiteModel siteModel = siteParser.parse(input);
 			String checksumString = Long.toString(checksum.getValue());
 			result = new UpdateSite(siteModel, getSiteURI(location), checksumString);
-			siteCache.put(location.toString(), result);
+			if (!PROTOCOL_FILE.equals(location.getScheme()))
+				siteCache.put(location.toString(), new SoftReference<UpdateSite>(result));
 			return result;
 		} catch (SAXException e) {
 			String msg = NLS.bind(Messages.ErrorReadingSite, location);
