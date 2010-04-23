@@ -159,7 +159,7 @@ public class VersionSuffixGenerator {
 	}
 
 	public VersionSuffixGenerator(int maxVersionSuffixLenght, int significantDigits) {
-		this.maxVersionSuffixLength = maxVersionSuffixLenght < 0 ? 28 : maxVersionSuffixLenght;
+		this.maxVersionSuffixLength = maxVersionSuffixLenght < 0 ? 45 : maxVersionSuffixLenght;
 		this.significantDigits = significantDigits < 0 ? Integer.MAX_VALUE : significantDigits;
 	}
 
