@@ -23,6 +23,28 @@ public class FragmentTest extends AbstractProvisioningTest {
 	/**
 	 * Tests that a fragment gets attached to host.
 	 */
+	public void disabledtestAssociation2Fragments() {
+		String ID1 = "iu.1";
+		String IDF1 = "iu.fragment.1";
+		String IDF2 = "iu.fragment.2";
+		IInstallableUnit iu1 = createEclipseIU(ID1);
+		IInstallableUnit iuf1 = createBundleFragment(IDF1);
+		IInstallableUnit iuf2 = createBundleFragment(IDF2);
+		ProfileChangeRequest req = new ProfileChangeRequest(createProfile(getName()));
+		req.addInstallableUnits(iu1, iuf1, iuf2);
+		createTestMetdataRepository(new IInstallableUnit[] {iu1, iuf1});
+		IQueryable<IInstallableUnit> additions = createPlanner().getProvisioningPlan(req, null, null).getAdditions();
+		{
+			Iterator<IInstallableUnit> iterator = additions.query(QueryUtil.createIUQuery(ID1), null).iterator();
+			assertTrue("Solution contains IU " + ID1, iterator.hasNext());
+			IInstallableUnit iu = iterator.next();
+			assertEquals("Number of attached fragments to IU " + ID1, 2, iu.getFragments().size());
+		}
+	}
+
+	/**
+	 * Tests that a fragment gets attached to host.
+	 */
 	public void testAssociation() {
 		String ID1 = "iu.1";
 		String IDF1 = "iu.fragment.1";
