@@ -32,47 +32,47 @@ public class CatalogCategoryComparatorTest extends TestCase {
 	}
 
 	public void testSortByRelevanceInequal() {
-		category1.setRelevance("100");
-		category2.setRelevance("50");
+		category1.setRelevance("100"); //$NON-NLS-1$
+		category2.setRelevance("50"); //$NON-NLS-1$
 		assertEquals(-1, comparator.compare(category1, category2));
 		assertEquals(1, comparator.compare(category2, category1));
 	}
 
 	public void testSortByRelevanceOneNotSpecified() {
-		category1.setRelevance("10");
+		category1.setRelevance("10"); //$NON-NLS-1$
 		assertEquals(-1, comparator.compare(category1, category2));
 		assertEquals(1, comparator.compare(category2, category1));
 	}
 
 	public void testSortByRelevanceSame() {
-		category1.setRelevance("10");
-		category1.setName("test");
-		category1.setId("1");
-		category2.setRelevance("10");
-		category2.setName("test");
-		category2.setId("1");
+		category1.setRelevance("10"); //$NON-NLS-1$
+		category1.setName("test"); //$NON-NLS-1$
+		category1.setId("1"); //$NON-NLS-1$
+		category2.setRelevance("10"); //$NON-NLS-1$
+		category2.setName("test"); //$NON-NLS-1$
+		category2.setId("1"); //$NON-NLS-1$
 		assertEquals(0, comparator.compare(category1, category2));
 		assertEquals(0, comparator.compare(category2, category1));
 	}
 
 	public void testSortByRelevanceSameIdsDiffer() {
-		category1.setRelevance("10");
-		category1.setName("test");
-		category1.setId("a");
-		category2.setRelevance("10");
-		category2.setName("test");
-		category2.setId("b");
+		category1.setRelevance("10"); //$NON-NLS-1$
+		category1.setName("test"); //$NON-NLS-1$
+		category1.setId("a"); //$NON-NLS-1$
+		category2.setRelevance("10"); //$NON-NLS-1$
+		category2.setName("test"); //$NON-NLS-1$
+		category2.setId("b"); //$NON-NLS-1$
 		assertEquals(-1, comparator.compare(category1, category2));
 		assertEquals(1, comparator.compare(category2, category1));
 	}
 
 	public void testSortByRelevanceSameNamesDiffer() {
-		category1.setRelevance("10");
-		category1.setName("a");
-		category1.setId("a");
-		category2.setRelevance("10");
-		category2.setName("b");
-		category2.setId("a");
+		category1.setRelevance("10"); //$NON-NLS-1$
+		category1.setName("a"); //$NON-NLS-1$
+		category1.setId("a"); //$NON-NLS-1$
+		category2.setRelevance("10"); //$NON-NLS-1$
+		category2.setName("b"); //$NON-NLS-1$
+		category2.setId("a"); //$NON-NLS-1$
 		assertEquals(-1, comparator.compare(category1, category2));
 		assertEquals(1, comparator.compare(category2, category1));
 	}

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.discovery.tests.core.mock;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.discovery.AbstractDiscoveryStrategy;
 import org.eclipse.equinox.internal.p2.discovery.model.CatalogCategory;
@@ -30,7 +29,7 @@ public class MockDiscoveryStrategy extends AbstractDiscoveryStrategy {
 	protected CatalogCategoryMockFactory categoryMockFactory = new CatalogCategoryMockFactory();
 
 	@Override
-	public void performDiscovery(IProgressMonitor monitor) throws CoreException {
+	public void performDiscovery(IProgressMonitor monitor) {
 		for (int x = 0; x < categoryCount; ++x) {
 			CatalogCategory mockCategory = createDiscoveryCategory();
 			getCategories().add(mockCategory);

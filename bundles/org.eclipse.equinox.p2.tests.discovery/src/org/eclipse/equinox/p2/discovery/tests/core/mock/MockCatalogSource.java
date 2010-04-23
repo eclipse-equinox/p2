@@ -20,7 +20,7 @@ public class MockCatalogSource extends AbstractCatalogSource {
 
 	@Override
 	public Object getId() {
-		return "mock:mock";
+		return "mock:mock"; //$NON-NLS-1$
 	}
 
 	@Override

@@ -46,13 +46,13 @@ public class CatalogConnectorComparatorTest extends TestCase {
 	}
 
 	public void testOrderByGroup() {
-		addGroup("1");
-		addGroup("2");
-		CatalogItem t1 = addConnectorDescriptor("b", "btest", "2");
-		CatalogItem t2 = addConnectorDescriptor("a", "atest", "2");
-		CatalogItem t3 = addConnectorDescriptor("c", "ctest", "1");
-		CatalogItem t4 = addConnectorDescriptor("d", "dtest", "1");
-		CatalogItem t5 = addConnectorDescriptor("0", "0test", null);
+		addGroup("1"); //$NON-NLS-1$
+		addGroup("2"); //$NON-NLS-1$
+		CatalogItem t1 = addConnectorDescriptor("b", "btest", "2"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		CatalogItem t2 = addConnectorDescriptor("a", "atest", "2"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		CatalogItem t3 = addConnectorDescriptor("c", "ctest", "1"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		CatalogItem t4 = addConnectorDescriptor("d", "dtest", "1"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		CatalogItem t5 = addConnectorDescriptor("0", "0test", null); //$NON-NLS-1$ //$NON-NLS-2$
 
 		assertEquals(-1, comparator.compare(t2, t1));
 		assertEquals(1, comparator.compare(t1, t2));

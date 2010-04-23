@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.discovery.tests.core.mock.MockBundleDiscoveryStrat
 
 /**
  * @author David Green
+ * @author Steffen Pingel
  */
 public class BundleDiscoveryStrategyTest extends TestCase {
 
@@ -32,7 +33,7 @@ public class BundleDiscoveryStrategyTest extends TestCase {
 
 	private final List<Certification> certifications = new ArrayList<Certification>();
 
-	private final List<Tag> tags = new ArrayList();
+	private final List<Tag> tags = new ArrayList<Tag>();
 
 	@Override
 	protected void setUp() throws Exception {
@@ -50,20 +51,20 @@ public class BundleDiscoveryStrategyTest extends TestCase {
 
 		assertFalse(categories.isEmpty());
 		assertFalse(connectors.isEmpty());
-		CatalogCategory category = findCategoryById("org.eclipse.mylyn.discovery.tests.connectorCategory1");
+		CatalogCategory category = findCategoryById("org.eclipse.mylyn.discovery.tests.connectorCategory1"); //$NON-NLS-1$
 		assertNotNull(category);
-		CatalogItem connector = findConnectorById("org.eclipse.mylyn.discovery.tests.connectorDescriptor1");
+		CatalogItem connector = findConnectorById("org.eclipse.mylyn.discovery.tests.connectorDescriptor1"); //$NON-NLS-1$
 		assertNotNull(connector);
-		Certification certification = findCertificationById("org.eclipse.mylyn.discovery.tests.certification1");
+		Certification certification = findCertificationById("org.eclipse.mylyn.discovery.tests.certification1"); //$NON-NLS-1$
 		assertNotNull(certification);
 	}
 
 	public void testCustomTag() throws CoreException {
 		discoveryStrategy.performDiscovery(new NullProgressMonitor());
 
-		CatalogItem connector = findConnectorById("org.eclipse.mylyn.discovery.test.tagged");
-		assertEquals(new HashSet<Tag>(Arrays.asList(new Tag("Custom", "Custom"))), connector.getTags());
-		assertEquals(Arrays.asList(new Tag("task", "Tasks"), new Tag("Custom", "Custom")), discoveryStrategy.getTags());
+		CatalogItem connector = findConnectorById("org.eclipse.mylyn.discovery.test.tagged"); //$NON-NLS-1$
+		assertEquals(new HashSet<Tag>(Arrays.asList(new Tag("Custom", "Custom"))), connector.getTags()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals(Arrays.asList(new Tag("task", "Tasks"), new Tag("Custom", "Custom")), discoveryStrategy.getTags()); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
 	}
 
 	public void testDiscoveryNoCategoriesPolicy() throws CoreException {
