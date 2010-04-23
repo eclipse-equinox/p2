@@ -31,8 +31,7 @@ import org.eclipse.equinox.p2.metadata.index.IIndex;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.IQueryResult;
-import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.IRepositoryReference;
+import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 
@@ -55,6 +54,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	private IIndex<IInstallableUnit> capabilityIndex;
 	private TranslationSupport translationSupport;
 	private boolean snapshotNeeded = false;
+	private boolean disableSave = false;
 
 	private static File getActualLocation(URI location, String extension) {
 		File spec = URIUtil.toFile(location);
@@ -266,7 +266,14 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	}
 
 	// caller should be synchronized
-	private void save() {
+	/**
+	 * Marking protected so we can test.  This is internal, so it shouldn't matter, but I'll
+	 * mark it as no override just to be clear.
+	 * @nooverride This method is not intended to be re-implemented or extended by clients.
+	 */
+	protected void save() {
+		if (disableSave)
+			return;
 		File file = getActualLocation(getLocation());
 		File jarFile = getActualLocation(getLocation(), JAR_EXTENSION);
 		boolean compress = "true".equalsIgnoreCase(getProperty(PROP_COMPRESSED)); //$NON-NLS-1$
@@ -320,6 +327,33 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		if (manager.removeRepository(getLocation()))
 			manager.addRepository(this);
 		return oldValue;
+	}
+
+	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
+		IStatus result = null;
+		synchronized (this) {
+			try {
+				disableSave = true;
+				runnable.run(monitor);
+			} catch (OperationCanceledException oce) {
+				return new Status(IStatus.CANCEL, Activator.ID, oce.getMessage(), oce);
+			} catch (Throwable e) {
+				result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+			} finally {
+				disableSave = false;
+				try {
+					save();
+				} catch (Exception e) {
+					if (result != null)
+						result = new MultiStatus(Activator.ID, IStatus.ERROR, new IStatus[] {result}, e.getMessage(), e);
+					else
+						result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+				}
+			}
+		}
+		if (result == null)
+			result = Status.OK_STATUS;
+		return result;
 	}
 
 }
