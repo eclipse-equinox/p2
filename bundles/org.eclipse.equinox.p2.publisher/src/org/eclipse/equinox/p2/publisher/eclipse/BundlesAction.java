@@ -248,10 +248,9 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	private IInstallableUnitFragment createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues) {
 		Map<Locale, Map<String, String>> hostLocalizations = getHostLocalizations(new File(bd.getLocation()), hostBundleManifestValues);
-		if (hostLocalizations != null) {
-			return createLocalizationFragmentOfHost(bd, hostId, hostBundleManifestValues, hostLocalizations);
-		}
-		return null;
+		if (hostLocalizations == null || hostLocalizations.isEmpty())
+			return null;
+		return createLocalizationFragmentOfHost(bd, hostId, hostBundleManifestValues, hostLocalizations);
 	}
 
 	/*
