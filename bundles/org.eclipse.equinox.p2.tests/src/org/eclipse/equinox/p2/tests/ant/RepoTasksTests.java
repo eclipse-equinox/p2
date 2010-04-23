@@ -55,6 +55,10 @@ public class RepoTasksTests extends AbstractAntProvisioningTest {
 		AntTaskElement removeIU = new AntTaskElement(REMOVE_IU_TASK);
 		removeIU.addElement(getRepositoryElement(destinationRepo, TYPE_BOTH));
 		removeIU.addElement(getIUElement("anotherplugin", null));
+		AntTaskElement iuElement = new AntTaskElement("iu");
+		iuElement.addAttribute("query", "");
+		iuElement.addAttribute("artifacts", "(format=packed)");
+		removeIU.addElement(iuElement);
 		addTask(removeIU);
 
 		runAntTask();
@@ -62,6 +66,7 @@ public class RepoTasksTests extends AbstractAntProvisioningTest {
 		IMetadataRepository metadata = loadMetadataRepository(destinationRepo);
 		IInstallableUnit iu = getIU(metadata, "anotherplugin");
 		assertNull(iu);
+		assertNotNull(getIU(metadata, "anotherfeature.feature.group"));
 
 		IArtifactRepository artifacts = getArtifactRepositoryManager().loadRepository(destinationRepo, null);
 		IQueryResult keys = artifacts.query(new ArtifactKeyQuery(null, "anotherplugin", null), null);

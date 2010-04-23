@@ -81,7 +81,7 @@ public class RemoveIUTask extends AbstractRepositoryTask {
 						}
 
 						//we will only remove the metadata if all artifacts were removed
-						boolean removeMetadata = true;
+						boolean removeMetadata = (filter != null ? keys.size() > 0 : true);
 						for (IArtifactKey key : keys) {
 							if (filter == null) {
 								artifacts.removeDescriptor(key);
