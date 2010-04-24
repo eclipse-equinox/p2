@@ -71,7 +71,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		// Input last.
 		installedIUViewer.setInput(getInput());
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, ProvUIProvisioningListener.PROV_EVENT_IU | ProvUIProvisioningListener.PROV_EVENT_PROFILE);
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(getClass().getName(), installedIUViewer, ProvUIProvisioningListener.PROV_EVENT_IU | ProvUIProvisioningListener.PROV_EVENT_PROFILE);
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 		installedIUViewer.getControl().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {

@@ -36,3 +36,6 @@ org.eclipse.equinox.p2.core/reconciler=false
 
 #Detailed debugging information about the publisher
 org.eclipse.equinox.p2.core/publisher=false
+
+#Detailed debugging information about event clients
+org.eclipse.equinox.p2.core/events/client = false

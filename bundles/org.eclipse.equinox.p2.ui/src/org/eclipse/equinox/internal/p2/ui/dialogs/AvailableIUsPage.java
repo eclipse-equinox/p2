@@ -525,7 +525,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// We might need to adjust the content of the available IU group's viewer
 		// according to installation changes.  We want to be very selective about refreshing,
 		// because the viewer has its own listeners installed.
-		profileListener = new StructuredViewerProvisioningListener(availableIUGroup.getStructuredViewer(), ProvUIProvisioningListener.PROV_EVENT_PROFILE) {
+		profileListener = new StructuredViewerProvisioningListener(getClass().getName(), availableIUGroup.getStructuredViewer(), ProvUIProvisioningListener.PROV_EVENT_PROFILE) {
 			protected void profileAdded(String id) {
 				// do nothing
 			}

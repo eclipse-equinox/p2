@@ -33,8 +33,8 @@ public class StructuredViewerProvisioningListener extends ProvUIProvisioningList
 	StructuredViewer viewer;
 	Display display;
 
-	public StructuredViewerProvisioningListener(StructuredViewer viewer, int eventTypes) {
-		super(eventTypes);
+	public StructuredViewerProvisioningListener(String name, StructuredViewer viewer, int eventTypes) {
+		super(name, eventTypes);
 		this.viewer = viewer;
 		this.display = viewer.getControl().getDisplay();
 	}

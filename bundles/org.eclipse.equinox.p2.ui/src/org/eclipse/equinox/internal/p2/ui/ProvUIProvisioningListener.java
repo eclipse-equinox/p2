@@ -12,6 +12,7 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.util.EventObject;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.engine.IProfileEvent;
@@ -33,28 +34,49 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 
 	int eventTypes = 0;
 	int batchCount = 0;
+	String name;
 
-	public ProvUIProvisioningListener(int eventTypes) {
+	public ProvUIProvisioningListener(String name, int eventTypes) {
+		this.name = name;
 		this.eventTypes = eventTypes;
 	}
 
 	public void notify(EventObject o) {
 		if (o instanceof RepositoryOperationBeginningEvent) {
 			batchCount++;
+			if (Tracing.DEBUG_EVENTS_CLIENT)
+				Tracing.debug("Batch Eventing:  Ignore Following Events.  Batch count: " + Integer.toString(batchCount) + getReceiverString()); //$NON-NLS-1$
 		} else if (o instanceof RepositoryOperationEndingEvent) {
 			batchCount--;
+			if (Tracing.DEBUG_EVENTS_CLIENT)
+				Tracing.debug("Batch Eventing:  Batch Ended.  Batch count:  " + Integer.toString(batchCount) + getReceiverString()); //$NON-NLS-1$
+
 			// A batch operation completed.  Refresh.
 			if (batchCount <= 0) {
+				if (Tracing.DEBUG_EVENTS_CLIENT)
+					Tracing.debug("Batch Eventing Complete." + getReceiverString()); //$NON-NLS-1$
 				RepositoryOperationEndingEvent event = (RepositoryOperationEndingEvent) o;
-				if (event.getEvent() == null && event.update())
+				if (event.getEvent() == null && event.update()) {
+					if (Tracing.DEBUG_EVENTS_CLIENT) {
+						Tracing.debug("Refreshing After Batch." + getReceiverString()); //$NON-NLS-1$
+					}
 					refreshAll();
-				else if (event.update())
+				} else if (event.update()) {
+					if (Tracing.DEBUG_EVENTS_CLIENT)
+						Tracing.debug("Dispatching Last Event in Batch." + getReceiverString()); //$NON-NLS-1$
 					notify(event.getEvent());
+				} else if (Tracing.DEBUG_EVENTS_CLIENT) {
+					Tracing.debug("No Refresh on Batch Complete."); //$NON-NLS-1$
+				}
 			}
 		} else if (batchCount > 0) {
+			if (Tracing.DEBUG_EVENTS_CLIENT)
+				Tracing.debug(name + " Ignoring: " + o.toString()); //$NON-NLS-1$
 			// We are in the middle of a batch operation
 			return;
 		} else if (o instanceof IProfileEvent && (((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU) || ((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE))) {
+			if (Tracing.DEBUG_EVENTS_CLIENT)
+				Tracing.debug(o.toString() + getReceiverString());
 			IProfileEvent event = (IProfileEvent) o;
 			if (event.getReason() == IProfileEvent.CHANGED) {
 				profileChanged(event.getProfileId());
@@ -64,6 +86,8 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 				profileRemoved(event.getProfileId());
 			}
 		} else if (o instanceof RepositoryEvent) {
+			if (Tracing.DEBUG_EVENTS_CLIENT)
+				Tracing.debug(o.toString() + getReceiverString());
 			RepositoryEvent event = (RepositoryEvent) o;
 			// Do not handle unless this is the type of repo that we are interested in
 			if ((event.getRepositoryType() == IRepository.TYPE_METADATA && (eventTypes & PROV_EVENT_METADATA_REPOSITORY) == PROV_EVENT_METADATA_REPOSITORY) || (event.getRepositoryType() == IRepository.TYPE_ARTIFACT && (eventTypes & PROV_EVENT_ARTIFACT_REPOSITORY) == PROV_EVENT_ARTIFACT_REPOSITORY)) {
@@ -80,6 +104,10 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 				}
 			}
 		}
+	}
+
+	private String getReceiverString() {
+		return " --  <" + name + "> "; //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	/**

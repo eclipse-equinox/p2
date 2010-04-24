@@ -81,7 +81,7 @@ public class ProfilesView extends ProvView {
 
 	protected void addListeners() {
 		super.addListeners();
-		listener = new StructuredViewerProvisioningListener(viewer, ProvUIProvisioningListener.PROV_EVENT_IU | ProvUIProvisioningListener.PROV_EVENT_PROFILE);
+		listener = new StructuredViewerProvisioningListener(getClass().getName(), viewer, ProvUIProvisioningListener.PROV_EVENT_IU | ProvUIProvisioningListener.PROV_EVENT_PROFILE);
 		ProvUI.addProvisioningListener(listener);
 	}
 

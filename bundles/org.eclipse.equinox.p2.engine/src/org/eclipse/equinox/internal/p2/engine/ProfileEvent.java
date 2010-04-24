@@ -40,4 +40,28 @@ public class ProfileEvent extends EventObject implements IProfileEvent {
 	public String getProfileId() {
 		return (String) getSource();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.util.EventObject#toString()
+	 */
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("ProfileEvent["); //$NON-NLS-1$
+		buffer.append(getProfileId());
+		buffer.append("-->"); //$NON-NLS-1$
+		switch (reason) {
+			case IProfileEvent.ADDED :
+				buffer.append("ADDED"); //$NON-NLS-1$
+				break;
+			case IProfileEvent.REMOVED :
+				buffer.append("REMOVED"); //$NON-NLS-1$
+				break;
+			case IProfileEvent.CHANGED :
+				buffer.append("CHANGED"); //$NON-NLS-1$
+				break;
+		}
+		buffer.append("] "); //$NON-NLS-1$
+		return buffer.toString();
+	}
 }

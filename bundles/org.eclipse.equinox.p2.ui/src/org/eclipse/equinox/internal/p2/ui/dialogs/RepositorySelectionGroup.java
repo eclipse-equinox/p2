@@ -469,7 +469,7 @@ public class RepositorySelectionGroup {
 
 	void addComboProvisioningListeners() {
 		// We need to monitor repository events so that we can adjust the repo combo.
-		comboRepoListener = new ProvUIProvisioningListener(ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
+		comboRepoListener = new ProvUIProvisioningListener(getClass().getName(), ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
 			protected void repositoryAdded(RepositoryEvent e) {
 				fillRepoCombo(getSiteString(e.getRepositoryLocation()));
 			}

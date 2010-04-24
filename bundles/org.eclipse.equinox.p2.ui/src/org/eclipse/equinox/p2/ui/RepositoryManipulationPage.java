@@ -514,7 +514,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	}
 
 	private StructuredViewerProvisioningListener getViewerProvisioningListener() {
-		return new StructuredViewerProvisioningListener(repositoryViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
+		return new StructuredViewerProvisioningListener(RepositoryManipulationPage.this.getClass().getName(), repositoryViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
 			protected void repositoryDiscovered(RepositoryEvent e) {
 				RepositoryManipulationPage.this.safeRefresh(null);
 			}

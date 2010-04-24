@@ -35,12 +35,14 @@ public class Tracing {
 	public static boolean DEBUG_RECONCILER = false;
 	public static boolean DEBUG_REMOVE_REPO = false;
 	public static boolean DEBUG_UPDATE_CHECK = false;
+	public static boolean DEBUG_EVENTS_CLIENT = false;
 
 	static {
 		DebugOptions options = (DebugOptions) ServiceHelper.getService(Activator.context, DebugOptions.class.getName());
 		if (options != null) {
 			DEBUG = options.getBooleanOption(Activator.ID + "/debug", false); //$NON-NLS-1$
 			if (DEBUG) {
+				DEBUG_EVENTS_CLIENT = options.getBooleanOption(Activator.ID + "/events/client", false); //$NON-NLS-1$
 				DEBUG_GENERATOR_PARSING = options.getBooleanOption(Activator.ID + "/generator/parsing", false); //$NON-NLS-1$
 				DEBUG_INSTALL_REGISTRY = options.getBooleanOption(Activator.ID + "/engine/installregistry", false); //$NON-NLS-1$
 				DEBUG_METADATA_PARSING = options.getBooleanOption(Activator.ID + "/metadata/parsing", false); //$NON-NLS-1$

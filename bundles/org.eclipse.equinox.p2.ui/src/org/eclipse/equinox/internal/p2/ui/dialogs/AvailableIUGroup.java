@@ -167,7 +167,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// after content has been retrieved.
 		filteredTree.contentProviderSet(contentProvider);
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(getClass().getName(), availableIUViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
 			protected void repositoryAdded(final RepositoryEvent event) {
 				makeRepositoryVisible(event.getRepositoryLocation());
 			}
