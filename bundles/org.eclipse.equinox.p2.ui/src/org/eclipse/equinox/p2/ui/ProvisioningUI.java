@@ -397,11 +397,8 @@ public class ProvisioningUI {
 		} catch (ProvisionException e) {
 			getRepositoryTracker().reportLoadFailure(location, e);
 		} finally {
-			// We have no idea how many repos may have been touched as a result of loading this one,
-			// so in theory we would not use a specific repository event to represent it.  
-			// In practice this can cause problems in the UI like losing selections in the repo combo.
-			// So we signal an add event.
-			signalRepositoryOperationComplete(new RepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true), notify);
+			// We have no idea how many repos may have been touched as a result of loading this one.
+			signalRepositoryOperationComplete(null, notify);
 		}
 		return repo;
 	}

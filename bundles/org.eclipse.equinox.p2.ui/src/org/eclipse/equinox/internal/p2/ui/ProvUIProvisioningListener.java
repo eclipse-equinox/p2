@@ -46,14 +46,14 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 			if (Tracing.DEBUG_EVENTS_CLIENT)
 				Tracing.debug("Batch Eventing:  Ignore Following Events. " + getReceiverString()); //$NON-NLS-1$
 		} else if (o instanceof RepositoryOperationEndingEvent) {
+			RepositoryOperationEndingEvent event = (RepositoryOperationEndingEvent) o;
+
 			if (Tracing.DEBUG_EVENTS_CLIENT)
 				Tracing.debug("Batch Eventing:  Batch Ended. " + getReceiverString()); //$NON-NLS-1$
-
 			// A batch operation completed.  Refresh.
 			if (ProvisioningUI.getDefaultUI().getOperationRunner().eventBatchCount <= 0) {
 				if (Tracing.DEBUG_EVENTS_CLIENT)
 					Tracing.debug("Batch Eventing Complete." + getReceiverString()); //$NON-NLS-1$
-				RepositoryOperationEndingEvent event = (RepositoryOperationEndingEvent) o;
 				if (event.getEvent() == null && event.update()) {
 					if (Tracing.DEBUG_EVENTS_CLIENT) {
 						Tracing.debug("Refreshing After Batch." + getReceiverString()); //$NON-NLS-1$
@@ -66,11 +66,22 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 				} else if (Tracing.DEBUG_EVENTS_CLIENT) {
 					Tracing.debug("No Refresh on Batch Complete."); //$NON-NLS-1$
 				}
+			} else {
+				// We are still in the middle of a batch operation, but we've been notified
+				// about a nested batch that ended.  See if it ended with a specific event.  
+				// If it did, this means there was a user action involving a repository 
+				// (rather than side-effect events).  For example, the user might add a repo while a full 
+				// background load is running.  We want to honor that
+				// event.  See https://bugs.eclipse.org/bugs/show_bug.cgi?id=305478
+				RepositoryEvent innerEvent = event.getEvent();
+				if (innerEvent != null) {
+					handleRepositoryEvent(innerEvent);
+				}
 			}
 		} else if (ProvisioningUI.getDefaultUI().getOperationRunner().eventBatchCount > 0) {
+			// ignore raw events during a batch
 			if (Tracing.DEBUG_EVENTS_CLIENT)
 				Tracing.debug(name + " Ignoring: " + o.toString()); //$NON-NLS-1$
-			// We are in the middle of a batch operation
 			return;
 		} else if (o instanceof IProfileEvent && (((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU) || ((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE))) {
 			if (Tracing.DEBUG_EVENTS_CLIENT)
@@ -86,26 +97,29 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 		} else if (o instanceof RepositoryEvent) {
 			if (Tracing.DEBUG_EVENTS_CLIENT)
 				Tracing.debug(o.toString() + getReceiverString());
-			RepositoryEvent event = (RepositoryEvent) o;
-			// Do not handle unless this is the type of repo that we are interested in
-			if ((event.getRepositoryType() == IRepository.TYPE_METADATA && (eventTypes & PROV_EVENT_METADATA_REPOSITORY) == PROV_EVENT_METADATA_REPOSITORY) || (event.getRepositoryType() == IRepository.TYPE_ARTIFACT && (eventTypes & PROV_EVENT_ARTIFACT_REPOSITORY) == PROV_EVENT_ARTIFACT_REPOSITORY)) {
-				if (event.getKind() == RepositoryEvent.ADDED && event.isRepositoryEnabled()) {
-					repositoryAdded(event);
-				} else if (event.getKind() == RepositoryEvent.REMOVED && event.isRepositoryEnabled()) {
-					repositoryRemoved(event);
-				} else if (event.getKind() == RepositoryEvent.DISCOVERED) {
-					repositoryDiscovered(event);
-				} else if (event.getKind() == RepositoryEvent.CHANGED) {
-					repositoryChanged(event);
-				} else if (event.getKind() == RepositoryEvent.ENABLEMENT) {
-					repositoryEnablement(event);
-				}
-			}
+			handleRepositoryEvent((RepositoryEvent) o);
 		}
 	}
 
 	private String getReceiverString() {
 		return " --  <" + name + "> "; //$NON-NLS-1$//$NON-NLS-2$
+	}
+
+	private void handleRepositoryEvent(RepositoryEvent event) {
+		// Do not handle unless this is the type of repo that we are interested in
+		if ((event.getRepositoryType() == IRepository.TYPE_METADATA && (eventTypes & PROV_EVENT_METADATA_REPOSITORY) == PROV_EVENT_METADATA_REPOSITORY) || (event.getRepositoryType() == IRepository.TYPE_ARTIFACT && (eventTypes & PROV_EVENT_ARTIFACT_REPOSITORY) == PROV_EVENT_ARTIFACT_REPOSITORY)) {
+			if (event.getKind() == RepositoryEvent.ADDED && event.isRepositoryEnabled()) {
+				repositoryAdded(event);
+			} else if (event.getKind() == RepositoryEvent.REMOVED && event.isRepositoryEnabled()) {
+				repositoryRemoved(event);
+			} else if (event.getKind() == RepositoryEvent.DISCOVERED) {
+				repositoryDiscovered(event);
+			} else if (event.getKind() == RepositoryEvent.CHANGED) {
+				repositoryChanged(event);
+			} else if (event.getKind() == RepositoryEvent.ENABLEMENT) {
+				repositoryEnablement(event);
+			}
+		}
 	}
 
 	/**
