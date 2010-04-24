@@ -17,6 +17,7 @@ import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
@@ -348,6 +349,9 @@ public class ProvisioningUI {
 	 * a corresponding operation ending event is signaled.
 	 */
 	public void signalRepositoryOperationStart() {
+		runner.eventBatchCount++;
+		if (Tracing.DEBUG_EVENTS_CLIENT)
+			Tracing.debug("Batch Count Incremented to:  " + Integer.toString(runner.eventBatchCount)); //$NON-NLS-1$
 		ProvUI.getProvisioningEventBus(getSession()).publishEvent(new RepositoryOperationBeginningEvent(this));
 	}
 
@@ -359,6 +363,9 @@ public class ProvisioningUI {
 	 * @param update <code>true</code> if the event should be reflected in the UI, false if it should be ignored.
 	 */
 	public void signalRepositoryOperationComplete(RepositoryEvent event, boolean update) {
+		runner.eventBatchCount--;
+		if (Tracing.DEBUG_EVENTS_CLIENT)
+			Tracing.debug("Batch Count Decremented to:  " + Integer.toString(runner.eventBatchCount)); //$NON-NLS-1$
 		ProvUI.getProvisioningEventBus(getSession()).publishEvent(new RepositoryOperationEndingEvent(this, update, event));
 	}
 

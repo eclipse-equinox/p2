@@ -38,6 +38,7 @@ public class ProvisioningOperationRunner {
 
 	boolean suppressRestart = false;
 	ProvisioningUI ui;
+	public int eventBatchCount = 0;
 
 	public ProvisioningOperationRunner(ProvisioningUI ui) {
 		this.ui = ui;

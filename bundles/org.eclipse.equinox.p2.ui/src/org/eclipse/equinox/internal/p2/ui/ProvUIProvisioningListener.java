@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProv
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.engine.IProfileEvent;
 import org.eclipse.equinox.p2.repository.IRepository;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * ProvisioningListener which handles event batching and other
@@ -33,7 +34,6 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 	public static final int PROV_EVENT_ARTIFACT_REPOSITORY = 0x0008;
 
 	int eventTypes = 0;
-	int batchCount = 0;
 	String name;
 
 	public ProvUIProvisioningListener(String name, int eventTypes) {
@@ -43,16 +43,14 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 
 	public void notify(EventObject o) {
 		if (o instanceof RepositoryOperationBeginningEvent) {
-			batchCount++;
 			if (Tracing.DEBUG_EVENTS_CLIENT)
-				Tracing.debug("Batch Eventing:  Ignore Following Events.  Batch count: " + Integer.toString(batchCount) + getReceiverString()); //$NON-NLS-1$
+				Tracing.debug("Batch Eventing:  Ignore Following Events. " + getReceiverString()); //$NON-NLS-1$
 		} else if (o instanceof RepositoryOperationEndingEvent) {
-			batchCount--;
 			if (Tracing.DEBUG_EVENTS_CLIENT)
-				Tracing.debug("Batch Eventing:  Batch Ended.  Batch count:  " + Integer.toString(batchCount) + getReceiverString()); //$NON-NLS-1$
+				Tracing.debug("Batch Eventing:  Batch Ended. " + getReceiverString()); //$NON-NLS-1$
 
 			// A batch operation completed.  Refresh.
-			if (batchCount <= 0) {
+			if (ProvisioningUI.getDefaultUI().getOperationRunner().eventBatchCount <= 0) {
 				if (Tracing.DEBUG_EVENTS_CLIENT)
 					Tracing.debug("Batch Eventing Complete." + getReceiverString()); //$NON-NLS-1$
 				RepositoryOperationEndingEvent event = (RepositoryOperationEndingEvent) o;
@@ -69,7 +67,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 					Tracing.debug("No Refresh on Batch Complete."); //$NON-NLS-1$
 				}
 			}
-		} else if (batchCount > 0) {
+		} else if (ProvisioningUI.getDefaultUI().getOperationRunner().eventBatchCount > 0) {
 			if (Tracing.DEBUG_EVENTS_CLIENT)
 				Tracing.debug(name + " Ignoring: " + o.toString()); //$NON-NLS-1$
 			// We are in the middle of a batch operation
