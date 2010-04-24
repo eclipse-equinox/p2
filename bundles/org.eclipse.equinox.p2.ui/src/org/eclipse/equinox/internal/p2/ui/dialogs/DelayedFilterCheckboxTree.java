@@ -12,11 +12,8 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.*;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.p2.ui.model.RootElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IInputChangeListener;
-import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -42,9 +39,10 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	ToolBar toolBar;
 	Display display;
 	PatternFilter patternFilter;
+	IPreFilterJobProvider jobProvider;
 	DeferredQueryContentProvider contentProvider;
 	String savedFilterText;
-	Job loadJob;
+	Job preFilterJob;
 	WorkbenchJob filterJob;
 	boolean ignoreFiltering = true;
 	Object viewerInput;
@@ -52,7 +50,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 	Set<Object> expanded = new HashSet<Object>();
 	ContainerCheckedTreeViewer checkboxViewer;
 
-	public DelayedFilterCheckboxTree(Composite parent, int treeStyle, PatternFilter filter) {
+	public DelayedFilterCheckboxTree(Composite parent, int treeStyle, PatternFilter filter, IPreFilterJobProvider jobProvider) {
 		super(parent, true);
 		this.display = parent.getDisplay();
 		this.patternFilter = filter;
@@ -107,7 +105,7 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		super.createFilterControls(filterParent);
 		filterParent.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
-				cancelLoadJob();
+				cancelPreFilterJob();
 			}
 		});
 		return filterParent;
@@ -117,14 +115,15 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		this.contentProvider = deferredProvider;
 		deferredProvider.addListener(new IInputChangeListener() {
 			public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-				if (newInput == null)
+				if (newInput == null) {
 					return;
+				}
 				// Store the input because it's not reset in the viewer until
 				// after this listener is run.
 				viewerInput = newInput;
 
 				// If we were loading repos, we want to cancel because there may be more.
-				cancelLoadJob();
+				cancelPreFilterJob();
 				// Cancel any filtering
 				cancelAndResetFilterJob();
 				contentProvider.setSynchronous(false);
@@ -166,35 +165,34 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 				// If we know we've already filtered and loaded repos, nothing more to do
 				if (!ignoreFiltering)
 					return;
-				final boolean[] shouldLoad = new boolean[1];
-				shouldLoad[0] = false;
+				final boolean[] shouldPreFilter = new boolean[1];
+				shouldPreFilter[0] = false;
 				display.syncExec(new Runnable() {
 					public void run() {
 						if (filterText != null && !filterText.isDisposed()) {
 							String text = getFilterString();
 							// If we are about to filter and there is
-							// actually filtering to do, force a load
-							// of the input and set the content
-							// provider to synchronous mode.  We want the
-							// load job to complete before continuing with filtering.
+							// actually filtering to do, check for a prefilter
+							// job and the content  provider to synchronous mode.
+							// We want the prefilter job to complete before continuing with filtering.
 							if (text == null || (initialText != null && initialText.equals(text)))
 								return;
-							if (!contentProvider.getSynchronous() && loadJob == null) {
+							if (!contentProvider.getSynchronous() && preFilterJob == null) {
 								if (filterText != null && !filterText.isDisposed()) {
-									shouldLoad[0] = true;
+									shouldPreFilter[0] = true;
 								}
 							}
 						}
 					}
 				});
-				if (shouldLoad[0]) {
+				if (shouldPreFilter[0]) {
 					event.getJob().sleep();
-					scheduleLoadJob();
+					schedulePreFilterJob();
 				} else if (ignoreFiltering) {
 					event.getJob().sleep();
 				} else {
-					// shouldn't get here unless the load job finished and ignoreFiltering became false 
-					// since we entered this listener.
+					// shouldn't get here unless the prefilter job finished 
+					// and ignoreFiltering became false since we entered this listener.
 					rememberLeafCheckState();
 				}
 			}
@@ -230,36 +228,35 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		return filterJob;
 	}
 
-	void scheduleLoadJob() {
-		if (loadJob != null)
+	void schedulePreFilterJob() {
+		// cancel any existing jobs
+		cancelPreFilterJob();
+		ignoreFiltering = false;
+		preFilterJob = jobProvider == null ? null : jobProvider.getPreFilterJob();
+		if (preFilterJob == null) {
+			if (filterJob != null)
+				filterJob.wakeUp();
 			return;
-		ProvisioningUI ui;
-		if (viewerInput instanceof RootElement)
-			ui = ((RootElement) viewerInput).getProvisioningUI();
-		else
-			ui = ProvisioningUI.getDefaultUI();
-		loadJob = new LoadMetadataRepositoryJob(ui);
-		loadJob.addJobChangeListener(new JobChangeAdapter() {
+		}
+		ignoreFiltering = true;
+		preFilterJob.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
-				if (event.getResult().isOK()) {
-					contentProvider.setSynchronous(true);
-					ignoreFiltering = false;
-					if (filterJob != null)
-						filterJob.wakeUp();
-				}
-				loadJob = null;
+				ignoreFiltering = false;
+				contentProvider.setSynchronous(true);
+				if (filterJob != null)
+					filterJob.wakeUp();
+				preFilterJob = null;
 			}
 		});
-		loadJob.setSystem(true);
-		loadJob.setUser(false);
-		loadJob.setProperty(LoadMetadataRepositoryJob.SUPPRESS_REPOSITORY_EVENTS, Boolean.toString(true));
-		loadJob.schedule();
+		preFilterJob.setSystem(true);
+		preFilterJob.setUser(false);
+		preFilterJob.schedule();
 	}
 
-	void cancelLoadJob() {
-		if (loadJob != null) {
-			loadJob.cancel();
-			loadJob = null;
+	void cancelPreFilterJob() {
+		if (preFilterJob != null) {
+			preFilterJob.cancel();
+			preFilterJob = null;
 		}
 	}
 
@@ -267,7 +264,6 @@ public class DelayedFilterCheckboxTree extends FilteredTree {
 		if (filterJob != null) {
 			filterJob.cancel();
 		}
-		ignoreFiltering = true;
 	}
 
 	void rememberLeafCheckState() {
