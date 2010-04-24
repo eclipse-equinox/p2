@@ -105,8 +105,8 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		for (SiteFeature feature : featuresToCategories.keySet()) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
-			IInstallableUnit iu = getFeatureIU(feature, publisherInfo, results);
-			if (iu == null)
+			Collection<IInstallableUnit> ius = getFeatureIU(feature, publisherInfo, results);
+			if (ius == null)
 				continue;
 			Set<SiteCategory> categories = featuresToCategories.get(feature);
 			// if there are no categories for this feature then add it to the default category.
@@ -118,7 +118,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 					featureIUs = new HashSet<IInstallableUnit>();
 					categoriesToIUs.put(category, featureIUs);
 				}
-				featureIUs.add(iu);
+				featureIUs.addAll(ius);
 			}
 		}
 		addSiteIUsToCategories(categoriesToIUs, publisherInfo, results);
@@ -183,13 +183,13 @@ public class SiteXMLAction extends AbstractPublisherAction {
 
 	private static final IExpression qualifierMatchExpr = ExpressionUtil.parse("id == $0 && version ~= $1"); //$NON-NLS-1$
 
-	private IInstallableUnit getFeatureIU(SiteFeature feature, IPublisherInfo publisherInfo, IPublisherResult results) {
+	private Collection<IInstallableUnit> getFeatureIU(SiteFeature feature, IPublisherInfo publisherInfo, IPublisherResult results) {
 		String id = feature.getFeatureIdentifier() + ".feature.group"; //$NON-NLS-1$
 		String versionString = feature.getFeatureVersion();
 		Version version = versionString != null && versionString.length() > 0 ? Version.create(versionString) : Version.emptyVersion;
 		IQuery<IInstallableUnit> query = null;
 		if (version.equals(Version.emptyVersion)) {
-			query = QueryUtil.createLatestQuery(QueryUtil.createIUQuery(id));
+			query = QueryUtil.createIUQuery(id);
 		} else {
 			String qualifier;
 			try {
@@ -200,7 +200,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			if (qualifier != null && qualifier.endsWith(QUALIFIER)) {
 				VersionRange range = createVersionRange(version.toString());
 				IQuery<IInstallableUnit> qualifierQuery = QueryUtil.createMatchQuery(qualifierMatchExpr, id, range);
-				query = QueryUtil.createLatestQuery(qualifierQuery);
+				query = qualifierQuery;
 			} else {
 				query = QueryUtil.createLimitQuery(QueryUtil.createIUQuery(id, version), 1);
 			}
@@ -213,7 +213,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 			queryResult = publisherInfo.getContextMetadataRepository().query(query, null);
 
 		if (!queryResult.isEmpty())
-			return queryResult.iterator().next();
+			return queryResult.toUnmodifiableSet();
 		return null;
 	}
 
