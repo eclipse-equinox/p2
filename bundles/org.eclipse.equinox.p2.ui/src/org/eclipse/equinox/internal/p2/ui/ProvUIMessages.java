@@ -175,6 +175,7 @@ public class ProvUIMessages extends NLS {
 	public static String AvailableIUsPage_GroupByCategory;
 	public static String AvailableIUsPage_HideInstalledItems;
 	public static String AvailableIUsPage_LocalSites;
+	public static String AvailableIUsPage_MultipleSelectionCount;
 	public static String AvailableIUsPage_NameWithLocation;
 	public static String AvailableIUsPage_NoSites;
 	public static String AvailableIUsPage_RepoFilterInstructions;
@@ -182,6 +183,7 @@ public class ProvUIMessages extends NLS {
 	public static String AvailableIUsPage_ResolveAllCheckbox;
 	public static String AvailableIUsPage_SelectASite;
 	public static String AvailableIUsPage_ShowLatestVersions;
+	public static String AvailableIUsPage_SingleSelectionCount;
 	public static String AvailableIUsPage_Title;
 	public static String AvailableIUWrapper_AllAreInstalled;
 	public static String IUViewQueryContext_AllAreInstalledDescription;
