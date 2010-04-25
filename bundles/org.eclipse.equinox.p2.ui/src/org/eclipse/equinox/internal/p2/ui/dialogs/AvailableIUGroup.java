@@ -440,9 +440,12 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 */
 	public void setChecked(Object[] selections) {
 		filteredTree.getCheckboxTreeViewer().setCheckedElements(selections);
-		// Relying on knowledge that DelayedFilterCheckbox doesn't care which element is in the listener
-		Object element = selections.length > 0 ? selections[0] : new Object();
-		filteredTree.getCheckboxTreeViewer().fireCheckStateChanged(element, true);
+		// TODO HACK ALERT!
+		// Since We don't have API for setAllChecked(boolean), clients have to use this method.
+		// We need to signal DelayedFilterCheckboxTree when everything needs to be deselected since
+		// we aren't firing an event for each item.
+		Object element = selections.length == 0 ? DelayedFilterCheckboxTree.ALL_ITEMS_HACK : selections[0];
+		filteredTree.getCheckboxTreeViewer().fireCheckStateChanged(element, selections.length > 0);
 	}
 
 	public void setRepositoryFilter(int filterFlag, URI repoLocation) {
