@@ -119,10 +119,12 @@ public abstract class Explanation implements Comparable<Explanation> {
 	public static class MissingIU extends Explanation {
 		public final IInstallableUnit iu;
 		public final IRequirement req;
+		public boolean rootIu;
 
-		public MissingIU(IInstallableUnit iu, IRequirement req) {
+		public MissingIU(IInstallableUnit iu, IRequirement req, boolean rootIU) {
 			this.iu = iu;
 			this.req = req;
+			this.rootIu = rootIu;
 		}
 
 		public int orderValue() {
@@ -134,6 +136,9 @@ public abstract class Explanation implements Comparable<Explanation> {
 		}
 
 		public String toString() {
+			if (rootIu) {
+				return NLS.bind(Messages.Explanation_missingRootRequired, req);
+			}
 			if (req.getFilter() == null) {
 				return NLS.bind(Messages.Explanation_missingRequired, iu, req);
 			}
