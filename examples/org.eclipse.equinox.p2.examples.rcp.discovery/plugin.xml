@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="org.eclipse.equinox.p2.examples.rcp.cloud.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="RCP Perspective"
+            class="org.eclipse.equinox.p2.examples.rcp.cloud.Perspective"
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.perspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            name="Message"
+            allowMultiple="true"
+            icon="icons/sample2.gif"
+            class="org.eclipse.equinox.p2.examples.rcp.cloud.View"
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.view">
+      </view>
+      <view
+            name="Mailboxes"
+            allowMultiple="true"
+            icon="icons/sample3.gif"
+            class="org.eclipse.equinox.p2.examples.rcp.cloud.NavigationView"
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.navigationView">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            name="Mail"
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.category">
+      </category>
+      <command
+            name="Open Mailbox"
+            description="Opens a mailbox"
+            categoryId="org.eclipse.equinox.p2.examples.rcp.cloud.category"
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.open">
+      </command>
+      <command
+            name="Open Message Dialog"
+            description="Open a message dialog"
+            categoryId="org.eclipse.equinox.p2.examples.rcp.cloud.category"
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.openMessage">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.eclipse.equinox.p2.examples.rcp.cloud.open"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+2">
+      </key>
+      <key
+            commandId="org.eclipse.equinox.p2.examples.rcp.cloud.openMessage"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+3">
+      </key>
+      <key
+            commandId="org.eclipse.ui.file.exit"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+X">
+      </key>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.eclipse.equinox.p2.examples.rcp.cloud.application"
+            name="RCP Mail Example (p2 Discovery)">
+         <property
+               name="aboutText"
+               value="RCP Mail template created by PDE with p2 Discovery support">
+         </property>
+         <property
+               name="windowImages"
+               value="icons/sample2.gif">
+         </property>
+         <property
+               name="aboutImage"
+               value="product_lg.gif">
+         </property>
+         <property
+               name="appName"
+               value="RCP Mail Example (p2 Discovery)">
+         </property>
+      </product>
+   </extension>
+      <extension
+         point="org.eclipse.ui.installationPages">
+          <page
+            name="%installedSoftwarePage"
+            class="org.eclipse.equinox.p2.ui.InstalledSoftwarePage"
+            id="10.org.eclipse.equinox.p2.examples.rcp.cloud.InstalledSoftwarePage">
+          </page>
+          <page
+            name="%installHistoryPage"
+            class="org.eclipse.equinox.p2.ui.RevertProfilePage"
+            id="11.org.eclipse.equinox.p2.examples.rcp.cloud.RevertProfilePage">
+          </page>
+          
+      </extension>
+       <extension
+         point="org.eclipse.ui.commands">
+      <command
+            name="%Update.command"
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.command.update">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="org.eclipse.equinox.p2.examples.rcp.cloud.command.update"
+            class="org.eclipse.equinox.p2.examples.rcp.cloud.p2.UpdateHandler">
+      </handler>
+      <handler
+            commandId="org.eclipse.equinox.p2.examples.rcp.cloud.command.install"
+            class="org.eclipse.equinox.p2.examples.rcp.cloud.p2.InstallNewSoftwareHandler">
+      </handler>
+   </extension>
+     <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:tools?after=additions">
+         <command
+               commandId="org.eclipse.equinox.p2.ui.discovery.commands.ShowBundleCatalog"
+               label="Install Extensions..."
+               style="push">
+         </command>
+            <command
+                  commandId="org.eclipse.equinox.p2.examples.rcp.cloud.command.update"
+            	  mnemonic="%Update.command.mnemonic"
+                  id="org.eclipse.equinox.p2.examples.rcp.cloud.menu.update">
+            </command>
+                        
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.mylyn.discovery.core.connectorDiscovery">
+      <connectorCategory
+            description="Extensions for additional email protocols."
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.category.protocols"
+            name="Email Protocol Support">
+      </connectorCategory>
+      <connectorDescriptor
+            categoryId="org.eclipse.equinox.p2.examples.rcp.cloud.category.protocols"
+            description="Sample extension that provides support for the IMAP protocol."
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.extensions.imap"
+            kind="task"
+            license="EPL"
+            name="IMAP protocol support"
+            provider="Eclipse.org"
+            siteUrl="http://www.eclipse.org/equinox/p2/testing/updateSite">
+         <icon
+               image32="icons/mail.png">
+         </icon>
+      </connectorDescriptor>
+      <connectorDescriptor
+            categoryId="org.eclipse.equinox.p2.examples.rcp.cloud.category.protocols"
+            description="Sample extension that provides support for the POP3 protocol."
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.extensions.pop"
+            kind="task"
+            license="EPL"
+            name="POP3 protocol support"
+            provider="Eclipse.org"
+            siteUrl="http://www.eclipse.org/equinox/p2/testing/updateSite">
+         <overview
+               screenshot="icons/mail-screenshot.png"
+               summary="In computing, the Post Office Protocol (POP) is an application-layer Internet standard protocol used by local e-mail clients to retrieve e-mail from a remote server over a TCP/IP connection. POP and IMAP (Internet Message Access Protocol) are the two most prevalent Internet standard protocols for e-mail retrieval. Virtually all modern e-mail clients and servers support both. The POP protocol has been developed through several versions, with version 3 (POP3) being the current standard."
+               url="http://en.wikipedia.org/wiki/Post_Office_Protocol">
+         </overview>
+         <icon
+               image32="icons/mail.png">
+         </icon>
+      </connectorDescriptor>
+      <connectorCategory
+            description="Other extensions for the RCP Mail application."
+            id="org.eclipse.equinox.p2.examples.rcp.cloud.category.misc"
+            name="Tools">
+      </connectorCategory>
+      <connectorDescriptor
+            categoryId="org.eclipse.equinox.p2.examples.rcp.cloud.category.misc"
+            description="Another example of integrating p2 discovery."
+            id="org.eclipse.epp.mpc"
+            kind="task"
+            license="EPL"
+            name="Eclipse Marketplace Client"
+            provider="Eclipse Packaging Project"
+            siteUrl="http://download.eclipse.org/releases/staging">
+         <overview
+               screenshot="icons/mpc-screenshot.png"
+               summary="Marketplace Client is a rich client solution for installing solutions listed on Eclipse Marketplace directly from an Eclipse Installation.&#x0A;&#x0A;The Eclipse community has hundreds, if not thousands, of third-party plugins that users can add to their Eclipse installation. Unfortunately, there is not easy way to discover and install these solutions from within Eclipse.&#x0A;&#x0A;The Eclipse Foundation has recently launched a new website, called Eclipse Marketplace, that provides a listing of Eclipse-based solutions. The listings allow each solution provider to specify a P2 repository for their solution. Eclipse users now have a central catalog to find Eclipse solutions but the install process is still not tightly integrated with the Eclipse workspace.&#x0A;&#x0A;MPC provides the tight install integration between the Eclipse workspace and Eclipse Marketplace, plus other third party solution listings. MPC is included in many of the EPP packages."
+               url="http://eclipse.org/mpc/"></overview>
+         <icon
+               image32="icons/mpc.png">
+         </icon>
+      </connectorDescriptor>
+   </extension>
+</plugin>
