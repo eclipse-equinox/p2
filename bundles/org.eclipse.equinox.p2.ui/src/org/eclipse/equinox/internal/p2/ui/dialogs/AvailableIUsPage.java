@@ -297,6 +297,21 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 					repoComboSelectionChanged(repoChoice, repoLocation);
 				}
 			});
+			// The ProvisioningOperationWizard signals the start of a repository operation as a way
+			// to keep side-effect events from changing the selections or state of the wizard.
+			// This is the one case where we want to respond to repo events, because we are
+			// launching the repo manipulation page from the wizard.  So we signal the wizard's
+			// operation as complete and then resignal the start when done.
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=277265#c38
+			repoSelector.setRepositoryManipulationHook(new IRepositoryManipulationHook() {
+				public void preManipulateRepositories() {
+					getProvisioningUI().signalRepositoryOperationComplete(null, false);
+				}
+
+				public void postManipulateRepositories() {
+					getProvisioningUI().signalRepositoryOperationStart();
+				}
+			});
 		}
 	}
 

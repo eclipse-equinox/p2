@@ -73,6 +73,7 @@ public class RepositorySelectionGroup {
 	ControlDecoration repoDec;
 	ComboAutoCompleteField repoAutoComplete;
 	ProvUIProvisioningListener comboRepoListener;
+	IRepositoryManipulationHook repositoryManipulationHook;
 
 	Image info, warning, error;
 	URI[] comboRepos; // the URIs shown in the combo, kept in sync with combo items
@@ -204,7 +205,11 @@ public class RepositorySelectionGroup {
 		// Link to repository manipulator
 		repoManipulatorLink = createLink(comboComposite, new Action() {
 			public void runWithEvent(Event event) {
+				if (repositoryManipulationHook != null)
+					repositoryManipulationHook.preManipulateRepositories();
 				ui.manipulateRepositories(repoCombo.getShell());
+				if (repositoryManipulationHook != null)
+					repositoryManipulationHook.postManipulateRepositories();
 			}
 		}, getLinkLabel());
 		gd = new GridData(SWT.END, SWT.FILL, true, false);
@@ -257,6 +262,10 @@ public class RepositorySelectionGroup {
 				fillRepoCombo(SITE_NONE);
 		}
 		setRepoComboDecoration(null);
+	}
+
+	public void setRepositoryManipulationHook(IRepositoryManipulationHook hook) {
+		this.repositoryManipulationHook = hook;
 	}
 
 	protected void setRepoComboDecoration(final IStatus status) {
