@@ -32,7 +32,7 @@
 
 		<ant antfile="${eclipse.pdebuild.scripts}/productBuild/productBuild.xml" />
 
-		<move todir="${basedir}">
+		<move todir="${basedir}" overwrite="true">
 			<fileset dir="${buildDirectory}/I.TestBuild" includes="*.zip"/>
 		</move>
 
