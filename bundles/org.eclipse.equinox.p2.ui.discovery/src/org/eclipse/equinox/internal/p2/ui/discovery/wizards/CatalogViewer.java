@@ -446,10 +446,12 @@ public class CatalogViewer extends FilteredViewer {
 	protected Set<String> getInstalledFeatures(IProgressMonitor monitor) {
 		Set<String> features = new HashSet<String>();
 		IProfile profile = ProvUI.getProfileRegistry(ProvisioningUI.getDefaultUI().getSession()).getProfile(ProvisioningUI.getDefaultUI().getProfileId());
-		IQueryResult<IInstallableUnit> result = profile.available(QueryUtil.createIUGroupQuery(), monitor);
-		for (Iterator<IInstallableUnit> it = result.iterator(); it.hasNext();) {
-			IInstallableUnit unit = it.next();
-			features.add(unit.getId());
+		if (profile != null) {
+			IQueryResult<IInstallableUnit> result = profile.available(QueryUtil.createIUGroupQuery(), monitor);
+			for (Iterator<IInstallableUnit> it = result.iterator(); it.hasNext();) {
+				IInstallableUnit unit = it.next();
+				features.add(unit.getId());
+			}
 		}
 		return features;
 	}
