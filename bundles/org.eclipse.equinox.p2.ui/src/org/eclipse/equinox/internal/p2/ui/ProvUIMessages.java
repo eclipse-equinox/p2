@@ -149,6 +149,7 @@ public class ProvUIMessages extends NLS {
 	public static String RepositoryNameAndLocationDialog_Title;
 
 	public static String RepositorySelectionGroup_GenericSiteLinkTitle;
+	public static String RepositorySelectionGroup_NameAndLocationSeparator;
 	public static String RepositorySelectionGroup_PrefPageLink;
 	public static String RepositorySelectionGroup_PrefPageName;
 	public static String ResolutionWizardPage_Canceled;

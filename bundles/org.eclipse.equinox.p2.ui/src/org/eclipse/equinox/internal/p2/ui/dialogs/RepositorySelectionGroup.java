@@ -363,7 +363,7 @@ public class RepositorySelectionGroup {
 	String getSiteString(URI uri) {
 		String nickname = getMetadataRepositoryManager().getRepositoryProperty(uri, IRepository.PROP_NICKNAME);
 		if (nickname != null && nickname.length() > 0)
-			return NLS.bind(ProvUIMessages.AvailableIUsPage_NameWithLocation, nickname, URIUtil.toUnencodedString(uri));
+			return NLS.bind(ProvUIMessages.AvailableIUsPage_NameWithLocation, new Object[] {nickname, ProvUIMessages.RepositorySelectionGroup_NameAndLocationSeparator, URIUtil.toUnencodedString(uri)});
 		return URIUtil.toUnencodedString(uri);
 	}
 
@@ -495,10 +495,7 @@ public class RepositorySelectionGroup {
 
 	/*
 	 *  Add a repository using the text in the combo or launch a dialog if the text
-	 *  represents an already known repo.  For any add operation spawned by this
-	 *  method, we do not want to notify the UI with a special listener.  This is to
-	 *  prevent a multiple update flash because we intend to reset the available IU
-	 *  filter as soon as the new repo is added.
+	 *  represents an already known repo.  
 	 */
 	void addRepository(boolean alwaysPrompt) {
 		final RepositoryTracker manipulator = ui.getRepositoryTracker();
@@ -513,9 +510,27 @@ public class RepositorySelectionGroup {
 			AddRepositoryDialog dialog = new AddRepositoryDialog(repoCombo.getShell(), ui) {
 
 				protected String getInitialLocationText() {
-					if (isNewText)
-						return selectedRepo;
+					if (isNewText) {
+						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=293068
+						// we need to ensure any embedded nickname is stripped out
+						URI loc = manipulator.locationFromString(selectedRepo);
+						return loc.toString();
+					}
 					return super.getInitialLocationText();
+				}
+
+				@Override
+				protected String getInitialNameText() {
+					if (isNewText) {
+						URI loc = manipulator.locationFromString(selectedRepo);
+						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=293068
+						if (loc != null && manipulator instanceof ColocatedRepositoryTracker) {
+							String parsedNickname = ((ColocatedRepositoryTracker) manipulator).getParsedNickname(loc);
+							if (parsedNickname != null)
+								return parsedNickname;
+						}
+					}
+					return super.getInitialNameText();
 				}
 
 			};
@@ -543,7 +558,10 @@ public class RepositorySelectionGroup {
 							}
 						}
 						if (status.isOK() && location != null) {
-							manipulator.addRepository(location, null, ui.getSession());
+							String nick = null;
+							if (manipulator instanceof ColocatedRepositoryTracker)
+								nick = ((ColocatedRepositoryTracker) manipulator).getParsedNickname(location);
+							manipulator.addRepository(location, nick, ui.getSession());
 							fillRepoCombo(getSiteString(location));
 						}
 						setRepoComboDecoration(status);

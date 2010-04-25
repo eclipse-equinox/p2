@@ -40,6 +40,8 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public class ColocatedRepositoryTracker extends RepositoryTracker {
 
 	ProvisioningUI ui;
+	String parsedNickname;
+	URI parsedLocation;
 
 	public ColocatedRepositoryTracker() {
 		this(ProvisioningUI.getDefaultUI());
@@ -168,5 +170,49 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 
 	IArtifactRepositoryManager getArtifactRepositoryManager() {
 		return ProvUI.getArtifactRepositoryManager(ui.getSession());
+	}
+
+	/*
+	 * Overridden to support "Name - Location" parsing
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#locationFromString(java.lang.String)
+	 */
+	public URI locationFromString(String locationString) {
+		URI uri = super.locationFromString(locationString);
+		if (uri != null)
+			return uri;
+		// Look for the "Name - Location" pattern
+		// There could be a hyphen in the name or URI, so we have to visit all combinations
+		int start = 0;
+		int index = 0;
+		String locationSubset;
+		String pattern = ProvUIMessages.RepositorySelectionGroup_NameAndLocationSeparator;
+		while (index >= 0) {
+			index = locationString.indexOf(pattern, start);
+			if (index >= 0) {
+				start = index + pattern.length();
+				locationSubset = locationString.substring(start);
+				uri = super.locationFromString(locationSubset);
+				if (uri != null) {
+					parsedLocation = uri;
+					parsedNickname = locationString.substring(0, index);
+					return uri;
+				}
+			}
+		}
+		return null;
+	}
+
+	/*
+	 * Used by the UI to get a name that might have been supplied when the
+	 * location was originally parsed.
+	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=293068
+	 */
+	public String getParsedNickname(URI location) {
+		if (parsedNickname == null || parsedLocation == null)
+			return null;
+		if (location.toString().equals(parsedLocation.toString()))
+			return parsedNickname;
+		return null;
 	}
 }
