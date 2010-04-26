@@ -368,7 +368,7 @@ public class Projector {
 		if (DEBUG) {
 			Tracing.debug(iu + "=0"); //$NON-NLS-1$
 		}
-		dependencyHelper.setFalse(iu, new Explanation.MissingIU(iu, req, iu == this.entryPoint));
+		dependencyHelper.setFalse(iu, new Explanation.MissingIU(iu, req));
 	}
 
 	// Check whether the requirement is applicable

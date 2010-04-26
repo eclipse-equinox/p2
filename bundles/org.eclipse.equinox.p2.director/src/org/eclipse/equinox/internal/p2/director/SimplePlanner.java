@@ -316,11 +316,8 @@ public class SimplePlanner implements IPlanner {
 			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits(extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), context, sub.newChild(ExpandWork / 4));
 
 			Slicer slicer = new Slicer(new QueryableArray(availableIUs), newSelectionContext, satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
-			IInstallableUnit[] rootIus = new IInstallableUnit[profileChangeRequest.getAdditions().size() + 1];
-			profileChangeRequest.getAdditions().toArray(rootIus);
-			rootIus[rootIus.length - 1] = (IInstallableUnit) updatedPlan[0];
-			IQueryable<IInstallableUnit> slice = slicer.slice(rootIus, sub.newChild(ExpandWork / 4));
-
+			IQueryable<IInstallableUnit> slice = slicer.slice(new IInstallableUnit[] {(IInstallableUnit) updatedPlan[0]}, sub.newChild(ExpandWork / 4));
+			slicer.getNonGreedyIUs();
 			if (slice == null) {
 				IProvisioningPlan plan = engine.createPlan(profile, context);
 				plan.setStatus(slicer.getStatus());

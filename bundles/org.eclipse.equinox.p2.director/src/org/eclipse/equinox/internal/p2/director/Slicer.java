@@ -85,7 +85,7 @@ public class Slicer {
 	private void validateInput(IInstallableUnit[] ius) {
 		for (int i = 0; i < ius.length; i++) {
 			if (!isApplicable(ius[i]))
-				throw new IllegalStateException(NLS.bind(Messages.Explanation_missingRootFilter, ius[i]));
+				throw new IllegalStateException("The IU " + ius[i] + " can't be installed in this environment because its filter does not match."); //$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
 
