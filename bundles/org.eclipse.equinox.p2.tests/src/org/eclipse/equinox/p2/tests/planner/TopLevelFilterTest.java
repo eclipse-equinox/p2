@@ -10,22 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class TopLevelFilterTest extends AbstractProvisioningTest {
 
 	public void testInstallIUWithFilter() {
-		InstallableUnitDescription desc = new InstallableUnitDescription();
-		desc.setId("ThingWithFilter");
-		desc.setFilter("(os=linux)");
-		desc.setVersion(Version.createOSGi(1, 0, 0));
-
-		IInstallableUnit iu = MetadataFactory.createInstallableUnit(desc);
+		IInstallableUnit iu = createIU("ThingWithFilter", Version.create("1.0.0"), "(os=linux)", new IProvidedCapability[] {new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", Version.create("1.0.0"))});
 		IProfile p = createProfile(getClass().getName());
 		createTestMetdataRepository(new IInstallableUnit[] {iu});
 		ProfileChangeRequest req = new ProfileChangeRequest(p);
