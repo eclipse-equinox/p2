@@ -51,7 +51,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile) {
 		IQuery<IInstallableUnit> rootIUQuery = QueryUtil.createMatchQuery( //
-				"profileProperties[$0] == 'true' || (touchpointType != null && touchpointType.id == $1)",//$NON-NLS-1$
+				"profileProperties[$0] == 'true' || touchpointType.id == $1",//$NON-NLS-1$
 				IProfile.PROP_PROFILE_ROOT_IU, NATIVE_TOUCHPOINT_TYPE);
 		IQueryResult<IInstallableUnit> rootIUs = sharedProfile.query(rootIUQuery, null);
 		for (Iterator<IInstallableUnit> iterator = rootIUs.iterator(); iterator.hasNext();) {
