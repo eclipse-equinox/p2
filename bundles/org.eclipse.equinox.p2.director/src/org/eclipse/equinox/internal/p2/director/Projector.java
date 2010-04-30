@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.director.Explanation.NotInstallableRoot;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.*;
@@ -368,7 +369,7 @@ public class Projector {
 		if (DEBUG) {
 			Tracing.debug(iu + "=0"); //$NON-NLS-1$
 		}
-		dependencyHelper.setFalse(iu, new Explanation.MissingIU(iu, req));
+		dependencyHelper.setFalse(iu, new Explanation.MissingIU(iu, req, iu == this.entryPoint));
 	}
 
 	// Check whether the requirement is applicable
@@ -416,7 +417,11 @@ public class Projector {
 		}
 		if (req.getMin() > 0) {
 			if (matches.isEmpty()) {
-				missingRequirement(iu, req);
+				if (iu == entryPoint && emptyBecauseFiltered) {
+					dependencyHelper.setFalse(iu, new NotInstallableRoot(req));
+				} else {
+					missingRequirement(iu, req);
+				}
 			} else {
 				if (req.isGreedy()) {
 					IInstallableUnit reqIu = matches.get(0);
@@ -853,6 +858,8 @@ public class Projector {
 		createNegation(iu, req);
 	}
 
+	private boolean emptyBecauseFiltered;
+
 	/**
 	 * @param req
 	 * @return a list of mandatory requirements if any, an empty list if req.isOptional().
@@ -866,6 +873,7 @@ public class Projector {
 				target.add(match);
 			}
 		}
+		emptyBecauseFiltered = !matches.isEmpty() && target.isEmpty();
 		return target;
 	}
 

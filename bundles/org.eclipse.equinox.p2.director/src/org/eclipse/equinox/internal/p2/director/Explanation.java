@@ -116,13 +116,35 @@ public abstract class Explanation implements Comparable<Explanation> {
 		}
 	}
 
+	public static class NotInstallableRoot extends Explanation {
+		public final IRequirement req;
+
+		public NotInstallableRoot(IRequirement req) {
+			this.req = req;
+		}
+
+		public String toString() {
+			return NLS.bind(Messages.Explanation_missingRootFilter, req);
+		}
+
+		public IStatus toStatus() {
+			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRootFilter, req));
+		}
+
+		protected int orderValue() {
+			return 2;
+		}
+	}
+
 	public static class MissingIU extends Explanation {
 		public final IInstallableUnit iu;
 		public final IRequirement req;
+		public boolean isEntryPoint;
 
-		public MissingIU(IInstallableUnit iu, IRequirement req) {
+		public MissingIU(IInstallableUnit iu, IRequirement req, boolean isEntryPoint) {
 			this.iu = iu;
 			this.req = req;
+			this.isEntryPoint = isEntryPoint;
 		}
 
 		public int orderValue() {
@@ -134,6 +156,9 @@ public abstract class Explanation implements Comparable<Explanation> {
 		}
 
 		public String toString() {
+			if (isEntryPoint) {
+				return NLS.bind(Messages.Explanation_missingRootRequired, req);
+			}
 			if (req.getFilter() == null) {
 				return NLS.bind(Messages.Explanation_missingRequired, iu, req);
 			}
@@ -141,6 +166,9 @@ public abstract class Explanation implements Comparable<Explanation> {
 		}
 
 		public IStatus toStatus() {
+			if (isEntryPoint) {
+				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRootRequired, req));
+			}
 			if (req.getFilter() == null) {
 				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_missingRequired, getUserReadableName(iu), req));
 			}
