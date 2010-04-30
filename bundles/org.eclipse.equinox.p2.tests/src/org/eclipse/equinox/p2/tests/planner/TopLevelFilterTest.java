@@ -27,6 +27,6 @@ public class TopLevelFilterTest extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {iu});
 		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
 		assertNotOK(plan.getStatus());
-		assertTrue(plan.getStatus().getChildren()[0].getMessage().contains("filter"));
+		assertTrue("Explanation does not mention filter!", plan.getStatus().getChildren()[0].getMessage().contains("filter"));
 	}
 }

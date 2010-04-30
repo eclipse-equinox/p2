@@ -40,6 +40,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Bug259537.class);
 		suite.addTestSuite(Bug262580.class);
 		suite.addTestSuite(Bug270656.class);
+		suite.addTestSuite(Bug270668.class);
 		suite.addTestSuite(Bug270683.class);
 		suite.addTestSuite(Bug271067.class);
 		suite.addTestSuite(Bug271954.class);
@@ -50,6 +51,10 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Bug302582c.class);
 		//		suite.addTestSuite(Bug302582d.class);
 		suite.addTestSuite(Bug306424.class);
+		// suite.addTestSuite(Bug306279.class);
+		// suite.addTestSuite(Bug306279b.class);
+		suite.addTestSuite(Bug306279c.class);
+		suite.addTestSuite(Bug306279d.class);
 		suite.addTestSuite(DependencyOnSelf.class);
 		suite.addTestSuite(DisabledExplanation.class);
 		suite.addTestSuite(DropinsScenario.class);
@@ -134,6 +139,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SingletonOptionallyInstalled.class);
 		suite.addTestSuite(SingletonOptionallyInstalled2.class);
 		suite.addTestSuite(SWTFragment.class);
+		suite.addTestSuite(TopLevelFilterTest.class);
 		suite.addTestSuite(TwoVersionsOfWSDL.class);
 		suite.addTestSuite(UninstallEverything.class);
 		suite.addTestSuite(UpdateQueryTest.class);
