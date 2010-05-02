@@ -3,9 +3,11 @@
 <repository name='file:/C:/_workspaces/p2/org.eclipse.equinox.p2.tests/testData/testRepos/updateSite/ - metadata' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'>
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
-    <property name='p2.timestamp' value='1271975857446'/>
+    <property name='p2.timestamp' value='1272593820620'/>
   </properties>
-  <references size='2'>
+  <references size='4'>
+    <repository uri='file:/Users/Pascal/dev/p2/org.eclipse.equinox.p2.tests/testData/provisioningContextTests/B/' url='file:/Users/Pascal/dev/p2/org.eclipse.equinox.p2.tests/testData/provisioningContextTests/B/' type='1' options='1'/>
+    <repository uri='file:/Users/Pascal/dev/p2/org.eclipse.equinox.p2.tests/testData/provisioningContextTests/C/' url='file:/Users/Pascal/dev/p2/org.eclipse.equinox.p2.tests/testData/provisioningContextTests/C/' type='0' options='1'/>
     <repository uri='file:/C:/_workspaces/p2/org.eclipse.equinox.p2.tests/testData/provisioningContextTests/B/' url='file:/C:/_workspaces/p2/org.eclipse.equinox.p2.tests/testData/provisioningContextTests/B/' type='1' options='1'/>
     <repository uri='file:/C:/_workspaces/p2/org.eclipse.equinox.p2.tests/testData/provisioningContextTests/C/' url='file:/C:/_workspaces/p2/org.eclipse.equinox.p2.tests/testData/provisioningContextTests/C/' type='0' options='1'/>
   </references>
