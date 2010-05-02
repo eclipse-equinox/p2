@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -27,7 +27,7 @@ public class Bug270668 extends AbstractProvisioningTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		a1 = createIU("A", Version.create("1.0.0"), "(os=win32)", NO_PROVIDES);
+		a1 = createIU("A", Version.create("1.0.0"), "(os=win32)", new IProvidedCapability[] {new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", Version.create("1.0.0"))});
 		b1 = createIU("B", Version.create("1.0.0"), true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1});
@@ -42,6 +42,7 @@ public class Bug270668 extends AbstractProvisioningTest {
 		pcr.add(b1);
 		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, null);
 		assertNotOK(plan.getStatus());
+		assertTrue("Explanation does not mention filter!", plan.getStatus().getChildren()[0].getMessage().contains("filter"));
 	}
 
 	public void testInstallOptional() {
