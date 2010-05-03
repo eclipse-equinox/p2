@@ -91,6 +91,8 @@
                name="aboutImage"
                value="product_lg.gif">
          </property>
+         <property name="preferenceCustomization" value="plugin_customization.ini"/>
+         
       </product>
    </extension>
       <extension
