@@ -12,12 +12,14 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
-public class Bug306279e extends AbstractProvisioningTest {
+public class Bug311330 extends AbstractProvisioningTest {
 	public void testValidateProfile() throws ProvisionException {
 		IProvisioningAgentProvider provider = getAgentProvider();
-		IProvisioningAgent agent = provider.createAgent(getTestData("bug306279e data", "testData/bug306279e/p2").toURI());
+		IProvisioningAgent agent = provider.createAgent(getTestData("bug311330 data", "testData/bug311330/p2").toURI());
 		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
-		IProfileChangeRequest request = planner.createChangeRequest(((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).getProfile("SDKProfile"));
+		IProfile sdkProfile = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).getProfile("SDKProfile");
+		IProfileChangeRequest request = planner.createChangeRequest(sdkProfile);
+		assertFalse("rap.jface not found", sdkProfile.available(QueryUtil.createIUQuery("org.eclipse.rap.jface"), null).isEmpty());
 
 		// Force negation of rwt.
 		RequiredCapability req1 = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.rap.jface", new VersionRange("[1.1.0, 1.4.0)"), null, 0, 0, false, null);

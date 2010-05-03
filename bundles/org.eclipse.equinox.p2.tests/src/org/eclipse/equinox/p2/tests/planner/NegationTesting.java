@@ -14,6 +14,7 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -317,5 +318,22 @@ public class NegationTesting extends AbstractProvisioningTest {
 		changeRequest2.addAll(toAdd);
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(changeRequest2, null, null);
 		assertNotOK("The resolution should be failing because of the negation requirement.", plan2.getStatus());
+	}
+
+	public void testNegationThroughExtraRequirements() {
+		IInstallableUnit iu = createIU("TESTNEGATION");
+		createTestMetdataRepository(new IInstallableUnit[] {iu});
+		IProfile profile = createProfile("TestProfile." + getName());
+		IPlanner planner = createPlanner();
+		IProfileChangeRequest request = planner.createChangeRequest(profile);
+		request.add(iu);
+
+		RequiredCapability req1 = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, 0, 0, false, null);
+		ArrayList<IRequirement> reqs = new ArrayList();
+		reqs.add(req1);
+		request.addExtraRequirements(reqs);
+
+		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, null);
+		assertNotOK("plan should fail", plan.getStatus());
 	}
 }
