@@ -69,21 +69,20 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 				// there. We don't migrate if the value was never set.
 				// We use string literals rather than pref constants because we want to
 				// ensure we match the 3.4 values.
-				if (node34.get("enabled", null) == null) { //$NON-NLS-1$
+				if (pref.get(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, null) == null && node34.get("enabled", null) != null) { //$NON-NLS-1$
 					pref.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, node34.getBoolean("enabled", false)); //$NON-NLS-1$
 				}
-				if (node34.get("schedule", null) == null) { //$NON-NLS-1$
+				if (pref.get(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, null) == null && node34.get("schedule", null) != null) { //$NON-NLS-1$
 					pref.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, node34.get("schedule", //$NON-NLS-1$
 							PreferenceConstants.PREF_UPDATE_ON_STARTUP));
 				}
-				if (node34.get("download", null) == null) { //$NON-NLS-1$
+				if (pref.get(PreferenceConstants.PREF_DOWNLOAD_ONLY, null) == null && node34.get("download", null) != null) { //$NON-NLS-1$
 					pref.putBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, node34.getBoolean("download", false)); //$NON-NLS-1$
 				}
-				if (node34.get("remindOnSchedule", null) == null) { //$NON-NLS-1$
+				if (pref.get(PreferenceConstants.PREF_REMIND_SCHEDULE, null) == null && node34.get("remindOnSchedule", null) != null) { //$NON-NLS-1$
 					pref.putBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, node34.getBoolean("remindOnSchedule", false)); //$NON-NLS-1$
 				}
-				if (node34.get("remindElapsedTime", null) == null) { //$NON-NLS-1$
-
+				if (pref.get(PreferenceConstants.PREF_REMIND_ELAPSED, null) == null && node34.get("remindElapsedTime", null) != null) { //$NON-NLS-1$
 					pref.put(PreferenceConstants.PREF_REMIND_ELAPSED, node34.get("remindElapsedTime", //$NON-NLS-1$
 							AutomaticUpdateMessages.AutomaticUpdateScheduler_30Minutes));
 				}
@@ -113,7 +112,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 				boolean enableUpdate = prefUM.getBoolean(P_ENABLED, false);
 				// set p2 automatic update preference to match UM preference,
 				// only if we haven't already set a value.
-				if (pref.get(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, null) == null) {
+				if (pref.get(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, null) == null && updateNodeExists) {
 					pref.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, enableUpdate);
 				}
 				// turn off UM automatic update preference if it exists
