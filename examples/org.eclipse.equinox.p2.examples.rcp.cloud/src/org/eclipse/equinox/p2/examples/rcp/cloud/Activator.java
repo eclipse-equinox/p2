@@ -2,7 +2,10 @@ package org.eclipse.equinox.p2.examples.rcp.cloud;
 
 import org.eclipse.equinox.p2.examples.rcp.cloud.p2.CloudPolicy;
 import org.eclipse.equinox.p2.ui.Policy;
+import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -19,6 +22,9 @@ public class Activator extends AbstractUIPlugin {
 	private static Activator plugin;
 	
 	ServiceRegistration policyRegistration;
+	CloudPolicy policy;
+	IPropertyChangeListener preferenceListener;
+	
 	
 	/**
 	 * The constructor
@@ -33,8 +39,20 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		/// XXX register the p2 UI policy
+		// XXX register the p2 UI policy
 		registerP2Policy(context);
+		getPreferenceStore().addPropertyChangeListener(getPreferenceListener());
+	}
+
+	private IPropertyChangeListener getPreferenceListener() {
+		if (preferenceListener == null) {
+			preferenceListener = new IPropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent event) {
+					policy.updateForPreferences();
+				}
+			};
+		}
+		return preferenceListener;
 	}
 
 	/*
@@ -46,6 +64,8 @@ public class Activator extends AbstractUIPlugin {
 		// XXX unregister the UI policy
 		policyRegistration.unregister();
 		policyRegistration = null;
+		getPreferenceStore().removePropertyChangeListener(preferenceListener);
+		preferenceListener = null;
 		super.stop(context);
 		
 	}
@@ -71,6 +91,8 @@ public class Activator extends AbstractUIPlugin {
 	}
 	
 	private void registerP2Policy(BundleContext context) {
-		policyRegistration = context.registerService(Policy.class.getName(), new CloudPolicy(), null);
+		policy = new CloudPolicy();
+		policy.updateForPreferences();
+		policyRegistration = context.registerService(Policy.class.getName(), policy, null);
 	}
 }
