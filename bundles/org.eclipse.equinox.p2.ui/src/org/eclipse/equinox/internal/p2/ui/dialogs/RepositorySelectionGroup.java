@@ -473,6 +473,15 @@ public class RepositorySelectionGroup {
 		} catch (URISyntaxException e) {
 			// never mind
 		}
+
+		// Special case.  The user has typed a URI with a trailing slash.
+		// Make a URI without the trailing slash and see if it matches
+		// a location we know about.
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=268580
+		int length = repoText.length();
+		if (length > 0 && repoText.charAt(length - 1) == '/') {
+			return getComboIndex(repoText.substring(0, length - 1));
+		}
 		return -1;
 	}
 

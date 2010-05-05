@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.ui;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import org.eclipse.core.runtime.*;
@@ -122,8 +123,14 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				Object[] children = super.fetchChildren(o, monitor);
 				cachedElements = new Hashtable<String, Object>(children.length);
 				for (int i = 0; i < children.length; i++) {
-					if (children[i] instanceof MetadataRepositoryElement)
-						cachedElements.put(URIUtil.toUnencodedString(((MetadataRepositoryElement) children[i]).getLocation()), children[i]);
+					if (children[i] instanceof MetadataRepositoryElement) {
+						String key = URIUtil.toUnencodedString(((MetadataRepositoryElement) children[i]).getLocation());
+						int length = key.length();
+						if (length > 0 && key.charAt(length - 1) == '/') {
+							key = key.substring(0, length - 1);
+						}
+						cachedElements.put(key, children[i]);
+					}
 				}
 			}
 			return cachedElements.values().toArray();
@@ -835,6 +842,24 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 				public void refreshRepositories(URI[] locations, ProvisioningSession session, IProgressMonitor monitor) {
 					// Nothing to refresh in the local cache
+				}
+
+				public IStatus validateRepositoryLocation(ProvisioningSession session, URI location, boolean contactRepositories, IProgressMonitor monitor) {
+					IStatus status = super.validateRepositoryLocation(session, location, contactRepositories, monitor);
+					if (status.isOK()) {
+						String repoString = URIUtil.toUnencodedString(location);
+						int length = repoString.length();
+						if (length > 0 && repoString.charAt(length - 1) == '/') {
+							try {
+								location = URIUtil.fromString(repoString.substring(0, length - 1));
+							} catch (URISyntaxException e) {
+								return status;
+							}
+							status = super.validateRepositoryLocation(session, location, contactRepositories, monitor);
+						}
+					}
+					return status;
+
 				}
 			};
 		return localCacheRepoManipulator;
