@@ -72,4 +72,8 @@ public final class WrappedIQuery extends Function {
 		}
 		return false;
 	}
+
+	int countAccessToEverything() {
+		return isReferenceTo(ExpressionFactory.EVERYTHING) ? 1 : 0;
+	}
 }

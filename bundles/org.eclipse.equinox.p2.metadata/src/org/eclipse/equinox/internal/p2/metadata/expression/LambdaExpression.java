@@ -69,4 +69,8 @@ public class LambdaExpression extends Unary {
 	public IEvaluationContext prolog(IEvaluationContext context) {
 		return EvaluationContext.create(context, each);
 	}
+
+	int countAccessToEverything() {
+		return 2 * super.countAccessToEverything();
+	}
 }

@@ -76,4 +76,8 @@ public class Variable extends Expression {
 	public void toString(StringBuffer bld, Variable rootVariable) {
 		bld.append(name);
 	}
+
+	int countAccessToEverything() {
+		return this == ExpressionFactory.EVERYTHING ? 1 : 0;
+	}
 }

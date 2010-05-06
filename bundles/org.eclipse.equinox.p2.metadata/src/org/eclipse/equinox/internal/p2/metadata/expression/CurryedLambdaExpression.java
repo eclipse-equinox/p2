@@ -83,4 +83,12 @@ final class CurryedLambdaExpression extends LambdaExpression {
 			lambdaContext.setValue(vars[idx], assignments[idx - 1].rhs.evaluate(context));
 		return lambdaContext;
 	}
+
+	int countAccessToEverything() {
+		int cnt = 0;
+		for (int idx = 0; idx < assignments.length; ++idx)
+			cnt += assignments[idx].countAccessToEverything();
+		cnt += super.countAccessToEverything();
+		return cnt;
+	}
 }

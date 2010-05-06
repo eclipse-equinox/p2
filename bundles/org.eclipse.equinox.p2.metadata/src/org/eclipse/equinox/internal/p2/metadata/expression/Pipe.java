@@ -23,7 +23,7 @@ public class Pipe extends NAry {
 
 	private class NoIndexProvider implements IIndexProvider<Object> {
 		private final IIndexProvider<?> indexProvider;
-		private Iterator<Object> everything;
+		private Everything<Object> everything;
 
 		NoIndexProvider(IIndexProvider<?> indexProvider) { //
 			this.indexProvider = indexProvider;
@@ -34,7 +34,7 @@ public class Pipe extends NAry {
 		}
 
 		public Iterator<Object> everything() {
-			return everything;
+			return everything.getCopy();
 		}
 
 		public Object getManagedProperty(Object client, String memberName, Object key) {
@@ -48,8 +48,8 @@ public class Pipe extends NAry {
 		}
 
 		@SuppressWarnings("unchecked")
-		void setEverything(Iterator<?> everything) {
-			this.everything = (Iterator<Object>) everything;
+		void setEverything(Everything<?> everything) {
+			this.everything = (Everything<Object>) everything;
 		}
 	}
 
@@ -110,7 +110,18 @@ public class Pipe extends NAry {
 
 	private static Expression makePipeableOfBooleans(IExpressionFactory factory, ArrayList<Expression> booleans) {
 		Expression boolExpr = normalizeBoolean(factory, booleans);
-		return (Expression) factory.select(ExpressionFactory.EVERYTHING, factory.lambda(ExpressionFactory.THIS, boolExpr));
+		Object[] params = null;
+		if (boolExpr instanceof MatchExpression<?>) {
+			MatchExpression<?> matchExpr = (MatchExpression<?>) boolExpr;
+			boolExpr = (Expression) matchExpr.getPredicate();
+			params = matchExpr.getParameters();
+			if (params.length == 0)
+				params = null;
+		}
+		Expression expr = (Expression) factory.select(ExpressionFactory.EVERYTHING, factory.lambda(ExpressionFactory.THIS, boolExpr));
+		if (params != null)
+			expr = new ContextExpression<Object>(expr, params);
+		return expr;
 	}
 
 	private Pipe(Expression[] operands) {
@@ -141,11 +152,11 @@ public class Pipe extends NAry {
 		Variable everything = ExpressionFactory.EVERYTHING;
 		IEvaluationContext nextContext = EvaluationContext.create(context, everything);
 		NoIndexProvider noIndexProvider = new NoIndexProvider(context.getIndexProvider());
+		everything.setValue(nextContext, noIndexProvider);
 		nextContext.setIndexProvider(noIndexProvider);
 		for (int idx = 1; idx < operands.length; ++idx) {
 			Expression expr = operands[idx];
-			noIndexProvider.setEverything(iterator);
-			everything.setValue(nextContext, new Everything<Object>(elementClass, noIndexProvider));
+			noIndexProvider.setEverything(new Everything<Object>(elementClass, iterator, expr));
 			iterator = expr.evaluateAsIterator(nextContext);
 			if (!iterator.hasNext())
 				break;

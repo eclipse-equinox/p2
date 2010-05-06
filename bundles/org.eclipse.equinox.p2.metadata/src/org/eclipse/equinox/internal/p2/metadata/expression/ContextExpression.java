@@ -51,6 +51,10 @@ public class ContextExpression<T> extends Unary implements IContextExpression<T>
 		return context;
 	}
 
+	public Object evaluate(IEvaluationContext context) {
+		return operand.evaluate(parameters.length == 0 ? context : EvaluationContext.create(context, parameters));
+	}
+
 	public int getExpressionType() {
 		return 0;
 	}
@@ -73,7 +77,7 @@ public class ContextExpression<T> extends Unary implements IContextExpression<T>
 
 	@SuppressWarnings("unchecked")
 	public Iterator<T> iterator(IEvaluationContext context) {
-		return (Iterator<T>) evaluateAsIterator(context);
+		return (Iterator<T>) operand.evaluateAsIterator(context);
 	}
 
 	public void toString(StringBuffer bld) {

@@ -56,4 +56,11 @@ public abstract class NAry extends Expression {
 			appendOperand(bld, rootVariable, operands[idx], getPriority());
 		}
 	}
+
+	int countAccessToEverything() {
+		int cnt = 0;
+		for (int idx = 0; idx < operands.length; ++idx)
+			cnt += operands[idx].countAccessToEverything();
+		return cnt;
+	}
 }

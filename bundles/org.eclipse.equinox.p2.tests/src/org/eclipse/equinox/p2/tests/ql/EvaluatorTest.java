@@ -353,4 +353,26 @@ public class EvaluatorTest extends AbstractProvisioningTest {
 
 		return metadataManager.loadRepository(metadataRepo, new NullProgressMonitor());
 	}
+
+	public void testConsistency() throws Exception {
+		IMetadataRepository repo = getMDR("/testData/metadataRepo/qltest");
+
+		IQuery<IInstallableUnit> query1 = QueryUtil.createIUGroupQuery();
+		IQuery<IInstallableUnit> query2 = QueryUtil.createQuery("select(iu2 | iu2.requirements.exists(r | r != null) || exists(iu | iu.requirements.exists(r | iu2 ~= r)))");
+
+		IQueryResult<IInstallableUnit> rt2 = repo.query(QueryUtil.createPipeQuery(query1, query2), null);
+
+		IQueryResult<IInstallableUnit> rt = repo.query(query1, null);
+		IQueryResult<IInstallableUnit> rt1 = rt.query(QueryUtil.createQuery("select(iu2 | iu2.requirements.exists(r | r != null))"), null);
+		rt = rt.query(QueryUtil.createQuery("select(iu | $0.exists(i | i.requirements.exists(r | iu ~= r)))", (Object) rt1.toArray(IInstallableUnit.class)), null);
+		/**
+		 * should use below line to replace above two lines,
+		 * but it throws an unsupported operation exception
+		 */
+		//		rt = rt.query(query2, null);
+		Set set = rt.toSet();
+		set.addAll(rt1.toSet());
+
+		assertTrue("Query results are inconsistent.", set.size() == rt2.toSet().size());
+	}
 }

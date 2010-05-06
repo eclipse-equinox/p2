@@ -127,4 +127,8 @@ public abstract class CollectionFilter extends Unary {
 			((Variable) operand).setValue(context, itor);
 		return itor;
 	}
+
+	int countAccessToEverything() {
+		return operand.countAccessToEverything() + lambda.countAccessToEverything();
+	}
 }

@@ -54,4 +54,8 @@ public abstract class Unary extends Expression {
 		bld.append(getOperator());
 		appendOperand(bld, rootVariable, operand, getPriority());
 	}
+
+	int countAccessToEverything() {
+		return operand.countAccessToEverything();
+	}
 }

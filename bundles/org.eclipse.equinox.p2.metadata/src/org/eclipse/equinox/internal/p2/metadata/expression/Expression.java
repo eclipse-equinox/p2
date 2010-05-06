@@ -483,4 +483,8 @@ public abstract class Expression implements IExpression, Comparable<Expression>,
 		accept(tsFinder);
 		return tsFinder.isFound();
 	}
+
+	int countAccessToEverything() {
+		return 0;
+	}
 }

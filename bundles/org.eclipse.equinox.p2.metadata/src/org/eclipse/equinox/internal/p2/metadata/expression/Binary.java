@@ -132,4 +132,8 @@ public abstract class Binary extends Expression {
 		}
 		throw new UnsupportedOperationException();
 	}
+
+	int countAccessToEverything() {
+		return lhs.countAccessToEverything() + rhs.countAccessToEverything();
+	}
 }
