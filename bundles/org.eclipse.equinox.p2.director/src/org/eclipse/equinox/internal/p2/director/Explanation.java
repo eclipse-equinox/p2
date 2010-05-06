@@ -49,6 +49,12 @@ public abstract class Explanation implements Comparable<Explanation> {
 		public String toString() {
 			return NLS.bind(Messages.Explanation_patchedHardDependency, new Object[] {patch, iu, req});
 		}
+
+		@Override
+		public int shortAnswer() {
+			return Explanation.VIOLATED_PATCHED_HARD_REQUIREMENT;
+		}
+
 	}
 
 	public static class HardRequirement extends Explanation {
@@ -74,6 +80,11 @@ public abstract class Explanation implements Comparable<Explanation> {
 		public String toString() {
 			return NLS.bind(Messages.Explanation_hardDependency, iu, req);
 		}
+
+		@Override
+		public int shortAnswer() {
+			return VIOLATED_HARD_REQUIREMENT;
+		}
 	}
 
 	public static class IUInstalled extends Explanation {
@@ -93,6 +104,11 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 		public IStatus toStatus() {
 			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_alreadyInstalled, getUserReadableName(iu)));
+		}
+
+		@Override
+		public int shortAnswer() {
+			return IU_INSTALLED;
 		}
 	}
 
@@ -114,6 +130,11 @@ public abstract class Explanation implements Comparable<Explanation> {
 		public IStatus toStatus() {
 			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Explanation_toInstall, getUserReadableName(iu)));
 		}
+
+		@Override
+		public int shortAnswer() {
+			return IU_TO_INSTALL;
+		}
 	}
 
 	public static class NotInstallableRoot extends Explanation {
@@ -133,6 +154,11 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 		protected int orderValue() {
 			return 2;
+		}
+
+		@Override
+		public int shortAnswer() {
+			return NON_INSTALLABLE_ROOT;
 		}
 	}
 
@@ -228,8 +254,6 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 	}
 
-	public static final int MISSING_REQUIREMENT = 1;
-
 	public static final Explanation OPTIONAL_REQUIREMENT = new Explanation() {
 
 		public int orderValue() {
@@ -239,9 +263,21 @@ public abstract class Explanation implements Comparable<Explanation> {
 		public String toString() {
 			return Messages.Explanation_optionalDependency;
 		}
+
+		@Override
+		public int shortAnswer() {
+			return OTHER_REASON;
+		}
 	};
 
+	public static final int MISSING_REQUIREMENT = 1;
 	public static final int VIOLATED_SINGLETON_CONSTRAINT = 2;
+	public static final int IU_INSTALLED = 3;
+	public static final int IU_TO_INSTALL = 4;
+	public static final int VIOLATED_HARD_REQUIREMENT = 5;
+	public static final int VIOLATED_PATCHED_HARD_REQUIREMENT = 6;
+	public static final int NON_INSTALLABLE_ROOT = 7;
+	public static final int OTHER_REASON = 100;
 
 	protected Explanation() {
 		super();
@@ -256,9 +292,7 @@ public abstract class Explanation implements Comparable<Explanation> {
 
 	protected abstract int orderValue();
 
-	public int shortAnswer() {
-		throw new UnsupportedOperationException();
-	}
+	abstract public int shortAnswer();
 
 	/**
 	 * Returns a representation of this explanation as a status object.
