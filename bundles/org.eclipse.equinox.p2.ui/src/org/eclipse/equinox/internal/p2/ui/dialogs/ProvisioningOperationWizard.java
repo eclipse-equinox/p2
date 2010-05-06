@@ -121,15 +121,16 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	/**
-	 * The selections in the main page have changed.  We might need to
+	 * The selections that drive the provisioning operation have changed.  We might need to
 	 * change the completion state of the resolution page.
 	 */
-	public void mainPageSelectionsChanged() {
+	public void operationSelectionsChanged(ISelectableIUsPage page) {
 		if (resolutionPage != null) {
 			// If the page selections are different than what we may have resolved
 			// against, then this page is not complete.
 			boolean old = resolutionPage.isPageComplete();
-			resolutionPage.setPageComplete(!pageSelectionsHaveChanged(mainPage));
+			if (pageSelectionsHaveChanged(page))
+				resolutionPage.setPageComplete(false);
 			// If the state has truly changed, update the buttons.  
 			if (old != resolutionPage.isPageComplete()) {
 				IWizardContainer container = getContainer();
@@ -146,7 +147,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		return waitingForOtherJobs || previouslyWaiting || previouslyCanceled || pageSelectionsHaveChanged(page) || provisioningContextChanged();
 	}
 
-	private boolean pageSelectionsHaveChanged(ISelectableIUsPage page) {
+	protected boolean pageSelectionsHaveChanged(ISelectableIUsPage page) {
 		HashSet<IInstallableUnit> selectedIUs = new HashSet<IInstallableUnit>();
 		Object[] currentSelections = page.getCheckedIUElements();
 		selectedIUs.addAll(ElementUtils.elementsToIUs(currentSelections));
@@ -193,7 +194,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	public void recomputePlan(IRunnableContext runnableContext) {
 		couldNotResolveStatus = Status.OK_STATUS;
 		provisioningContext = getProvisioningContext();
-		initializeResolutionModelElements(mainPage.getCheckedIUElements());
+		initializeResolutionModelElements(getOperationSelections());
 		if (planSelections.length == 0) {
 			operation = null;
 			couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
@@ -215,6 +216,13 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			}
 		}
 		planChanged();
+	}
+
+	/*
+	 * Get the selections that drive the provisioning operation.
+	 */
+	protected Object[] getOperationSelections() {
+		return mainPage.getCheckedIUElements();
 	}
 
 	protected abstract ProfileChangeOperation getProfileChangeOperation(Object[] elements);

@@ -59,9 +59,11 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		this.root = root;
 		if (root == null)
 			root = new IUElementListRoot();
-		this.initialSelections = initialSelections;
 		if (initialSelections == null)
-			initialSelections = new IInstallableUnit[0];
+			this.initialSelections = new IInstallableUnit[0];
+		else
+			this.initialSelections = initialSelections;
+
 	}
 
 	/*
@@ -107,8 +109,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 		tableViewer.addCheckStateListener(new ICheckStateListener() {
 			public void checkStateChanged(CheckStateChangedEvent event) {
-				setPageComplete(tableViewer.getCheckedElements().length > 0);
-				getProvisioningWizard().mainPageSelectionsChanged();
+				updateSelection();
 			}
 		});
 
@@ -153,7 +154,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		selectAll.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
 				tableViewer.setAllChecked(true);
-				setPageComplete(tableViewer.getCheckedElements().length > 0);
+				updateSelection();
 			}
 		});
 
@@ -163,7 +164,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		deselectAll.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
 				tableViewer.setAllChecked(false);
-				setPageComplete(tableViewer.getCheckedElements().length > 0);
+				updateSelection();
 			}
 		});
 
@@ -297,5 +298,10 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 	protected int getColumnWidth(int index) {
 		return tableViewer.getTable().getColumn(index).getWidth();
+	}
+
+	void updateSelection() {
+		setPageComplete(tableViewer.getCheckedElements().length > 0);
+		getProvisioningWizard().operationSelectionsChanged(this);
 	}
 }

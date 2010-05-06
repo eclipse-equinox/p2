@@ -23,6 +23,7 @@ import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.wizard.IWizardPage;
+import org.eclipse.jface.wizard.WizardPage;
 
 /**
  * An install wizard that allows the users to browse all of the repositories
@@ -33,6 +34,7 @@ import org.eclipse.jface.wizard.IWizardPage;
 public class InstallWizard extends WizardWithLicenses {
 
 	SelectableIUsPage errorReportingPage;
+	boolean ignoreSelectionChanges = false;
 
 	public InstallWizard(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections == null ? null : initialSelections.toArray(), preloadJob);
@@ -70,6 +72,29 @@ public class InstallWizard extends WizardWithLicenses {
 		planSelections = selections.toArray();
 	}
 
+	/*
+	 * Overridden to dynamically determine which page to get
+	 * selections from.  (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getOperationSelections()
+	 */
+	protected Object[] getOperationSelections() {
+		return getOperationSelectionsPage().getCheckedIUElements();
+	}
+
+	/*
+	 * Get the page that is driving operation selections.  This is
+	 * usually the main page, but it could be error page if there
+	 * was a resolution error and the user decides to change selections
+	 * and try again without going back.
+	 */
+	protected ISelectableIUsPage getOperationSelectionsPage() {
+		IWizardPage page = getContainer().getCurrentPage();
+		if (page instanceof ISelectableIUsPage)
+			return (ISelectableIUsPage) page;
+		// return the main page if we weren't on main or error page
+		return mainPage;
+	}
+
 	protected ProvisioningContext getProvisioningContext() {
 		return ((AvailableIUsPage) mainPage).getProvisioningContext();
 	}
@@ -83,18 +108,6 @@ public class InstallWizard extends WizardWithLicenses {
 		errorReportingPage.setDescription(ProvUIMessages.PreselectedIUInstallWizard_Description);
 		errorReportingPage.updateStatus(root, operation);
 		return errorReportingPage;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jface.wizard.Wizard#getPreviousPage(org.eclipse.jface.wizard.IWizardPage)
-	 */
-	public IWizardPage getPreviousPage(IWizardPage page) {
-		if (page == errorReportingPage) {
-			mainPage.setCheckedElements(errorReportingPage.getCheckedIUElements());
-			return mainPage;
-		}
-		return super.getPreviousPage(page);
 	}
 
 	/* (non-Javadoc)
@@ -113,5 +126,42 @@ public class InstallWizard extends WizardWithLicenses {
 		// resolve again with an error, we wouldn't want the root items to change in the
 		// error page.
 		return getContainer().getCurrentPage() == mainPage && super.shouldUpdateErrorPageModelOnPlanChange();
+	}
+
+	protected void planChanged() {
+		super.planChanged();
+		synchSelections(getOperationSelectionsPage());
+	}
+
+	/*
+	 * overridden to ensure that the main page selections stay in synch
+	 * with changes to the error page.
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#operationSelectionsChanged(org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage)
+	 */
+	public void operationSelectionsChanged(ISelectableIUsPage page) {
+		if (ignoreSelectionChanges)
+			return;
+		super.operationSelectionsChanged(page);
+		// If we are on the error page, resolution has failed.
+		// Our ability to move on depends on whether the selections have changed.
+		// If they are the same selections, then we are not complete until selections are changed.
+		if (getOperationSelectionsPage() == errorPage)
+			((WizardPage) errorPage).setPageComplete(pageSelectionsHaveChanged(errorPage) && errorPage.getCheckedIUElements().length > 0);
+		synchSelections(page);
+	}
+
+	private void synchSelections(ISelectableIUsPage triggeringPage) {
+		// We don't want our programmatic changes to cause all this to happen again
+		ignoreSelectionChanges = true;
+		try {
+			if (triggeringPage == errorReportingPage) {
+				mainPage.setCheckedElements(triggeringPage.getCheckedIUElements());
+			} else if (triggeringPage == mainPage) {
+				errorReportingPage.setCheckedElements(triggeringPage.getCheckedIUElements());
+			}
+		} finally {
+			ignoreSelectionChanges = false;
+		}
 	}
 }

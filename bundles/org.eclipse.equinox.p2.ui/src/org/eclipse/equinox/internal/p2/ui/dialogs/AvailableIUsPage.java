@@ -334,7 +334,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			String message = count == 1 ? ProvUIMessages.AvailableIUsPage_SingleSelectionCount : ProvUIMessages.AvailableIUsPage_MultipleSelectionCount;
 			selectionCount.setText(NLS.bind(message, Integer.toString(count)));
 		}
-		getProvisioningWizard().mainPageSelectionsChanged();
+		getProvisioningWizard().operationSelectionsChanged(this);
 	}
 
 	void updateQueryContext() {
