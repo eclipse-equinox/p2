@@ -77,6 +77,7 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 		IStatus status;
 		if (plan == null) {
 			status = new Status(IStatus.ERROR, Activator.ID, Messages.PlannerResolutionJob_NullProvisioningPlan);
+			additionalStatus.add(status);
 		} else {
 			status = plan.getStatus();
 		}
@@ -94,14 +95,24 @@ public class PlannerResolutionJob extends ProvisioningJob implements IProfileCha
 		successful = secondPass;
 		plan = ((IPlanner) getSession().getProvisioningAgent().getService(IPlanner.SERVICE_NAME)).getProvisioningPlan(request, secondPass, sub.newChild(500));
 		if (plan == null) {
-			return new Status(IStatus.ERROR, Activator.ID, Messages.PlannerResolutionJob_NullProvisioningPlan);
+			status = new Status(IStatus.ERROR, Activator.ID, Messages.PlannerResolutionJob_NullProvisioningPlan);
+			additionalStatus.add(status);
+			return status;
 		}
 		return plan.getStatus();
 	}
 
 	public ResolutionResult getResolutionResult() {
 		if (report == null) {
-			report = PlanAnalyzer.computeResolutionResult(request, plan, additionalStatus);
+			if (plan == null) {
+				if (additionalStatus.getSeverity() != IStatus.ERROR) {
+					additionalStatus.add(new Status(IStatus.ERROR, Activator.ID, Messages.PlannerResolutionJob_NullProvisioningPlan));
+				}
+				report = new ResolutionResult();
+				report.addSummaryStatus(additionalStatus);
+			} else {
+				report = PlanAnalyzer.computeResolutionResult(request, plan, additionalStatus);
+			}
 		}
 		return report;
 	}
