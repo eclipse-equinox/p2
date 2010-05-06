@@ -206,16 +206,19 @@ public class ProvisioningContext {
 			IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 			SubMonitor repoSubMon = SubMonitor.convert(sub.newChild(500), 100 * references.size());
 			for (IRepositoryReference ref : references) {
-				if (ref.getType() == IRepository.TYPE_METADATA && followMetadataRepoReferences && isEnabled(manager, ref)) {
-					loadMetadataRepository(manager, ref.getLocation(), repos, followMetadataRepoReferences, repoSubMon.newChild(100));
-				} else if (ref.getType() == IRepository.TYPE_ARTIFACT) {
-					// We want to remember all enabled artifact repository locations.
-					if (isEnabled(artifactManager, ref))
-						try {
+				try {
+					if (ref.getType() == IRepository.TYPE_METADATA && followMetadataRepoReferences && isEnabled(manager, ref)) {
+						loadMetadataRepository(manager, ref.getLocation(), repos, followMetadataRepoReferences, repoSubMon.newChild(100));
+					} else if (ref.getType() == IRepository.TYPE_ARTIFACT) {
+						// We want to remember all enabled artifact repository locations.
+						if (isEnabled(artifactManager, ref))
 							referencedArtifactRepositories.put(ref.getLocation().toString(), artifactManager.loadRepository(ref.getLocation(), repoSubMon.newChild(100)));
-						} catch (ProvisionException e) {
-							// ignore this one but keep looking at other references
-						}
+					}
+				} catch (IllegalArgumentException e) {
+					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=311338
+					// ignore invalid location and keep going
+				} catch (ProvisionException e) {
+					// ignore this one but keep looking at other references
 				}
 			}
 		} else {
