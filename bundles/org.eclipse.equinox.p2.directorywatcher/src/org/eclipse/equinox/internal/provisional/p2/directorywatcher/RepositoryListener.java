@@ -17,6 +17,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -239,7 +240,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			for (Iterator<IArtifactDescriptor> iterator = descriptors.iterator(); iterator.hasNext();) {
 				SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) iterator.next();
 				String filename = descriptor.getRepositoryProperty(FILE_NAME);
-				if (filename == null) {
+				if (filename == null && Tracing.DEBUG) {
 					String message = NLS.bind(Messages.filename_missing, "artifact", descriptor.getArtifactKey()); //$NON-NLS-1$
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
 				} else {
@@ -263,7 +264,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			for (Iterator<IInstallableUnit> it = ius.iterator(); it.hasNext();) {
 				IInstallableUnit iu = it.next();
 				String filename = iu.getProperty(FILE_NAME);
-				if (filename == null) {
+				if (filename == null && Tracing.DEBUG) {
 					String message = NLS.bind(Messages.filename_missing, "installable unit", iu.getId()); //$NON-NLS-1$
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
 				} else {
