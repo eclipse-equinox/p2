@@ -24,6 +24,8 @@ public class ProvSDKMessages extends NLS {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, ProvSDKMessages.class);
 	}
+	public static String Handler_CannotLaunchUI;
+	public static String Handler_SDKUpdateUIMessageTitle;
 	public static String InstallNewSoftwareHandler_ProgressTaskName;
 	public static String PreferenceInitializer_Error;
 	public static String ProvisioningPreferencePage_AlwaysOpenWizard;

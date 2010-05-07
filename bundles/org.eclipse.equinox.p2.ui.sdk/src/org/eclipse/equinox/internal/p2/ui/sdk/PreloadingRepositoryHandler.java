@@ -14,10 +14,16 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * PreloadingRepositoryHandler provides background loading of
@@ -38,7 +44,31 @@ abstract class PreloadingRepositoryHandler extends AbstractHandler {
 	 * Execute the command.
 	 */
 	public Object execute(ExecutionEvent event) {
-		doExecuteAndLoad();
+		// Look for a profile.  We may not immediately need it in the
+		// handler, but if we don't have one, whatever we are trying to do
+		// will ultimately fail in a more subtle/low-level way.  So determine
+		// up front if the system is configured properly.
+		String profileId = getProvisioningUI().getProfileId();
+		IProvisioningAgent agent = getProvisioningUI().getSession().getProvisioningAgent();
+		IProfile profile = null;
+		if (agent != null) {
+			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+			if (registry != null) {
+				profile = registry.getProfile(profileId);
+			}
+		}
+		if (profile == null) {
+			// Inform the user nicely
+			MessageDialog.openInformation(null, ProvSDKMessages.Handler_SDKUpdateUIMessageTitle, ProvSDKMessages.Handler_CannotLaunchUI);
+			// Log the detailed message
+			StatusManager.getManager().handle(ProvSDKUIActivator.getNoSelfProfileStatus());
+		} else {
+			BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
+				public void run() {
+					doExecuteAndLoad();
+				}
+			});
+		}
 		return null;
 	}
 
