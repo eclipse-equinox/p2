@@ -322,7 +322,9 @@ public class SimplePlanner implements IPlanner {
 				plan.setStatus(slicer.getStatus());
 				return plan;
 			}
-			slice = new CompoundQueryable<IInstallableUnit>(new IQueryable[] {slice, new QueryableArray(profileChangeRequest.getAdditions().toArray(new IInstallableUnit[profileChangeRequest.getAdditions().size()]))});
+			@SuppressWarnings("unchecked")
+			final IQueryable<IInstallableUnit>[] queryables = new IQueryable[] {slice, new QueryableArray(profileChangeRequest.getAdditions().toArray(new IInstallableUnit[profileChangeRequest.getAdditions().size()]))};
+			slice = new CompoundQueryable<IInstallableUnit>(queryables);
 			Projector projector = new Projector(slice, newSelectionContext, slicer.getNonGreedyIUs(), satisfyMetaRequirements(profileChangeRequest.getProfileProperties()));
 			projector.encode((IInstallableUnit) updatedPlan[0], (IInstallableUnit[]) updatedPlan[1], profile, profileChangeRequest.getAdditions(), sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
