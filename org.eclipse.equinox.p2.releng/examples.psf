@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<psf version="2.0">
-<provider id="org.eclipse.team.cvs.core.cvsnature">
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/examples/org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility,org.eclipse.equinox.p2.examples.rcp.sdkbundlevisibility"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/examples/org.eclipse.equinox.p2.examples.rcp.cloud,org.eclipse.equinox.p2.examples.rcp.cloud"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/examples/org.eclipse.equinox.p2.examples.rcp.discovery,org.eclipse.equinox.p2.examples.rcp.discovery"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/examples/org.eclipse.equinox.p2.examples.rcp.prestartupdate,org.eclipse.equinox.p2.examples.rcp.prestartupdate"/>
-</provider>
-</psf>

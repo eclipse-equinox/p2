@@ -240,9 +240,11 @@ public class RepositoryListener extends DirectoryChangeListener {
 			for (Iterator<IArtifactDescriptor> iterator = descriptors.iterator(); iterator.hasNext();) {
 				SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) iterator.next();
 				String filename = descriptor.getRepositoryProperty(FILE_NAME);
-				if (filename == null && Tracing.DEBUG) {
-					String message = NLS.bind(Messages.filename_missing, "artifact", descriptor.getArtifactKey()); //$NON-NLS-1$
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
+				if (filename == null) {
+					if (Tracing.DEBUG) {
+						String message = NLS.bind(Messages.filename_missing, "artifact", descriptor.getArtifactKey()); //$NON-NLS-1$
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
+					}
 				} else {
 					File artifactFile = new File(filename);
 					if (removedFiles.contains(artifactFile))
@@ -264,9 +266,11 @@ public class RepositoryListener extends DirectoryChangeListener {
 			for (Iterator<IInstallableUnit> it = ius.iterator(); it.hasNext();) {
 				IInstallableUnit iu = it.next();
 				String filename = iu.getProperty(FILE_NAME);
-				if (filename == null && Tracing.DEBUG) {
-					String message = NLS.bind(Messages.filename_missing, "installable unit", iu.getId()); //$NON-NLS-1$
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
+				if (filename == null) {
+					if (Tracing.DEBUG) {
+						String message = NLS.bind(Messages.filename_missing, "installable unit", iu.getId()); //$NON-NLS-1$
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, null));
+					}
 				} else {
 					File iuFile = new File(filename);
 					Long iuLastModified = new Long(iu.getProperty(FILE_LAST_MODIFIED));
