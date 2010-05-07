@@ -295,7 +295,7 @@ public class Projector {
 				maxWeight = weight;
 		}
 
-		// no need to add one here, since maxWeight is strickly greater than the
+		// no need to add one here, since maxWeight is strictly greater than the
 		// maximal weight used so far.
 		maxWeight = maxWeight.multiply(POWER);
 
@@ -564,6 +564,10 @@ public class Projector {
 			for (int i = 0; i < reqs.length; i++) {
 				//The requirement is unchanged
 				if (reqs[i][0] == reqs[i][1]) {
+					if (reqs[i][0].getMax() == 0) {
+						expandNegatedRequirement(reqs[i][0], iu, optionalAbstractRequirements, isRootIu);
+						return;
+					}
 					if (!isApplicable(reqs[i][0]))
 						continue;
 

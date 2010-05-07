@@ -55,6 +55,7 @@ public class AllTests extends TestCase {
 		// suite.addTestSuite(Bug306279b.class);
 		suite.addTestSuite(Bug306279c.class);
 		suite.addTestSuite(Bug306279d.class);
+		suite.addTestSuite(Bug311330.class);
 		suite.addTestSuite(DependencyOnSelf.class);
 		suite.addTestSuite(DisabledExplanation.class);
 		suite.addTestSuite(DropinsScenario.class);
