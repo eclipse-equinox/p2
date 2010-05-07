@@ -37,7 +37,7 @@ public class ProvisioningContext {
 	private final List<IInstallableUnit> extraIUs = Collections.synchronizedList(new ArrayList<IInstallableUnit>());
 	private URI[] metadataRepositories; //metadata repositories to consult
 	private final Map<String, String> properties = new HashMap<String, String>();
-	private Map<String, IArtifactRepository> referencedArtifactRepositories = null;
+	private Map<String, URI> referencedArtifactRepositories = null;
 
 	private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
 
@@ -148,7 +148,7 @@ public class ProvisioningContext {
 		Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
 
 		List<IArtifactRepository> repos = new ArrayList<IArtifactRepository>();
-		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100);
+		SubMonitor sub = SubMonitor.convert(monitor, (repositories.length + 1) * 100);
 		for (int i = 0; i < repositories.length; i++) {
 			if (sub.isCanceled())
 				throw new OperationCanceledException();
@@ -157,10 +157,21 @@ public class ProvisioningContext {
 			} catch (ProvisionException e) {
 				//skip unreadable repositories
 			}
+			// Remove this URI from the list of extra references if it is there.
+			if (referencedArtifactRepositories != null)
+				referencedArtifactRepositories.remove(repositories[i]);
 		}
-		if (referencedArtifactRepositories != null)
-			for (IArtifactRepository repo : referencedArtifactRepositories.values())
-				repos.add(repo);
+		// Are there any extra artifact repository references to consider?
+		if (referencedArtifactRepositories != null && referencedArtifactRepositories.size() > 0) {
+			SubMonitor innerSub = SubMonitor.convert(sub.newChild(100), referencedArtifactRepositories.size() * 100);
+			for (URI referencedURI : referencedArtifactRepositories.values()) {
+				try {
+					repos.add(repoManager.loadRepository(referencedURI, innerSub.newChild(100)));
+				} catch (ProvisionException e) {
+					// skip unreadable repositories
+				}
+			}
+		}
 		return repos;
 	}
 
@@ -172,7 +183,7 @@ public class ProvisioningContext {
 		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 100);
 
 		// Clear out the list of remembered artifact repositories
-		referencedArtifactRepositories = new HashMap<String, IArtifactRepository>();
+		referencedArtifactRepositories = new HashMap<String, URI>();
 		for (int i = 0; i < repositories.length; i++) {
 			if (sub.isCanceled())
 				throw new OperationCanceledException();
@@ -212,13 +223,11 @@ public class ProvisioningContext {
 					} else if (ref.getType() == IRepository.TYPE_ARTIFACT) {
 						// We want to remember all enabled artifact repository locations.
 						if (isEnabled(artifactManager, ref))
-							referencedArtifactRepositories.put(ref.getLocation().toString(), artifactManager.loadRepository(ref.getLocation(), repoSubMon.newChild(100)));
+							referencedArtifactRepositories.put(ref.getLocation().toString(), ref.getLocation());
 					}
 				} catch (IllegalArgumentException e) {
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=311338
 					// ignore invalid location and keep going
-				} catch (ProvisionException e) {
-					// ignore this one but keep looking at other references
 				}
 			}
 		} else {
