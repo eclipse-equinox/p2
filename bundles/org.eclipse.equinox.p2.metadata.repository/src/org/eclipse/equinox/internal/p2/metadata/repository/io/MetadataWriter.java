@@ -223,7 +223,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 	protected void writeRequirement(IRequirement requirement) {
 		start(REQUIREMENT_ELEMENT);
 		IMatchExpression<IInstallableUnit> match = requirement.getMatches();
-		if (RequiredCapability.isSimpleRequirement(match)) {
+		if (requirement.getMax() > 0 && RequiredCapability.isSimpleRequirement(match)) {
 			attribute(NAMESPACE_ATTRIBUTE, RequiredCapability.extractNamespace(match));
 			attribute(NAME_ATTRIBUTE, RequiredCapability.extractName(match));
 			attribute(VERSION_RANGE_ATTRIBUTE, RequiredCapability.extractRange(match));
