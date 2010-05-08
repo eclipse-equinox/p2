@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,6 +21,7 @@ import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
@@ -229,6 +228,7 @@ public class UpdateManagerCompatibility {
 		dialog.setText(ProvUIMessages.UpdateManagerCompatibility_ExportSitesTitle);
 		dialog.setFileName("bookmarks.xml"); //$NON-NLS-1$
 		dialog.setFilterExtensions(new String[] {"*.xml", "*"}); //$NON-NLS-1$ //$NON-NLS-2$
+		dialog.setOverwrite(true);
 
 		String bookmarksFile = dialog.open();
 		if (bookmarksFile == null)
