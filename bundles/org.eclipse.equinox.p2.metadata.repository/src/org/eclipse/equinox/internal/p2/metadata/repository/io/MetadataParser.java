@@ -812,7 +812,13 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			super(parentHandler, INSTALLABLE_UNIT_ELEMENT);
 			String[] values = parseAttributes(attributes, required, optional);
 			VersionRange range = checkVersionRange(REQUIREMENT_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[1]);
-			int severity = new Integer(values[2]).intValue();
+			int severity;
+			try {
+				severity = new Integer(values[2]).intValue();
+			} catch (NumberFormatException e) {
+				invalidAttributeValue(UPDATE_DESCRIPTOR_ELEMENT, UPDATE_DESCRIPTOR_SEVERITY, values[2]);
+				severity = IUpdateDescriptor.NORMAL;
+			}
 			URI location = parseURIAttribute(attributes, false);
 			descriptor = MetadataFactory.createUpdateDescriptor(values[0], range, severity, values[3], location);
 		}
