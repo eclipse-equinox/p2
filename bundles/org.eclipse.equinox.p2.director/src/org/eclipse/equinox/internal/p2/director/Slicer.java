@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnitPatch;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.*;
@@ -105,6 +106,7 @@ public class Slicer {
 
 		Map<Version, IInstallableUnit> iuSlice = slice.get(iu.getId());
 		if (iuSlice == null) {
+
 			iuSlice = new HashMap<Version, IInstallableUnit>();
 			slice.put(iu.getId(), iuSlice);
 		}
@@ -113,7 +115,7 @@ public class Slicer {
 			return;
 		}
 
-		Collection<IRequirement> reqs = getRequiredCapabilities(iu);
+		Collection<IRequirement> reqs = getRequirements(iu);
 		if (reqs.isEmpty())
 			return;
 		for (IRequirement req : reqs) {
@@ -133,31 +135,30 @@ public class Slicer {
 		return req.isGreedy();
 	}
 
-	private Collection<IRequirement> getRequiredCapabilities(IInstallableUnit iu) {
-		Collection<IRequirement> iuRequirements = iu.getRequirements();
-		int initialRequirementCount = iuRequirements.size();
-		if (!(iu instanceof IInstallableUnitPatch)) {
-			if (!considerMetaRequirements)
-				return iuRequirements;
+	private Collection<IRequirement> getRequirements(IInstallableUnit iu) {
+		boolean isPatch = iu instanceof IInstallableUnitPatch;
+		boolean isFragment = iu instanceof IInstallableUnitFragment;
+		//Short-circuit for the case of an IInstallableUnit 
+		if ((!isFragment) && (!isPatch) && iu.getMetaRequirements().size() == 0)
+			return iu.getRequirements();
 
-			Collection<IRequirement> iuMetaRequirements = iu.getMetaRequirements();
-			int metaSize = iuMetaRequirements.size();
-			if (metaSize == 0)
-				return iuRequirements;
+		ArrayList<IRequirement> aggregatedRequirements = new ArrayList<IRequirement>(iu.getRequirements().size() + iu.getMetaRequirements().size() + (isFragment ? ((IInstallableUnitFragment) iu).getHost().size() : 0) + (isPatch ? ((IInstallableUnitPatch) iu).getRequirementsChange().size() : 0));
+		aggregatedRequirements.addAll(iu.getRequirements());
 
-			ArrayList<IRequirement> aggregatedCapabilities = new ArrayList<IRequirement>(initialRequirementCount + metaSize);
-			aggregatedCapabilities.addAll(iuRequirements);
-			aggregatedCapabilities.addAll(iuMetaRequirements);
-			return aggregatedCapabilities;
+		if (iu instanceof IInstallableUnitFragment) {
+			aggregatedRequirements.addAll(((IInstallableUnitFragment) iu).getHost());
 		}
 
-		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) iu;
-		List<IRequirementChange> changes = patchIU.getRequirementsChange();
-		ArrayList<IRequirement> aggregatedCapabilities = new ArrayList<IRequirement>(initialRequirementCount + changes.size());
-		aggregatedCapabilities.addAll(iuRequirements);
-		for (int i = 0; i < changes.size(); i++)
-			aggregatedCapabilities.add(changes.get(i).newValue());
-		return aggregatedCapabilities;
+		if (iu instanceof InstallableUnitPatch) {
+			IInstallableUnitPatch patchIU = (IInstallableUnitPatch) iu;
+			List<IRequirementChange> changes = patchIU.getRequirementsChange();
+			for (int i = 0; i < changes.size(); i++)
+				aggregatedRequirements.add(changes.get(i).newValue());
+		}
+
+		if (considerMetaRequirements)
+			aggregatedRequirements.addAll(iu.getMetaRequirements());
+		return aggregatedRequirements;
 	}
 
 	private void expandRequirement(IInstallableUnit iu, IRequirement req) {
