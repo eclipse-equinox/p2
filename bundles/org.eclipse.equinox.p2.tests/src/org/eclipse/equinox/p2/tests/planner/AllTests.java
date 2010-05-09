@@ -143,6 +143,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(TopLevelFilterTest.class);
 		suite.addTestSuite(TwoVersionsOfWSDL.class);
 		suite.addTestSuite(UninstallEverything.class);
+		suite.addTestSuite(UpdateForTwoIUs.class);
 		suite.addTestSuite(UpdateQueryTest.class);
 		return suite;
 	}
