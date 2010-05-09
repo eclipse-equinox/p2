@@ -240,7 +240,7 @@ public class ProvisioningContext {
 	// If the manager does not know about the repo, consider the reference enablement state
 	@SuppressWarnings("rawtypes")
 	private boolean isEnabled(IRepositoryManager manager, IRepositoryReference reference) {
-		return (manager.contains(reference.getLocation()) && manager.isEnabled(reference.getLocation())) || ((!manager.contains(reference.getLocation())) && ((reference.getOptions() | IRepository.ENABLED) == IRepository.ENABLED));
+		return (manager.contains(reference.getLocation()) && manager.isEnabled(reference.getLocation())) || ((!manager.contains(reference.getLocation())) && ((reference.getOptions() & IRepository.ENABLED) == IRepository.ENABLED));
 	}
 
 	private boolean shouldFollowReferences() {
