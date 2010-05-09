@@ -1511,6 +1511,31 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 	}
 
+	public void assertNoContents(File file, String[] lines) {
+		if (!file.exists())
+			fail("File: " + file.toString() + " can't be found.");
+		int idx = 0;
+		try {
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new FileReader(file));
+				while (reader.ready()) {
+					String line = reader.readLine();
+					if (line.indexOf(lines[idx]) > 0) {
+						fail("String: " + lines[idx] + " should not be in " + file.getAbsolutePath());
+					}
+				}
+			} finally {
+				if (reader != null)
+					reader.close();
+			}
+		} catch (FileNotFoundException e) {
+			//ignore, caught before
+		} catch (IOException e) {
+			fail("Exception while reading: " + file.getAbsolutePath());
+		}
+	}
+
 	public void assertContents(File file, String[] lines) {
 		if (!file.exists())
 			fail("File: " + file.toString() + " can't be found.");

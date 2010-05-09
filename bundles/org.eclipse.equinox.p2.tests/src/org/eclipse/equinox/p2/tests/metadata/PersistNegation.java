@@ -34,6 +34,7 @@ public class PersistNegation extends AbstractProvisioningTest {
 		repo.addInstallableUnits(iu);
 
 		assertContents(new File(tmpFolder, "content.xml"), new String[] {"max='0'"});
+		assertContents(new File(tmpFolder, "content.xml"), new String[] {"generation='2'"});
 
 	}
 }
