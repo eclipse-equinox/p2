@@ -99,7 +99,15 @@ public class QueryProvider {
 					// children of a category should drill down according to the context.  If we aren't in a category, we are already drilling down and
 					// continue to do so.
 					boolean drillDownTheChildren = element instanceof CategoryElement ? context.getShowAvailableChildren() : true;
-					IQuery<IInstallableUnit> memberOfCategoryQuery = QueryUtil.createIUCategoryMemberQuery(((IIUElement) element).getIU());
+					IQuery<IInstallableUnit> memberOfCategoryQuery;
+					if (element instanceof CategoryElement) {
+						// We need an expression that uses the requirements of the element's requirements, which could be merged
+						// from multiple category IUs shown as one in the UI.
+						IExpression matchesRequirementsExpression = ExpressionUtil.parse("$0.exists(r | this ~= r)"); //$NON-NLS-1$
+						memberOfCategoryQuery = QueryUtil.createMatchQuery(matchesRequirementsExpression, ((CategoryElement) element).getRequirements());
+					} else {
+						memberOfCategoryQuery = QueryUtil.createIUCategoryMemberQuery(((IIUElement) element).getIU());
+					}
 					availableIUWrapper = new AvailableIUWrapper(queryable, element, true, drillDownTheChildren);
 					if (targetProfile != null)
 						availableIUWrapper.markInstalledIUs(targetProfile, hideInstalled);
