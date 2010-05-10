@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
  */
 public class TestLicenseConsistency extends AbstractProvisioningTest {
 	public void testLicenses() throws URISyntaxException, ProvisionException, OperationCanceledException {
-		URI repoLocation = new URI("http://download.eclipse.org/releases/helios");
+		URI repoLocation = new URI("http://download.eclipse.org/releases/helios/201005070900");
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(repoLocation, null);
 		IQueryResult<IInstallableUnit> allFeatures = repo.query(QueryUtil.createIUGroupQuery(), null);
 		IQueryResult<IInstallableUnit> platform = allFeatures.query(QueryUtil.createIUQuery("org.eclipse.platform.feature.group"), null);
@@ -60,17 +60,17 @@ public class TestLicenseConsistency extends AbstractProvisioningTest {
 
 		System.out.println("Features with no license:" + SPACER);
 		for (IInstallableUnit unit : sort(noLicense)) {
-			System.out.println(unit.getId());
+			System.out.println(unit.getId() + ' ' + unit.getVersion());
 		}
 
 		System.out.println("\n\nFeatures with different license:" + SPACER);
 		for (IInstallableUnit unit : sort(badLicense)) {
-			System.out.println(unit.getId());
+			System.out.println(unit.getId() + ' ' + unit.getVersion());
 		}
 
 		System.out.println("\n\nFeatures with matching license:" + SPACER);
 		for (IInstallableUnit unit : sort(goodLicense)) {
-			System.out.println(unit.getId());
+			System.out.println(unit.getId() + ' ' + unit.getVersion());
 		}
 
 	}
@@ -97,9 +97,9 @@ public class TestLicenseConsistency extends AbstractProvisioningTest {
 			ILicense featureLicense = licenses.iterator().next();
 			if (!platformLicense.getUUID().equals(featureLicense.getUUID())) {
 				badLicense.add(feature);
-				//				if (featureLicense.getBody().length() < 100) {
-				//					System.out.println(feature.getId() + " license: " + featureLicense.getBody());
-				//				}
+//				if (featureLicense.getBody().length() < 100) {
+//					System.out.println(feature.getId() + " license: " + featureLicense.getBody());
+//				}
 				continue;
 			}
 			goodLicense.add(feature);
