@@ -678,7 +678,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 				//eagerly cleanup missing system repositories
 				if (Boolean.valueOf(getRepositoryProperty(location, IRepository.PROP_SYSTEM)).booleanValue())
 					removeRepository(location);
-				else if (failure == null || failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_AUTHENTICATION)
+				else if (failure == null || (failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_AUTHENTICATION && failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_READ))
 					rememberNotFound(location);
 				if (failure != null)
 					throw failure;
