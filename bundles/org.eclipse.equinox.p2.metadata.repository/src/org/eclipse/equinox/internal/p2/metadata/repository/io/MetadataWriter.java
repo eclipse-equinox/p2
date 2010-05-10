@@ -75,13 +75,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeProperties(iu.getProperties());
 		writeMetaRequirements(iu.getMetaRequirements());
 		writeProvidedCapabilities(iu.getProvidedCapabilities());
-		if (simpleRequirements && iu instanceof IInstallableUnitFragment) {
-			Collection<IRequirement> mergedRequirementsAndFragmentHostForPre36Compatibility = new ArrayList<IRequirement>(iu.getRequirements());
-			mergedRequirementsAndFragmentHostForPre36Compatibility.addAll(((IInstallableUnitFragment) iu).getHost());
-			writeRequirements(mergedRequirementsAndFragmentHostForPre36Compatibility);
-		} else {
-			writeRequirements(iu.getRequirements());
-		}
+		writeRequirements(iu.getRequirements());
 		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter() == null ? null : iu.getFilter().getParameters()[0].toString());
 
 		writeArtifactKeys(iu.getArtifacts());
@@ -95,11 +89,11 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 
 	private boolean hasOnlySimpleRequirements(IInstallableUnit iu) {
 		for (IRequirement r : iu.getRequirements())
-			if (r.getMax() == 0 || !RequiredCapability.isSimpleRequirement(r.getMatches()))
+			if (!RequiredCapability.isSimpleRequirement(r.getMatches()))
 				return false;
 
 		for (IRequirement r : iu.getMetaRequirements())
-			if (r.getMax() == 0 || !RequiredCapability.isSimpleRequirement(r.getMatches()))
+			if (!RequiredCapability.isSimpleRequirement(r.getMatches()))
 				return false;
 
 		if (iu instanceof IInstallableUnitFragment) {
