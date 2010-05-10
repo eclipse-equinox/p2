@@ -86,6 +86,8 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 				messageType = IMessageProvider.WARNING;
 				// Log warnings for later support
 				ProvUI.reportStatus(currentStatus, StatusManager.LOG);
+			} else if (severity == IStatus.CANCEL) {
+				pageComplete = shouldCompleteOnCancel();
 			}
 		}
 		setPageComplete(pageComplete);
@@ -94,6 +96,10 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 
 		setMessage(getMessageText(currentStatus), messageType);
 		setDetailText(op);
+	}
+
+	protected boolean shouldCompleteOnCancel() {
+		return true;
 	}
 
 	protected String getIUDescription(IInstallableUnit iu) {

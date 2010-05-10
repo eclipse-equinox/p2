@@ -164,6 +164,10 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		return units.get(0);
 	}
 
+	protected boolean shouldCompleteOnCancel() {
+		return false;
+	}
+
 	protected Collection<IInstallableUnit> getIUs() {
 		return ElementUtils.elementsToIUs(input.getChildren(input));
 	}
