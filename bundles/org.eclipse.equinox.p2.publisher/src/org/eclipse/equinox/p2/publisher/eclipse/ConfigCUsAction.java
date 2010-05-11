@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.p2.metadata.TouchpointInstruction;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -246,8 +247,12 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 				String key = aProperty.getKey();
 				if (shouldPublishProperty(key) && !properties.contains(key)) {
 					properties.add(key);
-					configurationData += "setProgramProperty(propName:" + key + ", propValue:" + aProperty.getValue() + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					unconfigurationData += "setProgramProperty(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
+					Map<String, String> parameters = new LinkedHashMap<String, String>();
+					parameters.put("propName", key); //$NON-NLS-1$
+					parameters.put("propValue", aProperty.getValue()); //$NON-NLS-1$
+					configurationData += TouchpointInstruction.encodeAction("setProgramProperty", parameters); //$NON-NLS-1$
+					parameters.put("propValue", ""); //$NON-NLS-1$//$NON-NLS-2$
+					unconfigurationData += TouchpointInstruction.encodeAction("setProgramProperty", parameters); //$NON-NLS-1$
 				}
 			}
 		}
@@ -270,6 +275,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
 
+		Map<String, String> touchpointParameters = new LinkedHashMap<String, String>();
 		Set<String> jvmSet = new HashSet<String>();
 		Set<String> programSet = new HashSet<String>();
 		for (IExecutableAdvice advice : launchingAdvice) {
@@ -277,16 +283,20 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			for (int i = 0; i < jvmArgs.length; i++)
 				if (shouldPublishJvmArg(jvmArgs[i]) && !jvmSet.contains(jvmArgs[i])) {
 					jvmSet.add(jvmArgs[i]);
-					configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-					unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+					touchpointParameters.clear();
+					touchpointParameters.put("jvmArg", jvmArgs[i]); //$NON-NLS-1$
+					configurationData += TouchpointInstruction.encodeAction("addJvmArg", touchpointParameters); //$NON-NLS-1$
+					unconfigurationData += TouchpointInstruction.encodeAction("removeJvmArg", touchpointParameters); //$NON-NLS-1$
 				}
 			String[] programArgs = advice.getProgramArguments();
 			for (int i = 0; i < programArgs.length; i++)
 				if (shouldPublishProgramArg(programArgs[i]) && !programSet.contains(programArgs[i])) {
 					if (programArgs[i].startsWith("-")) //$NON-NLS-1$
 						programSet.add(programArgs[i]);
-					configurationData += "addProgramArg(programArg:" + programArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-					unconfigurationData += "removeProgramArg(programArg:" + programArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+					touchpointParameters.clear();
+					touchpointParameters.put("programArg", programArgs[i]); //$NON-NLS-1$
+					configurationData += TouchpointInstruction.encodeAction("addProgramArg", touchpointParameters); //$NON-NLS-1$
+					unconfigurationData += TouchpointInstruction.encodeAction("removeProgramArg", touchpointParameters); //$NON-NLS-1$
 				} else if (i + 1 < programArgs.length && !programArgs[i + 1].startsWith("-")) { //$NON-NLS-1$
 					// if we are not publishing then skip over the following arg as it is assumed to be a parameter
 					// to this command line arg.

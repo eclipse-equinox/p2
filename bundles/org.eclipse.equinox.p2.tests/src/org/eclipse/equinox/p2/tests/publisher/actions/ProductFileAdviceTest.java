@@ -59,7 +59,9 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 		assertEquals("1.3", "My Name", programArgumentsWin32[2]);
 
 		String[] programArguments2 = productFileAdvice2.getProgramArguments();
-		assertEquals("2.0", 0, programArguments2.length);
+		assertEquals("2.0", 2, programArguments2.length);
+		assertEquals("2.1", "-product", programArguments2[0]);
+		assertEquals("2.2", "com,ma", programArguments2[1]);
 	}
 
 	/**
@@ -72,7 +74,8 @@ public class ProductFileAdviceTest extends AbstractProvisioningTest {
 		assertEquals("1.2", "-Dfoo=b a r", vmArgumentsWin32[1]);
 
 		String[] vmArguments2 = productFileAdvice2.getVMArguments();
-		assertEquals("2.0", 0, vmArguments2.length);
+		assertEquals("2.0", 1, vmArguments2.length);
+		assertEquals("2.1", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8272", vmArguments2[0]);
 	}
 
 	/**

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SampleProduct" version="1.0.0" useFeatures="false">
+<product name="SampleProduct" version="1.0.0" useFeatures="false" includeLaunchers="true">
 
-
-   <configIni>
+   <configIni use="">
    </configIni>
 
    <launcherArgs>
+      <programArgs>-product &quot;com,ma&quot;</programArgs>
+      <vmArgs>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8272</vmArgs>
    </launcherArgs>
 
    <windowImages/>
-
 
    <launcher>
       <solaris/>
@@ -20,7 +20,6 @@
             winSmallLow="icon.bmp"/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>
