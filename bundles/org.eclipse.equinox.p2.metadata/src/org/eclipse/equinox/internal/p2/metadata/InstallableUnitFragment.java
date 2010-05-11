@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.Collection;
-import java.util.List;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitFragment;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 
@@ -27,19 +26,6 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 		if (hostRequirements == null)
 			return;
 		this.hostRequirements = hostRequirements;
-		addRequiredCapability(hostRequirements);
-	}
-
-	private void addRequiredCapability(Collection<IRequirement> toAdd) {
-		List<IRequirement> current = super.getRequirements();
-		int currSize = current.size();
-		IRequirement[] result = new IRequirement[currSize + toAdd.size()];
-		int i = 0;
-		for (; i < currSize; ++i)
-			result[i] = current.get(i);
-		for (IRequirement requirement : toAdd)
-			result[i++] = requirement;
-		setRequiredCapabilities(result);
 	}
 
 	public Collection<IRequirement> getHost() {

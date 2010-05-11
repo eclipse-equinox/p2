@@ -62,9 +62,9 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 			if (iu.getId().equals(flavorArg + EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER)) {
 				assertTrue(iu instanceof InstallableUnitFragment);
 				//verify required capability
-				verifyRequiredCapability(iu.getRequirements(), PublisherHelper.OSGI_BUNDLE_CLASSIFIER, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER, VersionRange.emptyRange);
-				verifyRequiredCapability(iu.getRequirements(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
-				assertTrue(iu.getRequirements().size() == 2);
+				verifyRequiredCapability(((InstallableUnitFragment) iu).getHost(), PublisherHelper.OSGI_BUNDLE_CLASSIFIER, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER, VersionRange.emptyRange);
+				verifyRequiredCapability(((InstallableUnitFragment) iu).getHost(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+				assertEquals(2, (((InstallableUnitFragment) iu).getHost().size()));
 
 				Collection<IProvidedCapability> cap = iu.getProvidedCapabilities();
 				verifyProvidedCapability(cap, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + "org.eclipse.equinox.launcher", Version.emptyVersion); //$NON-NLS-1$ 

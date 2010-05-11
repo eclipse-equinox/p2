@@ -94,7 +94,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				Collection<IProvidedCapability> providedCapability = fragment.getProvidedCapabilities();
 				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, flavorArg + idBase + ".executable." + configSpec, version); //$NON-NLS-1$ 
 				assertTrue(providedCapability.size() == 1);
-				Collection<IRequirement> requiredCapability = fragment.getRequirements();
+				Collection<IRequirement> requiredCapability = fragment.getHost();
 				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec, new VersionRange(version, true, version, true)); //$NON-NLS-1$ 
 				assertTrue(requiredCapability.size() == 1);
 				assertTrue(fragment.getFilter().equals(InstallableUnit.parseFilter("(& (osgi.ws=" + ws + ")(osgi.os=" + os + ")(osgi.arch=" + arch + "))"))); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
