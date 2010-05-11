@@ -14,9 +14,9 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import java.net.URI;
 import java.util.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.core.runtime.URIUtil;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -34,68 +34,62 @@ import org.eclipse.swt.widgets.Shell;
 public class ElementUtils {
 
 	public static void updateRepositoryUsingElements(final MetadataRepositoryElement[] elements, final Shell shell) {
-		Job job = new Job(ProvUIMessages.ElementUtils_UpdateJobTitle) {
-			public IStatus run(IProgressMonitor monitor) {
-				final ProvisioningUI ui = ProvUIActivator.getDefault().getProvisioningUI();
-				ui.signalRepositoryOperationStart();
-				IMetadataRepositoryManager metaManager = ProvUI.getMetadataRepositoryManager(ui.getSession());
-				IArtifactRepositoryManager artManager = ProvUI.getArtifactRepositoryManager(ui.getSession());
-				try {
-					int visibilityFlags = ui.getRepositoryTracker().getMetadataRepositoryFlags();
-					URI[] currentlyEnabled = metaManager.getKnownRepositories(visibilityFlags);
-					URI[] currentlyDisabled = metaManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | visibilityFlags);
-					for (int i = 0; i < elements.length; i++) {
-						URI location = elements[i].getLocation();
-						if (elements[i].isEnabled()) {
-							if (containsURI(currentlyDisabled, location))
-								// It should be enabled and is not currently
-								setColocatedRepositoryEnablement(ui, location, true);
-							else if (!containsURI(currentlyEnabled, location)) {
-								// It is not known as enabled or disabled.  Add it.
-								metaManager.addRepository(location);
-								artManager.addRepository(location);
-							}
-						} else {
-							if (containsURI(currentlyEnabled, location))
-								// It should be disabled, and is currently enabled
-								setColocatedRepositoryEnablement(ui, location, false);
-							else if (!containsURI(currentlyDisabled, location)) {
-								// It is not known as enabled or disabled.  Add it and then disable it.
-								metaManager.addRepository(location);
-								artManager.addRepository(location);
-								setColocatedRepositoryEnablement(ui, location, false);
-							}
-						}
-						String name = elements[i].getName();
-						if (name != null && name.length() > 0) {
-							metaManager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
-							artManager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
-						}
+		final ProvisioningUI ui = ProvUIActivator.getDefault().getProvisioningUI();
+		ui.signalRepositoryOperationStart();
+		IMetadataRepositoryManager metaManager = ProvUI.getMetadataRepositoryManager(ui.getSession());
+		IArtifactRepositoryManager artManager = ProvUI.getArtifactRepositoryManager(ui.getSession());
+		try {
+			int visibilityFlags = ui.getRepositoryTracker().getMetadataRepositoryFlags();
+			URI[] currentlyEnabled = metaManager.getKnownRepositories(visibilityFlags);
+			URI[] currentlyDisabled = metaManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED | visibilityFlags);
+			for (int i = 0; i < elements.length; i++) {
+				URI location = elements[i].getLocation();
+				if (elements[i].isEnabled()) {
+					if (containsURI(currentlyDisabled, location))
+						// It should be enabled and is not currently
+						setColocatedRepositoryEnablement(ui, location, true);
+					else if (!containsURI(currentlyEnabled, location)) {
+						// It is not known as enabled or disabled.  Add it.
+						metaManager.addRepository(location);
+						artManager.addRepository(location);
 					}
-					// Are there any elements that need to be deleted?  Go over the original state
-					// and remove any elements that weren't in the elements we were given
-					Set<String> nowKnown = new HashSet<String>();
-					for (int i = 0; i < elements.length; i++)
-						nowKnown.add(URIUtil.toUnencodedString(elements[i].getLocation()));
-					for (int i = 0; i < currentlyEnabled.length; i++) {
-						if (!nowKnown.contains(URIUtil.toUnencodedString(currentlyEnabled[i]))) {
-							metaManager.removeRepository(currentlyEnabled[i]);
-							artManager.removeRepository(currentlyEnabled[i]);
-						}
+				} else {
+					if (containsURI(currentlyEnabled, location))
+						// It should be disabled, and is currently enabled
+						setColocatedRepositoryEnablement(ui, location, false);
+					else if (!containsURI(currentlyDisabled, location)) {
+						// It is not known as enabled or disabled.  Add it and then disable it.
+						metaManager.addRepository(location);
+						artManager.addRepository(location);
+						setColocatedRepositoryEnablement(ui, location, false);
 					}
-					for (int i = 0; i < currentlyDisabled.length; i++) {
-						if (!nowKnown.contains(URIUtil.toUnencodedString(currentlyDisabled[i]))) {
-							metaManager.removeRepository(currentlyDisabled[i]);
-							artManager.removeRepository(currentlyDisabled[i]);
-						}
-					}
-				} finally {
-					ui.signalRepositoryOperationComplete(null, true);
 				}
-				return Status.OK_STATUS;
+				String name = elements[i].getName();
+				if (name != null && name.length() > 0) {
+					metaManager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+					artManager.setRepositoryProperty(location, IRepository.PROP_NICKNAME, name);
+				}
 			}
-		};
-		job.schedule();
+			// Are there any elements that need to be deleted?  Go over the original state
+			// and remove any elements that weren't in the elements we were given
+			Set<String> nowKnown = new HashSet<String>();
+			for (int i = 0; i < elements.length; i++)
+				nowKnown.add(URIUtil.toUnencodedString(elements[i].getLocation()));
+			for (int i = 0; i < currentlyEnabled.length; i++) {
+				if (!nowKnown.contains(URIUtil.toUnencodedString(currentlyEnabled[i]))) {
+					metaManager.removeRepository(currentlyEnabled[i]);
+					artManager.removeRepository(currentlyEnabled[i]);
+				}
+			}
+			for (int i = 0; i < currentlyDisabled.length; i++) {
+				if (!nowKnown.contains(URIUtil.toUnencodedString(currentlyDisabled[i]))) {
+					metaManager.removeRepository(currentlyDisabled[i]);
+					artManager.removeRepository(currentlyDisabled[i]);
+				}
+			}
+		} finally {
+			ui.signalRepositoryOperationComplete(null, true);
+		}
 	}
 
 	private static void setColocatedRepositoryEnablement(ProvisioningUI ui, URI location, boolean enable) {

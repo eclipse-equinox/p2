@@ -187,7 +187,6 @@ public class ProvUIMessages extends NLS {
 	public static String AvailableIUsPage_Title;
 	public static String AvailableIUWrapper_AllAreInstalled;
 	public static String IUViewQueryContext_AllAreInstalledDescription;
-	public static String ElementUtils_UpdateJobTitle;
 	public static String Label_Profiles;
 	public static String Label_Repositories;
 	public static String LaunchUpdateManagerButton;

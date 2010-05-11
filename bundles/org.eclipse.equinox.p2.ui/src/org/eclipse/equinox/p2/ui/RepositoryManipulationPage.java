@@ -100,6 +100,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	RepositoryDetailsLabelProvider labelProvider;
 	RepositoryTracker tracker;
 	RepositoryTracker localCacheRepoManipulator;
+	/**
+	 * The input field is initialized lazily and should only be accessed via the {@link #getInput()} method.
+	 */
 	CachedMetadataRepositories input;
 	Text pattern, details;
 	PatternFilter filter;
@@ -107,7 +110,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	Button addButton, removeButton, editButton, refreshButton, disableButton, exportButton;
 
 	class CachedMetadataRepositories extends MetadataRepositories {
-		Hashtable<String, Object> cachedElements;
+		private Hashtable<String, MetadataRepositoryElement> cachedElements;
 
 		CachedMetadataRepositories() {
 			super(ui);
@@ -121,19 +124,39 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		public Object[] fetchChildren(Object o, IProgressMonitor monitor) {
 			if (cachedElements == null) {
 				Object[] children = super.fetchChildren(o, monitor);
-				cachedElements = new Hashtable<String, Object>(children.length);
+				cachedElements = new Hashtable<String, MetadataRepositoryElement>(children.length);
 				for (int i = 0; i < children.length; i++) {
 					if (children[i] instanceof MetadataRepositoryElement) {
-						String key = URIUtil.toUnencodedString(((MetadataRepositoryElement) children[i]).getLocation());
-						int length = key.length();
-						if (length > 0 && key.charAt(length - 1) == '/') {
-							key = key.substring(0, length - 1);
-						}
-						cachedElements.put(key, children[i]);
+						put((MetadataRepositoryElement) children[i]);
 					}
 				}
 			}
 			return cachedElements.values().toArray();
+		}
+
+		MetadataRepositoryElement[] getElements() {
+			return cachedElements.values().toArray(new MetadataRepositoryElement[cachedElements.size()]);
+		}
+
+		void remove(MetadataRepositoryElement element) {
+			cachedElements.remove(getKey(element.getLocation()));
+		}
+
+		void put(MetadataRepositoryElement element) {
+			cachedElements.put(getKey(element.getLocation()), element);
+		}
+
+		MetadataRepositoryElement get(URI location) {
+			return cachedElements.get(getKey(location));
+		}
+
+		String getKey(URI location) {
+			String key = URIUtil.toUnencodedString(location);
+			int length = key.length();
+			if (length > 0 && key.charAt(length - 1) == '/') {
+				key = key.substring(0, length - 1);
+			}
+			return key;
 		}
 
 	}
@@ -322,7 +345,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				element.setEnabled(event.getChecked());
 				// paranoid that an equal but not identical element was passed in as the selection.
 				// update the cache map just in case.
-				input.cachedElements.put(URIUtil.toUnencodedString(element.getLocation()), element);
+				getInput().put(element);
 				// update the viewer to show the change
 				updateForEnablementChange(new MetadataRepositoryElement[] {element});
 			}
@@ -533,7 +556,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	}
 
 	MetadataRepositoryElement[] getElements() {
-		return getInput().cachedElements.values().toArray(new MetadataRepositoryElement[getInput().cachedElements.size()]);
+		return getInput().getElements();
 	}
 
 	MetadataRepositoryElement[] getSelectedElements() {
@@ -651,7 +674,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			boolean enableSites = !toggleMeansDisable(selected);
 			for (int i = 0; i < selected.length; i++) {
 				selected[i].setEnabled(enableSites);
-				input.cachedElements.put(URIUtil.toUnencodedString(selected[i].getLocation()), selected[i]);
+				getInput().put(selected[i]);
 			}
 			updateForEnablementChange(selected);
 		}
@@ -672,10 +695,9 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			public void run() {
 				MetadataRepositoryElement[] imported = UpdateManagerCompatibility.importSites(getShell());
 				if (imported.length > 0) {
-					Hashtable<String, Object> repos = getInput().cachedElements;
 					changed = true;
 					for (int i = 0; i < imported.length; i++)
-						repos.put(URIUtil.toUnencodedString(imported[i].getLocation()), imported[i]);
+						getInput().put(imported[i]);
 					safeRefresh(null);
 				}
 			}
@@ -808,7 +830,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 
 				changed = true;
 				for (int i = 0; i < selections.length; i++) {
-					getInput().cachedElements.remove(URIUtil.toUnencodedString(selections[i].getLocation()));
+					getInput().remove(selections[i]);
 				}
 				safeRefresh(null);
 			}
@@ -821,10 +843,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 		if (localCacheRepoManipulator == null)
 			localCacheRepoManipulator = new RepositoryTracker() {
 				public void addRepository(URI location, String nickname, ProvisioningSession session) {
-					MetadataRepositoryElement element = (MetadataRepositoryElement) getInput().cachedElements.get(URIUtil.toUnencodedString(location));
+					MetadataRepositoryElement element = getInput().get(location);
 					if (element == null) {
 						element = new MetadataRepositoryElement(getInput(), location, true);
-						getInput().cachedElements.put(URIUtil.toUnencodedString(location), element);
+						getInput().put(element);
 					}
 					if (nickname != null)
 						element.setNickname(nickname);
