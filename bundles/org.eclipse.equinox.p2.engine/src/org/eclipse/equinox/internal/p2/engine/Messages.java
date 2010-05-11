@@ -80,6 +80,7 @@ public class Messages extends NLS {
 	public static String Profile_Duplicate_Root_Profile_Id;
 	public static String profile_lock_not_reentrant;
 	public static String profile_not_current;
+	public static String profile_changed;
 	public static String profile_not_registered;
 	public static String Profile_Null_Profile_Id;
 	public static String Profile_Parent_Not_Found;

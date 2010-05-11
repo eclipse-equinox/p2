@@ -734,12 +734,12 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			if (profile.isChanged()) {
 				if (DebugHelper.DEBUG_PROFILE_REGISTRY)
 					DebugHelper.debug(PROFILE_REGISTRY, "Profile is marked as changed."); //$NON-NLS-1$
-				throw new IllegalStateException(NLS.bind(Messages.profile_not_current, profile.getProfileId()));
+				throw new IllegalStateException(NLS.bind(Messages.profile_changed, profile.getProfileId()));
 			}
 			if (!checkTimestamps(profile, internalProfile)) {
 				if (DebugHelper.DEBUG_PROFILE_REGISTRY)
 					DebugHelper.debug(PROFILE_REGISTRY, "Unexpected timestamp difference in profile."); //$NON-NLS-1$
-				throw new IllegalStateException(NLS.bind(Messages.profile_not_current, profile.getProfileId()));
+				throw new IllegalStateException(NLS.bind(Messages.profile_not_current, new String[] {profile.getProfileId(), Long.toString(internalProfile.getTimestamp()), Long.toString(profile.getTimestamp())}));
 			}
 			isCurrent = true;
 		} finally {
