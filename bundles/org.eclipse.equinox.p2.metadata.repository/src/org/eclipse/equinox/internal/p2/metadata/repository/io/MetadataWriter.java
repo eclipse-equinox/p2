@@ -98,6 +98,13 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 			if (r.getMax() == 0 || !RequiredCapability.isSimpleRequirement(r.getMatches()))
 				return false;
 
+		if (iu.getUpdateDescriptor() != null) {
+			for (IMatchExpression<IInstallableUnit> m : iu.getUpdateDescriptor().getIUsBeingUpdated()) {
+				if (!RequiredCapability.isSimpleRequirement(m))
+					return false;
+			}
+		}
+		
 		for (IRequirement r : iu.getMetaRequirements())
 			if (r.getMax() == 0 || !RequiredCapability.isSimpleRequirement(r.getMatches()))
 				return false;
@@ -186,8 +193,12 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 			throw new IllegalStateException();
 		IMatchExpression<IInstallableUnit> singleUD = descriptor.getIUsBeingUpdated().iterator().next();
 		start(UPDATE_DESCRIPTOR_ELEMENT);
-		attribute(ID_ATTRIBUTE, RequiredCapability.extractName(singleUD));
-		attribute(VERSION_RANGE_ATTRIBUTE, RequiredCapability.extractRange(singleUD));
+		if (RequiredCapability.isSimpleRequirement(singleUD)) {
+			attribute(ID_ATTRIBUTE, RequiredCapability.extractName(singleUD));
+			attribute(VERSION_RANGE_ATTRIBUTE, RequiredCapability.extractRange(singleUD));
+		} else {
+			writeMatchExpression(singleUD);
+		}
 		attribute(UPDATE_DESCRIPTOR_SEVERITY, descriptor.getSeverity());
 		attribute(DESCRIPTION_ATTRIBUTE, descriptor.getDescription());
 		end(UPDATE_DESCRIPTOR_ELEMENT);
@@ -236,15 +247,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 			attribute(CAPABILITY_OPTIONAL_ATTRIBUTE, requirement.getMin() == 0, false);
 			attribute(CAPABILITY_MULTIPLE_ATTRIBUTE, requirement.getMax() > 1, false);
 		} else {
-			attribute(MATCH_ATTRIBUTE, ExpressionUtil.getOperand(match));
-			Object[] params = match.getParameters();
-			if (params.length > 0) {
-				IExpressionFactory factory = ExpressionUtil.getFactory();
-				IExpression[] constantArray = new IExpression[params.length];
-				for (int idx = 0; idx < params.length; ++idx)
-					constantArray[idx] = factory.constant(params[idx]);
-				attribute(MATCH_PARAMETERS_ATTRIBUTE, factory.array(constantArray));
-			}
+			writeMatchExpression(match);
 			if (requirement.getMin() != 1)
 				attribute(MIN_ATTRIBUTE, requirement.getMin());
 			if (requirement.getMax() != 1)
@@ -256,6 +259,18 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		if (requirement.getDescription() != null)
 			writeTrimmedCdata(REQUIREMENT_DESCRIPTION_ELEMENT, requirement.getDescription());
 		end(REQUIREMENT_ELEMENT);
+	}
+
+	private void writeMatchExpression(IMatchExpression<IInstallableUnit> match) {
+		attribute(MATCH_ATTRIBUTE, ExpressionUtil.getOperand(match));
+		Object[] params = match.getParameters();
+		if (params.length > 0) {
+			IExpressionFactory factory = ExpressionUtil.getFactory();
+			IExpression[] constantArray = new IExpression[params.length];
+			for (int idx = 0; idx < params.length; ++idx)
+				constantArray[idx] = factory.constant(params[idx]);
+			attribute(MATCH_PARAMETERS_ATTRIBUTE, factory.array(constantArray));
+		}
 	}
 
 	protected void writeArtifactKeys(Collection<IArtifactKey> artifactKeys) {

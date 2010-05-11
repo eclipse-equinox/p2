@@ -634,18 +634,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			String description = descriptionHandler == null ? null : descriptionHandler.getText();
 			IRequirement requirement;
 			if (match != null) {
-				IExpressionFactory factory = ExpressionUtil.getFactory();
-				IExpression expr = ExpressionUtil.parse(match);
-				Object[] params;
-				if (matchParams == null)
-					params = new Object[0];
-				else {
-					IExpression[] arrayExpr = ExpressionUtil.getOperands(ExpressionUtil.parse(matchParams));
-					params = new Object[arrayExpr.length];
-					for (int idx = 0; idx < arrayExpr.length; ++idx)
-						params[idx] = arrayExpr[idx].evaluate(null);
-				}
-				IMatchExpression<IInstallableUnit> matchExpr = factory.matchExpression(expr, params);
+				IMatchExpression<IInstallableUnit> matchExpr = createMatchExpression(match, matchParams);
 				requirement = MetadataFactory.createRequirement(matchExpr, filter, min, max, greedy, description);
 			} else
 				requirement = MetadataFactory.createRequirement(namespace, name, range, filter, min, max, greedy, description);
@@ -803,24 +792,46 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class UpdateDescriptorHandler extends TextHandler {
-		private final String[] required = new String[] {ID_ATTRIBUTE, VERSION_RANGE_ATTRIBUTE};
-		private final String[] optional = new String[] {UPDATE_DESCRIPTOR_SEVERITY, DESCRIPTION_ATTRIBUTE};
+		private final String[] requiredSimple = new String[] {ID_ATTRIBUTE, VERSION_RANGE_ATTRIBUTE};
+		private final String[] optionalSimple = new String[] {UPDATE_DESCRIPTOR_SEVERITY, DESCRIPTION_ATTRIBUTE};
+
+		private final String[] requiredComplex = new String[] {MATCH_ATTRIBUTE};
+		private final String[] optionalComplex = new String[] {UPDATE_DESCRIPTOR_SEVERITY, DESCRIPTION_ATTRIBUTE, MATCH_PARAMETERS_ATTRIBUTE};
 
 		private IUpdateDescriptor descriptor;
 
 		public UpdateDescriptorHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, INSTALLABLE_UNIT_ELEMENT);
-			String[] values = parseAttributes(attributes, required, optional);
-			VersionRange range = checkVersionRange(REQUIREMENT_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[1]);
+			boolean simple = attributes.getIndex(ID_ATTRIBUTE) >= 0;
+			String[] values;
+			int severityIdx;
+			String description;
+			if (simple) {
+				values = parseAttributes(attributes, requiredSimple, optionalSimple);
+				severityIdx = 2;
+				description = values[3];
+			} else {
+				values = parseAttributes(attributes, requiredComplex, optionalComplex);
+				severityIdx = 1;
+				description = values[2];
+			}
+
 			int severity;
 			try {
-				severity = new Integer(values[2]).intValue();
+				severity = new Integer(values[severityIdx]).intValue();
 			} catch (NumberFormatException e) {
-				invalidAttributeValue(UPDATE_DESCRIPTOR_ELEMENT, UPDATE_DESCRIPTOR_SEVERITY, values[2]);
+				invalidAttributeValue(UPDATE_DESCRIPTOR_ELEMENT, UPDATE_DESCRIPTOR_SEVERITY, values[severityIdx]);
 				severity = IUpdateDescriptor.NORMAL;
 			}
 			URI location = parseURIAttribute(attributes, false);
-			descriptor = MetadataFactory.createUpdateDescriptor(values[0], range, severity, values[3], location);
+
+			if (simple) {
+				VersionRange range = checkVersionRange(REQUIREMENT_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[1]);
+				descriptor = MetadataFactory.createUpdateDescriptor(values[0], range, severity, description, location);
+			} else {
+				IMatchExpression<IInstallableUnit> r = createMatchExpression(values[0], values[3]);
+				descriptor = MetadataFactory.createUpdateDescriptor(Collections.singleton(r), severity, description, location);
+			}
 		}
 
 		public IUpdateDescriptor getUpdateDescriptor() {
@@ -904,5 +915,20 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public ICopyright getCopyright() {
 			return copyright;
 		}
+	}
+
+	static IMatchExpression<IInstallableUnit> createMatchExpression(String match, String matchParams) {
+		IExpressionFactory factory = ExpressionUtil.getFactory();
+		IExpression expr = ExpressionUtil.parse(match);
+		Object[] params;
+		if (matchParams == null)
+			params = new Object[0];
+		else {
+			IExpression[] arrayExpr = ExpressionUtil.getOperands(ExpressionUtil.parse(matchParams));
+			params = new Object[arrayExpr.length];
+			for (int idx = 0; idx < arrayExpr.length; ++idx)
+				params[idx] = arrayExpr[idx].evaluate(null);
+		}
+		return factory.matchExpression(expr, params);
 	}
 }

@@ -9,11 +9,13 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.expression.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class UpdateForTwoIUs extends AbstractProvisioningTest {
 
 	private IInstallableUnit iua;
+	private Collection<IMatchExpression<IInstallableUnit>> x;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -30,6 +32,15 @@ public class UpdateForTwoIUs extends AbstractProvisioningTest {
 		updateExpression.add(matchExpression);
 		iud.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateExpression, IUpdateDescriptor.HIGH, (String) null, (URI) null));
 		iua = MetadataFactory.createInstallableUnit(iud);
+
+		Collection<IInstallableUnit> ius = new ArrayList<IInstallableUnit>();
+		ius.add(iua);
+		URI repoURI = getTempFolder().toURI();
+		createMetadataRepository(repoURI, null).addInstallableUnits(ius);
+		getMetadataRepositoryManager().removeRepository(repoURI);
+
+		x = getMetadataRepositoryManager().loadRepository(repoURI, null).query(QueryUtil.ALL_UNITS, null).iterator().next().getUpdateDescriptor().getIUsBeingUpdated();
+		assertEquals(matchExpression, x.iterator().next());
 	}
 
 	public void testUpdateQueryForTwoIUs() {
