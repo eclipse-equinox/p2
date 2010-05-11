@@ -222,7 +222,7 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	public static Map<String, String> createSelectionContext(Map<String, String> properties) {
-		Hashtable<String, String> result = new Hashtable<String, String>(properties);
+		HashMap<String, String> result = new HashMap<String, String>(properties);
 		String environments = properties.get(IProfile.PROP_ENVIRONMENTS);
 		if (environments == null)
 			return result;

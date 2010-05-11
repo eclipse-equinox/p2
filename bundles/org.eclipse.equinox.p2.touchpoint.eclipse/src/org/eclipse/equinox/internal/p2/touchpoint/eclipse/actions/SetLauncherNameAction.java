@@ -42,7 +42,10 @@ public class SetLauncherNameAction extends ProvisioningAction {
 	private static void setLauncher(Manipulator manipulator, IProfile profile, String launcherName) {
 		//Get the launcherData before changing the name so we don't lose anything from the old launcher.ini
 		LauncherData launcherData = manipulator.getLauncherData();
-		((Profile) profile).setProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME, launcherName);
+		if (launcherName != null)
+			((Profile) profile).setProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME, launcherName);
+		else
+			((Profile) profile).removeProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);
 		launcherData.setLauncher(Util.getLauncherPath(profile));
 	}
 }
