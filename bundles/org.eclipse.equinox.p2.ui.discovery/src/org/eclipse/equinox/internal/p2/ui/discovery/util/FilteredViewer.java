@@ -103,6 +103,15 @@ public abstract class FilteredViewer {
 					filterTextChanged();
 				}
 			});
+		} else {
+			filterText.getTextControl().addTraverseListener(new TraverseListener() {
+				public void keyTraversed(TraverseEvent e) {
+					if (e.detail == SWT.TRAVERSE_RETURN) {
+						e.doit = false;
+						filterTextChanged();
+					}
+				}
+			});
 		}
 		filterText.addSelectionListener(new SelectionAdapter() {
 			@Override
