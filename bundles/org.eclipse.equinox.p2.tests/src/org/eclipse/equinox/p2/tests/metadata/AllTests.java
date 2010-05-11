@@ -28,8 +28,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(LatestIUTest.class);
 		suite.addTestSuite(LicenseTest.class);
 		suite.addTestSuite(MultipleIUAndFragmentTest.class);
-		//		suite.addTestSuite(PersistNegation.class);
-		//		suite.addTestSuite(PersistFragment.class);
+		suite.addTestSuite(PersistNegation.class);
+		suite.addTestSuite(PersistFragment.class);
 		suite.addTestSuite(ProvidedCapabilityTest.class);
 		return suite;
 	}
