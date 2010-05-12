@@ -11,11 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.*;
 import java.net.URI;
-import java.util.*;
+import java.util.EventObject;
+import java.util.HashSet;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -26,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProv
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IAgentLocation;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.osgi.util.NLS;
 
@@ -74,8 +74,6 @@ public class CacheManager {
 	private static SynchronousProvisioningListener busListener;
 	private static final String DOWNLOADING = "downloading"; //$NON-NLS-1$
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
-	private static final String PROP_RESUMABLE = "org.eclipse.equinox.p2.metadata.repository.resumable"; //$NON-NLS-1$
-	private static final String RESUME_DEFAULT = "true"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
 	private final HashSet<String> knownPrefixes = new HashSet<String>(5);
@@ -268,71 +266,6 @@ public class CacheManager {
 		return RepositoryTransport.getInstance();
 	}
 
-	private boolean isResumeEnabled() {
-		String resumeProp = System.getProperty(PROP_RESUMABLE, RESUME_DEFAULT);
-		return Boolean.valueOf(resumeProp).booleanValue();
-	}
-
-	/**
-	 * Make cacheFile resumable and return true if it was possible.
-	 * @param cacheFile - the partially downloaded file to make resumeable
-	 * @param remoteFile The remote file being cached
-	 * @param status - the download status reported for the partial download
-	 * @return true if the file was made resumable, false otherwise
-	 */
-	private boolean makeResumeable(File cacheFile, URI remoteFile, IStatus status) {
-		if (status == null || status.isOK() || cacheFile == null || !(status instanceof DownloadStatus))
-			return false;
-		// check if resume feature is turned off
-		if (!isResumeEnabled())
-			return false;
-		DownloadStatus downloadStatus = (DownloadStatus) status;
-		long currentLength = cacheFile.length();
-		// if cache file does not exist, or nothing was written to it, there is nothing to resume
-		if (currentLength == 0L)
-			return false;
-
-		long reportedSize = downloadStatus.getFileSize();
-		long reportedModified = downloadStatus.getLastModified();
-
-		if (reportedSize == DownloadStatus.UNKNOWN_SIZE || reportedSize == 0L) {
-			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind("Download of {0} not resumable because filesize not reported.", remoteFile))); //$NON-NLS-1$
-			return false;
-		}
-		if (reportedModified <= 0) {
-			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind("Download of {0} not resumable because last-modified not reported.", remoteFile))); //$NON-NLS-1$
-			return false;
-		}
-
-		// if more than what was reported has been written something odd is going on, and we can't
-		// trust the reported size. 
-		// There is a small chance that user canceled in the time window after the full download is seen, and the result is returned. In this
-		// case the reported and current lengths will be equal.
-		if (reportedSize < currentLength) {
-			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, NLS.bind("Download of {0} not resumable because more was read then reported size.", remoteFile))); //$NON-NLS-1$
-			return false;
-		}
-		File resumeDir = new File(cacheFile.getParentFile(), DOWNLOADING);
-		if (!resumeDir.mkdir()) {
-			if (!(resumeDir.exists() && resumeDir.isDirectory())) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind("Could not create directory {0} for resumable download of {1}", resumeDir, remoteFile))); //$NON-NLS-1$
-				return false;
-			}
-		}
-		// move partial cache file to "downloading" directory
-		File resumeFile = new File(resumeDir, cacheFile.getName());
-		if (!cacheFile.renameTo(resumeFile)) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind("Could not move {0} to {1} for resumed download", cacheFile, resumeFile))); //$NON-NLS-1$
-			return false;
-		}
-		// touch the file with remote modified time
-		if (!resumeFile.setLastModified(reportedModified)) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind("Could not set last modified time on {0} for resumed download", resumeFile))); //$NON-NLS-1$
-			return false;
-		}
-		return true;
-	}
-
 	/**
 	 * Adds a {@link SynchronousProvisioningListener} to the event bus for
 	 * deleting cache files when the corresponding repository is deleted.
@@ -383,45 +316,42 @@ public class CacheManager {
 
 	private void updateCache(File cacheFile, URI remoteFile, long lastModifiedRemote, SubMonitor submonitor) throws FileNotFoundException, IOException, ProvisionException {
 		cacheFile.getParentFile().mkdirs();
-		File resumeFile = new File(new File(cacheFile.getParentFile(), DOWNLOADING), cacheFile.getName());
-		// if append should be performed or not
-		boolean append = false;
-		if (resumeFile.exists()) {
-			// the resume file can be too old
-			if (lastModifiedRemote != resumeFile.lastModified() || lastModifiedRemote <= 0)
-				safeDelete(resumeFile);
-			else {
-				if (resumeFile.renameTo(cacheFile))
-					append = true;
-				else
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind("Could not move resumable file {0} into cache", resumeFile))); //$NON-NLS-1$
-			}
-		}
+		File downloadDir = new File(cacheFile.getParentFile(), DOWNLOADING);
+		if (!downloadDir.exists())
+			downloadDir.mkdir();
+		File tempFile = new File(downloadDir, cacheFile.getName());
+		// Ensure that the file from a previous download attempt is removed 
+		if (tempFile.exists())
+			safeDelete(tempFile);
 
-		StatefulStream metadata = new StatefulStream(new FileOutputStream(cacheFile, append));
+		tempFile.createNewFile();
+
+		StatefulStream stream = null;
+		try {
+			stream = new StatefulStream(new FileOutputStream(tempFile));
+		} catch (Exception e) {
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+		}
 		IStatus result = null;
 		try {
 			submonitor.setWorkRemaining(1000);
-			// resume from cache file's length if in append mode
-			result = getTransport().download(remoteFile, metadata, append ? cacheFile.length() : -1, submonitor.newChild(1000));
+			result = getTransport().download(remoteFile, stream, submonitor.newChild(1000));
 		} catch (OperationCanceledException e) {
 			// need to pick up the status - a new operation canceled exception is thrown at the end
 			// as status will be CANCEL.
-			result = metadata.getStatus();
+			result = stream.getStatus();
 		} finally {
-			metadata.close();
-			// result is null if a runtime error (other than OperationCanceledException) 
-			// occurred, just delete the cache file (or a later attempt could fail 
-			// with "premature end of file").
-			if (result == null)
-				cacheFile.delete();
+			stream.close();
+			// If there was any problem fetching the file, delete the temp file
+			if (result == null || !result.isOK())
+				safeDelete(tempFile);
 		}
-		if (result.isOK())
-			return;
-
-		// if possible, keep a partial download to be resumed.
-		if (!makeResumeable(cacheFile, remoteFile, result))
-			cacheFile.delete();
+		if (result.isOK()) {
+			if (cacheFile.exists())
+				safeDelete(cacheFile);
+			if (tempFile.renameTo(cacheFile))
+				return;
+		}
 
 		if (result.getSeverity() == IStatus.CANCEL || submonitor.isCanceled())
 			throw new OperationCanceledException();
