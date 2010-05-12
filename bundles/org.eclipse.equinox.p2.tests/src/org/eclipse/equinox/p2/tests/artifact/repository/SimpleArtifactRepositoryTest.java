@@ -9,6 +9,7 @@
  *		compeople AG (Stefan Liebig) - initial API and implementation
  *		Code 9 - ongoing development
  *		IBM - ongoing development
+ *		Sonatype Inc - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
@@ -62,11 +63,6 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(new URI(base + "artifacts.xml"), SimpleArtifactRepository.getActualLocation(base, false));
 	}
 
-	public void testGetActualLocation3() throws Exception {
-		URI base = new URI("http://localhost/artifactRepository/artifacts.xml");
-		assertEquals(base, SimpleArtifactRepository.getActualLocation(base, false));
-	}
-
 	public void testGetActualLocationCompressed1() throws Exception {
 		URI base = new URI("http://localhost/artifactRepository");
 		assertEquals(new URI(base + "/artifacts.jar"), SimpleArtifactRepository.getActualLocation(base, true));
@@ -75,11 +71,6 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 	public void testGetActualLocationCompressed2() throws Exception {
 		URI base = new URI("http://localhost/artifactRepository/");
 		assertEquals(new URI(base + "artifacts.jar"), SimpleArtifactRepository.getActualLocation(base, true));
-	}
-
-	public void testGetActualLocationCompressed3() throws Exception {
-		URI base = new URI("http://localhost/artifactRepository/artifacts.jar");
-		assertEquals(base, SimpleArtifactRepository.getActualLocation(base, true));
 	}
 
 	public void testCompressedRepository() throws ProvisionException {

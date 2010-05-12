@@ -5,6 +5,7 @@
  * available at http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors: IBM Corporation - initial API and implementation
+ * Sonatype Inc - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
@@ -22,9 +23,6 @@ public class Messages extends NLS {
 		// Do not instantiate
 	}
 
-	public static String CacheManager_AuthenticationFaileFor_0;
-	public static String CacheManager_FailedCommunicationWithRepo_0;
-	public static String CacheManager_Neither_0_nor_1_found;
 	public static String io_failedRead;
 	public static String io_failedWrite;
 

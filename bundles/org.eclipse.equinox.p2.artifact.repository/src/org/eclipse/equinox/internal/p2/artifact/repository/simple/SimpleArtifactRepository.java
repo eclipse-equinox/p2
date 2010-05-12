@@ -9,6 +9,7 @@
  * 	IBM Corporation - initial API and implementation
  * 	Genuitec, LLC - support for multi-threaded downloads
  *  Cloudsmith Inc. - query indexes
+ *  Sonatype Inc - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
@@ -52,6 +53,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public static final boolean MIRRORS_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
 
 	public static final boolean MD5_CHECK_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.MD5Check")); //$NON-NLS-1$//$NON-NLS-2$
+
+	public static final String CONTENT_FILENAME = "artifacts"; //$NON-NLS-1$
 
 	/** 
 	 * The key for a integer property controls the maximum number
@@ -192,7 +195,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 	private static final String ARTIFACT_UUID = "artifact.uuid"; //$NON-NLS-1$
 	static final private String BLOBSTORE = ".blobstore/"; //$NON-NLS-1$
-	static final private String CONTENT_FILENAME = "artifacts"; //$NON-NLS-1$
 	static final private String[][] PACKED_MAPPING_RULES = { {"(& (classifier=osgi.bundle) (format=packed))", "${repoUrl}/plugins/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (classifier=binary))", "${repoUrl}/binary/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
@@ -239,24 +241,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		toDelete.delete();
 	}
 
-	public static URI getActualLocation(URI base, boolean compress) throws IOException {
+	public static URI getActualLocation(URI base, boolean compress) {
 		return getActualLocation(base, compress ? JAR_EXTENSION : XML_EXTENSION);
 	}
 
-	private static URI getActualLocation(URI base, String extension) throws IOException {
-		final String name = CONTENT_FILENAME + extension;
-		String spec = base.toString();
-		if (spec.endsWith(name))
-			return base;
-		if (spec.endsWith("/")) //$NON-NLS-1$
-			spec += name;
-		else
-			spec += "/" + name; //$NON-NLS-1$
-		try {
-			return new URI(spec);
-		} catch (URISyntaxException e) {
-			throw new IOException(NLS.bind(Messages.io_invalidLocation, spec));
-		}
+	private static URI getActualLocation(URI base, String extension) {
+		return URIUtil.append(base, CONTENT_FILENAME + extension);
 	}
 
 	public static URI getBlobStoreLocation(URI base) {

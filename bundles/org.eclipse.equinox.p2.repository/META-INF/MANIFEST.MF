@@ -55,3 +55,4 @@ Import-Package: javax.xml.parsers,
  org.osgi.util.tracker;version="1.3.0",
  org.xml.sax,
  org.xml.sax.helpers
+Service-Component: OSGI-INF/cacheManager.xml

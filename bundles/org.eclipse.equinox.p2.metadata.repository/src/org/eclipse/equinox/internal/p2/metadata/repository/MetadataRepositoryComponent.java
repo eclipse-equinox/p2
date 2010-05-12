@@ -7,11 +7,10 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype Inc - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -22,12 +21,6 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 public class MetadataRepositoryComponent implements IAgentServiceFactory {
 
 	public Object createService(IProvisioningAgent agent) {
-		MetadataRepositoryManager manager = new MetadataRepositoryManager(agent);
-		final IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
-		CacheManager cache = new CacheManager((IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME));
-		cache.setEventBus(eventBus);
-		agent.registerService(CacheManager.SERVICE_NAME, cache);
-		return manager;
+		return new MetadataRepositoryManager(agent);
 	}
-
 }

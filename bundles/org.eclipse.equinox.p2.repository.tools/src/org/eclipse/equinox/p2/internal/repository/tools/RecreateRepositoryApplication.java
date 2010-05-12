@@ -7,12 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype Inc - ongoing development
  *******************************************************************************/
 
 package org.eclipse.equinox.p2.internal.repository.tools;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -84,14 +84,10 @@ public class RecreateRepositoryApplication extends AbstractApplication {
 		manager.removeRepository(repository.getLocation());
 
 		boolean compressed = Boolean.valueOf(repoProperties.get(IRepository.PROP_COMPRESSED)).booleanValue();
-		try {
-			URI realLocation = SimpleArtifactRepository.getActualLocation(repository.getLocation(), compressed);
-			File realFile = URIUtil.toFile(realLocation);
-			if (!realFile.exists() || !realFile.delete())
-				throw new ProvisionException(NLS.bind(Messages.exception_unableToRemoveRepo, realFile.toString()));
-		} catch (IOException e) {
-			throw new ProvisionException(NLS.bind(Messages.exception_unableToRemoveRepo, repository.getLocation().toString()));
-		}
+		URI realLocation = SimpleArtifactRepository.getActualLocation(repository.getLocation(), compressed);
+		File realFile = URIUtil.toFile(realLocation);
+		if (!realFile.exists() || !realFile.delete())
+			throw new ProvisionException(NLS.bind(Messages.exception_unableToRemoveRepo, realFile.toString()));
 	}
 
 	private void recreateRepository(IProgressMonitor monitor) throws ProvisionException {

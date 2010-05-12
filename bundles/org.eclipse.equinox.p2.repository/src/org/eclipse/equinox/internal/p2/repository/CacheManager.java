@@ -10,7 +10,7 @@
  *     Cloudsmith Inc - additional implementation
  *     Sonatype Inc - additional implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.metadata.repository;
+package org.eclipse.equinox.internal.p2.repository;
 
 import java.io.*;
 import java.net.URI;
@@ -19,8 +19,6 @@ import java.util.HashSet;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.repository.*;
-import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;

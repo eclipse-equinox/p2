@@ -8,6 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc - additional messages
+ *     Sonatype Inc - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository;
 
@@ -15,6 +16,10 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.repository.messages"; //$NON-NLS-1$
+
+	public static String CacheManager_AuthenticationFaileFor_0;
+	public static String CacheManager_FailedCommunicationWithRepo_0;
+	public static String CacheManager_Neither_0_nor_1_found;
 
 	public static String artifact_not_found;
 	public static String io_failedRead;

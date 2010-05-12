@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype Inc - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
@@ -130,19 +131,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	private static URI getActualLocation(URI base, String extension) {
-		final String name = CONTENT_FILENAME + extension;
-		String spec = base.toString();
-		if (spec.endsWith(name))
-			return base;
-		if (spec.endsWith("/")) //$NON-NLS-1$
-			spec += name;
-		else
-			spec += "/" + name; //$NON-NLS-1$
-		try {
-			return new URI(spec);
-		} catch (URISyntaxException e) {
-			return null;
-		}
+		return URIUtil.append(base, CONTENT_FILENAME + extension);
 	}
 
 	private boolean isLocal() {

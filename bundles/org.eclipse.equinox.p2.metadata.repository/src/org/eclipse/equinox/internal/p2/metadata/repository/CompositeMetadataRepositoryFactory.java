@@ -7,8 +7,11 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype Inc - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
+
+import org.eclipse.equinox.internal.p2.repository.CacheManager;
 
 import java.io.*;
 import java.net.URI;

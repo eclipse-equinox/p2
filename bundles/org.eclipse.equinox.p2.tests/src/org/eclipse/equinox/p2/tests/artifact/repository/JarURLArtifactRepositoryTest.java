@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype Inc - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
@@ -47,7 +48,7 @@ public class JarURLArtifactRepositoryTest extends TestCase {
 		URL engineJar = TestActivator.getContext().getBundle().getEntry("/testData/enginerepo.jar");
 		URI jarRepoLocation = null;
 		try {
-			jarRepoLocation = URIUtil.toURI(new URL("jar:" + engineJar.toString() + "!/testData/enginerepo/artifacts.xml"));
+			jarRepoLocation = URIUtil.toURI(new URL("jar:" + engineJar.toString() + "!/testData/enginerepo/"));
 		} catch (URISyntaxException e) {
 			fail(e.getMessage());
 		} catch (MalformedURLException e) {
