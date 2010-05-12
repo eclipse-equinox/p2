@@ -124,11 +124,16 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		String detail = null;
 		IInstallableUnit selectedIU = getSelectedIU();
 		IUDetailsGroup detailsGroup = getDetailsGroup();
+
 		// We either haven't resolved, or we failed to resolve and reported some error
-		// while doing so.  Since the specific error was already reported, the description
-		// text can be used for the selected IU.
-		if (resolvedOperation == null || !resolvedOperation.hasResolved()) {
-			if (selectedIU != null) {
+		// while doing so.  
+		if (resolvedOperation == null || !resolvedOperation.hasResolved() || getProvisioningWizard().statusOverridesOperation()) {
+			// See if the wizard status knows something more about it.
+			IStatus currentStatus = getProvisioningWizard().getCurrentStatus();
+			if (!currentStatus.isOK()) {
+				detail = currentStatus.getMessage();
+				detailsGroup.enablePropertyLink(false);
+			} else if (selectedIU != null) {
 				detail = getIUDescription(selectedIU);
 				detailsGroup.enablePropertyLink(true);
 			} else {

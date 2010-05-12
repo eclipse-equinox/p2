@@ -169,6 +169,12 @@ public class ProvUI {
 		runCommand(INSTALLATION_DIALOG, ProvUIMessages.ProvUI_InstallDialogError, event);
 	}
 
+	public static boolean isUpdateManagerInstallerPresent() {
+		ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
+		Command command = commandService.getCommand(UPDATE_MANAGER_FIND_AND_INSTALL);
+		return command.isDefined();
+	}
+
 	public static QueryProvider getQueryProvider() {
 		if (queryProvider == null)
 			queryProvider = new QueryProvider(ProvUIActivator.getDefault().getProvisioningUI());

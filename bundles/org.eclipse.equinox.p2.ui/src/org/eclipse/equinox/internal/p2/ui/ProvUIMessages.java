@@ -235,6 +235,7 @@ public class ProvUIMessages extends NLS {
 	public static String UpdateManagerCompatibility_ImportSitesTitle;
 	public static String UpdateManagerCompatibility_InvalidSiteFileMessage;
 	public static String UpdateManagerCompatibility_InvalidSitesTitle;
+	public static String UpdateManagerCompatibility_ItemRequiresUpdateManager;
 	public static String UpdateManagerCompatibility_UnableToOpenFindAndInstall;
 	public static String UpdateManagerCompatibility_UnableToOpenManageConfiguration;
 	public static String ServiceUI_LoginDetails;

@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -22,8 +22,13 @@ import org.eclipse.equinox.p2.operations.InstallOperation;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * An install wizard that allows the users to browse all of the repositories
@@ -35,6 +40,7 @@ public class InstallWizard extends WizardWithLicenses {
 
 	SelectableIUsPage errorReportingPage;
 	boolean ignoreSelectionChanges = false;
+	IStatus installHandlerStatus;
 
 	public InstallWizard(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections == null ? null : initialSelections.toArray(), preloadJob);
@@ -163,5 +169,61 @@ public class InstallWizard extends WizardWithLicenses {
 		} finally {
 			ignoreSelectionChanges = false;
 		}
+	}
+
+	/*
+	 * Overridden to check whether there are UpdateManager install handlers in the item
+	 * to be installed.  Operations don't know about this compatibility issue.
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#getCurrentStatus()
+	 */
+	public IStatus getCurrentStatus() {
+		IStatus originalStatus = super.getCurrentStatus();
+		int sev = originalStatus.getSeverity();
+		// Use the previously computed status if the user cancelled or if we were already in error.
+		// If we don't have an operation or a plan, we can't check this condition either, so just
+		// use the normal status.
+		if (sev == IStatus.CANCEL || sev == IStatus.ERROR || operation == null || operation.getProvisioningPlan() == null) {
+			return originalStatus;
+		}
+		// Does the plan require install handler support?
+		installHandlerStatus = UpdateManagerCompatibility.getInstallHandlerStatus(operation.getProvisioningPlan());
+		if (!installHandlerStatus.isOK()) {
+			// Set the status into the wizard.  This ensures future calls to this method won't
+			// repeat the work (and prompting).
+			couldNotResolveStatus = installHandlerStatus;
+
+			// Is the update manager installer present?  If so, offer to open it.
+			// In either case, the failure will be reported in this wizard.
+			if (ProvUI.isUpdateManagerInstallerPresent()) {
+				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						Shell shell = ProvUI.getDefaultParentShell();
+						MessageDialog dialog = new MessageDialog(shell, ProvUIMessages.Policy_RequiresUpdateManagerTitle, null, ProvUIMessages.Policy_RequiresUpdateManagerMessage, MessageDialog.WARNING, new String[] {ProvUIMessages.LaunchUpdateManagerButton, IDialogConstants.CANCEL_LABEL}, 0);
+						if (dialog.open() == 0)
+							BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
+								public void run() {
+									UpdateManagerCompatibility.openInstaller();
+								}
+							});
+					}
+				});
+			}
+			return installHandlerStatus;
+		}
+		return originalStatus;
+	}
+
+	/*
+	 * When we've found an install handler, that status trumps anything that the operation might have
+	 * determined.  We are relying here on the knowledge that the wizard's couldNotResolveStatus is 
+	 * reset on every new resolution, so that status only holds the installHandler status when it is 
+	 * the current status.
+	 * 
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#statusOverridesOperation()
+	 */
+	public boolean statusOverridesOperation() {
+		return couldNotResolveStatus == installHandlerStatus;
 	}
 }

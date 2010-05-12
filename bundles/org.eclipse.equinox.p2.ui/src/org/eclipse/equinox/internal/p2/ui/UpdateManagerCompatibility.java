@@ -23,6 +23,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
@@ -166,15 +167,14 @@ public class UpdateManagerCompatibility {
 		}
 	}
 
-	public static boolean requiresInstallHandlerSupport(IProvisioningPlan plan) {
+	public static IStatus getInstallHandlerStatus(IProvisioningPlan plan) {
 		IQueryResult<IInstallableUnit> result = plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null);
 		for (Iterator<IInstallableUnit> iterator = result.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
 			if (iu != null && iu.getProperty(ECLIPSE_INSTALL_HANDLER_PROP) != null)
-				return true;
+				return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, NLS.bind(ProvUIMessages.UpdateManagerCompatibility_ItemRequiresUpdateManager, iu.getId()));
 		}
-		return false;
-
+		return Status.OK_STATUS;
 	}
 
 	/**

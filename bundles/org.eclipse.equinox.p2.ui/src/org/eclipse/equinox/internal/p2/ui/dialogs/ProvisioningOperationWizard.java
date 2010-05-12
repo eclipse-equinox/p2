@@ -237,6 +237,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	}
 
 	public IStatus getCurrentStatus() {
+		if (statusOverridesOperation())
+			return couldNotResolveStatus;
 		if (operation != null && operation.getResolutionResult() != null)
 			return operation.getResolutionResult();
 		return couldNotResolveStatus;
@@ -333,5 +335,13 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 				}
 			});
 		}
+	}
+
+	/*
+	 * Return a boolean indicating whether the wizard's current status should override any detail
+	 * reported by the operation.
+	 */
+	public boolean statusOverridesOperation() {
+		return false;
 	}
 }

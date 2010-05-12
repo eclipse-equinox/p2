@@ -12,18 +12,14 @@ package org.eclipse.equinox.p2.ui;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.operations.UpdateOperation;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -112,23 +108,6 @@ public class Policy {
 			return false;
 		}
 
-		// If the plan requires install handler support, we want to open the old update UI and
-		// cancel this operation
-		if (UpdateManagerCompatibility.requiresInstallHandlerSupport(operation.getProvisioningPlan())) {
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					Shell shell = ProvUI.getDefaultParentShell();
-					MessageDialog dialog = new MessageDialog(shell, ProvUIMessages.Policy_RequiresUpdateManagerTitle, null, ProvUIMessages.Policy_RequiresUpdateManagerMessage, MessageDialog.WARNING, new String[] {ProvUIMessages.LaunchUpdateManagerButton, IDialogConstants.CANCEL_LABEL}, 0);
-					if (dialog.open() == 0)
-						BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
-							public void run() {
-								UpdateManagerCompatibility.openInstaller();
-							}
-						});
-				}
-			});
-			return false;
-		}
 		// Allow the wizard to open otherwise.
 		return true;
 	}
