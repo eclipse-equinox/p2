@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc - additional implementation
+ *     Sonatype Inc - additional implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
