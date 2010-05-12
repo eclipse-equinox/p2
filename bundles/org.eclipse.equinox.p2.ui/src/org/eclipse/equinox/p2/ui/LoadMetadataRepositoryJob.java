@@ -143,23 +143,23 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 	}
 
 	private boolean shouldAccumulateFailures() {
-		return getProperty(LoadMetadataRepositoryJob.SUPPRESS_AUTHENTICATION_JOB_MARKER) != null;
+		return getProperty(LoadMetadataRepositoryJob.ACCUMULATE_LOAD_ERRORS) != null;
 	}
 
 	/**
-	 * Report the accumulated status to the repository tracker.  If there has been
+	 * Report the accumulated status for repository load failures.  If there has been
 	 * no status accumulated, or if the job has been cancelled, do not report
-	 * anything.
+	 * anything.  Detailed errors have already been logged.
 	 */
 	public void reportAccumulatedStatus() {
 		IStatus status = getCurrentStatus();
 		if (status.isOK() || status.getSeverity() == IStatus.CANCEL)
 			return;
-		// report status
-		int flags = StatusManager.LOG;
-		if (ui.getPolicy().getRepositoriesVisible())
-			flags = flags | StatusManager.SHOW;
-		StatusManager.getManager().handle(status, flags);
+
+		// If user is unaware of individual sites, nothing to report here.
+		if (!ui.getPolicy().getRepositoriesVisible())
+			return;
+		StatusManager.getManager().handle(status, StatusManager.SHOW);
 		// Reset the accumulated status so that next time we only report the newly not found repos.
 		accumulatedStatus = null;
 	}

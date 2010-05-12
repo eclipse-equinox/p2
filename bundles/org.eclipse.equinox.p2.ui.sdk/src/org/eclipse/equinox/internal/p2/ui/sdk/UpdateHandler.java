@@ -36,6 +36,8 @@ public class UpdateHandler extends PreloadingRepositoryHandler {
 			}
 			return;
 		}
+		// Report any missing repositories.
+		job.reportAccumulatedStatus();
 		if (getProvisioningUI().getPolicy().continueWorkingWithOperation(operation, getShell())) {
 			getProvisioningUI().openUpdateWizard(false, operation, job);
 		}
