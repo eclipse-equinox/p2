@@ -53,7 +53,41 @@ public class LocalizationTests extends TestCase {
 	}
 
 	public void testBundleLocalizationDE() throws IOException {
+		//Tests with the default localization file location
 		File file = TestData.getFile("localizationtests/foobundle", "");
+		BundlesAction action = new BundlesAction(new File[] {file});
+		action.perform(info, results, monitor);
+		TranslationSupport utils = getTranslationSupport();
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
+		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		assertEquals("1.0", "Foo German Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
+		assertEquals("1.1", "Foo German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
+	}
+
+	public void testBundleLocalizationDefaultDE() throws IOException {
+		File file = TestData.getFile("localizationtests/foobundle_default", "");
+		BundlesAction action = new BundlesAction(new File[] {file});
+		action.perform(info, results, monitor);
+		TranslationSupport utils = getTranslationSupport();
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
+		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		assertEquals("1.0", "Foo German Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
+		assertEquals("1.1", "Foo German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
+	}
+
+	public void testBundleLocalizationDefaultDEJar() throws IOException {
+		File file = TestData.getFile("localizationtests/foobundle_1.0.0.qualifier.jar", "");
+		BundlesAction action = new BundlesAction(new File[] {file});
+		action.perform(info, results, monitor);
+		TranslationSupport utils = getTranslationSupport();
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
+		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		assertEquals("1.0", "Foo German Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.GERMAN.toString()));
+		assertEquals("1.1", "Foo German Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
+	}
+
+	public void testBundleLocalizationOSGI_INF_DE() throws IOException {
+		File file = TestData.getFile("localizationtests/foobundle_osgi-inf", "");
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();
@@ -100,8 +134,31 @@ public class LocalizationTests extends TestCase {
 		assertEquals("1.1", "Foo German Provider - Translated in the Fragment", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.GERMAN.toString()));
 	}
 
+	public void testBundleLocalizationOSGI_INF_EN() throws IOException {
+		File file = TestData.getFile("localizationtests/foobundle_osgi-inf", "");
+		BundlesAction action = new BundlesAction(new File[] {file});
+		action.perform(info, results, monitor);
+		TranslationSupport utils = getTranslationSupport();
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
+		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		assertEquals("1.0", "Foo English Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH.toString()));
+		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH.toString()));
+	}
+
 	public void testBundleLocalizationEN() throws IOException {
 		File file = TestData.getFile("localizationtests/foobundle", "");
+		BundlesAction action = new BundlesAction(new File[] {file});
+		action.perform(info, results, monitor);
+		TranslationSupport utils = getTranslationSupport();
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery("foobundle"), monitor);
+		IInstallableUnit iu = (IInstallableUnit) queryResult.iterator().next();
+		assertEquals("1.0", "Foo English Bundle", utils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.ENGLISH.toString()));
+		assertEquals("1.1", "Foo English Provider", utils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.ENGLISH.toString()));
+	}
+
+	public void testBundleLocalizationENDefault() throws IOException {
+		// Tests with the default localization file location
+		File file = TestData.getFile("localizationtests/foobundle_default", "");
 		BundlesAction action = new BundlesAction(new File[] {file});
 		action.perform(info, results, monitor);
 		TranslationSupport utils = getTranslationSupport();

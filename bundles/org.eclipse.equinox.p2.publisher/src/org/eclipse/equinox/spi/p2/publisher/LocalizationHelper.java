@@ -72,7 +72,7 @@ public final class LocalizationHelper {
 				Locale nextLocale = getLocale(LocalizationHelper.getLocaleString(nextFile, localizationFile));
 
 				try {
-					Map<String, String> properties = loadProperties(root, nextFile);
+					Map<String, String> properties = loadProperties(localizationDir, nextFile);
 					Map<String, String> localizedStrings = getLocalizedProperties(propertyKeys, properties);
 					if (localizedStrings.size() > 0) {
 						localizations.put(nextLocale, localizedStrings);
