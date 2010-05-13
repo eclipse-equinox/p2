@@ -1,3 +1,13 @@
+/*******************************************************************************
+ *  Copyright (c) 2010 Sonatype, Inc and others.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ * 
+ *  Contributors:
+ *     Sonatype, Inc. - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
 import java.util.Iterator;
@@ -21,6 +31,8 @@ public class Bug300572 extends AbstractProvisioningTest {
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 		//The following repo contains the second patch to be installed
 		IMetadataRepository repo = repoMgr.loadRepository(getTestData("bug300572 data", "testData/bug300572/repo/").toURI(), new NullProgressMonitor());
+		IInstallableUnit[] ius = repo.query(QueryUtil.createIUQuery("hellopatch.feature.group"), null).toArray(IInstallableUnit.class);
+		System.out.println(ius);
 
 		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 		//The profile already contains a a feature (hellofeature) and a patch for it (hellopatch).
