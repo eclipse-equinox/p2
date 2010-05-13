@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 //This test verify that one patch can replace another one.
+//In this test we use the metadata from the original bug 300572 and simulate the optional addition of the patches
 public class Bug300572Small3 extends AbstractProvisioningTest {
 	IInstallableUnit featureBeingPatched;
 	IInstallableUnitPatch p1, p2;

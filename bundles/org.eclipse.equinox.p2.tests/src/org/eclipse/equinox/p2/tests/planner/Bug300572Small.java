@@ -31,14 +31,17 @@ public class Bug300572Small extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
+		//A depends on B
 		a1 = createIU("A", Version.create("1.0.0"), new IRequirement[] {MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.0.0]"), null, false, true)});
 		b1 = createIU("B", Version.createOSGi(1, 0, 0), true);
 		b2 = createIU("B", Version.createOSGi(2, 0, 0), true);
 		b3 = createIU("B", Version.createOSGi(3, 0, 0), true);
 
+		//Patch 1 changes B
 		IRequirementChange change = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[2.0.0, 2.0.0]"), null, false, false, true));
 		p1 = createIUPatch("P", Version.create("1.0.0"), true, new IRequirementChange[] {change}, new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null);
 
+		//Patch 2 changes B
 		IRequirementChange changeP2 = MetadataFactory.createRequirementChange(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[3.0.0,3.0.0]"), null, false, false, true));
 		p2 = createIUPatch("P", Version.create("2.0.0"), true, new IRequirementChange[] {changeP2}, new IRequirement[][] {{MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null);
 
