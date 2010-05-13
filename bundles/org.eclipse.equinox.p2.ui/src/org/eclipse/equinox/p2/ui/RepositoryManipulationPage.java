@@ -16,6 +16,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.*;
@@ -611,16 +612,38 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				public void run(IProgressMonitor monitor) {
 					monitor.beginTask(NLS.bind(ProvUIMessages.RepositoryManipulationPage_ContactingSiteMessage, location), 100);
 					try {
+						// Batch the events for this operation so that any events on reload (discovery, etc.) will be ignored
+						// in the UI as they happen.
+						ui.signalRepositoryOperationStart();
 						tracker.clearRepositoryNotFound(location);
-						// If the manager doesn't know this repo, refreshing it will not work.
+						// If the managers don't know this repo, refreshing it will not work.
 						// We temporarily add it, but we must remove it in case the user cancels out of this page.
 						if (!includesRepo(tracker.getKnownRepositories(ui.getSession()), location)) {
-							// Start a batch operation so we can swallow events
 							remove[0] = true;
-							ui.signalRepositoryOperationStart();
-							tracker.addRepository(location, selected[0].getName(), ui.getSession());
+							// We don't want to use the tracker here because it ensures that additions are
+							// reported as user events to be responded to.  We don't want, for example, the
+							// install wizard to change combo selections based on what is done here.
+							ProvUI.getMetadataRepositoryManager(ui.getSession()).addRepository(location);
+							ProvUI.getArtifactRepositoryManager(ui.getSession()).addRepository(location);
 						}
-						tracker.refreshRepositories(new URI[] {location}, ui.getSession(), monitor);
+						// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=312332
+						// We assume repository colocation here.  Ideally we should not do this, but the
+						// RepositoryTracker API is swallowing the refresh errors.
+						SubMonitor sub = SubMonitor.convert(monitor, 200);
+						try {
+							ProvUI.getMetadataRepositoryManager(ui.getSession()).refreshRepository(location, sub.newChild(100));
+						} catch (ProvisionException e) {
+							fail[0] = e;
+						}
+						try {
+							ProvUI.getArtifactRepositoryManager(ui.getSession()).refreshRepository(location, sub.newChild(100));
+						} catch (ProvisionException e) {
+							// Failure in the artifact repository.  We will not report this because the user has no separate visibility
+							// of the artifact repository.  We should log the error.  If this repository fails during a download, the error
+							// will be reported at that time to the user, when it matters.  This also prevents false error reporting when
+							// a metadata repository didn't actually have a colocated artifact repository.
+							LogHelper.log(e);
+						}
 					} catch (OperationCanceledException e) {
 						// Catch canceled login attempts
 						fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled, e));
@@ -630,10 +653,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 							fail[0] = new ProvisionException(new Status(IStatus.CANCEL, ProvUIActivator.PLUGIN_ID, ProvUIMessages.RepositoryManipulationPage_RefreshOperationCanceled));
 						// If we temporarily added a repo so we could read it, remove it.
 						if (remove[0]) {
-							tracker.removeRepositories(new URI[] {location}, ui.getSession());
-							// stop swallowing events
-							ui.signalRepositoryOperationComplete(null, false);
+							ProvUI.getMetadataRepositoryManager(ui.getSession()).removeRepository(location);
+							ProvUI.getArtifactRepositoryManager(ui.getSession()).removeRepository(location);
 						}
+						ui.signalRepositoryOperationComplete(null, false);
 					}
 				}
 			});
