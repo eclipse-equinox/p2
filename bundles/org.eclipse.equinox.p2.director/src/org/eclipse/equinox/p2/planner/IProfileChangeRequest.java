@@ -21,6 +21,8 @@ import org.eclipse.equinox.p2.metadata.IRequirement;
  *  {@link IPlanner}, which validates which of the requested changes can be
  *  performed, and what other changes are required in order to make the profile
  *  state consistent.
+ *
+ *  It is important to note that a change request can only be submitted once to the planner.
  *  
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
