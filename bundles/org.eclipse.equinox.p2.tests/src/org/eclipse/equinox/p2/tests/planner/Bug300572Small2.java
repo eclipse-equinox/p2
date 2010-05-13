@@ -81,6 +81,7 @@ public class Bug300572Small2 extends AbstractProvisioningTest {
 		IProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 		assertContains(plan1.getAdditions().query(QueryUtil.ALL_UNITS, null), p1);
+		assertFalse(plan1.getAdditions().query(QueryUtil.createIUQuery("hello", Version.create("1.0.1.200911201237")), null).isEmpty());
 		assertOK("plan execution", engine.perform(plan1, null));
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
@@ -89,6 +90,7 @@ public class Bug300572Small2 extends AbstractProvisioningTest {
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertOK("Planning for installing P2", plan2.getStatus());
 		assertContains(plan2.getAdditions().query(QueryUtil.ALL_UNITS, null), p2);
+		assertFalse(plan2.getAdditions().query(QueryUtil.createIUQuery("hello", Version.create("1.0.2.201001211536")), null).isEmpty());
 	}
 
 }
