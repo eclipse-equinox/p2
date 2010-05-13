@@ -92,7 +92,7 @@ public class Bug300572Small extends AbstractProvisioningTest {
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {p2});
-		req1.setInstallableUnitInclusionRules(p2, ProfileInclusionRules.createOptionalInclusionRule(p2));
+		req2.setInstallableUnitInclusionRules(p2, ProfileInclusionRules.createOptionalInclusionRule(p2));
 		IProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertOK("Planning for installing P2", plan2.getStatus());
 		assertContains(plan2.getAdditions().query(QueryUtil.ALL_UNITS, null), p2);
