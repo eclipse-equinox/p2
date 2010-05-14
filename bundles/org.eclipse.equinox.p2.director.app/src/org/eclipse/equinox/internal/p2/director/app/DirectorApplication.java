@@ -231,6 +231,8 @@ public class DirectorApplication implements IApplication {
 	private IProvisioningAgent targetAgent;
 	private boolean noArtifactRepositorySpecified = false;
 
+	private long newProfile = -1;
+
 	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collection<IInstallableUnit> installs, Collection<IInstallableUnit> uninstalls) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		markRoots(request, installs);
@@ -351,6 +353,7 @@ public class DirectorApplication implements IApplication {
 			if (profileProperties != null)
 				putProperties(profileProperties, props);
 			profile = ((IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME)).addProfile(profileId, props);
+			newProfile = profile.getTimestamp();
 		}
 		return profile;
 	}
@@ -548,10 +551,23 @@ public class DirectorApplication implements IApplication {
 			ProfileChangeRequest request = buildProvisioningRequest(profile, installs, uninstalls);
 			printRequest(request);
 			planAndExecute(profile, context, request);
+			removeJunkProfile(profile);
 		} finally {
 			// if we were originally were set to be roaming and we changed it, change it back before we return
 			if (wasRoaming && !Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
 				setRoaming(profile);
+		}
+	}
+
+	private void removeJunkProfile(IProfile profile) {
+		if (newProfile == -1)
+			return;
+
+		//Remove the initial profile entry that is created when the profile is first created during a provisioning operation
+		try {
+			((IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME)).removeProfile(profile.getProfileId(), newProfile);
+		} catch (ProvisionException e) {
+			LogHelper.log(new Status(IStatus.OK, Activator.ID, NLS.bind(Messages.could_not_remove_initialProfile, profile.getProfileId())));
 		}
 	}
 
