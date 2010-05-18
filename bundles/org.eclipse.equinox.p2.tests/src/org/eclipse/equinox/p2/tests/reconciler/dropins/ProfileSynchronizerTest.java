@@ -56,12 +56,14 @@ public class ProfileSynchronizerTest extends AbstractProvisioningTest {
 		Set<IInstallableUnit> oldRoots = sdkProfile.query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", Boolean.TRUE.toString()), null).toUnmodifiableSet();
 
 		assertFalse(sdkProfile.query(QueryUtil.createIUQuery("aniefer.junit.headless"), null).isEmpty());
+		int originalSize = sdkProfile.query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size();
 		ProfileSynchronizer sync = new ProfileSynchronizer(agent, sdkProfile, new ArrayList<IMetadataRepository>());
 		sync.synchronize(null);
 		Set<IInstallableUnit> newRoots = registry.getProfile("SDKProfile").query(new IUProfilePropertyQuery("org.eclipse.equinox.p2.type.root", Boolean.TRUE.toString()), null).toSet();
 		newRoots.removeAll(oldRoots);
 		assertEquals(0, newRoots.size());
 		assertTrue(registry.getProfile("SDKProfile").query(QueryUtil.createIUQuery("aniefer.junit.headless"), null).isEmpty());
+		assertEquals(originalSize - 1, registry.getProfile("SDKProfile").query(QueryUtil.ALL_UNITS, null).toUnmodifiableSet().size());
 	}
 
 	private void initializeReconciler() throws IllegalAccessException {
