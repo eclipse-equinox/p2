@@ -51,6 +51,10 @@ public class LocationProperties {
 	private String[] artifactSearchOrder = new String[0]; // Version 1
 	private Map<String, Boolean> md5Hashes = null; // Version 1
 
+	public static LocationProperties createEmptyIndexFile() {
+		return new LocationProperties();
+	}
+
 	/**
 	 * Creates a LocationProperties Object from an input stream. If the LocationProperties
 	 * could be created, it is returned.  If it could not be created, an empty LocationProperties
