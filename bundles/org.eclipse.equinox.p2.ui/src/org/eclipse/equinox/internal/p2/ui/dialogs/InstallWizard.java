@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -218,12 +218,12 @@ public class InstallWizard extends WizardWithLicenses {
 	 * When we've found an install handler, that status trumps anything that the operation might have
 	 * determined.  We are relying here on the knowledge that the wizard's couldNotResolveStatus is 
 	 * reset on every new resolution, so that status only holds the installHandler status when it is 
-	 * the current status.
+	 * the current status.  The installHandlerStatus must be non-OK for it to matter at all.
 	 * 
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard#statusOverridesOperation()
 	 */
 	public boolean statusOverridesOperation() {
-		return couldNotResolveStatus == installHandlerStatus;
+		return installHandlerStatus != null && !installHandlerStatus.isOK() && couldNotResolveStatus == installHandlerStatus;
 	}
 }
