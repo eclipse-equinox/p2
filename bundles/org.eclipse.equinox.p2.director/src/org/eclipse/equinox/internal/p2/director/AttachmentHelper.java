@@ -18,7 +18,7 @@ public class AttachmentHelper {
 	private static final IInstallableUnitFragment[] NO_FRAGMENTS = new IInstallableUnitFragment[0];
 
 	public static Collection<IInstallableUnit> attachFragments(Iterator<IInstallableUnit> toAttach, Map<IInstallableUnitFragment, List<IInstallableUnit>> fragmentsToIUs) {
-		Map<IInstallableUnit, IInstallableUnitFragment> fragmentBindings = new HashMap<IInstallableUnit, IInstallableUnitFragment>();
+		Map<IInstallableUnit, IInstallableUnitFragment[]> fragmentBindings = new HashMap<IInstallableUnit, IInstallableUnitFragment[]>();
 		//Build a map inverse of the one provided in input (host --> List of fragments)
 		Map<IInstallableUnit, List<IInstallableUnitFragment>> iusToFragment = new HashMap<IInstallableUnit, List<IInstallableUnitFragment>>(fragmentsToIUs.size());
 		for (Map.Entry<IInstallableUnitFragment, List<IInstallableUnit>> mapping : fragmentsToIUs.entrySet()) {
@@ -65,14 +65,21 @@ public class AttachmentHelper {
 
 			IInstallableUnitFragment theFragment = null;
 			int specificityLevel = 0;
+			LinkedList<IInstallableUnitFragment> fragments = new LinkedList<IInstallableUnitFragment>();
 			for (IInstallableUnitFragment fragment : applicableFragments) {
+				if (isTranslation(fragment)) {
+					fragments.add(fragment);
+					continue;
+				}
 				if (fragment.getHost().size() > specificityLevel) {
 					theFragment = fragment;
 					specificityLevel = fragment.getHost().size();
 				}
 			}
 			if (theFragment != null)
-				fragmentBindings.put(hostIU, theFragment);
+				fragments.addFirst(theFragment);
+			if (!fragments.isEmpty())
+				fragmentBindings.put(hostIU, fragments.toArray(new IInstallableUnitFragment[fragments.size()]));
 		}
 		//build the collection of resolved IUs
 		Collection<IInstallableUnit> result = new HashSet<IInstallableUnit>();
@@ -86,14 +93,20 @@ public class AttachmentHelper {
 				continue;
 			}
 			//return a new IU that combines the IU with its bound fragments
-			IInstallableUnitFragment fragment = fragmentBindings.get(iu);
-			IInstallableUnitFragment[] fragments;
-			if (fragment == null)
+			IInstallableUnitFragment[] fragments = fragmentBindings.get(iu);
+			if (fragments == null)
 				fragments = NO_FRAGMENTS;
-			else
-				fragments = new IInstallableUnitFragment[] {fragment};
 			result.add(MetadataFactory.createResolvedInstallableUnit(iu, fragments));
 		}
 		return result;
+	}
+
+	private static boolean isTranslation(IInstallableUnitFragment fragment) {
+		for (IProvidedCapability capability : fragment.getProvidedCapabilities()) {
+			// TODO make the constant in the TranslationSupport class public and use it
+			if ("org.eclipse.equinox.p2.localization".equals(capability.getNamespace())) //$NON-NLS-1$
+				return true;
+		}
+		return false;
 	}
 }
