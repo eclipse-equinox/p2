@@ -119,7 +119,7 @@ public class SiteVerifier {
 		public VerifyUpdateSiteJob call() throws Exception {
 			URL baseUrl = new URL(url);
 			List<URI> locations = new ArrayList<URI>();
-			for (String location : new String[] {"content.jar", "content.xml", "site.xml"}) { //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			for (String location : new String[] {"content.jar", "content.xml", "site.xml", "compositeContent.jar", "compositeContent.xml"}) { //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 				locations.add(new URL(baseUrl, location).toURI());
 			}
 			ok = TransportUtil.verifyAvailability(locations, true, new NullProgressMonitor());
