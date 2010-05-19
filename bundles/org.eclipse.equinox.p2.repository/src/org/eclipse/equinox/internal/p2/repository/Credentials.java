@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, IBM Corporation and others.
+ * Copyright (c) 2009,2010 IBM Corporation and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -7,6 +7,7 @@
  * Contributors:
  * 	IBM Corporation - Initial API and implementation
  *  Cloudsmith Inc - Implementation
+ *  Sonatype Inc - Ongoing development
  ******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.repository;
@@ -195,8 +196,8 @@ public class Credentials {
 				}
 
 				UIServices.AuthenticationInfo latest = restoreFromMemory(nodeName);
-				if (latest != null && lastUsed != null)
-					if (!(latest.getUserName().equals(lastUsed.getUserName()) && latest.getPassword().equals(lastUsed.getPassword())))
+				if (latest != null)
+					if (lastUsed == null || !(latest.getUserName().equals(lastUsed.getUserName()) && latest.getPassword().equals(lastUsed.getPassword())))
 						return latest;
 
 				// check if number of prompts have been exceeded for the host - if so
