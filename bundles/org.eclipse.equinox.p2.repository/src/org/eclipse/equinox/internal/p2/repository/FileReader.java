@@ -257,6 +257,11 @@ public final class FileReader extends FileTransferJob implements IFileTransferLi
 				if (t instanceof IOException)
 					e = (IOException) t;
 				else {
+					if (t instanceof UserCancelledException) {
+						Throwable cause = t;
+						t = new OperationCanceledException(t.getMessage());
+						t.initCause(cause);
+					}
 					e = new IOException(t.getMessage());
 					e.initCause(t);
 				}
