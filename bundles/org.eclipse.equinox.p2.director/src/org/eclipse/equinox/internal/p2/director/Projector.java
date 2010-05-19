@@ -202,9 +202,9 @@ public class Projector {
 					processIU(iuToEncode, false);
 				}
 			}
-			createConstraintsForSingleton();
-
 			createMustHave(entryPointIU, alreadyExistingRoots);
+
+			createConstraintsForSingleton();
 
 			createConstraintsForNonGreedy();
 
