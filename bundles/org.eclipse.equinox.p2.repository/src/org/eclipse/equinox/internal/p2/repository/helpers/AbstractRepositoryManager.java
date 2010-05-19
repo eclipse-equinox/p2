@@ -11,8 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository.helpers;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.*;
 import java.util.*;
@@ -690,9 +689,31 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 * a NullSafe version is returned.
 	 */
 	private LocationProperties loadIndexFile(URI location, IProgressMonitor monitor) {
-		// get the search order from the server, if it's available
-		ByteArrayOutputStream index = new ByteArrayOutputStream();
 		LocationProperties locationProperties = LocationProperties.createEmptyIndexFile();
+		//Handle the case of local repos
+		if ("file".equals(location.getScheme())) { //$NON-NLS-1$ 
+			InputStream localStream = null;
+			try {
+				try {
+					File indexFile = URIUtil.toFile(getIndexFileURI(location));
+					if (indexFile != null && indexFile.exists() && indexFile.canRead()) {
+						localStream = new FileInputStream(indexFile);
+						locationProperties = LocationProperties.create(localStream);
+					}
+				} catch (URISyntaxException e) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+				} finally {
+					if (localStream != null)
+						localStream.close();
+				}
+			} catch (IOException e) {
+				//do nothing.
+			}
+			return locationProperties;
+		}
+
+		//Handle non local repos (i.e. not file:)
+		ByteArrayOutputStream index = new ByteArrayOutputStream();
 		IStatus indexFileStatus = null;
 		try {
 			indexFileStatus = getTransport().download(getIndexFileURI(location), index, monitor);
@@ -700,7 +721,6 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, uriSyntaxException.getMessage(), uriSyntaxException));
 			indexFileStatus = null;
 		}
-
 		if (indexFileStatus != null && indexFileStatus.isOK())
 			locationProperties = LocationProperties.create(new ByteArrayInputStream(index.toByteArray()));
 
