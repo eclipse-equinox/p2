@@ -191,8 +191,9 @@ public class IUMap implements Cloneable {
 		if (matching == null)
 			return;
 
-		if (matching instanceof IInstallableUnit && matching.equals(unit)) {
-			units.remove(key);
+		if (matching instanceof IInstallableUnit) {
+			if (matching.equals(unit))
+				units.remove(key);
 			return;
 		}
 
