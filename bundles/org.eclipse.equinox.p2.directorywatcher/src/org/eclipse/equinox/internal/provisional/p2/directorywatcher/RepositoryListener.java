@@ -236,9 +236,9 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (artifactRepository == null)
 			return;
 		if (!removedFiles.isEmpty()) {
-			IQueryResult<IArtifactDescriptor> descriptors = artifactRepository.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null);
-			for (Iterator<IArtifactDescriptor> iterator = descriptors.iterator(); iterator.hasNext();) {
-				SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) iterator.next();
+			IArtifactDescriptor[] descriptors = artifactRepository.descriptorQueryable().query(ArtifactDescriptorQuery.ALL_DESCRIPTORS, null).toArray(IArtifactDescriptor.class);
+			for (IArtifactDescriptor d : descriptors) {
+				SimpleArtifactDescriptor descriptor = (SimpleArtifactDescriptor) d;
 				String filename = descriptor.getRepositoryProperty(FILE_NAME);
 				if (filename == null) {
 					if (Tracing.DEBUG) {
