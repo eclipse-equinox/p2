@@ -553,7 +553,7 @@ public class Projector {
 	}
 
 	static final class Pending {
-		List<IInstallableUnit> matches;
+		List<? super IInstallableUnitPatch> matches;
 		Explanation explanation;
 		Object left;
 	}
@@ -671,12 +671,15 @@ public class Projector {
 						pending.matches.add(patch);
 						continue;
 					}
-
+					pending = new Pending();
+					pending.left = iu;
 					List<IInstallableUnit> matches = getApplicableMatches(req);
 					determinePotentialHostsForFragment(iu);
 					if (req.getMin() > 0) {
 						if (matches.isEmpty()) {
-							dependencyHelper.implication(new Object[] {iu}).implies(patch).named(new Explanation.HardRequirement(iu, null));
+							matches.add(patch);
+							pending.explanation = new Explanation.HardRequirement(iu, req);
+							pending.matches = matches;
 						} else {
 							// manage non greedy IUs
 							IInstallableUnit current;
@@ -702,11 +705,8 @@ public class Projector {
 								}
 
 								// Fix: make sure we collect all patches that will impact this IU-req, not just one
-								pending = new Pending();
-								pending.left = iu;
 								pending.explanation = explanation;
 								pending.matches = matches;
-								nonPatchedRequirements.put(req, pending);
 								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 									current = it.next();
 									if (nonGreedyIUs.contains(current)) {
@@ -719,22 +719,25 @@ public class Projector {
 									current = it.next();
 									newConstraint.add(getNonGreedyVariable(current));
 								}
-								createImplication(new Object[] {iu}, newConstraint, new Explanation.HardRequirement(iu, req)); // FIXME
+								pending.explanation = new Explanation.HardRequirement(iu, req);
+								pending.matches = newConstraint;
 							}
+							nonPatchedRequirements.put(req, pending);
+
 						}
 					} else {
 						if (!matches.isEmpty()) {
 							IInstallableUnit current;
 							AbstractVariable abs;
 							matches.add(patch);
+							pending = new Pending();
+							pending.explanation = Explanation.OPTIONAL_REQUIREMENT;
+
 							if (req.isGreedy()) {
 								abs = getAbstractVariable(req);
 								// Fix: make sure we collect all patches that will impact this IU-req, not just one
-								pending = new Pending();
 								pending.left = new Object[] {abs, iu};
-								pending.explanation = Explanation.OPTIONAL_REQUIREMENT;
 								pending.matches = matches;
-								nonPatchedRequirements.put(req, pending);
 								for (Iterator<IInstallableUnit> it = matches.iterator(); it.hasNext();) {
 									current = it.next();
 									if (nonGreedyIUs.contains(current)) {
@@ -749,8 +752,10 @@ public class Projector {
 									newConstraint.add(getNonGreedyVariable(current));
 								}
 								newConstraint.add(patch);
-								createImplication(new Object[] {abs, iu}, newConstraint, new Explanation.HardRequirement(iu, req)); // FIXME
+								pending.left = new Object[] {abs, iu};
+								pending.matches = newConstraint;
 							}
+							nonPatchedRequirements.put(req, pending);
 							optionalAbstractRequirements.add(abs);
 						}
 					}
