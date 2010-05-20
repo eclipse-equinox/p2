@@ -182,7 +182,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 			IQueryable<IInstallableUnit> slice = slice(new NullProgressMonitor());
 			if (destinationArtifactRepository != null) {
 				mirrorStatus = mirrorArtifacts(slice, new NullProgressMonitor());
-				if (mirrorStatus.getSeverity() == IStatus.ERROR)
+				if (failOnError && mirrorStatus.getSeverity() == IStatus.ERROR)
 					return mirrorStatus;
 			}
 			if (destinationMetadataRepository != null)

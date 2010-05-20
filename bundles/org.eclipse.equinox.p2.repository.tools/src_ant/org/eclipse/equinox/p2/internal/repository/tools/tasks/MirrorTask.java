@@ -27,6 +27,7 @@ public class MirrorTask extends AbstractRepositoryTask {
 
 	private File mirrorLog; // file to log mirror output to (optional)
 	private ComparatorDescription comparator;
+	private boolean ignoreErrors = false;
 
 	public MirrorTask() {
 		application = new MirrorApplication();
@@ -59,7 +60,7 @@ public class MirrorTask extends AbstractRepositoryTask {
 			List<IInstallableUnit> ius = prepareIUs();
 			application.setSourceIUs(ius);
 			IStatus result = application.run(null);
-			if (result.matches(IStatus.ERROR))
+			if (!ignoreErrors && result.matches(IStatus.ERROR))
 				throw new BuildException(TaskHelper.statusToString(result, IStatus.ERROR, null).toString());
 		} catch (ProvisionException e) {
 			throw new BuildException(e);
@@ -111,6 +112,7 @@ public class MirrorTask extends AbstractRepositoryTask {
 	 * Set whether or not we should ignore errors when running the mirror application.
 	 */
 	public void setIgnoreErrors(boolean value) {
+		ignoreErrors = value;
 		((MirrorApplication) application).setIgnoreErrors(value);
 	}
 
