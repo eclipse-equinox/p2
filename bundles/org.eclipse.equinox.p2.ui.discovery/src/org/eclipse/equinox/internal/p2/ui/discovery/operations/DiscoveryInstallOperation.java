@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
+ *     David Dubrow - fix for bug 313412 
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.discovery.operations;
 
@@ -204,7 +205,7 @@ public class DiscoveryInstallOperation implements IRunnableWithProgress {
 		Map<String, Version> symbolicNameToVersion = new HashMap<String, Version>();
 		for (IInstallableUnit unit : installableUnits) {
 			Version version = symbolicNameToVersion.get(unit.getId());
-			if (version == null || version.compareTo(unit.getVersion()) == -1) {
+			if (version == null || version.compareTo(unit.getVersion()) < 0) {
 				symbolicNameToVersion.put(unit.getId(), unit.getVersion());
 			}
 		}
