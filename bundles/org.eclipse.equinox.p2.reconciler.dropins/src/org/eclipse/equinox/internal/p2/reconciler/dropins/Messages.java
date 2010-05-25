@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype Inc. - Ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
@@ -23,6 +24,8 @@ public class Messages extends NLS {
 	public static String metadata_repo_manager_not_registered;
 	public static String error_reading_link;
 	public static String error_resolving_link;
+	public static String remove_root;
+	public static String remove_all_roots;
 
 	static {
 		// initialize resource bundle

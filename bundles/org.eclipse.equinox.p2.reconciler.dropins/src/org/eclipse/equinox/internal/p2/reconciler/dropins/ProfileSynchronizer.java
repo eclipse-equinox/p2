@@ -34,6 +34,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IFileArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -46,6 +47,9 @@ public class ProfileSynchronizer {
 	private static final String PROFILE_TIMESTAMP = "PROFILE"; //$NON-NLS-1$
 	private static final String NO_TIMESTAMP = "-1"; //$NON-NLS-1$
 	private static final String PROP_FROM_DROPINS = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
+	private static final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
+	private static final String INCLUSION_OPTIONAL = "OPTIONAL"; //$NON-NLS-1$
+	private static final String INCLUSION_STRICT = "STRICT"; //$NON-NLS-1$
 
 	private static final String CACHE_EXTENSIONS = "org.eclipse.equinox.p2.cache.extensions"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
@@ -56,12 +60,23 @@ public class ProfileSynchronizer {
 	private Map<String, String> timestamps;
 	private final IProvisioningAgent agent;
 
+	/*
+	 * Specialized profile change request so we can keep track of IUs which have moved
+	 * locations on disk.
+	 */
 	static class ReconcilerProfileChangeRequest extends ProfileChangeRequest {
-		boolean isMove = false;
+		List<IInstallableUnit> toMove = new ArrayList<IInstallableUnit>();
 
-		public ReconcilerProfileChangeRequest(IProfile profile, boolean isMove) {
+		public ReconcilerProfileChangeRequest(IProfile profile) {
 			super(profile);
-			this.isMove = isMove;
+		}
+
+		void moveAll(Collection<IInstallableUnit> list) {
+			toMove.addAll(list);
+		}
+
+		Collection<IInstallableUnit> getMoves() {
+			return toMove;
 		}
 	}
 
@@ -79,6 +94,7 @@ public class ProfileSynchronizer {
 
 	/*
 	 * Synchronize the profile with the list of metadata repositories.
+	 * TODO fix progress monitoring (although in practice the user doesn't see it or have a chance to cancel)
 	 */
 	public IStatus synchronize(IProgressMonitor monitor) {
 		readTimestamps();
@@ -88,53 +104,161 @@ public class ProfileSynchronizer {
 		ProvisioningContext context = getContext();
 		context.setProperty(EXPLANATION, new Boolean(Tracing.DEBUG_RECONCILER).toString());
 
-		boolean done = false;
-		while (!done) {
-			// figure out if we really have anything to install/uninstall
-			ReconcilerProfileChangeRequest request = createProfileChangeRequest(context);
-			String updatedCacheExtensions = synchronizeCacheExtensions();
-			if (request == null) {
-				if (updatedCacheExtensions != null) {
-					IStatus engineResult = setProperty(CACHE_EXTENSIONS, updatedCacheExtensions, context, null);
-					if (engineResult.getSeverity() != IStatus.ERROR && engineResult.getSeverity() != IStatus.CANCEL)
-						writeTimestamps();
-					return engineResult;
-				}
+		String updatedCacheExtensions = synchronizeCacheExtensions();
+
+		// figure out if we really have anything to install/uninstall.
+		ReconcilerProfileChangeRequest request = createProfileChangeRequest(context);
+		if (request == null) {
+			if (updatedCacheExtensions == null)
 				return Status.OK_STATUS;
-			}
-			if (updatedCacheExtensions != null)
-				request.setProfileProperty(CACHE_EXTENSIONS, updatedCacheExtensions);
-
-			SubMonitor sub = SubMonitor.convert(monitor, 100);
-			try {
-				//create the provisioning plan
-				IProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
-				IStatus status = plan.getStatus();
-				if (status.getSeverity() == IStatus.ERROR || status.getSeverity() == IStatus.CANCEL)
-					return status;
-				debug(request, plan);
-
-				// if there is no work to do then just write out the timestamps and return.
-				if (plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null).isEmpty() && plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null).isEmpty()) {
-					writeTimestamps();
-					return status;
-				}
-
-				//invoke the engine to perform installs/uninstalls
-				IStatus engineResult = executePlan(plan, context, sub.newChild(50));
-				if (engineResult.getSeverity() == IStatus.ERROR || engineResult.getSeverity() == IStatus.CANCEL)
-					return engineResult;
-
-			} finally {
-				done = !request.isMove;
-				sub.done();
-			}
+			IStatus engineResult = setProperty(CACHE_EXTENSIONS, updatedCacheExtensions, context, null);
+			if (engineResult.getSeverity() != IStatus.ERROR && engineResult.getSeverity() != IStatus.CANCEL)
+				writeTimestamps();
+			return engineResult;
 		}
+		if (updatedCacheExtensions != null)
+			request.setProfileProperty(CACHE_EXTENSIONS, updatedCacheExtensions);
+
+		// if some of the IUs move locations then construct a special plan and execute that first
+		IStatus moveResult = performRemoveForMovedIUs(request, context, monitor);
+		if (moveResult.getSeverity() == IStatus.ERROR || moveResult.getSeverity() == IStatus.CANCEL)
+			return moveResult;
+
+		// now create a plan for the rest of the work and execute it
+		IStatus addRemoveResult = performAddRemove(request, context, monitor);
+		if (addRemoveResult.getSeverity() == IStatus.ERROR || addRemoveResult.getSeverity() == IStatus.CANCEL)
+			return addRemoveResult;
+
 		// write out the new timestamps (for caching) and apply the configuration
 		writeTimestamps();
 		return applyConfiguration(false);
 	}
 
+	/*
+	 * Return a list of the roots in the profile.
+	 */
+	private IQueryResult<IInstallableUnit> getStrictRoots() {
+		return profile.query(new IUProfilePropertyQuery(INCLUSION_RULES, INCLUSION_STRICT), null);
+	}
+
+	/*
+	 * Convert the profile change request into operands and have the engine execute them. There
+	 * is fancy logic here in case we are trying to remove IUs which are depended on by something
+	 * which is installed via the UI. Since the bundle has been removed from the file-system it is a forced
+	 * removal so we have to uninstall the UI-installed IU.
+	 */
+	private IStatus performAddRemove(ReconcilerProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
+		// if we have moves then we have previously removed them. 
+		// now we need to add them back (at the new location)
+		for (IInstallableUnit iu : request.getMoves()) {
+			request.add(iu);
+			request.setInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS, Boolean.TRUE.toString());
+			request.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
+			request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, Integer.toString(IProfile.LOCK_UNINSTALL));
+		}
+
+		Collection<IInstallableUnit> additions = request.getAdditions();
+		Collection<IInstallableUnit> removals = request.getRemovals();
+		// see if there is any work to do
+		if (additions.isEmpty() && removals.isEmpty())
+			return Status.OK_STATUS;
+
+		// TODO See bug 270195. Eventually we will attempt to remove strictly installed IUs if their 
+		// dependent bundles have been deleted.
+		boolean removeStrictRoots = false;
+		if (removeStrictRoots)
+			return performStrictRootRemoval(request, context, monitor);
+		IProvisioningPlan plan = createProvisioningPlan(request, context, monitor);
+		debug(request, plan);
+		return executePlan(plan, context, monitor);
+	}
+
+	// TODO re-enable after resolving bug 270195.
+	private IStatus performStrictRootRemoval(ReconcilerProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
+		Collection<IInstallableUnit> removals = request.getRemovals();
+		// if we don't have any removals then we don't have to worry about potentially
+		// invalidating things we already have installed, removal of roots, etc so just 
+		// create a regular plan.
+		IProvisioningPlan plan = null;
+		if (removals.isEmpty()) {
+			plan = createProvisioningPlan(request, context, monitor);
+			debug(request, plan);
+		} else {
+			// We are now creating a backup of the original request that will be used to create the final plan (where no optional magic is used)
+			ProfileChangeRequest finalRequest = (ProfileChangeRequest) request.clone();
+
+			// otherwise collect the roots, pretend they are optional, and see
+			// if the resulting plan affects them
+			Set<IInstallableUnit> strictRoots = getStrictRoots().toUnmodifiableSet();
+			Collection<IRequirement> forceNegation = new ArrayList<IRequirement>(removals.size());
+			for (IInstallableUnit iu : removals)
+				forceNegation.add(createNegation(iu));
+			request.addExtraRequirements(forceNegation);
+
+			// set all the profile roots to be optional to see how they would be effected by the plan
+			for (IInstallableUnit iu : strictRoots)
+				request.setInstallableUnitProfileProperty(iu, INCLUSION_RULES, INCLUSION_OPTIONAL);
+
+			// get the tentative plan back from the planner
+			plan = createProvisioningPlan(request, context, monitor);
+			debug(request, plan);
+			if (!plan.getStatus().isOK())
+				return plan.getStatus();
+
+			// Analyze the plan to see if any of the strict roots are being uninstalled.
+			int removedRoots = 0;
+			for (IInstallableUnit initialRoot : strictRoots) {
+				// if the root wasn't uninstalled, then continue
+				if (plan.getRemovals().query(QueryUtil.createIUQuery(initialRoot), null).isEmpty())
+					continue;
+				// otherwise add its removal to the change request, along with a negation and 
+				// change of strict to optional for their inclusion rule.
+				finalRequest.remove(initialRoot);
+				finalRequest.setInstallableUnitProfileProperty(initialRoot, INCLUSION_RULES, INCLUSION_OPTIONAL);
+				IRequirement negation = createNegation(initialRoot);
+				Collection<IRequirement> extra = new ArrayList<IRequirement>();
+				extra.add(negation);
+				request.addExtraRequirements(extra);
+				LogHelper.log(new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.remove_root, initialRoot.getId(), initialRoot.getVersion())));
+				removedRoots++;
+			}
+
+			// Check for the case where all the strict roots are being removed.
+			if (removedRoots == strictRoots.size())
+				return new Status(IStatus.ERROR, Activator.ID, Messages.remove_all_roots);
+			plan = createProvisioningPlan(finalRequest, context, monitor);
+			if (!plan.getStatus().isOK()) {
+				System.out.println("original request"); //$NON-NLS-1$
+				System.out.println(request);
+				System.out.println("final request"); //$NON-NLS-1$
+				System.out.println(finalRequest);
+				throw new IllegalStateException("The second plan is not resolvable."); //$NON-NLS-1$
+			}
+		}
+
+		// execute the plan and return the status
+		return executePlan(plan, context, monitor);
+	}
+
+	/*
+	 * If the request contains IUs to be moved then create and execute a plan which 
+	 * removes them. Otherwise just return.
+	 */
+	private IStatus performRemoveForMovedIUs(ReconcilerProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
+		Collection<IInstallableUnit> moves = request.getMoves();
+		if (moves.isEmpty())
+			return Status.OK_STATUS;
+		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
+		IProvisioningPlan plan = engine.createPlan(profile, context);
+		for (IInstallableUnit unit : moves)
+			plan.removeInstallableUnit(unit);
+		return executePlan(plan, context, monitor);
+	}
+
+	/*
+	 * Write out the timestamps of various repositories and folders/file to help 
+	 * us cache and detect cases where we don't have to perform a reconciliation.
+	 */
 	private void writeTimestamps() {
 		timestamps.clear();
 		timestamps.put(PROFILE_TIMESTAMP, Long.toString(profile.getTimestamp()));
@@ -167,6 +291,10 @@ public class ProfileSynchronizer {
 		}
 	}
 
+	/*
+	 * Check timestamps and return true if the profile is considered to be up-to-date or
+	 * false if we should perform a reconciliation.
+	 */
 	private boolean isUpToDate() {
 		// the user might want to force a reconciliation
 		if ("true".equals(Activator.getContext().getProperty("osgi.checkConfiguration"))) //$NON-NLS-1$//$NON-NLS-2$
@@ -205,6 +333,9 @@ public class ProfileSynchronizer {
 		return true;
 	}
 
+	/*
+	 * Read the values of the stored timestamps that we use for caching.
+	 */
 	private void readTimestamps() {
 		File file = Activator.getContext().getDataFile(TIMESTAMPS_FILE_PREFIX + profile.getProfileId().hashCode());
 		try {
@@ -339,7 +470,7 @@ public class ProfileSynchronizer {
 	 * as part of equality)
 	 */
 	public ReconcilerProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
-		ReconcilerProfileChangeRequest request = new ReconcilerProfileChangeRequest(profile, false);
+		ReconcilerProfileChangeRequest request = new ReconcilerProfileChangeRequest(profile);
 
 		boolean resolve = Boolean.valueOf(profile.getProperty("org.eclipse.equinox.p2.resolve")).booleanValue(); //$NON-NLS-1$
 		if (resolve)
@@ -418,41 +549,37 @@ public class ProfileSynchronizer {
 			return null;
 		}
 
-		// if we have just a regular add/remove then set up the change request as per normal
-		if (toMove.isEmpty()) {
-			context.setExtraInstallableUnits(toAdd);
-			request.addAll(toAdd);
-			request.removeAll(toRemove);
-		} else {
-			// if we had some bundles which moved locations then we need to create a move change request
-			// and remove the moved bundles first. The caller of this method will take care of calling us again
-			// to re-add the bundles at their new location (and other bundles which need adding)
-			request = new ReconcilerProfileChangeRequest(profile, true);
-			request.removeAll(toMove);
-		}
+		context.setExtraInstallableUnits(toAdd);
+		request.addAll(toAdd);
+		request.removeAll(toRemove);
+		request.moveAll(toMove);
 
-		// force removal of all moved and removed IUs, which will also remove anything which depends on them
-		// see: bug 306424#c6 and bug 308934.
-		Collection<IRequirement> extraReqs = new ArrayList<IRequirement>();
-		for (IInstallableUnit unit : request.getRemovals()) {
-			IRequirement negation = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(), //
-					new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null, 0, 0, false);
-			extraReqs.add(negation);
-		}
-		request.addExtraRequirements(extraReqs);
 		debug(request);
 		return request;
 	}
 
-	private void debug(ProfileChangeRequest request, IProvisioningPlan plan) {
+	/*
+	 * Create and return a negated requirement saying that the given IU must not exist in the profile.
+	 */
+	private IRequirement createNegation(IInstallableUnit unit) {
+		return MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, unit.getId(), //
+				new VersionRange(unit.getVersion(), true, unit.getVersion(), true), null, 0, 0, false);
+	}
+
+	/*
+	 * If in debug mode, print out information which tells us whether or not the given 
+	 * provisioning plan matches the request.
+	 */
+	private void debug(ReconcilerProfileChangeRequest request, IProvisioningPlan plan) {
 		if (!Tracing.DEBUG_RECONCILER)
 			return;
 		final String PREFIX = "[reconciler] [plan] "; //$NON-NLS-1$
 		// get the request
 		List<IInstallableUnit> toAdd = new ArrayList<IInstallableUnit>(request.getAdditions());
 		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>(request.getRemovals());
-		// remove from the request everything that is in the plan
+		List<IInstallableUnit> toMove = new ArrayList<IInstallableUnit>(request.getMoves());
 
+		// remove from the request everything that is in the plan
 		for (Iterator<IInstallableUnit> iterator = plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null).iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
 			toRemove.remove(iu);
@@ -461,6 +588,10 @@ public class ProfileSynchronizer {
 			IInstallableUnit iu = iterator.next();
 			toAdd.remove(iu);
 		}
+		// Move operations are treated as doing a remove/add. The removes have already happened
+		// and at this point we are adding the moved IUs back at their new location. Remove the moved
+		// IUs from the added list because this will just confuse the user.
+		toAdd.removeAll(toMove);
 
 		// if anything is left in the request, then something is wrong with the plan
 		if (toAdd.size() == 0 && toRemove.size() == 0)
@@ -480,7 +611,7 @@ public class ProfileSynchronizer {
 	/*
 	 * If debugging is turned on, then print out the details for the given profile change request.
 	 */
-	private void debug(ProfileChangeRequest request) {
+	private void debug(ReconcilerProfileChangeRequest request) {
 		if (!Tracing.DEBUG_RECONCILER)
 			return;
 		final String PREFIX = "[reconciler] "; //$NON-NLS-1$
@@ -518,6 +649,14 @@ public class ProfileSynchronizer {
 			}
 		}
 
+		Collection<IInstallableUnit> toMove = request.getMoves();
+		if (toMove == null || toMove.isEmpty()) {
+			Tracing.debug(PREFIX + "No installable units to move."); //$NON-NLS-1$
+		} else {
+			for (IInstallableUnit move : toMove)
+				Tracing.debug(PREFIX + "Moving IU: " + move.getId() + ' ' + move.getVersion()); //$NON-NLS-1$
+		}
+
 		Collection<IRequirement> extra = request.getExtraRequirements();
 		if (extra == null || extra.isEmpty()) {
 			Tracing.debug(PREFIX + "No extra requirements."); //$NON-NLS-1$
@@ -540,11 +679,17 @@ public class ProfileSynchronizer {
 		return allRepos;
 	}
 
+	/*
+	 * Create and return a provisioning plan for the given change request.
+	 */
 	private IProvisioningPlan createProvisioningPlan(ProfileChangeRequest request, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 		return planner.getProvisioningPlan(request, provisioningContext, monitor);
 	}
 
+	/*
+	 * Call the engine to set the given property on the profile.
+	 */
 	private IStatus setProperty(String key, String value, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		IProvisioningPlan plan = engine.createPlan(profile, provisioningContext);
@@ -553,6 +698,9 @@ public class ProfileSynchronizer {
 		return engine.perform(plan, phaseSet, monitor);
 	}
 
+	/*
+	 * Execute the given plan.
+	 */
 	private IStatus executePlan(IProvisioningPlan plan, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
 		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		IPhaseSet phaseSet = PhaseSetFactory.createDefaultPhaseSetExcluding(new String[] {PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST});

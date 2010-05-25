@@ -235,6 +235,7 @@ public class ProfileChangeRequest implements Cloneable, IProfileChangeRequest {
 		result.propertiesToAdd = propertiesToAdd == null ? null : (HashMap<String, String>) propertiesToAdd.clone();
 		result.iuPropertiesToAdd = iuPropertiesToAdd == null ? null : (HashMap<IInstallableUnit, Map<String, String>>) iuPropertiesToAdd.clone();
 		result.iuPropertiesToRemove = iuPropertiesToRemove == null ? null : (HashMap<IInstallableUnit, List<String>>) iuPropertiesToRemove.clone();
+		result.additionalRequirements = additionalRequirements == null ? null : (ArrayList<IRequirement>) additionalRequirements.clone();
 		return result;
 	}
 
