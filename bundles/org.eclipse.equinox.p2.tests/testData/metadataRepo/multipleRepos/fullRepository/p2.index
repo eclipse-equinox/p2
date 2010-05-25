@@ -1,3 +1,0 @@
-version = 1
-artifact.repository.factory.order = artifacts.xml, !
-metadata.repository.factory.order = site.xml, content.xml, !
