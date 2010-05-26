@@ -8,6 +8,7 @@
  *  Contributors:
  * 	IBM Corporation - initial API and implementation
  *     WindRiver - https://bugs.eclipse.org/bugs/show_bug.cgi?id=227372
+ *	Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
@@ -82,6 +83,8 @@ public class ProvisioningContext {
 	 */
 	public static final String FOLLOW_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followRepositoryReferences"; //$NON-NLS-1$
 
+	private static final String FOLLOW_ARTIFACT_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followArtifactRepositoryReferences"; //$NON-NLS-1$
+
 	/**
 	 * Creates a new provisioning context that includes all available metadata and
 	 * artifact repositories available to the specified provisioning agent.
@@ -93,6 +96,7 @@ public class ProvisioningContext {
 		// null repos means look at them all
 		metadataRepositories = null;
 		artifactRepositories = null;
+		setProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, Boolean.TRUE.toString());
 	}
 
 	/**
@@ -162,7 +166,7 @@ public class ProvisioningContext {
 				referencedArtifactRepositories.remove(repositories[i]);
 		}
 		// Are there any extra artifact repository references to consider?
-		if (referencedArtifactRepositories != null && referencedArtifactRepositories.size() > 0) {
+		if (referencedArtifactRepositories != null && referencedArtifactRepositories.size() > 0 && shouldFollowArtifactReferences()) {
 			SubMonitor innerSub = SubMonitor.convert(sub.newChild(100), referencedArtifactRepositories.size() * 100);
 			for (URI referencedURI : referencedArtifactRepositories.values()) {
 				try {
@@ -245,6 +249,10 @@ public class ProvisioningContext {
 
 	private boolean shouldFollowReferences() {
 		return Boolean.valueOf(getProperty(FOLLOW_REPOSITORY_REFERENCES)).booleanValue();
+	}
+
+	private boolean shouldFollowArtifactReferences() {
+		return Boolean.valueOf(getProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES)).booleanValue();
 	}
 
 	/**
