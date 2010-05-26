@@ -98,6 +98,7 @@
    </plugins>
 
    <configurations>
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.p2.examples.rcp.prestartupdate" autoStart="true" startLevel="5" />
    </configurations>
 
