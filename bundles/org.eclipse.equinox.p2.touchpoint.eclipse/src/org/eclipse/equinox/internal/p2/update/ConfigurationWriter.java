@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,11 +37,10 @@ public class ConfigurationWriter implements ConfigurationConstants {
 			writer = new XMLWriter(output);
 			Map args = new HashMap();
 
-			String value = configuration.getDate();
-			if (value != null)
-				args.put(ATTRIBUTE_DATE, value);
+			// Always put an updated timestamp in the file.
+			args.put(ATTRIBUTE_DATE, Long.toString(new Date().getTime()));
 
-			value = configuration.getSharedUR();
+			String value = configuration.getSharedUR();
 			if (value != null)
 				args.put(ATTRIBUTE_SHARED_UR, value);
 
