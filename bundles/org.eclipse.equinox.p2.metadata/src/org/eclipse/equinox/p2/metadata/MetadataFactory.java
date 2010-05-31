@@ -33,13 +33,18 @@ public final class MetadataFactory {
 	 * the resulting immutable unit.
 	 */
 	public static class InstallableUnitDescription {
-		public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
-
 		InstallableUnit unit;
 
 		/**
 		 * A property key (value <code>"org.eclipse.equinox.p2.type.patch"</code>) for a 
 		 * boolean property indicating that an installable unit is a group.
+		 * 
+		 */
+		public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
+
+		/**
+		 * A property key (value <code>"org.eclipse.equinox.p2.type.patch"</code>) for a 
+		 * boolean property indicating that an installable unit is a patch.
 		 * 
 		 */
 		public static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
@@ -62,6 +67,10 @@ public final class MetadataFactory {
 			super();
 		}
 
+		/**
+		 * Add the specified capabilities to the installable unit.
+		 * @param additional the capabilities to add.
+		 */
 		public void addProvidedCapabilities(Collection<IProvidedCapability> additional) {
 			if (additional == null || additional.size() == 0)
 				return;
@@ -77,6 +86,10 @@ public final class MetadataFactory {
 			addRequirements(additional);
 		}
 
+		/**
+		 * Add the specified requirements to the installable unit.
+		 * @param additional the requirements to add
+		 */
 		public void addRequirements(Collection<IRequirement> additional) {
 			if (additional == null || additional.size() == 0)
 				return;
@@ -92,10 +105,16 @@ public final class MetadataFactory {
 			unit().addTouchpointData(data);
 		}
 
+		/**
+		 * Returns the id of the installable unit.
+		 */
 		public String getId() {
 			return unit().getId();
 		}
 
+		/**
+		 * Return a collection of all the capabilities specified on this installable unit.
+		 */
 		public Collection<IProvidedCapability> getProvidedCapabilities() {
 			return unit().getProvidedCapabilities();
 		}
@@ -105,6 +124,9 @@ public final class MetadataFactory {
 			return getRequirements();
 		}
 
+		/**
+		 * Return a collection of the requirements specified on this installable unit.
+		 */
 		public List<IRequirement> getRequirements() {
 			return unit().getRequirements();
 		}
@@ -114,6 +136,9 @@ public final class MetadataFactory {
 			return getMetaRequirements();
 		}
 
+		/**
+		 * Return a collection of the meta requirements specified on this installable unit.
+		 */
 		public Collection<IRequirement> getMetaRequirements() {
 			return unit().getMetaRequirements();
 		}
@@ -129,18 +154,33 @@ public final class MetadataFactory {
 
 		}
 
+		/**
+		 * Return the versiono on this installable unit description.
+		 */
 		public Version getVersion() {
 			return unit().getVersion();
 		}
 
+		/**
+		 * Set the artifact keys for the installable unit. Previous values will be overwritten.
+		 * @param value the artifacts to the used.
+		 */
 		public void setArtifacts(IArtifactKey[] value) {
 			unit().setArtifacts(value);
 		}
 
+		/**
+		 * Set the capabilities for the installable unit. Previous values will be overwritten.
+		 * @param exportedCapabilities the capabilities to be used.
+		 */
 		public void setCapabilities(IProvidedCapability[] exportedCapabilities) {
 			unit().setCapabilities(exportedCapabilities);
 		}
 
+		/**
+		 * Set the copyright for the installable unit. Previous values will be overwritten.
+		 * @param copyright the copyright to be used.
+		 */
 		public void setCopyright(ICopyright copyright) {
 			unit().setCopyright(copyright);
 		}
@@ -153,14 +193,25 @@ public final class MetadataFactory {
 			unit().setFilter(filter);
 		}
 
+		/** 
+		 * Set the id of the installable unit.
+		 */
 		public void setId(String id) {
 			unit().setId(id);
 		}
 
+		/**
+		 * Set the licenses for the installable unit. Previous values will be overwritten.
+		 */
 		public void setLicenses(ILicense[] licenses) {
 			unit().setLicenses(licenses);
 		}
 
+		/**
+		 * Set a property with a specified value for this installable unit.
+		 * @param key key with which the specified value is to be associated
+		 * @param value value to be associated with the specified key
+		 */
 		public void setProperty(String key, String value) {
 			unit().setProperty(key, value);
 		}
@@ -170,6 +221,10 @@ public final class MetadataFactory {
 			setRequirements(requirements);
 		}
 
+		/**
+		 * Set the requirements for the installable unit. Previous values will be overwritten.
+		 * @param requirements the requirements to be used.
+		 */
 		public void setRequirements(IRequirement[] requirements) {
 			unit().setRequiredCapabilities(requirements);
 		}
@@ -179,22 +234,39 @@ public final class MetadataFactory {
 			setMetaRequirements(metaRequirements);
 		}
 
+		/**
+		 * Set the meta requirements for the installable unit. Previous values will be overwritten.
+		 * @param metaRequirements the meta requirements to be used.
+		 */
 		public void setMetaRequirements(IRequirement[] metaRequirements) {
 			unit().setMetaRequiredCapabilities(metaRequirements);
 		}
 
+		/**
+		 * Change the singleton status of the installable unit.
+		 */
 		public void setSingleton(boolean singleton) {
 			unit().setSingleton(singleton);
 		}
 
+		/**
+		 * Set the touchpoint type for the installable unit.
+		 */
 		public void setTouchpointType(ITouchpointType type) {
 			unit().setTouchpointType(type);
 		}
 
+		/**
+		 * Set the update descriptor for the installable unit.
+		 */
 		public void setUpdateDescriptor(IUpdateDescriptor updateInfo) {
 			unit().setUpdateDescriptor(updateInfo);
 		}
 
+		/**
+		 * Set the version of this installable unit.
+		 * @param newVersion version to be set on the installable unit.
+		 */
 		public void setVersion(Version newVersion) {
 			unit().setVersion(newVersion);
 		}
@@ -214,12 +286,21 @@ public final class MetadataFactory {
 		}
 	}
 
+	/**
+	 * A description containing information about an installable unit fragment. Once created,
+	 * installable units are immutable. This description class allows a client to build
+	 * up the state for an installable unit fragment incrementally, and then finally produce
+	 * the resulting immutable unit.
+	 */
 	public static class InstallableUnitFragmentDescription extends InstallableUnitDescription {
 		public InstallableUnitFragmentDescription() {
 			super();
 			setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		}
 
+		/**
+		 * Specify the requirements identifying the host to which the installable unit fragment should be attached to. 
+		 */
 		public void setHost(IRequirement... hostRequirement) {
 			((InstallableUnitFragment) unit()).setHost(Arrays.asList(hostRequirement));
 		}
@@ -231,6 +312,12 @@ public final class MetadataFactory {
 		}
 	}
 
+	/**
+	 * A description containing information about an installable unit patch. Once created,
+	 * installable units are immutable. This description class allows a client to build
+	 * up the state for an installable unit patch incrementally, and then finally produce
+	 * the resulting immutable unit.
+	 */
 	public static class InstallableUnitPatchDescription extends InstallableUnitDescription {
 
 		public InstallableUnitPatchDescription() {
