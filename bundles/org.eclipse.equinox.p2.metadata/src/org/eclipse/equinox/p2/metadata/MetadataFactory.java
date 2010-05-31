@@ -325,16 +325,25 @@ public final class MetadataFactory {
 			setProperty(InstallableUnitDescription.PROP_TYPE_PATCH, Boolean.TRUE.toString());
 		}
 
+		/**
+		 * Set the applicability scope for the installable unit patch.
+		 */
 		public void setApplicabilityScope(IRequirement[][] applyTo) {
 			if (applyTo == null)
 				throw new IllegalArgumentException("A patch scope can not be null"); //$NON-NLS-1$
 			((InstallableUnitPatch) unit()).setApplicabilityScope(applyTo);
 		}
 
+		/**
+		 * Set the lifecycle change for the installable unit patch.
+		 */
 		public void setLifeCycle(IRequirement lifeCycle) {
 			((InstallableUnitPatch) unit()).setLifeCycle(lifeCycle);
 		}
 
+		/**
+		 * Set the requirement change for the installable unit patch.
+		 */
 		public void setRequirementChanges(IRequirementChange[] changes) {
 			((InstallableUnitPatch) unit()).setRequirementsChange(changes);
 		}
