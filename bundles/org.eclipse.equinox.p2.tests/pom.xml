@@ -23,6 +23,7 @@
 					<testSuite>org.eclipse.equinox.p2.tests</testSuite>
 					<testClass>org.eclipse.equinox.p2.tests.AutomatedTests</testClass>
 					<argLine>-Xmx512m</argLine>
+					<appArgLine>-consoleLog</appArgLine>
 					<bundleStartLevel>
 						<bundle>
 							<id>org.eclipse.equinox.ds</id>
