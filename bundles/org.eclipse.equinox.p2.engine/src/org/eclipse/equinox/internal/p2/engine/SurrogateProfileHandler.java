@@ -70,7 +70,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
 	private static IInstallableUnit createSharedProfileIU(final IProfile sharedProfile) {
 		InstallableUnitDescription iuDescription = new InstallableUnitDescription();
-		iuDescription.setId(sharedProfile.getProfileId());
+		iuDescription.setId("SharedProfile_" + sharedProfile.getProfileId()); //$NON-NLS-1$
 		iuDescription.setVersion(Version.createOSGi(1, 0, 0, Long.toString(sharedProfile.getTimestamp())));
 
 		ArrayList<IProvidedCapability> iuCapabilities = new ArrayList<IProvidedCapability>();
