@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,6 @@
  *     EclipseSource - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
-
-import org.eclipse.equinox.p2.query.QueryUtil;
 
 import java.io.File;
 import java.net.URI;
@@ -26,6 +24,7 @@ import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
@@ -344,6 +343,10 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 	public void setReuseExistingPackedFiles(boolean value) {
 		reusePackedFiles = value;
+	}
+
+	public void setCompress(boolean value) {
+		compress = value;
 	}
 
 	public void setContextRepositories(URI[] metadata, URI[] artifacts) {
