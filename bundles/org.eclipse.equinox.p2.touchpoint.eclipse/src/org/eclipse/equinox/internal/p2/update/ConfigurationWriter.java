@@ -12,8 +12,7 @@ package org.eclipse.equinox.internal.p2.update;
 
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
@@ -36,11 +35,10 @@ public class ConfigurationWriter implements ConfigurationConstants {
 			writer = new XMLWriter(output);
 			Map<String, String> args = new HashMap<String, String>();
 
-			String value = configuration.getDate();
-			if (value != null)
-				args.put(ATTRIBUTE_DATE, value);
+			// always write out an up-to-date timestamp
+			args.put(ATTRIBUTE_DATE, Long.toString(new Date().getTime()));
 
-			value = configuration.getSharedUR();
+			String value = configuration.getSharedUR();
 			if (value != null)
 				args.put(ATTRIBUTE_SHARED_UR, value);
 
