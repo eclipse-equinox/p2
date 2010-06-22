@@ -73,7 +73,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		info.setArtifactRepository(artifactRepository);
 		info.setMetadataRepository(metadataRepository);
 		info.addAdvice(advice);
-		info.setArtifactOptions(IPublisherInfo.A_INDEX);
+		info.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_NO_MD5);
 	}
 
 	protected CachingArtifactRepository initializeArtifactRepository(String repositoryName, URI repositoryLocation, boolean hidden) {
