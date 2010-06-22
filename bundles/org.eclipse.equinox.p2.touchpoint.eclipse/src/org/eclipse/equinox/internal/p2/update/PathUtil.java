@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,11 +12,12 @@ package org.eclipse.equinox.internal.p2.update;
 
 import java.io.File;
 import java.net.URL;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.*;
 
 /**
- * 
+ * Note the methods on this class have inconsistent and unintuitive behaviour. However
+ * they are unchanged for backwards compatibility. Clients should really use
+ * {@link URIUtil} instead.
  * @since 1.0
  */
 public class PathUtil {
@@ -64,10 +65,12 @@ public class PathUtil {
 	/*
 	 * Make the given path relative to the specified root, if applicable. If not, then
 	 * return the path as-is.
-	 * 
-	 * Method similar to one from SimpleConfigurationManipulatorImpl.
 	 */
 	private static String makeRelative(IPath toRel, IPath base) {
+		//can't make relative if devices are not equal
+		final String device = toRel.getDevice();
+		if (device != base.getDevice() && (device == null || !device.equalsIgnoreCase(base.getDevice())))
+			return toRel.toOSString();
 		int i = base.matchingFirstSegments(toRel);
 		if (i == 0) {
 			return toRel.toOSString();
@@ -78,6 +81,7 @@ public class PathUtil {
 		}
 		if (i == toRel.segmentCount())
 			return "."; //$NON-NLS-1$
+		//TODO This will return mixed path with some / and some \ on windows!!
 		result += toRel.setDevice(null).removeFirstSegments(i).toOSString();
 		return result;
 	}
