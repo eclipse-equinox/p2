@@ -60,10 +60,12 @@ public class UninstallFeatureActionTest extends AbstractProvisioningTest {
 		FeatureParser parser = new FeatureParser();
 		Feature feature = parser.parse(featureTarget);
 
+		final PublisherInfo info = new PublisherInfo();
+		info.setArtifactRepository(bundlePool);
 		IArtifactKey key = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
-		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(bundlePool, key, featureTarget);
+		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(info, key, featureTarget);
 		((SimpleArtifactDescriptor) descriptor).setRepositoryProperty("artifact.folder", Boolean.TRUE.toString());
-		IInstallableUnit iu = FeaturesAction.createFeatureJarIU(feature, new PublisherInfo());
+		IInstallableUnit iu = FeaturesAction.createFeatureJarIU(feature, info);
 
 		bundlePool.addDescriptor(descriptor);
 
