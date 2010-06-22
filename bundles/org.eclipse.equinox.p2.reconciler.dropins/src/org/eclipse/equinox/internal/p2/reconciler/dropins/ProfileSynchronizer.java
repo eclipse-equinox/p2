@@ -277,9 +277,17 @@ public class ProfileSynchronizer {
 
 		try {
 			File file = Activator.getContext().getDataFile(TIMESTAMPS_FILE_PREFIX + profile.getProfileId().hashCode());
+			Activator.trace("Writing timestamp file to : " + file.getAbsolutePath()); //$NON-NLS-1$
 			OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
 			try {
 				CollectionUtils.storeProperties(timestamps, os, "Timestamps for " + profile.getProfileId()); //$NON-NLS-1$
+				if (Tracing.DEBUG_RECONCILER) {
+					for (Iterator<String> iter = timestamps.keySet().iterator(); iter.hasNext();) {
+						String key = iter.next();
+						Object value = timestamps.get(key);
+						Activator.trace(key + '=' + value);
+					}
+				}
 			} finally {
 				if (os != null)
 					os.close();
@@ -297,14 +305,24 @@ public class ProfileSynchronizer {
 	 */
 	private boolean isUpToDate() {
 		// the user might want to force a reconciliation
-		if ("true".equals(Activator.getContext().getProperty("osgi.checkConfiguration"))) //$NON-NLS-1$//$NON-NLS-2$
+		if ("true".equals(Activator.getContext().getProperty("osgi.checkConfiguration"))) { //$NON-NLS-1$//$NON-NLS-2$
+			Activator.trace("User requested forced reconciliation via \"osgi.checkConfiguration=true\" System property."); //$NON-NLS-1$
+			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
 			return false;
+		}
 
 		String lastKnownProfileTimeStamp = timestamps.remove(PROFILE_TIMESTAMP);
-		if (lastKnownProfileTimeStamp == null)
+		if (lastKnownProfileTimeStamp == null) {
+			Activator.trace("Profile timestamp not found in cache."); //$NON-NLS-1$
+			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
 			return false;
-		if (!lastKnownProfileTimeStamp.equals(Long.toString(profile.getTimestamp())))
+		}
+		String currentProfileTimestamp = Long.toString(profile.getTimestamp());
+		if (!lastKnownProfileTimeStamp.equals(currentProfileTimestamp)) {
+			Activator.trace("Profile timestamps not equal, expected: " + lastKnownProfileTimeStamp + ", actual=" + currentProfileTimestamp); //$NON-NLS-1$ //$NON-NLS-2$
+			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
 			return false;
+		}
 
 		//When we get here the timestamps map only contains information related to repos
 		for (Entry<String, IMetadataRepository> entry : repositoryMap.entrySet()) {
@@ -318,19 +336,34 @@ public class ProfileSynchronizer {
 			if (currentTimestamp == null)
 				currentTimestamp = NO_TIMESTAMP;
 
-			String lastKnownTimestamp = timestamps.remove(entry.getKey());
+			String key = entry.getKey();
+			String lastKnownTimestamp = timestamps.remove(key);
 			//A repo has been added 
-			if (lastKnownTimestamp == null)
+			if (lastKnownTimestamp == null) {
+				Activator.trace("No cached timestamp found for: " + key); //$NON-NLS-1$
+				Activator.trace("Performing reconciliation."); //$NON-NLS-1$
 				return false;
+			}
 			if (!lastKnownTimestamp.equals(currentTimestamp)) {
+				Activator.trace("Timestamps not equal for file: " + key + ", expected: " + lastKnownTimestamp + ", actual: " + currentTimestamp); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				Activator.trace("Performing reconciliation."); //$NON-NLS-1$
 				return false;
 			}
 		}
-		//A repo has been removed
-		if (timestamps.size() != 0)
-			return false;
+		if (timestamps.size() == 0) {
+			Activator.trace("Timestamps valid."); //$NON-NLS-1$
+			Activator.trace("Skipping reconciliation."); //$NON-NLS-1$
+			return true;
+		}
 
-		return true;
+		//A repo has been removed
+		if (Tracing.DEBUG_RECONCILER) {
+			Activator.trace("Extra values in timestamp file:"); //$NON-NLS-1$
+			for (Iterator<String> iter = timestamps.keySet().iterator(); iter.hasNext();)
+				Activator.trace(iter.next());
+			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
+		}
+		return false;
 	}
 
 	/*
@@ -347,11 +380,15 @@ public class ProfileSynchronizer {
 					is.close();
 			}
 		} catch (FileNotFoundException e) {
-			timestamps = new HashMap<String, String>();
 			//Ignore
+			timestamps = new HashMap<String, String>();
+			Activator.trace("Timestamp file does not exist."); //$NON-NLS-1$
+			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
 		} catch (IOException e) {
 			//Ignore
 			timestamps = new HashMap<String, String>();
+			Activator.trace("Exception loading timestamp file: " + e.getMessage()); //$NON-NLS-1$
+			Activator.trace("Performing reconciliation."); //$NON-NLS-1$
 		}
 	}
 

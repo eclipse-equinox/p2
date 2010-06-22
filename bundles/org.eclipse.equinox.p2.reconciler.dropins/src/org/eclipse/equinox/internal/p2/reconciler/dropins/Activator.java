@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -48,6 +48,7 @@ public class Activator implements BundleActivator {
 	private static final String DIR_PLUGINS = "plugins"; //$NON-NLS-1$
 	private static final String DIR_FEATURES = "features"; //$NON-NLS-1$
 	private static final String EXT_LINK = ".link"; //$NON-NLS-1$
+	public static final String TRACING_PREFIX = "[reconciler] "; //$NON-NLS-1$
 	private static BundleContext bundleContext;
 	private final static Set<IMetadataRepository> repositories = new HashSet<IMetadataRepository>();
 	private Collection<File> filesToCheck = null;
@@ -210,12 +211,18 @@ public class Activator implements BundleActivator {
 	 */
 	private boolean isUpToDate() {
 		// the user might want to force a reconciliation
-		if ("true".equals(getContext().getProperty("osgi.checkConfiguration"))) //$NON-NLS-1$//$NON-NLS-2$
+		if ("true".equals(getContext().getProperty("osgi.checkConfiguration"))) { //$NON-NLS-1$//$NON-NLS-2$
+			trace("User requested forced reconciliation via \"osgi.checkConfiguration=true\" System property."); //$NON-NLS-1$
+			trace("Performing reconciliation."); //$NON-NLS-1$
 			return false;
+		}
 		// read timestamps
 		Properties timestamps = readTimestamps();
-		if (timestamps.isEmpty())
+		if (timestamps.isEmpty()) {
+			trace("Cached timestamp file empty."); //$NON-NLS-1$
+			trace("Performing reconciliation."); //$NON-NLS-1$
 			return false;
+		}
 
 		// gather the list of files/folders that we need to check
 		Collection<File> files = getFilesToCheck();
@@ -223,16 +230,35 @@ public class Activator implements BundleActivator {
 			File file = iter.next();
 			String key = file.getAbsolutePath();
 			String timestamp = timestamps.getProperty(key);
-			if (timestamp == null)
+			if (timestamp == null) {
+				trace("Missing timestamp for file: " + key); //$NON-NLS-1$
+				trace("Performing reconciliation."); //$NON-NLS-1$
 				return false;
-			if (!Long.toString(file.lastModified()).equals(timestamp))
+			}
+			long lastModified = file.lastModified();
+			if (!Long.toString(lastModified).equals(timestamp)) {
+				trace("Timestamp has been updated for file: " + key + ", expected: " + timestamp + ", actual: " + lastModified); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				trace("Performing reconciliation."); //$NON-NLS-1$
 				return false;
+			}
 			timestamps.remove(key);
 		}
 
 		// if we had some extra timestamps in the file, then signal that something has
 		// changed and we need to reconcile
-		return timestamps.isEmpty();
+		boolean result = timestamps.isEmpty();
+		if (result) {
+			trace("Cached timestamp values up to date."); //$NON-NLS-1$
+			trace("Reconciliation skipped."); //$NON-NLS-1$
+		} else {
+			if (Tracing.DEBUG_RECONCILER) {
+				trace("Found extra values in cached timestamp file: "); //$NON-NLS-1$
+				for (Iterator<Object> iter = timestamps.keySet().iterator(); iter.hasNext();)
+					trace(iter.next());
+				trace("Performing reconciliation. "); //$NON-NLS-1$
+			}
+		}
+		return result;
 	}
 
 	/*
@@ -243,6 +269,7 @@ public class Activator implements BundleActivator {
 		File file = Activator.getContext().getDataFile(CACHE_FILENAME);
 		if (!file.exists())
 			return result;
+		trace("Reading timestamps from file: " + file.getAbsolutePath()); //$NON-NLS-1$
 		InputStream input = null;
 		try {
 			input = new BufferedInputStream(new FileInputStream(file));
@@ -255,6 +282,13 @@ public class Activator implements BundleActivator {
 					input.close();
 			} catch (IOException e) {
 				// ignore
+			}
+		}
+		if (Tracing.DEBUG_RECONCILER) {
+			for (Iterator<Object> iter = result.keySet().iterator(); iter.hasNext();) {
+				Object key = iter.next();
+				Object value = result.get(key);
+				trace(key.toString() + '=' + value);
 			}
 		}
 		return result;
@@ -378,11 +412,19 @@ public class Activator implements BundleActivator {
 
 		// write out the file
 		File file = Activator.getContext().getDataFile(CACHE_FILENAME);
+		trace("Writing out timestamps to file : " + file.getAbsolutePath()); //$NON-NLS-1$
 		OutputStream output = null;
 		try {
 			file.delete();
 			output = new BufferedOutputStream(new FileOutputStream(file));
 			timestamps.store(output, null);
+			if (Tracing.DEBUG_RECONCILER) {
+				for (Iterator<Object> iter = timestamps.keySet().iterator(); iter.hasNext();) {
+					Object key = iter.next();
+					Object value = timestamps.get(key);
+					trace(key.toString() + '=' + value);
+				}
+			}
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while writing cache timestamps for reconciliation.", e)); //$NON-NLS-1$
 		} finally {
@@ -610,4 +652,13 @@ public class Activator implements BundleActivator {
 			return null;
 		return profileRegistry.getProfile(IProfileRegistry.SELF);
 	}
+
+	/*
+	 * If tracing is enabled, then write out the given message.
+	 */
+	public static void trace(Object message) {
+		if (Tracing.DEBUG_RECONCILER)
+			Tracing.debug(TRACING_PREFIX + message);
+	}
+
 }
