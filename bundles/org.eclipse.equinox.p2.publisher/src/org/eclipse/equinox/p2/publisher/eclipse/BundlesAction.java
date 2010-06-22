@@ -116,8 +116,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		Version hostVersion = Version.parseVersion(configInfo.getVersion());
 		VersionRange range = hostVersion == Version.emptyVersion ? VersionRange.emptyRange : new VersionRange(hostVersion, true, Version.MAX_VERSION, true);
 		cu.setHost(new IRequirement[] { //
-				MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, hostId, range, null, false, false, true), //
-						MetadataFactory.createRequirement(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
+		MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, hostId, range, null, false, false, true), //
+				MetadataFactory.createRequirement(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false), null, false, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(InstallableUnitDescription.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
@@ -593,7 +593,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		try {
 			if (bundles == null)
 				bundles = getBundleDescriptions(expandLocations(locations), monitor);
-			generateBundleIUs(bundles, results, monitor);
+			generateBundleIUs(bundles, publisherInfo, results, monitor);
 			bundles = null;
 		} catch (OperationCanceledException e) {
 			return Status.CANCEL_STATUS;
@@ -659,7 +659,12 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 	}
 
+	//TODO remove this method
 	protected void generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherResult result, IProgressMonitor monitor) {
+		generateBundleIUs(bundleDescriptions, null, result, monitor);
+	}
+
+	protected void generateBundleIUs(BundleDescription[] bundleDescriptions, IPublisherInfo info, IPublisherResult result, IProgressMonitor monitor) {
 
 		// This assumes that hosts are processed before fragments because for each fragment the host
 		// is queried for the strings that should be translated.
@@ -679,7 +684,7 @@ public class BundlesAction extends AbstractPublisherAction {
 				}
 
 				File location = new File(bd.getLocation());
-				IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(info.getArtifactRepository(), key, location);
+				IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(info, key, location);
 				processArtifactPropertiesAdvice(bundleIU, ad, info);
 
 				// Publish according to the shape on disk

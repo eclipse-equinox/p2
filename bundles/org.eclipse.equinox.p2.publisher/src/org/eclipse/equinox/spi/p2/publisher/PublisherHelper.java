@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -88,10 +88,26 @@ public class PublisherHelper {
 	public static final IProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, Version.createOSGi(1, 0, 0));
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk) {
-		return createArtifactDescriptor(null, key, pathOnDisk);
+		return createArtifactDescriptor(null, null, key, pathOnDisk);
 	}
 
+	//TODO remove because the method with IPublisherInfo is more powerful
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactRepository artifactRepo, IArtifactKey key, File pathOnDisk) {
+		return createArtifactDescriptor(null, artifactRepo, key, pathOnDisk);
+	}
+
+	/**
+	 * Creates an artifact descriptor for the given key and path.
+	 * @param info the publisher info
+	 * @param key the key of the artifact to publish
+	 * @param pathOnDisk the path of the artifact on disk
+	 * @return a new artifact descriptor
+	 */
+	public static IArtifactDescriptor createArtifactDescriptor(IPublisherInfo info, IArtifactKey key, File pathOnDisk) {
+		return createArtifactDescriptor(info, info.getArtifactRepository(), key, pathOnDisk);
+	}
+
+	private static IArtifactDescriptor createArtifactDescriptor(IPublisherInfo info, IArtifactRepository artifactRepo, IArtifactKey key, File pathOnDisk) {
 		IArtifactDescriptor result = artifactRepo != null ? artifactRepo.createArtifactDescriptor(key) : new ArtifactDescriptor(key);
 		if (result instanceof ArtifactDescriptor) {
 			ArtifactDescriptor descriptor = (ArtifactDescriptor) result;
@@ -99,9 +115,11 @@ public class PublisherHelper {
 				descriptor.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, Long.toString(pathOnDisk.length()));
 				descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
 			}
-			String md5 = computeMD5(pathOnDisk);
-			if (md5 != null)
-				descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
+			if (info == null || (info.getArtifactOptions() & IPublisherInfo.A_NO_MD5) == 0) {
+				String md5 = computeMD5(pathOnDisk);
+				if (md5 != null)
+					descriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, md5);
+			}
 		}
 		return result;
 	}
