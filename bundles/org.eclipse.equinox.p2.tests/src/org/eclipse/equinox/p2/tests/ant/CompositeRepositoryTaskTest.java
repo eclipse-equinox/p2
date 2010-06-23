@@ -11,8 +11,7 @@
 package org.eclipse.equinox.p2.tests.ant;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URI;
+import java.net.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
@@ -122,6 +121,28 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 
 		CompositeMetadataRepository repo = (CompositeMetadataRepository) getCompositeRepository(TYPE_METADATA);
 		assertTrue("Repository does not contain child", repo.getChildren().contains(childSite));
+	}
+
+	public void testAddChild() throws URISyntaxException {
+		// Create repository
+		createCompositeRepository(TYPE_METADATA);
+		// Create the modify repository task
+		AntTaskElement modify = createCompositeRepositoryTaskElement(TYPE_METADATA);
+		addTask(modify);
+
+		// Create the Add element
+		AntTaskElement add = new AntTaskElement(ADD_ELEMENT);
+		add.addAttribute("location", "childSite");
+		add.addAttribute("kind", TYPE_METADATA);
+		modify.addElement(add);
+
+		// Run the task
+		runAntTask();
+
+		CompositeMetadataRepository repo = (CompositeMetadataRepository) getCompositeRepository(TYPE_METADATA);
+		URI child = URIUtil.fromString("childSite");
+		child = URIUtil.makeAbsolute(child, repo.getLocation());
+		assertTrue("Repository does not contain child", repo.getChildren().contains(child));
 	}
 
 	/*
