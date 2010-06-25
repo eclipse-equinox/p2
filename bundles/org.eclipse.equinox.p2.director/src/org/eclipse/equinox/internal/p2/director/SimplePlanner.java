@@ -31,6 +31,8 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.planner.*;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 public class SimplePlanner implements IPlanner {
 	private static boolean DEBUG = Tracing.DEBUG_PLANNER_OPERANDS;
@@ -69,11 +71,75 @@ public class SimplePlanner implements IPlanner {
 		Map<IInstallableUnit, RequestStatus>[] changes = computeActualChangeRequest(toState, changeRequest);
 		Map<IInstallableUnit, RequestStatus> requestChanges = (changes == null) ? null : changes[0];
 		Map<IInstallableUnit, RequestStatus> requestSideEffects = (changes == null) ? null : changes[1];
+
 		QueryableArray plannedState = new QueryableArray(toState.toArray(new IInstallableUnit[toState.size()]));
 		PlannerStatus plannerStatus = new PlannerStatus(Status.OK_STATUS, null, requestChanges, requestSideEffects, plannedState);
+
 		plan.setStatus(plannerStatus);
 		plan.setInstallerPlan(installerPlan);
+
+		IStatus verificationStatus = verifyPlan(plan);
+		if (!verificationStatus.isOK())
+			plan.setStatus(verificationStatus);
+
 		return plan;
+	}
+
+	/*
+	 * Give clients the opportunity to veto the given provisioning plan. Return a status
+	 * indicating the result of the verifier's analysis of the plan. If a verifier is not 
+	 * registered, if verification is disabled, or if the verifier is misbehaving then
+	 * return an OK status and continue with the provisioning operation as if the verifier
+	 * had not run at all. 
+	 */
+	private IStatus verifyPlan(final IProvisioningPlan plan) {
+		final BundleContext context = DirectorActivator.context;
+		if (context == null)
+			return Status.OK_STATUS;
+		String value = context.getProperty("eclipse.p2.verifyPlan"); //$NON-NLS-1$
+		if ("false".equalsIgnoreCase(value)) { //$NON-NLS-1$
+			if (Tracing.DEBUG_VERIFIER)
+				Tracing.debug("Plan verification disabled by user."); //$NON-NLS-1$
+			return Status.OK_STATUS;
+		}
+		ServiceReference ref = context.getServiceReference(PlanVerifier.class.getName());
+		if (ref == null) {
+			if (Tracing.DEBUG_VERIFIER)
+				Tracing.debug("Skipping plan verification. No verifier available."); //$NON-NLS-1$
+			return Status.OK_STATUS;
+		}
+		final PlanVerifier verifier = (PlanVerifier) context.getService(ref);
+		if (verifier == null) {
+			if (Tracing.DEBUG_VERIFIER)
+				Tracing.debug("Skipping plan verification. No verifier available."); //$NON-NLS-1$
+			return Status.OK_STATUS;
+		}
+		final IStatus[] result = new IStatus[1];
+		result[0] = Status.OK_STATUS;
+		ISafeRunnable job = new ISafeRunnable() {
+			public void handleException(Throwable exception) {
+				if (Tracing.DEBUG_VERIFIER)
+					Tracing.debug("Exception while running verifier. Check log for details."); //$NON-NLS-1$
+				// log the exception 
+				LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "Exception while running plan verifier.", exception)); //$NON-NLS-1$
+				// don't let a bad verifier prevent the operation. fall through and return OK so execution of the plan continues
+			}
+
+			public void run() throws Exception {
+				if (Tracing.DEBUG_VERIFIER)
+					Tracing.debug("Running plan verifier."); //$NON-NLS-1$
+				long start = System.currentTimeMillis();
+				result[0] = verifier.verify(plan);
+				if (Tracing.DEBUG_VERIFIER)
+					Tracing.debug("Verification complete in " + (System.currentTimeMillis() - start) + "ms."); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		};
+		try {
+			SafeRunner.run(job);
+		} finally {
+			context.ungetService(ref);
+		}
+		return result[0];
 	}
 
 	private Map<IInstallableUnit, RequestStatus>[] buildDetailedErrors(ProfileChangeRequest changeRequest) {
@@ -829,4 +895,5 @@ public class SimplePlanner implements IPlanner {
 	public IProfileChangeRequest createChangeRequest(IProfile profileToChange) {
 		return new ProfileChangeRequest(profileToChange);
 	}
+
 }

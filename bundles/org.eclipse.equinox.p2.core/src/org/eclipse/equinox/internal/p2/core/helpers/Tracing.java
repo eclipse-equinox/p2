@@ -36,6 +36,7 @@ public class Tracing {
 	public static boolean DEBUG_REMOVE_REPO = false;
 	public static boolean DEBUG_UPDATE_CHECK = false;
 	public static boolean DEBUG_EVENTS_CLIENT = false;
+	public static boolean DEBUG_VERIFIER = false;
 
 	static {
 		DebugOptions options = (DebugOptions) ServiceHelper.getService(Activator.context, DebugOptions.class.getName());
@@ -55,6 +56,7 @@ public class Tracing {
 				DEBUG_RECONCILER = options.getBooleanOption(Activator.ID + "/reconciler", false); //$NON-NLS-1$
 				DEBUG_REMOVE_REPO = options.getBooleanOption(Activator.ID + "/core/removeRepo", false); //$NON-NLS-1$
 				DEBUG_UPDATE_CHECK = options.getBooleanOption(Activator.ID + "/updatechecker", false); //$NON-NLS-1$
+				DEBUG_VERIFIER = options.getBooleanOption(Activator.ID + "/verifier", false); //$NON-NLS-1$
 			}
 		}
 	}
