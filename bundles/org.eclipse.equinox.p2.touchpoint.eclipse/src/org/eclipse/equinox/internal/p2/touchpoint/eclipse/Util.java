@@ -30,8 +30,7 @@ import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
+import org.osgi.framework.*;
 
 public class Util {
 
@@ -175,7 +174,9 @@ public class Util {
 			String version = (String) headers.get(Constants.BUNDLE_VERSION);
 			if (version == null)
 				return null;
-			bundleInfo.setVersion(version);
+			// convert to a Version object first to ensure we are consistent with our version number w.r.t.
+			// padding zeros at the end
+			bundleInfo.setVersion(new Version(version).toString());
 		} catch (BundleException e) {
 			// unexpected
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
