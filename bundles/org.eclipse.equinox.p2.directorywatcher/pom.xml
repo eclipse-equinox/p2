@@ -9,6 +9,6 @@
   </parent>
   <groupId>org.eclipse</groupId>
   <artifactId>org.eclipse.equinox.p2.directorywatcher</artifactId>
-  <version>1.0.200.qualifier</version>
+  <version>1.0.202.qualifier</version>
   <packaging>eclipse-plugin</packaging>
 </project>
