@@ -13,12 +13,12 @@
 		<repository>
 			<id>helios</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/eclipse/updates/3.6-I-builds</url>
+			<url>http://download.eclipse.org/eclipse/updates/3.6</url>
 		</repository>
 		<repository>
 			<id>galileoTest</id>
 			<layout>p2</layout>
-			<url>file:/Users/Pascal/Downloads/eclipse-testing/eclipse-junit-tests-I20100520-1744</url>
+			<url>file:/Users/Pascal/Downloads/eclipse-testing/eclipse-junit-tests-I20100608-0911</url>
 		</repository>
 	</repositories>
 
