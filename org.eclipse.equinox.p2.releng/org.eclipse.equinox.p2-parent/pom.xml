@@ -18,7 +18,7 @@
 		<repository>
 			<id>galileoTest</id>
 			<layout>p2</layout>
-			<url>file:/Users/Pascal/Downloads/eclipse-testing/eclipse-junit-tests-I20100608-0911</url>
+			<url>http://download.eclipse.org/eclipse/updates/3.6-JUnit-Tests/</url>
 		</repository>
 	</repositories>
 
