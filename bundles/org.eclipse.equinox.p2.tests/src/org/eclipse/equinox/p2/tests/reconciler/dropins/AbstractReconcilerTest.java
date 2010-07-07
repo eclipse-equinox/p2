@@ -303,7 +303,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return isInBundlesInfo(bundleId, null);
 	}
 
-	private File getBundlesInfo() {
+	protected File getBundlesInfo() {
 		return new File(output, "eclipse/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
 	}
 
@@ -319,27 +319,12 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return isInBundlesInfo(bundlesInfo, bundleId, version, null);
 	}
 
-	/*
-	 * Return a boolean value indicating whether or not a bundle with the given id
-	 * is listed in the bundles.info file. If the version is non-null, check to ensure the
-	 * version is the expected one. If the location is non-null then do a String#contains check.
-	 */
-	public boolean isInBundlesInfo(File bundlesInfo, String bundleId, String version, String location) throws IOException {
+	public BundleInfo[] loadBundlesInfo(File location) throws IOException {
 		SimpleConfiguratorManipulator manipulator = new SimpleConfiguratorManipulatorImpl();
 		InputStream input = null;
 		try {
-			input = new BufferedInputStream(new FileInputStream(bundlesInfo));
-			BundleInfo[] infos = manipulator.loadConfiguration(input, output.toURI());
-			for (int i = 0; i < infos.length; i++) {
-				BundleInfo info = infos[i];
-				if (!bundleId.equals(info.getSymbolicName()))
-					continue;
-				if (version != null && !version.equals(info.getVersion()))
-					continue;
-				if (location == null)
-					return true;
-				return info.getLocation().toString().contains(location);
-			}
+			input = new BufferedInputStream(new FileInputStream(location));
+			return manipulator.loadConfiguration(input, new File(output, "eclipse").toURI());
 		} finally {
 			try {
 				if (input != null)
@@ -347,6 +332,30 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			} catch (IOException e) {
 				// ignore
 			}
+		}
+	}
+
+	public void saveBundlesInfo(BundleInfo[] bundles, File location) throws IOException {
+		SimpleConfiguratorManipulator manipulator = new SimpleConfiguratorManipulatorImpl();
+		manipulator.saveConfiguration(bundles, location, null);
+	}
+
+	/*
+	 * Return a boolean value indicating whether or not a bundle with the given id
+	 * is listed in the bundles.info file. If the version is non-null, check to ensure the
+	 * version is the expected one. If the location is non-null then do a String#contains check.
+	 */
+	public boolean isInBundlesInfo(File bundlesInfo, String bundleId, String version, String location) throws IOException {
+		BundleInfo[] infos = loadBundlesInfo(bundlesInfo);
+		for (int i = 0; infos != null && i < infos.length; i++) {
+			BundleInfo info = infos[i];
+			if (!bundleId.equals(info.getSymbolicName()))
+				continue;
+			if (version != null && !version.equals(info.getVersion()))
+				continue;
+			if (location == null)
+				return true;
+			return info.getLocation().toString().contains(location);
 		}
 		return false;
 	}
@@ -417,7 +426,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		// rm -rf eclipse sub-dir
 		for (Iterator iter = toRemove.iterator(); iter.hasNext();) {
 			File next = (File) iter.next();
-			FileUtils.deleteAll(next);
+			delete(next);
 		}
 		output = null;
 		toRemove.clear();
@@ -429,6 +438,10 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	public Configuration getConfiguration() {
 		File configLocation = new File(output, "eclipse/configuration/org.eclipse.update/platform.xml");
 		File installLocation = new File(output, "eclipse");
+		return loadConfiguration(configLocation, installLocation);
+	}
+
+	public Configuration loadConfiguration(File configLocation, File installLocation) {
 		try {
 			return Configuration.load(configLocation, installLocation.toURL());
 		} catch (ProvisionException e) {
