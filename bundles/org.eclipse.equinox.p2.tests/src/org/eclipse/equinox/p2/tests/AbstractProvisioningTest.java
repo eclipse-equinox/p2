@@ -148,12 +148,16 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fail(message + " profile " + profile2.getProfileId() + " did not contain expected units: " + expected);
 	}
 
+	public static void copy(String message, File source, File target) {
+		copy(message, source, target, null);
+	}
+
 	/*
 	 * Copy
 	 * - if we have a file, then copy the file
 	 * - if we have a directory then merge
 	 */
-	public static void copy(String message, File source, File target) {
+	public static void copy(String message, File source, File target, FileFilter filter) {
 		if (!source.exists())
 			return;
 		if (source.isDirectory()) {
@@ -161,7 +165,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				target.delete();
 			if (!target.exists())
 				target.mkdirs();
-			File[] children = source.listFiles();
+			File[] children = source.listFiles(filter);
 			for (int i = 0; i < children.length; i++)
 				copy(message, children[i], new File(target, children[i].getName()));
 			return;
@@ -196,6 +200,45 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				}
 			}
 		}
+	}
+
+	public static void move(String message, File source, File target) {
+		move(message, source, target, null);
+	}
+
+	public static void move(String message, File source, File target, FileFilter filter) {
+		// no work to do
+		if (!source.exists())
+			return;
+
+		// short circuit... if a basic rename just works then there is less work to do
+		if (filter == null && source.renameTo(target))
+			return;
+
+		// folder move
+		if (source.isDirectory()) {
+			if (target.exists() && target.isFile())
+				target.delete();
+			if (!target.exists())
+				target.mkdirs();
+			File[] children = source.listFiles(filter);
+			for (int i = 0; i < children.length; i++)
+				move(message, children[i], new File(target, children[i].getName()), filter);
+			return;
+		}
+
+		// delete destination folder if there is one. we are copying a file
+		if (target.isDirectory())
+			delete(target);
+
+		// both source and target are files at this point
+		if (source.renameTo(target))
+			return;
+
+		// if the rename didn't work then try a copy/delete
+		copy(message, source, target);
+		if (target.exists())
+			delete(source);
 	}
 
 	/**

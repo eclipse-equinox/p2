@@ -33,6 +33,10 @@ public class ReconcilerTestSuite extends TestSuite {
 		CLEANUP = getCleanUpTest();
 	}
 
+	protected String getPlatformArchive() {
+		return propertyToPlatformArchive;
+	}
+
 	/* (non-Javadoc)
 	 * @see junit.framework.TestSuite#tests()
 	 */
