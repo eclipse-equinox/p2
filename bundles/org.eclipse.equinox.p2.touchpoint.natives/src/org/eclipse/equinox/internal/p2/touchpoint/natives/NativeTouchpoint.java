@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -19,6 +17,7 @@ import java.util.WeakHashMap;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.touchpoint.natives.actions.ActionConstants;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.spi.Touchpoint;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -70,6 +69,7 @@ public class NativeTouchpoint extends Touchpoint {
 	public IStatus commit(IProfile profile) {
 		IBackupStore store = getBackupStore(profile);
 		store.discard();
+		clearProfileState(profile);
 		return Status.OK_STATUS;
 	}
 
