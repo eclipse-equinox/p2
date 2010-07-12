@@ -217,11 +217,13 @@ public class FeaturesActionTest extends ActionTest {
 		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "foo.feature.jar", fooVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "bar.feature.group", barVersion, IUpdateDescriptorAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "foo", fooVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "foo", fooVersion, IFeatureRootAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, IPropertyAdvice.class)).andReturn(adviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, "foo.feature.group", fooVersion, IUpdateDescriptorAdvice.class)).andReturn(Collections.EMPTY_LIST).anyTimes();
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getMetadataRepository()).andReturn(metadataRepository).anyTimes();

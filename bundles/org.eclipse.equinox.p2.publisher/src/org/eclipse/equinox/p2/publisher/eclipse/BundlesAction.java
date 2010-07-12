@@ -205,6 +205,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			}
 		}
 		iu.setCapabilities(providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
+		processUpdateDescriptorAdvice(iu, info);
 		processCapabilityAdvice(iu, info);
 
 		// Set certain properties from the manifest header attributes as IU properties.

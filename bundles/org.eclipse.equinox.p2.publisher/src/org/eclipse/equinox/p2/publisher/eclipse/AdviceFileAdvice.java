@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-
 import java.io.*;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -22,6 +19,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -31,7 +29,7 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
  * in the source of a bundle, feature, or product to specify additional advice to be
  * added to the {@link IInstallableUnit} corresponding to the bundle, feature, or product.
  */
-public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvice, ICapabilityAdvice, IPropertyAdvice, IAdditionalInstallableUnitAdvice {
+public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvice, ICapabilityAdvice, IUpdateDescriptorAdvice, IPropertyAdvice, IAdditionalInstallableUnitAdvice {
 
 	/**
 	 * The location of the bundle advice file, relative to the bundle root location.
@@ -47,6 +45,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 	private IRequirement[] metaRequiredCapabilities;
 	private Map<String, String> iuProperties;
 	private InstallableUnitDescription[] additionalIUs;
+	private IUpdateDescriptor updateDescriptor;
 	private boolean containsAdvice = false;
 
 	/**
@@ -89,6 +88,7 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 		metaRequiredCapabilities = parser.getMetaRequiredCapabilities();
 		iuProperties = parser.getProperties();
 		additionalIUs = parser.getAdditionalInstallableUnitDescriptions();
+		updateDescriptor = parser.getUpdateDescriptor();
 		containsAdvice = true;
 	}
 
@@ -167,6 +167,10 @@ public class AdviceFileAdvice extends AbstractAdvice implements ITouchpointAdvic
 
 	public InstallableUnitDescription[] getAdditionalInstallableUnitDescriptions(IInstallableUnit iu) {
 		return additionalIUs;
+	}
+
+	public IUpdateDescriptor getUpdateDescriptor(InstallableUnitDescription iu) {
+		return updateDescriptor;
 	}
 
 	public Map<String, String> getArtifactProperties(IInstallableUnit iu, IArtifactDescriptor descriptor) {

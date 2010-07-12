@@ -21,8 +21,10 @@ import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 public class AdviceMatcher implements IArgumentMatcher {
 	private final Version version;
 	private final String id;
+	private static Class clazz;
 
-	public static IPublisherAdvice adviceMatches(String id, Version version) {
+	public static IPublisherAdvice adviceMatches(String id, Version version, Class clazz) {
+		AdviceMatcher.clazz = clazz;
 		EasyMock.reportMatcher(new AdviceMatcher(id, version));
 		return null;
 	}
@@ -39,8 +41,9 @@ public class AdviceMatcher implements IArgumentMatcher {
 	public boolean matches(Object arg) {
 		if (!(arg instanceof IPublisherAdvice))
 			return false;
+		if (!(clazz.isAssignableFrom(arg.getClass())))
+			return false;
 		IPublisherAdvice advice = (IPublisherAdvice) arg;
 		return advice.isApplicable("", false, id, version);
 	}
-
 }

@@ -18,14 +18,12 @@ import java.util.zip.ZipInputStream;
 import org.easymock.EasyMock;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.QueryableArray;
-import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
-import org.eclipse.equinox.p2.publisher.eclipse.IBundleShapeAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -49,6 +47,7 @@ public class BundlesActionTest extends ActionTest {
 	private static final String TEST2_PROVY_NAME = "iuy";//$NON-NLS-1$
 	private static final String TEST2_PROVX_NAME = "iux";//$NON-NLS-1$
 	private static final String TEST2_PROVBUNDLE_NAME = "test2";//$NON-NLS-1$
+	private static final String TEST3_PROVBUNDLE_NAME = "test3";//$NON-NLS-1$
 
 	private static final File TEST_BASE = new File(TestActivator.getTestDataFolder(), "BundlesActionTest");//$NON-NLS-1$
 	private static final File TEST_FILE1 = new File(TEST_BASE, TEST1_PROVBUNDLE_NAME);
@@ -67,6 +66,8 @@ public class BundlesActionTest extends ActionTest {
 
 	private final Version BUNDLE1_VERSION = Version.create("0.1.0");//$NON-NLS-1$
 	private final Version BUNDLE2_VERSION = Version.create("1.0.0.qualifier");//$NON-NLS-1$
+	private final Version BUNDLE3_VERSION = Version.create("0.1.0.qualifier");//$NON-NLS-1$
+
 	private final Version PROVBUNDLE2_VERSION = BUNDLE2_VERSION;
 	private final Version TEST2_PROVZ_VERSION = Version.emptyVersion;
 	private final Version TEST2_PROVY_VERSION = Version.emptyVersion;
@@ -79,11 +80,15 @@ public class BundlesActionTest extends ActionTest {
 	protected TestArtifactRepository artifactRepository = new TestArtifactRepository(getAgent());
 
 	private MultiCapture<ITouchpointAdvice> tpAdvice1, tpAdvice2;
+	private MultiCapture<IUpdateDescriptorAdvice> udAdvice3;
 
 	@Override
 	public void setupPublisherInfo() {
 		tpAdvice1 = new MultiCapture<ITouchpointAdvice>();
 		tpAdvice2 = new MultiCapture<ITouchpointAdvice>();
+
+		udAdvice3 = new MultiCapture<IUpdateDescriptorAdvice>();
+
 		super.setupPublisherInfo();
 	}
 
@@ -141,6 +146,7 @@ public class BundlesActionTest extends ActionTest {
 		// verify publisher result
 		verifyBundle1();
 		verifyBundle2();
+		verifyBundle3();
 
 		verifyArtifactRepository();
 	}
@@ -260,6 +266,25 @@ public class BundlesActionTest extends ActionTest {
 
 	}
 
+	private void verifyBundle3() {
+		ArrayList ius = new ArrayList(publisherResult.getIUs(TEST3_PROVBUNDLE_NAME, IPublisherResult.ROOT));
+
+		assertTrue(ius.size() == 1);
+		IInstallableUnit bundle3IU = (IInstallableUnit) ius.get(0);
+
+		IUpdateDescriptor updateDescriptor = bundle3IU.getUpdateDescriptor();
+		String name = RequiredCapability.extractName(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		VersionRange range = RequiredCapability.extractRange(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		String description = updateDescriptor.getDescription();
+		int severity = updateDescriptor.getSeverity();
+
+		VersionRange expectedRange = new VersionRange("(0.0.1," + BUNDLE3_VERSION + "]");
+		assertEquals(TEST3_PROVBUNDLE_NAME, name);
+		assertEquals(expectedRange, range);
+		assertEquals("Some description about this update", description.trim());
+		assertEquals(8, severity);
+	}
+
 	public void cleanup() {
 		super.cleanup();
 		if (artifactRepository != null) {
@@ -297,19 +322,37 @@ public class BundlesActionTest extends ActionTest {
 		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, IPropertyAdvice.class)).andReturn(adviceCollection1).times(2); //$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, IUpdateDescriptorAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, IPropertyAdvice.class)).andReturn(adviceCollection2).times(2);//$NON-NLS-1$
-		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$		
+		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, IUpdateDescriptorAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, true, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, IBundleShapeAdvice.class)).andReturn(null); //$NON-NLS-1$
 		expect(publisherInfo.getAdvice(null, true, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, IBundleShapeAdvice.class)).andReturn(null);//$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, false, TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION, ICapabilityAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, false, TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION, IPropertyAdvice.class)).andReturn(adviceCollection1).times(2); //$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, false, TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION, IAdditionalInstallableUnitAdvice.class)).andReturn(Collections.EMPTY_LIST); //$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, false, TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION, ITouchpointAdvice.class)).andReturn(Collections.EMPTY_LIST);//$NON-NLS-1$
+		expect(publisherInfo.getAdvice(null, true, TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION, IBundleShapeAdvice.class)).andReturn(null); //$NON-NLS-1$
+
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_INDEX | IPublisherInfo.A_OVERWRITE | IPublisherInfo.A_PUBLISH).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, null, null, ICapabilityAdvice.class)).andReturn(new ArrayList()).anyTimes();
 
 		//capture any touchpoint advice, and return the captured advice when the action asks for it
-		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION), capture(tpAdvice1)));
-		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION), capture(tpAdvice2)));
+		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, ITouchpointAdvice.class), capture(tpAdvice1)));
 		EasyMock.expectLastCall().anyTimes();
+
+		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, ITouchpointAdvice.class), capture(tpAdvice2)));
+		EasyMock.expectLastCall().anyTimes();
+
+		publisherInfo.addAdvice(and(AdviceMatcher.adviceMatches(TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION, AdviceFileAdvice.class), capture(udAdvice3)));
+		EasyMock.expectLastCall().anyTimes();
+
 		expect(publisherInfo.getAdvice(null, false, TEST1_PROVBUNDLE_NAME, BUNDLE1_VERSION, ITouchpointAdvice.class)).andReturn(tpAdvice1).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, TEST2_PROVBUNDLE_NAME, BUNDLE2_VERSION, ITouchpointAdvice.class)).andReturn(tpAdvice2).anyTimes();
+
+		expect(publisherInfo.getAdvice(null, false, TEST3_PROVBUNDLE_NAME, BUNDLE3_VERSION, IUpdateDescriptorAdvice.class)).andReturn(udAdvice3).anyTimes();
+
 	}
+
 }

@@ -282,6 +282,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 
 		iu.setCapabilities(providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
+		processUpdateDescriptorAdvice(iu, info);
 		processCapabilityAdvice(iu, publisherInfo);
 		return MetadataFactory.createInstallableUnit(iu);
 	}
@@ -368,6 +369,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 
 		iu.setCapabilities(providedCapabilities.toArray(new IProvidedCapability[providedCapabilities.size()]));
+		processUpdateDescriptorAdvice(iu, info);
 		processCapabilityAdvice(iu, publisherInfo);
 		return MetadataFactory.createInstallableUnitPatch(iu);
 	}

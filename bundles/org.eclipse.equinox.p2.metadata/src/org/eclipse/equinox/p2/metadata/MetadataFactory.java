@@ -162,6 +162,14 @@ public final class MetadataFactory {
 		}
 
 		/**
+		 * Returns the UpdateDescriptor for this IU
+		 * @since 2.1
+		 */
+		public IUpdateDescriptor getUpdateDescriptor() {
+			return unit().getUpdateDescriptor();
+		}
+
+		/**
 		 * Set the artifact keys for the installable unit. Previous values will be overwritten.
 		 * @param value the artifacts to the used.
 		 */

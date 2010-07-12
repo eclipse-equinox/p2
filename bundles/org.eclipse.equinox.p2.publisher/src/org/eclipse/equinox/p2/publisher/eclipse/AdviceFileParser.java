@@ -57,6 +57,7 @@ public class AdviceFileParser {
 	private static final String LICENSES_PREFIX = "licenses."; //$NON-NLS-1$
 	private static final String ARTIFACTS_PREFIX = "artifacts."; //$NON-NLS-1$
 	private static final String HOST_REQUIREMENTS_PREFIX = "hostRequirements."; //$NON-NLS-1$
+	private static final String UPDATE_DESCRIPTOR_PREFIX = "update."; //$NON-NLS-1$
 
 	public static final Version COMPATIBLE_VERSION = Version.createOSGi(1, 0, 0);
 	public static final VersionRange VERSION_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, Version.createOSGi(2, 0, 0), false);
@@ -65,17 +66,18 @@ public class AdviceFileParser {
 	private List<IProvidedCapability> adviceProvides = new ArrayList<IProvidedCapability>();
 	private List<IRequirement> adviceRequires = new ArrayList<IRequirement>();
 	private List<IRequirement> adviceMetaRequires = new ArrayList<IRequirement>();
+	private IUpdateDescriptor adviceUpdateDescriptor = null;
 	private Map<String, ITouchpointInstruction> adviceInstructions = new HashMap<String, ITouchpointInstruction>();
 	private List<InstallableUnitDescription> adviceOtherIUs = new ArrayList<InstallableUnitDescription>();
 
 	private final Map<String, String> advice;
 	private Iterator<String> keysIterator;
 	private String current;
-	//	private String hostId; not currently used
+	private String hostId;
 	private Version hostVersion;
 
 	public AdviceFileParser(String id, Version version, Map<String, String> advice) {
-		// this.hostId = id; not currently used
+		this.hostId = id;
 		this.hostVersion = version;
 		this.advice = advice;
 	}
@@ -94,6 +96,8 @@ public class AdviceFileParser {
 		while (current != null) {
 			if (current.startsWith(PROPERTIES_PREFIX))
 				parseProperties(PROPERTIES_PREFIX, adviceProperties);
+			else if (current.startsWith(UPDATE_DESCRIPTOR_PREFIX))
+				this.adviceUpdateDescriptor = parseUpdateDescriptor(UPDATE_DESCRIPTOR_PREFIX, hostId);
 			else if (current.startsWith(PROVIDES_PREFIX))
 				parseProvides(PROVIDES_PREFIX, adviceProvides);
 			else if (current.startsWith(REQUIRES_PREFIX))
@@ -153,6 +157,33 @@ public class AdviceFileParser {
 		}
 
 		properties.put(propertyName, propertyValue);
+	}
+
+	private IUpdateDescriptor parseUpdateDescriptor(String prefix, String id) {
+		String name = id;
+		String description = null;
+		String range = "[0.0.0,$version$)"; //$NON-NLS-1$ 
+		String severity = "0"; //$NON-NLS-1$
+
+		while (current != null && current.startsWith(prefix)) {
+			String token = current;
+			if (token.equals(UPDATE_ID)) {
+				name = currentValue();
+			} else if (token.equals(UPDATE_DESCRIPTION)) {
+				description = currentValue();
+			} else if (token.equals(UPDATE_RANGE)) {
+				range = currentValue();
+			} else if (token.equals(UPDATE_SEVERITY)) {
+				severity = currentValue();
+			} else {
+				// ignore
+			}
+			next();
+		}
+
+		range = substituteVersionAndQualifier(range);
+		VersionRange versionRange = new VersionRange(range);
+		return MetadataFactory.createUpdateDescriptor(name, versionRange, Integer.valueOf(severity), description);
 	}
 
 	private void parseProvides(String prefix, List<IProvidedCapability> provides) {
@@ -532,6 +563,10 @@ public class AdviceFileParser {
 			return null;
 
 		return adviceProvides.toArray(new IProvidedCapability[adviceProvides.size()]);
+	}
+
+	public IUpdateDescriptor getUpdateDescriptor() {
+		return adviceUpdateDescriptor;
 	}
 
 	public Map<String, ITouchpointInstruction> getTouchpointInstructions() {

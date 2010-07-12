@@ -268,6 +268,26 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	/**
+	 * Add any update descriptor advice to the given IU
+	 * @param iu the IU to decorate
+	 * @param info the publisher info supplying the advice
+	 */
+	protected static void processUpdateDescriptorAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
+		Collection<IUpdateDescriptorAdvice> advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), IUpdateDescriptorAdvice.class);
+
+		if (advice.isEmpty())
+			return;
+
+		for (IUpdateDescriptorAdvice entry : advice) {
+			//process the IU Descriptor
+			IUpdateDescriptor updateDescriptor = entry.getUpdateDescriptor(iu);
+			if (updateDescriptor != null) {
+				iu.setUpdateDescriptor(updateDescriptor);
+			}
+		}
+	}
+
+	/**
 	 * Add all of the advised provided and required capabilities for the given installable unit.
 	 * @param iu the IU to decorate
 	 * @param info the publisher info supplying the advice
@@ -278,7 +298,6 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			return;
 
 		for (ICapabilityAdvice entry : advice) {
-
 			//process required capabilities
 			IRequirement[] requiredAdvice = entry.getRequiredCapabilities(iu);
 			if (requiredAdvice != null) {

@@ -10,9 +10,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.actions;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -21,6 +18,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.util.NLS;
@@ -50,6 +48,7 @@ public class RootIUAction extends AbstractPublisherAction {
 	protected IStatus generateRootIU(IPublisherResult result) {
 		Collection<? extends IVersionedId> children = getChildren(result);
 		InstallableUnitDescription descriptor = createTopLevelIUDescription(children, null, false);
+		processUpdateDescriptorAdvice(descriptor, info);
 		processCapabilityAdvice(descriptor, info);
 		processTouchpointAdvice(descriptor, null, info);
 		processInstallableUnitPropertiesAdvice(descriptor, info);

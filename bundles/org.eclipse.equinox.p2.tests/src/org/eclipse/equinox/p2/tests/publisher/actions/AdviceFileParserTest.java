@@ -45,6 +45,100 @@ public class AdviceFileParserTest extends TestCase {
 		fail("expected version parse problem");
 	}
 
+	public void testUpdateDescriptorAdvice() {
+		Map map = new HashMap();
+		map.put("update.id", "testName");
+		map.put("update.severity", "10");
+		map.put("update.description", "Test Description");
+		map.put("update.range", "(1.0.0,10.10.10)");
+
+		AdviceFileParser parser = new AdviceFileParser("id", Version.emptyVersion, map);
+		parser.parse();
+
+		IUpdateDescriptor updateDescriptor = parser.getUpdateDescriptor();
+		String testName = RequiredCapability.extractName(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		VersionRange testVersionRange = RequiredCapability.extractRange(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		assertEquals("testName", testName);
+		assertEquals(Version.parseVersion("1.0.0"), testVersionRange.getMinimum());
+		assertEquals(Version.parseVersion("10.10.10"), testVersionRange.getMaximum());
+		assertEquals(10, updateDescriptor.getSeverity());
+		assertEquals("Test Description", updateDescriptor.getDescription());
+	}
+
+	public void testUpdateDescriptorAdviceDefaultBound() {
+		Map map = new HashMap();
+		map.put("update.id", "testName");
+		map.put("update.severity", "10");
+		map.put("update.description", "Test Description");
+		map.put("update.range", "(1.0.0,$version$)");
+
+		AdviceFileParser parser = new AdviceFileParser("id", Version.parseVersion("9.10.11"), map);
+		parser.parse();
+
+		IUpdateDescriptor updateDescriptor = parser.getUpdateDescriptor();
+		String testName = RequiredCapability.extractName(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		VersionRange testVersionRange = RequiredCapability.extractRange(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		assertEquals("testName", testName);
+		assertEquals(Version.parseVersion("1.0.0"), testVersionRange.getMinimum());
+		assertEquals(Version.parseVersion("9.10.11"), testVersionRange.getMaximum());
+		assertEquals(10, updateDescriptor.getSeverity());
+		assertEquals("Test Description", updateDescriptor.getDescription());
+	}
+
+	public void testUpdateDescriptorAdviceDefaultBound2() {
+		Map map = new HashMap();
+		map.put("update.id", "testName");
+		map.put("update.severity", "10");
+		map.put("update.description", "Test Description");
+
+		AdviceFileParser parser = new AdviceFileParser("id", Version.parseVersion("9.10.11"), map);
+		parser.parse();
+
+		IUpdateDescriptor updateDescriptor = parser.getUpdateDescriptor();
+		String testName = RequiredCapability.extractName(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		VersionRange testVersionRange = RequiredCapability.extractRange(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		assertEquals("testName", testName);
+		assertEquals(Version.parseVersion("0.0.0"), testVersionRange.getMinimum());
+		assertEquals(Version.parseVersion("9.10.11"), testVersionRange.getMaximum());
+		assertEquals(10, updateDescriptor.getSeverity());
+		assertEquals("Test Description", updateDescriptor.getDescription());
+	}
+
+	public void testUpdateDescriptorAdviceDefaultID() {
+		Map map = new HashMap();
+		map.put("update.severity", "10");
+		map.put("update.description", "Test Description");
+
+		AdviceFileParser parser = new AdviceFileParser("id", Version.parseVersion("9.10.11"), map);
+		parser.parse();
+
+		IUpdateDescriptor updateDescriptor = parser.getUpdateDescriptor();
+		String testName = RequiredCapability.extractName(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		VersionRange testVersionRange = RequiredCapability.extractRange(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		assertEquals("id", testName);
+		assertEquals(Version.parseVersion("0.0.0"), testVersionRange.getMinimum());
+		assertEquals(Version.parseVersion("9.10.11"), testVersionRange.getMaximum());
+		assertEquals(10, updateDescriptor.getSeverity());
+		assertEquals("Test Description", updateDescriptor.getDescription());
+	}
+
+	public void testUpdateDescriptorAdviceDefaults() {
+		Map map = new HashMap();
+		map.put("update.id", "id");
+
+		AdviceFileParser parser = new AdviceFileParser("id", Version.parseVersion("9.10.11"), map);
+		parser.parse();
+
+		IUpdateDescriptor updateDescriptor = parser.getUpdateDescriptor();
+		String testName = RequiredCapability.extractName(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		VersionRange testVersionRange = RequiredCapability.extractRange(updateDescriptor.getIUsBeingUpdated().iterator().next());
+		assertEquals("id", testName);
+		assertEquals(Version.parseVersion("0.0.0"), testVersionRange.getMinimum());
+		assertEquals(Version.parseVersion("9.10.11"), testVersionRange.getMaximum());
+		assertEquals(0, updateDescriptor.getSeverity());
+		assertEquals(null, updateDescriptor.getDescription());
+	}
+
 	public void testPropertyAdvice() {
 		Map map = new HashMap();
 		map.put("properties.0.name", "testName1");

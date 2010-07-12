@@ -13,14 +13,16 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
+import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
+import org.eclipse.equinox.p2.publisher.actions.IUpdateDescriptorAdvice;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
-public class AbstractPublisherActionTest extends AbstractProvisioningTest {
+public final class AbstractPublisherActionTest extends AbstractProvisioningTest {
 	//Note: this is tests for AbstractPublisherAction and not a base class for other tests
 
 	static class TestAction extends AbstractPublisherAction {
@@ -34,6 +36,26 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 			AbstractPublisherAction.processCapabilityAdvice(iu, publisherInfo);
 		}
 
+		public void testProcessUpdateDescriptorAdvice(InstallableUnitDescription iu, IPublisherInfo publisherInfo) {
+			AbstractPublisherAction.processUpdateDescriptorAdvice(iu, publisherInfo);
+		}
+	}
+
+	static class TestUpdateDescriptorAdvice implements IUpdateDescriptorAdvice {
+
+		private final IUpdateDescriptor updateDescriptor;
+
+		public TestUpdateDescriptorAdvice(IUpdateDescriptor updateDescriptor) {
+			this.updateDescriptor = updateDescriptor;
+		}
+
+		public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
+			return id.equals("test");
+		}
+
+		public IUpdateDescriptor getUpdateDescriptor(InstallableUnitDescription iu) {
+			return this.updateDescriptor;
+		}
 	}
 
 	static class TestCapabilityAdvice implements ICapabilityAdvice {
@@ -71,6 +93,24 @@ public class AbstractPublisherActionTest extends AbstractProvisioningTest {
 		public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
 			return id.equals("test");
 		}
+	}
+
+	public void testAddUpdateDescriptor() {
+		InstallableUnitDescription iu = new InstallableUnitDescription();
+		iu.setId("test");
+
+		IPublisherInfo info = new PublisherInfo();
+		VersionRange range = new VersionRange("[0.0.0,1.1.1)");
+		IUpdateDescriptor testUpdateDescriptor = MetadataFactory.createUpdateDescriptor("name1", range, 10, "Test Description");
+
+		info.addAdvice(new TestUpdateDescriptorAdvice(testUpdateDescriptor));
+		TestAction action = new TestAction();
+		action.testProcessUpdateDescriptorAdvice(iu, info);
+
+		assertEquals("name1", RequiredCapability.extractName(iu.getUpdateDescriptor().getIUsBeingUpdated().iterator().next()));
+		assertEquals(range, RequiredCapability.extractRange(iu.getUpdateDescriptor().getIUsBeingUpdated().iterator().next()));
+		assertEquals(10, iu.getUpdateDescriptor().getSeverity());
+		assertEquals("Test Description", iu.getUpdateDescriptor().getDescription());
 	}
 
 	public void testAddCapabilities() {

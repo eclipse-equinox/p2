@@ -12,8 +12,6 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.expect;
 
-import org.eclipse.equinox.p2.query.MatchQuery;
-
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
@@ -22,6 +20,7 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.query.IQuery;
+import org.eclipse.equinox.p2.query.MatchQuery;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 
@@ -344,6 +343,7 @@ public class RootIUActionTest extends ActionTest {
 		expect(publisherInfo.getAdvice(null, true, null, null, IRootIUAdvice.class)).andReturn(rootIUAdviceCollection).anyTimes();
 		expect(publisherInfo.getAdvice(null, true, null, null, IVersionAdvice.class)).andReturn(null).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, ITouchpointAdvice.class)).andReturn(new ArrayList()).anyTimes();
+		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IUpdateDescriptorAdvice.class)).andReturn(new ArrayList()).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IPropertyAdvice.class)).andReturn(new ArrayList()).anyTimes();
 		expect(publisherInfo.getAdvice(null, false, rootIU, versionArg, IAdditionalInstallableUnitAdvice.class)).andReturn(new ArrayList()).anyTimes();
 		expect(publisherInfo.getAdvice(null, true, rootIU, versionArg, ILicenseAdvice.class)).andReturn(new ArrayList()).anyTimes();
