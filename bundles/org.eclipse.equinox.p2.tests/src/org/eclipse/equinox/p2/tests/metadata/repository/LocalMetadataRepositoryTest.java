@@ -224,6 +224,10 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		IMetadataRepository repo = manager.createRepository(repoURL, "testRefreshSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		repo.addReferences(Collections.singletonList(new RepositoryReference(repoURL, "testNick", IRepository.TYPE_METADATA, IRepository.NONE)));
 
+		if (!manager.isEnabled(repoURL)) {
+			// Enable the repo if it's not enabled.
+			manager.setEnabled(repoURL, true);
+		}
 		final int[] callCount = new int[] {0};
 		final boolean[] wasEnabled = new boolean[] {false};
 		//add a listener to ensure we receive add events with the repository enabled
