@@ -44,7 +44,7 @@ public class MirrorSelector {
 		private static final long PRIMARY_FAILURE_LINGER_TIME = 30000; // Retry again after 30 seconds
 		private static final long SECONDARY_FAILURE_LINGER_TIME = 300000; // Wait 5 minutes
 		private static final int ACCEPTABLE_FILE_NOT_FOUND_COUNT = 5; // Given an established connection, those are generally quick
-		private static final Timer resetFailure = new Timer("Mirror failure timer", true); //$NON-NLS-1$
+		private static final Timer resetFailure = new Timer(true);
 
 		long bytesPerSecond;
 		int failureCount;
