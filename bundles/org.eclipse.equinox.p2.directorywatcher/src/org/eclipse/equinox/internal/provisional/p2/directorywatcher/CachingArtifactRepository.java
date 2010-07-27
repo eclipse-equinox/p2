@@ -37,18 +37,22 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 	}
 
 	public void save() {
-		savePropertyChanges();
-		saveAdditions();
-		saveRemovals();
+		innerRepo.executeBatch(new IRunnableWithProgress() {
+			public void run(IProgressMonitor monitor) {
+				savePropertyChanges();
+				saveAdditions();
+				saveRemovals();
+			}
+		}, null);
 	}
 
-	private void saveRemovals() {
+	void saveRemovals() {
 		for (IArtifactDescriptor desc : descriptorsToRemove)
 			innerRepo.removeDescriptor(desc);
 		descriptorsToRemove.clear();
 	}
 
-	private void saveAdditions() {
+	void saveAdditions() {
 		if (descriptorsToAdd.isEmpty())
 			return;
 		innerRepo.addDescriptors(descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]));
@@ -56,7 +60,7 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		artifactMap.clear();
 	}
 
-	private void savePropertyChanges() {
+	void savePropertyChanges() {
 		for (String key : propertyChanges.keySet()) {
 			String value = propertyChanges.get(key);
 			innerRepo.setProperty(key, value == NULL ? null : value);
