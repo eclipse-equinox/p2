@@ -254,7 +254,9 @@ public class Catalog {
 				boolean match = false;
 				try {
 					Filter filter = FrameworkUtil.createFilter(connector.getPlatformFilter());
-					match = filter.match(environment);
+					// TODO Doing raw conversion here for simplicity; could convert to Dictionary<String, ?>
+					// but the filter impl must still handle cases where non String keys are used.
+					match = filter.match((Dictionary) environment);
 				} catch (InvalidSyntaxException e) {
 					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.Catalog_illegal_filter_syntax, new Object[] {connector.getPlatformFilter(), connector.getId(), connector.getSource().getId()})));
 				}

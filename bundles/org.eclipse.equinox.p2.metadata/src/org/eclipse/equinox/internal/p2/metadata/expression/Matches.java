@@ -60,10 +60,13 @@ public class Matches extends Binary {
 		} else if (rval instanceof Filter) {
 			if (lval instanceof IInstallableUnit)
 				return Boolean.valueOf(((Filter) rval).match(new Hashtable<String, String>(((IInstallableUnit) lval).getProperties())));
+			// TODO Below we use raw types for simplicity;
+			// we could convert to Dictionary<String, ?> but that is work and the filter impl
+			// must still handle (and ignore) non String keys.
 			if (lval instanceof Dictionary<?, ?>)
-				return Boolean.valueOf(((Filter) rval).match((Dictionary<?, ?>) lval));
+				return Boolean.valueOf(((Filter) rval).match((Dictionary) lval));
 			if (lval instanceof Map<?, ?>)
-				return Boolean.valueOf(((Filter) rval).match(new Hashtable<Object, Object>((Map<?, ?>) lval)));
+				return Boolean.valueOf(((Filter) rval).match(new Hashtable((Map<?, ?>) lval)));
 		} else if (rval instanceof Locale) {
 			if (lval instanceof String)
 				return Boolean.valueOf(matchLocaleVariants((Locale) rval, (String) lval));
