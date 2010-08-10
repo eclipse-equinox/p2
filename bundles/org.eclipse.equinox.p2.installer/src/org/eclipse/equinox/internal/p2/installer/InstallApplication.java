@@ -63,7 +63,7 @@ public class InstallApplication implements IApplication {
 	public static Object getService(BundleContext context, String name) {
 		if (context == null)
 			return null;
-		ServiceReference reference = context.getServiceReference(name);
+		ServiceReference<?> reference = context.getServiceReference(name);
 		if (reference == null)
 			return null;
 		Object result = context.getService(reference);
