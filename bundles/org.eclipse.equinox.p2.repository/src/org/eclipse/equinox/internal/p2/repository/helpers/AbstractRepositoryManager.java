@@ -300,13 +300,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 */
 	protected Object createExecutableExtension(IExtension extension, String element) {
 		IConfigurationElement[] elements = extension.getConfigurationElements();
-		CoreException failure = null;
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i].getName().equals(element)) {
 				try {
 					return elements[i].createExecutableExtension("class"); //$NON-NLS-1$
 				} catch (CoreException e) {
-					log("Error loading repository extension: " + extension.getUniqueIdentifier(), failure); //$NON-NLS-1$
+					log("Error loading repository extension: " + extension.getUniqueIdentifier(), e); //$NON-NLS-1$
 					return null;
 				}
 			}
@@ -638,7 +637,6 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			added = addRepository(location, true, false);
 
 			LocationProperties indexFile = loadIndexFile(location, monitor);
-
 			String[] preferredOrder = getPreferredRepositorySearchOrder(indexFile);
 			String[] suffixes = sortSuffixes(getAllSuffixes(), location, preferredOrder);
 
@@ -1169,5 +1167,15 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 
 	private Transport getTransport() {
 		return RepositoryTransport.getInstance();
+	}
+
+	public void flushCache() {
+		synchronized (repositories) {
+			Collection<RepositoryInfo<T>> repos = repositories.values();
+			for (Iterator iterator = repos.iterator(); iterator.hasNext();) {
+				RepositoryInfo<T> repositoryInfo = (RepositoryInfo<T>) iterator.next();
+				repositoryInfo.repository = null;
+			}
+		}
 	}
 }
