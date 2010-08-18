@@ -300,13 +300,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 */
 	protected Object createExecutableExtension(IExtension extension, String element) {
 		IConfigurationElement[] elements = extension.getConfigurationElements();
-		CoreException failure = null;
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i].getName().equals(element)) {
 				try {
 					return elements[i].createExecutableExtension("class"); //$NON-NLS-1$
 				} catch (CoreException e) {
-					log("Error loading repository extension: " + extension.getUniqueIdentifier(), failure); //$NON-NLS-1$
+					log("Error loading repository extension: " + extension.getUniqueIdentifier(), e); //$NON-NLS-1$
 					return null;
 				}
 			}
