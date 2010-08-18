@@ -14,6 +14,7 @@
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -385,5 +386,51 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		assertEquals(1, queryResultSize(result));
 		IArtifactDescriptor resultDescriptor = result.iterator().next();
 		assertEquals(d3.getArtifactKey(), resultDescriptor.getArtifactKey());
+	}
+
+	/*
+	 * Tests the number of threads allowed
+	 */
+	public void testMaximumThreads() throws Exception {
+		File folder = getTestFolder("ArtifactRepository_testQuery");
+		repositoryURI = folder.toURI();
+		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+
+		Method getMaximumThreads = SimpleArtifactRepository.class.getDeclaredMethod("getMaximumThreads");
+		getMaximumThreads.setAccessible(true);
+
+		Field defaultMaxThreadsField = SimpleArtifactRepository.class.getDeclaredField("DEFAULT_MAX_THREADS");
+		defaultMaxThreadsField.setAccessible(true);
+
+		int defaultMaxThreads = defaultMaxThreadsField.getInt(repo);
+
+		assertEquals("Default setting", defaultMaxThreads, getIntVal(getMaximumThreads, repo));
+
+		// Legitimate user value
+		System.setProperty(SimpleArtifactRepository.PROP_MAX_THREADS, "2");
+		assertEquals("Valid User setting", 2, getIntVal(getMaximumThreads, repo));
+
+		// User value is too high
+		System.setProperty(SimpleArtifactRepository.PROP_MAX_THREADS, "22");
+		assertEquals("Invalid User setting", defaultMaxThreads, getIntVal(getMaximumThreads, repo));
+		System.clearProperty(SimpleArtifactRepository.PROP_MAX_THREADS);
+
+		// Legitimate repo value
+		repo.setProperty(SimpleArtifactRepository.PROP_MAX_THREADS, "4");
+		assertEquals("Valid repository specified setting", 4, getIntVal(getMaximumThreads, repo));
+
+		// User value is lower should take precedence
+		repo.setProperty(SimpleArtifactRepository.PROP_MAX_THREADS, "3");
+		System.setProperty(SimpleArtifactRepository.PROP_MAX_THREADS, "2");
+		assertEquals("User setting should take precedence", 2, getIntVal(getMaximumThreads, repo));
+
+		// User value is lower should take precedence
+		repo.setProperty(SimpleArtifactRepository.PROP_MAX_THREADS, "2");
+		System.setProperty(SimpleArtifactRepository.PROP_MAX_THREADS, "3");
+		assertEquals("User setting should take precedence", 2, getIntVal(getMaximumThreads, repo));
+	}
+
+	private int getIntVal(Method m, Object repo) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		return ((Integer) m.invoke(repo, new Object[] {})).intValue();
 	}
 }
