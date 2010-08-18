@@ -17,13 +17,20 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.app.DirectorApplication;
+import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.metadata.ResolvedInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.URIUtil;
+import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.StringBufferStream;
+import org.eclipse.equinox.p2.tests.*;
 
 /**
  * Various automated tests of the {@link IDirector} API.
@@ -81,6 +88,50 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 			fail(message, e);
 		}
 		return args;
+	}
+
+	public void testEPPProfileUpdateRoaming() {
+		IProvisioningAgent agent = getAgent();
+		File eppProfileFolder = new File(TestActivator.getTestDataFolder(), "epp_profile");
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(agent, eppProfileFolder);
+		IProfile eppProfile = registry.getProfile("epp.package.java");
+
+		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		ProfileChangeRequest request = new ProfileChangeRequest(eppProfile);
+		request.setProfileProperty(IProfile.PROP_ROAMING, "true"); //$NON-NLS-1$
+		ProvisioningContext context = new ProvisioningContext(agent);
+		context.setMetadataRepositories(new URI[0]);
+		context.setArtifactRepositories(new URI[0]);
+		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+
+		assertEquals(1, ((ProvisioningPlan) result).getOperands().length);
+	}
+
+	public void testEPPProfileRemoveIU() {
+		IProvisioningAgent agent = getAgent();
+		File eppProfileFolder = new File(TestActivator.getTestDataFolder(), "epp_profile");
+		SimpleProfileRegistry registry = new SimpleProfileRegistry(agent, eppProfileFolder);
+		IProfile eppProfile = registry.getProfile("epp.package.java");
+
+		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+		ProfileChangeRequest request = new ProfileChangeRequest(eppProfile);
+		IInstallableUnit iu = eppProfile.query(QueryUtil.createIUQuery("ch.qos.logback.slf4j"), new NullProgressMonitor()).iterator().next();
+		request.remove(iu);
+		request.setProfileProperty(IProfile.PROP_ROAMING, "true"); //$NON-NLS-1$
+		ProvisioningContext context = new ProvisioningContext(agent);
+		context.setMetadataRepositories(new URI[0]);
+		context.setArtifactRepositories(new URI[0]);
+		IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+
+		Operand[] operands = ((ProvisioningPlan) result).getOperands();
+		assertTrue(operands.length > 0);
+		for (Operand operand : operands) {
+			if (operand instanceof InstallableUnitOperand) {
+				InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
+				ResolvedInstallableUnit first = (ResolvedInstallableUnit) iuOperand.first();
+				assertEquals(1, first.getFragments().size());
+			}
+		}
 	}
 
 	/**
