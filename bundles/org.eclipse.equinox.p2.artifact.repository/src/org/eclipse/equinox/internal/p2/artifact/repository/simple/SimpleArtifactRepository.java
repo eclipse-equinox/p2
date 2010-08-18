@@ -708,7 +708,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				if (result != null) {
 					if (isFolderBased(descriptor) && URIUtil.lastSegment(result).endsWith(JAR_EXTENSION))
 						return URIUtil.removeFileExtension(result);
-
+					if (result.getScheme() == null && "file".equals(getLocation().getScheme())) //$NON-NLS-1$
+						return URIUtil.makeAbsolute(result, new File(System.getProperty("user.dir")).toURI()); //$NON-NLS-1$
 					return result;
 				}
 			}

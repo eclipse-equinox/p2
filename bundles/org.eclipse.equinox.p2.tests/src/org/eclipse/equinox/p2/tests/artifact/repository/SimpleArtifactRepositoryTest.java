@@ -257,6 +257,25 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
+	public void testRelativeRepositoryLocation() throws ProvisionException {
+		IArtifactDescriptor descriptor = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "helloworld", Version.createOSGi(1, 0, 0)));
+		URI repo = getTestData("CorruptedJar repo", "testData/artifactRepo/jarfiles").toURI();
+
+		SimpleArtifactRepository absRepo = (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(repo, new NullProgressMonitor());
+		URI absLocation = absRepo.getLocation(descriptor);
+		getArtifactRepositoryManager().removeRepository(repo);
+
+		repo = new File(System.getProperty("user.dir")).toURI().relativize(repo);
+		repo = URI.create("file:" + repo.toString());
+
+		SimpleArtifactRepository repository = (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(repo, new NullProgressMonitor());
+
+		URI location = repository.getLocation(descriptor);
+		assertNotNull("NULL Scheme", location.getScheme());
+		assertTrue("File location is relative", location.isAbsolute());
+		assertEquals("Path from relative & absolute repos differ", absLocation, location);
+	}
+
 	private static class TestDescriptor implements IArtifactDescriptor {
 		private static final IProcessingStepDescriptor[] steps = new IProcessingStepDescriptor[0];
 		private IArtifactKey artifactKey;
