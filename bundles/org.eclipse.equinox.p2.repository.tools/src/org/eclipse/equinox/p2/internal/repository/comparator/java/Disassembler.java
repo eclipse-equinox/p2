@@ -819,6 +819,28 @@ public class Disassembler {
 		int length = innerClassesAttributeEntries.length;
 		int innerClassNameIndex, outerClassNameIndex, innerNameIndex, accessFlags;
 		InnerClassesAttributeEntry innerClassesAttributeEntry;
+		if (length > 1) {
+			final char[] EMPTY_CHAR_ARRAY = Utility.EMPTY_STRING.toCharArray();
+			Arrays.sort(innerClassesAttributeEntries, new Comparator<InnerClassesAttributeEntry>() {
+				public int compare(InnerClassesAttributeEntry o1, InnerClassesAttributeEntry o2) {
+					final char[] innerClassName1 = o1.getInnerClassName();
+					final char[] innerClassName2 = o2.getInnerClassName();
+					final char[] innerName1 = o1.getInnerName();
+					final char[] innerName2 = o2.getInnerName();
+					final char[] outerClassName1 = o1.getOuterClassName();
+					final char[] outerClassName2 = o2.getOuterClassName();
+					StringBuffer buffer1 = new StringBuffer();
+					buffer1.append(innerClassName1 == null ? EMPTY_CHAR_ARRAY : innerClassName1);
+					buffer1.append(innerName1 == null ? EMPTY_CHAR_ARRAY : innerName1);
+					buffer1.append(outerClassName1 == null ? EMPTY_CHAR_ARRAY : outerClassName1);
+					StringBuffer buffer2 = new StringBuffer();
+					buffer2.append(innerClassName2 == null ? EMPTY_CHAR_ARRAY : innerClassName2);
+					buffer2.append(innerName2 == null ? EMPTY_CHAR_ARRAY : innerName2);
+					buffer2.append(outerClassName2 == null ? EMPTY_CHAR_ARRAY : outerClassName2);
+					return buffer1.toString().compareTo(buffer2.toString());
+				}
+			});
+		}
 		for (int i = 0; i < length; i++) {
 			if (i != 0) {
 				buffer.append(Messages.disassembler_comma);
