@@ -38,6 +38,17 @@ public class Site {
 		this.list.add(plugin);
 	}
 
+	public boolean removePlugin(String plugin) {
+		return this.list.remove(plugin);
+	}
+
+	public void setPluginList(List<String> plugins) {
+		if (plugins == null)
+			this.list = new ArrayList<String>();
+		else
+			this.list = plugins;
+	}
+
 	public Feature[] getFeatures() {
 		return features.toArray(new Feature[features.size()]);
 	}
