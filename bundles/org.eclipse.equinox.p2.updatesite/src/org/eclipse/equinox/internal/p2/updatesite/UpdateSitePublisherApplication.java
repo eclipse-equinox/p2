@@ -11,6 +11,7 @@ package org.eclipse.equinox.internal.p2.updatesite;
 
 import java.net.URISyntaxException;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.actions.JREAction;
 
 /**
  * <p>
@@ -40,6 +41,24 @@ public class UpdateSitePublisherApplication extends AbstractPublisherApplication
 	protected IPublisherAction[] createActions() {
 		LocalUpdateSiteAction action = new LocalUpdateSiteAction(source, categoryQualifier);
 		action.setCategoryVersion(categoryVersion);
+		if (addJRE) {
+			return new IPublisherAction[] {action, new JREAction((String) null)};
+		}
 		return new IPublisherAction[] {action};
 	}
+
+	/** by default don't generate the JRE IU */
+	private boolean addJRE = false;
+
+	/**
+	 * Detect the flag -addJREIU to turn on the generation of the JREIU.
+	 */
+	protected void processFlag(String flag, PublisherInfo publisherInfo) {
+		super.processFlag(flag, publisherInfo);
+		if (flag.equalsIgnoreCase("-addJREIU"))//$NON-NLS-1$
+		{
+			addJRE = true;
+		}
+	}
+
 }
