@@ -12,14 +12,13 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
-public class EPPPackageInstallStability extends AbstractProvisioningTest {
+public class EPPPackageInstallStability_bug323322 extends AbstractProvisioningTest {
 
 	public void testInstallEppJavaPackage() throws ProvisionException {
 		IProvisioningAgentProvider provider = getAgentProvider();
 		IProvisioningAgent agent = provider.createAgent(getTempFolder().toURI());
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-		repoMgr.addRepository(URI.create("http://download.eclipse.org/releases/helios"));
-		//		repoMgr.addRepository(getTestData("bug306279f data", "testData/bug306279f/repo/babel").toURI());
+		repoMgr.addRepository(getTestData("Helios SR0", "testData/helios-sr0/").toURI());
 
 		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
 		Map<String, String> profileArgs = new HashMap<String, String>();
@@ -36,8 +35,6 @@ public class EPPPackageInstallStability extends AbstractProvisioningTest {
 			ProvisioningContext pc = new ProvisioningContext(agent);
 
 			IProvisioningPlan plan = planner.getProvisioningPlan(request, pc, new NullProgressMonitor());
-			IInstallableUnit iuf = plan.getAdditions().query(QueryUtil.createIUQuery("org.eclipse.net4j.jms.api"), new NullProgressMonitor()).iterator().next();
-			System.out.println(iuf);
 			assertOK("plan is not ok", plan.getStatus());
 
 			//Extract all the unresolved IUs.
@@ -68,54 +65,8 @@ public class EPPPackageInstallStability extends AbstractProvisioningTest {
 				iusFromSecondResolution.add(iu.unresolved());
 			}
 
-			iusFromFirstResolution.removeAll(iusFromSecondResolution);
-			assertEquals(0, iusFromFirstResolution.size());
+			assertEquals(iusFromFirstResolution.size(), iusFromSecondResolution.size());
 		}
 
 	}
-
-	//IF YOU MAKE THE getSolutionFor method public then you can run this tests. It is identical to the previous one but a bit more straightforward since you then avoid the phase where we create the operands
-	//	public void test2() throws ProvisionException {
-	//
-	//		IProvisioningAgentProvider provider = getAgentProvider();
-	//		IProvisioningAgent agent = provider.createAgent(getTempFolder().toURI());
-	//		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-	//		repoMgr.addRepository(URI.create("http://download.eclipse.org/releases/helios"));
-	//		//		repoMgr.addRepository(getTestData("bug306279f data", "testData/bug306279f/repo/babel").toURI());
-	//
-	//		IPlanner planner = (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
-	//		Map<String, String> profileArgs = new HashMap<String, String>();
-	//		profileArgs.put("osgi.os", "linux");
-	//		profileArgs.put("osgi.ws", "gtk");
-	//		profileArgs.put("osgi.arch", "x86");
-	//
-	//		Collection<IInstallableUnit> iusFromFirstResolution = new HashSet<IInstallableUnit>();
-	//		{
-	//			IProfile eppProfile1 = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).addProfile("epp.install.1", profileArgs);
-	//			IProfileChangeRequest request = planner.createChangeRequest(eppProfile1);
-	//			request.add(repoMgr.query(QueryUtil.createIUQuery("epp.package.java"), null).iterator().next());
-	//
-	//			ProvisioningContext pc = new ProvisioningContext(agent);
-	//
-	//			Projector plan = (Projector) ((SimplePlanner) planner).getSolutionFor((ProfileChangeRequest) request, pc, new NullProgressMonitor());
-	//			iusFromFirstResolution = plan.extractSolution();
-	//		}
-	//
-	//		{
-	//			IProfile eppProfile2 = ((IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME)).addProfile("epp.install.2", profileArgs);
-	//			IProfileChangeRequest request = planner.createChangeRequest(eppProfile2);
-	//			request.add(repoMgr.query(QueryUtil.createIUQuery("epp.package.java"), null).iterator().next());
-	//
-	//			ProvisioningContext pc = new ProvisioningContext(agent);
-	//			pc.setMetadataRepositories(new URI[0]);
-	//			pc.setArtifactRepositories(new URI[0]);
-	//			pc.setExtraInstallableUnits(new ArrayList(iusFromFirstResolution));
-	//
-	//			Projector plan = (Projector) ((SimplePlanner) planner).getSolutionFor((ProfileChangeRequest) request, pc, new NullProgressMonitor());
-	//			Collection<IInstallableUnit> secondPlan = plan.extractSolution();
-	//			iusFromFirstResolution.removeAll(secondPlan);
-	//			assertEquals(0, iusFromFirstResolution.size());
-	//		}
-	//
-	//	}
 }

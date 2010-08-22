@@ -65,6 +65,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(DependencyOnSelf.class);
 		suite.addTestSuite(DisabledExplanation.class);
 		suite.addTestSuite(DropinsScenario.class);
+		suite.addTestSuite(EPPPackageInstallStability_bug323322.class);
 		suite.addTestSuite(ExplanationDeepConflict.class);
 		suite.addTestSuite(ExplanationForOptionalDependencies.class);
 		suite.addTestSuite(ExplanationForPartialInstallation.class);
