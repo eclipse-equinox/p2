@@ -83,6 +83,70 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		return args;
 	}
 
+	//	public void testEPPProfileUpdateRoaming() throws ProvisionException {
+	//		IProvisioningAgent testAgent = null;
+	//		try {
+	//			IProvisioningAgentProvider provider = (IProvisioningAgentProvider) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgentProvider.SERVICE_NAME);
+	//			File eppAgentFolder = new File(TestActivator.getTestDataFolder(), "epp_profile/p2");
+	//			testAgent = provider.createAgent(eppAgentFolder.toURI());
+	//
+	//			IProfileRegistry registry = (IProfileRegistry) testAgent.getService(IProfileRegistry.SERVICE_NAME);
+	//			IProfile eppProfile = registry.getProfile("epp.package.java");
+	//			assertNotNull(eppProfile);
+	//
+	//			IPlanner planner = (IPlanner) testAgent.getService(IPlanner.SERVICE_NAME);
+	//			ProfileChangeRequest request = new ProfileChangeRequest(eppProfile);
+	//			request.setProfileProperty(IProfile.PROP_ROAMING, "true"); //$NON-NLS-1$
+	//			ProvisioningContext context = new ProvisioningContext(testAgent);
+	//			context.setMetadataRepositories(new URI[0]);// {URI.create("http://download.eclipse.org/releases/helios/")});
+	//			context.setArtifactRepositories(new URI[0]);// {URI.create("http://download.eclipse.org/releases/helios/")});
+	//			IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+	//
+	//			assertEquals(1, ((ProvisioningPlan) result).getOperands().length);
+	//		} finally {
+	//			if (testAgent != null)
+	//				testAgent.stop();
+	//		}
+	//	}
+	//
+	//	public void testEPPProfileRemoveIU() throws ProvisionException {
+	//		IProvisioningAgent testAgent = null;
+	//		try {
+	//			IProvisioningAgentProvider provider = (IProvisioningAgentProvider) ServiceHelper.getService(TestActivator.getContext(), IProvisioningAgentProvider.SERVICE_NAME);
+	//			File eppAgentFolder = new File(TestActivator.getTestDataFolder(), "epp_profile/p2");
+	//			testAgent = provider.createAgent(eppAgentFolder.toURI());
+	//
+	//			IProfileRegistry registry = (IProfileRegistry) testAgent.getService(IProfileRegistry.SERVICE_NAME);
+	//			IProfile eppProfile = registry.getProfile("epp.package.java");
+	//			assertNotNull(eppProfile);
+	//
+	//			IPlanner planner = (IPlanner) testAgent.getService(IPlanner.SERVICE_NAME);
+	//			ProfileChangeRequest request = new ProfileChangeRequest(eppProfile);
+	//			IInstallableUnit iu = eppProfile.query(QueryUtil.createIUQuery("ch.qos.logback.slf4j"), new NullProgressMonitor()).iterator().next();
+	//			request.remove(iu);
+	//			request.setProfileProperty(IProfile.PROP_ROAMING, "true"); //$NON-NLS-1$
+	//			ProvisioningContext context = new ProvisioningContext(testAgent);
+	//			context.setMetadataRepositories(new URI[0]);
+	//			context.setArtifactRepositories(new URI[0]);
+	//			IProvisioningPlan result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+	//
+	//			Operand[] operands = ((ProvisioningPlan) result).getOperands();
+	//			assertTrue(operands.length > 0);
+	//			for (Operand operand : operands) {
+	//				// Loop through the operands and ensure that all IUs in te IUOperands have a
+	//				// fragment attached
+	//				if (operand instanceof InstallableUnitOperand) {
+	//					InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
+	//					ResolvedInstallableUnit first = (ResolvedInstallableUnit) iuOperand.first();
+	//					assertEquals(1, first.getFragments().size());
+	//				}
+	//			}
+	//		} finally {
+	//			if (testAgent != null)
+	//				testAgent.stop();
+	//		}
+	//	}
+
 	/**
 	 * Test the application's behaviour given a single metadata and artifact repository where both are invalid
 	 */
