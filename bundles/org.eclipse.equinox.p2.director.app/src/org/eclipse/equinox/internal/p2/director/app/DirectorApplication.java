@@ -610,6 +610,13 @@ public class DirectorApplication implements IApplication {
 			return;
 		}
 
+		// Set platform environment defaults
+		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
+		os = info.getOS();
+		ws = info.getWS();
+		nl = info.getNL();
+		arch = info.getOSArch();
+
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
 			String opt = args[i];
