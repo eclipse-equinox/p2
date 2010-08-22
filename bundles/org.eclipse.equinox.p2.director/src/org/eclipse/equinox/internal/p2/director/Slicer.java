@@ -64,6 +64,7 @@ public class Slicer {
 				}
 				processIU(toProcess.removeFirst());
 			}
+			computeNonGreedyIUs();
 			if (DEBUG) {
 				long stop = System.currentTimeMillis();
 				System.out.println("Slicing complete: " + (stop - start)); //$NON-NLS-1$
@@ -76,6 +77,22 @@ public class Slicer {
 		if (result.getSeverity() == IStatus.ERROR)
 			return null;
 		return new QueryableArray(considered.toArray(new IInstallableUnit[considered.size()]));
+	}
+
+	private void computeNonGreedyIUs() {
+		IQueryable<IInstallableUnit> queryable = new QueryableArray(considered.toArray(new IInstallableUnit[considered.size()]));
+		Iterator<IInstallableUnit> it = queryable.query(QueryUtil.ALL_UNITS, new NullProgressMonitor()).iterator();
+		while (it.hasNext()) {
+			Collection<IRequirement> reqs = getRequirements(it.next().unresolved());
+			for (IRequirement req : reqs) {
+				if (!isApplicable(req))
+					continue;
+
+				if (!isGreedy(req)) {
+					nonGreedyIUs.addAll(queryable.query(QueryUtil.createMatchQuery(req.getMatches()), null).toUnmodifiableSet());
+				}
+			}
+		}
 	}
 
 	public MultiStatus getStatus() {
@@ -123,7 +140,6 @@ public class Slicer {
 				continue;
 
 			if (!isGreedy(req)) {
-				nonGreedyIUs.addAll(possibilites.query(QueryUtil.createMatchQuery(req.getMatches()), null).toUnmodifiableSet());
 				continue;
 			}
 
