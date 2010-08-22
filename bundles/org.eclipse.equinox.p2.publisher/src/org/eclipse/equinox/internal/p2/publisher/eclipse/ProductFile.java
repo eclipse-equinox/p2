@@ -19,9 +19,9 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -33,15 +33,15 @@ import org.xml.sax.helpers.DefaultHandler;
 public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String ATTRIBUTE_PATH = "path"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_ICON = "icon"; //$NON-NLS-1$
-	private static final String ATTRIBUTE_FRAGMENT = "fragment"; //$NON-NLS-1$
+	protected static final String ATTRIBUTE_FRAGMENT = "fragment"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_APPLICATION = "application"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_NAME = "name"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_VALUE = "value"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_LOCATION = "location"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_AUTO_START = "autoStart"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_START_LEVEL = "startLevel"; //$NON-NLS-1$
-	private static final String ATTRIBUTE_VERSION = "version"; //$NON-NLS-1$
-	private static final String ATTRIBUTE_ID = "id"; //$NON-NLS-1$
+	protected static final String ATTRIBUTE_VERSION = "version"; //$NON-NLS-1$
+	protected static final String ATTRIBUTE_ID = "id"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_UID = "uid"; //$NON-NLS-1$
 
 	private static final String PROPERTY_ECLIPSE_APPLICATION = "eclipse.application"; //$NON-NLS-1$
@@ -129,8 +129,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private String id = null;
 	private String uid = null;
 	private boolean useFeatures = false;
-	private List<IVersionedId> plugins = null;
-	private List<IVersionedId> fragments = null;
+	protected List<IVersionedId> plugins = null;
+	protected List<IVersionedId> fragments = null;
 	private List<IVersionedId> features = null;
 	private String splashLocation = null;
 	private String productName = null;
@@ -638,7 +638,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 			launcherArgs.setProperty(key, value);
 	}
 
-	private void processPlugin(Attributes attributes) {
+	protected void processPlugin(Attributes attributes) {
 		String fragment = attributes.getValue(ATTRIBUTE_FRAGMENT);
 		IVersionedId name = new VersionedId(attributes.getValue(ATTRIBUTE_ID), attributes.getValue(ATTRIBUTE_VERSION));
 		if (fragment != null && new Boolean(fragment).booleanValue()) {
