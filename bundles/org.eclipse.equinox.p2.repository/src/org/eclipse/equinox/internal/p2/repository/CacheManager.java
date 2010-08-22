@@ -232,7 +232,7 @@ public class CacheManager {
 	 * @return A {@link File} pointing to the cache file or <code>null</code> if
 	 * the cache file does not exist.
 	 */
-	private File getCache(URI repositoryLocation, String prefix) {
+	protected File getCache(URI repositoryLocation, String prefix) {
 		File[] files = getCacheFiles(repositoryLocation, prefix);
 		if (files[0].exists())
 			return files[0];
@@ -242,7 +242,7 @@ public class CacheManager {
 	/**
 	 * Returns the file corresponding to the data area to be used by the cache manager.
 	 */
-	private File getCacheDirectory() {
+	protected File getCacheDirectory() {
 		return URIUtil.toFile(agentLocation.getDataArea(Activator.ID + "/cache/")); //$NON-NLS-1$
 	}
 
@@ -313,7 +313,7 @@ public class CacheManager {
 			bus.removeListener(busListener);
 	}
 
-	private void updateCache(File cacheFile, URI remoteFile, long lastModifiedRemote, SubMonitor submonitor) throws FileNotFoundException, IOException, ProvisionException {
+	protected void updateCache(File cacheFile, URI remoteFile, long lastModifiedRemote, SubMonitor submonitor) throws FileNotFoundException, IOException, ProvisionException {
 		cacheFile.getParentFile().mkdirs();
 		File downloadDir = new File(cacheFile.getParentFile(), DOWNLOADING);
 		if (!downloadDir.exists())
