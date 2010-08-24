@@ -23,6 +23,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(BundlesActionTest.class);
 		suite.addTestSuite(CategoryPublisherTest.class);
 		suite.addTestSuite(ConfigCUsActionTest.class);
+		suite.addTestSuite(ContextRepositoryTest.class);
 		suite.addTestSuite(DefaultCUsActionTest.class);
 		suite.addTestSuite(EquinoxExecutableActionTest.class);
 		suite.addTestSuite(EquinoxLauncherCUActionTest.class);

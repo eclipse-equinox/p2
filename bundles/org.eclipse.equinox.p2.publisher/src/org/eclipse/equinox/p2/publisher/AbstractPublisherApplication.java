@@ -14,6 +14,8 @@ package org.eclipse.equinox.p2.publisher;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -27,7 +29,6 @@ import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.artifact.ArtifactKeyQuery;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
-import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.ServiceReference;
 
@@ -179,47 +180,29 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			publisherInfo.setConfigurations(AbstractPublisherAction.getArrayFromString(parameter, ",")); //$NON-NLS-1$
 
 		if (arg.equalsIgnoreCase("-contextMetadata")) //$NON-NLS-1$
-			publisherInfo.setContextMetadataRepository(processMetadataRepositoryList(parameter));
+			setContextRepositories(processRepositoryList(parameter), contextArtifactRepositories);
 
 		if (arg.equalsIgnoreCase("-contextArtifacts")) //$NON-NLS-1$
-			publisherInfo.setContextArtifactRepository(processArtifactRepositoryList(parameter));
+			setContextRepositories(contextMetadataRepositories, processRepositoryList(parameter));
 	}
 
-	private IArtifactRepository processArtifactRepositoryList(String parameter) {
+	private URI[] processRepositoryList(String parameter) {
 		String[] list = AbstractPublisherAction.getArrayFromString(parameter, ","); //$NON-NLS-1$
 		if (list == null || list.length == 0)
 			return null;
 
-		CompositeArtifactRepository result = CompositeArtifactRepository.createMemoryComposite(agent);
+		List<URI> result = new ArrayList<URI>(list.length);
 		if (result != null) {
 			for (int i = 0; i < list.length; i++) {
 				try {
-					result.addChild(URIUtil.fromString(list[i]));
+					result.add(URIUtil.fromString(list[i]));
 				} catch (URISyntaxException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		}
-		return result;
-	}
-
-	private IMetadataRepository processMetadataRepositoryList(String parameter) {
-		String[] list = AbstractPublisherAction.getArrayFromString(parameter, ","); //$NON-NLS-1$
-		if (list == null || list.length == 0)
-			return null;
-
-		CompositeMetadataRepository result = CompositeMetadataRepository.createMemoryComposite(agent);
-		if (result != null) {
-			for (int i = 0; i < list.length; i++) {
-				try {
-					result.addChild(URIUtil.fromString(list[i]));
-				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-				}
-			}
-		}
-		return result;
+		return result.toArray(new URI[result.size()]);
 	}
 
 	protected void processFlag(String arg, PublisherInfo publisherInfo) {
