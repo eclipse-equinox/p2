@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,6 +26,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -43,12 +42,41 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private static final String LINK = ".link"; //$NON-NLS-1$
 	private static final String ZIP = ".zip"; //$NON-NLS-1$
 	private static final String LINKS_PATH = "path"; //$NON-NLS-1$
+	private static final String LINK_IS_OPTIONAL = "optional"; //$NON-NLS-1$
 	private static final String DROPIN_ARTIFACT_REPOSITORIES = "dropin.artifactRepositories"; //$NON-NLS-1$
 	private static final String DROPIN_METADATA_REPOSITORIES = "dropin.metadataRepositories"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
 	private final IProvisioningAgent agent;
 	private List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
 	private List<IArtifactRepository> artifactRepositories = new ArrayList<IArtifactRepository>();
+
+	static class LinkedRepository {
+		LinkedRepository(File location) {
+			super();
+			if (location == null)
+				throw new IllegalArgumentException("Repository location cannot be null."); //$NON-NLS-1$
+			this.location = location;
+		}
+
+		boolean exists() {
+			return location.exists();
+		}
+
+		File getLocation() {
+			return location;
+		}
+
+		boolean isOptional() {
+			return optional;
+		}
+
+		void setOptional(boolean optional) {
+			this.optional = optional;
+		}
+
+		private File location;
+		private boolean optional = false;
+	}
 
 	public DropinsRepositoryListener(IProvisioningAgent agent, String repositoryName) {
 		super(repositoryName, true);
@@ -81,6 +109,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 
 	private void addRepository(File file) {
 		URI repoLocation = createRepositoryLocation(file);
+		if (repoLocation == null)
+			return;
 		Map<String, String> properties = new HashMap<String, String>();
 		// if the file pointed to a link file, keep track of the attribute
 		// so we can add it to the repo later
@@ -89,17 +119,15 @@ public class DropinsRepositoryListener extends RepositoryListener {
 			if (linkLocation != null)
 				properties.put(Site.PROP_LINK_FILE, file.getAbsolutePath());
 		}
-		if (repoLocation != null) {
-			getMetadataRepository(repoLocation, properties);
-			getArtifactRepository(repoLocation, properties);
-		}
+		getMetadataRepository(repoLocation, properties);
+		getArtifactRepository(repoLocation, properties);
 	}
 
 	/*
 	 * Return the file pointed to by the given link file. Return null if there is a problem
 	 * reading the file or resolving the location.
 	 */
-	static File getLinkedFile(File file) {
+	static LinkedRepository getLinkedRepository(File file) {
 		Properties links = new Properties();
 		try {
 			InputStream input = new BufferedInputStream(new FileInputStream(file));
@@ -133,7 +161,13 @@ public class DropinsRepositoryListener extends RepositoryListener {
 				linkedFile = new File(root, path);
 		}
 		try {
-			return linkedFile.getCanonicalFile();
+			LinkedRepository result = new LinkedRepository(linkedFile.getCanonicalFile());
+			// Check if the link target is marked as optional.
+			// If link is optional, then the link target may not exist.
+			// So IF link is marked as optional AND does not exist, simply ignore it.
+			String optional = links.getProperty(LINK_IS_OPTIONAL);
+			result.setOptional(Boolean.valueOf(optional).booleanValue());
+			return result;
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_resolving_link, linkedFile.getAbsolutePath(), file.getAbsolutePath()), e));
 			return null;
@@ -179,13 +213,13 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private URI getLinkRepository(File file, boolean logMissingLink) {
-		File repo = getLinkedFile(file);
+		LinkedRepository repo = getLinkedRepository(file);
 		if (repo == null) {
 			if (logMissingLink)
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to determine link location from file: " + file.getAbsolutePath())); //$NON-NLS-1$
 			return null;
 		}
-		return repo.toURI();
+		return repo.isOptional() && !repo.exists() ? null : repo.getLocation().toURI();
 	}
 
 	public void getMetadataRepository(URI repoURL, Map<String, String> properties) {

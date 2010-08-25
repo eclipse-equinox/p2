@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryMan
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
+import org.eclipse.equinox.internal.p2.reconciler.dropins.DropinsRepositoryListener.LinkedRepository;
 import org.eclipse.equinox.internal.p2.update.Configuration;
 import org.eclipse.equinox.internal.p2.update.PathUtil;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
@@ -357,9 +358,10 @@ public class Activator implements BundleActivator {
 				File child = children[inner];
 				if (child.isFile() && child.getName().toLowerCase().endsWith(EXT_LINK)) {
 					// if we have a link file then add the link file and its target
-					File target = DropinsRepositoryListener.getLinkedFile(child);
-					if (target == null || !target.exists())
+					LinkedRepository repo = DropinsRepositoryListener.getLinkedRepository(child);
+					if (repo == null || !repo.exists())
 						continue;
+					File target = repo.getLocation();
 					result.add(child);
 					result.add(target);
 					File eclipse = new File(target, DIR_ECLIPSE);
