@@ -179,61 +179,61 @@ public class ProfileSynchronizer {
 		// if we don't have any removals then we don't have to worry about potentially
 		// invalidating things we already have installed, removal of roots, etc so just 
 		// create a regular plan.
-		IProvisioningPlan plan = null;
 		if (removals.isEmpty()) {
-			plan = createProvisioningPlan(request, context, monitor);
+			IProvisioningPlan plan = createProvisioningPlan(request, context, monitor);
 			debug(request, plan);
-		} else {
-			// We are now creating a backup of the original request that will be used to create the final plan (where no optional magic is used)
-			ProfileChangeRequest finalRequest = (ProfileChangeRequest) request.clone();
+			return executePlan(plan, context, monitor);
+		}
 
-			// otherwise collect the roots, pretend they are optional, and see
-			// if the resulting plan affects them
-			Set<IInstallableUnit> strictRoots = getStrictRoots().toUnmodifiableSet();
-			Collection<IRequirement> forceNegation = new ArrayList<IRequirement>(removals.size());
-			for (IInstallableUnit iu : removals)
-				forceNegation.add(createNegation(iu));
-			request.addExtraRequirements(forceNegation);
+		// We are now creating a backup of the original request that will be used to create the final plan (where no optional magic is used)
+		ProfileChangeRequest finalRequest = (ProfileChangeRequest) request.clone();
 
-			// set all the profile roots to be optional to see how they would be effected by the plan
-			for (IInstallableUnit iu : strictRoots)
-				request.setInstallableUnitProfileProperty(iu, INCLUSION_RULES, INCLUSION_OPTIONAL);
+		// otherwise collect the roots, pretend they are optional, and see
+		// if the resulting plan affects them
+		Set<IInstallableUnit> strictRoots = getStrictRoots().toUnmodifiableSet();
+		Collection<IRequirement> forceNegation = new ArrayList<IRequirement>(removals.size());
+		for (IInstallableUnit iu : removals)
+			forceNegation.add(createNegation(iu));
+		request.addExtraRequirements(forceNegation);
 
-			// get the tentative plan back from the planner
-			plan = createProvisioningPlan(request, context, monitor);
-			debug(request, plan);
-			if (!plan.getStatus().isOK())
-				return plan.getStatus();
+		// set all the profile roots to be optional to see how they would be effected by the plan
+		for (IInstallableUnit iu : strictRoots)
+			request.setInstallableUnitProfileProperty(iu, INCLUSION_RULES, INCLUSION_OPTIONAL);
 
-			// Analyze the plan to see if any of the strict roots are being uninstalled.
-			int removedRoots = 0;
-			for (IInstallableUnit initialRoot : strictRoots) {
-				// if the root wasn't uninstalled, then continue
-				if (plan.getRemovals().query(QueryUtil.createIUQuery(initialRoot), null).isEmpty())
-					continue;
-				// otherwise add its removal to the change request, along with a negation and 
-				// change of strict to optional for their inclusion rule.
-				finalRequest.remove(initialRoot);
-				finalRequest.setInstallableUnitProfileProperty(initialRoot, INCLUSION_RULES, INCLUSION_OPTIONAL);
-				IRequirement negation = createNegation(initialRoot);
-				Collection<IRequirement> extra = new ArrayList<IRequirement>();
-				extra.add(negation);
-				request.addExtraRequirements(extra);
-				LogHelper.log(new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.remove_root, initialRoot.getId(), initialRoot.getVersion())));
-				removedRoots++;
-			}
+		// get the tentative plan back from the planner
+		IProvisioningPlan plan = createProvisioningPlan(request, context, monitor);
+		debug(request, plan);
+		if (!plan.getStatus().isOK())
+			return plan.getStatus();
 
-			// Check for the case where all the strict roots are being removed.
-			if (removedRoots == strictRoots.size())
-				return new Status(IStatus.ERROR, Activator.ID, Messages.remove_all_roots);
-			plan = createProvisioningPlan(finalRequest, context, monitor);
-			if (!plan.getStatus().isOK()) {
-				System.out.println("original request"); //$NON-NLS-1$
-				System.out.println(request);
-				System.out.println("final request"); //$NON-NLS-1$
-				System.out.println(finalRequest);
-				throw new IllegalStateException("The second plan is not resolvable."); //$NON-NLS-1$
-			}
+		// Analyze the plan to see if any of the strict roots are being uninstalled.
+		int removedRoots = 0;
+		for (IInstallableUnit initialRoot : strictRoots) {
+			// if the root wasn't uninstalled, then continue
+			if (plan.getRemovals().query(QueryUtil.createIUQuery(initialRoot), null).isEmpty())
+				continue;
+			// otherwise add its removal to the change request, along with a negation and 
+			// change of strict to optional for their inclusion rule.
+			finalRequest.remove(initialRoot);
+			finalRequest.setInstallableUnitProfileProperty(initialRoot, INCLUSION_RULES, INCLUSION_OPTIONAL);
+			IRequirement negation = createNegation(initialRoot);
+			Collection<IRequirement> extra = new ArrayList<IRequirement>();
+			extra.add(negation);
+			request.addExtraRequirements(extra);
+			LogHelper.log(new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.remove_root, initialRoot.getId(), initialRoot.getVersion())));
+			removedRoots++;
+		}
+
+		// Check for the case where all the strict roots are being removed.
+		if (removedRoots == strictRoots.size())
+			return new Status(IStatus.ERROR, Activator.ID, Messages.remove_all_roots);
+		plan = createProvisioningPlan(finalRequest, context, monitor);
+		if (!plan.getStatus().isOK()) {
+			System.out.println("original request"); //$NON-NLS-1$
+			System.out.println(request);
+			System.out.println("final request"); //$NON-NLS-1$
+			System.out.println(finalRequest);
+			throw new IllegalStateException("The second plan is not resolvable."); //$NON-NLS-1$
 		}
 
 		// execute the plan and return the status
