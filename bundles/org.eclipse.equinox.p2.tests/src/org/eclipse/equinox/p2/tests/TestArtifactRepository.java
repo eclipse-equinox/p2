@@ -167,6 +167,16 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		removeDescriptor(descriptor.getArtifactKey());
 	}
 
+	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
+		for (IArtifactDescriptor descriptor : descriptors)
+			removeDescriptor(descriptor);
+	}
+
+	public void removeDescriptors(IArtifactKey[] keys) {
+		for (IArtifactKey key : keys)
+			removeDescriptor(key);
+	}
+
 	public void removeDescriptor(IArtifactKey key) {
 		for (IArtifactDescriptor nextDescriptor : artifactDescriptors) {
 			if (key.equals(nextDescriptor.getArtifactKey()))

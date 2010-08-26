@@ -81,7 +81,15 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
+	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
+		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
 	public void removeDescriptor(IArtifactKey key) {
+		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
+	public void removeDescriptors(IArtifactKey[] keys) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 

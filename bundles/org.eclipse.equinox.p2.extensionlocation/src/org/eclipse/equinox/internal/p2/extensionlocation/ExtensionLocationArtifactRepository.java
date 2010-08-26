@@ -167,6 +167,14 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 		throw new UnsupportedOperationException();
 	}
 
+	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
+		throw new UnsupportedOperationException();
+	}
+
+	public void removeDescriptors(IArtifactKey[] keys) {
+		throw new UnsupportedOperationException();
+	}
+
 	public boolean contains(IArtifactDescriptor descriptor) {
 		ensureInitialized();
 		return artifactRepository.contains(descriptor);

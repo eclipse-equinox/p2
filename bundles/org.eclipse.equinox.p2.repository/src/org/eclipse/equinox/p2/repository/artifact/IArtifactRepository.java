@@ -167,6 +167,22 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	public void removeDescriptor(IArtifactKey key);
 
 	/**
+	 * Remove the given list of artifact descriptors and their corresponding content
+	 * in this repository.
+	 * @param descriptors the list of descriptors to remove
+	 * @since 2.1
+	 */
+	public void removeDescriptors(IArtifactDescriptor[] descriptors);
+
+	/**
+	 * Remove the given list of keys and all related content and descriptors from this
+	 * repository.
+	 * @param keys
+	 * @since 2.1
+	 */
+	public void removeDescriptors(IArtifactKey[] keys);
+
+	/**
 	 * Executes a runnable against this repository. It is up to the repository
 	 * implementor to determine what "batch process" means, for example, it may mean
 	 * that the repository index is not stored until after the runnable completes.

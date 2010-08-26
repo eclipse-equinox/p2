@@ -246,7 +246,21 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
+	public void removeDescriptors(IArtifactKey[] keys) {
+		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
+	}
+
+	/**
+	 * Composite repositories should be unable to directly modify their child repositories
+	 */
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
+		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
+	}
+
+	/**
+	 * Composite repositories should be unable to directly modify their child repositories
+	 */
+	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
 

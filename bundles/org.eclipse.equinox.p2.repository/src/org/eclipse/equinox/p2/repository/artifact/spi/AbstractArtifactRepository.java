@@ -63,7 +63,15 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 		assertModifiable();
 	}
 
+	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
+		assertModifiable();
+	}
+
 	public void removeDescriptor(IArtifactKey key) {
+		assertModifiable();
+	}
+
+	public void removeDescriptors(IArtifactKey[] keys) {
 		assertModifiable();
 	}
 

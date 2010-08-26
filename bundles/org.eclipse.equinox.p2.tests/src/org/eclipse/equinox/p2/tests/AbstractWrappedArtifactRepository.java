@@ -79,6 +79,14 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 		delegate.removeDescriptor(key);
 	}
 
+	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
+		delegate.removeDescriptors(descriptors);
+	}
+
+	public void removeDescriptors(IArtifactKey[] keys) {
+		delegate.removeDescriptors(keys);
+	}
+
 	public String getDescription() {
 		return delegate.getDescription();
 	}

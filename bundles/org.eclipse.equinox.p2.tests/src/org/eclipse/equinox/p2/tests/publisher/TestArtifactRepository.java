@@ -209,6 +209,16 @@ public class TestArtifactRepository implements IArtifactRepository {
 		}
 	}
 
+	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
+		for (IArtifactDescriptor descriptor : descriptors)
+			removeDescriptor(descriptor);
+	}
+
+	public void removeDescriptors(IArtifactKey[] keys) {
+		for (IArtifactKey key : keys)
+			removeDescriptor(key);
+	}
+
 	public String getDescription() {
 		return description;
 	}

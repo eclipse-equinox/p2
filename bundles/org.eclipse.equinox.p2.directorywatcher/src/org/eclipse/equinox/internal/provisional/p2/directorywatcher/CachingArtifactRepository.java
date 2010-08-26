@@ -156,6 +156,16 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 			doRemoveArtifact(toRemove[i]);
 	}
 
+	public synchronized void removeDescriptors(IArtifactDescriptor[] descriptors) {
+		for (IArtifactDescriptor descriptor : descriptors)
+			doRemoveArtifact(descriptor);
+	}
+
+	public synchronized void removeDescriptors(IArtifactKey[] keys) {
+		for (IArtifactKey key : keys)
+			removeDescriptor(key);
+	}
+
 	/**
 	 * Removes the given descriptor and returns <code>true</code> if and only if the
 	 * descriptor existed in the repository, and was successfully removed.
