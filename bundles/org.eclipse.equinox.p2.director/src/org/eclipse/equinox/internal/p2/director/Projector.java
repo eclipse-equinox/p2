@@ -269,10 +269,15 @@ public class Projector {
 		BigInteger maxWeight = POWER;
 		for (Entry<String, Map<Version, IInstallableUnit>> entry : s) {
 			Map<Version, IInstallableUnit> conflictingEntries = entry.getValue();
+
+			List<IInstallableUnit> toSort = new ArrayList<IInstallableUnit>(conflictingEntries.values());
 			if (conflictingEntries.size() == 1) {
+				IInstallableUnit iu = toSort.get(0);
+				if (iu != metaIu) {
+					weightedObjects.add(WeightedObject.newWO(iu, POWER));
+				}
 				continue;
 			}
-			List<IInstallableUnit> toSort = new ArrayList<IInstallableUnit>(conflictingEntries.values());
 			Collections.sort(toSort, Collections.reverseOrder());
 			BigInteger weight = POWER;
 			int count = toSort.size();
