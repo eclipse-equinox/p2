@@ -369,22 +369,4 @@ public class ProvisioningContext {
 		buffer.append(", properties=" + getProperties() + "}"); //$NON-NLS-1$ //$NON-NLS-2$
 		return buffer.toString();
 	}
-
-	/**
-	 * Return the array of repository locations for artifact repositories.
-	 * @return an array of repository locations.  This is never <code>null</code>.
-	 *
-	 * @deprecated This method will be removed in the next release.  See https://bugs.eclipse.org/bugs/show_bug.cgi?id=305086
-	 * @noreference This method will be removed in the next release.
-	 * 
-	 * @see #getArtifactRepositories()
-	 * @see #getArtifactDescriptors(IProgressMonitor)
-	 * @see #getArtifactKeys(IProgressMonitor)
-	 */
-	public URI[] getArtifactRepositories() {
-		IArtifactRepositoryManager repoManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-		URI[] repositories = artifactRepositories == null ? repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL) : artifactRepositories;
-		Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
-		return repositories;
-	}
 }
