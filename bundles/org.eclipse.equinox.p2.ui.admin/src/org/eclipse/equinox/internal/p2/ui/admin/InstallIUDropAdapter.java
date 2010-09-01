@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ui.viewers;
+package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.dnd.*;
@@ -33,7 +32,6 @@ import org.eclipse.swt.dnd.*;
 public class InstallIUDropAdapter extends ViewerDropAdapter {
 
 	static boolean DEBUG = false;
-	ProvisioningUI ui;
 
 	/**
 	 * Constructs a new drop adapter.
@@ -41,9 +39,8 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 * @param viewer
 	 *            the navigator's viewer
 	 */
-	public InstallIUDropAdapter(ProvisioningUI ui, StructuredViewer viewer) {
+	public InstallIUDropAdapter(StructuredViewer viewer) {
 		super(viewer);
-		this.ui = ui;
 	}
 
 	/**
@@ -136,7 +133,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 					throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
 				}
 			};
-			InstallAction action = new InstallAction(ui, selectionProvider, profileId);
+			InstallAction action = new InstallAction(ProvAdminUIActivator.getDefault().getProvisioningUI(profileId), selectionProvider, profileId);
 			if (DEBUG)
 				System.out.println("Running install action"); //$NON-NLS-1$
 			action.run();

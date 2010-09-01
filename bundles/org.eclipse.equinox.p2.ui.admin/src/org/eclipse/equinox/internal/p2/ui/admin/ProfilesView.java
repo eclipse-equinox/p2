@@ -19,7 +19,8 @@ import org.eclipse.equinox.internal.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.model.*;
-import org.eclipse.equinox.internal.p2.ui.viewers.*;
+import org.eclipse.equinox.internal.p2.ui.viewers.ProvElementContentProvider;
+import org.eclipse.equinox.internal.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.*;
@@ -92,7 +93,7 @@ public class ProfilesView extends ProvView {
 
 	protected void configureViewer(TreeViewer treeViewer) {
 		super.configureViewer(treeViewer);
-		InstallIUDropAdapter adapter = new InstallIUDropAdapter(getProvisioningUI(), treeViewer);
+		InstallIUDropAdapter adapter = new InstallIUDropAdapter(treeViewer);
 		adapter.setFeedbackEnabled(false);
 		Transfer[] transfers = new Transfer[] {org.eclipse.jface.util.LocalSelectionTransfer.getTransfer()};
 		treeViewer.addDropSupport(DND.DROP_COPY, transfers, adapter);
