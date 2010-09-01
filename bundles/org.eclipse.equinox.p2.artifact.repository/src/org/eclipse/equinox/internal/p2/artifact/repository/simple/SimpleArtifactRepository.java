@@ -679,14 +679,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized URI getLocation(IArtifactDescriptor descriptor) {
-		if (flatButPackedEnabled(descriptor)) {
-			return getLocationForPackedButFlatArtifacts(descriptor);
-		}
-
 		// if the artifact has a uuid then use it
 		String uuid = descriptor.getProperty(ARTIFACT_UUID);
 		if (uuid != null)
 			return blobStore.fileFor(bytesFromHexString(uuid));
+
+		if (flatButPackedEnabled(descriptor)) {
+			return getLocationForPackedButFlatArtifacts(descriptor);
+		}
 
 		try {
 			// if the artifact is just a reference then return the reference location
