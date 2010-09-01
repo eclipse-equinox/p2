@@ -33,7 +33,6 @@ import org.osgi.framework.Constants;
 /**
  * This class was originally the MetadataGeneratorHelper from the Generator.
  * Much of the code has been deprecated and will be removed.
- *
  */
 public class PublisherHelper {
 	/**
@@ -89,14 +88,6 @@ public class PublisherHelper {
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk) {
 		return createArtifactDescriptor(null, null, key, pathOnDisk);
-	}
-
-	/**
-	 * TODO remove because the method with IPublisherInfo is more powerful
-	 * @deprecated use {@link #createArtifactDescriptor(IPublisherInfo, IArtifactRepository, IArtifactKey, File)} instead.
-	 */
-	public static IArtifactDescriptor createArtifactDescriptor(IArtifactRepository artifactRepo, IArtifactKey key, File pathOnDisk) {
-		return createArtifactDescriptor(null, artifactRepo, key, pathOnDisk);
 	}
 
 	/**
