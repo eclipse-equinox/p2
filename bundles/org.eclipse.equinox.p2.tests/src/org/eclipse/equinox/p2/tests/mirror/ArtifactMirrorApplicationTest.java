@@ -1378,21 +1378,4 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			fail("Error mirroring", e);
 		}
 	}
-
-	public void testArtifactMirrorUUID_bug306056() throws Exception {
-		sourceRepoLocation = getTestData("0.0", "/testData/mirror/mirrorSourceUUID");
-		String[] args = new String[] {"-destination", destRepoLocation.getAbsolutePath(), "-source", sourceRepoLocation.getAbsolutePath()};
-		runMirrorApplication("Mirroring UUID", args);
-
-		IArtifactRepository repo = loadArtifactRepository(destRepoLocation.toURI());
-		Set<IArtifactKey> keys = repo.query(ArtifactKeyQuery.ALL_KEYS, null).toUnmodifiableSet();
-		assertEquals(keys.size(), 1);
-		for (IArtifactKey key : keys) {
-			IArtifactDescriptor[] artifactDescriptors = repo.getArtifactDescriptors(key);
-			assertEquals(artifactDescriptors.length, 2);
-			for (int i = 0; i < artifactDescriptors.length; i++) {
-				assertNull(artifactDescriptors[i].getProperty("artifact.uuid"));
-			}
-		}
-	}
 }
