@@ -97,12 +97,18 @@ public class ProfileModificationJob extends ProvisioningJob implements IProfileC
 	 * @see org.eclipse.equinox.p2.operations.ProvisioningJob#getRestartPolicy()
 	 */
 	public int getRestartPolicy() {
-		return restartPolicy;
+		IProfile profile = getSession().getProfileRegistry().getProfile(IProfileRegistry.SELF);
+		String id = profile == null ? null : profile.getProfileId();
+		if (id != null && profileId.equals(id)) {
+			return restartPolicy;
+		}
+		return ProvisioningJob.RESTART_NONE;
 	}
 
 	/**
 	 * Set the restart policy that describes whether restart is needed after
-	 * performing this job.
+	 * performing this job.  This policy will be consulted when the 
+	 * profile being changed is the profile of the running system.
 	 * 
 	 * @param policy an integer describing the restart policy
 	 * @see ProvisioningJob#RESTART_NONE
