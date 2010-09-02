@@ -118,9 +118,6 @@ public class ProfileGroup {
 		setEditable(description, profile == null, listener);
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvAdminUIMessages.ProfileGroup_Flavor);
-
-		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.ProfileGroup_Environments);
 		environments = new Text(composite, SWT.BORDER);
 		environments.setLayoutData(gd);

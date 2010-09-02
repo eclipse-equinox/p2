@@ -78,7 +78,6 @@ public class ProvAdminUIMessages extends NLS {
 	public static String ProfileGroup_Browse;
 	public static String ProfileGroup_Browse2;
 	public static String ProfileGroup_Environments;
-	public static String ProfileGroup_Flavor;
 	public static String ProfileGroup_ID;
 	public static String ProfileGroup_Cache;
 	public static String ProfileGroup_InstallFolder;
