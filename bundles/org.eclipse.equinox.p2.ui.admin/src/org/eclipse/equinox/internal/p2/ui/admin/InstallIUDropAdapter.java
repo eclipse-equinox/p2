@@ -14,7 +14,6 @@ import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.internal.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -133,7 +132,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 					throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
 				}
 			};
-			InstallAction action = new InstallAction(ProvAdminUIActivator.getDefault().getProvisioningUI(profileId), selectionProvider, profileId);
+			InstallAction action = new InstallAction(ProvAdminUIActivator.getDefault().getProvisioningUI(profileId), selectionProvider);
 			if (DEBUG)
 				System.out.println("Running install action"); //$NON-NLS-1$
 			action.run();

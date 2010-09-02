@@ -20,7 +20,6 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(UninstallActionTest.class);
-		suite.addTestSuite(InstallActionTest.class);
 		suite.addTestSuite(UpdateActionTest.class);
 		suite.addTestSuite(RemoveColocatedRepositoryActionTest.class);
 		suite.addTestSuite(ElementUtilsTest.class);

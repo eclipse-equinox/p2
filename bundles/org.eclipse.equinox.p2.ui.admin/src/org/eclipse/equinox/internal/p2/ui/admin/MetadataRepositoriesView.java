@@ -14,7 +14,6 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.ProvUIProvisioningListener;
 import org.eclipse.equinox.internal.p2.ui.QueryableMetadataRepositoryManager;
-import org.eclipse.equinox.internal.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddMetadataRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.model.MetadataRepositories;
@@ -81,7 +80,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 
 	protected void makeActions() {
 		super.makeActions();
-		installAction = new InstallAction(getProvisioningUI(), viewer, null);
+		installAction = new InstallAction(getProvisioningUI(), viewer);
 	}
 
 	protected void fillContextMenu(IMenuManager manager) {

@@ -35,7 +35,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public abstract class ProfileModificationAction extends ProvisioningAction {
 	public static final int ACTION_NOT_RUN = -1;
 	String profileId;
-	String userChosenProfileId;
 	int result = ACTION_NOT_RUN;
 
 	protected ProfileModificationAction(ProvisioningUI ui, String text, ISelectionProvider selectionProvider, String profileId) {
@@ -48,12 +47,16 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	public void run() {
 		Collection<IInstallableUnit> ius = getSelectedIUs();
 		// No ius or no profile?
-		if (profileId == null || ius.size() == 0) {
+		if (isInvalidProfileId() || ius.size() == 0) {
 			ProvUI.reportStatus(getNoProfileOrSelectionStatus(profileId, ius), StatusManager.BLOCK);
 			runCanceled();
 			return;
 		}
 		run(ius, profileId);
+	}
+
+	protected boolean isInvalidProfileId() {
+		return profileId == null;
 	}
 
 	public IProfile getProfile() {
@@ -81,7 +84,6 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 							public void run() {
 								if (validateOperation(operation))
 									performAction(operation, ius);
-								userChosenProfileId = null;
 							}
 						});
 					}
@@ -202,10 +204,9 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		return profile.getInstallableUnitProperty(iu, propertyName);
 	}
 
-	private void runCanceled() {
+	protected void runCanceled() {
 		// The action was canceled, do any cleanup needed before
 		// it is run again.
-		userChosenProfileId = null;
 		result = Window.CANCEL;
 	}
 }
