@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.p2.ui.actions.RefreshAction;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.action.*;
@@ -246,7 +245,7 @@ abstract class ProvView extends ViewPart {
 	}
 
 	protected String getProfileId() {
-		return IProfileRegistry.SELF;
+		return null;
 	}
 
 	protected ProvisioningUI getProvisioningUI() {

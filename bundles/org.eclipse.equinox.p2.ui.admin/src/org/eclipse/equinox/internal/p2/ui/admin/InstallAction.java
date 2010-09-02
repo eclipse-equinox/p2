@@ -36,6 +36,7 @@ public class InstallAction extends ProfileModificationAction {
 	public InstallAction(ProvisioningUI ui, ISelectionProvider selectionProvider) {
 		super(ui, ProvUI.INSTALL_COMMAND_LABEL, selectionProvider, null);
 		setToolTipText(ProvUI.INSTALL_COMMAND_TOOLTIP);
+		userChosenProfileId = ui.getProfileId();
 	}
 
 	/*
