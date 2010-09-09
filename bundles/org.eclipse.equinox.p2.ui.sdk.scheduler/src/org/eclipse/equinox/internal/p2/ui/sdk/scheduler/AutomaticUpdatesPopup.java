@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Johannes Michler <orgler@gmail.com> - Bug 321568 -  [ui] Preference for automatic-update-reminder doesn't work in multilanguage-environments
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
@@ -37,7 +38,8 @@ import org.eclipse.ui.progress.WorkbenchJob;
  * @since 3.4
  */
 public class AutomaticUpdatesPopup extends PopupDialog {
-	public static final String[] ELAPSED = {AutomaticUpdateMessages.AutomaticUpdateScheduler_30Minutes, AutomaticUpdateMessages.AutomaticUpdateScheduler_60Minutes, AutomaticUpdateMessages.AutomaticUpdateScheduler_240Minutes};
+	public static final String[] ELAPSED_VALUES = {PreferenceConstants.PREF_REMIND_30Minutes, PreferenceConstants.PREF_REMIND_60Minutes, PreferenceConstants.PREF_REMIND_240Minutes};
+	public static final String[] ELAPSED_LOCALIZED_STRINGS = {AutomaticUpdateMessages.AutomaticUpdateScheduler_30Minutes, AutomaticUpdateMessages.AutomaticUpdateScheduler_60Minutes, AutomaticUpdateMessages.AutomaticUpdateScheduler_240Minutes};
 	private static final long MINUTE = 60 * 1000L;
 	private static final String PREFS_HREF = "PREFS"; //$NON-NLS-1$
 	private static final String DIALOG_SETTINGS_SECTION = "AutomaticUpdatesPopup"; //$NON-NLS-1$
@@ -102,7 +104,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 
 	private void updateRemindText() {
 		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE))
-			remindLink.setText(NLS.bind(AutomaticUpdateMessages.AutomaticUpdatesPopup_RemindAndPrefLink, new String[] {prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED), PREFS_HREF}));
+			remindLink.setText(NLS.bind(AutomaticUpdateMessages.AutomaticUpdatesPopup_RemindAndPrefLink, new String[] {getElapsedTimeString(prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED)), PREFS_HREF}));
 		else
 			remindLink.setText(AutomaticUpdateMessages.AutomaticUpdatesPopup_PrefLinkOnly);
 		remindLink.getParent().layout(true);
@@ -172,8 +174,8 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	long computeRemindDelay() {
 		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
 			String elapsed = prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED);
-			for (int d = 0; d < ELAPSED.length; d++)
-				if (ELAPSED[d].equals(elapsed))
+			for (int d = 0; d < ELAPSED_VALUES.length; d++)
+				if (ELAPSED_VALUES[d].equals(elapsed))
 					switch (d) {
 						case 0 :
 							// 30 minutes
@@ -290,5 +292,13 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 			((GridData) data).horizontalSpan = 1;
 		}
 		return control;
+	}
+
+	public static String getElapsedTimeString(String elapsedTimeKey) {
+		for (int i = 0; i < AutomaticUpdatesPopup.ELAPSED_VALUES.length; i++) {
+			if (AutomaticUpdatesPopup.ELAPSED_VALUES[i].equals(elapsedTimeKey))
+				return AutomaticUpdatesPopup.ELAPSED_LOCALIZED_STRINGS[i];
+		}
+		return AutomaticUpdatesPopup.ELAPSED_LOCALIZED_STRINGS[0];
 	}
 }

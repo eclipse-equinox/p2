@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Johannes Michler <orgler@gmail.com> - Bug 321568 -  [ui] Preference for automatic-update-reminder doesn't work in multilanguage-environments
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
@@ -171,7 +172,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		});
 
 		remindElapseCombo = new Combo(remindGroup, SWT.READ_ONLY);
-		remindElapseCombo.setItems(AutomaticUpdatesPopup.ELAPSED);
+		remindElapseCombo.setItems(AutomaticUpdatesPopup.ELAPSED_LOCALIZED_STRINGS);
 
 		gd = new GridData();
 		gd.widthHint = 200;
@@ -207,7 +208,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 
 		remindScheduleRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
 		remindOnceRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
-		remindElapseCombo.setText(pref.getString(PreferenceConstants.PREF_REMIND_ELAPSED));
+		remindElapseCombo.setText(AutomaticUpdatesPopup.getElapsedTimeString(pref.getString(PreferenceConstants.PREF_REMIND_ELAPSED)));
 		searchOnlyRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
 		searchAndDownloadRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
 
@@ -251,7 +252,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 
 		remindOnceRadio.setSelection(!pref.getDefaultBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
 		remindScheduleRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
-		remindElapseCombo.setText(pref.getDefaultString(PreferenceConstants.PREF_REMIND_ELAPSED));
+		remindElapseCombo.setText(AutomaticUpdatesPopup.getElapsedTimeString(pref.getDefaultString(PreferenceConstants.PREF_REMIND_ELAPSED)));
 
 		searchOnlyRadio.setSelection(!pref.getDefaultBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
 		searchAndDownloadRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
@@ -271,7 +272,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 
 		if (remindScheduleRadio.getSelection()) {
 			pref.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, true);
-			pref.setValue(PreferenceConstants.PREF_REMIND_ELAPSED, remindElapseCombo.getText());
+			pref.setValue(PreferenceConstants.PREF_REMIND_ELAPSED, AutomaticUpdatesPopup.ELAPSED_VALUES[remindElapseCombo.getSelectionIndex()]);
 		} else {
 			pref.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, false);
 		}

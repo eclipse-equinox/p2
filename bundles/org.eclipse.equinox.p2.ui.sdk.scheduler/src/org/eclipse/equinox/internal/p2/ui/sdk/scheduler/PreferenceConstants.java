@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Johannes Michler <orgler@gmail.com> - Bug 321568 -  [ui] Preference for automatic-update-reminder doesn't work in multilanguage-environments
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
@@ -22,6 +23,9 @@ public class PreferenceConstants {
 	public static final String PREF_DOWNLOAD_ONLY = "download"; // value is true or false, default is false //$NON-NLS-1$
 	public static final String PREF_REMIND_SCHEDULE = "remindOnSchedule"; // value is true or false //$NON-NLS-1$
 	public static final String PREF_REMIND_ELAPSED = "remindElapsedTime";//$NON-NLS-1$
+	public static final String PREF_REMIND_30Minutes = "30 minutes";//$NON-NLS-1$
+	public static final String PREF_REMIND_60Minutes = "Hour";//$NON-NLS-1$
+	public static final String PREF_REMIND_240Minutes = "4 Hours";//$NON-NLS-1$
 	public static final String PREF_AUTO_UPDATE_INIT = "autoUpdateInit"; //$NON-NLS-1$
 	public static final String PREF_MIGRATED_34 = "migrated34Prefs"; //$NON-NLS-1$
 }

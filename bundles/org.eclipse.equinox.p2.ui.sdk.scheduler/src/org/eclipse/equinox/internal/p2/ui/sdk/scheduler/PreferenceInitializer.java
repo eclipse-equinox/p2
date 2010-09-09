@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Johannes Michler <orgler@gmail.com> - Bug 321568 -  [ui] Preference for automatic-update-reminder doesn't work in multilanguage-environments
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.scheduler;
 
@@ -31,6 +32,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		// scope (final 3.5 format)
 		// 2) if applicable, migrate from 3.4 prefs kept in a different bundle
 		// 3) if applicable, migrate from 3.3 prefs known by Update Manager
+		// 4) check value of auto update reminder time and if it is a localized string, change it to the english string
+		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=321568)
 		final IAgentLocation agentLocation = AutomaticUpdatePlugin.getDefault().getAgentLocation();
 		if (agentLocation == null)
 			return;
@@ -84,7 +87,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 				}
 				if (pref.get(PreferenceConstants.PREF_REMIND_ELAPSED, null) == null && node34.get("remindElapsedTime", null) != null) { //$NON-NLS-1$
 					pref.put(PreferenceConstants.PREF_REMIND_ELAPSED, node34.get("remindElapsedTime", //$NON-NLS-1$
-							AutomaticUpdateMessages.AutomaticUpdateScheduler_30Minutes));
+							PreferenceConstants.PREF_REMIND_30Minutes));
 				}
 			}
 			// mark the pref that says we've migrated
@@ -127,6 +130,31 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 				handleException(e, AutomaticUpdateMessages.ErrorSavingClassicPreferences);
 			}
 		}
+
+		// All migration is done, check that the value of the auto update reminder time is *not* localized
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=321568
+		String value = pref.get(PreferenceConstants.PREF_REMIND_ELAPSED, PreferenceConstants.PREF_REMIND_30Minutes);
+		for (int i = 0; i < AutomaticUpdatesPopup.ELAPSED_VALUES.length; i++)
+			if (AutomaticUpdatesPopup.ELAPSED_VALUES[i].equals(value))
+				// it's a known value, all is well, no need to go further.
+				return;
+		try {
+			// The stored value is not a known value.  See if it is a localized value and if so, use the corresponding value string instead.
+			for (int i = 0; i < AutomaticUpdatesPopup.ELAPSED_LOCALIZED_STRINGS.length; i++)
+				if (AutomaticUpdatesPopup.ELAPSED_LOCALIZED_STRINGS[i].equals(value)) {
+					pref.put(PreferenceConstants.PREF_REMIND_ELAPSED, AutomaticUpdatesPopup.ELAPSED_VALUES[i]);
+					pref.flush();
+					return;
+				}
+			// The string does not reflect a known value, nor does it reflect the current locale.
+			// Set it to the default value.  Note that we've never handled a change of locale properly in the
+			// preference migration, so losing a not known setting is not a regression.  At least we tried to 
+			// handle the current locale...
+			pref.put(PreferenceConstants.PREF_REMIND_ELAPSED, PreferenceConstants.PREF_REMIND_30Minutes);
+			pref.flush();
+		} catch (BackingStoreException e) {
+			handleException(e, AutomaticUpdateMessages.ErrorSavingPreferences);
+		}
 	}
 
 	private static void handleException(Exception e, String message) {
@@ -140,6 +168,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		node.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_STARTUP);
 		node.putBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false);
 		node.putBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false);
-		node.put(PreferenceConstants.PREF_REMIND_ELAPSED, AutomaticUpdateMessages.AutomaticUpdateScheduler_30Minutes);
+		node.put(PreferenceConstants.PREF_REMIND_ELAPSED, PreferenceConstants.PREF_REMIND_30Minutes);
 	}
 }
