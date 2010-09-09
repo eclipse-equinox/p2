@@ -43,6 +43,9 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			return ((ProvElement) obj).getLabel(obj);
 		}
 		if (obj instanceof IProfile) {
+			String name = ((IProfile) obj).getProperty(IProfile.PROP_NAME);
+			if (name != null && name.length() > 0)
+				return name;
 			return ((IProfile) obj).getProfileId();
 		}
 		if (obj instanceof IInstallableUnit) {
@@ -115,8 +118,11 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			case 0 :
 				return getText(element);
 			case 1 :
+				if (element instanceof ProfileElement)
+					element = ((ProfileElement) element).getAdapter(IProfile.class);
+
 				if (element instanceof IProfile) {
-					return ((IProfile) element).getProperty(IProfile.PROP_NAME);
+					return ((IProfile) element).getProperty(IProfile.PROP_DESCRIPTION);
 				}
 				if (element instanceof IIUElement) {
 					if (((IIUElement) element).shouldShowVersion())
