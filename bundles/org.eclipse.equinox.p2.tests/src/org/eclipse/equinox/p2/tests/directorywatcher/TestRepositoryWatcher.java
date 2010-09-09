@@ -35,7 +35,7 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	 * Create and return a new test directory watcher class which will listen on the given folder.
 	 */
 	public static TestRepositoryWatcher createWatcher(File folder) {
-		RepositoryListener listener = new RepositoryListener(AbstractProvisioningTest.getUniqueString(), false);
+		RepositoryListener listener = new RepositoryListener(AbstractProvisioningTest.getUniqueString(), null);
 		Map<String, String> props = new Hashtable<String, String>();
 		props.put(DirectoryWatcher.DIR, folder.getAbsolutePath());
 		props.put(DirectoryWatcher.POLL, "500");

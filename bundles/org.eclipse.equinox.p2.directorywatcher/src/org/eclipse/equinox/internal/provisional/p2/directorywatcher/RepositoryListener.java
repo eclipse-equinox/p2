@@ -25,7 +25,6 @@ import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.*;
-import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -53,12 +52,12 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * Create a repository listener that watches the specified folder and generates repositories
 	 * for its content.
 	 * @param repositoryName the repository name to use for the repository
-	 * @param hidden <code>true</code> if the repository should be hidden, <code>false</code> if not.
+	 * @param properties the map of repository properties or <code>null</code>
 	 */
-	public RepositoryListener(String repositoryName, boolean hidden) {
+	public RepositoryListener(String repositoryName, Map<String, String> properties) {
 		URI location = Activator.getDefaultRepositoryLocation(this, repositoryName);
-		metadataRepository = initializeMetadataRepository(repositoryName, location, hidden);
-		artifactRepository = initializeArtifactRepository(repositoryName, location, hidden);
+		metadataRepository = initializeMetadataRepository(repositoryName, location, properties);
+		artifactRepository = initializeArtifactRepository(repositoryName, location, properties);
 		initializePublisher();
 	}
 
@@ -76,7 +75,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		info.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_NO_MD5);
 	}
 
-	protected CachingArtifactRepository initializeArtifactRepository(String repositoryName, URI repositoryLocation, boolean hidden) {
+	protected CachingArtifactRepository initializeArtifactRepository(String name, URI repositoryLocation, Map<String, String> properties) {
 		IArtifactRepositoryManager manager = Activator.getArtifactRepositoryManager();
 		if (manager == null)
 			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
@@ -88,12 +87,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 			//fall through and create a new repository
 		}
 		try {
-			String name = repositoryName;
-			Map<String, String> properties = new HashMap<String, String>(1);
-			if (hidden) {
-				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-				name = "artifact listener " + repositoryName; //$NON-NLS-1$
-			}
 			IArtifactRepository result = manager.createRepository(repositoryLocation, name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			return result == null ? null : new CachingArtifactRepository(result);
 		} catch (ProvisionException e) {
@@ -102,7 +95,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		}
 	}
 
-	protected IMetadataRepository initializeMetadataRepository(String repositoryName, URI repositoryLocation, boolean hidden) {
+	protected IMetadataRepository initializeMetadataRepository(String name, URI repositoryLocation, Map<String, String> properties) {
 		IMetadataRepositoryManager manager = Activator.getMetadataRepositoryManager();
 		if (manager == null)
 			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
@@ -113,12 +106,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 			//fall through and create new repository
 		}
 		try {
-			String name = repositoryName;
-			Map<String, String> properties = new HashMap<String, String>(1);
-			if (hidden) {
-				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-				name = "metadata listener " + repositoryName; //$NON-NLS-1$
-			}
 			return manager.createRepository(repositoryLocation, name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		} catch (ProvisionException e) {
 			LogHelper.log(e);

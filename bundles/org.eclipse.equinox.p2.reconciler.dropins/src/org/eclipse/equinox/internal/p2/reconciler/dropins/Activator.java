@@ -70,7 +70,12 @@ public class Activator implements BundleActivator {
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
 		ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
 		factory.setAgent(agent);
-		IMetadataRepository repository = factory.create(location, name, ExtensionLocationMetadataRepository.TYPE, properties);
+		// always compress repositories that we are creating.
+		Map<String, String> repositoryProperties = new HashMap<String, String>();
+		repositoryProperties.put(IRepository.PROP_COMPRESSED, Boolean.TRUE.toString());
+		if (properties != null)
+			repositoryProperties.putAll(properties);
+		IMetadataRepository repository = factory.create(location, name, ExtensionLocationMetadataRepository.TYPE, repositoryProperties);
 		//we need to add the concrete repository to the repository manager, or its properties will not be correct
 		((MetadataRepositoryManager) manager).addRepository(repository);
 		manager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, String.valueOf(true));
@@ -112,7 +117,12 @@ public class Activator implements BundleActivator {
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 		ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
 		factory.setAgent(agent);
-		IArtifactRepository repository = factory.create(location, name, ExtensionLocationArtifactRepository.TYPE, properties);
+		// always compress repositories that we are creating.
+		Map<String, String> repositoryProperties = new HashMap<String, String>();
+		repositoryProperties.put(IRepository.PROP_COMPRESSED, Boolean.TRUE.toString());
+		if (properties != null)
+			repositoryProperties.putAll(properties);
+		IArtifactRepository repository = factory.create(location, name, ExtensionLocationArtifactRepository.TYPE, repositoryProperties);
 		//we need to add the concrete repository to the repository manager, or its properties will not be correct
 		((ArtifactRepositoryManager) manager).addRepository(repository);
 		manager.setRepositoryProperty(location, IRepository.PROP_SYSTEM, String.valueOf(true));
@@ -514,7 +524,12 @@ public class Activator implements BundleActivator {
 		if (directories.isEmpty())
 			return;
 
-		DropinsRepositoryListener listener = new DropinsRepositoryListener(getAgent(), DROPINS);
+		// we will compress the repositories and mark them hidden as "system" repos.
+		Map<String, String> properties = new HashMap<String, String>();
+		properties.put(IRepository.PROP_COMPRESSED, Boolean.TRUE.toString());
+		properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+
+		DropinsRepositoryListener listener = new DropinsRepositoryListener(getAgent(), DROPINS, properties);
 		DirectoryWatcher watcher = new DirectoryWatcher(directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();

@@ -78,8 +78,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		private boolean optional = false;
 	}
 
-	public DropinsRepositoryListener(IProvisioningAgent agent, String repositoryName) {
-		super(repositoryName, true);
+	public DropinsRepositoryListener(IProvisioningAgent agent, String repositoryName, Map<String, String> properties) {
+		super(repositoryName, properties);
 		this.agent = agent;
 	}
 
