@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.director.app;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 1.0.1.qualifier
+Bundle-Version: 1.0.2.qualifier
 Import-Package: org.eclipse.equinox.app,
  org.eclipse.equinox.internal.p2.console,
  org.eclipse.equinox.internal.p2.core.helpers,

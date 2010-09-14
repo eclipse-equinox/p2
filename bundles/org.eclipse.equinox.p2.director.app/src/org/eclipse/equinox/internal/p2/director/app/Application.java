@@ -82,13 +82,97 @@ public class Application implements IApplication {
 		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Ambigous_Command, new Object[] {COMMAND_NAMES[cmd1], COMMAND_NAMES[cmd2]})));
 	}
 
+	/*
+	 * Return a boolean value indicating whether or not the given IU is considered to be visible
+	 * to the user, in the context of the given profile. If visible, it will be marked as a "root IU".
+	 */
+	public static boolean isUserVisible(IProfile profile, IInstallableUnit iu) {
+		String value = profile.getInstallableUnitProperty(iu, IInstallableUnit.PROP_PROFILE_ROOT_IU);
+		return Boolean.valueOf(value).booleanValue();
+	}
+
+	/*
+	 * Return a boolean value indicating whether or not the given IU is a patch.
+	 */
+	public static boolean isPatch(IInstallableUnit iu) {
+		String value = iu.getProperty(IInstallableUnit.PROP_TYPE_PATCH);
+		if (value != null && (value.equals(Boolean.TRUE.toString())))
+			return true;
+		return false;
+	}
+
+	/*
+	 * Return a collector containing all versions of this IU which are currently installed 
+	 * in the given profile.
+	 */
+	private Collector alreadyInstalled(IProfile profile, IInstallableUnit unit) {
+		return profile.query(new InstallableUnitQuery(unit.getId()), new Collector(), null);
+	}
+
+	/*
+	 * Build and return a provisioning request. Logic to determine if we have an update of
+	 * an already installed IU is copied from the InstallOperation class in Eclipse 3.6.
+	 */
 	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collector roots, boolean install) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		markRoots(request, roots);
-		if (install) {
-			request.addInstallableUnits((IInstallableUnit[]) roots.toArray(IInstallableUnit.class));
-		} else {
+		// if we have an uninstall then perform only a little work and exit.
+		if (!install) {
 			request.removeInstallableUnits((IInstallableUnit[]) roots.toArray(IInstallableUnit.class));
+			return request;
+		}
+		// TODO is this always a list with one element?
+		for (Iterator iter = roots.iterator(); iter.hasNext();) {
+			IInstallableUnit entryToInstall = (IInstallableUnit) iter.next();
+			// If the user is installing a patch, we mark it optional.  This allows
+			// the patched IU to be updated later by removing the patch.
+			if (isPatch(entryToInstall))
+				request.setInstallableUnitInclusionRules(entryToInstall, PlannerHelper.createOptionalInclusionRule(entryToInstall));
+			// check to see if the IU is already installed (do we have an update or a straight install?)
+			Collector alreadyInstalled = alreadyInstalled(profile, entryToInstall);
+			if (alreadyInstalled.isEmpty()) {
+				// not already installed so just add it to the request and continue to the next element
+				request.addInstallableUnits(new IInstallableUnit[] {entryToInstall});
+				continue;
+			}
+
+			// the user is trying to install an IU with the same id as one which is already installed.
+			// determine if this request is a valid update or should be ignored.
+			IInstallableUnit installedIU = (IInstallableUnit) alreadyInstalled.iterator().next();
+			System.out.println("Installable Unit: " + installedIU.getId() + " " + installedIU.getVersion() + " is already installed."); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			int compareTo = entryToInstall.getVersion().compareTo(installedIU.getVersion());
+			if (compareTo > 0) {
+				// update
+				boolean lockedForUpdate = false;
+				String value = profile.getInstallableUnitProperty(installedIU, IInstallableUnit.PROP_PROFILE_LOCKED_IU);
+				if (value != null)
+					lockedForUpdate = (Integer.parseInt(value) & IInstallableUnit.LOCK_UPDATE) == IInstallableUnit.LOCK_UPDATE;
+				if (lockedForUpdate) {
+					// Add a status telling the user that this implies an update, but the iu should not be updated
+					System.out.println("And is locked so an update cannot be performed."); //$NON-NLS-1$
+				} else {
+					// Add a status informing the user that the update has been inferred
+					System.out.println("So an update will be performed."); //$NON-NLS-1$
+					request.addInstallableUnits(new IInstallableUnit[] {entryToInstall});
+					request.removeInstallableUnits(new IInstallableUnit[] {installedIU});
+					// Mark it as a root if it hasn't been already
+					if (!isUserVisible(profile, installedIU))
+						request.setInstallableUnitProfileProperty(entryToInstall, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+				}
+				continue;
+			}
+			if (compareTo < 0) {
+				// downgrade
+				System.out.println("Skipping installation because installed version is higher."); //$NON-NLS-1$
+			} else {
+				// versions are the same
+				System.out.println("Skipping installation because versions are the same."); //$NON-NLS-1$
+				if (!isUserVisible(profile, entryToInstall)) {
+					// set the profile root IU property
+					System.out.println("But we will mark the IU as a profile root to make it visible to the user."); //$NON-NLS-1$
+					request.setInstallableUnitProfileProperty(entryToInstall, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+				}
+			}
 		}
 		return request;
 	}
