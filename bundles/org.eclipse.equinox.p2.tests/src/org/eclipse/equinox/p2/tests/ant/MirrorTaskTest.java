@@ -307,7 +307,7 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		while (exception.getCause() != null && !(exception instanceof ProvisionException))
 			exception = exception.getCause();
-		assertTrue("Unexpected error", NLS.bind(org.eclipse.equinox.p2.internal.repository.tools.Messages.exception_invalidSource, location).equals(exception.getMessage()));
+		assertEquals("Unexpected error", NLS.bind(org.eclipse.equinox.p2.internal.repository.tools.Messages.exception_invalidSource, location), exception.getMessage());
 	}
 
 	/*

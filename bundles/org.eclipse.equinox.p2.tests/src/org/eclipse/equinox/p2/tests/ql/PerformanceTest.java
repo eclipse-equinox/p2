@@ -334,7 +334,7 @@ public class PerformanceTest extends AbstractProvisioningTest {
 			long startTime = System.currentTimeMillis();
 			r = repo.query(query, new NullProgressMonitor());
 			traverseTime += (System.currentTimeMillis() - startTime);
-			assertEquals(queryResultSize(r), 4704);
+			assertEquals(4704, queryResultSize(r));
 
 			startTime = System.currentTimeMillis();
 			Slicer slicer = new PermissiveSlicer(repo, env, true, true, true, false, false);
