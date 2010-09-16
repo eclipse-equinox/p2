@@ -54,7 +54,7 @@ public class Install36from35 extends AbstractReconcilerTest {
 		//Create a new installation of 3.6 using 3.5
 		File installFolder = getTestFolder("install36From35");
 		System.out.println(installFolder);
-		int result = runDirectorToInstall("Installing 3.6 from 3.5", new File(installFolder, "eclipse"), "http://download.eclipse.org/eclipse/updates/3.6-I-builds", "org.eclipse.platform.ide");
+		int result = runDirectorToInstall("Installing 3.6 from 3.5", new File(installFolder, "eclipse"), "http://download.eclipse.org/eclipse/updates/3.6", "org.eclipse.platform.ide");
 		if (result != 0) {
 			File logFile = new File(installFolder, "log.log");
 			if (logFile.exists()) {
