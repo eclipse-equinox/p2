@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.admin.rcp;
 
 import org.eclipse.jface.action.*;
+import org.eclipse.jface.util.Util;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.application.ActionBarAdvisor;
@@ -33,11 +34,14 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	protected void fillMenuBar(IMenuManager menuBar) {
 		IMenuManager fileMenu = new MenuManager(ProvAdminUIMessages.ApplicationActionBarAdvisor_FileMenuName, "file"); //$NON-NLS-1$
 		menuBar.add(fileMenu);
-		fileMenu.add(quitAction);
+		ActionContributionItem quitItem = new ActionContributionItem(quitAction);
+		quitItem.setVisible(!Util.isMac());
+		fileMenu.add(quitItem);
 
 		IMenuManager windowMenu = new MenuManager(ProvAdminUIMessages.ApplicationActionBarAdvisor_WindowMenuName, "window"); //$NON-NLS-1$
 		menuBar.add(windowMenu);
 		windowMenu.add(prefsAction);
+		windowMenu.setVisible(!Util.isMac());
 
 		IMenuManager helpMenu = new MenuManager(ProvAdminUIMessages.ApplicationActionBarAdvisor_HelpMenuName, "help"); //$NON-NLS-1$
 		menuBar.add(helpMenu);
