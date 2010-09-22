@@ -26,7 +26,6 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 
 /**
  * Activator class for the admin UI.
@@ -39,7 +38,6 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.eclipse.equinox.internal.provisional.p2.ui.admin"; //$NON-NLS-1$
 	public static final String PERSPECTIVE_ID = "org.eclipse.equinox.internal.provisional.p2.ui.admin.ProvisioningPerspective"; //$NON-NLS-1$
 
-	private ServiceRegistration certificateUIRegistration;
 	private IPropertyChangeListener preferenceListener;
 
 	Policy policy;
@@ -88,7 +86,6 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 
 	public void stop(BundleContext bundleContext) throws Exception {
 		plugin = null;
-		certificateUIRegistration.unregister();
 		getPreferenceStore().removePropertyChangeListener(preferenceListener);
 		super.stop(bundleContext);
 		policy = null;
