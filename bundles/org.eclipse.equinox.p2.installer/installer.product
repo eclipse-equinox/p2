@@ -11,9 +11,6 @@
    </aboutInfo>
 
    <configIni use="default">
-      <linux>/org.eclipse.equinox.p2.installer/config.ini</linux>
-      <solaris>/org.eclipse.equinox.p2.installer/config.ini</solaris>
-      <win32>/org.eclipse.equinox.p2.installer/config.ini</win32>
    </configIni>
 
    <launcherArgs>
