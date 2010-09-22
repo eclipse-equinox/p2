@@ -21,9 +21,9 @@ import org.eclipse.osgi.framework.eventmgr.*;
 /**
  * Default implementation of the {@link IProvisioningEventBus} service.
  */
-public class ProvisioningEventBus implements EventDispatcher, IProvisioningEventBus, IAgentService {
-	private final CopyOnWriteIdentityMap syncListeners = new CopyOnWriteIdentityMap();
-	private final CopyOnWriteIdentityMap asyncListeners = new CopyOnWriteIdentityMap();
+public class ProvisioningEventBus implements EventDispatcher<ProvisioningListener, ProvisioningListener, EventObject>, IProvisioningEventBus, IAgentService {
+	private final CopyOnWriteIdentityMap<ProvisioningListener, ProvisioningListener> syncListeners = new CopyOnWriteIdentityMap<ProvisioningListener, ProvisioningListener>();
+	private final CopyOnWriteIdentityMap<ProvisioningListener, ProvisioningListener> asyncListeners = new CopyOnWriteIdentityMap<ProvisioningListener, ProvisioningListener>();
 	private EventManager eventManager = new EventManager("Provisioning Event Dispatcher"); //$NON-NLS-1$
 
 	private Object dispatchEventLock = new Object();
@@ -75,7 +75,7 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 				return;
 		}
 		/* queue to hold set of listeners */
-		ListenerQueue listeners = new ListenerQueue(eventManager);
+		ListenerQueue<ProvisioningListener, ProvisioningListener, EventObject> listeners = new ListenerQueue<ProvisioningListener, ProvisioningListener, EventObject>(eventManager);
 
 		/* synchronize while building the listener list */
 		synchronized (syncListeners) {
@@ -85,7 +85,7 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 			listeners.dispatchEventSynchronous(0, event);
 		}
 
-		listeners = new ListenerQueue(eventManager);
+		listeners = new ListenerQueue<ProvisioningListener, ProvisioningListener, EventObject>(eventManager);
 		synchronized (asyncListeners) {
 			listeners.queueListeners(asyncListeners.entrySet(), this);
 			synchronized (dispatchEventLock) {
@@ -98,14 +98,14 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus#dispatchEvent(java.lang.Object, java.lang.Object, int, java.lang.Object)
 	 */
-	public void dispatchEvent(Object eventListener, Object listenerObject, int eventAction, Object eventObject) {
+	public void dispatchEvent(ProvisioningListener eventListener, ProvisioningListener listenerObject, int eventAction, EventObject eventObject) {
 		synchronized (dispatchEventLock) {
 			if (closed)
 				return;
 			dispatchingEvents++;
 		}
 		try {
-			((ProvisioningListener) eventListener).notify((EventObject) eventObject);
+			eventListener.notify(eventObject);
 		} catch (Exception e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Exception during event notification", e)); //$NON-NLS-1$
 		} finally {

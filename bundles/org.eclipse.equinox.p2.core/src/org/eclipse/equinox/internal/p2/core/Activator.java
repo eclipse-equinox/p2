@@ -45,9 +45,9 @@ public class Activator implements BundleActivator {
 	private static final String VAR_USER_HOME = "@user.home"; //$NON-NLS-1$
 
 	private IProvisioningAgent agent;
-	private ServiceRegistration agentLocationRegistration = null;
+	private ServiceRegistration<IAgentLocation> agentLocationRegistration = null;
 
-	ServiceTracker logTracker;
+	ServiceTracker<FrameworkLog, FrameworkLog> logTracker;
 
 	/**
 	 * NOTE: This method is copied from LocationHelper in org.eclipse.osgi
@@ -106,10 +106,10 @@ public class Activator implements BundleActivator {
 		Activator a = instance;
 		if (a == null)
 			return null;
-		ServiceTracker tracker = a.getLogTracker();
+		ServiceTracker<FrameworkLog, FrameworkLog> tracker = a.getLogTracker();
 		if (tracker == null)
 			return null;
-		return (FrameworkLog) tracker.getService();
+		return tracker.getService();
 	}
 
 	private static String substituteVar(String source, String var, String prop) {
@@ -147,13 +147,13 @@ public class Activator implements BundleActivator {
 		return result;
 	}
 
-	private ServiceTracker getLogTracker() {
+	private ServiceTracker<FrameworkLog, FrameworkLog> getLogTracker() {
 		if (logTracker != null)
 			return logTracker;
 		//lazy init if the bundle has been started
 		if (context == null)
 			return null;
-		logTracker = new ServiceTracker(context, FrameworkLog.class.getName(), null);
+		logTracker = new ServiceTracker<FrameworkLog, FrameworkLog>(context, FrameworkLog.class, null);
 		logTracker.open();
 		return logTracker;
 	}
@@ -167,10 +167,10 @@ public class Activator implements BundleActivator {
 		//no need to register an agent if there is no agent location
 		if (agentDataLocation == null)
 			return;
-		ServiceReference agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		ServiceReference<IProvisioningAgentProvider> agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.class);
 		IProvisioningAgentProvider provider = null;
 		if (agentProviderRef != null)
-			provider = (IProvisioningAgentProvider) context.getService(agentProviderRef);
+			provider = context.getService(agentProviderRef);
 
 		if (provider == null) {
 			// If we don't have a provider, which could happen if the p2.core bundle is
@@ -195,7 +195,7 @@ public class Activator implements BundleActivator {
 		Dictionary<String, Object> locationProperties = new Hashtable<String, Object>();
 		if (agentDataLocation != null) {
 			locationProperties.put("type", PROP_AGENT_DATA_AREA); //$NON-NLS-1$
-			agentLocationRegistration = aContext.registerService(IAgentLocation.SERVICE_NAME, agentDataLocation, locationProperties);
+			agentLocationRegistration = aContext.registerService(IAgentLocation.class, agentDataLocation, locationProperties);
 		}
 		registerAgent();
 	}
