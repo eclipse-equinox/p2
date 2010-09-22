@@ -40,8 +40,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
 		IMenuManager windowMenu = new MenuManager(ProvAdminUIMessages.ApplicationActionBarAdvisor_WindowMenuName, "window"); //$NON-NLS-1$
 		menuBar.add(windowMenu);
-		windowMenu.add(prefsAction);
-		windowMenu.setVisible(!Util.isMac());
+		ActionContributionItem prefsItem = new ActionContributionItem(prefsAction);
+		prefsItem.setVisible(!Util.isMac());
+		windowMenu.add(prefsItem);
 
 		IMenuManager helpMenu = new MenuManager(ProvAdminUIMessages.ApplicationActionBarAdvisor_HelpMenuName, "help"); //$NON-NLS-1$
 		menuBar.add(helpMenu);
