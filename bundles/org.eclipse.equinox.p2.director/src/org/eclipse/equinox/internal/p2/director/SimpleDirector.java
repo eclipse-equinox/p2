@@ -10,13 +10,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.planner.IPlanner;
-
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
+import org.eclipse.equinox.internal.provisional.p2.director.PlanExecutionHelper;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleDirector implements IDirector {
@@ -44,8 +45,8 @@ public class SimpleDirector implements IDirector {
 		}
 	}
 
-	public IStatus provision(ProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
-		String taskName = NLS.bind(Messages.Director_Task_Installing, request.getProfile().getProperty(IProfile.PROP_INSTALL_FOLDER));
+	public IStatus provision(IProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
+		String taskName = NLS.bind(Messages.Director_Task_Installing, ((ProfileChangeRequest) request).getProfile().getProperty(IProfile.PROP_INSTALL_FOLDER));
 		SubMonitor sub = SubMonitor.convert(monitor, taskName, PlanWork + EngineWork);
 		try {
 			Collection<IInstallableUnit> installRoots = request.getAdditions();

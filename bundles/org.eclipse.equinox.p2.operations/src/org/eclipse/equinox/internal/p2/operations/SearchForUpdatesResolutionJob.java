@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.operations;
 
 import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.operations.UpdateOperation;

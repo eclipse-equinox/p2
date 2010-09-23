@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -15,12 +15,13 @@ import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IRequirement;
 import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.repository.IRepository;
 
 /**
@@ -94,9 +95,10 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	}
 
 	protected IProvisioningPlan getSizingPlan(IProgressMonitor monitor) {
-		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProvisioningUI().getSession().getProvisioningAgent(), profileID);
+		IPlanner planner = getPlanner();
+		IProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProvisioningUI().getSession().getProvisioningAgent(), profileID);
 		request.add(getIU());
-		return getPlanner().getProvisioningPlan(request, getProvisioningContext(), monitor);
+		return planner.getProvisioningPlan(request, getProvisioningContext(), monitor);
 	}
 
 	IEngine getEngine() {

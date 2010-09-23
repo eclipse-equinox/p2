@@ -9,13 +9,14 @@
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
-
 package org.eclipse.equinox.internal.p2.operations;
 
 import java.util.Collection;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerStatus;
+import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;

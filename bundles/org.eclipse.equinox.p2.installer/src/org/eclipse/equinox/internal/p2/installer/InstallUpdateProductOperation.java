@@ -17,7 +17,6 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -25,6 +24,8 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -93,6 +94,10 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		return profile;
 	}
 
+	IPlanner getPlanner() {
+		return (IPlanner) agent.getService(IPlanner.SERVICE_NAME);
+	}
+
 	/**
 	 * Performs the actual product install or update.
 	 */
@@ -104,7 +109,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		monitor.worked(5);
 
 		IStatus s;
-		ProfileChangeRequest request = new ProfileChangeRequest(p);
+		IProfileChangeRequest request = getPlanner().createChangeRequest(p);
 		if (isInstall) {
 			monitor.setTaskName(NLS.bind(Messages.Op_Installing, installDescription.getProductName()));
 			request.addAll(toInstall);

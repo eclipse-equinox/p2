@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
 
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;

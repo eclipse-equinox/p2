@@ -8,10 +8,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;

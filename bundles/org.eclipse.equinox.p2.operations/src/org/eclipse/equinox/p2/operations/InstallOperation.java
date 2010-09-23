@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,14 +9,15 @@
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
-
 package org.eclipse.equinox.p2.operations;
 
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.operations.*;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerStatus;
+import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -166,7 +167,7 @@ public class InstallOperation extends ProfileChangeOperation {
 	}
 
 	// this is very reachy
-	private boolean missingRequirement(IProvisioningPlan failedPlan) {
+	boolean missingRequirement(IProvisioningPlan failedPlan) {
 		IStatus status = failedPlan.getStatus();
 		RequestStatus requestStatus = null;
 		if (status instanceof PlannerStatus)

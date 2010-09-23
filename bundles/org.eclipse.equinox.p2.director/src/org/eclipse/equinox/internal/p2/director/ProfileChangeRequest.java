@@ -9,12 +9,10 @@
  *      IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.director;
+package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
-import org.eclipse.equinox.internal.p2.director.Messages;
-import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;

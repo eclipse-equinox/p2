@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,16 +9,15 @@
  *     IBM Corporation - initial API and implementation
  *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
-
 package org.eclipse.equinox.p2.operations;
 
 import java.net.URI;
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.operations.IFailedStatusEvaluator;
 import org.eclipse.equinox.internal.p2.operations.Messages;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 

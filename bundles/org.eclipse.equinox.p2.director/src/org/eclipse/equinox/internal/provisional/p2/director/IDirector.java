@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
 /**
  * Directors are responsible for determining what should be done to a given 
@@ -40,7 +41,7 @@ public interface IDirector {
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
-	public IStatus provision(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor);
+	public IStatus provision(IProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor);
 
 	/**
 	 * Reverts the profile to a previous state described in the target revertProfile.
