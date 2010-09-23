@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.operations.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 
 /**
  * ProfileChangeOperation describes a provisioning operation that modifies a profile.
@@ -280,7 +281,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * @see #hasResolved()
 	 * @see #getResolutionResult()
 	 */
-	public ProfileChangeRequest getProfileChangeRequest() {
+	public IProfileChangeRequest getProfileChangeRequest() {
 		if (job != null)
 			return job.getProfileChangeRequest();
 		return null;

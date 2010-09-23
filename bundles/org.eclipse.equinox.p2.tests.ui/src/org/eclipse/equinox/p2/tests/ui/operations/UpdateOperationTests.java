@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,8 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.operations;
-
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -60,7 +58,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 		iusInvolved.add(a1);
 		UpdateOperation op = getProvisioningUI().getUpdateOperation(iusInvolved, null);
 		op.resolveModal(getMonitor());
-		ProfileChangeRequest request = op.getProfileChangeRequest();
+		IProfileChangeRequest request = op.getProfileChangeRequest();
 		assertTrue("1.0", request.getAdditions().size() == 1);
 		assertTrue("1.1", request.getAdditions().iterator().next().equals(a130));
 		assertTrue("1.2", request.getRemovals().size() == 1);
@@ -85,7 +83,7 @@ public class UpdateOperationTests extends AbstractProvisioningUITest {
 		assertNotNull(".99", firstPatch);
 		op.setSelectedUpdates(new Update[] {firstPatch});
 		op.resolveModal(getMonitor());
-		ProfileChangeRequest request = op.getProfileChangeRequest();
+		IProfileChangeRequest request = op.getProfileChangeRequest();
 		assertTrue("1.0", request.getAdditions().size() == 1);
 		assertTrue("1.1", request.getAdditions().iterator().next().equals(firstPatchForA1));
 		assertTrue("1.2", request.getRemovals().size() == 0);
