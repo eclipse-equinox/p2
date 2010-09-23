@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,7 +8,6 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.io.IOException;
@@ -68,7 +67,7 @@ public class ProvisioningOperationRunner {
 	 * 
 	 * @param restartPolicy
 	 */
-	private void requestRestart(final int restartPolicy) {
+	void requestRestart(final int restartPolicy) {
 		// Global override of restart (used in test cases).
 		if (suppressRestart)
 			return;

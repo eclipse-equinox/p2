@@ -120,7 +120,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	}
 
 	public IProvisioningEventBus getProvisioningEventBus() {
-		ServiceReference busReference = context.getServiceReference(IProvisioningEventBus.SERVICE_NAME);
+		ServiceReference<?> busReference = context.getServiceReference(IProvisioningEventBus.SERVICE_NAME);
 		if (busReference == null)
 			return null;
 		return (IProvisioningEventBus) context.getService(busReference);
@@ -143,7 +143,7 @@ public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 	}
 
 	public IAgentLocation getAgentLocation() {
-		ServiceReference ref = getContext().getServiceReference(IAgentLocation.SERVICE_NAME);
+		ServiceReference<?> ref = getContext().getServiceReference(IAgentLocation.SERVICE_NAME);
 		if (ref == null)
 			return null;
 		IAgentLocation location = (IAgentLocation) getContext().getService(ref);

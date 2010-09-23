@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,7 +8,6 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ import org.eclipse.ui.progress.*;
 public class ProvElementContentProvider implements ITreeContentProvider {
 
 	private boolean fetchInBackground = false;
-	private Viewer viewer;
+	Viewer viewer;
 	private Job fetchJob;
 	// family is used by test cases
 	Object fetchFamily = new Object();
@@ -151,8 +150,8 @@ public class ProvElementContentProvider implements ITreeContentProvider {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
 	 */
-	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		this.viewer = viewer;
+	public void inputChanged(Viewer aViewer, Object oldInput, Object newInput) {
+		this.viewer = aViewer;
 		if (fetchJob != null) {
 			fetchJob.cancel();
 			fetchJob = null;

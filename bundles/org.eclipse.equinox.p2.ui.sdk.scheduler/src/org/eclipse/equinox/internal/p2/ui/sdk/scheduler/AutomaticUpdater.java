@@ -68,7 +68,7 @@ public class AutomaticUpdater implements IUpdateListener {
 		getProvisioningEventBus().addListener(profileListener);
 	}
 
-	private boolean sameProfile(String another) {
+	boolean sameProfile(String another) {
 		if (another.equals(IProfileRegistry.SELF)) {
 			another = getProfileRegistry().getProfile(another).getProfileId();
 		}

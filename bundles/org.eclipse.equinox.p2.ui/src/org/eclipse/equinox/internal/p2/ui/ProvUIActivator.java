@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 public class ProvUIActivator extends AbstractUIPlugin {
 	private static BundleContext context;
 	private static PackageAdmin packageAdmin = null;
-	private static ServiceReference packageAdminRef = null;
+	private static ServiceReference<?> packageAdminRef = null;
 	private static ProvUIActivator plugin;
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
 
