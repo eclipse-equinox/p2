@@ -144,8 +144,11 @@ public class ParserUtils {
 			if (args.get(i) == null)
 				continue;
 			if (((String) args.get(i)).equalsIgnoreCase(arg)) {
-				if (i + 1 < args.size() && args.get(i + 1) != null && ((String) args.get(i + 1)).charAt(0) != '-')
-					return (String) args.get(i + 1);
+				if (i + 1 < args.size()) {
+					String value = (String) args.get(i + 1);
+					if (value != null && value.length() > 0 && value.charAt(0) != '-')
+						return value;
+				}
 			}
 		}
 		return null;
