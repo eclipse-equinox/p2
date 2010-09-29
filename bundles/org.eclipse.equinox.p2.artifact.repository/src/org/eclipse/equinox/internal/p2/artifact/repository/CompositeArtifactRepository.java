@@ -183,7 +183,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		// (absolute/relative) to see if it really is in the list.
 		URI other = childURI.isAbsolute() ? URIUtil.makeRelative(childURI, getLocation()) : URIUtil.makeAbsolute(childURI, getLocation());
 		if (!removed)
-			childrenURIs.remove(other);
+			removed = childrenURIs.remove(other);
 
 		if (removed) {
 			// we removed the child from the list so remove the associated repo object as well
