@@ -98,9 +98,11 @@ public class ProgressStatistics {
 		long amount = 0L;
 		SortedMap<Long, Long> relevantData = m_recentSpeedMap.headMap(new Long(m_recentSpeedMapKey));
 
-		for (Long rl : relevantData.values()) {
-			dur += SPEED_RESOLUTION;
-			amount += rl.longValue();
+		if (!relevantData.isEmpty()) {
+			for (Long rl : relevantData.values()) {
+				dur += SPEED_RESOLUTION;
+				amount += rl.longValue();
+			}
 		}
 
 		if (dur >= 1000)
