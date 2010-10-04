@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008, 2009, IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,15 +16,15 @@ import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
-public class Activator implements BundleActivator, ServiceTrackerCustomizer {
+public class Activator implements BundleActivator, ServiceTrackerCustomizer<IProvisioningAgent, IProvisioningAgent> {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.console"; //$NON-NLS-1$
 	private static final String PROVIDER_NAME = "org.eclipse.osgi.framework.console.CommandProvider"; //$NON-NLS-1$
 	private static BundleContext context;
 
-	private ServiceTracker agentTracker;
+	private ServiceTracker<IProvisioningAgent, IProvisioningAgent> agentTracker;
 	private ProvCommandProvider provider;
-	private ServiceRegistration providerRegistration = null;
+	private ServiceRegistration<?> providerRegistration = null;
 
 	public static BundleContext getContext() {
 		return context;
@@ -44,7 +44,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 		}
 
 		if (registerCommands) {
-			agentTracker = new ServiceTracker(context, IProvisioningAgent.SERVICE_NAME, this);
+			agentTracker = new ServiceTracker<IProvisioningAgent, IProvisioningAgent>(context, IProvisioningAgent.class, this);
 			agentTracker.open();
 		}
 	}
@@ -57,19 +57,19 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 		Activator.context = null;
 	}
 
-	public Object addingService(ServiceReference reference) {
+	public IProvisioningAgent addingService(ServiceReference<IProvisioningAgent> reference) {
 		BundleContext ctxt = Activator.getContext();
-		IProvisioningAgent agent = (IProvisioningAgent) ctxt.getService(reference);
+		IProvisioningAgent agent = ctxt.getService(reference);
 		provider = new ProvCommandProvider(ctxt.getProperty("eclipse.p2.profile"), agent); //$NON-NLS-1$
 		providerRegistration = ctxt.registerService(PROVIDER_NAME, provider, null);
 		return agent;
 	}
 
-	public void modifiedService(ServiceReference reference, Object service) {
+	public void modifiedService(ServiceReference<IProvisioningAgent> reference, IProvisioningAgent service) {
 		// nothing
 	}
 
-	public void removedService(ServiceReference reference, Object service) {
+	public void removedService(ServiceReference<IProvisioningAgent> reference, IProvisioningAgent service) {
 		if (providerRegistration != null)
 			providerRegistration.unregister();
 		providerRegistration = null;

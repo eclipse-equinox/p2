@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.net.*;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -22,6 +19,8 @@ import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.internal.p2.core.StringPool;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -48,7 +47,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	protected StringPool stringPool = new StringPool();//used to eliminate string duplication
 	private IProgressMonitor monitor;
 
-	private static ServiceTracker xmlTracker = null;
+	private static ServiceTracker<SAXParserFactory, SAXParserFactory> xmlTracker = null;
 
 	public XMLParser(BundleContext context, String pluginId) {
 		super();
@@ -77,10 +76,10 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 
 	private synchronized static SAXParserFactory acquireXMLParsing(BundleContext context) {
 		if (xmlTracker == null) {
-			xmlTracker = new ServiceTracker(context, SAXParserFactory.class.getName(), null);
+			xmlTracker = new ServiceTracker<SAXParserFactory, SAXParserFactory>(context, SAXParserFactory.class, null);
 			xmlTracker.open();
 		}
-		return (SAXParserFactory) xmlTracker.getService();
+		return xmlTracker.getService();
 	}
 
 	protected synchronized static void releaseXMLParsing() {

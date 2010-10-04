@@ -142,16 +142,16 @@ public class ProfilePreferences extends EclipsePreferences {
 	 * Returns a reference to the agent service corresponding to the given encoded
 	 * agent location. Never returns null; throws an exception if the agent could not be found.
 	 */
-	private ServiceReference getAgent(String segment) throws BackingStoreException {
+	private ServiceReference<IProvisioningAgent> getAgent(String segment) throws BackingStoreException {
 		String locationString = EncodingUtils.decodeSlashes(segment);
 		Exception failure = null;
 		try {
 			String filter = "(locationURI=" + encodeForFilter(locationString) + ')'; //$NON-NLS-1$
 			final BundleContext context = EngineActivator.getContext();
 			if (context != null) {
-				ServiceReference[] refs = context.getServiceReferences(IProvisioningAgent.SERVICE_NAME, filter);
-				if (refs != null && refs.length > 0)
-					return refs[0];
+				Collection<ServiceReference<IProvisioningAgent>> refs = context.getServiceReferences(IProvisioningAgent.class, filter);
+				if (!refs.isEmpty())
+					return refs.iterator().next();
 			}
 		} catch (InvalidSyntaxException e) {
 			failure = e;
@@ -237,8 +237,8 @@ public class ProfilePreferences extends EclipsePreferences {
 	 */
 	protected void load() throws BackingStoreException {
 		synchronized (((ProfilePreferences) parent).profileLock) {
-			ServiceReference agentRef = getAgent(getSegment(absolutePath(), 1));
-			IProvisioningAgent agent = (IProvisioningAgent) EngineActivator.getContext().getService(agentRef);
+			ServiceReference<IProvisioningAgent> agentRef = getAgent(getSegment(absolutePath(), 1));
+			IProvisioningAgent agent = EngineActivator.getContext().getService(agentRef);
 			IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 			try {
 				String profileId = getSegment(absolutePath(), 2);
@@ -277,8 +277,8 @@ public class ProfilePreferences extends EclipsePreferences {
 	 */
 	protected synchronized void save() throws BackingStoreException {
 		try {
-			ServiceReference agentRef = getAgent(getSegment(absolutePath(), 1));
-			IProvisioningAgent agent = (IProvisioningAgent) EngineActivator.getContext().getService(agentRef);
+			ServiceReference<IProvisioningAgent> agentRef = getAgent(getSegment(absolutePath(), 1));
+			IProvisioningAgent agent = EngineActivator.getContext().getService(agentRef);
 			if (saveJob == null || saveJob.agent != agent)
 				saveJob = new SaveJob(agent);
 			EngineActivator.getContext().ungetService(agentRef);

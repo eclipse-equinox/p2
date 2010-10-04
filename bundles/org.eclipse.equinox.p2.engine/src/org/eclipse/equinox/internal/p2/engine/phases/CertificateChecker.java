@@ -43,8 +43,8 @@ public class CertificateChecker {
 
 	public IStatus start() {
 		final BundleContext context = EngineActivator.getContext();
-		ServiceReference contentFactoryRef = context.getServiceReference(SignedContentFactory.class.getName());
-		SignedContentFactory verifierFactory = (SignedContentFactory) context.getService(contentFactoryRef);
+		ServiceReference<SignedContentFactory> contentFactoryRef = context.getServiceReference(SignedContentFactory.class);
+		SignedContentFactory verifierFactory = context.getService(contentFactoryRef);
 		try {
 			return checkCertificates(verifierFactory);
 		} finally {
@@ -146,7 +146,7 @@ public class CertificateChecker {
 		if (trustedCertificates == null)
 			// I'm pretty sure this would be a bug; trustedCertificates should never be null here.
 			return new Status(IStatus.INFO, EngineActivator.ID, Messages.CertificateChecker_CertificateRejected);
-		ServiceTracker trustEngineTracker = new ServiceTracker(EngineActivator.getContext(), TrustEngine.class.getName(), null);
+		ServiceTracker<TrustEngine, TrustEngine> trustEngineTracker = new ServiceTracker<TrustEngine, TrustEngine>(EngineActivator.getContext(), TrustEngine.class, null);
 		trustEngineTracker.open();
 		Object[] trustEngines = trustEngineTracker.getServices();
 		try {

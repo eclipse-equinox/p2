@@ -32,10 +32,10 @@ public class Activator implements BundleActivator {
 
 	private static BundleContext context;
 	// tracker for ECF service
-	private ServiceTracker retrievalFactoryTracker;
+	private ServiceTracker<IRetrieveFileTransferFactory, IRetrieveFileTransferFactory> retrievalFactoryTracker;
 
 	// tracker for protocolToFactoryMapperTracker
-	private ServiceTracker protocolToFactoryMapperTracker = null;
+	private ServiceTracker<IFileTransferProtocolToFactoryMapper, IFileTransferProtocolToFactoryMapper> protocolToFactoryMapperTracker = null;
 
 	// The shared instance
 	private static Activator plugin;
@@ -79,7 +79,7 @@ public class Activator implements BundleActivator {
 	 * @return a factory, or null, if configuration is incorrect
 	 */
 	public IRetrieveFileTransferFactory getRetrieveFileTransferFactory() {
-		return (IRetrieveFileTransferFactory) getFileTransferServiceTracker().getService();
+		return getFileTransferServiceTracker().getService();
 	}
 
 	public synchronized void useJREHttpClient() {
@@ -126,9 +126,9 @@ public class Activator implements BundleActivator {
 	 * "org.eclipse.ecf.provider.filetransfer" on first call.
 	 * @return  ServiceTracker
 	 */
-	private synchronized ServiceTracker getFileTransferServiceTracker() {
+	private synchronized ServiceTracker<IRetrieveFileTransferFactory, IRetrieveFileTransferFactory> getFileTransferServiceTracker() {
 		if (retrievalFactoryTracker == null) {
-			retrievalFactoryTracker = new ServiceTracker(Activator.getContext(), IRetrieveFileTransferFactory.class.getName(), null);
+			retrievalFactoryTracker = new ServiceTracker<IRetrieveFileTransferFactory, IRetrieveFileTransferFactory>(Activator.getContext(), IRetrieveFileTransferFactory.class, null);
 			retrievalFactoryTracker.open();
 			startBundle("org.eclipse.ecf"); //$NON-NLS-1$
 			startBundle("org.eclipse.ecf.provider.filetransfer"); //$NON-NLS-1$
@@ -138,10 +138,10 @@ public class Activator implements BundleActivator {
 
 	private IFileTransferProtocolToFactoryMapper getProtocolToFactoryMapper() {
 		if (protocolToFactoryMapperTracker == null) {
-			protocolToFactoryMapperTracker = new ServiceTracker(context, IFileTransferProtocolToFactoryMapper.class.getName(), null);
+			protocolToFactoryMapperTracker = new ServiceTracker<IFileTransferProtocolToFactoryMapper, IFileTransferProtocolToFactoryMapper>(context, IFileTransferProtocolToFactoryMapper.class, null);
 			protocolToFactoryMapperTracker.open();
 		}
-		return (IFileTransferProtocolToFactoryMapper) protocolToFactoryMapperTracker.getService();
+		return protocolToFactoryMapperTracker.getService();
 	}
 
 	private boolean startBundle(String bundleId) {

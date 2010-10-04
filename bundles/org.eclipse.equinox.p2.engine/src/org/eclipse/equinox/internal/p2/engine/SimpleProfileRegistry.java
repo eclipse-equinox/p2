@@ -84,10 +84,10 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		final BundleContext context = EngineActivator.getContext();
 		if (context == null)
 			return;
-		ServiceReference ref = context.getServiceReference(IAgentLocation.SERVICE_NAME);
+		ServiceReference<IAgentLocation> ref = context.getServiceReference(IAgentLocation.class);
 		if (ref == null)
 			return;
-		IAgentLocation location = (IAgentLocation) context.getService(ref);
+		IAgentLocation location = context.getService(ref);
 		if (location == null)
 			return;
 		if (store.equals(getDefaultRegistryDirectory(location))) {

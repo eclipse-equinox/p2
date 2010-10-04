@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -23,7 +23,7 @@ public class ServiceHelper {
 	public static Object getService(BundleContext context, String name) {
 		if (context == null)
 			return null;
-		ServiceReference reference = context.getServiceReference(name);
+		ServiceReference<?> reference = context.getServiceReference(name);
 		if (reference == null)
 			return null;
 		Object result = context.getService(reference);
@@ -32,7 +32,7 @@ public class ServiceHelper {
 	}
 
 	public static Object getService(BundleContext context, String name, String filter) {
-		ServiceReference[] references;
+		ServiceReference<?>[] references;
 		try {
 			references = context.getServiceReferences(name, filter);
 		} catch (InvalidSyntaxException e) {
