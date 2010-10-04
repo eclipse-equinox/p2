@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.equinox.p2.operations" version="2">
+    <resource path="src/org/eclipse/equinox/p2/operations/ProfileChangeOperation.java" type="org.eclipse.equinox.p2.operations.ProfileChangeOperation">
+        <filter id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.equinox.p2.operations.ProfileChangeOperation"/>
+                <message_argument value="getProfileChangeRequest()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>

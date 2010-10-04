@@ -280,6 +280,7 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 	 * 
 	 * @see #hasResolved()
 	 * @see #getResolutionResult()
+	 * @since 2.1
 	 */
 	public IProfileChangeRequest getProfileChangeRequest() {
 		if (job != null)
