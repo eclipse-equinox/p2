@@ -164,7 +164,6 @@ public class Util {
 
 		bundleInfo.setManifest(manifest);
 		try {
-			@SuppressWarnings("unchecked")
 			Map<String, String> headers = ManifestElement.parseBundleManifest(new ByteArrayInputStream(manifest.getBytes("UTF-8")), new HashMap<String, String>()); //$NON-NLS-1$
 			ManifestElement[] element = ManifestElement.parseHeader("bsn", headers.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
 			if (element == null || element.length == 0)
