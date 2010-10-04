@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2009, IBM Corporation and other.
+ * Copyright (c) 2006, 2010, IBM Corporation and other.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -72,6 +72,11 @@ public class RepositoryTransport extends Transport {
 
 				// check that job ended ok - throw exceptions otherwise
 				IStatus result = reader.getResult();
+				if (result == null) {
+					String msg = NLS.bind(Messages.RepositoryTransport_failedReadRepo, toDownload);
+					DownloadStatus ds = new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, null);
+					return statusOn(target, ds, reader);
+				}
 				if (result.getSeverity() == IStatus.CANCEL)
 					throw new UserCancelledException();
 				if (!result.isOK())
