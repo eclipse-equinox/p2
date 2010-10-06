@@ -36,6 +36,7 @@ public class Matches extends Binary {
 		return Boolean.valueOf(match(lhs.evaluate(context), rhs.evaluate(context)));
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	protected boolean match(Object lval, Object rval) {
 		if (lval == null || rval == null)
 			return false;
@@ -64,14 +65,13 @@ public class Matches extends Binary {
 			// we could convert to Dictionary<String, ?> but that is work and the filter impl
 			// must still handle (and ignore) non String keys.
 			if (lval instanceof Dictionary<?, ?>)
-				return Boolean.valueOf(((Filter) rval).match((Dictionary) lval));
+				return Boolean.valueOf(((Filter) rval).match((Dictionary<String, ?>) lval));
 			if (lval instanceof Map<?, ?>)
 				return Boolean.valueOf(((Filter) rval).match(new Hashtable((Map<?, ?>) lval)));
 		} else if (rval instanceof Locale) {
 			if (lval instanceof String)
 				return Boolean.valueOf(matchLocaleVariants((Locale) rval, (String) lval));
 		} else if (rval instanceof IMatchExpression<?>) {
-			@SuppressWarnings("unchecked")
 			IMatchExpression<Object> me = (IMatchExpression<Object>) rval;
 			return me.isMatch(lval);
 		} else if (rval instanceof IUpdateDescriptor) {

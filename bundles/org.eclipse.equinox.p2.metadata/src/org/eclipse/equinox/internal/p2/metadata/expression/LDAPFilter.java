@@ -61,7 +61,7 @@ public class LDAPFilter extends Unary implements IFilterExpression {
 		return Boolean.TRUE == operand.evaluate(ctx);
 	}
 
-	public boolean match(ServiceReference reference) {
+	public boolean match(ServiceReference<?> reference) {
 		return isMatch(reference == null ? MemberProvider.emptyProvider() : MemberProvider.create(reference, true));
 	}
 

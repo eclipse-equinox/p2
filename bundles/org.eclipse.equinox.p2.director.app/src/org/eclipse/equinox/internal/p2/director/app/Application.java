@@ -271,8 +271,8 @@ public class Application implements IApplication {
 	}
 
 	private void initializeServices() throws ProvisionException {
-		ServiceReference agentProviderRef = Activator.getContext().getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
-		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) Activator.getContext().getService(agentProviderRef);
+		ServiceReference<IProvisioningAgentProvider> agentProviderRef = Activator.getContext().getServiceReference(IProvisioningAgentProvider.class);
+		IProvisioningAgentProvider provider = Activator.getContext().getService(agentProviderRef);
 		agent = provider.createAgent(null);
 
 		IDirector director = (IDirector) agent.getService(IDirector.SERVICE_NAME);

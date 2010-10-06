@@ -98,9 +98,9 @@ public abstract class MemberProvider implements IMemberProvider {
 	}
 
 	static class ServiceRefMemberProvider extends MemberProvider {
-		private final ServiceReference serviceRef;
+		private final ServiceReference<?> serviceRef;
 
-		public ServiceRefMemberProvider(ServiceReference serviceRef) {
+		public ServiceRefMemberProvider(ServiceReference<?> serviceRef) {
 			this.serviceRef = serviceRef;
 		}
 
@@ -125,7 +125,7 @@ public abstract class MemberProvider implements IMemberProvider {
 		if (value instanceof Dictionary<?, ?>)
 			return caseInsensitive ? new CIDictionaryMemberProvider((Dictionary<String, ?>) value) : new DictionaryMemberProvider((Dictionary<String, ?>) value);
 		if (value instanceof ServiceReference)
-			return new ServiceRefMemberProvider((ServiceReference) value);
+			return new ServiceRefMemberProvider((ServiceReference<?>) value);
 		throw new IllegalArgumentException();
 	}
 

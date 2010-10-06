@@ -61,7 +61,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	protected String[] configurations;
 	private IStatus status;
 
-	private ServiceReference agentRef;
+	private ServiceReference<IProvisioningAgent> agentRef;
 
 	protected IProvisioningAgent agent;
 
@@ -229,16 +229,16 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	}
 
 	private void setupAgent() throws ProvisionException {
-		agentRef = Activator.getContext().getServiceReference(IProvisioningAgent.SERVICE_NAME);
+		agentRef = Activator.getContext().getServiceReference(IProvisioningAgent.class);
 		if (agentRef != null) {
-			agent = (IProvisioningAgent) Activator.getContext().getService(agentRef);
+			agent = Activator.getContext().getService(agentRef);
 			if (agent != null)
 				return;
 		}
-		ServiceReference providerRef = Activator.getContext().getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		ServiceReference<IProvisioningAgentProvider> providerRef = Activator.getContext().getServiceReference(IProvisioningAgentProvider.class);
 		if (providerRef == null)
 			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
-		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) Activator.getContext().getService(providerRef);
+		IProvisioningAgentProvider provider = Activator.getContext().getService(providerRef);
 		if (provider == null)
 			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
 		//obtain agent for currently running system

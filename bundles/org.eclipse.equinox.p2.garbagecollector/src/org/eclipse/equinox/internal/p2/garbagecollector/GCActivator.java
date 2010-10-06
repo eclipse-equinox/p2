@@ -21,18 +21,18 @@ public class GCActivator implements BundleActivator {
 
 	static BundleContext context;
 
-	static Object getService(String name) {
-		ServiceReference reference = context.getServiceReference(name);
+	static <T> T getService(Class<T> clazz) {
+		ServiceReference<T> reference = context.getServiceReference(clazz);
 		if (reference == null)
 			return null;
-		Object result = context.getService(reference);
+		T result = context.getService(reference);
 		context.ungetService(reference);
 		return result;
 	}
 
 	public void start(BundleContext inContext) throws Exception {
 		GCActivator.context = inContext;
-		DebugOptions debug = (DebugOptions) getService(DebugOptions.class.getName());
+		DebugOptions debug = getService(DebugOptions.class);
 		if (debug != null) {
 			CoreGarbageCollector.setDebugMode(debug.getBooleanOption(DEBUG_STRING, DEFAULT_DEBUG));
 		}

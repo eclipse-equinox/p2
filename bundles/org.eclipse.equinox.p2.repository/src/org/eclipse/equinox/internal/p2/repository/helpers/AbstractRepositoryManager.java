@@ -1172,8 +1172,8 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	public void flushCache() {
 		synchronized (repositories) {
 			Collection<RepositoryInfo<T>> repos = repositories.values();
-			for (Iterator iterator = repos.iterator(); iterator.hasNext();) {
-				RepositoryInfo<T> repositoryInfo = (RepositoryInfo<T>) iterator.next();
+			for (Iterator<RepositoryInfo<T>> iterator = repos.iterator(); iterator.hasNext();) {
+				RepositoryInfo<T> repositoryInfo = iterator.next();
 				repositoryInfo.repository = null;
 			}
 		}

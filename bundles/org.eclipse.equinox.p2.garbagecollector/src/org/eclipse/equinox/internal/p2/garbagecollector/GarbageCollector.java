@@ -117,7 +117,7 @@ public class GarbageCollector implements SynchronousProvisioningListener, IAgent
 	}
 
 	protected boolean getBooleanPreference(String key, boolean defaultValue) {
-		IPreferencesService prefService = (IPreferencesService) GCActivator.getService(IPreferencesService.class.getName());
+		IPreferencesService prefService = GCActivator.getService(IPreferencesService.class);
 		if (prefService == null)
 			return defaultValue;
 		List<IEclipsePreferences> nodes = new ArrayList<IEclipsePreferences>();

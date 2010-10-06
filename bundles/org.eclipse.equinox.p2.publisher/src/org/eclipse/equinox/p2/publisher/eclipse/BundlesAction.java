@@ -463,7 +463,6 @@ public class BundlesAction extends AbstractPublisherAction {
 		return (PluginConverter) ServiceHelper.getService(Activator.getContext(), PluginConverter.class.getName());
 	}
 
-	@SuppressWarnings("unchecked")
 	private static Dictionary<String, String> convertPluginManifest(File bundleLocation, boolean logConversionException) {
 		PluginConverter converter;
 		try {
@@ -541,7 +540,6 @@ public class BundlesAction extends AbstractPublisherAction {
 		try {
 			if (manifestStream != null) {
 				try {
-					@SuppressWarnings("unchecked")
 					Map<String, String> manifestMap = ManifestElement.parseBundleManifest(manifestStream, null);
 					// TODO temporary hack.  We are reading a Map but everyone wants a Dictionary so convert.
 					// real answer is to have people expect a Map but that is a wider change.
@@ -802,7 +800,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 	// This method is based on core.runtime's InternalPlatform.getBundle(...) with a difference just in how we get PackageAdmin
 	private static Bundle getBundle(String symbolicName) {
-		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(Activator.getContext(), PackageAdmin.class.getName());
+		PackageAdmin packageAdmin = ServiceHelper.getService(Activator.getContext(), PackageAdmin.class);
 		if (packageAdmin == null)
 			return null;
 		Bundle[] matchingBundles = packageAdmin.getBundles(symbolicName, null);

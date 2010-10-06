@@ -233,7 +233,7 @@ public class DirectorApplication implements IApplication {
 	private IEngine engine;
 	private boolean noProfileId = false;
 	private PackageAdmin packageAdmin;
-	private ServiceReference packageAdminRef;
+	private ServiceReference<PackageAdmin> packageAdminRef;
 	private IPlanner planner;
 	private ILog log = null;
 
@@ -425,10 +425,10 @@ public class DirectorApplication implements IApplication {
 
 	private void initializeServices() throws CoreException {
 		BundleContext context = Activator.getContext();
-		packageAdminRef = context.getServiceReference(PackageAdmin.class.getName());
-		packageAdmin = (PackageAdmin) context.getService(packageAdminRef);
-		ServiceReference agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
-		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) context.getService(agentProviderRef);
+		packageAdminRef = context.getServiceReference(PackageAdmin.class);
+		packageAdmin = context.getService(packageAdminRef);
+		ServiceReference<IProvisioningAgentProvider> agentProviderRef = context.getServiceReference(IProvisioningAgentProvider.class);
+		IProvisioningAgentProvider provider = context.getService(agentProviderRef);
 		URI p2DataArea;
 		if (destination != null || sharedLocation != null) {
 			File dataAreaFile = sharedLocation == null ? new File(destination, "p2") : sharedLocation;//$NON-NLS-1$

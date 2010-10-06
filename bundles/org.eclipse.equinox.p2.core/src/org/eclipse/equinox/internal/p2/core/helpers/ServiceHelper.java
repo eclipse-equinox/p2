@@ -8,9 +8,46 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.core.helpers;
 
+import java.util.Collection;
 import org.osgi.framework.*;
 
 public class ServiceHelper {
+	/**
+	 * Returns the service described by the given arguments.  Note that this is a helper class
+	 * that <b>immediately</b> ungets the service reference.  This results in a window where the
+	 * system thinks the service is not in use but indeed the caller is about to use the returned 
+	 * service object.  
+	 * @param context
+	 * @param clazz the service class
+	 * @return The requested service
+	 */
+	public static <T> T getService(BundleContext context, Class<T> clazz) {
+		if (context == null)
+			return null;
+		ServiceReference<T> reference = context.getServiceReference(clazz);
+		if (reference == null)
+			return null;
+		T result = context.getService(reference);
+		context.ungetService(reference);
+		return result;
+	}
+
+	public static <T> T getService(BundleContext context, Class<T> clazz, String filter) {
+		Collection<ServiceReference<T>> references;
+		try {
+			references = context.getServiceReferences(clazz, filter);
+		} catch (InvalidSyntaxException e) {
+			// TODO Auto-generated catch block
+			return null;
+		}
+		if (references.isEmpty())
+			return null;
+		final ServiceReference<T> ref = references.iterator().next();
+		T result = context.getService(ref);
+		context.ungetService(ref);
+		return result;
+	}
+
 	/**
 	 * Returns the service described by the given arguments.  Note that this is a helper class
 	 * that <b>immediately</b> ungets the service reference.  This results in a window where the
