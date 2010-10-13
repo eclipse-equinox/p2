@@ -20,8 +20,10 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(End2EndTest.class);
+
+		//TODO upgrade these tests to exercise 3.6->3.7 scenarios. See bug 324962
 		//		suite.addTest(From35to36.suite());
-		suite.addTest(Install36from35.suite());
+		//		suite.addTest(Install36from35.suite());
 		return suite;
 	}
 
