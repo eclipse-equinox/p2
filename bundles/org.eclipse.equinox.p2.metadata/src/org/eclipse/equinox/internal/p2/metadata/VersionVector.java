@@ -32,7 +32,7 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 		}
 
 		public int compareTo(Object o) {
-			return o == this ? 0 : (o == MAX_VALUE || o instanceof Integer || o instanceof VersionVector ? -1 : 1);
+			return o == this ? 0 : (o == MAX_VALUE || o instanceof Integer || o instanceof EnumDefinition.EnumSegment || o instanceof VersionVector ? -1 : 1);
 		}
 
 		// For singleton deserialization
@@ -222,10 +222,15 @@ public class VersionVector implements Comparable<VersionVector>, Serializable {
 			return 1;
 		if (b instanceof Integer)
 			return -1;
+
 		if (a instanceof VersionVector)
 			return (b instanceof VersionVector) ? ((VersionVector) a).compareTo((VersionVector) b) : 1;
-
 		if (b instanceof VersionVector)
+			return -1;
+
+		if (a instanceof EnumDefinition.EnumSegment)
+			return (b instanceof EnumDefinition.EnumSegment) ? ((EnumDefinition.EnumSegment) a).compareTo((EnumDefinition.EnumSegment) b) : 1;
+		if (b instanceof EnumDefinition.EnumSegment)
 			return -1;
 
 		throw new IllegalArgumentException();

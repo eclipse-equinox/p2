@@ -12,7 +12,7 @@
 package org.eclipse.equinox.p2.tests.omniVersion;
 
 import junit.framework.TestCase;
-import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.*;
 
 /**
  * Tests the format(a) rule.
@@ -127,5 +127,121 @@ public class FormatATest extends TestCase {
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
 		}
+	}
+
+	public void testEnum() {
+		Version v1 = Version.parseVersion("format(aa={alpha,beta,gamma};a):12beta2");
+		Version v2 = Version.parseVersion("raw:12.{alpha,^beta,gamma}.2");
+		assertEquals(v1, v2);
+	}
+
+	public void testEnumOptional() {
+		// When enum is optional, test that parser falls back to string when enum isn't matched
+		Version v1 = Version.parseVersion("format(aa={alpha,beta,gamma}?;a):12foo2");
+		Version v2 = Version.parseVersion("raw:12.'foo'.2");
+		assertEquals(v1, v2);
+
+		try {
+			Version.parseVersion("format(aa={alpha,beta,gamma};a):12foo2");
+			fail("bad enum was not detected");
+		} catch (IllegalArgumentException e) {
+			// Expected
+		}
+
+	}
+
+	public void testEnumIgnoreCase() {
+		// When enum is optional, test that parser falls back to string when enum isn't matched
+		Version v1 = Version.parseVersion("format(aa={Alpha,Beta,Gamma}i;a):12beta2");
+		Version v2 = Version.parseVersion("raw:12.{alpha,^beta,gamma}.2");
+		assertEquals(v1, v2);
+
+		v1 = Version.parseVersion("format(aa={alpha,beta,gamma}i;a):12BETA2");
+		v2 = Version.parseVersion("raw:12.{alpha,^beta,gamma}.2");
+		assertEquals(v1, v2);
+
+		try {
+			Version.parseVersion("format(aa={alpha,beta,gamma};a):12BETA2");
+			fail("enum case sensitivity ignored");
+		} catch (IllegalArgumentException e) {
+			// Expected
+		}
+
+	}
+
+	public void testEnumBegins() {
+		// When enum has 'begins', test that parser doesn't go too far
+		Version v1 = Version.parseVersion("format(aa={alpha,beta,gamma}b;aa):12gammafoo2");
+		Version v2 = Version.parseVersion("raw:12.{alpha,beta,^gamma}.'foo'.2");
+		assertEquals(v1, v2);
+
+		// When enum is optional, test that parser doesn't make attempts to resolve
+		v1 = Version.parseVersion("format(aa={alpha,beta,gamma}?;a):12gammafoo2");
+		v2 = Version.parseVersion("raw:12.'gammafoo'.2");
+		assertEquals(v1, v2);
+
+		// unless it's also a begins
+		v1 = Version.parseVersion("format(aa={alpha,beta,gamma}b?;aa):12gammafoo2");
+		v2 = Version.parseVersion("raw:12.{alpha,beta,^gamma}.'foo'.2");
+		assertEquals(v1, v2);
+
+		// if it's not optional nor begins, it should fail
+		try {
+			v1 = Version.parseVersion("format(aa={alpha,beta,gamma};a):12gammafoo2");
+			fail("Enum begins pattern resolved although begins was not specified");
+		} catch (IllegalArgumentException e) {
+			// Expected
+		}
+
+		// this one must fail too even though it's optional because
+		// it falls back to string and '#' is not a legal string character
+		try {
+			Version.parseVersion("format(aa={#,$,%}?;aa?):12#foo2");
+			fail("Enum fallback to string with illegal string character");
+		} catch (IllegalArgumentException e) {
+			// Expected
+		}
+
+		// This however, should work
+		v1 = Version.parseVersion("format(aa={#,$,%}b;aa):12#foo2");
+		v2 = Version.parseVersion("raw:12.{^#,$,%}.'foo'.2");
+		assertEquals(v1, v2);
+	}
+
+	public void testEnumFormatToString() {
+		Version v1 = Version.parseVersion("format(aa={alpha,beta,gamma};a):12beta2");
+		assertEquals(v1.toString(), "raw:12.{alpha,^beta,gamma}.2/format(aa={alpha,beta,gamma};a):12beta2");
+	}
+
+	public void testPHPVersion() {
+		IVersionFormat phpFormat = null;
+		try {
+			phpFormat = Version.compile("n(d=[_+.-];?a={dev,alpha=a,beta=b,RC=rc,#,pl=p}?;)*");
+		} catch (VersionFormatException e) {
+			fail(e.getMessage());
+		}
+		Version v1 = phpFormat.parse("1.2.3");
+		Version v2 = Version.parseVersion("raw:1.2.3");
+		assertEquals(v1, v2);
+
+		v1 = phpFormat.parse("1.2.alpha2");
+		v2 = phpFormat.parse("1.2.a2");
+		assertEquals(v1, v2);
+
+		v1 = phpFormat.parse("1.2.beta3");
+		v2 = phpFormat.parse("1.2.#2");
+		assertTrue(v1.compareTo(v2) < 0);
+		assertTrue(v2.compareTo(v1) > 0);
+
+		v1 = Version.parseVersion("raw:1.2.{dev,a,b,RC,^#,p}.2");
+		assertEquals(v1, v2);
+
+		v1 = Version.parseVersion("raw:1.2.{dev,a,b,^rc,#,p}.2");
+		assertTrue(v1.compareTo(v2) < 0);
+		assertTrue(v2.compareTo(v1) > 0);
+
+		v1 = Version.parseVersion("raw:1.2.{dev,a,b,rc,#,^p}.2");
+		assertTrue(v1.compareTo(v2) > 0);
+		assertTrue(v2.compareTo(v1) < 0);
 	}
 }

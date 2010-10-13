@@ -188,5 +188,4 @@ public class FormatSTest extends TestCase {
 			assertTrue(true);
 		}
 	}
-
 }

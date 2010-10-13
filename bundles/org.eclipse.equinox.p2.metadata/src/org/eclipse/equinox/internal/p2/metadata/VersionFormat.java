@@ -193,7 +193,9 @@ public class VersionFormat implements IVersionFormat, Serializable {
 			sb.append('<');
 			((VersionVector) e).toString(sb, forRange);
 			sb.append('>');
-		} else
+		} else if (e instanceof EnumDefinition.EnumSegment)
+			((EnumDefinition.EnumSegment) e).toString(sb);
+		else
 			sb.append(e);
 	}
 

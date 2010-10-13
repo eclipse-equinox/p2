@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionFormatException;
 import org.eclipse.osgi.util.NLS;
@@ -265,6 +264,17 @@ public abstract class VersionParser {
 				v = sb.length() == 0 ? VersionVector.MINS_VALUE : sb.toString();
 				break;
 			}
+			case '{' : {
+				if (++current == maxPos)
+					return null;
+
+				position[0] = current;
+				v = parseRawEnum(value, position, maxPos);
+				if (v == null)
+					return null;
+				current = position[0];
+				break;
+			}
 			case '<' : {
 				if (++current == maxPos)
 					return null;
@@ -364,6 +374,43 @@ public abstract class VersionParser {
 		}
 		pad = removeRedundantTrail(rawList, pad);
 		return new VersionVector(rawList.toArray(new Comparable[rawList.size()]), pad);
+	}
+
+	private static Comparable<?> parseRawEnum(String value, int[] position, int maxPos) {
+		int pos = position[0];
+		ArrayList<List<String>> identifiers = new ArrayList<List<String>>();
+		int ordinal = -1;
+		StringBuffer sb = new StringBuffer();
+		for (;;) {
+			if (pos >= maxPos)
+				return null;
+
+			char c = value.charAt(pos++);
+			while (c != '}' && c != ',') {
+				if (pos == maxPos)
+					return null;
+				if (c <= ' ')
+					return null;
+				if (c == '\\' || c == '^') {
+					if (c == '^')
+						ordinal = identifiers.size();
+					c = value.charAt(pos++);
+					if (pos == maxPos)
+						return null;
+				}
+				sb.append(c);
+				c = value.charAt(pos++);
+			}
+			identifiers.add(Collections.singletonList(sb.toString()));
+			if (c == '}')
+				break;
+			// c must be ',' at this point
+			sb.setLength(0);
+		}
+		if (ordinal == -1)
+			return null;
+		position[0] = pos;
+		return EnumDefinition.getSegment(identifiers, ordinal);
 	}
 
 	public static int skipWhite(String string, int pos) {

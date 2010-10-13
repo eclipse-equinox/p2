@@ -38,6 +38,98 @@ public class RawVersionTest extends VersionTesting {
 
 	}
 
+	public void testEnumParsing() {
+		try {
+			Version.create("raw:{blue,green,yellow}");
+			fail("Parsing succeeded but enum had no ordinal indicator");
+		} catch (IllegalArgumentException e) {
+			// Expected
+		}
+
+		try {
+			Version.create("raw:{blue,^green,yellow}");
+		} catch (IllegalArgumentException e) {
+			fail(e.getMessage());
+		}
+	}
+
+	public void testEnumCompare() {
+		Version v1 = Version.create("raw:{blue,^green,yellow}");
+		Version v2 = Version.create("raw:{^blue,green,yellow}");
+		assertTrue(v1.compareTo(v2) > 0);
+		assertTrue(v2.compareTo(v1) < 0);
+
+		v1 = Version.create("raw:{blue,green,^yellow}");
+		v2 = Version.create("raw:{blue,green,^yellow}");
+		assertEquals(v1, v2);
+
+		v1 = Version.create("raw:{blue,^green}");
+		v2 = Version.create("raw:{^blue,green,yellow}");
+		assertTrue(v1.compareTo(v2) > 0);
+		assertTrue(v2.compareTo(v1) < 0);
+
+		v1 = Version.create("raw:{blue,^green,yelllow}");
+		v2 = Version.create("raw:{green,^yellow}");
+		assertTrue(v1.compareTo(v2) < 0);
+		assertTrue(v2.compareTo(v1) > 0);
+
+		// v1 knows that blue is less than yellow.
+		// v2 will not have a different opinion
+		v1 = Version.create("raw:{^blue,green,yellow}");
+		v2 = Version.create("raw:{green,^yellow}");
+		assertTrue(v1.compareTo(v2) < 0);
+		assertTrue(v2.compareTo(v1) > 0);
+
+		// v1 knows that blue is less than yellow.
+		// v2 knows that yellow is less than blue
+		// Conflict! so v1 wins on green > blue
+		v1 = Version.create("raw:{green,^yellow,blue}");
+		v2 = Version.create("raw:{^blue,green,yellow}");
+		assertTrue(v1.compareTo(v2) > 0);
+		assertTrue(v2.compareTo(v1) < 0);
+
+		// Conflict again, but this time v2 wins since it
+		// has more elements
+		v1 = Version.create("raw:{green,^yellow,blue}");
+		v2 = Version.create("raw:{^blue,green,yellow,purple}");
+		assertTrue(v1.compareTo(v2) < 0);
+		assertTrue(v2.compareTo(v1) > 0);
+	}
+
+	public void testEnumCompareWithOther() {
+		Version v1 = Version.create("raw:{blue,^green,yellow}");
+		Version v2 = Version.create("raw:'green'");
+
+		// Enum is always greater than String
+		assertTrue(v1.compareTo(v2) > 0);
+		assertTrue(v2.compareTo(v1) < 0);
+
+		// Enum is always greater than String
+		v2 = Version.create("raw:m");
+		assertTrue(v1.compareTo(v2) > 0);
+		assertTrue(v2.compareTo(v1) < 0);
+
+		// Enum is always greater than MIN
+		v2 = Version.create("raw:-M");
+		assertTrue(v1.compareTo(v2) > 0);
+		assertTrue(v2.compareTo(v1) < 0);
+
+		// Enum is always less than Integer
+		v2 = Version.create("raw:0");
+		assertTrue(v1.compareTo(v2) < 0);
+		assertTrue(v2.compareTo(v1) > 0);
+
+		// Enum is always less than a vector
+		v2 = Version.create("raw:<'foo'>");
+		assertTrue(v1.compareTo(v2) < 0);
+		assertTrue(v2.compareTo(v1) > 0);
+
+		// Enum is always less than MAX
+		v2 = Version.create("raw:M");
+		assertTrue(v1.compareTo(v2) < 0);
+		assertTrue(v2.compareTo(v1) > 0);
+	}
+
 	public void testSerialize() {
 		Version v = null;
 		// should parse without exception
@@ -101,6 +193,10 @@ public class RawVersionTest extends VersionTesting {
 		assertNotNull(v = Version.create("raw:\"'\""));
 		assertSerialized(v);
 		assertNotNull(v = Version.create("raw:'\"'"));
+		assertSerialized(v);
+		assertNotNull(v = Version.create("raw:{green,^blue,yellow}"));
+		assertSerialized(v);
+		assertNotNull(v = Version.create("raw:1.0.0.{dev,^alpha,beta}"));
 		assertSerialized(v);
 
 	}

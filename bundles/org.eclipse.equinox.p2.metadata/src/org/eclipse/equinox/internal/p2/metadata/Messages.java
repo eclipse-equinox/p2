@@ -23,7 +23,11 @@ public class Messages extends NLS {
 
 	public static String array_can_not_have_character_group;
 
+	public static String array_can_not_have_enum;
+
 	public static String auto_can_not_have_pad_value;
+
+	public static String bad_enum_definition;
 
 	public static String cannot_combine_ignore_with_other_instruction;
 
@@ -44,6 +48,8 @@ public class Messages extends NLS {
 	public static String delimiter_can_not_have_range;
 
 	public static String EOS_after_escape;
+
+	public static String enum_defined_more_then_once;
 
 	public static String expected_orignal_after_colon_0;
 

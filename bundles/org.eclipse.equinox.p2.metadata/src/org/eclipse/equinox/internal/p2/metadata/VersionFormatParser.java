@@ -10,12 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.VersionFormatException;
-
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import org.eclipse.equinox.internal.p2.metadata.EnumDefinition.EnumSegment;
 import org.eclipse.equinox.internal.p2.metadata.VersionFormat.TreeInfo;
+import org.eclipse.equinox.p2.metadata.VersionFormatException;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -29,6 +28,69 @@ import org.eclipse.osgi.util.NLS;
  */
 class VersionFormatParser {
 
+	private static class EnumInstruction {
+		private final EnumDefinition definition;
+		private final boolean caseSensitive;
+		private final boolean optional;
+		private final boolean begins;
+
+		EnumInstruction(EnumDefinition definition, boolean caseSensitive, boolean optional, boolean begins) {
+			this.definition = definition;
+			this.caseSensitive = caseSensitive;
+			this.optional = optional;
+			this.begins = begins;
+		}
+
+		EnumSegment getEnumSegment(RangeFragment fragment, String version, int[] posHolder, int maxPos) {
+			int pos = posHolder[0];
+			int len = maxPos - pos;
+			int minLen = definition.getShortestLength();
+			if (minLen > len)
+				return null;
+
+			int maxLen = definition.getLongestLength();
+			if (maxLen < len)
+				len = maxLen;
+
+			++len;
+			while (--len >= minLen) {
+				int last = pos + len;
+				if (!begins && last < maxPos) {
+					char c = version.charAt(last);
+					if (VersionParser.isLetter(c) && fragment.isAllowed(c)) {
+						// We are not allowed to truncate at this point
+						continue;
+					}
+				}
+				String identifier = version.substring(pos, last);
+				if (!caseSensitive)
+					identifier = identifier.toLowerCase();
+				int ordinal = definition.getOrdinal(identifier);
+				if (ordinal >= 0) {
+					posHolder[0] = pos + len;
+					return definition.getSegment(ordinal);
+				}
+			}
+			return null;
+		}
+
+		void toString(StringBuffer bld) {
+			bld.append('=');
+			definition.toString(bld);
+			if (begins)
+				bld.append('b');
+			if (!caseSensitive)
+				bld.append('i');
+			if (optional)
+				bld.append('?');
+			bld.append(';');
+		}
+
+		public boolean isOptional() {
+			return optional;
+		}
+	}
+
 	static class Instructions {
 		char[] characters = null;
 		Comparable<?> defaultValue = null;
@@ -39,6 +101,7 @@ class VersionFormatParser {
 		Comparable<?> padValue = null;
 		int rangeMax = Integer.MAX_VALUE;
 		int rangeMin = 0;
+		EnumInstruction enumInstruction = null;
 	}
 
 	static final Qualifier EXACT_ONE_QUALIFIER = new Qualifier(1, 1);
@@ -283,7 +346,7 @@ class VersionFormatParser {
 				return false;
 
 			char c = version.charAt(pos);
-			if (VersionParser.isDigit(c) && isAllowed(c)) {
+			if (VersionParser.isDigit(c) && isAllowed(c) && (enumInstruction == null || enumInstruction.isOptional())) {
 				// Parse to next non-digit
 				//
 				int start = pos;
@@ -305,13 +368,30 @@ class VersionFormatParser {
 				return true;
 			}
 
+			int start = pos;
+			if (enumInstruction != null) {
+				int[] posHolder = new int[] {pos};
+				EnumSegment es = enumInstruction.getEnumSegment(this, version, posHolder, maxPos);
+				if (es != null) {
+					pos = posHolder[0];
+					int len = pos - start;
+					if (rangeMin > len || len > rangeMax)
+						return false;
+					if (!isIgnored())
+						segments.add(es);
+					info.setPosition(pos);
+					return true;
+				}
+				if (!enumInstruction.isOptional())
+					return false;
+			}
+
 			if (!(VersionParser.isLetter(c) && isAllowed(c)))
 				return false;
 
 			// Parse to next non-letter or next delimiter
 			//
-			int start = pos++;
-			for (; pos < maxPos; ++pos) {
+			for (++pos; pos < maxPos; ++pos) {
 				c = version.charAt(pos);
 				if (!(VersionParser.isLetter(c) && isAllowed(c)))
 					break;
@@ -831,6 +911,7 @@ class VersionFormatParser {
 		final boolean inverted;
 		final int rangeMax;
 		final int rangeMin;
+		final EnumInstruction enumInstruction;
 
 		RangeFragment(VersionFormatParser.Instructions instr, Qualifier qualifier) {
 			super(instr, qualifier);
@@ -839,11 +920,13 @@ class VersionFormatParser {
 				inverted = false;
 				rangeMin = 0;
 				rangeMax = Integer.MAX_VALUE;
+				enumInstruction = null;
 			} else {
 				characters = instr.characters;
 				inverted = instr.inverted;
 				rangeMin = instr.rangeMin;
 				rangeMax = instr.rangeMax;
+				enumInstruction = instr.enumInstruction;
 			}
 		}
 
@@ -903,6 +986,8 @@ class VersionFormatParser {
 				sb.append('}');
 				sb.append(';');
 			}
+			if (enumInstruction != null)
+				enumInstruction.toString(sb);
 			super.toString(sb);
 		}
 	}
@@ -986,9 +1071,26 @@ class VersionFormatParser {
 			if (maxPos < 0)
 				return false;
 
+			int start = pos;
+			if (enumInstruction != null) {
+				int[] posHolder = new int[] {pos};
+				EnumSegment es = enumInstruction.getEnumSegment(this, version, posHolder, maxPos);
+				if (es != null) {
+					pos = posHolder[0];
+					int len = pos - start;
+					if (rangeMin > len || len > rangeMax)
+						return false;
+					if (!isIgnored())
+						segments.add(es);
+					info.setPosition(pos);
+					return true;
+				}
+				if (!enumInstruction.isOptional())
+					return false;
+			}
+
 			// Parse to next delimiter or end of string
 			//
-			int start = pos;
 			if (characters != null) {
 				if (anyChar) {
 					// Swallow everything that matches the allowed characters
@@ -1210,6 +1312,78 @@ class VersionFormatParser {
 		currentList.add(createDelimiterFragment(ep, parseQualifier()));
 	}
 
+	private void parseEnum(Instructions processing) throws VersionFormatException {
+		++current;
+		ArrayList<List<String>> identifiers = new ArrayList<List<String>>();
+		ArrayList<String> idents = new ArrayList<String>();
+		StringBuffer sb = new StringBuffer();
+		for (;;) {
+			if (current >= eos)
+				throw formatException(Messages.bad_enum_definition);
+
+			char c = format.charAt(current++);
+			while (c != '}' && c != ',' && c != '=') {
+				if (current >= eos || c <= ' ')
+					throw formatException(Messages.bad_enum_definition);
+				if (c == '\\') {
+					c = format.charAt(current++);
+					if (current >= eos)
+						throw formatException(Messages.bad_enum_definition);
+				}
+				sb.append(c);
+				c = format.charAt(current++);
+			}
+			idents.add(sb.toString());
+			sb.setLength(0);
+			if (c == '=')
+				continue;
+
+			identifiers.add(idents);
+			if (c == '}')
+				break;
+
+			// c must be ',' at this point
+			idents = new ArrayList<String>();
+		}
+
+		boolean enumCaseSensitive = true;
+		boolean enumOptional = false;
+		boolean enumBegins = false;
+		while (current < eos) {
+			char c = format.charAt(current);
+			if (c == 'i') {
+				enumCaseSensitive = false;
+				current++;
+			} else if (c == 'b') {
+				enumBegins = true;
+				current++;
+			} else if (c == '?') {
+				enumOptional = true;
+				current++;
+			} else
+				break;
+		}
+
+		// Ensure that all identifiers are unique and make them
+		// lower case if necessary
+		HashSet<String> unique = new HashSet<String>();
+		int ordinal = identifiers.size();
+		while (--ordinal >= 0) {
+			List<String> ids = identifiers.get(ordinal);
+			int idx = ids.size();
+			while (--idx >= 0) {
+				String id = ids.get(idx);
+				if (!enumCaseSensitive)
+					id = id.toLowerCase();
+				if (!unique.add(id))
+					throw formatException(Messages.bad_enum_definition);
+				ids.set(idx, id);
+			}
+		}
+		EnumDefinition enumDefinition = EnumDefinition.getEnumDefinition(identifiers);
+		processing.enumInstruction = new EnumInstruction(enumDefinition, enumCaseSensitive, enumOptional, enumBegins);
+	}
+
 	private void parseFragment() throws VersionFormatException {
 		if (current == eos)
 			throw formatException(Messages.premature_end_of_format);
@@ -1268,9 +1442,10 @@ class VersionFormatParser {
 		if (ep != null) {
 			if (ep.characters != null)
 				throw formatException(Messages.array_can_not_have_character_group);
-			if (ep.rangeMax != Integer.MAX_VALUE && ep.padValue != null) {
+			if (ep.rangeMax != Integer.MAX_VALUE && ep.padValue != null)
 				throw formatException(Messages.cannot_combine_range_upper_bound_with_pad_value);
-			}
+			if (ep.enumInstruction != null)
+				throw formatException(Messages.array_can_not_have_enum);
 		}
 
 		if (currentList.isEmpty())
@@ -1416,15 +1591,26 @@ class VersionFormatParser {
 				throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
 			parseCharacterGroup(processing);
 		} else if (c == '{') {
-			// ={min,max};
-			//
-			if (processing.rangeMin != 0 || processing.rangeMax != Integer.MAX_VALUE)
-				throw formatException(Messages.range_defined_more_then_once);
-			if (processing.ignore)
-				throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
-			int[] minMax = parseMinMax();
-			processing.rangeMin = minMax[0];
-			processing.rangeMax = minMax[1];
+			if (current + 1 == eos)
+				throw formatException(Messages.premature_end_of_format);
+
+			if (VersionParser.isDigit(format.charAt(current + 1))) {
+				// ={min,max};
+				//
+				if (processing.rangeMin != 0 || processing.rangeMax != Integer.MAX_VALUE)
+					throw formatException(Messages.range_defined_more_then_once);
+				if (processing.ignore)
+					throw formatException(Messages.cannot_combine_ignore_with_other_instruction);
+				int[] minMax = parseMinMax();
+				processing.rangeMin = minMax[0];
+				processing.rangeMax = minMax[1];
+			} else {
+				// ={enum1,enum2,...};
+				//
+				if (processing.enumInstruction != null)
+					throw formatException(Messages.enum_defined_more_then_once);
+				parseEnum(processing);
+			}
 		} else {
 			// =<raw-element>;
 			if (processing.defaultValue != null)
