@@ -256,13 +256,42 @@ public class JarComparator implements IArtifactComparator {
 			String prop1 = props1.getProperty(key);
 			String prop2 = props2.getProperty(key);
 			if (!prop1.equals(prop2)) {
-				if (prop1.length() < 10 && prop2.length() < 10)
+				if (prop1.length() < 15 && prop2.length() < 15)
 					return newErrorStatus(NLS.bind(Messages.differentPropertyValueFull, new String[] {entryName, key, prop1, prop2}));
-				return newErrorStatus(NLS.bind(Messages.differentPropertyValueFull, entryName, key));
+				// strings are too long, report the first bit that is different
+				String[] diff = extractDifference(prop1, prop2);
+				return newErrorStatus(NLS.bind(Messages.differentPropertyValueFull, new String[] {entryName, key, diff[0], diff[1]}));
 			}
 
 		}
 		return Status.OK_STATUS;
+	}
+
+	/*
+	 * Given two different strings return the first segments of those
+	 * strings that illustrate the differences.
+	 */
+	private String[] extractDifference(String s1, String s2) {
+		for (int i = 0; i < s1.length() && i < s2.length(); i++) {
+			if (s1.charAt(i) != s2.charAt(i)) {
+				String result1, result2;
+				boolean truncated;
+				if (i > 3) {
+					truncated = (i + 7) < s1.length();
+					result1 = "..." + s1.substring(i - 3, truncated ? i + 7 : s1.length()) + (truncated ? "..." : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					truncated = (i + 7) < s2.length();
+					result2 = "..." + s2.substring(i - 3, truncated ? i + 7 : s2.length()) + (truncated ? "..." : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				} else {
+					truncated = (i + 10) < s1.length();
+					result1 = s1.substring(0, truncated ? i + 10 : s1.length()) + (truncated ? "..." : ""); //$NON-NLS-1$ //$NON-NLS-2$
+					truncated = (i + 10) < s2.length();
+					result2 = s2.substring(0, truncated ? i + 10 : s2.length()) + (truncated ? "..." : ""); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+				return new String[] {result1, result2};
+			}
+		}
+		//no differences?
+		return new String[] {s1, s2};
 	}
 
 	private IStatus compareBytes(String entryName, InputStream firstStream, long size1, InputStream secondStream, long size2) throws IOException {
