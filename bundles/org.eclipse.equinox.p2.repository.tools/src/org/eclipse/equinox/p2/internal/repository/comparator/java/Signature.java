@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -729,8 +729,17 @@ public final class Signature {
 		// parameters
 		buffer.append('(');
 		char[][] pts = getParameterTypes(methodSignature);
-		for (int i = 0, max = pts.length; i < max; i++) {
-			if (i == max - 1) {
+		// search for the last array in the signature
+		int max = pts.length;
+		int index = max - 1;
+		loop: for (int i = index; i >= 0; i--) {
+			if (pts[i][0] == Signature.C_ARRAY) {
+				break loop;
+			}
+			index--;
+		}
+		for (int i = 0; i < max; i++) {
+			if (i == index) {
 				appendTypeSignature(pts[i], 0, fullyQualifyTypeNames, buffer, isVargArgs);
 			} else {
 				appendTypeSignature(pts[i], 0, fullyQualifyTypeNames, buffer);
