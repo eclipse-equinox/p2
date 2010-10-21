@@ -1,8 +1,21 @@
+/*******************************************************************************
+ * Copyright (c) 2009 Cloudsmith Inc. and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Cloudsmith Inc. - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * Instances of this class represents the enum version format.
+ */
 class EnumDefinition implements Comparable<EnumDefinition>, Serializable {
 	static class EnumSegment implements Comparable<EnumSegment>, Serializable {
 		private static final long serialVersionUID = 4737907767214436543L;
