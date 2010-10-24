@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2009, 2010 Tasktop Technologies and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     Tasktop Technologies - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
 import java.net.URI;
@@ -28,7 +38,7 @@ public class SiteVerifier {
 
 	/**
 	 * Determine update site availability. This may be performed automatically as part of discovery when
-	 * {@link #isVerifyUpdateSiteAvailability()} is true, or it may be invoked later by calling this method.
+	 * CatalogConfiguration#isVerifyUpdateSiteAvailability() is true, or it may be invoked later by calling this method.
 	 */
 	public void verifySiteAvailability(IProgressMonitor monitor) {
 		// NOTE: we don't put java.net.URLs in the map since it involves DNS activity when
