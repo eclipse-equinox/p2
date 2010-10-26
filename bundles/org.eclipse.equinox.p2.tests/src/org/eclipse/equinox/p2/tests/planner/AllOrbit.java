@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2008, 2010 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -8,12 +8,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -58,13 +57,11 @@ public class AllOrbit extends AbstractProvisioningTest {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
 		ArrayList toInstall = new ArrayList();
-		int removed = 0;
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit toAdd = (IInstallableUnit) iterator.next();
 			if (!toAdd.getId().equals("com.ibm.icu")) {
 				toInstall.add(toAdd);
-			} else
-				removed++;
+			}
 		}
 		req1.addInstallableUnits((IInstallableUnit[]) toInstall.toArray(new IInstallableUnit[toInstall.size()]));
 
@@ -78,14 +75,12 @@ public class AllOrbit extends AbstractProvisioningTest {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), null);
 		ArrayList toInstall = new ArrayList();
-		int removed = 0;
 		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit toAdd = (IInstallableUnit) iterator.next();
 			if (!toAdd.getId().equals("com.ibm.icu")) {
 				toInstall.add(toAdd);
 				req1.setInstallableUnitInclusionRules(toAdd, ProfileInclusionRules.createOptionalInclusionRule(toAdd));
-			} else
-				removed++;
+			}
 		}
 		req1.addInstallableUnits((IInstallableUnit[]) toInstall.toArray(new IInstallableUnit[toInstall.size()]));
 

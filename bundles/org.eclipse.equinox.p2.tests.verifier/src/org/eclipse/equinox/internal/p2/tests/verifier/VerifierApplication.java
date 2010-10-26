@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -213,8 +213,7 @@ public class VerifierApplication implements IApplication {
 
 		// found some bundles with missing leaf constraints; log them first 
 		if (missing.size() > 0) {
-			int rootIndex = 0;
-			for (Iterator iter = missing.keySet().iterator(); iter.hasNext(); rootIndex++) {
+			for (Iterator iter = missing.keySet().iterator(); iter.hasNext();) {
 				BundleDescription description = (BundleDescription) iter.next();
 				String generalMessage = NLS.bind(EclipseAdaptorMsg.ECLIPSE_STARTUP_ERROR_BUNDLE_NOT_RESOLVED, description.getLocation());
 				ArrayList constraints = (ArrayList) missing.get(description);

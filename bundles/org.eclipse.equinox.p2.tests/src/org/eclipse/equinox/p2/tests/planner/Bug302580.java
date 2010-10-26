@@ -47,10 +47,8 @@ public class Bug302580 extends AbstractPlannerTest {
 		Operand ops[] = plan.getOperands();
 
 		String message = "The plan:\n";
-		int iusCounter = 0;
 		for (int i = 0; i < ops.length; i++) {
 			if (ops[i] instanceof InstallableUnitOperand) {
-				iusCounter++;
 				InstallableUnitOperand iuo = (InstallableUnitOperand) ops[i];
 
 				if (iuo.first() == null) {
@@ -68,7 +66,6 @@ public class Bug302580 extends AbstractPlannerTest {
 
 		for (int i = 0; i < ops.length; i++) {
 			if (ops[i] instanceof InstallableUnitOperand) {
-				iusCounter++;
 				InstallableUnitOperand iuo = (InstallableUnitOperand) ops[i];
 
 				if (iuo.second() == null) {
