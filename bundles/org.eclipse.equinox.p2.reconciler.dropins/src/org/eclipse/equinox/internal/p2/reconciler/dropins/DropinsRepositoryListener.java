@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,6 +26,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryResult;
+import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
@@ -50,8 +49,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private List<IMetadataRepository> metadataRepositories = new ArrayList<IMetadataRepository>();
 	private List<IArtifactRepository> artifactRepositories = new ArrayList<IArtifactRepository>();
 
-	public DropinsRepositoryListener(IProvisioningAgent agent, String repositoryName) {
-		super(repositoryName, true);
+	public DropinsRepositoryListener(IProvisioningAgent agent, String repositoryName, Map<String, String> properties) {
+		super(repositoryName, properties);
 		this.agent = agent;
 	}
 

@@ -37,8 +37,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 	public static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 	public static final String FILE_LAST_MODIFIED = "file.lastModified"; //$NON-NLS-1$
 	public static final String FILE_NAME = "file.name"; //$NON-NLS-1$
-	private final IMetadataRepository metadataRepository;
-	private final CachingArtifactRepository artifactRepository;
+	private IMetadataRepository metadataRepository;
+	private CachingArtifactRepository artifactRepository;
 	// at any point in time currentFiles is the list of files/dirs that the watcher has seen and 
 	// believes to be on disk.
 	private final Map<File, Long> currentFiles = new HashMap<File, Long>();
@@ -56,9 +56,22 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * @param hidden <code>true</code> if the repository should be hidden, <code>false</code> if not.
 	 */
 	public RepositoryListener(String repositoryName, boolean hidden) {
-		URI location = Activator.getDefaultRepositoryLocation(this, repositoryName);
-		metadataRepository = initializeMetadataRepository(repositoryName, location, hidden);
-		artifactRepository = initializeArtifactRepository(repositoryName, location, hidden);
+		Map<String, String> properties = null;
+		if (hidden) {
+			properties = new HashMap<String, String>();
+			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+		}
+		initialize(repositoryName, properties);
+	}
+
+	public RepositoryListener(String name, Map<String, String> properties) {
+		initialize(name, properties);
+	}
+
+	private void initialize(String name, Map<String, String> properties) {
+		URI location = Activator.getDefaultRepositoryLocation(this, name);
+		metadataRepository = initializeMetadataRepository(name, location, properties);
+		artifactRepository = initializeArtifactRepository(name, location, properties);
 		initializePublisher();
 	}
 
@@ -76,7 +89,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		info.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_NO_MD5);
 	}
 
-	protected CachingArtifactRepository initializeArtifactRepository(String repositoryName, URI repositoryLocation, boolean hidden) {
+	protected CachingArtifactRepository initializeArtifactRepository(String name, URI repositoryLocation, Map<String, String> properties) {
 		IArtifactRepositoryManager manager = Activator.getArtifactRepositoryManager();
 		if (manager == null)
 			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
@@ -88,12 +101,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 			//fall through and create a new repository
 		}
 		try {
-			String name = repositoryName;
-			Map<String, String> properties = new HashMap<String, String>(1);
-			if (hidden) {
-				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-				name = "artifact listener " + repositoryName; //$NON-NLS-1$
-			}
 			IArtifactRepository result = manager.createRepository(repositoryLocation, name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			return result == null ? null : new CachingArtifactRepository(result);
 		} catch (ProvisionException e) {
@@ -102,7 +109,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		}
 	}
 
-	protected IMetadataRepository initializeMetadataRepository(String repositoryName, URI repositoryLocation, boolean hidden) {
+	protected IMetadataRepository initializeMetadataRepository(String name, URI repositoryLocation, Map<String, String> properties) {
 		IMetadataRepositoryManager manager = Activator.getMetadataRepositoryManager();
 		if (manager == null)
 			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
@@ -113,12 +120,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 			//fall through and create new repository
 		}
 		try {
-			String name = repositoryName;
-			Map<String, String> properties = new HashMap<String, String>(1);
-			if (hidden) {
-				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-				name = "metadata listener " + repositoryName; //$NON-NLS-1$
-			}
 			return manager.createRepository(repositoryLocation, name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
