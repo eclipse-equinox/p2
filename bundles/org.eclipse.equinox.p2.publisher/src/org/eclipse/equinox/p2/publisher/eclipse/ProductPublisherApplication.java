@@ -13,11 +13,13 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.VersionAdvice;
+import org.eclipse.osgi.util.NLS;
 
 public class ProductPublisherApplication extends AbstractPublisherApplication {
 
@@ -40,8 +42,7 @@ public class ProductPublisherApplication extends AbstractPublisherApplication {
 		try {
 			productDescriptor = new ProductFile(product);
 		} catch (Exception e) {
-			if (product == null)
-				throw new IllegalArgumentException("unable to load product file"); //$NON-NLS-1$
+			throw new IllegalArgumentException(NLS.bind(Messages.exception_errorLoadingProductFile, product, e.toString()));
 		}
 		File executablesFeature = executables == null ? null : new File(executables);
 		return new ProductAction(source, productDescriptor, flavor, executablesFeature);

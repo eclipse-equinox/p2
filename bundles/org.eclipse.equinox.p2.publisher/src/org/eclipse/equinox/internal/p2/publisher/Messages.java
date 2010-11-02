@@ -17,6 +17,7 @@ public class Messages extends NLS {
 	public static String exception_stateAddition;
 	public static String exception_errorReadingManifest;
 	public static String exception_errorLoadingManifest;
+	public static String exception_errorLoadingProductFile;
 	public static String exception_noPluginConverter;
 	public static String exception_noArtifactRepo;
 	public static String exception_noMetadataRepo;
