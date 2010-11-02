@@ -8,6 +8,7 @@
  * 	IBM Corporation - initial API and implementation
  * 	Band XI - add more commands
  *		Composent, Inc. - command additions
+ *      SAP - bug fixes
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
@@ -156,9 +157,18 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println("Installable unit id, version, and profileid must be provided");
 			return;
 		}
+		IProfile profile = ProvisioningHelper.getProfile(agent, profileId);
+		if (profile == null) {
+			if (profileId.equals(IProfileRegistry.SELF)) {
+				interpreter.println("No profile found");
+			} else {
+				interpreter.println("Profile " + profileId + " not found");
+			}
+			return;
+		}
 		IStatus s = null;
 		try {
-			s = ProvisioningHelper.install(agent, iu, version, ProvisioningHelper.getProfile(agent, profileId), new NullProgressMonitor());
+			s = ProvisioningHelper.install(agent, iu, version, profile, new NullProgressMonitor());
 		} catch (ProvisionException e) {
 			interpreter.println("Installation failed with ProvisionException for " + iu + " " + version);
 			interpreter.printStackTrace(e);
@@ -394,6 +404,10 @@ public class ProvCommandProvider implements CommandProvider {
 		String range = processArgument(interpreter.nextArgument());
 		if (profileId == null) {
 			IProfile[] profiles = ProvisioningHelper.getProfiles(agent);
+			if (profiles == null) {
+				interpreter.println("No profile found");
+				return;
+			}
 			for (int i = 0; i < profiles.length; i++)
 				interpreter.println(profiles[i].getProfileId());
 			return;
@@ -403,8 +417,14 @@ public class ProvCommandProvider implements CommandProvider {
 		if (profileId.equals("this")) //$NON-NLS-1$
 			profileId = IProfileRegistry.SELF;
 		target = ProvisioningHelper.getProfile(agent, profileId);
-		if (target == null)
+		if (target == null) {
+			if (profileId.equals(IProfileRegistry.SELF)) {
+				interpreter.println("No profile found");
+			} else {
+				interpreter.println("Profile " + profileId + " not found");
+			}
 			return;
+		}
 
 		// list the profile contents
 		IInstallableUnit[] result = sort(target.query(QueryUtil.createIUQuery(id, new VersionRange(range)), null));
@@ -426,8 +446,12 @@ public class ProvCommandProvider implements CommandProvider {
 		long[] profileTimestamps = ProvisioningHelper.getProfileTimestamps(agent, profileId);
 		// if no profile timestamps for given id, print that out and done
 		if (profileTimestamps == null || profileTimestamps.length == 0) {
-			interpreter.print("No timestamps found for profile ");
-			interpreter.println(profileId);
+			if (profileId.equals(IProfileRegistry.SELF)) {
+				interpreter.println("No profile found");
+			} else {
+				interpreter.print("No timestamps found for profile ");
+				interpreter.println(profileId);
+			}
 			return;
 		}
 		// else if there are some timestamps then print them out on separate line
@@ -461,7 +485,11 @@ public class ProvCommandProvider implements CommandProvider {
 
 		IProfile profile = ProvisioningHelper.getProfile(agent, profileId);
 		if (profile == null) {
-			interpreter.println("Profile " + profileId + " not found");
+			if (profileId.equals(IProfileRegistry.SELF)) {
+				interpreter.println("No profile found");
+			} else {
+				interpreter.println("Profile " + profileId + " not found");
+			}
 			return;
 		}
 		IStatus s = null;
@@ -497,7 +525,11 @@ public class ProvCommandProvider implements CommandProvider {
 		}
 		IProfile profile = ProvisioningHelper.getProfile(agent, profileId);
 		if (profile == null) {
-			interpreter.println("Profile " + profileId + " not found");
+			if (profileId.equals(IProfileRegistry.SELF)) {
+				interpreter.println("No profile found");
+			} else {
+				interpreter.println("Profile " + profileId + " not found");
+			}
 			return;
 		}
 		IInstallableUnit[] units = sort(profile.query(QueryUtil.createIUGroupQuery(), new NullProgressMonitor()));
@@ -531,7 +563,11 @@ public class ProvCommandProvider implements CommandProvider {
 
 		IProfile profile = ProvisioningHelper.getProfile(agent, profileId);
 		if (profile == null) {
-			interpreter.println("Profile " + profileId + " not found");
+			if (profileId.equals(IProfileRegistry.SELF)) {
+				interpreter.println("No profile found");
+			} else {
+				interpreter.println("Profile " + profileId + " not found");
+			}
 			return;
 		}
 		IInstallableUnit[] units = sort(profile.query(query, new NullProgressMonitor()));
@@ -557,9 +593,18 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println("Installable unit id must be provided");
 			return;
 		}
+		IProfile profile = ProvisioningHelper.getProfile(agent, profileId);
+		if (profile == null) {
+			if (profileId.equals(IProfileRegistry.SELF)) {
+				interpreter.println("No profile found");
+			} else {
+				interpreter.println("Profile " + profileId + " not found");
+			}
+			return;
+		}
 		IStatus s = null;
 		try {
-			s = ProvisioningHelper.uninstall(agent, iu, version, ProvisioningHelper.getProfile(agent, profileId), new NullProgressMonitor());
+			s = ProvisioningHelper.uninstall(agent, iu, version, profile, new NullProgressMonitor());
 		} catch (ProvisionException e) {
 			interpreter.println("Remove failed with ProvisionException for " + iu + " " + version);
 			interpreter.printStackTrace(e);
