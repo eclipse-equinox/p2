@@ -31,6 +31,8 @@ public class Messages extends NLS {
 	public static String message_generatingMetadata;
 	public static String message_generationCompleted;
 	public static String message_noSimpleconfigurator;
+	public static String message_resultException;
+	public static String message_publisherArguments;
 
 	public static String exception_artifactRepoNoAppendDestroysInput;
 

@@ -251,9 +251,11 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			info = createPublisherInfo();
 			processCommandLineArguments(args, info);
 			Object result = run(info);
-			if (result != IApplication.EXIT_OK)
+			if (result != IApplication.EXIT_OK) {
+				System.out.println(NLS.bind(Messages.message_publisherArguments, null));
 				for (int i = 0; i < args.length; i++)
 					System.out.println(args[i]);
+			}
 			return result;
 		} catch (Exception e) {
 			if (e.getMessage() != null)
@@ -285,7 +287,15 @@ public abstract class AbstractPublisherApplication implements IApplication {
 				System.out.println(NLS.bind(Messages.message_generationCompleted, String.valueOf((after - before) / 1000)));
 				return IApplication.EXIT_OK;
 			}
+			// TODO: improve the string representation of the result
 			System.out.println(result);
+			Throwable th = result.getException();
+			if (th != null) {
+				System.out.println();
+				System.out.println(NLS.bind(Messages.message_resultException, null));
+				th.printStackTrace(System.out);
+				System.out.println();
+			}
 		} catch (ProvisionException e) {
 			status = e.getStatus();
 			if (status.getSeverity() == IStatus.ERROR && status.getMessage() != null) {
