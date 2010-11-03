@@ -58,17 +58,17 @@ public abstract class AbstractApplication {
 	private void setupAgent() throws ProvisionException {
 		//note if we ever wanted these applications to act on a different agent than
 		//the currently running system we would need to set it here
-		ServiceReference agentRef = Activator.getBundleContext().getServiceReference(IProvisioningAgent.SERVICE_NAME);
+		ServiceReference<IProvisioningAgent> agentRef = Activator.getBundleContext().getServiceReference(IProvisioningAgent.class);
 		if (agentRef != null) {
-			agent = (IProvisioningAgent) Activator.getBundleContext().getService(agentRef);
+			agent = Activator.getBundleContext().getService(agentRef);
 			if (agent != null)
 				return;
 		}
 		//there is no agent around so we need to create one
-		ServiceReference providerRef = Activator.getBundleContext().getServiceReference(IProvisioningAgentProvider.SERVICE_NAME);
+		ServiceReference<IProvisioningAgentProvider> providerRef = Activator.getBundleContext().getServiceReference(IProvisioningAgentProvider.class);
 		if (providerRef == null)
 			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
-		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) Activator.getBundleContext().getService(providerRef);
+		IProvisioningAgentProvider provider = Activator.getBundleContext().getService(providerRef);
 		if (provider == null)
 			throw new RuntimeException("No provisioning agent provider is available"); //$NON-NLS-1$
 		//obtain agent for currently running system

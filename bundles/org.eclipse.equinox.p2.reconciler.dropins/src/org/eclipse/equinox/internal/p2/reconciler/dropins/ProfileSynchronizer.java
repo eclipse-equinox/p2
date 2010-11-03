@@ -759,8 +759,8 @@ public class ProfileSynchronizer {
 		if (!isInstaller && isReconciliationApplicationRunning())
 			return Status.OK_STATUS;
 		BundleContext context = Activator.getContext();
-		ServiceReference reference = context.getServiceReference(Configurator.class.getName());
-		Configurator configurator = (Configurator) context.getService(reference);
+		ServiceReference<Configurator> reference = context.getServiceReference(Configurator.class);
+		Configurator configurator = context.getService(reference);
 		try {
 			configurator.applyConfiguration();
 		} catch (IOException e) {
