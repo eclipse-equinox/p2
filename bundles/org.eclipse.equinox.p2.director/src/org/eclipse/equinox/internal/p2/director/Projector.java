@@ -302,7 +302,7 @@ public class Projector {
 
 		// no need to add one here, since maxWeight is strictly greater than the
 		// maximal weight used so far.
-		maxWeight = maxWeight.multiply(POWER);
+		maxWeight = maxWeight.multiply(POWER).multiply(BigInteger.valueOf(s.size()));
 
 		// Add the abstract variables
 		BigInteger abstractWeight = maxWeight.negate();
