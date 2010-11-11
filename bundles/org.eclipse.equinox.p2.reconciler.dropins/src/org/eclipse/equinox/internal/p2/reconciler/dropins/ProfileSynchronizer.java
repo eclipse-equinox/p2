@@ -702,6 +702,11 @@ public class ProfileSynchronizer {
 	 * Execute the given plan.
 	 */
 	private IStatus executePlan(IProvisioningPlan plan, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
+		// the plan verifier has been given the opportunity to veto the plan. check to see if that was the case.
+		// warnings are ignored
+		if (plan.getStatus().getSeverity() == IStatus.ERROR)
+			return plan.getStatus();
+
 		IEngine engine = (IEngine) agent.getService(IEngine.SERVICE_NAME);
 		IPhaseSet phaseSet = PhaseSetFactory.createDefaultPhaseSetExcluding(new String[] {PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST});
 
