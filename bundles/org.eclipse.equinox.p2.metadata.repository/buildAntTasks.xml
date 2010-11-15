@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="org.eclipse.equinox.p2.metadata.repository" default="default" basedir=".">
-
-	<target name="default" description="Compile ant tasks" >
-		<mkdir dir="${basedir}/ant_tasks" />
-		<delete file="${basedir}/ant_tasks/metadataRepository-ant.jar" failonerror="false"/>
-		<jar destfile="${basedir}/ant_tasks/metadataRepository-ant.jar" basedir="${basedir}/bin_ant"/>
-	</target>
-</project>

@@ -885,6 +885,25 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			save();
 	}
 
+	public synchronized void removeDescriptors(IArtifactDescriptor[] descriptors) {
+		boolean changed = false;
+		for (IArtifactDescriptor descriptor : descriptors)
+			changed |= doRemoveArtifact(descriptor);
+		if (changed)
+			save();
+	}
+
+	public synchronized void removeDescriptors(IArtifactKey[] keys) {
+		boolean changed = false;
+		for (IArtifactKey key : keys) {
+			IArtifactDescriptor[] descriptors = getArtifactDescriptors(key);
+			for (IArtifactDescriptor descriptor : descriptors)
+				changed |= doRemoveArtifact(descriptor);
+		}
+		if (changed)
+			save();
+	}
+
 	public synchronized void removeDescriptor(IArtifactKey key) {
 		IArtifactDescriptor[] toRemove = getArtifactDescriptors(key);
 		boolean changed = false;
