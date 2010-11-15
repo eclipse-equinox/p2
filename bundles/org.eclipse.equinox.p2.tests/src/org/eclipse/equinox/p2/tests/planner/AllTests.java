@@ -33,7 +33,6 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Bug207319.class);
 		suite.addTestSuite(Bug249605.class);
 		suite.addTestSuite(Bug252638.class);
-		suite.addTestSuite(Bug329279.class);
 		//		suite.addTestSuite(Bug252682.class);
 		suite.addTestSuite(Bug254481dataSet1.class);
 		suite.addTestSuite(Bug254481dataSet2.class);
@@ -63,6 +62,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Bug306279c.class);
 		suite.addTestSuite(Bug306279d.class);
 		suite.addTestSuite(Bug311330.class);
+		suite.addTestSuite(Bug329279.class);
 		suite.addTestSuite(DependencyOnSelf.class);
 		suite.addTestSuite(DisabledExplanation.class);
 		suite.addTestSuite(DropinsScenario.class);
