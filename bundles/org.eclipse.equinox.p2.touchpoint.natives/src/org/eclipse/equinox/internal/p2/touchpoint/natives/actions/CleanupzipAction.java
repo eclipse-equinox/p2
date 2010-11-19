@@ -102,10 +102,10 @@ public class CleanupzipAction extends ProvisioningAction {
 				if (f1 == null)
 					return 1;
 				try {
-					return Integer.valueOf(f2.getCanonicalPath().length()).compareTo(f1.getCanonicalPath().length());
+					return new Integer(f2.getCanonicalPath().length()).compareTo(f1.getCanonicalPath().length());
 				} catch (IOException e) {
 					// did our best. try an absolute path compare
-					return Integer.valueOf(f2.getAbsolutePath().length()).compareTo(f1.getAbsolutePath().length());
+					return new Integer(f2.getAbsolutePath().length()).compareTo(f1.getAbsolutePath().length());
 				}
 			}
 
