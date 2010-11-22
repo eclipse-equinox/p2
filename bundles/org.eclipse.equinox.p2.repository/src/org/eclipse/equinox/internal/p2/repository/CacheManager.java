@@ -350,6 +350,7 @@ public class CacheManager {
 				safeDelete(cacheFile);
 			if (tempFile.renameTo(cacheFile))
 				return;
+			result = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManage_ErrorRenamingCache, new Object[] {remoteFile.toString(), tempFile.getAbsolutePath(), cacheFile.getAbsolutePath()}));
 		}
 
 		if (result.getSeverity() == IStatus.CANCEL || submonitor.isCanceled())
