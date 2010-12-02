@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -378,12 +378,17 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (p == null)
 			return null;
 		StringBuffer result = new StringBuffer();
-		for (Entry<String, String> aProperty : p.entrySet()) {
-			if (aProperty.getKey().equals(BUNDLE_SHAPE))
-				continue;
-			result.append(aProperty.getKey()).append(": ").append(aProperty.getValue()).append('\n'); //$NON-NLS-1$
+		// See https://bugs.eclipse.org/329386. We are trying to reduce the size of the manifest data in
+		// the eclipse touchpoint. We've removed the code that requires it but in order for old clients
+		// to still be able to use recent repositories, we're going to keep around the manifest properties
+		// they need.
+		final String[] interestingKeys = new String[] {Constants.BUNDLE_SYMBOLICNAME, Constants.BUNDLE_VERSION, Constants.FRAGMENT_HOST};
+		for (String key : interestingKeys) {
+			String value = p.get(key);
+			if (value != null)
+				result.append(key).append(": ").append(value).append('\n'); //$NON-NLS-1$
 		}
-		return result.toString();
+		return result.length() == 0 ? null : result.toString();
 	}
 
 	// Return a map from locale to property set for the manifest localizations
