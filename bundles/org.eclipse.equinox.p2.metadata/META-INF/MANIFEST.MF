@@ -19,7 +19,8 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata;
    org.eclipse.equinox.p2.operations,
    org.eclipse.equinox.p2.publisher,
    org.eclipse.equinox.p2.ql,
-   org.eclipse.equinox.p2.ui",
+   org.eclipse.equinox.p2.ui,
+   org.eclipse.equinox.p2.touchpoint.eclipse",
  org.eclipse.equinox.internal.p2.metadata.expression;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.directorywatcher,

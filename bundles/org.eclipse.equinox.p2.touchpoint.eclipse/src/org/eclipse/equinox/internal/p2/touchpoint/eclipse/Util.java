@@ -12,12 +12,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
@@ -25,10 +27,7 @@ import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
-import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
 
 public class Util {
 
@@ -157,40 +156,46 @@ public class Util {
 		return listProperty;
 	}
 
-	public static BundleInfo createBundleInfo(File bundleFile, String manifest) {
+	public static BundleInfo createBundleInfo(File bundleFile, IInstallableUnit unit) {
 		BundleInfo bundleInfo = new BundleInfo();
 		if (bundleFile != null)
 			bundleInfo.setLocation(bundleFile.toURI());
 
-		bundleInfo.setManifest(manifest);
-		try {
-			Map<String, String> headers = ManifestElement.parseBundleManifest(new ByteArrayInputStream(manifest.getBytes("UTF-8")), new HashMap<String, String>()); //$NON-NLS-1$
-			ManifestElement[] element = ManifestElement.parseHeader("bsn", headers.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
-			if (element == null || element.length == 0)
-				return null;
-			bundleInfo.setSymbolicName(element[0].getValue());
-
-			String version = headers.get(Constants.BUNDLE_VERSION);
-			if (version == null)
-				return null;
-			// convert to a Version object first to ensure we are consistent with our version number w.r.t.
-			// padding zeros at the end
-			bundleInfo.setVersion(Version.parseVersion(version).toString());
-
-			String fragmentHost = headers.get(Constants.FRAGMENT_HOST);
-			if (fragmentHost != null)
-				bundleInfo.setFragmentHost(fragmentHost.trim());
-
-		} catch (BundleException e) {
-			// unexpected
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
-			return null;
-		} catch (IOException e) {
-			// unexpected
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
-			return null;
+		Collection<IProvidedCapability> capabilities = unit.getProvidedCapabilities();
+		for (IProvidedCapability capability : capabilities) {
+			String nameSpace = capability.getNamespace();
+			if (nameSpace.equals("osgi.bundle")) { //$NON-NLS-1$
+				bundleInfo.setSymbolicName(capability.getName());
+				bundleInfo.setVersion(capability.getVersion().toString());
+			} else if (nameSpace.equals("osgi.fragment")) { //$NON-NLS-1$
+				String fragmentName = capability.getName();
+				String fragmentHost = getFragmentHost(unit, fragmentName);
+				// shouldn't happen as long as the metadata is well-formed
+				if (fragmentHost == null)
+					LogHelper.log(createError("Unable to find fragment host for IU: " + unit)); //$NON-NLS-1$
+				else
+					bundleInfo.setFragmentHost(fragmentHost);
+				bundleInfo.setVersion(capability.getVersion().toString());
+			}
 		}
 		return bundleInfo;
+	}
+
+	private static String getFragmentHost(IInstallableUnit unit, String fragmentName) {
+		Collection<IRequirement> requires = unit.getRequirements();
+		for (IRequirement iRequirement : requires) {
+			if (iRequirement instanceof IRequiredCapability) {
+				IRequiredCapability requiredCapability = (IRequiredCapability) iRequirement;
+				if (fragmentName.equals(requiredCapability.getName())) {
+					String fragmentHost = requiredCapability.getName();
+					if (!requiredCapability.getRange().toString().equals("0.0.0")) { //$NON-NLS-1$
+						fragmentHost += ";bundle-version=\"" + requiredCapability.getRange() + '"'; //$NON-NLS-1$
+					}
+					return fragmentHost;
+				}
+			}
+		}
+		return null;
 	}
 
 	public static File getArtifactFile(IProvisioningAgent agent, IArtifactKey artifactKey, IProfile profile) {
@@ -309,18 +314,6 @@ public class Util {
 			if (!key.equals("osgi.os")) //$NON-NLS-1$
 				continue;
 			return entry.substring(i + 1).trim();
-		}
-		return null;
-	}
-
-	public static String getManifest(Collection<ITouchpointData> data) {
-		for (ITouchpointData td : data) {
-			ITouchpointInstruction manifestInstruction = td.getInstruction("manifest"); //$NON-NLS-1$
-			if (manifestInstruction == null)
-				return null;
-			String manifest = manifestInstruction.getBody();
-			if (manifest != null && manifest.length() > 0)
-				return manifest;
 		}
 		return null;
 	}
