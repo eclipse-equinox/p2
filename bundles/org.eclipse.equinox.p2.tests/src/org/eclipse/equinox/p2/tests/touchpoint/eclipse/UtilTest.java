@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,15 +12,12 @@ package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.util.Collections;
 import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.ITouchpointData;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -53,10 +50,5 @@ public class UtilTest extends AbstractProvisioningTest {
 		props.put(IProfile.PROP_CACHE, cacheDir.toString());
 		IProfile profile = createProfile("test", props);
 		assertEquals(cacheDir.toURL().toExternalForm(), Util.getBundlePoolLocation(getAgent(), profile).toString());
-	}
-
-	public void testMissingManifest() {
-		ITouchpointData emptyData = MetadataFactory.createTouchpointData(Collections.EMPTY_MAP);
-		assertNull(Util.getManifest(Collections.singletonList(emptyData)));
 	}
 }

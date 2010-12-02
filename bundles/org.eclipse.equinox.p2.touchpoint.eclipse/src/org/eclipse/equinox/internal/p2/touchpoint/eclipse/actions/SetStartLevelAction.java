@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -46,11 +46,7 @@ public class SetStartLevelAction extends ProvisioningAction {
 		// the bundleFile might be null here, that's OK.
 		File bundleFile = Util.getArtifactFile(agent, artifactKey, profile);
 
-		String manifest = Util.getManifest(iu.getTouchpointData());
-		if (manifest == null)
-			return Util.createError(NLS.bind(Messages.missing_manifest, iu));
-
-		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, iu);
 		if (bundleInfo == null)
 			return Util.createError(NLS.bind(Messages.failed_bundleinfo, iu));
 
@@ -90,11 +86,7 @@ public class SetStartLevelAction extends ProvisioningAction {
 		// the bundleFile might be null here, that's OK.
 		File bundleFile = Util.getArtifactFile(agent, artifactKey, profile);
 
-		String manifest = Util.getManifest(iu.getTouchpointData());
-		if (manifest == null)
-			return Util.createError(NLS.bind(Messages.missing_manifest, iu));
-
-		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, iu);
 		if (bundleInfo == null)
 			return Util.createError(NLS.bind(Messages.failed_bundleinfo, iu));
 

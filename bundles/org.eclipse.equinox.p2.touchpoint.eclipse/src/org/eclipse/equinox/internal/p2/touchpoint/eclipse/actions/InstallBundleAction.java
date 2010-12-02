@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2008, 2010 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -69,12 +69,7 @@ public class InstallBundleAction extends ProvisioningAction {
 		if (bundleFile == null || !bundleFile.exists())
 			return Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey));
 
-		//By now we always have the manifest in the touchpoint data
-		String manifest = Util.getManifest(iu.getTouchpointData());
-		if (manifest == null)
-			return Util.createError(NLS.bind(Messages.missing_manifest, iu));
-
-		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, iu);
 		if (bundleInfo == null)
 			return Util.createError(NLS.bind(Messages.failed_bundleinfo, iu));
 		manipulator.getConfigData().addBundle(bundleInfo);

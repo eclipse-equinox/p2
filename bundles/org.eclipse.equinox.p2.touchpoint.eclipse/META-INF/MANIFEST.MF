@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.equinox.p2.touchpoint.eclipse;singleton:=true
-Bundle-Version: 2.0.2.qualifier
+Bundle-Version: 2.0.3.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -20,6 +20,7 @@ Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.engine,
  org.eclipse.equinox.internal.p2.garbagecollector,
+ org.eclipse.equinox.internal.p2.metadata,
  org.eclipse.equinox.internal.provisional.frameworkadmin,
  org.eclipse.equinox.internal.provisional.p2.director;resolution:=optional,
  org.eclipse.equinox.internal.provisional.p2.repository,
