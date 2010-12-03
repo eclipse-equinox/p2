@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
-import org.eclipse.equinox.internal.p2.core.StringPool;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -44,7 +43,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	protected MultiStatus status = null; // accumulation of non-fatal errors
 	protected Locator locator = null; // document locator, if supported by the parser
 
-	protected StringPool stringPool = new StringPool();//used to eliminate string duplication
 	private IProgressMonitor monitor;
 
 	private static ServiceTracker<SAXParserFactory, SAXParserFactory> xmlTracker = null;
@@ -60,14 +58,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	 */
 	public IStatus getStatus() {
 		return (status != null ? status : Status.OK_STATUS);
-	}
-
-	/**
-	 * Returns the canonical form of a string. Used to eliminate duplicate equal 
-	 * strings.
-	 */
-	protected String canonicalize(String string) {
-		return stringPool == null ? string : stringPool.add(string);
 	}
 
 	public boolean isValidXML() {
@@ -320,7 +310,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			String[] result = new String[required.length + optional.length];
 			for (int i = 0; i < attributes.getLength(); i += 1) {
 				String name = attributes.getLocalName(i);
-				String value = canonicalize(attributes.getValue(i).trim());
+				String value = attributes.getValue(i).trim().intern();
 				int j;
 				if ((j = indexOf(required, name)) >= 0) {
 					result[j] = value;
@@ -468,7 +458,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		}
 
 		protected void processCharacters(String data) {
-			this.text = canonicalize(data);
+			this.text = data == null ? null : data.intern();
 		}
 
 	}
