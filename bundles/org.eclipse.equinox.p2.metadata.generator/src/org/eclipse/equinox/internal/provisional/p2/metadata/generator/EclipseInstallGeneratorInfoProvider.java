@@ -210,7 +210,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		result.setVersion("0.0.0"); //$NON-NLS-1$
 		result.setMarkedAsStarted(true);
 		result.setSpecialConfigCommands("mkdir(path:${installFolder}/dropins)"); //$NON-NLS-1$
-		result.setSpecialUnconfigCommands("rmdir(path:${installFolder}/dropins)"); //$NON-NLS-1$
 		return result;
 	}
 
