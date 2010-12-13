@@ -16,7 +16,6 @@ import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -213,10 +212,10 @@ public class ProfileMetadataRepository extends AbstractMetadataRepository {
 		switch (code) {
 			case ProvisionException.REPOSITORY_NOT_FOUND :
 				String msg = NLS.bind(Messages.io_NotFound, location);
-				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
+				throw new ProvisionException(new Status(IStatus.ERROR, EngineActivator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 			case ProvisionException.REPOSITORY_FAILED_READ :
 				msg = NLS.bind(Messages.io_FailedRead, location);
-				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
+				throw new ProvisionException(new Status(IStatus.ERROR, EngineActivator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 	}
 }
