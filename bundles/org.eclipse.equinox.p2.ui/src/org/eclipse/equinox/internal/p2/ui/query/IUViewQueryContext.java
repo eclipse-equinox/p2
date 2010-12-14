@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -44,6 +44,8 @@ public class IUViewQueryContext {
 	private boolean showAvailableChildren = false;
 	// Whether to drill down into items in a provisioning plan
 	private boolean showProvisioningPlanChildren = true;
+	// Whether to filter out IUs based on the environment settings of the target profile
+	private boolean filterOnEnv = false;
 
 	private String profileId = null;
 
@@ -98,6 +100,14 @@ public class IUViewQueryContext {
 
 	public void setInstalledProfileId(String profileId) {
 		this.profileId = profileId;
+	}
+
+	public void setFilterOnEnv(boolean filterOnEnv) {
+		this.filterOnEnv = filterOnEnv;
+	}
+
+	public boolean getFilterOnEnv() {
+		return filterOnEnv;
 	}
 
 	/**

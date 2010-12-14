@@ -52,7 +52,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 	AvailableIUGroup availableIUGroup;
 	Composite availableIUButtonBar;
 	Link installLink;
-	Button useCategoriesCheckbox, hideInstalledCheckbox, showLatestVersionsCheckbox, resolveAllCheckbox;
+	Button useCategoriesCheckbox, hideInstalledCheckbox, showLatestVersionsCheckbox, resolveAllCheckbox, filterOnEnvCheckBox;
 	SashForm sashForm;
 	IUColumnConfig nameColumn, versionColumn;
 	StructuredViewerProvisioningListener profileListener;
@@ -277,6 +277,20 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		}, ProvUIMessages.AvailableIUsPage_GotoInstallInfo);
 		installLink.setLayoutData(gd);
 
+		filterOnEnvCheckBox = new Button(parent, SWT.CHECK);
+		filterOnEnvCheckBox.setText(ProvUIMessages.AvailableIUsPage_FilterOnEnvCheckBox);
+		filterOnEnvCheckBox.addSelectionListener(new SelectionListener() {
+			public void widgetDefaultSelected(SelectionEvent e) {
+				updateQueryContext();
+				availableIUGroup.updateAvailableViewState();
+			}
+
+			public void widgetSelected(SelectionEvent e) {
+				updateQueryContext();
+				availableIUGroup.updateAvailableViewState();
+			}
+		});
+
 		if (getPolicy().getRepositoriesVisible()) {
 			// Checkbox
 			resolveAllCheckbox = new Button(parent, SWT.CHECK);
@@ -349,6 +363,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_BY_CATEGORY);
 		else
 			queryContext.setViewType(IUViewQueryContext.AVAILABLE_VIEW_FLAT);
+		queryContext.setFilterOnEnv(filterOnEnvCheckBox.getSelection());
 	}
 
 	private Link createLink(Composite parent, IAction action, String text) {
@@ -389,6 +404,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		hideInstalledCheckbox.setSelection(queryContext.getHideAlreadyInstalled());
 		showLatestVersionsCheckbox.setSelection(queryContext.getShowLatestVersionsOnly());
 		useCategoriesCheckbox.setSelection(queryContext.shouldGroupByCategories());
+		filterOnEnvCheckBox.setSelection(queryContext.getFilterOnEnv());
 		availableIUGroup.updateAvailableViewState();
 		if (initialSelections != null)
 			availableIUGroup.setChecked(initialSelections);

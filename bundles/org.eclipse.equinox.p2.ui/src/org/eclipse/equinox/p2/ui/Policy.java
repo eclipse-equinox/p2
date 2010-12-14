@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -78,6 +78,7 @@ public class Policy {
 	private int restartPolicy = RESTART_POLICY_PROMPT_RESTART_OR_APPLY;
 	private String repoPrefPageId;
 	private String repoPrefPageName;
+	private boolean filterOnEnv = false;
 
 	/**
 	 * Answer a boolean indicating whether the caller should continue to work with the
@@ -258,6 +259,28 @@ public class Policy {
 	 */
 	public void setShowDrilldownRequirements(boolean drilldown) {
 		this.allowDrilldown = drilldown;
+	}
+
+	/**
+	 * Return a boolean value indicating whether or not the list of available
+	 * software should be filtered based on the environment settings of the profile.
+	 * 
+	 * @return <code>true</code> if the results should be filtered 
+	 * and <code>false</code> otherwise.
+	 */
+	public boolean getFilterOnEnv() {
+		return filterOnEnv;
+	}
+
+	/**
+	 * Set a boolean value indicating whether or not the list of available
+	 * software should be filtered based on the environment settings of the profile.
+	 * 
+	 * @param filterOnEnv <code>true</code> if the results should be filtered 
+	 * and <code>false</code> otherwise.
+	 */
+	public void setFilterOnEnv(boolean filterOnEnv) {
+		this.filterOnEnv = filterOnEnv;
 	}
 
 	/**

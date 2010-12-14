@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,8 @@
 package org.eclipse.equinox.internal.p2.ui;
 
 import java.net.URI;
-import java.util.Collection;
+import java.util.*;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.query.*;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -47,6 +48,39 @@ public class QueryProvider {
 		this.ui = ui;
 	}
 
+	/*
+	 * Return a map of key/value pairs which are set to the environment settings
+	 * for the given profile. May return <code>null</code> or an empty <code>Map</code>
+	 * if the settings cannot be obtained.
+	 */
+	private static Map<String, String> getEnvFromProfile(IProfile profile) {
+		String environments = profile.getProperty(IProfile.PROP_ENVIRONMENTS);
+		if (environments == null)
+			return null;
+		Map<String, String> result = new HashMap<String, String>();
+		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
+			String entry = tokenizer.nextToken();
+			int i = entry.indexOf('=');
+			String key = entry.substring(0, i).trim();
+			String value = entry.substring(i + 1).trim();
+			result.put(key, value);
+		}
+		return result;
+	}
+
+	// If we are supposed to filter out the results based on the environment settings in
+	// the target profile then create a compound query otherwise just return the given query
+	private IQuery<IInstallableUnit> createEnvironmentFilterQuery(IUViewQueryContext context, IProfile profile, IQuery<IInstallableUnit> query) {
+		if (!context.getFilterOnEnv())
+			return query;
+		Map<String, String> environment = getEnvFromProfile(profile);
+		if (environment == null)
+			return query;
+		IInstallableUnit envIU = InstallableUnit.contextIU(environment);
+		IQuery<IInstallableUnit> filterQuery = QueryUtil.createMatchQuery("filter == null || $0 ~= filter", envIU); //$NON-NLS-1$
+		return QueryUtil.createCompoundQuery(query, filterQuery, true);
+	}
+
 	public ElementQueryDescriptor getQueryDescriptor(final QueriedElement element) {
 		// Initialize queryable, queryContext, and queryType from the element.
 		// In some cases we override this.
@@ -79,6 +113,9 @@ public class QueryProvider {
 				IQuery<IInstallableUnit> topLevelQuery = policy.getVisibleAvailableIUQuery();
 				IQuery<IInstallableUnit> categoryQuery = QueryUtil.createIUCategoryQuery();
 
+				topLevelQuery = createEnvironmentFilterQuery(context, targetProfile, topLevelQuery);
+				categoryQuery = createEnvironmentFilterQuery(context, targetProfile, categoryQuery);
+
 				// Showing child IU's of a group of repositories, or of a single repository
 				if (element instanceof MetadataRepositories || element instanceof MetadataRepositoryElement) {
 					if (context.getViewType() == IUViewQueryContext.AVAILABLE_VIEW_FLAT || !context.getUseCategories()) {
@@ -108,6 +145,7 @@ public class QueryProvider {
 					} else {
 						memberOfCategoryQuery = QueryUtil.createIUCategoryMemberQuery(((IIUElement) element).getIU());
 					}
+					memberOfCategoryQuery = createEnvironmentFilterQuery(context, targetProfile, memberOfCategoryQuery);
 					availableIUWrapper = new AvailableIUWrapper(queryable, element, true, drillDownTheChildren);
 					if (targetProfile != null)
 						availableIUWrapper.markInstalledIUs(targetProfile, hideInstalled);
