@@ -494,6 +494,9 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	protected void generateSiteReferences(Feature feature, IPublisherResult result, IPublisherInfo publisherInfo) {
+		if (publisherInfo.getMetadataRepository() == null)
+			return;
+
 		//publish feature site references
 		URLEntry updateURL = feature.getUpdateSite();
 		//don't enable feature update sites by default since this results in too many
