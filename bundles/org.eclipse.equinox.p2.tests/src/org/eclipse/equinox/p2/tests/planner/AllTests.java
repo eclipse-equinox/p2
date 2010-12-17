@@ -93,6 +93,7 @@ public class AllTests extends TestCase {
 		//		suite.addTestSuite(NegationTesting.class);
 		suite.addTestSuite(NonMinimalState.class);
 		suite.addTestSuite(NonMinimalState2.class);
+		suite.addTestSuite(NoUnecessaryIUProperty.class);
 		suite.addTestSuite(MultipleProvider.class);
 		suite.addTestSuite(MultipleSingleton.class);
 		suite.addTestSuite(NoRequirements.class);

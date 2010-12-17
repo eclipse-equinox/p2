@@ -51,7 +51,7 @@ public class SimplePlanner implements IPlanner {
 	private IProvisioningPlan generateProvisioningPlan(Collection<IInstallableUnit> fromState, Collection<IInstallableUnit> toState, ProfileChangeRequest changeRequest, IProvisioningPlan installerPlan, ProvisioningContext context) {
 		IProvisioningPlan plan = engine.createPlan(changeRequest.getProfile(), context);
 		planIUOperations(plan, fromState, toState);
-		planPropertyOperations(plan, changeRequest);
+		planPropertyOperations(plan, changeRequest, toState);
 
 		if (DEBUG) {
 			Object[] operands = new Object[0];
@@ -164,7 +164,7 @@ public class SimplePlanner implements IPlanner {
 		return root;
 	}
 
-	private void planPropertyOperations(IProvisioningPlan plan, ProfileChangeRequest profileChangeRequest) {
+	private void planPropertyOperations(IProvisioningPlan plan, ProfileChangeRequest profileChangeRequest, Collection<IInstallableUnit> toState) {
 
 		// First deal with profile properties to remove.
 		String[] toRemove = profileChangeRequest.getPropertiesToRemove();
@@ -181,6 +181,8 @@ public class SimplePlanner implements IPlanner {
 		Map<IInstallableUnit, Map<String, String>> allIUPropertyChanges = profileChangeRequest.getInstallableUnitProfilePropertiesToAdd();
 		for (Map.Entry<IInstallableUnit, Map<String, String>> entry : allIUPropertyChanges.entrySet()) {
 			IInstallableUnit iu = entry.getKey();
+			if (!toState.contains(iu))
+				continue;
 			for (Map.Entry<String, String> entry2 : entry.getValue().entrySet()) {
 				plan.setInstallableUnitProfileProperty(iu, entry2.getKey(), entry2.getValue());
 			}
