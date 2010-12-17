@@ -267,6 +267,7 @@ public class Policy {
 	 * 
 	 * @return <code>true</code> if the results should be filtered 
 	 * and <code>false</code> otherwise.
+	 * @since 2.1
 	 */
 	public boolean getFilterOnEnv() {
 		return filterOnEnv;
@@ -278,6 +279,7 @@ public class Policy {
 	 * 
 	 * @param filterOnEnv <code>true</code> if the results should be filtered 
 	 * and <code>false</code> otherwise.
+	 * @since 2.1
 	 */
 	public void setFilterOnEnv(boolean filterOnEnv) {
 		this.filterOnEnv = filterOnEnv;
