@@ -46,4 +46,12 @@ public class NoUnecessaryIUProperty extends AbstractProvisioningTest {
 		assertEquals(2, ((ProvisioningPlan) plan).getOperands().length);
 
 	}
+
+	public void testZeroOperands() {
+		IProfileChangeRequest pcr = planner.createChangeRequest(profile1);
+		pcr.setInstallableUnitProfileProperty(iuB, "theKey", "theValue"); // Try to set a property on an IU that does not end up in plan
+		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, new NullProgressMonitor());
+		assertEquals(0, ((ProvisioningPlan) plan).getOperands().length);
+
+	}
 }
