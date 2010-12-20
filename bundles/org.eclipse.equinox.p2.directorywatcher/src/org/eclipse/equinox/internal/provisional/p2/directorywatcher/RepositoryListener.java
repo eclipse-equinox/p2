@@ -214,10 +214,14 @@ public class RepositoryListener extends DirectoryChangeListener {
 			metadataRepository.removeInstallableUnits(changes);
 
 			// create a query that will identify all ius related to removed files.
-			// It's safe to compare a String with a File since the auto coercion will
-			// first convert the String into a File.
+			// We convert the java.io.File objects to Strings before doing the comparison
+			// because when we have large numbers of files, the performance is much better.
+			// See bug 324353.
+			Collection<String> paths = new HashSet<String>(removedFiles.size());
+			for (File file : removedFiles)
+				paths.add(file.getAbsolutePath());
 			IQuery<IInstallableUnit> removeQuery = QueryUtil.createMatchQuery( //
-					"$1.exists(x | properties[$0] == x)", FILE_NAME, removedFiles); //$NON-NLS-1$
+					"$1.exists(x | properties[$0] == x)", FILE_NAME, paths); //$NON-NLS-1$
 			IQueryResult<IInstallableUnit> toRemove = metadataRepository.query(removeQuery, null);
 			metadataRepository.removeInstallableUnits(toRemove.toUnmodifiableSet());
 		}
