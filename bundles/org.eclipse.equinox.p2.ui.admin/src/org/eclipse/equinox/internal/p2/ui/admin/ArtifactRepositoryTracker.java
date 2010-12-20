@@ -82,4 +82,9 @@ public class ArtifactRepositoryTracker extends RepositoryTracker {
 	IArtifactRepositoryManager getArtifactRepositoryManager() {
 		return ProvUI.getArtifactRepositoryManager(ui.getSession());
 	}
+
+	@Override
+	protected boolean contains(URI location, ProvisioningSession session) {
+		return ProvUI.getArtifactRepositoryManager(session).contains(location);
+	}
 }

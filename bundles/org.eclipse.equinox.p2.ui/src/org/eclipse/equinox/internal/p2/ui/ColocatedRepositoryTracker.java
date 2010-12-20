@@ -216,17 +216,8 @@ public class ColocatedRepositoryTracker extends RepositoryTracker {
 		return null;
 	}
 
-	/*
-	 * Overridden to do a better job of finding duplicates
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.operations.RepositoryTracker#validateRepositoryLocation(org.eclipse.equinox.p2.operations.ProvisioningSession, java.net.URI, boolean, org.eclipse.core.runtime.IProgressMonitor)
-	 */
-	public IStatus validateRepositoryLocation(ProvisioningSession session, URI location, boolean contactRepositories, IProgressMonitor monitor) {
-		IStatus status = super.validateRepositoryLocation(session, location, contactRepositories, monitor);
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=268580
-		if (status.isOK() && getMetadataRepositoryManager().contains(location))
-			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, STATUS_INVALID_REPOSITORY_LOCATION, ProvUIMessages.RepositoryTracker_DuplicateLocation, null);
-		return status;
-
+	@Override
+	protected boolean contains(URI location, ProvisioningSession session) {
+		return ProvUI.getMetadataRepositoryManager(session).contains(location);
 	}
 }

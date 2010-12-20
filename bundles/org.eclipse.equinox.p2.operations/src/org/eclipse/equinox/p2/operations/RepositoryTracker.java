@@ -112,15 +112,29 @@ public abstract class RepositoryTracker {
 		if (!localValidationStatus.isOK())
 			return localValidationStatus;
 
-		// Syntax was ok, now look for duplicates
+		if (contains(location, session))
+			return new Status(IStatus.ERROR, Activator.ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, Messages.RepositoryTracker_DuplicateLocation, null);
+		return Status.OK_STATUS;
+	}
+
+	/**
+	 * Return a boolean indicating whether this tracker already contains the specified
+	 * repository location.
+	 * 
+	 * @param location the location in question
+	 * @param session the provisioning session providing the repository services
+	 * @since 2.1
+	 */
+	protected boolean contains(URI location, ProvisioningSession session) {
+		// This is a fallback implementation in the absence of a repository manager
+		// that would know what to do.
 		URI[] knownRepositories = getKnownRepositories(session);
 		for (int i = 0; i < knownRepositories.length; i++) {
 			if (URIUtil.sameURI(knownRepositories[i], location)) {
-				localValidationStatus = new Status(IStatus.ERROR, Activator.ID, IStatusCodes.INVALID_REPOSITORY_LOCATION, Messages.RepositoryTracker_DuplicateLocation, null);
-				break;
+				return true;
 			}
 		}
-		return localValidationStatus;
+		return false;
 	}
 
 	/**

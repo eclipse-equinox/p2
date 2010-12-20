@@ -83,4 +83,9 @@ public class MetadataRepositoryTracker extends RepositoryTracker {
 	IMetadataRepositoryManager getMetadataRepositoryManager() {
 		return ProvUI.getMetadataRepositoryManager(ui.getSession());
 	}
+
+	@Override
+	protected boolean contains(URI location, ProvisioningSession session) {
+		return ProvUI.getMetadataRepositoryManager(session).contains(location);
+	}
 }
