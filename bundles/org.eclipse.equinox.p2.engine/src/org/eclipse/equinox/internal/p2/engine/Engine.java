@@ -51,6 +51,8 @@ public class Engine implements IEngine {
 	public IStatus perform(IProfile iprofile, IPhaseSet phases, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		PhaseSet phaseSet = (PhaseSet) phases;
 		checkArguments(iprofile, phaseSet, operands, context, monitor);
+		if (operands.length == 0)
+			return Status.OK_STATUS;
 		SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
 
