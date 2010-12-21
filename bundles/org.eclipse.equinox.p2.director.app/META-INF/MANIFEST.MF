@@ -28,5 +28,5 @@ Import-Package: org.eclipse.equinox.app,
  org.eclipse.osgi.framework.log,
  org.eclipse.osgi.service.environment,
  org.eclipse.osgi.util,
- org.osgi.framework,
+ org.osgi.framework;version="1.6.0",
  org.osgi.service.packageadmin

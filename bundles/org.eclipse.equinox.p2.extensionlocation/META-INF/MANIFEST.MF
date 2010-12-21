@@ -32,4 +32,4 @@ Import-Package: org.eclipse.equinox.internal.p2.artifact.repository.simple,
  org.eclipse.osgi.service.datalocation;version="1.1.0",
  org.eclipse.osgi.service.resolver;version="1.2.0",
  org.eclipse.osgi.util,
- org.osgi.framework
+ org.osgi.framework;version="1.6.0"
