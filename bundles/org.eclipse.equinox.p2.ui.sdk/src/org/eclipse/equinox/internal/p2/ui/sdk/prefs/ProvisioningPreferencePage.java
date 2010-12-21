@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 
 import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.sdk.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
@@ -90,6 +91,16 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		gd = new GridData();
 		gd.horizontalSpan = 3;
 		promptOnFailedPlan.setLayoutData(gd);
+
+		//Link to installed software page
+		//See https://bugs.eclipse.org/bugs/show_bug.cgi?id=313242
+		Link link = new Link(container, SWT.PUSH);
+		link.setText(ProvSDKMessages.ProvisioningPreferencePage_UninstallUpdateLink);
+		link.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				ProvUI.openInstallationDialog(event);
+			}
+		});
 
 		initialize();
 

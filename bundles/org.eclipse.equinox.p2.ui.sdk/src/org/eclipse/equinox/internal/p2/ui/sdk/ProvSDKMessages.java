@@ -35,6 +35,7 @@ public class ProvSDKMessages extends NLS {
 	public static String ProvisioningPreferencePage_NeverOpenWizard;
 	public static String ProvisioningPreferencePage_OpenWizardIfInvalid;
 	public static String ProvisioningPreferencePage_PromptToOpenWizard;
+	public static String ProvisioningPreferencePage_UninstallUpdateLink;
 	public static String ProvSDKUIActivator_ErrorSavingPrefs;
 	public static String ProvSDKUIActivator_NoSelfProfile;
 	public static String ProvSDKUIActivator_OpenWizardAnyway;
