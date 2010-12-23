@@ -793,7 +793,9 @@ public class EngineTest extends AbstractProvisioningTest {
 			}
 		};
 		try {
-			engine.perform(engine.createPlan(profile, null), new NullProgressMonitor());
+			IProvisioningPlan plan = engine.createPlan(profile, null);
+			plan.addInstallableUnit(createOSGiIU());
+			engine.perform(plan, new NullProgressMonitor());
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
