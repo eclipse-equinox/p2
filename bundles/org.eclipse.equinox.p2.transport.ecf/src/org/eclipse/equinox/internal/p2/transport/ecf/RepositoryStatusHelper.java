@@ -8,16 +8,23 @@
  * 	Cloudsmith Inc. - Initial API and implementation
  *  IBM Corporation - Original Implementation of checkPermissionDenied
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.repository;
+package org.eclipse.equinox.internal.p2.transport.ecf;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
-import org.eclipse.core.runtime.*;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.ecf.filetransfer.BrowseFileTransferException;
 import org.eclipse.ecf.filetransfer.IncomingFileTransferException;
+import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
+import org.eclipse.equinox.internal.p2.repository.JREHttpClientRequiredException;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -303,16 +310,6 @@ public abstract class RepositoryStatusHelper {
 			if (e instanceof FileNotFoundException)
 				throw (FileNotFoundException) e;
 		}
-	}
-
-	/**
-	 * Get default "InternalError" ProvisionException.
-	 * @param t
-	 * @return a default "InternalError"
-	 */
-	public static ProvisionException internalError(Throwable t) {
-		return new ProvisionException(new Status(IStatus.ERROR, Activator.ID, //
-				ProvisionException.INTERNAL_ERROR, Messages.repoMan_internalError, t));
 	}
 
 	public static IStatus malformedAddressStatus(String address, Throwable t) {

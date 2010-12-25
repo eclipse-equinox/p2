@@ -8,6 +8,7 @@
  *  Contributors:
  *   IBM Corporation - initial API and implementation
  *   Genuitec LLC - various bug fixes
+ *   Sonatype, Inc. - transport split
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
@@ -41,7 +42,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 	}
 
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Map<String, String> destinationDescriptorProperties, Map<String, String> destinationRepositoryProperties) {
-		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties);
+		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties, getTransport());
 	}
 
 	public IArtifactRepository createRepository(URI location, String name, String type, Map<String, String> properties) throws ProvisionException {

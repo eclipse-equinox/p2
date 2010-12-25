@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -7,6 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
+ *   Sonatype, Inc. - transport split
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
@@ -18,6 +19,7 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -88,7 +90,7 @@ public class SiteXMLAction extends AbstractPublisherAction {
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		if (updateSite == null) {
 			try {
-				updateSite = UpdateSite.load(location, monitor);
+				updateSite = UpdateSite.load(location, (Transport) publisherInfo.getMetadataRepository().getProvisioningAgent().getService(Transport.SERVICE_NAME), monitor);
 			} catch (ProvisionException e) {
 				return new Status(IStatus.ERROR, Activator.ID, Messages.Error_generating_siteXML, e);
 			} catch (OperationCanceledException e) {
@@ -407,5 +409,15 @@ public class SiteXMLAction extends AbstractPublisherAction {
 		if (updateSite != null)
 			return URIUtil.toUnencodedString(updateSite.getLocation()) + "." + categoryName; //$NON-NLS-1$
 		return categoryName;
+	}
+
+	protected Transport getTransport(IPublisherInfo info) {
+		@SuppressWarnings("rawtypes")
+		IRepository repo = info.getMetadataRepository();
+		if (repo == null)
+			repo = info.getArtifactRepository();
+		if (repo == null)
+			throw new IllegalStateException("The transport service can not be found."); //$NON-NLS-1$
+		return (Transport) repo.getProvisioningAgent().getService(Transport.SERVICE_NAME);
 	}
 }

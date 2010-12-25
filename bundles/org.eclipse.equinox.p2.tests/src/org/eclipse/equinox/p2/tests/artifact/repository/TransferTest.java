@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 import java.io.*;
 import java.net.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -33,7 +32,7 @@ public class TransferTest extends AbstractProvisioningTest {
 			fail("1.5", e);
 		}
 		final URI toDownload = new URI("http://download.eclipse.org/eclipse/updates/3.4/plugins/javax.servlet.jsp_2.0.0.v200806031607.jar.pack.gz");
-		IStatus s = RepositoryTransport.getInstance().download(toDownload, fos, new NullProgressMonitor());
+		IStatus s = getTransport().download(toDownload, fos, new NullProgressMonitor());
 		assertOK("2.0", s);
 		int httpSize = -1;
 		URL u;

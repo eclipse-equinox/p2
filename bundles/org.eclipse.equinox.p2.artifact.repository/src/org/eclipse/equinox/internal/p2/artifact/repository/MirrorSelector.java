@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
@@ -153,13 +153,16 @@ public class MirrorSelector {
 
 	private final Random random = new Random();
 
+	private final Transport transport;
+
 	/**
 	 * Constructs a mirror support class for the given repository. Mirrors are
 	 * not contacted and the mirrorsURL document is not parsed until a
 	 * mirror location request is sent.
 	 */
-	public MirrorSelector(IRepository<?> repository) {
+	public MirrorSelector(IRepository<?> repository, Transport transport) {
 		this.repository = repository;
+		this.transport = transport;
 		try {
 			String base = repository.getProperties().get(IRepository.PROP_MIRRORS_BASE_URL);
 			if (base != null) {
@@ -200,7 +203,6 @@ public class MirrorSelector {
 			DocumentBuilder builder = domFactory.newDocumentBuilder();
 			Document document = null;
 			// Use Transport to read the mirrors list (to benefit from proxy support, authentication, etc)
-			RepositoryTransport transport = RepositoryTransport.getInstance();
 			InputSource input = new InputSource(mirrorsURL);
 			input.setByteStream(transport.stream(URIUtil.fromString(mirrorsURL), monitor));
 			document = builder.parse(input);

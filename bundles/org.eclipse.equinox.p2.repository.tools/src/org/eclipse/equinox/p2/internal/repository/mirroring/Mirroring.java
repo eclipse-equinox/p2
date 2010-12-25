@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *  	Compeople AG (Stefan Liebig) - various ongoing maintenance
+ *      Sonatype, Inc. - transport split
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.mirroring;
 
@@ -15,6 +16,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.RawMirrorRequest;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.tools.Activator;
 import org.eclipse.equinox.p2.internal.repository.tools.Messages;
@@ -43,6 +45,7 @@ public class Mirroring {
 	private String comparatorID;
 	private List<IArtifactKey> keysToMirror;
 	private IArtifactMirrorLog comparatorLog;
+	private Transport transport;
 
 	private IArtifactComparator getComparator() {
 		if (comparator == null)
@@ -192,7 +195,7 @@ public class Mirroring {
 	 * Create, and execute a MirrorRequest for a given descriptor.
 	 */
 	private IStatus downloadArtifact(IArtifactRepository sourceRepo, IArtifactDescriptor destDescriptor, IArtifactDescriptor srcDescriptor) {
-		RawMirrorRequest request = new RawMirrorRequest(srcDescriptor, destDescriptor, destination);
+		RawMirrorRequest request = new RawMirrorRequest(srcDescriptor, destDescriptor, destination, transport);
 		request.perform(sourceRepo, new NullProgressMonitor());
 
 		return request.getResult();
@@ -305,5 +308,9 @@ public class Mirroring {
 
 	public void setCompareExclusions(IQuery<IArtifactDescriptor> excludedKeys) {
 		compareExclusionQuery = excludedKeys;
+	}
+
+	public void setTransport(Transport transport) {
+		this.transport = transport;
 	}
 }

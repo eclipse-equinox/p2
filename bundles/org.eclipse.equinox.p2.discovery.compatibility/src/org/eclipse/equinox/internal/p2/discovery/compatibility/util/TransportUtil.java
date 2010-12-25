@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
+ *     Sonatype Inc. - transport split
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.discovery.compatibility.util;
 
@@ -16,7 +17,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
+import org.eclipse.equinox.internal.p2.transport.ecf.RepositoryTransport;
 
 /**
  * A utility for accessing web resources
@@ -51,7 +52,7 @@ public class TransportUtil {
 	public static void downloadResource(URI location, File target, IProgressMonitor monitor) throws IOException {
 		OutputStream out = new BufferedOutputStream(new FileOutputStream(target));
 		try {
-			RepositoryTransport.getInstance().download(location, out, monitor);
+			new RepositoryTransport().download(location, out, monitor);
 		} finally {
 			out.close();
 		}
@@ -71,7 +72,7 @@ public class TransportUtil {
 	 * @throws CoreException
 	 */
 	public static void readResource(URI location, TextContentProcessor processor, IProgressMonitor monitor) throws IOException, CoreException {
-		InputStream in = RepositoryTransport.getInstance().stream(location, monitor);
+		InputStream in = new RepositoryTransport().stream(location, monitor);
 		try {
 			// FIXME how can the charset be determined?
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8")); //$NON-NLS-1$
@@ -101,7 +102,7 @@ public class TransportUtil {
 		int countFound = 0;
 		for (URI location : locations) {
 			try {
-				RepositoryTransport.getInstance().getLastModified(location, monitor);
+				new RepositoryTransport().getLastModified(location, monitor);
 				if (one) {
 					return true;
 				}

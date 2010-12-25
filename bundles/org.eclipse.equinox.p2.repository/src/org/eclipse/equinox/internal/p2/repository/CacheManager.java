@@ -17,7 +17,6 @@ import java.net.URI;
 import java.util.EventObject;
 import java.util.HashSet;
 import org.eclipse.core.runtime.*;
-import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
@@ -44,6 +43,8 @@ public class CacheManager {
 
 	private final IAgentLocation agentLocation;
 
+	private final Transport transport;
+
 	/**
 	 * IStateful implementation of BufferedOutputStream. Class is used to get the status from
 	 * a download operation.
@@ -66,8 +67,9 @@ public class CacheManager {
 
 	}
 
-	public CacheManager(IAgentLocation agentLocation) {
+	public CacheManager(IAgentLocation agentLocation, Transport transport) {
 		this.agentLocation = agentLocation;
+		this.transport = transport;
 	}
 
 	private static SynchronousProvisioningListener busListener;
@@ -129,7 +131,7 @@ public class CacheManager {
 			// bug 269588 - server may return 0 when file exists, so extra flag is needed
 			boolean useJar = true;
 			try {
-				lastModifiedRemote = getTransport().getLastModified(jarLocation, submonitor.newChild(1));
+				lastModifiedRemote = transport.getLastModified(jarLocation, submonitor.newChild(1));
 				if (lastModifiedRemote <= 0)
 					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + jarLocation)); //$NON-NLS-1$
 			} catch (AuthenticationFailedException e) {
@@ -166,15 +168,13 @@ public class CacheManager {
 				// (Status is reported based on finding the XML file as giving up on certain errors
 				// when checking for the jar may not be correct).
 				try {
-					lastModifiedRemote = getTransport().getLastModified(xmlLocation, submonitor.newChild(1));
+					lastModifiedRemote = transport.getLastModified(xmlLocation, submonitor.newChild(1));
 					// if lastModifiedRemote is 0 - something is wrong in the communication stack, as 
 					// a FileNotFound exception should have been thrown.
 					// bug 269588 - server may return 0 when file exists - site is not correctly configured
 					if (lastModifiedRemote <= 0)
 						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Server returned lastModified <= 0 for " + xmlLocation)); //$NON-NLS-1$
 
-				} catch (UserCancelledException e) {
-					throw new OperationCanceledException();
 				} catch (FileNotFoundException e) {
 					throw new FileNotFoundException(NLS.bind(Messages.CacheManager_Neither_0_nor_1_found, jarLocation, xmlLocation));
 				} catch (AuthenticationFailedException e) {
@@ -261,10 +261,6 @@ public class CacheManager {
 		return files;
 	}
 
-	private RepositoryTransport getTransport() {
-		return RepositoryTransport.getInstance();
-	}
-
 	/**
 	 * Adds a {@link SynchronousProvisioningListener} to the event bus for
 	 * deleting cache files when the corresponding repository is deleted.
@@ -334,7 +330,7 @@ public class CacheManager {
 		IStatus result = null;
 		try {
 			submonitor.setWorkRemaining(1000);
-			result = getTransport().download(remoteFile, stream, submonitor.newChild(1000));
+			result = transport.download(remoteFile, stream, submonitor.newChild(1000));
 		} catch (OperationCanceledException e) {
 			// need to pick up the status - a new operation canceled exception is thrown at the end
 			// as status will be CANCEL.

@@ -12,7 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.security.cert.Certificate;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
+import org.eclipse.equinox.internal.p2.transport.ecf.RepositoryTransport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.UIServices;
 import org.eclipse.equinox.p2.tests.metadata.repository.AllServerTests;
@@ -48,7 +48,7 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 	public void doTimeout(int type) throws Exception {
 		System.out.print("Note that test takes at least 120 seconds before timing out\n");
 		AllServerTests.setServiceUI(new AladdinNotSavedService());
-		RepositoryTransport transport = RepositoryTransport.getInstance();
+		RepositoryTransport transport = new RepositoryTransport();
 		URI toDownload = new URI(getBaseURL() + "/timeout/whatever.txt");
 		long startTime = System.currentTimeMillis();
 		boolean caught = false;
@@ -136,7 +136,7 @@ public class TimeoutTest extends AbstractTestServerClientCase {
 		System.out.print("Note that test takes at least 10 seconds before timing out (and >120 if it fails)\n");
 
 		AllServerTests.setServiceUI(new AladdinNotSavedService());
-		RepositoryTransport transport = RepositoryTransport.getInstance();
+		RepositoryTransport transport = new RepositoryTransport();
 		URI toDownload = new URI(getBaseURL() + "/timeout/whatever.txt");
 
 		IProgressMonitor monitor = new NullProgressMonitor();

@@ -18,11 +18,9 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.helpers.DebugHelper;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.UIServices;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.security.storage.*;
 
@@ -106,7 +104,7 @@ public class Credentials {
 					throw new UnsupportedEncodingException("No UTF-8 encoding and missing system property: file.encoding"); //$NON-NLS-1$
 				nodeKey = URLEncoder.encode(host, enc);
 			} catch (UnsupportedEncodingException e) {
-				throw RepositoryStatusHelper.internalError(e);
+				throw internalError(e);
 			}
 		}
 		if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
@@ -148,10 +146,10 @@ public class Credentials {
 						prefNode = securePreferences.node(nodeName);
 				} catch (IllegalArgumentException e) {
 					// if the node name is illegal/malformed (should not happen).
-					throw RepositoryStatusHelper.internalError(e);
+					throw internalError(e);
 				} catch (IllegalStateException e) {
 					// thrown if preference store has been tampered with
-					throw RepositoryStatusHelper.internalError(e);
+					throw internalError(e);
 				}
 				if (!prompt) {
 					try {
@@ -175,7 +173,7 @@ public class Credentials {
 						}
 						return restoreFromMemory(nodeName);
 					} catch (StorageException e) {
-						throw RepositoryStatusHelper.internalError(e);
+						throw internalError(e);
 					}
 				}
 				// need to prompt user for user name and password
@@ -258,9 +256,9 @@ public class Credentials {
 									prefNode.put(IRepository.PROP_PASSWORD, loginDetails.getPassword(), true);
 									prefNode.flush();
 								} catch (StorageException e1) {
-									throw RepositoryStatusHelper.internalError(e1);
+									throw internalError(e1);
 								} catch (IOException e) {
-									throw RepositoryStatusHelper.internalError(e);
+									throw internalError(e);
 								}
 							} else {
 								// if persisted earlier - the preference should be removed
@@ -275,7 +273,7 @@ public class Credentials {
 									try {
 										prefNode.flush();
 									} catch (IOException e) {
-										throw RepositoryStatusHelper.internalError(e);
+										throw internalError(e);
 									}
 								}
 							}
@@ -480,5 +478,15 @@ public class Credentials {
 			count = 0;
 			timestamp = System.currentTimeMillis();
 		}
+	}
+
+	/**
+	 * Get default "InternalError" ProvisionException.
+	 * @param t
+	 * @return a default "InternalError"
+	 */
+	public static ProvisionException internalError(Throwable t) {
+		return new ProvisionException(new Status(IStatus.ERROR, Activator.ID, //
+				ProvisionException.INTERNAL_ERROR, Messages.repoMan_internalError, t));
 	}
 }

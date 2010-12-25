@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.comparator.MD5ArtifactComparator;
 import org.eclipse.equinox.p2.internal.repository.tools.ArtifactRepositoryValidator;
@@ -1028,7 +1029,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			source.addChild(child.getLocation());
 
 			// Create mirror request
-			MirrorRequest request = new MirrorRequest(descriptor.getArtifactKey(), destination, null, null);
+			MirrorRequest request = new MirrorRequest(descriptor.getArtifactKey(), destination, null, null, (Transport) getAgent().getService(Transport.SERVICE_NAME));
 			request.perform(source, new NullProgressMonitor());
 			IStatus status = request.getResult();
 			// The download should have completed 'successfully'
@@ -1115,7 +1116,7 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			dest = new BadSite(new URI("memory:/in/memory/dest"));
 
 			// Create mirror request
-			MirrorRequest request = new MirrorRequest(descriptor.getArtifactKey(), dest, null, null);
+			MirrorRequest request = new MirrorRequest(descriptor.getArtifactKey(), dest, null, null, getTransport());
 			request.perform(source, new NullProgressMonitor());
 			IStatus status = request.getResult();
 

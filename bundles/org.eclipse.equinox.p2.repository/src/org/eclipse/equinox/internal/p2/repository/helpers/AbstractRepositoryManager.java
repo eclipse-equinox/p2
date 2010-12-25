@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Wind River - fix for bug 299227
+ *     Sonatype, Inc. - transport split
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository.helpers;
 
@@ -18,7 +19,8 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.p2.repository.*;
+import org.eclipse.equinox.internal.p2.repository.Activator;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
@@ -1165,8 +1167,8 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		return new URI(spec);
 	}
 
-	private Transport getTransport() {
-		return RepositoryTransport.getInstance();
+	protected Transport getTransport() {
+		return (Transport) agent.getService(Transport.SERVICE_NAME);
 	}
 
 	public void flushCache() {

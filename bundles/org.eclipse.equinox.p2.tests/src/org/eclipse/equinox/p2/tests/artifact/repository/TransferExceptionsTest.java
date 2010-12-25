@@ -14,7 +14,6 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.BundleException;
 
@@ -37,25 +36,25 @@ public class TransferExceptionsTest extends AbstractProvisioningTest {
 			fail("1.5", e);
 		}
 		try {
-			IStatus s = RepositoryTransport.getInstance().download(new URI("bogus!bogus"), fos, new NullProgressMonitor());
+			IStatus s = getTransport().download(new URI("bogus!bogus"), fos, new NullProgressMonitor());
 			assertNotOK(s);
 			printStatus("1", s);
-			s = RepositoryTransport.getInstance().download(new URI("bogus://somewhere.else"), fos, new NullProgressMonitor());
+			s = getTransport().download(new URI("bogus://somewhere.else"), fos, new NullProgressMonitor());
 			assertNotOK(s);
 			printStatus("2", s);
-			s = RepositoryTransport.getInstance().download(new URI("http:bogusURL"), fos, new NullProgressMonitor());
+			s = getTransport().download(new URI("http:bogusURL"), fos, new NullProgressMonitor());
 			assertNotOK(s);
 			printStatus("3", s);
-			s = RepositoryTransport.getInstance().download(new URI("http://bogusURL:80/"), fos, new NullProgressMonitor());
+			s = getTransport().download(new URI("http://bogusURL:80/"), fos, new NullProgressMonitor());
 			assertNotOK(s);
 			printStatus("4", s);
-			s = RepositoryTransport.getInstance().download(new URI("http:/bogusURL:999999999999/"), fos, new NullProgressMonitor());
+			s = getTransport().download(new URI("http:/bogusURL:999999999999/"), fos, new NullProgressMonitor());
 			assertNotOK(s);
 			printStatus("5", s);
-			s = RepositoryTransport.getInstance().download(new URI("http://bogus.nowhere"), fos, new NullProgressMonitor());
+			s = getTransport().download(new URI("http://bogus.nowhere"), fos, new NullProgressMonitor());
 			assertNotOK(s);
 			printStatus("6", s);
-			s = RepositoryTransport.getInstance().download(new URI("http://www.eclipse.org/AFileThatDoesNotExist.foo"), fos, new NullProgressMonitor());
+			s = getTransport().download(new URI("http://www.eclipse.org/AFileThatDoesNotExist.foo"), fos, new NullProgressMonitor());
 			assertNotOK(s);
 			printStatus("7", s);
 		} catch (URISyntaxException e) {

@@ -9,8 +9,9 @@
  *     Cloudsmith Inc. - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.equinox.internal.p2.repository;
+package org.eclipse.equinox.internal.p2.transport.ecf;
 
+import org.eclipse.equinox.internal.p2.repository.DownloadStatus;
 import org.eclipse.equinox.p2.core.ProvisionException;
 
 import java.io.FileNotFoundException;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - transport split
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
@@ -19,7 +20,7 @@ import java.util.zip.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.osgi.util.NLS;
@@ -54,6 +55,7 @@ public class UpdateSite {
 	private static Map<String, SoftReference<UpdateSite>> categoryCache = new HashMap<String, SoftReference<UpdateSite>>();
 	// map of String (featureID_featureVersion) to Feature
 	private Map<String, Feature> featureCache = new HashMap<String, Feature>();
+	private Transport transport;
 
 	/*
 	 * Return a URI based on the given URI, which points to a site.xml file.
@@ -79,7 +81,7 @@ public class UpdateSite {
 	 * @return A CategoryFile
 	 * @throws ProvisionException
 	 */
-	public static synchronized UpdateSite loadCategoryFile(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public static synchronized UpdateSite loadCategoryFile(URI location, Transport transport, IProgressMonitor monitor) throws ProvisionException {
 		if (location == null)
 			return null;
 		UpdateSite result = null;
@@ -92,14 +94,14 @@ public class UpdateSite {
 		}
 
 		InputStream input = null;
-		File siteFile = loadActualSiteFile(location, location, monitor);
+		File siteFile = loadActualSiteFile(location, location, transport, monitor);
 		try {
 			CategoryParser siteParser = new CategoryParser(location);
 			Checksum checksum = new CRC32();
 			input = new CheckedInputStream(new BufferedInputStream(new FileInputStream(siteFile)), checksum);
 			SiteModel siteModel = siteParser.parse(input);
 			String checksumString = Long.toString(checksum.getValue());
-			result = new UpdateSite(siteModel, location, checksumString);
+			result = new UpdateSite(siteModel, location, transport, checksumString);
 			if (!PROTOCOL_FILE.equals(location.getScheme()))
 				categoryCache.put(location.toString(), new SoftReference<UpdateSite>(result));
 			return result;
@@ -124,7 +126,7 @@ public class UpdateSite {
 	/*
 	 * Load and return an update site object from the given location.
 	 */
-	public static synchronized UpdateSite load(URI location, IProgressMonitor monitor) throws ProvisionException {
+	public static synchronized UpdateSite load(URI location, Transport transport, IProgressMonitor monitor) throws ProvisionException {
 		if (location == null)
 			return null;
 
@@ -139,14 +141,14 @@ public class UpdateSite {
 		}
 
 		InputStream input = null;
-		File siteFile = loadSiteFile(location, monitor);
+		File siteFile = loadActualSiteFile(location, getSiteURI(location), transport, monitor);
 		try {
 			DefaultSiteParser siteParser = new DefaultSiteParser(location);
 			Checksum checksum = new CRC32();
 			input = new CheckedInputStream(new BufferedInputStream(new FileInputStream(siteFile)), checksum);
 			SiteModel siteModel = siteParser.parse(input);
 			String checksumString = Long.toString(checksum.getValue());
-			result = new UpdateSite(siteModel, getSiteURI(location), checksumString);
+			result = new UpdateSite(siteModel, getSiteURI(location), transport, checksumString);
 			if (!PROTOCOL_FILE.equals(location.getScheme()))
 				siteCache.put(location.toString(), new SoftReference<UpdateSite>(result));
 			return result;
@@ -168,14 +170,10 @@ public class UpdateSite {
 		}
 	}
 
-	private static File loadSiteFile(URI location, IProgressMonitor monitor) throws ProvisionException {
-		return loadActualSiteFile(location, getSiteURI(location), monitor);
-	}
-
 	/**
 	 * Returns a local file containing the contents of the update site at the given location.
 	 */
-	private static File loadActualSiteFile(URI location, URI actualLocation, IProgressMonitor monitor) throws ProvisionException {
+	private static File loadActualSiteFile(URI location, URI actualLocation, Transport transport, IProgressMonitor monitor) throws ProvisionException {
 		SubMonitor submonitor = SubMonitor.convert(monitor, 1000);
 		try {
 			File siteFile = null;
@@ -201,7 +199,7 @@ public class UpdateSite {
 						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, "Can not create tempfile for site.xml", e)); //$NON-NLS-1$
 					}
 					try {
-						transferResult = getTransport().download(actualLocation, destination, submonitor.newChild(999));
+						transferResult = transport.download(actualLocation, destination, submonitor.newChild(999));
 					} finally {
 						try {
 							destination.close();
@@ -248,7 +246,7 @@ public class UpdateSite {
 	 * Parse the feature.xml specified by the given input stream and return the feature object.
 	 * In case of failure, the failure is logged and null is returned
 	 */
-	private static Feature parseFeature(FeatureParser featureParser, URI featureURI, IProgressMonitor monitor) {
+	private Feature parseFeature(FeatureParser featureParser, URI featureURI, IProgressMonitor monitor) {
 		File featureFile = null;
 		if (PROTOCOL_FILE.equals(featureURI.getScheme())) {
 			featureFile = URIUtil.toFile(featureURI);
@@ -263,7 +261,7 @@ public class UpdateSite {
 					throw new OperationCanceledException();
 				OutputStream destination = new BufferedOutputStream(new FileOutputStream(featureFile));
 				try {
-					transferResult = getTransport().download(featureURI, destination, monitor);
+					transferResult = transport.download(featureURI, destination, monitor);
 				} finally {
 					try {
 						destination.close();
@@ -294,13 +292,13 @@ public class UpdateSite {
 	/*
 	 * Constructor for the class.
 	 */
-	private UpdateSite(SiteModel site, URI location, String checksum) {
+	private UpdateSite(SiteModel site, URI location, Transport transport, String checksum) {
 		super();
 		this.site = site;
 		this.location = location;
 		this.checksum = checksum;
 		this.rootLocation = getRootLocation();
-
+		this.transport = transport;
 	}
 
 	private URI getRootLocation() {
@@ -458,7 +456,7 @@ public class UpdateSite {
 				BufferedOutputStream destination = new BufferedOutputStream(new FileOutputStream(digestFile));
 				IStatus result = null;
 				try {
-					result = getTransport().download(digestURI, destination, monitor);
+					result = transport.download(digestURI, destination, monitor);
 				} finally {
 					try {
 						destination.close();
@@ -571,9 +569,5 @@ public class UpdateSite {
 				loadIncludedFeatures(includedFeature, featureParser, features, monitor);
 			}
 		}
-	}
-
-	private static RepositoryTransport getTransport() {
-		return RepositoryTransport.getInstance();
 	}
 }

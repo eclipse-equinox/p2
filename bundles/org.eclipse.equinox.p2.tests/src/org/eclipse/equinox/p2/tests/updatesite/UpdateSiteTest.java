@@ -64,7 +64,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/siteurl");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -82,7 +82,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File siteDirectory = getTestData("0.1", "/testData/updatesite/siteurl2/siteurl/");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 			updatesite.getSite().setLocationURIString(siteDirectory.toURI().toString());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
@@ -100,7 +100,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/digest");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -118,7 +118,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		URI siteURI = new URI("jar:" + site.toURI() + "!/");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(siteURI, getMonitor());
+			updatesite = UpdateSite.load(siteURI, getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -135,7 +135,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/digesturl");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -153,7 +153,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File digestDirectory = getTestData("0.1", "/testData/updatesite/digesturl2/digesturl/");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 			updatesite.getSite().setDigestURIString(digestDirectory.toURI().toString());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
@@ -175,7 +175,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/site");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -192,7 +192,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		UpdateSite updatesite = null;
 		try {
 			URI siteURL = base.toURI().resolve("site");
-			updatesite = UpdateSite.load(siteURL, getMonitor());
+			updatesite = UpdateSite.load(siteURL, getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -208,7 +208,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/site/site.xml");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -224,7 +224,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/site with spaces/");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -240,7 +240,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/xxxsitexxx/xxxsitexxx.xml");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -256,7 +256,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File siteDir = getTestData("0.1", "/testData/updatesite/xxxsitexxx");
 		File site = new File(siteDir, "site.xml");
 		try {
-			UpdateSite.load(site.toURI(), getMonitor());
+			UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 			fail("0.2");
 		} catch (ProvisionException e) {
 			// expected
@@ -267,7 +267,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/baddigestgoodsite");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -282,7 +282,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/corruptdigestgoodsite");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -302,7 +302,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	public void testBadDigestBadSite() {
 		File site = getTestData("0.1", "/testData/updatesite/baddigestbadsite");
 		try {
-			UpdateSite.load(site.toURI(), getMonitor());
+			UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 			fail("0.2");
 		} catch (ProvisionException e) {
 			// expected
@@ -313,7 +313,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		// handle the case where the site.xml doesn't parse correctly
 		File site = getTestData("0.1", "/testData/updatesite/badSiteXML");
 		try {
-			UpdateSite.load(site.toURI(), getMonitor());
+			UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 			fail("0.2");
 		} catch (ProvisionException e) {
 			// expected exception
@@ -328,7 +328,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File temp = getTempFolder();
 		temp.mkdirs();
 		try {
-			UpdateSite.load(temp.toURI(), getMonitor());
+			UpdateSite.load(temp.toURI(), getTransport(), getMonitor());
 			fail("0.2");
 		} catch (ProvisionException e) {
 			// we expect an exception
@@ -337,7 +337,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 
 	public void testNullSite() {
 		try {
-			assertNull("1.0", UpdateSite.load(null, getMonitor()));
+			assertNull("1.0", UpdateSite.load(null, getTransport(), getMonitor()));
 		} catch (ProvisionException e) {
 			fail("1.99", e);
 		}
@@ -347,7 +347,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/badfeatureurl");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -370,7 +370,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/goodfeatureurl");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -388,7 +388,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		URI siteURI = new URI("jar:" + site.toURI() + "!/");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(siteURI, getMonitor());
+			updatesite = UpdateSite.load(siteURI, getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -405,7 +405,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/includedfeature");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -421,7 +421,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/includedfeaturearchive");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -437,7 +437,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/badincludedfeaturearchive");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -459,7 +459,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		File site = getTestData("0.1", "/testData/updatesite/nofeatureidandversion");
 		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURI(), getMonitor());
+			updatesite = UpdateSite.load(site.toURI(), getTransport(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		}
@@ -827,7 +827,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			if (descriptor == null)
 				fail("0.3");
 
-			RawMirrorRequest mirror = new RawMirrorRequest(descriptor, new ArtifactDescriptor(descriptor), targetRepository);
+			RawMirrorRequest mirror = new RawMirrorRequest(descriptor, new ArtifactDescriptor(descriptor), targetRepository, getTransport());
 			mirror.perform(sourceRepo, getMonitor());
 
 			assertTrue(mirror.getResult().isOK());
@@ -851,7 +851,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		IArtifactRepository repo;
 
 		OrderedMirrorSelector(IArtifactRepository repo, String testDataLocation) throws Exception {
-			super(repo);
+			super(repo, getTransport());
 			this.repo = repo;
 			// Alternatively we could use reflect to change "location" of the repo
 			setRepoSelector();

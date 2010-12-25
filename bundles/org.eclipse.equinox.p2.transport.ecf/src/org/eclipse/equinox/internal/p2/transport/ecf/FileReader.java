@@ -10,7 +10,7 @@
  * 	IBM Corporation - ongoing development
  *  Sonatype Inc - ongoing development
  ******************************************************************************/
-package org.eclipse.equinox.internal.p2.repository;
+package org.eclipse.equinox.internal.p2.transport.ecf;
 
 import java.io.*;
 import java.net.SocketTimeoutException;
@@ -24,6 +24,13 @@ import org.eclipse.ecf.filetransfer.events.*;
 import org.eclipse.ecf.filetransfer.identity.*;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
+import org.eclipse.equinox.internal.p2.repository.FileInfo;
+import org.eclipse.equinox.internal.p2.repository.JREHttpClientRequiredException;
+import org.eclipse.equinox.internal.p2.repository.Messages;
+import org.eclipse.equinox.internal.p2.repository.ProgressStatistics;
+import org.eclipse.equinox.internal.p2.repository.RepositoryPreferences;
+import org.eclipse.equinox.internal.p2.repository.RepositoryTracing;
 import org.eclipse.osgi.util.NLS;
 
 /**

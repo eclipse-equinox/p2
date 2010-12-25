@@ -7,10 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - transport split
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRequest;
@@ -24,10 +26,11 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 	protected String resolvedKey;
 	protected IArtifactRepository source;
 	protected IStatus result = DEFAULT_STATUS;
+	protected Transport transport = null;
 
-	public ArtifactRequest(IArtifactKey key) {
+	public ArtifactRequest(IArtifactKey key, Transport transport) {
 		artifact = key;
-		// TODO do we need to make this configurable? for now set default request handler to ECF
+		this.transport = transport;
 	}
 
 	public IArtifactKey getArtifactKey() {

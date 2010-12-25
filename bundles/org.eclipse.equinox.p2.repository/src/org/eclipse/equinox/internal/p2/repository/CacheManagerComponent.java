@@ -19,7 +19,7 @@ public class CacheManagerComponent implements IAgentServiceFactory {
 
 	public Object createService(IProvisioningAgent agent) {
 		final IProvisioningEventBus eventBus = (IProvisioningEventBus) agent.getService(IProvisioningEventBus.SERVICE_NAME);
-		CacheManager cache = new CacheManager((IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME));
+		CacheManager cache = new CacheManager((IAgentLocation) agent.getService(IAgentLocation.SERVICE_NAME), (Transport) agent.getService(Transport.SERVICE_NAME));
 		cache.setEventBus(eventBus);
 		return cache;
 	}

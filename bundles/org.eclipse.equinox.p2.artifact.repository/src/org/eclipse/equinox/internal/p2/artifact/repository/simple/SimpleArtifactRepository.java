@@ -29,7 +29,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
 import org.eclipse.equinox.internal.p2.metadata.index.IndexProvider;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
@@ -548,7 +547,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (!MIRRORS_ENABLED || (!isForceThreading() && isLocal()))
 			return baseLocation;
 		if (mirrors == null)
-			mirrors = new MirrorSelector(this);
+			mirrors = new MirrorSelector(this, getTransport());
 		return mirrors.getMirrorLocation(baseLocation, monitor);
 	}
 
@@ -820,7 +819,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private Transport getTransport() {
-		return RepositoryTransport.getInstance();
+		return (Transport) getProvisioningAgent().getService(Transport.SERVICE_NAME);
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream

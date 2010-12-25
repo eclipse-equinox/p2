@@ -19,6 +19,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.internal.repository.mirroring.*;
@@ -211,6 +212,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		mirror.setBaseline(initializeBaseline());
 		mirror.setValidate(validate);
 		mirror.setCompareExclusions(compareExclusions);
+		mirror.setTransport((Transport) agent.getService(Transport.SERVICE_NAME));
 
 		// If IUs have been specified then only they should be mirrored, otherwise mirror everything.
 		if (keys.size() > 0)

@@ -18,6 +18,7 @@ import java.util.*;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
+import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.AbstractRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
@@ -68,6 +69,21 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 				Assert.fail("Unexpected exception in TestArtifactRepository" + e.getMessage());
 			}
 			return Status.OK_STATUS;
+		}
+
+		@Override
+		public IStatus download(URI toDownload, OutputStream target, long startPos, IProgressMonitor monitor) {
+			throw new IllegalStateException("Method should not be called");
+		}
+
+		@Override
+		public InputStream stream(URI toDownload, IProgressMonitor monitor) throws FileNotFoundException, CoreException, AuthenticationFailedException {
+			throw new IllegalStateException("Method should not be called");
+		}
+
+		@Override
+		public long getLastModified(URI toDownload, IProgressMonitor monitor) throws CoreException, FileNotFoundException, AuthenticationFailedException {
+			throw new IllegalStateException("Method should not be called");
 		}
 	};
 

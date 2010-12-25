@@ -19,10 +19,10 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
-import org.eclipse.equinox.p2.metadata.VersionedId;
+import org.eclipse.equinox.internal.p2.transport.ecf.RepositoryTransport;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
+import org.eclipse.equinox.p2.metadata.VersionedId;
 
 /**
  * This class is responsible for loading install descriptions from a stream.
@@ -65,7 +65,7 @@ public class InstallDescriptionParser {
 		}
 		Map<String, String> properties;
 		try {
-			in = RepositoryTransport.getInstance().stream(propsURI, monitor);
+			in = new RepositoryTransport().stream(propsURI, monitor);
 			properties = CollectionUtils.loadProperties(in);
 		} finally {
 			safeClose(in);

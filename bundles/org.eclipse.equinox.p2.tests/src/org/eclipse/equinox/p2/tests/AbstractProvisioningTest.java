@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.p2.core.*;
@@ -854,6 +855,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected IProfileRegistry getProfileRegistry() {
 		return (IProfileRegistry) getAgent().getService(IProfileRegistry.SERVICE_NAME);
+	}
+
+	protected Transport getTransport() {
+		return (Transport) getAgent().getService(Transport.SERVICE_NAME);
 	}
 
 	protected IMetadataRepository createMetadataRepository(URI location, Map properties) throws ProvisionException {

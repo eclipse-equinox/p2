@@ -127,7 +127,7 @@ public class Bug252308 extends AbstractProvisioningTest {
 		targetDescriptor.setRepositoryProperty("artifact.folder", "true");
 		class TestRequest extends MirrorRequest {
 			public TestRequest(IArtifactKey key, IArtifactRepository targetRepository, Map<String, String> targetDescriptorProperties, Map<String, String> targetRepositoryProperties) {
-				super(key, targetRepository, targetDescriptorProperties, targetRepositoryProperties);
+				super(key, targetRepository, targetDescriptorProperties, targetRepositoryProperties, getTransport());
 			}
 
 			public void setSource(IArtifactRepository source) {

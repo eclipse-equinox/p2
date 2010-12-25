@@ -14,7 +14,7 @@ package org.eclipse.equinox.p2.tests.repository;
 import java.io.*;
 import java.net.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
+import org.eclipse.equinox.internal.p2.transport.ecf.RepositoryTransport;
 import org.eclipse.equinox.p2.tests.testserver.helper.AbstractTestServerClientCase;
 
 /**
@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.tests.testserver.helper.AbstractTestServerClientCa
 public class FileReaderTest extends AbstractTestServerClientCase {
 
 	public void testUnknownHost() throws URISyntaxException {
-		RepositoryTransport transport = RepositoryTransport.getInstance();
+		RepositoryTransport transport = new RepositoryTransport();
 		URI toDownload = new URI("http://bogus.nowhere/nothing.xml");
 		OutputStream target = new ByteArrayOutputStream();
 		IStatus status = transport.download(toDownload, target, new NullProgressMonitor());
@@ -33,7 +33,7 @@ public class FileReaderTest extends AbstractTestServerClientCase {
 	}
 
 	public void testBadPort() throws URISyntaxException {
-		RepositoryTransport transport = RepositoryTransport.getInstance();
+		RepositoryTransport transport = new RepositoryTransport();
 		URI toDownload = new URI("http://localhost:1/nothing.xml");
 		OutputStream target = new ByteArrayOutputStream();
 		IStatus status = transport.download(toDownload, target, new NullProgressMonitor());
@@ -47,7 +47,7 @@ public class FileReaderTest extends AbstractTestServerClientCase {
 	 * Tests a successful read.
 	 */
 	public void testReadStream() throws URISyntaxException, CoreException, IOException {
-		RepositoryTransport transport = RepositoryTransport.getInstance();
+		RepositoryTransport transport = new RepositoryTransport();
 		URI toDownload = new URI("http://localhost:8080/public/index.html");
 		final NullProgressMonitor monitor = new NullProgressMonitor();
 		InputStream stream = transport.stream(toDownload, monitor);
@@ -59,7 +59,7 @@ public class FileReaderTest extends AbstractTestServerClientCase {
 	 * Tests a successful read.
 	 */
 	public void testRead() throws URISyntaxException, CoreException, IOException {
-		RepositoryTransport transport = RepositoryTransport.getInstance();
+		RepositoryTransport transport = new RepositoryTransport();
 		URI toDownload = new URI("http://localhost:8080/public/index.html");
 		OutputStream target = new ByteArrayOutputStream();
 		final NullProgressMonitor monitor = new NullProgressMonitor();

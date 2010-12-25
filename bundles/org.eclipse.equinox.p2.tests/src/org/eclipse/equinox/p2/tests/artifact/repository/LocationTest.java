@@ -39,7 +39,7 @@ public class LocationTest extends AbstractProvisioningTest {
 	public void testLocation() throws Exception {
 		IArtifactKey key = new ArtifactKey("osgi.bundle", "org.springframework.ide.eclipse", Version.parseVersion("2.3.2.201003220227-RELEASE"));
 		assertTrue(sourceRepository.contains(key));
-		MirrorRequest req = new MirrorRequest(key, targetRepository, null, null);
+		MirrorRequest req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 		req.perform(sourceRepository, new NullProgressMonitor());
 		IStatus status = req.getResult();
 		assertTrue(status.getMessage(), status.isOK());

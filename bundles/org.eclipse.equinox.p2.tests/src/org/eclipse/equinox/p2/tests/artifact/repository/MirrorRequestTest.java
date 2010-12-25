@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.MirrorRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.MirrorSelector;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -68,7 +69,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "HelloWorldFeature", Version.createOSGi(1, 0, 0));
 		Map<String, String> targetProperties = new HashMap<String, String>();
 		targetProperties.put("artifact.folder", "true");
-		MirrorRequest request = new MirrorRequest(key, targetRepository, null, targetProperties);
+		MirrorRequest request = new MirrorRequest(key, targetRepository, null, targetProperties, (Transport) getAgent().getService(Transport.SERVICE_NAME));
 		request.perform(sourceRepository, new NullProgressMonitor());
 
 		assertTrue(request.getResult().matches(IStatus.ERROR));
@@ -79,7 +80,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		IArtifactKey key = new ArtifactKey("org.eclipse.update.feature", "Missing", Version.createOSGi(1, 0, 0));
 		Map<String, String> targetProperties = new HashMap<String, String>();
 		targetProperties.put("artifact.folder", "true");
-		MirrorRequest request = new MirrorRequest(key, targetRepository, null, targetProperties);
+		MirrorRequest request = new MirrorRequest(key, targetRepository, null, targetProperties, getTransport());
 		request.perform(sourceRepository, new NullProgressMonitor());
 
 		assertTrue(request.getResult().matches(IStatus.ERROR));
@@ -90,7 +91,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		RemoteRepo src = new RemoteRepo((SimpleArtifactRepository) sourceRepository);
 
 		IArtifactKey key = new ArtifactKey("test.txt", "fail_to_canonical", Version.parseVersion("1.0.0"));
-		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null);
+		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null, getTransport());
 		request.perform(src, new NullProgressMonitor());
 
 		assertTrue(request.getResult().toString(), request.getResult().isOK());
@@ -104,7 +105,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 
 		// call test
 		IArtifactKey key = new ArtifactKey("test.txt", "HelloWorldText", Version.parseVersion("1.0.0"));
-		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null);
+		MirrorRequest request = new MirrorRequest(key, targetRepository, null, null, getTransport());
 		request.perform(sourceRepository, new NullProgressMonitor());
 
 		// The download succeeded
@@ -132,7 +133,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		assertTrue("Unable to obtain artifact keys", keys != null && !keys.isEmpty());
 
 		IArtifactKey key = (IArtifactKey) keys.iterator().next();
-		MirrorRequest req = new MirrorRequest(key, targetRepository, null, null);
+		MirrorRequest req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 
 		// Set Status sequence 
 		seq.add(new Status(IStatus.ERROR, "Activator", "Message"));
@@ -144,7 +145,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		// Remove key from repo so the same one can be used
 		targetRepository.removeDescriptor(key);
 		// Set Status sequence 
-		req = new MirrorRequest(key, targetRepository, null, null);
+		req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 
 		seq.add(new Status(IStatus.WARNING, "Activator", "Message"));
 		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
@@ -155,7 +156,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		// Remove key from repo so the same one can be used
 		targetRepository.removeDescriptor(key);
 		// Set Status sequence 
-		req = new MirrorRequest(key, targetRepository, null, null);
+		req = new MirrorRequest(key, targetRepository, null, null, getTransport());
 
 		seq.add(new Status(IStatus.INFO, "Activator", "Message"));
 		req.perform(source, new NullProgressMonitor());
@@ -182,7 +183,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 			IArtifactRepository target = getArtifactRepositoryManager().createRepository(destination, "Destination", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 
 			IArtifactKey key = new ArtifactKey("osgi.bundle", "org.eclipse.ve.jfc", Version.parseVersion("1.4.0.HEAD"));
-			MirrorRequest req = new MirrorRequest(key, target, null, null);
+			MirrorRequest req = new MirrorRequest(key, target, null, null, getTransport());
 
 			req.perform(source, new NullProgressMonitor());
 			IStatus result = req.getResult();
@@ -314,7 +315,7 @@ public class MirrorRequestTest extends AbstractProvisioningTest {
 		IArtifactRepository repo;
 
 		OrderedMirrorSelector(IArtifactRepository repo) {
-			super(repo);
+			super(repo, getTransport());
 			this.repo = repo;
 			// Setting this property forces SimpleArtifactRepository to use mirrors despite being a local repo
 			// Alternatively we could use reflect to change "location" of the repo

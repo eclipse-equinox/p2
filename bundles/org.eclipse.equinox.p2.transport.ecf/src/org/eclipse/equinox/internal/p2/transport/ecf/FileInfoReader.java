@@ -8,7 +8,7 @@
  * 	IBM Corporation - initial implementation
  * 	Cloudsmith Inc - modified API, and implementation
  ******************************************************************************/
-package org.eclipse.equinox.internal.p2.repository;
+package org.eclipse.equinox.internal.p2.transport.ecf;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,6 +22,11 @@ import org.eclipse.ecf.filetransfer.events.IRemoteFileSystemBrowseEvent;
 import org.eclipse.ecf.filetransfer.events.IRemoteFileSystemEvent;
 import org.eclipse.ecf.filetransfer.identity.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.repository.Activator;
+import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
+import org.eclipse.equinox.internal.p2.repository.JREHttpClientRequiredException;
+import org.eclipse.equinox.internal.p2.repository.Messages;
+import org.eclipse.equinox.internal.p2.repository.RepositoryPreferences;
 import org.eclipse.osgi.util.NLS;
 
 /**

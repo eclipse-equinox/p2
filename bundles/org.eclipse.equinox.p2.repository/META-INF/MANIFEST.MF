@@ -25,10 +25,7 @@ Export-Package: org.eclipse.equinox.internal.p2.persistence;x-friends:="org.ecli
  org.eclipse.equinox.p2.repository.metadata.spi;version="2.0.0",
  org.eclipse.equinox.p2.repository.spi;version="2.0.0"
 Require-Bundle: org.eclipse.equinox.common,
- org.eclipse.ecf.filetransfer,
- org.eclipse.ecf,
- org.eclipse.equinox.registry;bundle-version="3.3.0",
- org.eclipse.ecf.provider.filetransfer;bundle-version="3.0.1"
+ org.eclipse.equinox.registry;bundle-version="3.3.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  J2SE-1.4,
  CDC-1.1/Foundation-1.1

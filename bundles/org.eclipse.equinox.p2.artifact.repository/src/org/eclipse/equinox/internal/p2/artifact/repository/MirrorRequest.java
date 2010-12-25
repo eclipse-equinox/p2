@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *  	Compeople AG (Stefan Liebig) - various ongoing maintenance
  *   	Genuitec LLC - various bug fixes
+ *      Sonatype, Inc. - transport split
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
@@ -20,7 +21,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.repository.IStateful;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -54,8 +55,8 @@ public class MirrorRequest extends ArtifactRequest {
 	private final Map<String, String> targetRepositoryProperties;
 	protected IArtifactDescriptor descriptor;
 
-	public MirrorRequest(IArtifactKey key, IArtifactRepository targetRepository, Map<String, String> targetDescriptorProperties, Map<String, String> targetRepositoryProperties) {
-		super(key);
+	public MirrorRequest(IArtifactKey key, IArtifactRepository targetRepository, Map<String, String> targetDescriptorProperties, Map<String, String> targetRepositoryProperties, Transport transport) {
+		super(key, transport);
 		target = targetRepository;
 		if (targetDescriptorProperties == null || targetDescriptorProperties.isEmpty()) {
 			this.targetDescriptorProperties = null;
@@ -201,7 +202,7 @@ public class MirrorRequest extends ArtifactRequest {
 			return;
 		}
 		try {
-			RepositoryTransport.getInstance().getLastModified(statsURI, monitor);
+			transport.getLastModified(statsURI, monitor);
 		} catch (FileNotFoundException e) {
 			//ignore because it is expected that the statistics URI doesn't represent an existing file
 		} catch (Exception e) {

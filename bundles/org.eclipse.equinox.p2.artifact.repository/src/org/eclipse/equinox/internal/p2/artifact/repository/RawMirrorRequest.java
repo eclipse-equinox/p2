@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - transport split
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
@@ -14,6 +15,7 @@ import java.io.OutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
@@ -23,8 +25,8 @@ import org.eclipse.osgi.util.NLS;
 public class RawMirrorRequest extends MirrorRequest {
 	protected IArtifactDescriptor sourceDescriptor, targetDescriptor;
 
-	public RawMirrorRequest(IArtifactDescriptor sourceDescriptor, IArtifactDescriptor targetDescriptor, IArtifactRepository targetRepository) {
-		super(sourceDescriptor.getArtifactKey(), targetRepository, null, null);
+	public RawMirrorRequest(IArtifactDescriptor sourceDescriptor, IArtifactDescriptor targetDescriptor, IArtifactRepository targetRepository, Transport transport) {
+		super(sourceDescriptor.getArtifactKey(), targetRepository, null, null, transport);
 		this.sourceDescriptor = sourceDescriptor;
 		this.targetDescriptor = targetDescriptor;
 	}

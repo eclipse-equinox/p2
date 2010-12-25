@@ -15,7 +15,7 @@ import java.net.ConnectException;
 import java.net.URI;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
-import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
+import org.eclipse.equinox.internal.p2.transport.ecf.RepositoryTransport;
 import org.eclipse.equinox.p2.tests.testserver.helper.AbstractTestServerClientCase;
 
 /**
@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.tests.testserver.helper.AbstractTestServerClientCa
 public class FileInfoReaderTest extends AbstractTestServerClientCase {
 
 	public void testUnknownHost() throws Exception {
-		RepositoryTransport transport = RepositoryTransport.getInstance();
+		RepositoryTransport transport = new RepositoryTransport();
 		URI toDownload = new URI("http://bogus.nowhere/nothing.xml");
 		IStatus status = null;
 		try {
@@ -37,7 +37,7 @@ public class FileInfoReaderTest extends AbstractTestServerClientCase {
 	}
 
 	public void testBadPort() throws Exception {
-		RepositoryTransport transport = RepositoryTransport.getInstance();
+		RepositoryTransport transport = new RepositoryTransport();
 		URI toDownload = new URI("http://localhost:1/nothing.xml");
 		IStatus status = null;
 		try {
@@ -53,7 +53,7 @@ public class FileInfoReaderTest extends AbstractTestServerClientCase {
 
 	public void testRedirect() throws Exception {
 		this.setAladdinLoginService();
-		RepositoryTransport transport = RepositoryTransport.getInstance();
+		RepositoryTransport transport = new RepositoryTransport();
 		// apache http client accepts 100 redirects
 		URI toDownload = new URI(getBaseURL() + "/redirect/101/public/index.html");
 		boolean caught = false;
