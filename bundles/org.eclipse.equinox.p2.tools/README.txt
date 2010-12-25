@@ -1,1 +1,0 @@
-This project is now defunct and replaced by the org.eclipse.equinox.p2.repository.tools.
