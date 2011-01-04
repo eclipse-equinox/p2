@@ -5,7 +5,6 @@ import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
 
 public class ECFTransportComponent implements IAgentServiceFactory {
 
-	@Override
 	public Object createService(IProvisioningAgent agent) {
 		return new RepositoryTransport();
 	}
