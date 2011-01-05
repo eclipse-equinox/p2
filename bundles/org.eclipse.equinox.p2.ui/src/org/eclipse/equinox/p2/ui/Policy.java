@@ -19,6 +19,7 @@ import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.operations.UpdateOperation;
 import org.eclipse.equinox.p2.query.IQuery;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -69,6 +70,30 @@ public class Policy {
 	 */
 	public static final int RESTART_POLICY_PROMPT_RESTART_OR_APPLY = 4;
 
+	/**
+	 * A constant indicating that the user should be presented with an
+	 * update wizard that shows a list of IUs that can be updated.
+	 * Even when only one update is available, a list showing the single
+	 * update will be used.  This option is recommended when the user's view
+	 * of the system is a set of component updates and the user is expected
+	 * to have knowledge of the composition of the system.
+	 * 
+	 * @since 2.1
+	 */
+	public static final int UPDATE_STYLE_MULTIPLE_IUS = 1;
+
+	/**
+	 * A constant indicating that the user should be presented with an
+	 * update wizard that shows detail about a single IU that can be
+	 * updated.  If more than one IU can be updated, the user will be shown
+	 * a list; however, this option is recommended to be used only when
+	 * the user's view of the system is a single application that can be 
+	 * updated, and only one IU is expected to be available for update.
+	 * 
+	 * @since 2.1
+	 */
+	public static final int UPDATE_STYLE_SINGLE_IUS = 2;
+
 	private IQuery<IInstallableUnit> visibleAvailableIUQuery = QueryUtil.createIUGroupQuery();
 	private IQuery<IInstallableUnit> visibleInstalledIUQuery = new UserVisibleRootQuery();
 	private boolean groupByCategory = true;
@@ -79,6 +104,8 @@ public class Policy {
 	private String repoPrefPageId;
 	private String repoPrefPageName;
 	private boolean filterOnEnv = false;
+	private int updateWizardStyle = UPDATE_STYLE_MULTIPLE_IUS;
+	private Point wizardDetailsPreferredSize = null;
 
 	/**
 	 * Answer a boolean indicating whether the caller should continue to work with the
@@ -354,5 +381,70 @@ public class Policy {
 
 	public void setRepositoryPreferencePageName(String name) {
 		this.repoPrefPageName = name;
+	}
+
+	/**
+	 * Get the update wizard style that should be used to determine
+	 * what to show the user when updates are available.
+	 * 
+	 * @return an integer constant describing the update wizard style
+	 * 
+	 * @see #UPDATE_STYLE_SINGLE_IUS
+	 * @see #UPDATE_STYLE_MULTIPLE_IUS
+	 * 
+	 * @since 2.1
+	 */
+
+	public int getUpdateWizardStyle() {
+		return updateWizardStyle;
+	}
+
+	/**
+	 * Get the update wizard style that should be used to determine
+	 * what to show the user when updates are available.
+	 * 
+	 * @param updateWizardStyle an integer constant describing the update wizard style
+	 * 
+	 * @see #UPDATE_STYLE_SINGLE_IUS
+	 * @see #UPDATE_STYLE_MULTIPLE_IUS
+	 * 
+	 * @since 2.1
+	 */
+
+	public void setUpdateWizardStyle(int updateWizardStyle) {
+		this.updateWizardStyle = updateWizardStyle;
+	}
+
+	/**
+	 * Get a point describing the preferred size of the details area
+	 * shown in single IU update wizards.  This value may be null, in which case
+	 * the wizard may compute a default size.  
+	 * 
+	 * @return a Point describing the preferred size of the update wizard details area.
+	 * 
+	 * @see #UPDATE_STYLE_SINGLE_IUS
+	 *
+	 * @since 2.1
+	 */
+
+	public Point getUpdateDetailsPreferredSize() {
+		return wizardDetailsPreferredSize;
+	}
+
+	/**
+	 * Set the preferred size of the details area shown in update wizards which
+	 * notify the user of a single update.  Clients can use this value to ensure
+	 * that their product's branded update notifier is sized to fit the expected
+	 * content.
+	 * 
+	 * @param preferredSize a Point describing the preferred size
+	 * 
+	 * @see #UPDATE_STYLE_SINGLE_IUS
+	 * 
+	 * @since 2.1
+	 */
+
+	public void setUpdateDetailsPreferredSize(Point preferredSize) {
+		this.wizardDetailsPreferredSize = preferredSize;
 	}
 }

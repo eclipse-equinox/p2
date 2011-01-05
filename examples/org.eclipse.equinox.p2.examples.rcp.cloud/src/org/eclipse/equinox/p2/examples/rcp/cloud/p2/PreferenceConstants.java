@@ -18,4 +18,8 @@ public class PreferenceConstants {
 	public static final String INSTALLED_SHOW_ALL_BUNDLES = "showAllBundlesInstalled"; //$NON-NLS-1$
 	public static final String REPOSITORIES_VISIBLE = "repositoriesVisible";  //$NON-NLS-1$
 	public static final String SHOW_DRILLDOWN_REQUIREMENTS = "showDrilldownRequirements";   //$NON-NLS-1$
+	public static final String UPDATE_WIZARD_STYLE = "updateWizardStyle";  //$NON-NLS-1$
+	public static final String UPDATE_DETAILS_WIDTH = "updateDetailsWidth"; //$NON-NLS-1$
+	public static final String UPDATE_DETAILS_HEIGHT = "updateDetailsHeight"; //$NON-NLS-1$
+	public static final String FILTER_ON_ENV = "filterOnEnv"; //$NON-NLS-1$
 }

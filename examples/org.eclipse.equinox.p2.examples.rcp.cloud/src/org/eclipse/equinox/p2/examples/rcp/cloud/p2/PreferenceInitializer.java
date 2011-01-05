@@ -10,18 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.examples.rcp.cloud.p2;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.preferences.*;
-import org.eclipse.equinox.p2.core.IAgentLocation;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.ProfileScope;
+import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.equinox.p2.examples.rcp.cloud.Activator;
 import org.eclipse.equinox.p2.ui.Policy;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
-import org.eclipse.ui.statushandlers.StatusManager;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.prefs.BackingStoreException;
+import org.eclipse.swt.SWT;
 import org.osgi.service.prefs.Preferences;
 
 /**
@@ -42,5 +35,9 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		node.putBoolean(PreferenceConstants.AVAILABLE_GROUP_BY_CATEGORY, true);
 		node.putBoolean(PreferenceConstants.SHOW_DRILLDOWN_REQUIREMENTS, false);
 		node.putInt(PreferenceConstants.RESTART_POLICY, Policy.RESTART_POLICY_PROMPT_RESTART_OR_APPLY);
+		node.putInt(PreferenceConstants.UPDATE_WIZARD_STYLE, Policy.UPDATE_STYLE_MULTIPLE_IUS);
+		node.putBoolean(PreferenceConstants.FILTER_ON_ENV, false);
+		node.putInt(PreferenceConstants.UPDATE_DETAILS_HEIGHT, SWT.DEFAULT);
+		node.putInt(PreferenceConstants.UPDATE_DETAILS_WIDTH, SWT.DEFAULT);
 	}
 }

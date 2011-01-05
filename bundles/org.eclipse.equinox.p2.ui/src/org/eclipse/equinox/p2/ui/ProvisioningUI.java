@@ -224,12 +224,20 @@ public class ProvisioningUI {
 	 * @return the wizard return code
 	 */
 	public int openUpdateWizard(boolean skipSelectionsPage, UpdateOperation operation, LoadMetadataRepositoryJob job) {
+		if (getPolicy().getUpdateWizardStyle() == Policy.UPDATE_STYLE_SINGLE_IUS && UpdateSingleIUWizard.validFor(operation)) {
+			UpdateSingleIUWizard wizard = new UpdateSingleIUWizard(this, operation);
+			WizardDialog dialog = new WizardDialog(ProvUI.getDefaultParentShell(), wizard);
+			dialog.create();
+			// TODO do we need a hook for providing custom help?  Or would this just be shown in the update browser?
+			return dialog.open();
+		}
 		UpdateWizard wizard = new UpdateWizard(this, operation, operation.getSelectedUpdates(), job);
 		wizard.setSkipSelectionsPage(skipSelectionsPage);
 		WizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
 		dialog.create();
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);
 		return dialog.open();
+
 	}
 
 	/**
