@@ -1,11 +1,12 @@
 /******************************************************************************* 
-* Copyright (c) 2009 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2011 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
+*   IBM - Ongoing development
 ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -13,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Locale;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
@@ -25,12 +25,12 @@ import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
-import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.*;
 
 /**
  * This tests localization in the publisher
  */
-public class LocalizationTests extends TestCase {
+public class LocalizationTests extends AbstractProvisioningTest {
 
 	private PublisherInfo info;
 	private IProgressMonitor monitor;
@@ -48,6 +48,7 @@ public class LocalizationTests extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		info = new PublisherInfo();
+		info.setMetadataRepository(new TestMetadataRepository(getAgent(), new IInstallableUnit[0]));
 		results = new PublisherResult();
 		monitor = new NullProgressMonitor();
 	}
