@@ -57,6 +57,10 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.simpleconfigurator.manipulator,org.eclipse.equinox.simpleconfigurator.manipulator"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.simpleconfigurator,org.eclipse.equinox.simpleconfigurator"/>
 
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/features/org.eclipse.equinox.p2.core.feature,org.eclipse.equinox.p2.core.feature"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/features/org.eclipse.equinox.p2.discovery.feature,org.eclipse.equinox.p2.discovery.feature"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/features/org.eclipse.equinox.p2.extras.feature,org.eclipse.equinox.p2.extras.feature"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/features/org.eclipse.equinox.p2.sdk,org.eclipse.equinox.p2.sdk"/>
 
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.core.tests.harness,org.eclipse.core.tests.harness"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.test.performance,org.eclipse.test.performance"/>
