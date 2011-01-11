@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site associateSitesURL="associateSites.xml" mirrorsURL="http://www.eclipse.org/downloads/download.php?file=/eclipse/updates/3.4&amp;format=xml">
-   <feature url="features/test.feature_1.0.0.jar" id="test.feature" version="1.0.0.qualifier">
-     <category name="Test Category"/>
-   </feature>
-   <category-def label="Test Category Label" name="Test Category">
-      <description>Test Category Description</description>
-   </category-def>
-</site>

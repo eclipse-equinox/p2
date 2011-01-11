@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<units size='1'>
-  <unit id='1285816090342' version='0.0.0.1285816090342' singleton='false'>
-    <requires size='1'>
-      <required namespace='org.eclipse.equinox.p2.iu' name='org.maven.ide.eclipse.log' range='[1.1.4.qualifier,1.1.4.qualifier]'/>
-    </requires>
-    <touchpoint id='null' version='0.0.0'/>
-  </unit>
-</units>
