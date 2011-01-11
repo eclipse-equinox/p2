@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -36,13 +36,11 @@ public class RmdirAction extends ProvisioningAction {
 			try {
 				store.backupDirectory(dir);
 			} catch (IOException e) {
-				return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.rmdir_failed, path, ID), e);
+				// Only return a warning here, not an error. See Bug 331609 for more detail.
+				return new Status(IStatus.WARNING, Activator.ID, IStatus.OK, NLS.bind(Messages.rmdir_failed, path, ID), e);
 			} catch (IllegalArgumentException e) {
 				// Ignore the delete/backup if the directory was not empty as this preserves the
-				// the original semantics.
-				// See Bug 272312 for more detail.
-				// return new Status(IStatus.ERROR, Activator.ID, IStatus.OK, NLS.bind(Messages.rmdir_failed, ActionConstants.PARM_PATH, ID), e);
-				//
+				// the original semantics. See Bug 272312 for more detail.
 			}
 		else
 			dir.delete();
