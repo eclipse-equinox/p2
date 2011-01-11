@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009,2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -93,15 +93,17 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 		if (locations == null || locations.length == 0)
 			return Status.OK_STATUS;
 
+		IStatus status;
+
 		// We batch all the time as a way of distinguishing client-initiated repository 
 		// jobs from low level repository manipulation.
 		ui.signalRepositoryOperationStart();
 		try {
-			doLoad(monitor);
+			status = doLoad(monitor);
 		} finally {
 			ui.signalRepositoryOperationComplete(null, getProperty(SUPPRESS_REPOSITORY_EVENTS) == null);
 		}
-		return Status.OK_STATUS;
+		return status;
 	}
 
 	private IStatus doLoad(IProgressMonitor monitor) {
@@ -115,6 +117,8 @@ public class LoadMetadataRepositoryJob extends ProvisioningJob {
 				repoCache.add(ProvUI.getMetadataRepositoryManager(ui.getSession()).loadRepository(locations[i], sub.newChild(100)));
 			} catch (ProvisionException e) {
 				handleLoadFailure(e, locations[i]);
+			} catch (OperationCanceledException e) {
+				return Status.CANCEL_STATUS;
 			}
 		}
 		return getCurrentStatus();

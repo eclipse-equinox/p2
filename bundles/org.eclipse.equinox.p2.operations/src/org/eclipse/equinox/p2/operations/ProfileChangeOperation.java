@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -112,8 +112,12 @@ public abstract class ProfileChangeOperation implements IProfileChangeJob {
 		prepareToResolve();
 		makeResolveJob(monitor);
 		if (job != null) {
-			job.runModal(monitor);
+			IStatus status = job.runModal(monitor);
+			if (status.getSeverity() == IStatus.CANCEL)
+				return Status.CANCEL_STATUS;
 		}
+		// For anything other than cancellation, we examine the artifacts of the resolution and come
+		// up with an overall summary.
 		return getResolutionResult();
 
 	}
