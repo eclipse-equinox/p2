@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -596,6 +596,32 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
+	 * Perform variable substitution on the given string. Replace vars in the form %foo%
+	 * with the equivalent property set in the System properties.
+	 */
+	public static String substituteVariables(String path) {
+		if (path == null)
+			return path;
+		int beginIndex = path.indexOf('%');
+		// no variable
+		if (beginIndex == -1)
+			return path;
+		beginIndex++;
+		int endIndex = path.indexOf('%', beginIndex);
+		// no matching end % to indicate variable
+		if (endIndex == -1)
+			return path;
+		// get the variable name and do a lookup
+		String var = path.substring(beginIndex, endIndex);
+		if (var.length() == 0 || var.indexOf(File.pathSeparatorChar) != -1)
+			return path;
+		var = getContext().getProperty(var);
+		if (var == null)
+			return path;
+		return path.substring(0, beginIndex - 1) + var + path.substring(endIndex + 1);
+	}
+
+	/*
 	 * Helper method to return the eclipse.home location. Return
 	 * null if it is unavailable.
 	 */
@@ -640,8 +666,11 @@ public class Activator implements BundleActivator {
 		List<File> dropinsDirectories = new ArrayList<File>();
 		// did the user specify one via System properties?
 		String watchedDirectoryProperty = bundleContext.getProperty(DROPINS_DIRECTORY);
-		if (watchedDirectoryProperty != null)
+		if (watchedDirectoryProperty != null) {
+			// perform a variable substitution if necessary
+			watchedDirectoryProperty = substituteVariables(watchedDirectoryProperty);
 			dropinsDirectories.add(new File(watchedDirectoryProperty));
+		}
 
 		// always add the one in the Eclipse home directory
 		File root = getEclipseHome();
