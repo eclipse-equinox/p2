@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -105,6 +105,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected static void assertNotOK(String message, IStatus result) {
 		assertTrue(message, !result.isOK());
+	}
+
+	protected static void assertOK(IStatus status) {
+		assertOK("The status should have been OK.", status);
 	}
 
 	protected static void assertOK(String message, IStatus status) {
