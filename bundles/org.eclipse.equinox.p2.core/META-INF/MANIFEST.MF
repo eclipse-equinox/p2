@@ -56,6 +56,7 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.touchpoint.eclipse,
    org.eclipse.equinox.p2.touchpoint.natives,
    org.eclipse.equinox.p2.ui,
+   org.eclipse.equinox.p2.ui.admin,
    org.eclipse.equinox.p2.ui.sdk,
    org.eclipse.equinox.p2.ui.sdk.scheduler,
    org.eclipse.equinox.p2.updatesite",
