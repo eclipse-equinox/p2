@@ -7,14 +7,16 @@
  * 
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
+ *     Sonatype, Inc. - transport split and caching support
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.discovery.compatibility.util;
 
 import java.io.*;
 import java.net.URI;
 import java.util.List;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.discovery.compatibility.Activator;
+import org.eclipse.equinox.internal.p2.discovery.compatibility.Messages;
 import org.eclipse.equinox.internal.p2.repository.AuthenticationFailedException;
 import org.eclipse.equinox.internal.p2.repository.RepositoryTransport;
 
@@ -47,13 +49,37 @@ public class TransportUtil {
 	 *            the monitor
 	 * @throws IOException
 	 *             if a network or IO problem occurs
+	 * @throws CoreException 
 	 */
-	public static void downloadResource(URI location, File target, IProgressMonitor monitor) throws IOException {
-		OutputStream out = new BufferedOutputStream(new FileOutputStream(target));
+	public static void downloadResource(URI location, File target, IProgressMonitor monitor) throws IOException, CoreException {
+		CacheManager cm = Activator.getDefault().getCacheManager();
+		File cacheFile = cm.createCache(location, monitor);
+		if (cacheFile == null) {
+			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.TransportUtil_InternalError));
+		}
+		copyStream(new BufferedInputStream(new FileInputStream(cacheFile)), true, new BufferedOutputStream(new FileOutputStream(target)), true);
+	}
+
+	public static int copyStream(InputStream in, boolean closeIn, OutputStream out, boolean closeOut) throws IOException {
 		try {
-			RepositoryTransport.getInstance().download(location, out, monitor);
+			int written = 0;
+			byte[] buffer = new byte[16 * 1024];
+			int len;
+			while ((len = in.read(buffer)) != -1) {
+				out.write(buffer, 0, len);
+				written += len;
+			}
+			return written;
 		} finally {
-			out.close();
+			try {
+				if (closeIn) {
+					in.close();
+				}
+			} finally {
+				if (closeOut) {
+					out.close();
+				}
+			}
 		}
 	}
 
@@ -71,7 +97,12 @@ public class TransportUtil {
 	 * @throws CoreException
 	 */
 	public static void readResource(URI location, TextContentProcessor processor, IProgressMonitor monitor) throws IOException, CoreException {
-		InputStream in = RepositoryTransport.getInstance().stream(location, monitor);
+		CacheManager cm = Activator.getDefault().getCacheManager();
+		File cacheFile = cm.createCache(location, monitor);
+		if (cacheFile == null) {
+			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.TransportUtil_InternalError));
+		}
+		InputStream in = new BufferedInputStream(new FileInputStream(cacheFile));
 		try {
 			// FIXME how can the charset be determined?
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8")); //$NON-NLS-1$
@@ -101,7 +132,7 @@ public class TransportUtil {
 		int countFound = 0;
 		for (URI location : locations) {
 			try {
-				RepositoryTransport.getInstance().getLastModified(location, monitor);
+				new RepositoryTransport().getLastModified(location, monitor);
 				if (one) {
 					return true;
 				}

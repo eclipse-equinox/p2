@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
+ *     Sonatype, Inc. - added caching support
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.discovery.compatibility;
@@ -16,7 +17,7 @@ import org.eclipse.osgi.util.NLS;
 /**
  * @author David Green
  */
-class Messages extends NLS {
+public class Messages extends NLS {
 
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.discovery.compatibility.messages"; //$NON-NLS-1$
 
@@ -29,6 +30,14 @@ class Messages extends NLS {
 	public static String BundleDiscoveryStrategy_task_processing_extensions;
 
 	public static String BundleDiscoveryStrategy_unexpected_element;
+
+	public static String CacheManager_AuthenticationFaileFor_0;
+
+	public static String CacheManager_FailedCommunication_0;
+
+	public static String CacheManager_Neither_0_nor_1_found;
+
+	public static String CacheManage_ErrorRenamingCache;
 
 	public static String ConnectorDiscoveryExtensionReader_Documents;
 
@@ -73,6 +82,8 @@ class Messages extends NLS {
 	public static String SiteVerifier_Unexpected_Error;
 
 	public static String SiteVerifier_Verify_Job_Label;
+
+	public static String TransportUtil_InternalError;
 
 	static {
 		// initialize resource bundle
