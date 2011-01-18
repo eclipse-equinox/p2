@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     Tasktop Technologies - initial API and implementation
+ *     Sonatype, Inc. - added caching support
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.discovery.compatibility;
 
@@ -192,10 +193,6 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 			String bundleUrl = entry.getLocation();
 			for (int attemptCount = 0; attemptCount < maxDiscoveryJarDownloadAttempts; ++attemptCount) {
 				try {
-					if (!bundleUrl.startsWith("http://") && !bundleUrl.startsWith("https://")) { //$NON-NLS-1$//$NON-NLS-2$
-						LogHelper.log(new Status(IStatus.WARNING, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.RemoteBundleDiscoveryStrategy_unrecognized_discovery_url, bundleUrl)));
-						continue;
-					}
 					String lastPathElement = bundleUrl.lastIndexOf('/') == -1 ? bundleUrl : bundleUrl.substring(bundleUrl.lastIndexOf('/'));
 					File target = File.createTempFile(lastPathElement.replaceAll("^[a-zA-Z0-9_.]", "_") + "_", ".jar", temporaryStorage); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 
@@ -217,6 +214,8 @@ public class RemoteBundleDiscoveryStrategy extends BundleDiscoveryStrategy {
 					if (isUnknownHostException(e)) {
 						break;
 					}
+				} catch (CoreException e) {
+					LogHelper.log(new Status(IStatus.ERROR, DiscoveryCore.ID_PLUGIN, NLS.bind(Messages.RemoteBundleDiscoveryStrategy_cannot_download_bundle, bundleUrl, e.getMessage()), e));
 				}
 			}
 			return this;
