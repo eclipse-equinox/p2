@@ -131,6 +131,15 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	public static final String PROP_INSTALL_FEATURES = "org.eclipse.update.install.features"; //$NON-NLS-1$
 
 	/**
+	  * Profile state meta property key.  Can be used to mark a profile state that the UI should hide.
+	  * The value of the property is not relevant as the property's existence is enough.  Although <code>true</code>
+	  * would be a typical value.
+	  * 
+	  * @since 2.1
+	  */
+	public static final String PROP_HIDDEN = "org.eclipse.equinox.p2.state.hidden"; //$NON-NLS-1$
+
+	/**
 	 * Returns the provisioning agent that manages this profile
 	 * @return A provisioning agent.
 	 */

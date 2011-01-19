@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -131,7 +131,23 @@ public class ProfileSynchronizer {
 
 		// write out the new timestamps (for caching) and apply the configuration
 		writeTimestamps();
-		return applyConfiguration(false);
+		IStatus applyResult = applyConfiguration(false);
+
+		// Mark the state update as hidden so it does not appear in the Installation History UI list
+		// TODO We need to determine if it is ok to use this copy of the profile.
+		// See https://bugs.eclipse.org/334670
+		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		if (profileRegistry != null) {
+			IStatus result = profileRegistry.setProfileStateProperty(profile.getProfileId(), profile.getTimestamp(), IProfile.PROP_HIDDEN, Boolean.TRUE.toString());
+			if (!result.isOK()) {
+				// we don't get here but if we do, we will ignore the problem and continue. We
+				// still want the install operation to succeed. The consequence of this failure is the
+				// profile state appears in the UI in the Install History page, which isn't horrible.
+				LogHelper.log(result);
+			}
+		}
+
+		return applyResult;
 	}
 
 	/*

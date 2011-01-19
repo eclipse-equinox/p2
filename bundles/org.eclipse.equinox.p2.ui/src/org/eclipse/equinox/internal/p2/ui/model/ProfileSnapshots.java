@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.progress.IElementCollector;
 
@@ -38,27 +41,29 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
 	 */
 	public Object[] getChildren(Object o) {
-		long[] timestamps = ProvUI.getProfileRegistry(ProvUIActivator.getDefault().getSession()).listProfileTimestamps(profileId);
-		RollbackProfileElement[] elements = new RollbackProfileElement[timestamps.length];
-		boolean skipFirst = false;
+		IProfileRegistry registry = ProvUI.getProfileRegistry(ProvUIActivator.getDefault().getSession());
+		long[] timestamps = registry.listProfileTimestamps(profileId);
+
+		// find out which profile states we should hide
+		Map<String, String> hidden = registry.getProfileStateProperties(profileId, IProfile.PROP_HIDDEN);
+		List<RollbackProfileElement> elements = new ArrayList<RollbackProfileElement>();
+
 		for (int i = 0; i < timestamps.length; i++) {
-			elements[i] = new RollbackProfileElement(this, profileId, timestamps[i]);
+			if (hidden.containsKey(String.valueOf(timestamps[i])))
+				continue;
+			RollbackProfileElement element = new RollbackProfileElement(this, profileId, timestamps[i]);
+			elements.add(element);
+
 			// Eliminate the first in the list (earliest) if there was no content at all.
 			// This doesn't always happen, but can, and we don't want to offer the user an empty profile to
-			// revert to.
-			if (i == 0) {
-				skipFirst = elements[0].getChildren(elements[0]).length == 0;
-			}
-			if (i == timestamps.length - 1) {
-				elements[i].setIsCurrentProfile(true);
-			}
+			// revert to. Just reset the list since it only has one element.
+			if (i == 0 && element.getChildren(element).length == 0)
+				elements.clear();
 		}
-		if (skipFirst) {
-			RollbackProfileElement[] elementsWithoutFirst = new RollbackProfileElement[elements.length - 1];
-			System.arraycopy(elements, 1, elementsWithoutFirst, 0, elements.length - 1);
-			return elementsWithoutFirst;
-		}
-		return elements;
+		// current profile is the last one in the list
+		if (elements.size() > 0)
+			elements.get(elements.size() - 1).setIsCurrentProfile(true);
+		return elements.toArray(new RollbackProfileElement[elements.size()]);
 	}
 
 	/* (non-Javadoc)
