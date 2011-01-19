@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,9 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.p2.core.IPool;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.query.*;
@@ -223,5 +225,32 @@ public class IUMap implements Cloneable {
 	public void removeAll(Collection<IInstallableUnit> toRemove) {
 		for (IInstallableUnit iu : toRemove)
 			remove(iu);
+	}
+
+	/**
+	 * Replace all instances of the IInstallableUnits in the receiver
+	 * with the shared IInstallableUnits from the provided iuPool.
+	 * This operation is a no-op if iuPool is null.
+	 * 
+	 * @param iuPool an IPool containing the shared IInstallableUnits
+	 */
+	public void compress(IPool<IInstallableUnit> iuPool) {
+		if (iuPool == null) {
+			return;
+		}
+
+		Iterator<Entry<String, Object>> entries = units.entrySet().iterator();
+		while (entries.hasNext()) {
+			Entry<String, Object> entry = entries.next();
+			Object value = entry.getValue();
+			if (value.getClass().isArray()) {
+				IInstallableUnit[] array = (IInstallableUnit[]) value;
+				for (int i = 0; i < array.length; i++) {
+					array[i] = iuPool.add(array[i]);
+				}
+			} else {
+				entry.setValue(iuPool.add((IInstallableUnit) value));
+			}
+		}
 	}
 }

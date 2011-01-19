@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -23,8 +23,7 @@ import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.equinox.internal.p2.metadata.index.*;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.KeyWithLocale;
 import org.eclipse.equinox.p2.metadata.index.IIndex;
@@ -356,4 +355,10 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		return result;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#compress(IPool<IInstallableUnit> iuPool)
+	 */
+	public void compress(IPool<IInstallableUnit> iuPool) {
+		units.compress(iuPool);
+	}
 }

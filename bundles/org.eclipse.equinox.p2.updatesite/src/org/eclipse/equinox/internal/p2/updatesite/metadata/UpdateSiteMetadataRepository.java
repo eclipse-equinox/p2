@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.core.IPool;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQuery;
@@ -193,5 +194,12 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 	 */
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		return delegate.executeBatch(runnable, monitor);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.metadata.IMetadataRepository#compress(IPool<IInstallableUnit> iuPool)
+	 */
+	public void compress(IPool<IInstallableUnit> iuPool) {
+		delegate.compress(iuPool);
 	}
 }

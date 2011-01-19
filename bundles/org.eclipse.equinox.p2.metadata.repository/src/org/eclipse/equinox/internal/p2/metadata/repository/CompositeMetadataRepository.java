@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,8 +21,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryIO;
 import org.eclipse.equinox.internal.p2.persistence.CompositeRepositoryState;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.index.IIndex;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
@@ -47,6 +46,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	// keep a list of the repositories that we have successfully loaded
 	private List<IMetadataRepository> loadedRepos = new ArrayList<IMetadataRepository>();
 	private IMetadataRepositoryManager manager;
+	private IPool<IInstallableUnit> iuPool = new WeakPool<IInstallableUnit>();
 
 	/**
 	 * Create a Composite repository in memory.
@@ -157,6 +157,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 				//set repository to system to hide from users
 				getManager().setRepositoryProperty(absolute, IRepository.PROP_SYSTEM, String.valueOf(true));
 			}
+			currentRepo.compress(iuPool); // Share IUs across this CompositeMetadataRepository
 			// we successfully loaded the repo so remember it
 			loadedRepos.add(currentRepo);
 		} catch (ProvisionException e) {
