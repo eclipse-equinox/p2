@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Cloudsmith Inc. and others.
+ * Copyright (c) 2009-2011 Cloudsmith Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
+ *     SAP - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
@@ -140,6 +141,10 @@ public class Messages extends NLS {
 	public static String no_expression_factory;
 
 	public static String no_expression_parser;
+
+	public static String provided_capability_name_not_defined;
+
+	public static String provided_capability_namespace_not_defined;
 
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.metadata.messages"; //$NON-NLS-1$
 
