@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
+import java.util.Collection;
 import java.util.Map;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.core.ProvisionException;
 
 /**
@@ -127,4 +129,74 @@ public interface IProfileRegistry {
 	 * @return boolean  true if the profile is current; false otherwise.
 	 */
 	public boolean isCurrent(IProfile profile);
+
+	/**
+	 * Set properties on a specific profile state.  Overwrite existing properties if present.
+	 * 
+	 * @param id the identifier of the profile
+	 * @param timestamp the timestamp of the profile
+	 * @param properties the properties to set on the profile
+	 * @return status object indicating success or failure
+	 * @throws NullPointerException if either id or properties are <code>null</code> 
+	 * @since 2.1
+	 */
+	public IStatus setProfileStateProperties(String id, long timestamp, Map<String, String> properties);
+
+	/**
+	 * Set a specific property on a specific profile state.  Overwrite existing properties if present.
+	 * <p>
+	 * Use of this method is discouraged if multiple properties will be set on the same state since
+	 * the implementation of this method may access the file-system with each call.  Callers should use 
+	 * {@link #setProfileStateProperties(String, long, Map)} instead. 
+	 * </p>
+	 * 
+	 * @param id the profile identifier
+	 * @param timestamp the timestamp of the profile
+	 * @param key the property key to set
+	 * @param value the property value to set
+	 * @return status object indicating success or failure
+	 * @throws NullPointerException if any of id, key or value is <code>null</code>
+	 * @since 2.1
+	 */
+	public IStatus setProfileStateProperty(String id, long timestamp, String key, String value);
+
+	/**
+	 * Return all properties for a particular profile state. Both the key and the values are <code>String</code>.
+	 * Return an empty map if there was a problem accessing the properties.
+	 * 
+	 * @param id the profile identifier
+	 * @param timestamp the profile timestamp
+	 * @return a property map of key value pairs.  An empty map if the profile state has no properties or does not exist
+	 * @throws NullPointerException if profile id is <code>null</code>.
+	 * @since 2.1
+	 */
+	public Map<String, String> getProfileStateProperties(String id, long timestamp);
+
+	/**
+	 * Return a map of profile timestamps to values for all profile states that contain the given property key.
+	 * Both the key and value are of type <code>String</code>.
+	 * Return an empty map if there was a problem accessing the properties.
+	 * 
+	 * @param id the profile identifier
+	 * @param timestamp the profile timestamp
+	 * @param key the property key
+	 * @return A map of timestamp and values for the given key.  An empty map if no states define the given key.
+	 * @throws NullPointerException if the profile id or key is <code>null</code>.
+	 * @since 2.1
+	 */
+	public Map<String, String> getProfileStateProperties(String id, String key);
+
+	/**
+	 * Remove all properties with matching keys from the given profile state.  Non-existent keys are
+	 * ignored.  If the state does not exist the method performs a no-op and returns normally. If the keys
+	 * parameter is <code>null</code> then remove all properties from the profile state.
+	 * 
+	 * @param id the profile identifier
+	 * @param timestamp the profile timestamp
+	 * @param keys the property keys to remove, or <code>null</code>
+	 * @return a status object indicating success or failure
+	 * @throws NullPointerException if the profile id is <code>null</code>.
+	 * @since 2.1
+	 */
+	public IStatus removeProfileStateProperties(String id, long timestamp, Collection<String> keys);
 }

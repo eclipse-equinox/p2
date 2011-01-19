@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -13,8 +13,7 @@ package org.eclipse.equinox.p2.tests.engine;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.IAgentLocation;
@@ -690,5 +689,328 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		timestamps = registry.listProfileTimestamps(PROFILE_NAME);
 		assertEquals(1, timestamps.length);
 		assertEquals(1, fail);
+	}
+
+	public void testSetProfileStateProperties() throws ProvisionException {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+		long[] states = registry.listProfileTimestamps(profile.getProfileId());
+		long goodTimestamp = states[0];
+		long badTimestamp = goodTimestamp + 1;
+		Map<String, String> properties = new HashMap<String, String>();
+		properties.put("foo", "bar");
+
+		// Test invalid arguments handled as per contract
+		try {
+			registry.setProfileStateProperties(null, goodTimestamp, properties);
+			fail("Expected a NullPointerException.");
+		} catch (NullPointerException e) {
+			// expected
+		}
+
+		try {
+			registry.setProfileStateProperties(profile.getProfileId(), goodTimestamp, null);
+			fail("Expected a NullPointerException.");
+		} catch (NullPointerException e) {
+			// expected
+		}
+
+		assertNotOK(registry.setProfileStateProperties(profile.getProfileId(), badTimestamp, properties));
+
+		// Test single set.
+		assertOK(registry.setProfileStateProperties(profile.getProfileId(), goodTimestamp, properties));
+
+		Map<String, String> result = registry.getProfileStateProperties(profile.getProfileId(), goodTimestamp);
+		assertEquals(1, result.size());
+		assertEquals("bar", result.get("foo"));
+
+		// Test reset and multiple set
+		properties.put("foo", "newBar");
+		properties.put("two", "three");
+
+		assertOK(registry.setProfileStateProperties(profile.getProfileId(), goodTimestamp, properties));
+		result = registry.getProfileStateProperties(profile.getProfileId(), goodTimestamp);
+		assertEquals(2, result.size());
+		assertEquals("newBar", result.get("foo"));
+		assertEquals("three", result.get("two"));
+	}
+
+	public void testSetProfileStateProperty() throws ProvisionException {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+		long[] states = registry.listProfileTimestamps(profile.getProfileId());
+		long goodTimestamp = states[0];
+		long badTimestamp = goodTimestamp + 1;
+
+		// Test invalid arguments handled as per contract
+		try {
+			registry.setProfileStateProperty(null, goodTimestamp, "foo", "bar");
+			fail("Expected a NullPointerException.");
+		} catch (NullPointerException e) {
+			// expected
+		}
+
+		try {
+			registry.setProfileStateProperty(profile.getProfileId(), goodTimestamp, null, "bar");
+			fail("Expected a NullPointerException.");
+		} catch (NullPointerException e) {
+			// expected
+		}
+
+		try {
+			registry.setProfileStateProperty(profile.getProfileId(), goodTimestamp, "foo", null);
+			fail("Expected a NullPointerException.");
+		} catch (NullPointerException e) {
+			// expected
+		}
+
+		assertNotOK(registry.setProfileStateProperty(profile.getProfileId(), badTimestamp, "foo", "bar"));
+
+		// Test single set.
+		assertOK(registry.setProfileStateProperty(profile.getProfileId(), goodTimestamp, "foo", "bar"));
+
+		Map<String, String> result = registry.getProfileStateProperties(profile.getProfileId(), goodTimestamp);
+		assertEquals(1, result.size());
+		assertEquals("bar", result.get("foo"));
+
+		// Test reset and multiple set
+		assertOK(registry.setProfileStateProperty(profile.getProfileId(), goodTimestamp, "foo", "newBar"));
+		assertOK(registry.setProfileStateProperty(profile.getProfileId(), goodTimestamp, "two", "three"));
+		result = registry.getProfileStateProperties(profile.getProfileId(), goodTimestamp);
+		assertEquals(2, result.size());
+		assertEquals("newBar", result.get("foo"));
+		assertEquals("three", result.get("two"));
+	}
+
+	public void testGetProfileStateProperties() throws ProvisionException {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+
+		Map<String, String> profileProperties = new HashMap<String, String>();
+		profileProperties.put("profileFoo", "profileBar");
+
+		profile.addProperties(profileProperties);
+
+		saveProfile(registry, profile);
+
+		long[] states = registry.listProfileTimestamps(profile.getProfileId());
+
+		Map<String, String> stateProperties1 = new HashMap<String, String>();
+		Map<String, String> stateProperties2 = new HashMap<String, String>();
+
+		stateProperties1.put("one", "two");
+		stateProperties1.put("a", "b");
+		stateProperties1.put("z", "y");
+
+		stateProperties2.put("one", "three");
+		stateProperties2.put("a", "c");
+		stateProperties2.put("zz", "yy");
+
+		// Test invalid arguments handled as per contract
+		try {
+			registry.getProfileStateProperties(null, states[0]);
+			fail("Expected a NullPointerException.");
+		} catch (NullPointerException e) {
+			// expected
+		}
+
+		// Test getting before any sets. (I.E. file does not exist)
+		Map<String, String> result = registry.getProfileStateProperties(profile.getProfileId(), states[0]);
+		assertEquals(0, result.size());
+
+		assertOK(registry.setProfileStateProperties(profile.getProfileId(), states[0], stateProperties1));
+		assertOK(registry.setProfileStateProperties(profile.getProfileId(), states[1], stateProperties2));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[0]);
+		assertEquals(3, result.size());
+		assertEquals("two", result.get("one"));
+		assertEquals("b", result.get("a"));
+		assertEquals("y", result.get("z"));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[1]);
+		assertEquals(3, result.size());
+		assertEquals("three", result.get("one"));
+		assertEquals("c", result.get("a"));
+		assertEquals("yy", result.get("zz"));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[1] + 1);
+		assertEquals(0, result.size());
+	}
+
+	public void testGetProfileStateProperties2() throws ProvisionException {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+
+		Map<String, String> profileProperties = new HashMap<String, String>();
+		profileProperties.put("profileFoo", "profileBar");
+
+		profile.addProperties(profileProperties);
+
+		saveProfile(registry, profile);
+
+		long[] states = registry.listProfileTimestamps(profile.getProfileId());
+
+		Map<String, String> stateProperties1 = new HashMap<String, String>();
+		Map<String, String> stateProperties2 = new HashMap<String, String>();
+
+		stateProperties1.put("one", "two");
+		stateProperties1.put("a", "b");
+		stateProperties1.put("z", "y");
+
+		stateProperties2.put("one", "three");
+		stateProperties2.put("a", "c");
+		stateProperties2.put("zz", "yy");
+
+		// Test invalid arguments handled as per contract
+		try {
+			registry.getProfileStateProperties(null, "foo");
+			fail("Expected a NullPointerException.");
+		} catch (NullPointerException e) {
+			// expected
+		}
+
+		try {
+			registry.getProfileStateProperties(profile.getProfileId(), null);
+			fail("Expected a NullPointerException.");
+		} catch (NullPointerException e) {
+			// expected
+		}
+
+		// Test getting before any sets. (I.E. file does not exist)
+		Map<String, String> result = registry.getProfileStateProperties(profile.getProfileId(), "one");
+		assertEquals(0, result.size());
+
+		assertOK(registry.setProfileStateProperties(profile.getProfileId(), states[0], stateProperties1));
+		assertOK(registry.setProfileStateProperties(profile.getProfileId(), states[1], stateProperties2));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), "one");
+		assertEquals(2, result.size());
+		assertEquals("two", result.get(String.valueOf(states[0])));
+		assertEquals("three", result.get(String.valueOf(states[1])));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), "a");
+		assertEquals(2, result.size());
+		assertEquals("b", result.get(String.valueOf(states[0])));
+		assertEquals("c", result.get(String.valueOf(states[1])));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), "z");
+		assertEquals(1, result.size());
+		assertEquals("y", result.get(String.valueOf(states[0])));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), "zz");
+		assertEquals(1, result.size());
+		assertEquals("yy", result.get(String.valueOf(states[1])));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), "none");
+		assertEquals(0, result.size());
+	}
+
+	public void testRemoveProfileStateProperties() throws ProvisionException {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+
+		Map<String, String> profileProperties = new HashMap<String, String>();
+		profileProperties.put("profileFoo", "profileBar");
+
+		profile.addProperties(profileProperties);
+
+		saveProfile(registry, profile);
+
+		long[] states = registry.listProfileTimestamps(profile.getProfileId());
+
+		Map<String, String> stateProperties1 = new HashMap<String, String>();
+		Map<String, String> stateProperties2 = new HashMap<String, String>();
+
+		stateProperties1.put("one", "two");
+		stateProperties1.put("a", "b");
+		stateProperties1.put("z", "y");
+
+		stateProperties2.put("one", "three");
+		stateProperties2.put("a", "c");
+		stateProperties2.put("zz", "yy");
+
+		List keys = Arrays.asList(new String[] {"one", "a", "none"});
+
+		// Test removing before any sets. (I.E. file does not exist)
+		assertOK(registry.removeProfileStateProperties(profile.getProfileId(), 1, keys));
+
+		assertOK(registry.setProfileStateProperties(profile.getProfileId(), states[0], stateProperties1));
+		assertOK(registry.setProfileStateProperties(profile.getProfileId(), states[1], stateProperties2));
+
+		// Test invalid arguments handled as per contract
+		try {
+			registry.removeProfileStateProperties(null, states[0], keys);
+			fail("Expected a NullPointerException.");
+		} catch (NullPointerException e) {
+			// expected
+		}
+
+		// Remove from one state
+		assertOK(registry.removeProfileStateProperties(profile.getProfileId(), states[0], keys));
+		Map<String, String> result = registry.getProfileStateProperties(profile.getProfileId(), states[0]);
+		assertEquals(1, result.size());
+		assertEquals("y", result.get("z"));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[1]);
+		assertEquals(3, result.size());
+		assertEquals("three", result.get("one"));
+		assertEquals("c", result.get("a"));
+		assertEquals("yy", result.get("zz"));
+	}
+
+	public void testRemoveProfileStateProperties2() throws ProvisionException {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+
+		Map<String, String> profileProperties = new HashMap<String, String>();
+		profileProperties.put("profileFoo", "profileBar");
+
+		profile.addProperties(profileProperties);
+
+		saveProfile(registry, profile);
+
+		long[] states = registry.listProfileTimestamps(profile.getProfileId());
+
+		Map<String, String> stateProperties1 = new HashMap<String, String>();
+		Map<String, String> stateProperties2 = new HashMap<String, String>();
+
+		stateProperties1.put("one", "two");
+		stateProperties1.put("a", "b");
+		stateProperties1.put("z", "y");
+
+		stateProperties2.put("one", "three");
+		stateProperties2.put("a", "c");
+		stateProperties2.put("zz", "yy");
+
+		// Test removing before any sets. (I.E. file does not exist)
+		assertOK(registry.removeProfileStateProperties(profile.getProfileId(), 1, null));
+
+		assertOK(registry.setProfileStateProperties(profile.getProfileId(), states[0], stateProperties1));
+		assertOK(registry.setProfileStateProperties(profile.getProfileId(), states[1], stateProperties2));
+
+		// ensure everything was set correctly
+		Map<String, String> result = registry.getProfileStateProperties(profile.getProfileId(), states[0]);
+		assertEquals(3, result.size());
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[1]);
+		assertEquals(3, result.size());
+
+		// Test invalid arguments handled as per contract
+		try {
+			registry.removeProfileStateProperties(null, states[0], null);
+			fail("Expected a NullPointerException.");
+		} catch (NullPointerException e) {
+			// expected
+		}
+
+		// Remove from one state
+		assertOK(registry.removeProfileStateProperties(profile.getProfileId(), states[0], null));
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[0]);
+		assertEquals(0, result.size());
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[1]);
+		assertEquals(3, result.size());
+		assertEquals("three", result.get("one"));
+		assertEquals("c", result.get("a"));
+		assertEquals("yy", result.get("zz"));
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -101,6 +101,9 @@ public class Messages extends NLS {
 	public static String SimpleProfileRegistry_Profile_in_use;
 	public static String SimpleProfileRegistry_Profile_not_locked;
 	public static String SimpleProfileRegistry_Profile_not_locked_due_to_exception;
+	public static String SimpleProfileRegistry_States_Error_Reading_File;
+	public static String SimpleProfileRegistry_States_Error_Writing_File;
+	public static String SimpleProfileRegistry_state_not_found;
 
 	public static String thread_not_owner;
 	public static String touchpoint_commit_error;

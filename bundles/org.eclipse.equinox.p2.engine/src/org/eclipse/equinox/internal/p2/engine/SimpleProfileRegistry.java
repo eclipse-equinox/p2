@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -37,6 +37,7 @@ import org.xml.sax.SAXException;
 public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 	private static final String PROFILE_REGISTRY = "profile registry"; //$NON-NLS-1$
+	private static final String PROFILE_PROPERTIES_FILE = "state.properties"; //$NON-NLS-1$
 
 	private static final String PROFILE_EXT = ".profile"; //$NON-NLS-1$
 	private static final String PROFILE_GZ_EXT = ".profile.gz"; //$NON-NLS-1$
@@ -61,6 +62,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	ISurrogateProfileHandler surrogateProfileHandler;
 
 	private IProvisioningEventBus eventBus;
+	// cache of last accessed profile state properties
+	private ProfileStateProperties lastAccessedProperties;
 
 	public SimpleProfileRegistry(IProvisioningAgent agent, File registryDirectory) {
 		this(agent, registryDirectory, new SurrogateProfileHandler(agent), true);
@@ -178,7 +181,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				return profile;
 		}
 
-		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
+		File profileDirectory = getProfileFolder(id);
 		if (!profileDirectory.isDirectory())
 			return null;
 
@@ -205,7 +208,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		if (id == null)
 			return new long[0];
 
-		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
+		File profileDirectory = getProfileFolder(id);
 		if (!profileDirectory.isDirectory())
 			return new long[0];
 
@@ -383,7 +386,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				throw new ProvisionException(Messages.SimpleProfileRegistry_CannotRemoveCurrentSnapshot);
 		}
 
-		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
+		File profileDirectory = getProfileFolder(id);
 		if (!profileDirectory.isDirectory())
 			return;
 
@@ -472,7 +475,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	private void saveProfile(Profile profile) {
-		File profileDirectory = new File(store, escape(profile.getProfileId()) + PROFILE_EXT);
+		File profileDirectory = getProfileFolder(profile.getProfileId());
 		profileDirectory.mkdir();
 
 		long previousTimestamp = profile.getTimestamp();
@@ -528,7 +531,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	}
 
 	private void deleteProfile(String profileId) {
-		File profileDirectory = new File(store, escape(profileId) + PROFILE_EXT);
+		File profileDirectory = getProfileFolder(profileId);
 		FileUtils.deleteAll(profileDirectory);
 	}
 
@@ -752,7 +755,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	private boolean internalLockProfile(IProfile profile) {
 		ProfileLock lock = profileLocks.get(profile.getProfileId());
 		if (lock == null) {
-			lock = new ProfileLock(this, new File(store, escape(profile.getProfileId()) + PROFILE_EXT));
+			lock = new ProfileLock(this, getProfileFolder(profile.getProfileId()));
 			profileLocks.put(profile.getProfileId(), lock);
 		}
 		return lock.lock();
@@ -794,7 +797,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			if (getProfile(id) != null)
 				return true;
 
-		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
+		File profileDirectory = getProfileFolder(id);
 		if (!profileDirectory.isDirectory())
 			return false;
 		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
@@ -831,7 +834,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 	public synchronized File getProfileDataDirectory(String id) {
 		if (SELF.equals(id))
 			id = self;
-		File profileDirectory = new File(store, escape(id) + PROFILE_EXT);
+		File profileDirectory = getProfileFolder(id);
 		File profileDataArea = new File(profileDirectory, DATA_EXT);
 		if (!profileDataArea.isDirectory() && !profileDataArea.mkdir())
 			throw new IllegalStateException("Could not create profile data area " + profileDataArea.getAbsolutePath() + "for: " + id); //$NON-NLS-1$ //$NON-NLS-2$
@@ -855,5 +858,257 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		} catch (InterruptedException e) {
 			//ignore
 		}
+	}
+
+	// Class representing a particular instance of a profile's state properties. 
+	// Can be used for caching.
+	class ProfileStateProperties {
+		private String id;
+		private File file;
+		private long timestamp;
+		private Properties properties;
+
+		ProfileStateProperties(String id, File file, Properties properties) {
+			this.id = id;
+			this.file = file;
+			this.properties = properties;
+			this.timestamp = file.lastModified();
+		}
+
+		// return true if the cached timestamp is the same as the one on disk
+		boolean isCurrent() {
+			return file.lastModified() == timestamp;
+		}
+
+		String getId() {
+			return id;
+		}
+
+		Properties getProperties() {
+			return this.properties;
+		}
+	}
+
+	/*
+	 * Return the folder on disk associated with the profile with the given identifier.
+	 */
+	private File getProfileFolder(String id) {
+		return new File(store, escape(id) + PROFILE_EXT);
+	}
+
+	/*
+	 * Read and return the state properties for the profile with the given id.
+	 * If one does not exist, then return an empty Properties file.
+	 * If there were problems reading the file then return throw an exception.
+	 */
+	private Properties readStateProperties(String id) throws ProvisionException {
+		if (SELF.equals(id))
+			id = self;
+
+		// if the last cached value is the one we are interested in and up-to-date 
+		// then don't bother reading from disk
+		if (lastAccessedProperties != null && id.equals(lastAccessedProperties.getId()) && lastAccessedProperties.isCurrent())
+			return lastAccessedProperties.getProperties();
+
+		File profileDirectory = getProfileFolder(id);
+		if (!profileDirectory.isDirectory())
+			throw new ProvisionException(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.SimpleProfileRegistry_Bad_profile_location, profileDirectory.getPath())));
+
+		File file = new File(profileDirectory, PROFILE_PROPERTIES_FILE);
+		Properties properties = new Properties();
+		if (!file.exists())
+			return properties;
+		InputStream input = null;
+		try {
+			input = new BufferedInputStream(new FileInputStream(file));
+			properties.load(input);
+		} catch (IOException e) {
+			throw new ProvisionException(new Status(IStatus.ERROR, EngineActivator.ID, Messages.SimpleProfileRegistry_States_Error_Reading_File, e));
+		} finally {
+			if (input != null)
+				try {
+					input.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+		}
+
+		//cache the value before we return
+		lastAccessedProperties = new ProfileStateProperties(id, file, properties);
+		return properties;
+	}
+
+	/*
+	 * Write the given state properties to disk for the specified profile.
+	 */
+	private IStatus writeStateProperties(String id, Properties properties) {
+		if (SELF.equals(id))
+			id = self;
+
+		File profileDirectory = getProfileFolder(id);
+		File file = new File(profileDirectory, PROFILE_PROPERTIES_FILE);
+		OutputStream output = null;
+		try {
+			output = new BufferedOutputStream(new FileOutputStream(file));
+			properties.store(output, null);
+			output.flush();
+		} catch (IOException e) {
+			return new Status(IStatus.ERROR, EngineActivator.ID, Messages.SimpleProfileRegistry_States_Error_Writing_File, e);
+		} finally {
+			try {
+				if (output != null)
+					output.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+		// cache the value
+		lastAccessedProperties = new ProfileStateProperties(id, file, properties);
+		return Status.OK_STATUS;
+	}
+
+	/*
+	 * Ensure a profile with the given identifier has a state with the specified timestamp. Return
+	 * a status object indicating success or failure.
+	 */
+	private IStatus validateState(String id, long timestamp) {
+		long[] states = listProfileTimestamps(id);
+		for (long ts : states)
+			if (ts == timestamp)
+				return Status.OK_STATUS;
+		return new Status(IStatus.ERROR, EngineActivator.ID, (NLS.bind(Messages.SimpleProfileRegistry_state_not_found, timestamp, id)));
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#setProfileStateProperties(java.lang.String, long, java.util.Map)
+	 */
+	public IStatus setProfileStateProperties(String id, long timestamp, Map<String, String> propertiesToAdd) {
+		if (id == null || propertiesToAdd == null)
+			throw new NullPointerException();
+		IStatus result = validateState(id, timestamp);
+		if (!result.isOK())
+			return result;
+		Profile internalProfile = internalGetProfile(id);
+		lockProfile(internalProfile);
+		try {
+			Properties properties = readStateProperties(id);
+			for (Map.Entry<String, String> entry : propertiesToAdd.entrySet()) {
+				// property key format is timestamp.key
+				properties.put(timestamp + "." + entry.getKey(), entry.getValue()); //$NON-NLS-1$
+			}
+			writeStateProperties(id, properties);
+		} catch (ProvisionException e) {
+			return e.getStatus();
+		} finally {
+			unlockProfile(internalProfile);
+		}
+		return Status.OK_STATUS;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#setProfileStateProperty(java.lang.String, long, java.lang.String, java.lang.String)
+	 */
+	public IStatus setProfileStateProperty(String id, long timestamp, String key, String value) {
+		if (id == null || key == null || value == null)
+			throw new NullPointerException();
+		Map<String, String> properties = new HashMap<String, String>();
+		properties.put(key, value);
+		return setProfileStateProperties(id, timestamp, properties);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#getProfileStateProperties(java.lang.String, long)
+	 */
+	public Map<String, String> getProfileStateProperties(String id, long timestamp) {
+		if (id == null)
+			throw new NullPointerException();
+
+		Map<String, String> result = new HashMap<String, String>();
+		String timestampString = String.valueOf(timestamp);
+		int keyOffset = timestampString.length() + 1;
+		Profile internalProfile = internalGetProfile(id);
+		lockProfile(internalProfile);
+		try {
+			Properties properties = readStateProperties(id);
+			Iterator<Object> keys = properties.keySet().iterator();
+			while (keys.hasNext()) {
+				String key = (String) keys.next();
+				if (key.indexOf(timestampString) == 0)
+					result.put(key.substring(keyOffset), properties.getProperty(key));
+			}
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+		} finally {
+			unlockProfile(internalProfile);
+		}
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#getProfileStateProperties(java.lang.String, java.lang.String)
+	 */
+	public Map<String, String> getProfileStateProperties(String id, String userKey) {
+		if (id == null || userKey == null)
+			throw new NullPointerException();
+
+		Map<String, String> result = new HashMap<String, String>();
+		Profile internalProfile = internalGetProfile(id);
+		lockProfile(internalProfile);
+		try {
+			Properties properties = readStateProperties(id);
+			Iterator<Object> keys = properties.keySet().iterator();
+			while (keys.hasNext()) {
+				// property key format is timestamp.key
+				String key = (String) keys.next();
+				int index = key.indexOf('.');
+				if (index != -1 && index + 1 != key.length() && key.substring(index + 1).equals(userKey)) {
+					result.put(key.substring(0, index), properties.getProperty(key));
+				}
+			}
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+		} finally {
+			unlockProfile(internalProfile);
+		}
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfileRegistry#removeProfileStateProperties(java.lang.String, long, java.util.Collection)
+	 */
+	public IStatus removeProfileStateProperties(String id, long timestamp, Collection<String> keys) {
+		if (id == null)
+			throw new NullPointerException();
+		// return if there is no work to do
+		if (keys != null && keys.size() == 0)
+			return Status.OK_STATUS;
+
+		Profile internalProfile = internalGetProfile(id);
+		lockProfile(internalProfile);
+		try {
+			Properties properties = readStateProperties(id);
+			String timestampString = String.valueOf(timestamp);
+			if (keys == null) {
+				// remove all keys
+				for (Iterator<Object> already = properties.keySet().iterator(); already.hasNext();) {
+					String key = (String) already.next();
+					// property key is timestamp.key
+					if (key.indexOf(timestampString) == 0)
+						already.remove();
+				}
+			} else {
+				for (String key : keys) {
+					// property key format is timestamp.key
+					if (key != null)
+						properties.remove(timestampString + "." + key); //$NON-NLS-1$
+				}
+			}
+			writeStateProperties(id, properties);
+		} catch (ProvisionException e) {
+			return e.getStatus();
+		} finally {
+			unlockProfile(internalProfile);
+		}
+		return Status.OK_STATUS;
 	}
 }
