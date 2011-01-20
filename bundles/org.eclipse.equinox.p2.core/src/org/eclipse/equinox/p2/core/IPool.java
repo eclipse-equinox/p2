@@ -25,7 +25,7 @@ package org.eclipse.equinox.p2.core;
 public interface IPool<T> {
 
 	/** 
-	 * Returns the first object from this pool which is {@link #equals(Object)} to the given object.  If the pool 
+	 * Returns the first object from this pool which is equal to the given object.  If the pool 
 	 * contains no such object then the object is added to the pool and returned.  If the object is <code>null</code>, 
 	 * <code>null</code> is returned.
 	 * 

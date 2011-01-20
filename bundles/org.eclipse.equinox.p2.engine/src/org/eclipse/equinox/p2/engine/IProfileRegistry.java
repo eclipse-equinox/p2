@@ -178,7 +178,6 @@ public interface IProfileRegistry {
 	 * Return an empty map if there was a problem accessing the properties.
 	 * 
 	 * @param id the profile identifier
-	 * @param timestamp the profile timestamp
 	 * @param key the property key
 	 * @return A map of timestamp and values for the given key.  An empty map if no states define the given key.
 	 * @throws NullPointerException if the profile id or key is <code>null</code>.
