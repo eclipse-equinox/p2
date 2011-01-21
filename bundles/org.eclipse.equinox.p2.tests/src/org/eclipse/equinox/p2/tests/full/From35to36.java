@@ -30,6 +30,7 @@ public class From35to36 extends AbstractReconcilerTest {
 	}
 
 	public void from35To36() {
+		assertInitialized();
 		String currentBuildRepo = System.getProperty("org.eclipse.equinox.p2.tests.current.build.repo");
 		if (currentBuildRepo == null)
 			currentBuildRepo = "http://download.eclipse.org/eclipse/updates/3.6-I-builds";
