@@ -1,11 +1,10 @@
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.director.Slicer;
 import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
 import org.eclipse.equinox.internal.p2.metadata.ProvidedCapability;
@@ -329,7 +328,7 @@ public class NegationTesting extends AbstractProvisioningTest {
 		IProfileChangeRequest request = planner.createChangeRequest(profile);
 		request.add(iu);
 
-		RequiredCapability req1 = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, 0, 0, false, null);
+		IRequirement req1 = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, 0, 0, false, null);
 		ArrayList<IRequirement> reqs = new ArrayList();
 		reqs.add(req1);
 		request.addExtraRequirements(reqs);
