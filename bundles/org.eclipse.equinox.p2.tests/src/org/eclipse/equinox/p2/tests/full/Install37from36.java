@@ -51,6 +51,7 @@ public class Install37from36 extends AbstractReconcilerTest {
 	}
 
 	public void install37From36() throws IOException {
+		assertInitialized();
 		//Create a new installation of 3.7 using 3.6
 		File installFolder = getTestFolder("install37From36");
 		System.out.println(installFolder);

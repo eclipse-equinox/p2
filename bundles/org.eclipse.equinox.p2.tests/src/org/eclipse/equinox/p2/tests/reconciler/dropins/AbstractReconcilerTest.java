@@ -63,7 +63,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	/*
 	 * Set up the platform binary download and get it ready to run the tests.
 	 * This method is not intended to be called by clients, it will be called
-	 * automatically when the clients use a ReconcilerTestSuite.
+	 * automatically when the clients use a ReconcilerTestSuite. If the executable isn't
+	 * found on the file-system after the call, then we fail.
 	 */
 	public void initialize() throws Exception {
 		initialized = false;
@@ -80,6 +81,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		} else {
 			untar("1.0", file);
 		}
+		File exe = new File(output, "eclipse/eclipse");
+		assertTrue("Executable not found after initialization.", exe.exists());
 		initialized = true;
 	}
 
