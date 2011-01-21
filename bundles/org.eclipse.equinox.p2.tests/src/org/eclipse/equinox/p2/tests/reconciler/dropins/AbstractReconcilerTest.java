@@ -82,7 +82,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			untar("1.0", file);
 		}
 		File exe = new File(output, "eclipse/eclipse");
-		assertTrue("Executable not found after initialization.", exe.exists());
+		assertTrue("Executable not found after extracting: " + file.getAbsolutePath() + " to: " + output, exe.exists());
 		initialized = true;
 	}
 
