@@ -81,8 +81,12 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		} else {
 			untar("1.0", file);
 		}
-		File exe = new File(output, "eclipse/eclipse");
-		assertTrue("Executable not found after extracting: " + file.getAbsolutePath() + " to: " + output, exe.exists());
+		File exe = new File(output, "eclipse/eclipse.exe");
+		if (!exe.exists()) {
+			exe = new File(output, "eclipse/eclipse");
+			if (!exe.exists())
+				fail("Executable file: " + exe.getAbsolutePath() + "(or .exe) not found after extracting: " + file.getAbsolutePath() + " to: " + output);
+		}
 		initialized = true;
 	}
 
@@ -190,6 +194,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			file = new File(property);
 			assertNotNull(message, file);
 			assertTrue(message, file.exists());
+			assertTrue("File is zero length: " + file.getAbsolutePath(), file.length() > 0);
 			return file;
 		}
 
@@ -221,6 +226,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		String message = "Need to set the \"org.eclipse.equinox.p2.reconciler.tests.platform.archive\" system property with a valid path to the platform binary drop or copy the archive to be a sibling of the install folder.";
 		assertNotNull(message, file);
 		assertTrue(message, file.exists());
+		assertTrue("File is zero length: " + file.getAbsolutePath(), file.length() > 0);
 		return file;
 	}
 
