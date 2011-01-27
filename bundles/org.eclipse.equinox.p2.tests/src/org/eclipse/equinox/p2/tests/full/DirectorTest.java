@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,15 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
-import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -37,7 +35,7 @@ import org.osgi.framework.ServiceReference;
  */
 public class DirectorTest extends AbstractProvisioningTest {
 
-	public void testInstallIU() throws ProvisionException {
+	public void testInstallIU() {
 		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.SERVICE_NAME);
 		if (sr == null) {
 			throw new RuntimeException("Director service not available");
@@ -95,8 +93,8 @@ public class DirectorTest extends AbstractProvisioningTest {
 		if (!operationStatus.isOK())
 			fail("The installation has failed");
 
-		IInstallableUnit[] result = (IInstallableUnit[]) p.query(QueryUtil.createIUQuery(allRoots[0].getId(), VersionRange.emptyRange), null).toArray(IInstallableUnit.class);
+		IInstallableUnit[] result = p.query(QueryUtil.createIUQuery(allRoots[0].getId(), VersionRange.emptyRange), null).toArray(IInstallableUnit.class);
 		assertEquals(result.length, (!doUninstall ? 1 : 0));
-		result = (IInstallableUnit[]) p.query(QueryUtil.createIUQuery("toolingdefault", VersionRange.emptyRange), null).toArray(IInstallableUnit.class);
+		result = p.query(QueryUtil.createIUQuery("toolingdefault", VersionRange.emptyRange), null).toArray(IInstallableUnit.class);
 	}
 }
