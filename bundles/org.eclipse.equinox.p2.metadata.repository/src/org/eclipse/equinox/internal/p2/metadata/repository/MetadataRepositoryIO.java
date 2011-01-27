@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,11 +10,6 @@
  *     Prashant Deva - Bug 194674 [prov] Provide write access to metadata repository
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
-
-import org.eclipse.equinox.p2.repository.IRepositoryReference;
-
-import org.eclipse.equinox.p2.query.QueryUtil;
-
 
 import java.io.*;
 import java.lang.reflect.Constructor;
@@ -32,6 +27,8 @@ import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepositoryReference;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository.RepositoryState;
@@ -62,6 +59,7 @@ public class MetadataRepositoryIO {
 				bufferedInput = new BufferedInputStream(input);
 
 				Parser repositoryParser = new Parser(Activator.getContext(), Activator.ID);
+				repositoryParser.setErrorContext(location.toExternalForm());
 				repositoryParser.parse(input, monitor);
 				IStatus result = repositoryParser.getStatus();
 				switch (result.getSeverity()) {

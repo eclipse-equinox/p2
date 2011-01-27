@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2000, 2009 IBM Corporation and others.
+ *  Copyright (c) 2000, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -481,11 +481,9 @@ public class DefaultSiteParser extends DefaultHandler {
 
 		String msg;
 		if (name.equals("")) //$NON-NLS-1$
-			msg = NLS.bind(Messages.DefaultSiteParser_ErrorParsing, (new String[] {ex.getMessage()}));
-		else {
-			String[] values = new String[] {name, Integer.toString(ex.getLineNumber()), Integer.toString(ex.getColumnNumber()), ex.getMessage()};
-			msg = NLS.bind(Messages.DefaultSiteParser_ErrorlineColumnMessage, values);
-		}
+			name = siteLocation.toString();
+		String[] values = new String[] {name, Integer.toString(ex.getLineNumber()), Integer.toString(ex.getColumnNumber()), ex.getMessage()};
+		msg = NLS.bind(Messages.DefaultSiteParser_ErrorlineColumnMessage, values);
 		error(new Status(IStatus.ERROR, PLUGIN_ID, msg, ex));
 	}
 

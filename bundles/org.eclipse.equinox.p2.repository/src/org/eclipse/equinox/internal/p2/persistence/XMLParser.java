@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -39,6 +39,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	protected String bundleId; // parser class bundle id
 
 	protected XMLReader xmlReader; // the XML reader for the parser
+	protected String errorContext; // some context of what we are parsing in case there is an error
 
 	protected MultiStatus status = null; // accumulation of non-fatal errors
 	protected Locator locator = null; // document locator, if supported by the parser
@@ -527,6 +528,8 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 				: " (" + getRootObject() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (this.locator != null) {
 			String name = this.locator.getSystemId();
+			if (errorContext != null && (name == null || name.trim().length() == 0))
+				name = errorContext;
 			line = this.locator.getLineNumber();
 			column = this.locator.getColumnNumber();
 			if (line > 0) {
@@ -722,6 +725,10 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			}
 		}
 		return -1;
+	}
+
+	public void setErrorContext(String errorContext) {
+		this.errorContext = errorContext;
 	}
 
 	//	public class BadStateError extends AssertionError {
