@@ -373,15 +373,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Run the reconciler to discover changes in the drop-ins folder and update the system state.
 	 */
 	public void reconcile(String message) {
-		File root = new File(Activator.getBundleContext().getProperty("java.home"));
-		root = new File(root, "bin");
-		File exe = new File(root, "javaw.exe");
-		if (!exe.exists())
-			exe = new File(root, "java");
-		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
-		// command-line if you want to run and allow a remote debugger to connect
-		// String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.reconciler.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"};
-		run(message, command);
+		runEclipse(message, new String[] {"-application", "org.eclipse.equinox.p2.reconciler.application"});
 	}
 
 	/*
@@ -591,55 +583,50 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return (IInstallableUnit) queryResult.iterator().next();
 	}
 
-	public int runInitialize(String message) {
+	protected int runEclipse(String message, String[] args) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
 		if (!exe.exists())
 			exe = new File(root, "java");
-		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-initialize", "-vmArgs", "-Dosgi.checkConfiguration=true"};
+		assertTrue("Java executable not found in: " + exe.getAbsolutePath(), exe.exists());
+		List<String> command = new ArrayList<String>();
+		Collections.addAll(command, new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
+		Collections.addAll(command, args);
+		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true"});
 		// command-line if you want to run and allow a remote debugger to connect
-		//String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-installIU", iuToInstall, "-uninstallIU", iuToUninstall, "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"};
-		return run(message, command);
+		//Collections.addAll(command, new String[] {"-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"});
+		return run(message, command.toArray(new String[command.size()]));
+	}
+
+	public int runInitialize(String message) {
+		return runEclipse(message, new String[] {"-initialize"});
 	}
 
 	public int runDirectorToUpdate(String message, String sourceRepo, String iuToInstall, String iuToUninstall) {
-		File root = new File(Activator.getBundleContext().getProperty("java.home"));
-		root = new File(root, "bin");
-		File exe = new File(root, "javaw.exe");
-		if (!exe.exists())
-			exe = new File(root, "java");
-		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "-consoleLog", "-console", "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-installIU", iuToInstall, "-uninstallIU", iuToUninstall, "-vmArgs", "-Dosgi.checkConfiguration=true"};
-		// command-line if you want to run and allow a remote debugger to connect
-		//String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-installIU", iuToInstall, "-uninstallIU", iuToUninstall, "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"};
-		return run(message, command);
+		return runEclipse(message, new String[] {"-application", "org.eclipse.equinox.p2.director", "-repository", sourceRepo, "-installIU", iuToInstall, "-uninstallIU", iuToUninstall});
 	}
 
 	public int runDirectorToRevert(String message, String sourceRepo, String timestampToRevertTo) {
-		File root = new File(Activator.getBundleContext().getProperty("java.home"));
-		root = new File(root, "bin");
-		File exe = new File(root, "javaw.exe");
-		if (!exe.exists())
-			exe = new File(root, "java");
-		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "-consoleLog", "-console", "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-revert", timestampToRevertTo, "-vmArgs", "-Dosgi.checkConfiguration=true"};
-		// command-line if you want to run and allow a remote debugger to connect
-		//String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), "-repository", sourceRepo, "-revert", timestampToRevertTo, "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"};
-		return run(message, command);
+		return runEclipse(message, new String[] {"-application", "org.eclipse.equinox.p2.director", "-repository", sourceRepo, "-revert", timestampToRevertTo});
+	}
+
+	public int runDirectorToInstall(String message, File installFolder, String sourceRepo, String iuToInstall) {
+		String[] command = new String[] {//
+		"-application", "org.eclipse.equinox.p2.director", //
+				"-repository", sourceRepo, "-installIU", iuToInstall, //
+				"-destination", installFolder.getAbsolutePath(), //
+				"-bundlepool", installFolder.getAbsolutePath(), //
+				"-roaming", "-profile", "PlatformProfile", "-profileProperties", "org.eclipse.update.install.features=true", // 
+				"-p2.os", Platform.getOS(), "-p2.ws", Platform.getWS(), "-p2.arch", Platform.getOSArch()};
+		return runEclipse(message, command);
 	}
 
 	public int runVerifierBundle(File destination) {
 		if (destination == null)
 			destination = output;
 		String message = "Running the verifier bundle at: " + destination;
-		File root = new File(Activator.getBundleContext().getProperty("java.home"));
-		root = new File(root, "bin");
-		File exe = new File(root, "javaw.exe");
-		if (!exe.exists())
-			exe = new File(root, "java");
-		String[] command = new String[] {(new File(destination, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-consoleLog", "-dev", "bin", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true"};
-		// command-line if you want to run and allow a remote debugger to connect
-		//String[] command = new String[] {(new File(destination, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-application", "org.eclipse.equinox.p2.tests.verifier.application", "-vm", exe.getAbsolutePath(), "-vmArgs", "-Dosgi.checkConfiguration=true", "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"};
-		return run(message, command);
+		return runEclipse(message, new String[] {"-application", "org.eclipse.equinox.p2.tests.verifier.application"});
 	}
 
 	public int installAndRunVerifierBundle(File destination) {

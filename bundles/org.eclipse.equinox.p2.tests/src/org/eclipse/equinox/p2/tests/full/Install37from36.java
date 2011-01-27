@@ -13,8 +13,6 @@ package org.eclipse.equinox.p2.tests.full;
 import java.io.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.reconciler.dropins.AbstractReconcilerTest;
 import org.eclipse.equinox.p2.tests.reconciler.dropins.ReconcilerTestSuite;
 
@@ -22,26 +20,6 @@ import org.eclipse.equinox.p2.tests.reconciler.dropins.ReconcilerTestSuite;
 public class Install37from36 extends AbstractReconcilerTest {
 	public Install37from36(String string) {
 		super(string);
-	}
-
-	public int runDirectorToInstall(String message, File installFolder, String sourceRepo, String iuToInstall) {
-		File root = new File(TestActivator.getContext().getProperty("java.home"));
-		root = new File(root, "bin");
-		File exe = new File(root, "javaw.exe");
-		if (!exe.exists())
-			exe = new File(root, "java");
-		String[] command = new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", //
-				"-consoleLog", "-application", "org.eclipse.equinox.p2.director", "-vm", exe.getAbsolutePath(), //
-				"-repository", sourceRepo, "-installIU", iuToInstall, //
-				"-destination", installFolder.getAbsolutePath(), //
-				"-bundlepool", installFolder.getAbsolutePath(), //
-				"-roaming", "-profile", "PlatformProfile", "-profileProperties", "org.eclipse.update.install.features=true", // 
-				"-p2.os", Platform.getOS(), "-p2.ws", Platform.getWS(), "-p2.arch", Platform.getOSArch(), //
-				"-vmArgs", "-Dosgi.checkConfiguration=true", "-Xms40m", "-Xmx256m", //
-		//, "-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000" //for debugging	
-		};
-
-		return run(message, command, new File(installFolder.getParentFile(), "log.log"));
 	}
 
 	public static Test suite() {
