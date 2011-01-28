@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,10 +13,9 @@ package org.eclipse.equinox.internal.p2.ui.query;
 
 import java.net.URI;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.p2.ui.model.ArtifactRepositoryElement;
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElementWrapper;
+import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * ElementWrapper that wraps a URI with an ArtifactRepositoryElement.
@@ -46,6 +45,13 @@ public class ArtifactRepositoryElementWrapper extends QueriedElementWrapper {
 	 * Transforms the item to a UI element
 	 */
 	protected Object wrap(Object item) {
-		return super.wrap(new ArtifactRepositoryElement(parent, (URI) item, ProvUI.getArtifactRepositoryManager(ProvisioningUI.getDefaultUI().getSession()).isEnabled((URI) item)));
+		// Assume the item is enabled
+		boolean enabled = true;
+		// if the parent is a queried element then use its provisioning UI to find out about enablement
+		if (parent instanceof QueriedElement) {
+			ProvisioningSession session = ((QueriedElement) parent).getProvisioningUI().getSession();
+			enabled = ProvUI.getArtifactRepositoryManager(session).isEnabled((URI) item);
+		}
+		return super.wrap(new ArtifactRepositoryElement(parent, (URI) item, enabled));
 	}
 }

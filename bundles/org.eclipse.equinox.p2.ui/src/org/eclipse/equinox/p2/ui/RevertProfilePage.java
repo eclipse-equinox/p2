@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -86,10 +86,9 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
 	 */
 	public void createControl(Composite parent) {
-		ui = ProvisioningUI.getDefaultUI();
-		profileId = ui.getProfileId();
+		profileId = getProvisioningUI().getProfileId();
 		if (profileId == null) {
-			IStatus status = ui.getPolicy().getNoProfileChosenStatus();
+			IStatus status = getProvisioningUI().getPolicy().getNoProfileChosenStatus();
 			if (status != null)
 				ProvUI.reportStatus(status, StatusManager.LOG);
 			Text text = new Text(parent, SWT.WRAP | SWT.READ_ONLY);
@@ -213,7 +212,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	}
 
 	private Object getInput() {
-		ProfileSnapshots element = new ProfileSnapshots(profileId);
+		ProfileSnapshots element = new ProfileSnapshots(profileId, getProvisioningUI().getSession());
 		return element;
 	}
 
@@ -335,7 +334,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 				ProfileModificationJob op = new ProfileModificationJob(ProvUIMessages.RevertDialog_RevertOperationLabel, getSession(), profileId, plan[0], new ProvisioningContext(getSession().getProvisioningAgent()));
 				// we want to force a restart (not allow apply changes)
 				op.setRestartPolicy(ProvisioningJob.RESTART_ONLY);
-				ui.schedule(op, StatusManager.SHOW | StatusManager.LOG);
+				getProvisioningUI().schedule(op, StatusManager.SHOW | StatusManager.LOG);
 				reverted = true;
 			} else if (plan[0].getStatus().getSeverity() != IStatus.CANCEL) {
 				ProvUI.reportStatus(plan[0].getStatus(), StatusManager.LOG | StatusManager.SHOW);
@@ -406,11 +405,23 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	}
 
 	ProvisioningUI getProvisioningUI() {
-		return ProvisioningUI.getDefaultUI();
+		// if a UI has not been set then assume that the current default UI is the right thing
+		if (ui == null)
+			return ui = ProvisioningUI.getDefaultUI();
+		return ui;
 	}
 
 	protected IStructuredSelection getSelection() {
 		return (IStructuredSelection) configsViewer.getSelection();
 	}
 
+	/**
+	 * Set the provisioning UI to use with this page
+	 * 
+	 * @param value the provisioning ui to use
+	 * @since 2.1
+	 */
+	public void setProvisioningUI(ProvisioningUI value) {
+		ui = value;
+	}
 }

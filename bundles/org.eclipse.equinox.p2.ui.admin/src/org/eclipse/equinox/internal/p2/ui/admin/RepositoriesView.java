@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -96,17 +96,17 @@ abstract class RepositoriesView extends ProvView {
 
 	protected void addListeners() {
 		super.addListeners();
-		listener = new StructuredViewerProvisioningListener(getClass().getName(), viewer, getListenerEventTypes()) {
+		listener = new StructuredViewerProvisioningListener(getClass().getName(), viewer, getListenerEventTypes(), ui.getOperationRunner()) {
 			protected void refreshViewer() {
 				RepositoriesView.this.refreshAll(false);
 			}
 		};
-		ProvUI.addProvisioningListener(listener);
+		ProvUI.getProvisioningEventBus(ui.getSession()).addListener(listener);
 	}
 
 	protected void removeListeners() {
 		super.removeListeners();
-		ProvUI.removeProvisioningListener(listener);
+		ProvUI.getProvisioningEventBus(ui.getSession()).removeListener(listener);
 	}
 
 	protected void fillLocalPullDown(IMenuManager manager) {

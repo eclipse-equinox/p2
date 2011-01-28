@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -168,7 +168,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// after content has been retrieved.
 		filteredTree.contentProviderSet(contentProvider);
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(getClass().getName(), availableIUViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(getClass().getName(), availableIUViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY, getProvisioningUI().getOperationRunner()) {
 			protected void repositoryAdded(final RepositoryEvent event) {
 				makeRepositoryVisible(event.getRepositoryLocation());
 			}
@@ -185,11 +185,11 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 			}
 		};
-		ProvUIActivator.getDefault().addProvisioningListener(listener);
+		ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).addListener(listener);
 
 		availableIUViewer.getControl().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
-				ProvUIActivator.getDefault().removeProvisioningListener(listener);
+				ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).removeListener(listener);
 			}
 		});
 		updateAvailableViewState();

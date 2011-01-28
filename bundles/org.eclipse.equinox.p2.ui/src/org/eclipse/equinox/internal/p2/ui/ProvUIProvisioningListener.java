@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProv
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.engine.IProfileEvent;
 import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * ProvisioningListener which handles event batching and other
@@ -35,10 +34,12 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 
 	int eventTypes = 0;
 	String name;
+	private ProvisioningOperationRunner runner;
 
-	public ProvUIProvisioningListener(String name, int eventTypes) {
+	public ProvUIProvisioningListener(String name, int eventTypes, ProvisioningOperationRunner runner) {
 		this.name = name;
 		this.eventTypes = eventTypes;
+		this.runner = runner;
 	}
 
 	public void notify(EventObject o) {
@@ -51,7 +52,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 			if (Tracing.DEBUG_EVENTS_CLIENT)
 				Tracing.debug("Batch Eventing:  Batch Ended. " + getReceiverString()); //$NON-NLS-1$
 			// A batch operation completed.  Refresh.
-			if (ProvisioningUI.getDefaultUI().getOperationRunner().eventBatchCount <= 0) {
+			if (runner.eventBatchCount <= 0) {
 				if (Tracing.DEBUG_EVENTS_CLIENT)
 					Tracing.debug("Batch Eventing Complete." + getReceiverString()); //$NON-NLS-1$
 				if (event.getEvent() == null && event.update()) {
@@ -78,7 +79,7 @@ public abstract class ProvUIProvisioningListener implements SynchronousProvision
 					handleRepositoryEvent(innerEvent);
 				}
 			}
-		} else if (ProvisioningUI.getDefaultUI().getOperationRunner().eventBatchCount > 0) {
+		} else if (runner.eventBatchCount > 0) {
 			// ignore raw events during a batch
 			if (Tracing.DEBUG_EVENTS_CLIENT)
 				Tracing.debug(name + " Ignoring: " + o.toString()); //$NON-NLS-1$

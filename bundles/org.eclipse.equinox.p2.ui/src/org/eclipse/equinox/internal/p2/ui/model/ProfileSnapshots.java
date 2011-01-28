@@ -13,7 +13,9 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
@@ -27,10 +29,12 @@ import org.eclipse.ui.progress.IElementCollector;
 public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchAdapter {
 
 	String profileId;
+	ProvisioningSession session;
 
-	public ProfileSnapshots(String profileId) {
+	public ProfileSnapshots(String profileId, ProvisioningSession session) {
 		super(null);
 		this.profileId = profileId;
+		this.session = session;
 	}
 
 	public String getProfileId() {
@@ -41,7 +45,7 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getChildren(java.lang.Object)
 	 */
 	public Object[] getChildren(Object o) {
-		IProfileRegistry registry = ProvUI.getProfileRegistry(ProvUIActivator.getDefault().getSession());
+		IProfileRegistry registry = ProvUI.getProfileRegistry(session);
 		long[] timestamps = registry.listProfileTimestamps(profileId);
 
 		// find out which profile states we should hide

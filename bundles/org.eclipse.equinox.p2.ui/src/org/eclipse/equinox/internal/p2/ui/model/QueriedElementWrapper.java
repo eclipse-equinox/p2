@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,6 @@ import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.p2.operations.RepositoryTracker;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -66,8 +65,8 @@ public abstract class QueriedElementWrapper extends ElementWrapper {
 			// is empty and the parent is an IU, then being empty is not a big deal, it means
 			// we are in drilldown.
 			if (parent instanceof MetadataRepositoryElement) {
-				RepositoryTracker manipulator = ProvisioningUI.getDefaultUI().getRepositoryTracker();
 				MetadataRepositoryElement repo = (MetadataRepositoryElement) parent;
+				RepositoryTracker manipulator = repo.getProvisioningUI().getRepositoryTracker();
 				if (manipulator.hasNotFoundStatusBeenReported(repo.getLocation())) {
 					return emptyExplanation(IStatus.ERROR, NLS.bind(ProvUIMessages.QueriedElementWrapper_SiteNotFound, URIUtil.toUnencodedString(repo.getLocation())), ""); //$NON-NLS-1$
 				}

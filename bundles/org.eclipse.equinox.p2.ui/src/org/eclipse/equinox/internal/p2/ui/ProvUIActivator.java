@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@ import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.operations.ProvisioningSession;
@@ -102,18 +102,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		}
 	}
 
-	public void addProvisioningListener(ProvUIProvisioningListener listener) {
-		getProvisioningEventBus().addListener(listener);
-	}
-
-	public IProvisioningEventBus getProvisioningEventBus() {
-		return ProvUI.getProvisioningEventBus(getSession());
-	}
-
-	public void removeProvisioningListener(ProvUIProvisioningListener listener) {
-		getProvisioningEventBus().removeListener(listener);
-	}
-
 	protected void initializeImageRegistry(ImageRegistry reg) {
 		createImageDescriptor(ProvUIImages.IMG_METADATA_REPOSITORY, reg);
 		createImageDescriptor(ProvUIImages.IMG_ARTIFACT_REPOSITORY, reg);
@@ -138,6 +126,9 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	}
 
 	public ProvisioningUI getProvisioningUI() {
+		if (Tracing.DEBUG_DEFAULT_UI)
+			Tracing.debug("Falling back to default provisioning UI"); //$NON-NLS-1$
+
 		if (ui == null) {
 			IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(getContext(), IProvisioningAgent.SERVICE_NAME);
 			session = new ProvisioningSession(agent);
@@ -147,9 +138,5 @@ public class ProvUIActivator extends AbstractUIPlugin {
 			ui = new ProvisioningUI(session, IProfileRegistry.SELF, policy);
 		}
 		return ui;
-	}
-
-	public ProvisioningSession getSession() {
-		return session;
 	}
 }

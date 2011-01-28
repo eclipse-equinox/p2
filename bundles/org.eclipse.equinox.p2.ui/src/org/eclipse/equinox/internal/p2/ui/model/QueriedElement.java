@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -14,7 +14,8 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
-import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.ElementQueryDescriptor;
+import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.p2.ui.query.IUViewQueryContext;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.ui.Policy;
@@ -43,14 +44,17 @@ public abstract class QueriedElement extends ProvElement {
 		Object parent = getParent(this);
 		if (parent instanceof QueriedElement)
 			return ((QueriedElement) parent).getPolicy();
-		return ProvUIActivator.getDefault().getProvisioningUI().getPolicy();
+		return getProvisioningUI().getPolicy();
 	}
 
 	public ProvisioningUI getProvisioningUI() {
 		Object parent = getParent(this);
 		if (parent instanceof QueriedElement)
 			return ((QueriedElement) parent).getProvisioningUI();
-		return ProvUIActivator.getDefault().getProvisioningUI();
+		// if we really can't find a UI then get the default. In general this should
+		// not happen though.  Turn on tracing in getDefaultUI() to see places where 
+		// it is happening.
+		return ProvisioningUI.getDefaultUI();
 
 	}
 
@@ -63,10 +67,6 @@ public abstract class QueriedElement extends ProvElement {
 
 	public Object[] getChildren(Object o) {
 		return fetchChildren(o, new NullProgressMonitor());
-	}
-
-	public QueryProvider getQueryProvider() {
-		return ProvUI.getQueryProvider();
 	}
 
 	/*
@@ -97,9 +97,8 @@ public abstract class QueriedElement extends ProvElement {
 
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
 		cachedChildren = CollectionUtils.emptyList();
-		if (getQueryProvider() == null)
-			return new Object[0];
-		ElementQueryDescriptor queryDescriptor = getQueryProvider().getQueryDescriptor(this);
+		QueryProvider provider = new QueryProvider(getProvisioningUI());
+		ElementQueryDescriptor queryDescriptor = provider.getQueryDescriptor(this);
 		if (queryDescriptor == null)
 			return new Object[0];
 		Collection<?> results = queryDescriptor.performQuery(monitor);

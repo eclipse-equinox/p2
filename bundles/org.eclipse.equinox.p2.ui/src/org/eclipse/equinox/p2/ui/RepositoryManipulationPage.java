@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -374,10 +374,10 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 			verticalButtonBar.setLayoutData(data);
 			listener = getViewerProvisioningListener();
 
-			ProvUI.addProvisioningListener(listener);
+			ProvUI.getProvisioningEventBus(ui.getSession()).addListener(listener);
 			composite.addDisposeListener(new DisposeListener() {
 				public void widgetDisposed(DisposeEvent event) {
-					ProvUI.removeProvisioningListener(listener);
+					ProvUI.getProvisioningEventBus(ui.getSession()).removeListener(listener);
 				}
 			});
 
@@ -540,12 +540,12 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 	 */
 	public boolean performOk() {
 		if (changed)
-			ElementUtils.updateRepositoryUsingElements(getElements(), getShell());
+			ElementUtils.updateRepositoryUsingElements(ui, getElements(), getShell());
 		return super.performOk();
 	}
 
 	private StructuredViewerProvisioningListener getViewerProvisioningListener() {
-		return new StructuredViewerProvisioningListener(RepositoryManipulationPage.this.getClass().getName(), repositoryViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
+		return new StructuredViewerProvisioningListener(RepositoryManipulationPage.this.getClass().getName(), repositoryViewer, ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY, ui.getOperationRunner()) {
 			protected void repositoryDiscovered(RepositoryEvent e) {
 				RepositoryManipulationPage.this.safeRefresh(null);
 			}
@@ -868,7 +868,7 @@ public class RepositoryManipulationPage extends PreferencePage implements IWorkb
 				public void addRepository(URI location, String nickname, ProvisioningSession session) {
 					MetadataRepositoryElement element = getInput().get(location);
 					if (element == null) {
-						element = new MetadataRepositoryElement(getInput(), location, true);
+						element = new MetadataRepositoryElement(getInput(), null, ui, location, true);
 						getInput().put(element);
 					}
 					if (nickname != null)

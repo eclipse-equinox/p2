@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.ui.admin;
 
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -127,7 +126,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	}
 
 	private RepositoryTracker getRepositoryTracker() {
-		return (RepositoryTracker) ServiceHelper.getService(ProvUIActivator.getContext(), RepositoryTracker.class.getName());
+		return ProvisioningUI.getDefaultUI().getRepositoryTracker();
 	}
 
 	void initializePolicy() {

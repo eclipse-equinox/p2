@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
@@ -33,8 +32,7 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class ElementUtils {
 
-	public static void updateRepositoryUsingElements(final MetadataRepositoryElement[] elements, final Shell shell) {
-		final ProvisioningUI ui = ProvUIActivator.getDefault().getProvisioningUI();
+	public static void updateRepositoryUsingElements(final ProvisioningUI ui, final MetadataRepositoryElement[] elements, final Shell shell) {
 		ui.signalRepositoryOperationStart();
 		IMetadataRepositoryManager metaManager = ProvUI.getMetadataRepositoryManager(ui.getSession());
 		IArtifactRepositoryManager artManager = ProvUI.getArtifactRepositoryManager(ui.getSession());
@@ -93,8 +91,8 @@ public class ElementUtils {
 	}
 
 	private static void setColocatedRepositoryEnablement(ProvisioningUI ui, URI location, boolean enable) {
-		ProvUI.getArtifactRepositoryManager(ProvUIActivator.getDefault().getSession()).setEnabled(location, enable);
-		ProvUI.getMetadataRepositoryManager(ProvUIActivator.getDefault().getSession()).setEnabled(location, enable);
+		ProvUI.getArtifactRepositoryManager(ui.getSession()).setEnabled(location, enable);
+		ProvUI.getMetadataRepositoryManager(ui.getSession()).setEnabled(location, enable);
 	}
 
 	public static IInstallableUnit getIU(Object element) {

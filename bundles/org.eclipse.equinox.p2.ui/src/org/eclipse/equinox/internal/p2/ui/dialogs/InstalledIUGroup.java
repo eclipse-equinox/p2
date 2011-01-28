@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIProvisioningListener;
 import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
@@ -45,7 +45,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	public InstalledIUGroup(ProvisioningUI ui, final Composite parent, Font font, String profileId, IUColumnConfig[] columnConfig) {
 		super(ui, parent, font, columnConfig);
 		if (profileId == null)
-			this.profileId = ProvisioningUI.getDefaultUI().getProfileId();
+			this.profileId = ui.getProfileId();
 		else
 			this.profileId = profileId;
 		createGroupComposite(parent);
@@ -71,11 +71,11 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		// Input last.
 		installedIUViewer.setInput(getInput());
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(getClass().getName(), installedIUViewer, ProvUIProvisioningListener.PROV_EVENT_IU | ProvUIProvisioningListener.PROV_EVENT_PROFILE);
-		ProvUIActivator.getDefault().addProvisioningListener(listener);
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(getClass().getName(), installedIUViewer, ProvUIProvisioningListener.PROV_EVENT_IU | ProvUIProvisioningListener.PROV_EVENT_PROFILE, getProvisioningUI().getOperationRunner());
+		ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).addListener(listener);
 		installedIUViewer.getControl().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
-				ProvUIActivator.getDefault().removeProvisioningListener(listener);
+				ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).removeListener(listener);
 			}
 		});
 		return installedIUViewer;

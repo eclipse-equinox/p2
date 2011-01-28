@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,6 +76,8 @@ public class ProvisioningUI {
 			this.profileId = IProfileRegistry.SELF;
 		this.session = session;
 		this.runner = new ProvisioningOperationRunner(this);
+		// register this UI with the agent so other UI related agent services can find it
+		session.getProvisioningAgent().registerService(ProvisioningUI.class.getName(), this);
 	}
 
 	/**
@@ -114,7 +116,7 @@ public class ProvisioningUI {
 	 * @return the repository tracker, must not be <code>null</code>
 	 */
 	public RepositoryTracker getRepositoryTracker() {
-		return (RepositoryTracker) ServiceHelper.getService(ProvUIActivator.getContext(), RepositoryTracker.class.getName());
+		return (RepositoryTracker) session.getProvisioningAgent().getService(RepositoryTracker.class.getName());
 	}
 
 	/**

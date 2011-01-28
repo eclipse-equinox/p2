@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -68,7 +68,6 @@ public class ProvUI {
 	public static final long SIZE_UNKNOWN = -1L;
 
 	private static IUColumnConfig[] columnConfig;
-	private static QueryProvider queryProvider;
 
 	// These values rely on the command markup in org.eclipse.ui.ide that defines the update commands
 	private static final String UPDATE_MANAGER_FIND_AND_INSTALL = "org.eclipse.ui.update.findAndInstallUpdates"; //$NON-NLS-1$
@@ -150,14 +149,6 @@ public class ProvUI {
 		return PlatformUI.getWorkbench().getModalDialogShellProvider().getShell();
 	}
 
-	public static void addProvisioningListener(ProvUIProvisioningListener listener) {
-		ProvUIActivator.getDefault().addProvisioningListener(listener);
-	}
-
-	public static void removeProvisioningListener(ProvUIProvisioningListener listener) {
-		ProvUIActivator.getDefault().removeProvisioningListener(listener);
-	}
-
 	public static void openUpdateManagerInstaller(Event event) {
 		runCommand(UPDATE_MANAGER_FIND_AND_INSTALL, ProvUIMessages.UpdateManagerCompatibility_UnableToOpenFindAndInstall, event);
 	}
@@ -174,12 +165,6 @@ public class ProvUI {
 		ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
 		Command command = commandService.getCommand(UPDATE_MANAGER_FIND_AND_INSTALL);
 		return command.isDefined();
-	}
-
-	public static QueryProvider getQueryProvider() {
-		if (queryProvider == null)
-			queryProvider = new QueryProvider(ProvUIActivator.getDefault().getProvisioningUI());
-		return queryProvider;
 	}
 
 	private static void runCommand(String commandId, String errorMessage, Event event) {
@@ -209,15 +194,6 @@ public class ProvUI {
 	private static void reportFail(String message, Throwable t) {
 		Status failStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, message, t);
 		reportStatus(failStatus, StatusManager.BLOCK | StatusManager.LOG);
-	}
-
-	/**
-	 * For testing only
-	 * @noreference
-	 * @param provider
-	 */
-	public static void setQueryProvider(QueryProvider provider) {
-		queryProvider = provider;
 	}
 
 	/**

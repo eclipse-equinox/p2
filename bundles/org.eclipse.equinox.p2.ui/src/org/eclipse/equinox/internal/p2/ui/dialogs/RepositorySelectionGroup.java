@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -95,7 +95,7 @@ public class RepositorySelectionGroup {
 	}
 
 	protected void createControl(Composite parent) {
-		final RepositoryTracker tracker = ProvisioningUI.getDefaultUI().getRepositoryTracker();
+		final RepositoryTracker tracker = ui.getRepositoryTracker();
 		// Get the possible field error indicators
 		info = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_INFORMATION).getImage();
 		warning = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_WARNING).getImage();
@@ -487,7 +487,7 @@ public class RepositorySelectionGroup {
 
 	void addComboProvisioningListeners() {
 		// We need to monitor repository events so that we can adjust the repo combo.
-		comboRepoListener = new ProvUIProvisioningListener(getClass().getName(), ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY) {
+		comboRepoListener = new ProvUIProvisioningListener(getClass().getName(), ProvUIProvisioningListener.PROV_EVENT_METADATA_REPOSITORY, ui.getOperationRunner()) {
 			protected void repositoryAdded(RepositoryEvent e) {
 				fillRepoCombo(getSiteString(e.getRepositoryLocation()));
 			}
@@ -500,12 +500,12 @@ public class RepositorySelectionGroup {
 				fillRepoCombo(null);
 			}
 		};
-		ProvUI.addProvisioningListener(comboRepoListener);
+		ProvUI.getProvisioningEventBus(ui.getSession()).addListener(comboRepoListener);
 	}
 
 	void removeProvisioningListeners() {
 		if (comboRepoListener != null) {
-			ProvUI.removeProvisioningListener(comboRepoListener);
+			ProvUI.getProvisioningEventBus(ui.getSession()).removeListener(comboRepoListener);
 			comboRepoListener = null;
 		}
 

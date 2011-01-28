@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -19,7 +19,6 @@ import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.ui.ProvisioningUI;
 
 /**
  * Element wrapper class for a artifact repository that gets its
@@ -32,7 +31,6 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	URI location;
 	IArtifactRepository repo;
 	boolean isEnabled;
-	ProvisioningUI ui;
 
 	public ArtifactRepositoryElement(Object parent, URI location) {
 		this(parent, location, true);
@@ -42,7 +40,6 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 		super(parent);
 		this.location = location;
 		this.isEnabled = isEnabled;
-		ui = ProvUIActivator.getDefault().getProvisioningUI();
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -71,7 +68,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 			try {
 				repo = getArtifactRepositoryManager().loadRepository(location, monitor);
 			} catch (ProvisionException e) {
-				ui.getRepositoryTracker().reportLoadFailure(location, e);
+				getProvisioningUI().getRepositoryTracker().reportLoadFailure(location, e);
 			} catch (OperationCanceledException e) {
 				// nothing to report
 			}
@@ -103,7 +100,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
 	public String getDescription() {
-		if (ui.getRepositoryTracker().hasNotFoundStatusBeenReported(location))
+		if (getProvisioningUI().getRepositoryTracker().hasNotFoundStatusBeenReported(location))
 			return ProvUIMessages.RepositoryElement_NotFound;
 		String description = getArtifactRepositoryManager().getRepositoryProperty(location, IRepository.PROP_DESCRIPTION);
 		if (description == null)
@@ -144,6 +141,6 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement implements I
 	}
 
 	IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return ProvUI.getArtifactRepositoryManager(ui.getSession());
+		return ProvUI.getArtifactRepositoryManager(getProvisioningUI().getSession());
 	}
 }

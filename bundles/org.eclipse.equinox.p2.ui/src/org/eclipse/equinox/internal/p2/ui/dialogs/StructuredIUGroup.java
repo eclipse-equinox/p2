@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -42,7 +41,6 @@ public abstract class StructuredIUGroup {
 	private Composite composite;
 	private ProvisioningUI ui;
 	private IUColumnConfig[] columnConfig;
-	private QueryProvider queryProvider;
 
 	/**
 	 * Create a group that represents the available IU's.
@@ -129,12 +127,6 @@ public abstract class StructuredIUGroup {
 
 	protected int convertHeightInCharsToPixels(int dlus) {
 		return Dialog.convertHeightInCharsToPixels(fm, dlus);
-	}
-
-	protected QueryProvider getQueryProvider() {
-		if (queryProvider == null)
-			queryProvider = new QueryProvider(ui);
-		return queryProvider;
 	}
 
 	protected Policy getPolicy() {

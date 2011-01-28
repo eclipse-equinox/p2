@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -633,7 +633,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		// We might need to adjust the content of the available IU group's viewer
 		// according to installation changes.  We want to be very selective about refreshing,
 		// because the viewer has its own listeners installed.
-		profileListener = new StructuredViewerProvisioningListener(getClass().getName(), availableIUGroup.getStructuredViewer(), ProvUIProvisioningListener.PROV_EVENT_PROFILE) {
+		profileListener = new StructuredViewerProvisioningListener(getClass().getName(), availableIUGroup.getStructuredViewer(), ProvUIProvisioningListener.PROV_EVENT_PROFILE, getProvisioningUI().getOperationRunner()) {
 			protected void profileAdded(String id) {
 				// do nothing
 			}
@@ -649,12 +649,12 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 			}
 		};
 
-		ProvUI.addProvisioningListener(profileListener);
+		ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).addListener(profileListener);
 	}
 
 	void removeProvisioningListeners() {
 		if (profileListener != null) {
-			ProvUI.removeProvisioningListener(profileListener);
+			ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).removeListener(profileListener);
 			profileListener = null;
 		}
 	}

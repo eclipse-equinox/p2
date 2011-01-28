@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -10,21 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.io.File;
 import java.net.URI;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.ColocatedRepositoryTracker;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.p2.ui.sdk.SimpleLicenseManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.operations.*;
+import org.eclipse.equinox.p2.operations.ProfileModificationJob;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -60,7 +59,7 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 	protected IInstallableUnit uninstalled;
 	protected IInstallableUnit category;
 	private ProvisioningUI ui;
-	private ServiceRegistration regLicenseManager, regTracker;
+	private ServiceRegistration regLicenseManager;
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -75,11 +74,9 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 
 		// register alternate services
 		SimpleLicenseManager manager = new SimpleLicenseManager(TESTPROFILE);
-		RepositoryTracker tracker = new ColocatedRepositoryTracker(ui);
 		Dictionary<String, Object> properties = new Hashtable<String, Object>(5);
 		properties.put(Constants.SERVICE_RANKING, new Integer(1));
 		regLicenseManager = TestActivator.getContext().registerService(LicenseManager.class.getName(), manager, properties);
-		regTracker = TestActivator.getContext().registerService(RepositoryTracker.class.getName(), tracker, properties);
 
 		profileElement = new ProfileElement(null, TESTPROFILE);
 		install((top1 = createIU(TOPLEVELIU, Version.create("1.0.0"))), true, false);
@@ -106,7 +103,6 @@ public abstract class AbstractProvisioningUITest extends AbstractProvisioningTes
 		metaManager.removeRepository(testRepoLocation);
 		artifactManager.removeRepository(testRepoLocation);
 		regLicenseManager.unregister();
-		regTracker.unregister();
 	}
 
 	protected boolean managerContains(IRepositoryManager<?> manager, URI location) {

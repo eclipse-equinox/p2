@@ -39,3 +39,6 @@ org.eclipse.equinox.p2.core/publisher=false
 
 #Detailed debugging information about event clients
 org.eclipse.equinox.p2.core/events/client = false
+
+#Information about the use of the default provisioning UI
+org.eclipse.equinox.p2.core/ui/default = false

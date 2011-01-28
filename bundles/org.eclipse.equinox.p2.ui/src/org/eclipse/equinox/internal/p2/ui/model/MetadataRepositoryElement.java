@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,14 +39,14 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 	String name;
 
 	public MetadataRepositoryElement(Object parent, URI location, boolean isEnabled) {
-		this(parent, null, ProvisioningUI.getDefaultUI(), location, isEnabled);
+		this(parent, null, null, location, isEnabled);
 	}
 
 	public MetadataRepositoryElement(IUViewQueryContext queryContext, ProvisioningUI ui, URI location, boolean isEnabled) {
 		this(null, queryContext, ui, location, isEnabled);
 	}
 
-	private MetadataRepositoryElement(Object parent, IUViewQueryContext queryContext, ProvisioningUI ui, URI location, boolean isEnabled) {
+	public MetadataRepositoryElement(Object parent, IUViewQueryContext queryContext, ProvisioningUI ui, URI location, boolean isEnabled) {
 		super(parent, queryContext, ui);
 		this.location = location;
 		this.isEnabled = isEnabled;
@@ -222,7 +222,7 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 			return super.getPolicy();
 		if (parent instanceof QueriedElement)
 			return ((QueriedElement) parent).getPolicy();
-		return ProvisioningUI.getDefaultUI().getPolicy();
+		return getProvisioningUI().getPolicy();
 	}
 
 	public String toString() {
@@ -238,5 +238,22 @@ public class MetadataRepositoryElement extends RootElement implements IRepositor
 
 	IMetadataRepositoryManager getMetadataRepositoryManager() {
 		return ProvUI.getMetadataRepositoryManager(getProvisioningUI().getSession());
+	}
+
+	/**
+	 * MetadataRepositoryElements can sometimes be roots and sometimes children.
+	 * When they are roots the should have a ui set directly.  As children they should
+	 * defer to the parent to get the ui.
+	 */
+	public ProvisioningUI getProvisioningUI() {
+		ProvisioningUI ui = super.getProvisioningUI();
+		if (ui != null)
+			return ui;
+		Object parent = getParent(this);
+		if (parent != null && parent instanceof QueriedElement)
+			return ((QueriedElement) parent).getProvisioningUI();
+		// if all else fails get the global UI.  This should not really happen but 
+		// we need to account for some possible historical cases.
+		return ProvisioningUI.getDefaultUI();
 	}
 }

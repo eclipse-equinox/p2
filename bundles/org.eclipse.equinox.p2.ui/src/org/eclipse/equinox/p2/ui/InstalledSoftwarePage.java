@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -68,10 +68,9 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		initializeDialogUnits(parent);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IProvHelpContextIds.INSTALLED_SOFTWARE);
 
-		ui = ProvisioningUI.getDefaultUI();
-		profileId = ui.getProfileId();
+		profileId = getProvisioningUI().getProfileId();
 		if (profileId == null) {
-			IStatus status = ui.getPolicy().getNoProfileChosenStatus();
+			IStatus status = getProvisioningUI().getPolicy().getNoProfileChosenStatus();
 			if (status != null)
 				ProvUI.reportStatus(status, StatusManager.LOG);
 			Text text = new Text(parent, SWT.WRAP | SWT.READ_ONLY);
@@ -92,7 +91,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		composite.setLayout(layout);
 
 		// Table of installed IU's
-		installedIUGroup = new InstalledIUGroup(ui, composite, JFaceResources.getDialogFont(), profileId, getColumnConfig());
+		installedIUGroup = new InstalledIUGroup(getProvisioningUI(), composite, JFaceResources.getDialogFont(), profileId, getColumnConfig());
 		// we hook selection listeners on the viewer in createPageButtons because we
 		// rely on the actions we create there getting selection events before we use
 		// them to update button enablement.
@@ -123,7 +122,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		// if we successfully try to resolve.  This is done to ensure that progress
 		// is shown properly.
 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=236495
-		UpdateAction updateAction = new UpdateAction(ui, new ISelectionProvider() {
+		UpdateAction updateAction = new UpdateAction(getProvisioningUI(), new ISelectionProvider() {
 			public void addSelectionChangedListener(ISelectionChangedListener listener) {
 				installedIUGroup.getStructuredViewer().addSelectionChangedListener(listener);
 			}
@@ -156,7 +155,7 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 		updateButton = createButton(parent, UPDATE_ID, updateAction.getText());
 		updateButton.setData(BUTTON_ACTION, updateAction);
 		// Uninstall action
-		Action uninstallAction = new UninstallAction(ui, installedIUGroup.getStructuredViewer(), profileId) {
+		Action uninstallAction = new UninstallAction(getProvisioningUI(), installedIUGroup.getStructuredViewer(), profileId) {
 			public void run() {
 				super.run();
 				if (getReturnCode() == Window.OK)
@@ -253,4 +252,22 @@ public class InstalledSoftwarePage extends InstallationPage implements ICopyable
 				break;
 		}
 	}
+
+	ProvisioningUI getProvisioningUI() {
+		// if a UI has not been set then assume that the current default UI is the right thing
+		if (ui == null)
+			return ui = ProvisioningUI.getDefaultUI();
+		return ui;
+	}
+
+	/**
+	 * Set the provisioning UI to use with this page
+	 * 
+	 * @param value the provisioning ui to use
+	 * @since 2.1
+	 */
+	public void setProvisioningUI(ProvisioningUI value) {
+		ui = value;
+	}
+
 }

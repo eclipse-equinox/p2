@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -86,7 +86,7 @@ public class ElementUtilsTest extends ProfileModificationActionTest {
 		// We expect uri3 to get removed (as if it had been removed from a pref page)
 		// System repos shouldn't be touched
 
-		ElementUtils.updateRepositoryUsingElements(elements, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+		ElementUtils.updateRepositoryUsingElements(getProvisioningUI(), elements, PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
 
 		URI[] enabled = getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		URI[] disabled = getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_DISABLED);

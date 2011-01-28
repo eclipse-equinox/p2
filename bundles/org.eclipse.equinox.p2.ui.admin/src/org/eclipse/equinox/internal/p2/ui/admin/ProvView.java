@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,8 +13,6 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.p2.ui.QueryProvider;
 import org.eclipse.equinox.internal.p2.ui.actions.RefreshAction;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
@@ -43,7 +41,7 @@ abstract class ProvView extends ViewPart {
 	RefreshAction refreshAction;
 	private IPropertyChangeListener preferenceListener;
 	protected Display display;
-	private ProvisioningUI ui;
+	protected ProvisioningUI ui;
 
 	/**
 	 * The constructor.
@@ -251,7 +249,6 @@ abstract class ProvView extends ViewPart {
 	protected ProvisioningUI getProvisioningUI() {
 		if (ui == null) {
 			ui = ProvAdminUIActivator.getDefault().getProvisioningUI(getProfileId());
-			ProvUI.setQueryProvider(new QueryProvider(ui));
 		}
 		return ui;
 	}
