@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -99,6 +99,13 @@ public class ProvisionException extends CoreException {
 	 * could not be found.
 	 */
 	public static final int ARTIFACT_INCOMPLETE_SIZING = 1202;
+
+	/**
+	 * Status code constant (value 1203) indicating an artifact's md5
+	 * does not match the expected value.
+	 * @since 2.1
+	 */
+	public static final int ARTIFACT_MD5_NOT_MATCH = 1203;
 
 	/**
 	 * Creates a new exception with the given status object.  The message
