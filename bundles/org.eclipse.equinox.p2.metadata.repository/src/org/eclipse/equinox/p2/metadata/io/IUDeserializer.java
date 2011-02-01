@@ -73,7 +73,6 @@ public class IUDeserializer {
 		}
 
 		protected SAXParser getParser() throws ParserConfigurationException, SAXException {
-			super.getParser();
 			if (parserFactory == null) {
 				throw new SAXException(Messages.XMLParser_No_SAX_Parser);
 			}
