@@ -24,6 +24,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(JarURLMetadataRepositoryTest.class);
 		suite.addTestSuite(LocalMetadataRepositoryTest.class);
 		suite.addTestSuite(SPIMetadataRepositoryTest.class);
+		suite.addTestSuite(StandaloneSerializationTest.class);
 		suite.addTestSuite(MetadataRepositoryManagerTest.class);
 		suite.addTestSuite(NoFailOver.class);
 		suite.addTestSuite(SiteIndexFileTest.class);
