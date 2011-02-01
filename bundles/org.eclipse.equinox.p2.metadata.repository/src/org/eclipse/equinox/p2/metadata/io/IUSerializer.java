@@ -19,6 +19,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 /**
  * This class allows to serialize a collection of {@link IInstallableUnit}s.
  * These serialized IUs can be read using the {@link IUDeserializer}.
+ * The format in which the IUs are serialized is not API and is subject to change without notice.
  * @since 1.2
  */
 public class IUSerializer {
