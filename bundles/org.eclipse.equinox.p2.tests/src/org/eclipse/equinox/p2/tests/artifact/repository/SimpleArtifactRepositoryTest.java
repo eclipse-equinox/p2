@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 compeople AG and others.
+ * Copyright (c) 2007, 2011 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -267,7 +267,9 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 		getArtifactRepositoryManager().removeRepository(repo);
 
 		repo = new File(System.getProperty("user.dir")).toURI().relativize(repo);
-		repo = URI.create("file:" + repo.toString());
+		// handle case where we had file:file: URIs (https://bugs.eclipse.org/334904)
+		if (!"file".equals(repo.getScheme()))
+			repo = URI.create("file:" + repo.toString());
 
 		SimpleArtifactRepository repository = (SimpleArtifactRepository) getArtifactRepositoryManager().loadRepository(repo, new NullProgressMonitor());
 
