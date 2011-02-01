@@ -23,7 +23,7 @@ import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.*;
 
-public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
+public class MetadataWriter extends XMLWriter implements XMLConstants {
 
 	public MetadataWriter(OutputStream output, ProcessingInstruction[] piElements) throws UnsupportedEncodingException {
 		super(output, piElements);
@@ -35,8 +35,8 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 	 * @param units An Iterator of {@link IInstallableUnit}.
 	 * @param size The number of units to write
 	 */
-	protected void writeInstallableUnits(Iterator<IInstallableUnit> units, int size) {
-		if (size == 0)
+	public void writeInstallableUnits(Iterator<IInstallableUnit> units, int size) {
+		if (!units.hasNext())
 			return;
 		start(INSTALLABLE_UNITS_ELEMENT);
 
@@ -104,7 +104,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 					return false;
 			}
 		}
-		
+
 		for (IRequirement r : iu.getMetaRequirements())
 			if (r.getMax() == 0 || !RequiredCapability.isSimpleRequirement(r.getMatches()))
 				return false;
