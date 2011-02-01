@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,8 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.phases.Collect;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -26,6 +25,25 @@ public class DownloadManager {
 	private ProvisioningContext provContext = null;
 	ArrayList<IArtifactRequest> requestsToProcess = new ArrayList<IArtifactRequest>();
 	private IProvisioningAgent agent = null;
+
+	/**
+	 * This Comparator sorts the repositories such that local repositories are first.
+	 * TODO: This is copied from the ProvisioningContext class. Can we combine them? 
+	 * See https://bugs.eclipse.org/335153.
+	 */
+	private static final Comparator<IArtifactRepository> LOCAL_FIRST_COMPARATOR = new Comparator<IArtifactRepository>() {
+		private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
+
+		public int compare(IArtifactRepository arg0, IArtifactRepository arg1) {
+			String protocol0 = arg0.getLocation().getScheme();
+			String protocol1 = arg1.getLocation().getScheme();
+			if (FILE_PROTOCOL.equals(protocol0) && !FILE_PROTOCOL.equals(protocol1))
+				return -1;
+			if (!FILE_PROTOCOL.equals(protocol0) && FILE_PROTOCOL.equals(protocol1))
+				return 1;
+			return 0;
+		}
+	};
 
 	public DownloadManager(ProvisioningContext context, IProvisioningAgent agent) {
 		provContext = context;
@@ -74,6 +92,10 @@ public class DownloadManager {
 			IArtifactRepository[] repositories = repoQueryable.query(all, subMonitor.newChild(250)).toArray(IArtifactRepository.class);
 			if (repositories.length == 0)
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository, new Exception(Collect.NO_ARTIFACT_REPOSITORIES_AVAILABLE));
+			// Although we get a sorted list back from the ProvisioningContext above, it 
+			// gets unsorted when we convert the queryable into an array so we must re-sort it.
+			// See https://bugs.eclipse.org/335153.
+			Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);
 			fetch(repositories, subMonitor.newChild(500));
 			return overallStatus(monitor);
 		} finally {
