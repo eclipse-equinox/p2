@@ -66,9 +66,9 @@ public class IUDeserializer {
 				}
 				throw new IOException(status.toString());
 			} catch (ParserConfigurationException configException) {
-				throw new IOException(configException);
+				throw new IOException(configException.getMessage());
 			} catch (SAXException saxException) {
-				throw new IOException(saxException);
+				throw new IOException(saxException.getMessage());
 			}
 		}
 
