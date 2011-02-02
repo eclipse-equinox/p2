@@ -30,6 +30,16 @@
  <extension
        point="org.eclipse.equinox.p2.engine.actions">
     <action
+          class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddProgramPropertyAction"
+          name="addProgramProperty"
+          touchpointType="org.eclipse.equinox.p2.osgi"
+          touchpointVersion="1.0.0"
+          version="1.0.0">
+    </action>
+ </extension>
+ <extension
+       point="org.eclipse.equinox.p2.engine.actions">
+    <action
           class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.AddRepositoryAction"
           name="addRepository"
           touchpointType="org.eclipse.equinox.p2.osgi"
@@ -132,6 +142,16 @@
     <action
           class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.RemoveProgramArgumentAction"
           name="removeProgramArg"
+          touchpointType="org.eclipse.equinox.p2.osgi"
+          touchpointVersion="1.0.0"
+          version="1.0.0">
+    </action>
+ </extension>
+ <extension
+       point="org.eclipse.equinox.p2.engine.actions">
+    <action
+          class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.RemoveProgramPropertyAction"
+          name="removeProgramProperty"
           touchpointType="org.eclipse.equinox.p2.osgi"
           touchpointVersion="1.0.0"
           version="1.0.0">
