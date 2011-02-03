@@ -22,9 +22,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(End2EndTest.class);
 		//		suite.addTest(From35to36.suite());
 		//		suite.addTest(Install36from35.suite());
-		// TODO: disabled for now. See https://bugs.eclipse.org/335379
-		//suite.addTest(From36to37.suite());
-		//suite.addTest(Install37from36.suite());
+		suite.addTest(From36to37.suite());
+		suite.addTest(Install37from36.suite());
 		return suite;
 	}
 
