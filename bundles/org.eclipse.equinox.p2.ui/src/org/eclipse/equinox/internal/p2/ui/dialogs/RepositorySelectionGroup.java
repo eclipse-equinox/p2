@@ -110,9 +110,11 @@ public class RepositorySelectionGroup {
 		comboComposite.setLayout(layout);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		comboComposite.setLayoutData(gd);
+		comboComposite.setFont(parent.getFont());
 
 		Label label = new Label(comboComposite, SWT.NONE);
 		label.setText(ProvUIMessages.AvailableIUsPage_RepoFilterLabel);
+		label.setFont(comboComposite.getFont());
 
 		repoCombo = new Combo(comboComposite, SWT.DROP_DOWN);
 		repoCombo.addSelectionListener(new SelectionListener() {
@@ -151,6 +153,7 @@ public class RepositorySelectionGroup {
 		// breathing room for info dec
 		gd.horizontalIndent = DEC_MARGIN_WIDTH * 2;
 		repoCombo.setLayoutData(gd);
+		repoCombo.setFont(comboComposite.getFont());
 		repoCombo.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent event) {
 				URI location = null;
@@ -201,6 +204,7 @@ public class RepositorySelectionGroup {
 			}
 		});
 		setButtonLayoutData(button);
+		button.setFont(comboComposite.getFont());
 
 		// Link to repository manipulator
 		repoManipulatorLink = createLink(comboComposite, new Action() {
@@ -215,6 +219,7 @@ public class RepositorySelectionGroup {
 		gd = new GridData(SWT.END, SWT.FILL, true, false);
 		gd.horizontalSpan = 3;
 		repoManipulatorLink.setLayoutData(gd);
+		repoManipulatorLink.setFont(comboComposite.getFont());
 
 		addComboProvisioningListeners();
 		parent.addDisposeListener(new DisposeListener() {

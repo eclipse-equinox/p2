@@ -74,9 +74,9 @@ public abstract class StructuredIUGroup {
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		composite.setLayout(layout);
+		composite.setFont(parent.getFont());
 
 		viewer = createViewer(composite);
-
 		viewer.getControl().setLayoutData(getViewerGridData());
 	}
 

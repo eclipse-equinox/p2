@@ -131,6 +131,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		filteredTree = new DelayedFilterCheckboxTree(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, getPreFilterJobProvider());
 		final TreeViewer availableIUViewer = filteredTree.getViewer();
 
+		availableIUViewer.getTree().setFont(parent.getFont());
+		filteredTree.getFilterControl().setFont(parent.getFont());
+
 		// If the user expanded or collapsed anything while we were loading a repo
 		// in the background, we would not want to disrupt their work by making
 		// a newly loaded visible and expanding it.  Setting the load job to null 
