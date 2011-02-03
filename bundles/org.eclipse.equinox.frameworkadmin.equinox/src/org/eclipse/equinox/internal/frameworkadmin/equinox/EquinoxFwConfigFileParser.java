@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -509,6 +509,13 @@ public class EquinoxFwConfigFileParser {
 				continue;
 			String value = configProps.getProperty(key);
 			if (equalsIgnoringSeparators(sharedValue, value)) {
+				configProps.remove(key);
+				continue;
+			}
+
+			// never write out the osgi.framework property in the user's local config.ini
+			// See https://bugs.eclipse.org/329583
+			if (key.equals(EquinoxConstants.PROP_OSGI_FW)) {
 				configProps.remove(key);
 				continue;
 			}
