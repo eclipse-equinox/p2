@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -18,8 +18,8 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -37,6 +37,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	boolean shouldShowChildren;
 	boolean isInstalled = false;
 	boolean isUpdate = false;
+	boolean isPatch = false;
 
 	// Currently this variable is not settable due to the
 	// poor performance of sizing, but it is kept here for future improvement.
@@ -52,6 +53,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		this.iu = iu;
 		this.profileID = profileID;
 		this.shouldShowChildren = showChildren;
+		this.isPatch = iu == null ? false : Boolean.parseBoolean(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
 	}
 
 	/*
@@ -62,6 +64,8 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 	protected String getImageId(Object obj) {
 		if (isUpdate)
 			return ProvUIImages.IMG_UPDATED_IU;
+		else if (isPatch)
+			return isInstalled ? ProvUIImages.IMG_DISABLED_PATCH_IU : ProvUIImages.IMG_PATCH_IU;
 		else if (isInstalled)
 			return ProvUIImages.IMG_DISABLED_IU;
 		return ProvUIImages.IMG_IU;
@@ -184,6 +188,14 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 
 	public boolean isUpdate() {
 		return isUpdate;
+	}
+
+	public void setIsPatch(boolean isPatch) {
+		this.isPatch = isPatch;
+	}
+
+	public boolean isPatch() {
+		return isPatch;
 	}
 
 	private ProvisioningContext getProvisioningContext() {

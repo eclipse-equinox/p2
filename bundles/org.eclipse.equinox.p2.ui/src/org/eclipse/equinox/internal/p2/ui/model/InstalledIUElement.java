@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IRequirement;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 
 /**
  * Element wrapper class for installed IU's. Used instead of the plain IU when
@@ -26,11 +26,13 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 
 	String profileId;
 	IInstallableUnit iu;
+	boolean isPatch = false;
 
 	public InstalledIUElement(Object parent, String profileId, IInstallableUnit iu) {
 		super(parent);
 		this.profileId = profileId;
 		this.iu = iu;
+		this.isPatch = iu == null ? false : Boolean.parseBoolean(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
 	}
 
 	/*
@@ -39,7 +41,7 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
 	protected String getImageId(Object obj) {
-		return ProvUIImages.IMG_IU;
+		return isPatch ? ProvUIImages.IMG_PATCH_IU : ProvUIImages.IMG_IU;
 	}
 
 	public String getLabel(Object o) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -39,6 +39,8 @@ public class ProvUIImages {
 	public final static String IMG_IU = "obj/iu_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_DISABLED_IU = "obj/iu_disabled_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_UPDATED_IU = "obj/iu_update_obj.gif"; //$NON-NLS-1$
+	public final static String IMG_PATCH_IU = "obj/iu_patch_obj.gif"; //$NON-NLS-1$
+	public final static String IMG_DISABLED_PATCH_IU = "obj/iu_disabled_patch_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_PROFILE = "obj/profile_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_CATEGORY = "obj/category_obj.gif"; //$NON-NLS-1$
 

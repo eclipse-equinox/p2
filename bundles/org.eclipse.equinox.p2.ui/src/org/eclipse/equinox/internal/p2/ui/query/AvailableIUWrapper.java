@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.query.*;
 
 /**
@@ -48,11 +49,13 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 		Object item = null;
 		boolean isUpdate = false;
 		boolean isInstalled = false;
+		boolean isPatch = false;
 
-		public InformationCache(Object item, boolean isUpdate, boolean isInstalled) {
+		public InformationCache(Object item, boolean isUpdate, boolean isInstalled, boolean isPatch) {
 			this.item = item;
 			this.isUpdate = isUpdate;
 			this.isInstalled = isInstalled;
+			this.isPatch = isPatch;
 		}
 	}
 
@@ -79,6 +82,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 	private InformationCache computeIUInformation(IInstallableUnit iu) {
 		boolean isUpdate = false;
 		boolean isInstalled = false;
+		boolean isPatch = iu == null ? false : Boolean.parseBoolean(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
 		if (profile != null && iu != null) {
 			IQueryResult<IInstallableUnit> queryResult = profile.query(QueryUtil.createIUQuery(iu.getId()), null);
 			Iterator<IInstallableUnit> iter = queryResult.iterator();
@@ -93,28 +97,31 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 				}
 			}
 		}
-		return new InformationCache(iu, isUpdate, isInstalled);
-
+		return new InformationCache(iu, isUpdate, isInstalled, isPatch);
 	}
 
 	protected Object wrap(Object item) {
 		IInstallableUnit iu = ProvUI.getAdapter(item, IInstallableUnit.class);
 		boolean isUpdate = false;
 		boolean isInstalled = false;
+		boolean isPatch = false;
 		if (cache != null && cache.item == item) {
 			// This cache should always be valide, since accept is called before transformItem
 			isUpdate = cache.isUpdate;
 			isInstalled = cache.isInstalled;
+			isPatch = cache.isPatch;
 		} else {
 			InformationCache iuInformation = computeIUInformation(iu);
 			isUpdate = iuInformation.isUpdate;
 			isInstalled = iuInformation.isInstalled;
+			isPatch = iuInformation.isPatch;
 		}
 		// subclass already made this an element, just set the install flag
 		if (item instanceof AvailableIUElement) {
 			AvailableIUElement element = (AvailableIUElement) item;
 			element.setIsInstalled(isInstalled);
 			element.setIsUpdate(isUpdate);
+			element.setIsPatch(isPatch);
 			return super.wrap(item);
 		}
 		// If it's not an IU or element, we have nothing to do here
@@ -130,6 +137,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 			AvailableIUElement availableElement = (AvailableIUElement) element;
 			availableElement.setIsInstalled(isInstalled);
 			availableElement.setIsUpdate(isUpdate);
+			availableElement.setIsPatch(isPatch);
 		}
 		return super.wrap(element);
 	}
