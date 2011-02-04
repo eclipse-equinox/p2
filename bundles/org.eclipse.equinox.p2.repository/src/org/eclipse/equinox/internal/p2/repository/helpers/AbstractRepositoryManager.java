@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -623,13 +623,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 
 	protected IRepository<T> loadRepository(URI location, IProgressMonitor monitor, String type, int flags) throws ProvisionException {
 		checkValidLocation(location);
-		if (monitor == null)
-			monitor = new NullProgressMonitor();
+		SubMonitor sub = SubMonitor.convert(monitor, 100);
 		boolean added = false;
 		IRepository<T> result = null;
 
 		try {
-			enterLoad(location, monitor);
+			enterLoad(location, sub.newChild(5));
 			result = basicGetRepository(location);
 			if (result != null)
 				return result;
@@ -638,11 +637,11 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			//add the repository first so that it will be enabled, but don't send add event until after the load
 			added = addRepository(location, true, false);
 
-			LocationProperties indexFile = loadIndexFile(location, monitor);
+			LocationProperties indexFile = loadIndexFile(location, sub.newChild(15));
 			String[] preferredOrder = getPreferredRepositorySearchOrder(indexFile);
 			String[] suffixes = sortSuffixes(getAllSuffixes(), location, preferredOrder);
 
-			SubMonitor sub = SubMonitor.convert(monitor, NLS.bind(Messages.repoMan_adding, location), suffixes.length * 100);
+			sub = SubMonitor.convert(sub, NLS.bind(Messages.repoMan_adding, location), suffixes.length * 100);
 			ProvisionException failure = null;
 			try {
 				for (int i = 0; i < suffixes.length; i++) {

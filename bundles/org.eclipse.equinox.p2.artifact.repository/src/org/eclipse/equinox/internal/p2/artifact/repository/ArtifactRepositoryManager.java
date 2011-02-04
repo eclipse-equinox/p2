@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -66,7 +66,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager<IArtifa
 		if (factory == null)
 			return null;
 		factory.setAgent(agent);
-		return factory.load(location, flags, monitor.newChild(10));
+		return factory.load(location, flags, monitor);
 	}
 
 	protected String getBundleId() {

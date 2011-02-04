@@ -99,11 +99,12 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	/*
 	 * This is only called by the parser when loading a repository.
 	 */
-	CompositeMetadataRepository(IMetadataRepositoryManager manager, CompositeRepositoryState state) {
+	CompositeMetadataRepository(IMetadataRepositoryManager manager, CompositeRepositoryState state, IProgressMonitor monitor) {
 		super(manager.getAgent(), state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
 		this.manager = manager;
-		for (int i = 0; i < state.getChildren().length; i++)
-			addChild(state.getChildren()[i], false);
+		SubMonitor sub = SubMonitor.convert(monitor, 100 * state.getChildren().length);
+		for (URI child : state.getChildren())
+			addChild(child, false, sub.newChild(100));
 	}
 
 	/*
@@ -140,17 +141,21 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		}
 	}
 
-	private void addChild(URI childURI, boolean save) {
+	private void addChild(URI childURI, boolean save, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor);
 		URI absolute = URIUtil.makeAbsolute(childURI, getLocation());
-		if (childrenURIs.contains(childURI) || childrenURIs.contains(absolute))
+		if (childrenURIs.contains(childURI) || childrenURIs.contains(absolute)) {
+			sub.done();
 			return;
+
+		}
 		// always add the URI to the list of child URIs (even if we can't load it later)
 		childrenURIs.add(childURI);
 		if (save)
 			save();
 		try {
 			boolean currentLoaded = getManager().contains(absolute);
-			IMetadataRepository currentRepo = getManager().loadRepository(absolute, null);
+			IMetadataRepository currentRepo = getManager().loadRepository(absolute, sub);
 			if (!currentLoaded) {
 				//set enabled to false so repositories do not polled twice
 				getManager().setEnabled(absolute, false);
@@ -170,7 +175,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	 * @see org.eclipse.equinox.p2.repository.ICompositeRepository#addChild(java.net.URI)
 	 */
 	public void addChild(URI childURI) {
-		addChild(childURI, true);
+		addChild(childURI, true, null);
 	}
 
 	/* (non-Javadoc)

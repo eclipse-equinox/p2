@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 			if (!PROTOCOL_FILE.equals(location.getScheme()) && (flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0)
 				return null;
 
-			File localFile = getLocalFile(location, sub.newChild(300));
+			File localFile = getLocalFile(location, sub.newChild(100));
 			InputStream inStream = new BufferedInputStream(new FileInputStream(localFile));
 			JarInputStream jarStream = null;
 			try {
@@ -106,13 +106,14 @@ public class CompositeArtifactRepositoryFactory extends ArtifactRepositoryFactor
 						throw new IOException(NLS.bind(Messages.io_invalidLocation, location.getPath()));
 				}
 				//parse the repository descriptor file
-				sub.setWorkRemaining(100);
+				sub.setWorkRemaining(300);
 				InputStream descriptorStream = jarStream != null ? jarStream : inStream;
 				CompositeRepositoryIO io = new CompositeRepositoryIO();
 				CompositeRepositoryState resultState = io.read(localFile.toURL(), descriptorStream, CompositeArtifactRepository.PI_REPOSITORY_TYPE, sub.newChild(100));
 				if (resultState.getLocation() == null)
 					resultState.setLocation(location);
-				CompositeArtifactRepository result = new CompositeArtifactRepository(getManager(), resultState);
+				// Spending half the time in creating the repo is due to the loading of the children that happens during that period
+				CompositeArtifactRepository result = new CompositeArtifactRepository(getManager(), resultState, sub.newChild(200));
 				if (Tracing.DEBUG_METADATA_PARSING) {
 					time += System.currentTimeMillis();
 					Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 

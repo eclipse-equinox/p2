@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,11 +83,12 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	/**
 	 * This is only called by the parser when loading a repository.
 	 */
-	CompositeArtifactRepository(IArtifactRepositoryManager manager, CompositeRepositoryState state) {
+	CompositeArtifactRepository(IArtifactRepositoryManager manager, CompositeRepositoryState state, IProgressMonitor monitor) {
 		super(manager.getAgent(), state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
 		this.manager = manager;
-		for (int i = 0; i < state.getChildren().length; i++)
-			addChild(state.getChildren()[i], false);
+		SubMonitor sub = SubMonitor.convert(monitor, 100 * state.getChildren().length);
+		for (URI child : state.getChildren())
+			addChild(child, false, sub.newChild(100));
 	}
 
 	/**
@@ -143,18 +144,21 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	public void addChild(URI childURI) {
-		addChild(childURI, true);
+		addChild(childURI, true, null);
 	}
 
-	private void addChild(URI childURI, boolean save) {
+	private void addChild(URI childURI, boolean save, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor);
 		URI absolute = URIUtil.makeAbsolute(childURI, getLocation());
-		if (childrenURIs.contains(childURI) || childrenURIs.contains(absolute))
+		if (childrenURIs.contains(childURI) || childrenURIs.contains(absolute)) {
+			sub.done();
 			return;
+		}
 		childrenURIs.add(childURI);
 		if (save)
 			save();
 		try {
-			IArtifactRepository repo = load(childURI);
+			IArtifactRepository repo = load(childURI, sub);
 			loadedRepos.add(new ChildInfo(repo));
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
@@ -445,11 +449,11 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		}
 	}
 
-	private IArtifactRepository load(URI repoURI) throws ProvisionException {
+	private IArtifactRepository load(URI repoURI, IProgressMonitor monitor) throws ProvisionException {
 		// make sure we are dealing with an absolute location
 		repoURI = URIUtil.makeAbsolute(repoURI, getLocation());
 		boolean loaded = getManager().contains(repoURI);
-		IArtifactRepository repo = getManager().loadRepository(repoURI, null);
+		IArtifactRepository repo = getManager().loadRepository(repoURI, monitor);
 		if (!loaded) {
 			//set enabled to false so repositories do not get polled twice
 			getManager().setEnabled(repoURI, false);
