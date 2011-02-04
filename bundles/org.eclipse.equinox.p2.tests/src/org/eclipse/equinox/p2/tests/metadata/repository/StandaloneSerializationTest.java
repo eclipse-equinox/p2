@@ -54,6 +54,7 @@ public class StandaloneSerializationTest extends TestCase {
 		}
 
 		//Read file written
+		boolean exceptionRaised = false;
 		try {
 			InputStream is;
 			is = new FileInputStream(f);
@@ -65,8 +66,9 @@ public class StandaloneSerializationTest extends TestCase {
 		} catch (UnsupportedEncodingException e) {
 			fail("problem writing: " + e.getCause().getMessage());
 		} catch (IOException e) {
-			assertTrue(e.getMessage().contains("org.xml.sax.SAXParseException"));
+			exceptionRaised = true;
 		}
+		assertTrue(exceptionRaised);
 
 		f.delete();
 	}
