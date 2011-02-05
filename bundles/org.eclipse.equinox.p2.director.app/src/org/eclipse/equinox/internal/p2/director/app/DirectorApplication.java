@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -140,6 +140,9 @@ public class DirectorApplication implements IApplication {
 	static private final String NO_ARTIFACT_REPOSITORIES_AVAILABLE = "noArtifactRepositoriesAvailable"; //$NON-NLS-1$
 
 	private static final String FOLLOW_ARTIFACT_REPOSITORY_REFERENCES = "org.eclipse.equinox.p2.director.followArtifactRepositoryReferences"; //$NON-NLS-1$
+	private static final String LIST_GROUPS_SHORTCUT = "Q:GROUP"; //$NON-NLS-1$ 
+	private static final String QUERY_SEPARATOR = "Q:"; //$NON-NLS-1$
+	private static final String QUERY_SEPARATOR_SMALL = "q:"; //$NON-NLS-1$
 
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 
@@ -181,10 +184,23 @@ public class DirectorApplication implements IApplication {
 		return null;
 	}
 
-	private static void parseIUsArgument(List<IVersionedId> vnames, String arg) {
+	private static void parseIUsArgument(List<IQuery<IInstallableUnit>> vnames, String arg) {
 		String[] roots = StringHelper.getArrayFromString(arg, ',');
-		for (int i = 0; i < roots.length; ++i)
-			vnames.add(VersionedId.parse(roots[i]));
+		for (int i = 0; i < roots.length; ++i) {
+			if (roots[i].equalsIgnoreCase(LIST_GROUPS_SHORTCUT)) {
+				vnames.add(new PrettyQuery<IInstallableUnit>(QueryUtil.createIUGroupQuery(), "All groups")); //$NON-NLS-1$
+				continue;
+			}
+			if (roots[i].startsWith(QUERY_SEPARATOR) || roots[i].startsWith(QUERY_SEPARATOR_SMALL)) {
+				String queryString = roots[i].substring(2);
+				vnames.add(new PrettyQuery<IInstallableUnit>(QueryUtil.createQuery(queryString, new Object[0]), queryString));
+				continue;
+			}
+			IVersionedId vId = VersionedId.parse(roots[i]);
+			Version v = vId.getVersion();
+			IQuery<IInstallableUnit> query = new PrettyQuery<IInstallableUnit>(QueryUtil.createIUQuery(vId.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true)), roots[i]);
+			vnames.add(query);
+		}
 	}
 
 	private static File processFileArgument(String arg) {
@@ -203,9 +219,9 @@ public class DirectorApplication implements IApplication {
 
 	private final List<URI> artifactRepositoryLocations = new ArrayList<URI>();
 	private final List<URI> metadataRepositoryLocations = new ArrayList<URI>();
-	private final List<IVersionedId> rootsToInstall = new ArrayList<IVersionedId>();
-	private final List<IVersionedId> rootsToUninstall = new ArrayList<IVersionedId>();
-	private final List<IVersionedId> rootsToList = new ArrayList<IVersionedId>();
+	private final List<IQuery<IInstallableUnit>> rootsToInstall = new ArrayList<IQuery<IInstallableUnit>>();
+	private final List<IQuery<IInstallableUnit>> rootsToUninstall = new ArrayList<IQuery<IInstallableUnit>>();
+	private final List<IQuery<IInstallableUnit>> rootsToList = new ArrayList<IQuery<IInstallableUnit>>();
 
 	private File bundlePool = null;
 	private File destination;
@@ -218,7 +234,7 @@ public class DirectorApplication implements IApplication {
 
 	private String revertToPreviousState = NOTHING_TO_REVERT_TO;
 	private static String NOTHING_TO_REVERT_TO = "-1"; //$NON-NLS-1$
-	private static String REVERT_TO_PREVIOUS = "0"; //$NON-NLS-2$
+	private static String REVERT_TO_PREVIOUS = "0"; //$NON-NLS-1$
 	private boolean verifyOnly = false;
 	private boolean roamingProfile = false;
 	private boolean purgeRegistry = false;
@@ -277,23 +293,19 @@ public class DirectorApplication implements IApplication {
 		return QueryUtil.compoundQueryable(locationQueryables).query(query, nullMonitor);
 	}
 
-	private Collection<IInstallableUnit> collectRoots(IProfile profile, List<IVersionedId> rootNames, boolean forInstall) throws CoreException {
+	private Collection<IInstallableUnit> collectRoots(IProfile profile, List<IQuery<IInstallableUnit>> rootNames, boolean forInstall) throws CoreException {
 		ArrayList<IInstallableUnit> allRoots = new ArrayList<IInstallableUnit>();
-		int top = rootNames.size();
-		for (int i = 0; i < top; ++i) {
-			IVersionedId rootName = rootNames.get(i);
-			Version v = rootName.getVersion();
-			IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
+		for (IQuery<IInstallableUnit> rootQuery : rootNames) {
 			IQueryResult<IInstallableUnit> roots = null;
 			if (forInstall)
-				roots = collectRootIUs(QueryUtil.createLatestQuery(query));
+				roots = collectRootIUs(QueryUtil.createLatestQuery(rootQuery));
 
 			if (roots == null || roots.isEmpty())
-				roots = profile.query(query, new NullProgressMonitor());
+				roots = profile.query(rootQuery, new NullProgressMonitor());
 
 			Iterator<IInstallableUnit> itor = roots.iterator();
 			if (!itor.hasNext())
-				throw new CoreException(new Status(IStatus.ERROR, org.eclipse.equinox.internal.p2.director.app.Activator.ID, NLS.bind(Messages.Missing_IU, rootName)));
+				throw new CoreException(new Status(IStatus.ERROR, org.eclipse.equinox.internal.p2.director.app.Activator.ID, NLS.bind(Messages.Missing_IU, rootQuery)));
 			do {
 				allRoots.add(itor.next());
 			} while (itor.hasNext());
@@ -529,10 +541,8 @@ public class DirectorApplication implements IApplication {
 			while (roots.hasNext())
 				allRoots.add(roots.next());
 		} else {
-			for (IVersionedId rootName : rootsToList) {
-				Version v = rootName.getVersion();
-				IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(rootName.getId(), Version.emptyVersion.equals(v) ? VersionRange.emptyRange : new VersionRange(v, true, v, true));
-				Iterator<IInstallableUnit> roots = collectRootIUs(query).iterator();
+			for (IQuery<IInstallableUnit> root : rootsToList) {
+				Iterator<IInstallableUnit> roots = collectRootIUs(root).iterator();
 				while (roots.hasNext())
 					allRoots.add(roots.next());
 			}
