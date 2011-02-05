@@ -132,7 +132,7 @@ public class DirectorApplication implements IApplication {
 	private static final CommandLineOption OPTION_PURGEHISTORY = new CommandLineOption(new String[] {"-purgeHistory"}, null, Messages.Help_Purge_the_install_registry); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_FOLLOW_REFERENCES = new CommandLineOption(new String[] {"-followReferences"}, null, Messages.Help_Follow_references); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_TAG = new CommandLineOption(new String[] {"-tag"}, Messages.Help_lt_name_gt, Messages.Help_Defines_a_tag_for_provisioning_session); //$NON-NLS-1$
-	private static final CommandLineOption OPTION_LIST_TAGS = new CommandLineOption(new String[] {"-tags"}, null, Messages.Help_List_Tags); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_LIST_TAGS = new CommandLineOption(new String[] {"-listTags"}, null, Messages.Help_List_Tags); //$NON-NLS-1$
 
 	private static final Integer EXIT_ERROR = new Integer(13);
 	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
