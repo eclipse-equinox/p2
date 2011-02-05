@@ -54,6 +54,8 @@ public class Messages extends NLS {
 	public static String Help_Use_a_shared_location_for_the_install;
 	public static String Help_Purge_the_install_registry;
 	public static String Help_Follow_references;
+	public static String Help_Defines_a_tag_for_provisioning_session;
+	public static String Help_List_Tags;
 
 	public static String Ignored_repo;
 	public static String Installing;

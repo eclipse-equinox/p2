@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.Certificate;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -136,6 +137,8 @@ public class DirectorApplication implements IApplication {
 	private static final CommandLineOption OPTION_P2_NL = new CommandLineOption(new String[] {"-p2.nl"}, null, Messages.Help_The_NL_when_profile_is_created); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_PURGEHISTORY = new CommandLineOption(new String[] {"-purgeHistory"}, null, Messages.Help_Purge_the_install_registry); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_FOLLOW_REFERENCES = new CommandLineOption(new String[] {"-followReferences"}, null, Messages.Help_Follow_references); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_TAG = new CommandLineOption(new String[] {"-tag"}, Messages.Help_lt_name_gt, Messages.Help_Defines_a_tag_for_provisioning_session); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_LIST_TAGS = new CommandLineOption(new String[] {"-tags"}, null, Messages.Help_List_Tags); //$NON-NLS-1$
 
 	private static final Integer EXIT_ERROR = new Integer(13);
 	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
@@ -217,7 +220,11 @@ public class DirectorApplication implements IApplication {
 	private boolean printHelpInfo = false;
 	private boolean printIUList = false;
 	private boolean printRootIUList = false;
-	private long revertToPreviousState = -1;
+	private boolean printTags = false;
+
+	private String revertToPreviousState = NOTHING_TO_REVERT_TO;
+	private static String NOTHING_TO_REVERT_TO = "-1";  //$NON-NLS-1$
+	private static String REVERT_TO_PREVIOUS = "0"; //$NON-NLS-2$
 	private boolean verifyOnly = false;
 	private boolean roamingProfile = false;
 	private boolean purgeRegistry = false;
@@ -229,6 +236,7 @@ public class DirectorApplication implements IApplication {
 	private String os;
 	private String arch;
 	private String nl;
+	private String tag;
 
 	private IEngine engine;
 	private boolean noProfileId = false;
@@ -365,7 +373,7 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private void initializeRepositories() throws CoreException {
-		if (rootsToInstall.isEmpty() && revertToPreviousState == -1 && !printIUList)
+		if (rootsToInstall.isEmpty() && revertToPreviousState == NOTHING_TO_REVERT_TO && !printIUList)
 			// Not much point initializing repositories if we have nothing to install
 			return;
 		if (artifactRepositoryLocations == null)
@@ -583,6 +591,12 @@ public class DirectorApplication implements IApplication {
 					throw new ProvisionException(Messages.Application_NoRepositories);
 				throw new CoreException(operationStatus);
 			}
+			if (tag != null) {
+				long newState = result.getProfile().getTimestamp();
+				IProfileRegistry registry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
+				registry.setProfileStateProperty(result.getProfile().getProfileId(), newState, IProfile.STATE_PROP_TAG, tag);
+			}
+
 		}
 	}
 
@@ -640,6 +654,11 @@ public class DirectorApplication implements IApplication {
 				continue;
 			}
 
+			if (OPTION_LIST_TAGS.isOption(opt)) {
+				printTags = true;
+				continue;
+			}
+
 			if (OPTION_HELP.isOption(opt)) {
 				printHelpInfo = true;
 				continue;
@@ -658,10 +677,10 @@ public class DirectorApplication implements IApplication {
 			if (OPTION_REVERT.isOption(opt)) {
 				String targettedState = getOptionalArgument(args, i);
 				if (targettedState == null) {
-					revertToPreviousState = 0;
+					revertToPreviousState = REVERT_TO_PREVIOUS;
 				} else {
 					i++;
-					revertToPreviousState = Long.valueOf(targettedState).longValue();
+					revertToPreviousState = targettedState;
 				}
 				continue;
 
@@ -761,10 +780,16 @@ public class DirectorApplication implements IApplication {
 				arch = getRequiredArgument(args, ++i);
 				continue;
 			}
+
+			if (OPTION_TAG.isOption(opt)) {
+				tag = getRequiredArgument(args, ++i);
+				continue;
+			}
+
 			throw new ProvisionException(NLS.bind(Messages.unknown_option_0, opt));
 		}
 
-		if (!printHelpInfo && !printIUList && !printRootIUList && !purgeRegistry && rootsToInstall.isEmpty() && rootsToUninstall.isEmpty() && revertToPreviousState == -1) {
+		if (!printHelpInfo && !printIUList && !printRootIUList && !printTags && !purgeRegistry && rootsToInstall.isEmpty() && rootsToUninstall.isEmpty() && revertToPreviousState == NOTHING_TO_REVERT_TO) {
 			printMessage(Messages.Help_Missing_argument);
 			printHelpInfo = true;
 		}
@@ -811,7 +836,7 @@ public class DirectorApplication implements IApplication {
 			else {
 				initializeServices();
 				initializeRepositories();
-				if (revertToPreviousState >= 0) {
+				if (revertToPreviousState != NOTHING_TO_REVERT_TO) {
 					revertToPreviousState();
 				} else if (!(rootsToInstall.isEmpty() && rootsToUninstall.isEmpty()))
 					performProvisioningActions();
@@ -819,6 +844,8 @@ public class DirectorApplication implements IApplication {
 					performList();
 				if (printRootIUList)
 					performListInstalledRoots();
+				if (printTags)
+					performPrintTags();
 				if (purgeRegistry)
 					purgeRegistry();
 				printMessage(NLS.bind(Messages.Operation_complete, new Long(System.currentTimeMillis() - time)));
@@ -853,14 +880,15 @@ public class DirectorApplication implements IApplication {
 		IProfile profile = initializeProfile();
 		IProfileRegistry profileRegistry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
 		IProfile targetProfile = null;
-		if (revertToPreviousState == 0) {
+		if (revertToPreviousState == REVERT_TO_PREVIOUS) {
 			long[] profiles = profileRegistry.listProfileTimestamps(profile.getProfileId());
 			if (profiles.length == 0)
 				return;
 			targetProfile = profileRegistry.getProfile(profile.getProfileId(), profiles[profiles.length - 1]);
 		} else {
-			targetProfile = profileRegistry.getProfile(profile.getProfileId(), revertToPreviousState);
+			targetProfile = profileRegistry.getProfile(profile.getProfileId(), getTimestampToRevertTo(profileRegistry, profile.getProfileId()));
 		}
+
 		if (targetProfile == null)
 			throw new CoreException(new Status(IStatus.ERROR, Activator.ID, Messages.Missing_profile));
 		IProvisioningPlan plan = planner.getDiffPlan(profile, targetProfile, new NullProgressMonitor());
@@ -871,6 +899,27 @@ public class DirectorApplication implements IApplication {
 		context.setProperty(ProvisioningContext.FOLLOW_REPOSITORY_REFERENCES, String.valueOf(followReferences));
 		context.setProperty(FOLLOW_ARTIFACT_REPOSITORY_REFERENCES, String.valueOf(followReferences));
 		executePlan(context, plan);
+	}
+
+	private long getTimestampToRevertTo(IProfileRegistry profileRegistry, String profId) {
+		long timestampToRevertTo = -1;
+		try {
+			//Deal with the case where the revert points to a timestamp
+			timestampToRevertTo = Long.valueOf(revertToPreviousState).longValue();
+		} catch (NumberFormatException e) {
+			//Deal with the case where the revert points to tag
+			Map<String, String> tags = profileRegistry.getProfileStateProperties(profId, IProfile.STATE_PROP_TAG);
+			Set<Entry<String, String>> entries = tags.entrySet();
+			for (Entry<String, String> entry : entries) {
+				if (entry.getValue().equals(revertToPreviousState))
+					try {
+						timestampToRevertTo = Long.valueOf(entry.getKey()).longValue();
+					} catch (NumberFormatException e2) {
+						//Not expected since the value is supposed to be a timestamp as per API
+					}
+			}
+		}
+		return timestampToRevertTo;
 	}
 
 	/**
@@ -1040,4 +1089,15 @@ public class DirectorApplication implements IApplication {
 			System.out.println(iu.getId() + '/' + iu.getVersion());
 	}
 
+	private void performPrintTags() throws CoreException {
+		IProfile profile = initializeProfile();
+		IProfileRegistry registry = (IProfileRegistry) targetAgent.getService(IProfileRegistry.SERVICE_NAME);
+		Map<String, String> tags = registry.getProfileStateProperties(profile.getProfileId(), IProfile.STATE_PROP_TAG);
+		//Sort the tags from the most recent to the oldest
+		List<String> timeStamps = new ArrayList<String>(tags.keySet());
+		Collections.sort(timeStamps, Collections.reverseOrder());
+		for (String timestamp : timeStamps) {
+			System.out.println(tags.get(timestamp));
+		}
+	}
 }

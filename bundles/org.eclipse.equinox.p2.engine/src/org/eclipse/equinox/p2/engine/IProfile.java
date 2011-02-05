@@ -101,7 +101,7 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	 * May be empty or <code>null</code>, and generally will be for non-top level
 	 * install contexts.
 	 */
-	public static final String PROP_NAME = "org.eclipse.equinox.p2.name"; //$NON-NLS-1$
+	public static final String PROP_NAME = "org.eclipse.equinox.p2.name"; //$NON-NLS-1$	
 	/**
 	 * Profile property constant indicating the list of environments
 	 * (e.g., OS, WS, ...) in which a profile can operate. The value of the property
@@ -131,13 +131,19 @@ public interface IProfile extends IQueryable<IInstallableUnit> {
 	public static final String PROP_INSTALL_FEATURES = "org.eclipse.update.install.features"; //$NON-NLS-1$
 
 	/**
-	  * Profile state meta property key.  Can be used to mark a profile state that the UI should hide.
+	  * Profile state meta property key.  Can be used to mark a profile state that should be hidden.
 	  * The value of the property is not relevant as the property's existence is enough.  Although <code>true</code>
 	  * would be a typical value.
 	  * 
 	  * @since 2.1
 	  */
-	public static final String PROP_HIDDEN = "org.eclipse.equinox.p2.state.hidden"; //$NON-NLS-1$
+	public static final String STATE_PROP_HIDDEN = "org.eclipse.equinox.p2.state.hidden"; //$NON-NLS-1$
+
+	/**
+	 * Profile state metadata property key used to associate with a profile state a user readable name.
+	 * @since 2.1
+	 */
+	public static final String STATE_PROP_TAG = "org.eclipse.equinox.p2.state.tag"; //$NON-NLS-1$
 
 	/**
 	 * Returns the provisioning agent that manages this profile

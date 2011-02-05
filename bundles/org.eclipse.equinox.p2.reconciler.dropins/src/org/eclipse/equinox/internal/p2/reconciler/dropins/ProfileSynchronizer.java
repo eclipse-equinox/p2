@@ -138,7 +138,7 @@ public class ProfileSynchronizer {
 		// See https://bugs.eclipse.org/334670
 		IProfileRegistry profileRegistry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
 		if (profileRegistry != null) {
-			IStatus result = profileRegistry.setProfileStateProperty(profile.getProfileId(), profile.getTimestamp(), IProfile.PROP_HIDDEN, Boolean.TRUE.toString());
+			IStatus result = profileRegistry.setProfileStateProperty(profile.getProfileId(), profile.getTimestamp(), IProfile.STATE_PROP_HIDDEN, Boolean.TRUE.toString());
 			if (!result.isOK()) {
 				// we don't get here but if we do, we will ignore the problem and continue. We
 				// still want the install operation to succeed. The consequence of this failure is the
