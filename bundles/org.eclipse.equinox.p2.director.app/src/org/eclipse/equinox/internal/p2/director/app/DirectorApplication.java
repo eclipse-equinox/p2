@@ -42,12 +42,6 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
-/**
- * This director implementation is a complete replacement for the old director application. 
- * This implementation has simplified command line 
- * arguments, and doesn't require the user to set system property such as the
- * p2 data location. See bug 268138 for related discussion.
- */
 public class DirectorApplication implements IApplication {
 	class AvoidTrustPromptService extends UIServices {
 		@Override
@@ -223,7 +217,7 @@ public class DirectorApplication implements IApplication {
 	private boolean printTags = false;
 
 	private String revertToPreviousState = NOTHING_TO_REVERT_TO;
-	private static String NOTHING_TO_REVERT_TO = "-1";  //$NON-NLS-1$
+	private static String NOTHING_TO_REVERT_TO = "-1"; //$NON-NLS-1$
 	private static String REVERT_TO_PREVIOUS = "0"; //$NON-NLS-2$
 	private boolean verifyOnly = false;
 	private boolean roamingProfile = false;
