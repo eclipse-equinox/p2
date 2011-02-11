@@ -1,14 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors: IBM Corporation - initial API and implementation
- * Daniel Le Berre - Fix in the encoding and the optimization function
- * Alban Browaeys - Optimized string concatenation in bug 251357
- * Jed Anderson - switch from opb files to API calls to DependencyHelper in bug 200380
- *     Sonatype, Inc. - ongoing development
+ * Contributors: 
+ *   IBM Corporation - initial API and implementation
+ *   Daniel Le Berre - Fix in the encoding and the optimization function
+ *   Alban Browaeys - Optimized string concatenation in bug 251357
+ *   Jed Anderson - switch from opb files to API calls to DependencyHelper in bug 200380
+ *   Sonatype, Inc. - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
@@ -177,7 +178,22 @@ public class Projector {
 			} else {
 				solver = SolverFactory.newEclipseP2();
 			}
-			solver.setTimeoutOnConflicts(1000);
+			int timeout = 1000;
+			String timeoutString = null;
+			try {
+				// allow the user to specify a longer timeout. 
+				// only set the value if it is a positive integer larger than the default.
+				// see https://bugs.eclipse.org/336967
+				timeoutString = DirectorActivator.context.getProperty("eclipse.p2.projector.timeout"); //$NON-NLS-1$
+				if (timeoutString != null)
+					timeout = Math.max(timeout, Integer.parseInt(timeoutString));
+			} catch (Exception e) {
+				// intentionally catch all errors (npe, number format, etc)
+				// print out to syserr and fall through
+				System.err.println("Ignoring user-specified 'eclipse.p2.projector.timeout' value of: " + timeoutString); //$NON-NLS-1$
+				e.printStackTrace();
+			}
+			solver.setTimeoutOnConflicts(timeout);
 			IQueryResult<IInstallableUnit> queryResult = picker.query(QueryUtil.createIUAnyQuery(), null);
 			if (DEBUG_ENCODING) {
 				dependencyHelper = new DependencyHelper<Object, Explanation>(solver, false);
