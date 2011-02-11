@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -691,7 +691,24 @@ public class Projector implements IProjector {
 			return result;
 		boolean delete = true;
 		IPBSolver solver = SolverFactory.newEclipseP2();
-		solver.setTimeoutOnConflicts(1000);
+
+		int timeout = 1000;
+		String timeoutString = null;
+		try {
+			// allow the user to specify a longer timeout. 
+			// only set the value if it is a positive integer larger than the default.
+			// see https://bugs.eclipse.org/336968
+			timeoutString = DirectorActivator.context.getProperty("eclipse.p2.projector.timeout"); //$NON-NLS-1$
+			if (timeoutString != null)
+				timeout = Math.max(timeout, Integer.parseInt(timeoutString));
+		} catch (Exception e) {
+			// intentionally catch all errors (npe, number format, etc)
+			// print out to syserr and fall through
+			System.err.println("Ignoring user-specified 'eclipse.p2.projector.timeout' value of: " + timeoutString); //$NON-NLS-1$
+			e.printStackTrace();
+		}
+		solver.setTimeoutOnConflicts(timeout);
+
 		OPBEclipseReader2007 reader = new OPBEclipseReader2007(solver);
 		// CNF filename is given on the command line 
 		long start = System.currentTimeMillis();
