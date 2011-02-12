@@ -80,6 +80,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(IUWithFilter.class);
 		suite.addTestSuite(IUWithFilter2.class);
 		suite.addTestSuite(MinimalInstall.class);
+		suite.addTestSuite(MinimalInstall2.class);
 		suite.addTestSuite(MissingDependency.class);
 		suite.addTestSuite(MissingDependency2.class);
 		suite.addTestSuite(MissingDependency3.class);
