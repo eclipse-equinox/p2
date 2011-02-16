@@ -336,4 +336,45 @@ public class NegationTesting extends AbstractProvisioningTest {
 		IProvisioningPlan plan = planner.getProvisioningPlan(request, null, null);
 		assertNotOK("plan should fail", plan.getStatus());
 	}
+
+	//This test demonstrates having capabilities that are unique 
+	public void testUniqueCapability() {
+		MetadataFactory.InstallableUnitDescription iud1 = new MetadataFactory.InstallableUnitDescription();
+		iud1.setId("TestNegation4");
+		iud1.setVersion(Version.create("1.0.0"));
+		RequiredCapability req1 = new RequiredCapability(NS, N, new VersionRange("[0.0.0, 1.1.1)"), null, 0, 0, false, null);
+		RequiredCapability req2 = new RequiredCapability(NS, N, new VersionRange(Version.create("1.1.1"), false, Version.MAX_VERSION, false), null, 0, 0, false, null);
+		Collection requirements = new ArrayList();
+		requirements.add(req1);
+		requirements.add(req2);
+		iud1.addRequirements(requirements);
+		Collection capabilities = new ArrayList();
+		capabilities.add(new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "TestNegation4", Version.create("1.0.0")));
+		capabilities.add(new ProvidedCapability(NS, N, Version.create("1.1.1")));
+		iud1.addProvidedCapabilities(capabilities);
+		IInstallableUnit iu1 = MetadataFactory.createInstallableUnit(iud1);
+
+		IProfile profile = createProfile("TestProfile." + getName());
+		IPlanner planner = createPlanner();
+		ProfileChangeRequest changeRequest = new ProfileChangeRequest(profile);
+		changeRequest.add(iu1);
+		ProvisioningPlan plan = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest, null, null);
+		assertOK(plan.getStatus());
+		assertFalse(plan.getAdditions().query(QueryUtil.createIUQuery(iu1), new NullProgressMonitor()).isEmpty());
+
+		MetadataFactory.InstallableUnitDescription iud2 = new MetadataFactory.InstallableUnitDescription();
+		iud2.setId("ProviderOf1");
+		iud2.setVersion(Version.create("1.0.0"));
+		Collection capabilities2 = new ArrayList();
+		capabilities2.add(MetadataFactory.createProvidedCapability(NS, N, Version.create("1.0.0")));
+		iud2.addProvidedCapabilities(capabilities2);
+		IInstallableUnit iu2 = MetadataFactory.createInstallableUnit(iud2);
+
+		ProfileChangeRequest changeRequest2 = new ProfileChangeRequest(profile);
+		changeRequest2.add(iu1);
+		changeRequest2.add(iu2);
+		ProvisioningPlan plan2 = (ProvisioningPlan) planner.getProvisioningPlan(changeRequest2, null, null);
+		assertNotOK(plan2.getStatus());
+
+	}
 }
