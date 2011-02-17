@@ -106,7 +106,9 @@ public interface IProfileRegistry {
 	/**
 	 * Remove the given profile snapshot from this profile registry. This method has no effect
 	 * if this registry does not contain a profile with the given id and timestamp.
-	 * The current profile cannot be removed using this method.
+	 * The current profile cannot be removed using this method. When a particular profile state
+	 * is removed from the registry, the corresponding profile state properties for that
+	 * particular state are also removed.
 	 * 
 	 * @param id the profile to remove
 	 * @param timestamp the timestamp of the profile to remove 
@@ -116,7 +118,8 @@ public interface IProfileRegistry {
 
 	/**
 	 * Remove the given profile from this profile registry.  This method has no effect
-	 * if this registry does not contain a profile with the given id.
+	 * if this registry does not contain a profile with the given id. When a profile is removed
+	 * from the registry, all of its associated profile state properties are removed as well.
 	 * 
 	 * @param id the profile to remove
 	 */

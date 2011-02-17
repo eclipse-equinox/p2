@@ -372,6 +372,8 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		}
 		profileMap.remove(profileId);
 		profileLocks.remove(profileId);
+		// deleting the profile removes the folder and subsequently all
+		// the profile state properties as well since they are stored in a file in the folder.
 		deleteProfile(profileId);
 		broadcastChangeEvent(profileId, IProfileEvent.REMOVED);
 	}
@@ -397,6 +399,10 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				return;
 		}
 		FileUtils.deleteAll(profileFile);
+		// Ignore the return value here. If there was a problem removing the profile state
+		// properties we don't want to fail the whole operation since the profile state itself 
+		// was removed successfully
+		removeProfileStateProperties(id, timestamp, null);
 	}
 
 	private void broadcastChangeEvent(String profileId, int reason) {

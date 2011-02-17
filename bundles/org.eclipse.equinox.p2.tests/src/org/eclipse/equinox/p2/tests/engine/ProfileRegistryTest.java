@@ -830,14 +830,10 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		registry.removeProfile(PROFILE_NAME, states[0]);
 		assertEquals(1, registry.listProfileTimestamps(profile.getProfileId()).length);
 
-		// Since state properties are still present, re-run first tests.
+		// Ensure all properties for the first state were removed when we removed the state
+		assertTrue(registry.getProfileStateProperties(profile.getProfileId(), states[0]).isEmpty());
 
-		result = registry.getProfileStateProperties(profile.getProfileId(), states[0]);
-		assertEquals(3, result.size());
-		assertEquals("two", result.get("one"));
-		assertEquals("b", result.get("a"));
-		assertEquals("y", result.get("z"));
-
+		// Ensure we still have properties for the other state.
 		result = registry.getProfileStateProperties(profile.getProfileId(), states[1]);
 		assertEquals(3, result.size());
 		assertEquals("three", result.get("one"));
