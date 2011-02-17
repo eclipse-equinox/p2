@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Testserver
 Bundle-SymbolicName: org.eclipse.equinox.p2.testserver;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.equinox.p2.testserver.Activator
 Bundle-Vendor: Eclipse
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,

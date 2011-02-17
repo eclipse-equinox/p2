@@ -9,6 +9,6 @@
   </parent>
   <groupId>org.eclipse</groupId>
   <artifactId>org.eclipse.equinox.p2.console</artifactId>
-  <version>1.0.200.qualifier</version>
+  <version>1.0.300.qualifier</version>
   <packaging>eclipse-plugin</packaging>
 </project>

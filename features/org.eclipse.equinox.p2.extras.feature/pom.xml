@@ -8,7 +8,7 @@
     <version>0.0.1-SNAPSHOT</version><relativePath>../org.eclipse.equinox.p2-parent</relativePath>
   </parent>
   <groupId>org.eclipse</groupId>
-  <artifactId>org.eclipse.equinox.p2.tests.discovery</artifactId>
+  <artifactId>org.eclipse.equinox.p2.extras.feature</artifactId>
   <version>1.0.0.qualifier</version>
-  <packaging>eclipse-plugin</packaging>
+  <packaging>eclipse-feature</packaging>
 </project>
