@@ -128,6 +128,11 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 					if (((IIUElement) element).shouldShowVersion())
 						return ((IIUElement) element).getIU().getVersion().toString();
 				}
+				if (element instanceof RollbackProfileElement) {
+					if (((RollbackProfileElement) element).getProfileTag() != null) {
+						return ((RollbackProfileElement) element).getProfileTag();
+					}
+				}
 				IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 				if (iu != null) {
 					return iu.getVersion().toString();

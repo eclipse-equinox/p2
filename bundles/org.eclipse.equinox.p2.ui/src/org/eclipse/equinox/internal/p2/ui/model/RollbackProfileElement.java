@@ -29,11 +29,17 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 	private long timestamp;
 	private IProfile snapshot;
 	private boolean isCurrent = false;
+	private String profileTag;
 
 	public RollbackProfileElement(Object parent, String profileId, long timestamp) {
+		this(parent, profileId, timestamp, null);
+	}
+
+	public RollbackProfileElement(Object parent, String profileId, long timestamp, String profileTag) {
 		super(parent);
 		this.timestamp = timestamp;
 		this.profileId = profileId;
+		this.profileTag = profileTag;
 	}
 
 	/*
@@ -76,6 +82,10 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 
 	public boolean isCurrentProfile() {
 		return isCurrent;
+	}
+
+	public String getProfileTag() {
+		return profileTag;
 	}
 
 	/* (non-Javadoc)

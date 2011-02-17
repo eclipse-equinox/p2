@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import org.eclipse.core.runtime.*;
@@ -134,6 +136,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 					configsViewer.setSelection(new StructuredSelection(element));
 			}
 		};
+		setTableColumns(configsViewer.getTable());
 		// Use deferred fetch because getting snapshots is expensive.
 		provider.setFetchInBackground(true);
 		configsViewer.setContentProvider(provider);
@@ -165,6 +168,19 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		CopyUtils.activateCopy(this, configsViewer.getControl());
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		configsViewer.getControl().setLayoutData(gd);
+	}
+
+	private void setTableColumns(Table table) {
+		table.setHeaderVisible(true);
+		TableColumn tc = new TableColumn(table, SWT.NONE, 0);
+		tc.setResizable(true);
+		tc.setText(ProvUIMessages.RevertProfilePage_ProfileTimestampColumn);
+		tc.setWidth(175);
+
+		tc = new TableColumn(table, SWT.NONE, 1);
+		tc.setResizable(true);
+		tc.setText(ProvUIMessages.RevertProfilePage_ProfileTagColumn);
+		tc.setWidth(200);
 	}
 
 	private void createContentsSection(Composite parent) {

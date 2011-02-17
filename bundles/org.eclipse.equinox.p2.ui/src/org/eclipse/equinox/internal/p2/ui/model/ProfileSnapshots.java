@@ -15,9 +15,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.progress.IElementCollector;
 
@@ -50,12 +50,19 @@ public class ProfileSnapshots extends ProvElement implements IDeferredWorkbenchA
 
 		// find out which profile states we should hide
 		Map<String, String> hidden = registry.getProfileStateProperties(profileId, IProfile.STATE_PROP_HIDDEN);
+		Map<String, String> tag = registry.getProfileStateProperties(profileId, IProfile.STATE_PROP_TAG);
 		List<RollbackProfileElement> elements = new ArrayList<RollbackProfileElement>();
 
 		for (int i = 0; i < timestamps.length; i++) {
 			if (hidden.containsKey(String.valueOf(timestamps[i])))
 				continue;
-			RollbackProfileElement element = new RollbackProfileElement(this, profileId, timestamps[i]);
+			RollbackProfileElement element = null;
+			String timestamp = String.valueOf(timestamps[i]);
+			if (!tag.containsKey(timestamp)) {
+				element = new RollbackProfileElement(this, profileId, timestamps[i]);
+			} else {
+				element = new RollbackProfileElement(this, profileId, timestamps[i], tag.get(timestamp));
+			}
 			elements.add(element);
 
 			// Eliminate the first in the list (earliest) if there was no content at all.
