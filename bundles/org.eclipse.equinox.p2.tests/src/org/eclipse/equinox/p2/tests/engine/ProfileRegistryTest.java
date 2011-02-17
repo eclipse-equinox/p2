@@ -782,6 +782,92 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertEquals("three", result.get("two"));
 	}
 
+	public void testPruneProfileStateProperties() throws ProvisionException {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+
+		Map<String, String> profileProperties = new HashMap<String, String>();
+		profileProperties.put("profileFoo", "profileBar");
+
+		profile.addProperties(profileProperties);
+
+		saveProfile(registry, profile);
+
+		long[] states = registry.listProfileTimestamps(profile.getProfileId());
+		assertEquals(2, registry.listProfileTimestamps(profile.getProfileId()).length);
+
+		Map<String, String> stateProperties1 = new HashMap<String, String>();
+		Map<String, String> stateProperties2 = new HashMap<String, String>();
+
+		stateProperties1.put("one", "two");
+		stateProperties1.put("a", "b");
+		stateProperties1.put("z", "y");
+
+		stateProperties2.put("one", "three");
+		stateProperties2.put("a", "c");
+		stateProperties2.put("zz", "yy");
+
+		// Check regular states are what we expect.
+		assertOK(registry.setProfileStateProperties(profile.getProfileId(), states[0], stateProperties1));
+		assertOK(registry.setProfileStateProperties(profile.getProfileId(), states[1], stateProperties2));
+
+		Map<String, String> result = registry.getProfileStateProperties(profile.getProfileId(), states[0]);
+		assertEquals(3, result.size());
+		assertEquals("two", result.get("one"));
+		assertEquals("b", result.get("a"));
+		assertEquals("y", result.get("z"));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[1]);
+		assertEquals(3, result.size());
+		assertEquals("three", result.get("one"));
+		assertEquals("c", result.get("a"));
+		assertEquals("yy", result.get("zz"));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[1] + 1);
+		assertEquals(0, result.size());
+
+		// Remove a profile
+		registry.removeProfile(PROFILE_NAME, states[0]);
+		assertEquals(1, registry.listProfileTimestamps(profile.getProfileId()).length);
+
+		// Since state properties are still present, re-run first tests.
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[0]);
+		assertEquals(3, result.size());
+		assertEquals("two", result.get("one"));
+		assertEquals("b", result.get("a"));
+		assertEquals("y", result.get("z"));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[1]);
+		assertEquals(3, result.size());
+		assertEquals("three", result.get("one"));
+		assertEquals("c", result.get("a"));
+		assertEquals("yy", result.get("zz"));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[1] + 1);
+		assertEquals(0, result.size());
+
+		// Force the states to be pruned by causing a new state to be written.
+		Map<String, String> stateProperties3 = new HashMap<String, String>();
+		stateProperties3.put("AmIPruned", "yes");
+		registry.setProfileStateProperties(profile.getProfileId(), states[1], stateProperties3);
+
+		// Check results.  We expect that state properties for the first state are now gone.
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[0]);
+		assertEquals(0, result.size());
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[1]);
+		assertEquals(4, result.size());
+		assertEquals("three", result.get("one"));
+		assertEquals("c", result.get("a"));
+		assertEquals("yy", result.get("zz"));
+		assertEquals("yes", result.get("AmIPruned"));
+
+		result = registry.getProfileStateProperties(profile.getProfileId(), states[1] + 1);
+		assertEquals(0, result.size());
+
+	}
+
 	public void testGetProfileStateProperties() throws ProvisionException {
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);

@@ -948,9 +948,11 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 		File profileDirectory = getProfileFolder(id);
 		File file = new File(profileDirectory, PROFILE_PROPERTIES_FILE);
 		OutputStream output = null;
+		Properties prunedProperties = properties;
 		try {
 			output = new BufferedOutputStream(new FileOutputStream(file));
-			properties.store(output, null);
+			prunedProperties = pruneStateProperties(id, properties);
+			prunedProperties.store(output, null);
 			output.flush();
 		} catch (IOException e) {
 			return new Status(IStatus.ERROR, EngineActivator.ID, Messages.SimpleProfileRegistry_States_Error_Writing_File, e);
@@ -963,8 +965,33 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 			}
 		}
 		// cache the value
-		lastAccessedProperties = new ProfileStateProperties(id, file, properties);
+		lastAccessedProperties = new ProfileStateProperties(id, file, prunedProperties);
 		return Status.OK_STATUS;
+	}
+
+	// Only write state properties for state timestamps that still exist
+	// TODO: Do we want to expose this method as API?
+	// TODO: Do we want to run this method on every write or just after specific elapsed times since the last Prune?
+	private Properties pruneStateProperties(String id, Properties properties) {
+		Properties result = new Properties();
+		long[] timestamps = listProfileTimestamps(id);
+		HashSet<String> timestampsSet = new HashSet<String>(timestamps.length);
+		for (int i = 0; i < timestamps.length; i++) {
+			timestampsSet.add(String.valueOf(timestamps[i]));
+		}
+
+		Enumeration<Object> keys = properties.keys();
+		while (keys.hasMoreElements()) {
+			String key = (String) keys.nextElement();
+			int index = key.indexOf('.');
+			if (index > -1) {
+				String timestamp = key.substring(0, index);
+				if (timestampsSet.contains(timestamp)) {
+					result.put(key, properties.get(key));
+				}
+			}
+		}
+		return result;
 	}
 
 	/*

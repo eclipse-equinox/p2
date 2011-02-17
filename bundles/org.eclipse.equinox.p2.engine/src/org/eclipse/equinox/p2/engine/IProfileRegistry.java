@@ -163,7 +163,10 @@ public interface IProfileRegistry {
 	/**
 	 * Return all properties for a particular profile state. Both the key and the values are <code>String</code>.
 	 * Return an empty map if there was a problem accessing the properties.
-	 * 
+	 * <p>
+	 * There is no guarantee that all state timestamps returned will still exist in the registry 
+	 * since the user could delete profile states from the file system.
+	 * </p>
 	 * @param id the profile identifier
 	 * @param timestamp the profile timestamp
 	 * @return a property map of key value pairs.  An empty map if the profile state has no properties or does not exist
@@ -176,7 +179,10 @@ public interface IProfileRegistry {
 	 * Return a map of profile timestamps to values for all profile states that contain the given property key.
 	 * Both the key and value are of type <code>String</code>.
 	 * Return an empty map if there was a problem accessing the properties.
-	 * 
+	 * <p>
+	 * There is no guarantee that all state timestamps returned will still exist in the registry 
+	 * since the user could delete profile states from the file system.
+	 * </p>
 	 * @param id the profile identifier
 	 * @param key the property key
 	 * @return A map of timestamp and values for the given key.  An empty map if no states define the given key.
