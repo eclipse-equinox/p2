@@ -32,7 +32,7 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 		super(parent);
 		this.profileId = profileId;
 		this.iu = iu;
-		this.isPatch = iu == null ? false : Boolean.parseBoolean(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
+		this.isPatch = iu == null ? false : Boolean.valueOf(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
 	}
 
 	/*

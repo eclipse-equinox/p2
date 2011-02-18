@@ -53,7 +53,7 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 		this.iu = iu;
 		this.profileID = profileID;
 		this.shouldShowChildren = showChildren;
-		this.isPatch = iu == null ? false : Boolean.parseBoolean(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
+		this.isPatch = iu == null ? false : Boolean.valueOf(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
 	}
 
 	/*

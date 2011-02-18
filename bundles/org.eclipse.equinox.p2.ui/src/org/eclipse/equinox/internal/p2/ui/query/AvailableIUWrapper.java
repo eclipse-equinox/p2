@@ -82,7 +82,7 @@ public class AvailableIUWrapper extends QueriedElementWrapper {
 	private InformationCache computeIUInformation(IInstallableUnit iu) {
 		boolean isUpdate = false;
 		boolean isInstalled = false;
-		boolean isPatch = iu == null ? false : Boolean.parseBoolean(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
+		boolean isPatch = iu == null ? false : Boolean.valueOf(iu.getProperty(InstallableUnitDescription.PROP_TYPE_PATCH));
 		if (profile != null && iu != null) {
 			IQueryResult<IInstallableUnit> queryResult = profile.query(QueryUtil.createIUQuery(iu.getId()), null);
 			Iterator<IInstallableUnit> iter = queryResult.iterator();
