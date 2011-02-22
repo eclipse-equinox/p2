@@ -180,6 +180,16 @@
  <extension
        point="org.eclipse.equinox.p2.engine.actions">
     <action
+          class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.SetJvmAction"
+          name="setJvm"
+          touchpointType="org.eclipse.equinox.p2.osgi"
+          touchpointVersion="1.0.0"
+          version="1.0.0">
+    </action>
+ </extension>
+ <extension
+       point="org.eclipse.equinox.p2.engine.actions">
+    <action
           class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.SetProgramPropertyAction"
           name="setFrameworkDependentProperty"
           touchpointType="org.eclipse.equinox.p2.osgi"

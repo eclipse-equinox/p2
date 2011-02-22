@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008-2009 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2008, 2011 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -20,6 +20,7 @@ public class ActionConstants {
 	public static final String PARM_FEATURE_VERSION = "featureVersion"; //$NON-NLS-1$
 	public static final String PARM_IGNORE = "@ignore"; //$NON-NLS-1$
 	public static final String PARM_IU = "iu"; //$NON-NLS-1$
+	public static final String PARM_JVM = "jvm"; //$NON-NLS-1$
 	public static final String PARM_JVM_ARG = "jvmArg"; //$NON-NLS-1$
 	public static final String PARM_PREVIOUS_START_LEVEL = "previousStartLevel"; //$NON-NLS-1$
 	public static final String PARM_PREVIOUS_STARTED = "previousStarted"; //$NON-NLS-1$
