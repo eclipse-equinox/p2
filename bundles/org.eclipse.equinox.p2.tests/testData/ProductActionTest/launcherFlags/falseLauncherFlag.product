@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="SampleProduct" version="1.0.0" useFeatures="false" includeLaunchers="false">
+
+   <configIni use="">
+   </configIni>
+
+   <launcherArgs>
+   </launcherArgs>
+
+   <windowImages/>
+
+   <launcher>
+      <solaris/>
+      <win useIco="false">
+         <bmp
+            winSmallLow="icon.bmp"/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="org.eclipse.core.commands" version="5.0.0"/>
+   </plugins>
+
+   <configurations>
+      <plugin id="org.eclipse.core.commands" autoStart="false" startLevel="2" />
+   </configurations>
+
+</product>

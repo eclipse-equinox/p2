@@ -48,7 +48,7 @@ public class ProductAction extends AbstractPublisherAction {
 		// create all the actions needed to publish a product
 		ArrayList<IPublisherAction> actions = new ArrayList<IPublisherAction>();
 		// products include the executable so add actions to publish them
-		if (getExecutablesLocation() != null)
+		if (getExecutablesLocation() != null && this.product.includeLaunchers())
 			actions.add(createApplicationExecutableAction(info.getConfigurations()));
 		// add the actions that just configure things.
 		actions.add(createConfigCUsAction());

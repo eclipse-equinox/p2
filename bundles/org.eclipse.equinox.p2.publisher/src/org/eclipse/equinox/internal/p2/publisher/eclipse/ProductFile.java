@@ -35,6 +35,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String ATTRIBUTE_ICON = "icon"; //$NON-NLS-1$
 	protected static final String ATTRIBUTE_FRAGMENT = "fragment"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_APPLICATION = "application"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_INCLUDE_LAUNCHERS = "includeLaunchers"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_NAME = "name"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_VALUE = "value"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_LOCATION = "location"; //$NON-NLS-1$
@@ -140,6 +141,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private File location;
 	private List<BundleInfo> bundleInfos;
 	private Map<String, String> properties;
+	private boolean includeLaunchers = true;
 	private String licenseURL;
 	private String licenseText = null;
 
@@ -318,6 +320,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 */
 	public String getVersion() {
 		return (version == null || version.length() == 0) ? "0.0.0" : version; //$NON-NLS-1$
+	}
+
+	public boolean includeLaunchers() {
+		return includeLaunchers;
 	}
 
 	/**
@@ -664,6 +670,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		uid = attributes.getValue(ATTRIBUTE_UID);
 		productName = attributes.getValue(ATTRIBUTE_NAME);
 		application = attributes.getValue(ATTRIBUTE_APPLICATION);
+		if (attributes.getIndex(ATTRIBUTE_INCLUDE_LAUNCHERS) >= 0)
+			includeLaunchers = Boolean.parseBoolean(attributes.getValue(ATTRIBUTE_INCLUDE_LAUNCHERS));
 		String use = attributes.getValue("useFeatures"); //$NON-NLS-1$
 		if (use != null)
 			useFeatures = Boolean.valueOf(use).booleanValue();

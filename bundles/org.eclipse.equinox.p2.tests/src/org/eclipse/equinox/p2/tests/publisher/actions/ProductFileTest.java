@@ -25,6 +25,9 @@ public class ProductFileTest extends TestCase {
 
 	String productFileLocation = null;
 	ProductFile productFile = null;
+	ProductFile noLauncherFlag = null;
+	ProductFile falseLauncherFlag = null;
+	ProductFile trueLauncherFlag = null;
 
 	String configFile = "/org.eclipse.equinox.p2.tests/testData/ProductActionTest/productWithConfig/config.ini";
 	private String uidProductFileLocation;
@@ -32,6 +35,9 @@ public class ProductFileTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		productFileLocation = TestData.getFile("ProductActionTest/productWithConfig", "sample.product").toString();
+		noLauncherFlag = new ProductFile(TestData.getFile("ProductActionTest/launcherFlags", "noLauncherFlag.product").toString());
+		falseLauncherFlag = new ProductFile(TestData.getFile("ProductActionTest/launcherFlags", "falseLauncherFlag.product").toString());
+		trueLauncherFlag = new ProductFile(TestData.getFile("ProductActionTest/launcherFlags", "trueLauncherFlag.product").toString());
 		productFile = new ProductFile(productFileLocation);
 		uidProductFileLocation = TestData.getFile("ProductActionTest/productWithConfig", "uidproduct.product").toString();
 		uidProductFile = new ProductFile(uidProductFileLocation);
@@ -184,6 +190,12 @@ public class ProductFileTest extends TestCase {
 		assertEquals("1.0", "vmArg -Dfoo=\"b a r\"", vmArguments);
 		vmArguments = productFile.getVMArguments(null);
 		assertEquals("1.1", "vmArg -Dfoo=\"b a r\"", vmArguments);
+	}
+
+	public void testIncludeLaunchers() {
+		assertEquals("1.0", true, noLauncherFlag.includeLaunchers());
+		assertEquals("1.1", false, falseLauncherFlag.includeLaunchers());
+		assertEquals("1.2", true, trueLauncherFlag.includeLaunchers());
 	}
 
 	/**

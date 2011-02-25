@@ -119,6 +119,11 @@ public interface IProductDescriptor {
 	public File getLocation();
 
 	/**
+	 * Determines if the launchers should be included in the published product
+	 */
+	public boolean includeLaunchers();
+
+	/**
 	 * Returns the license URL for this product
 	 */
 	public String getLicenseURL();
