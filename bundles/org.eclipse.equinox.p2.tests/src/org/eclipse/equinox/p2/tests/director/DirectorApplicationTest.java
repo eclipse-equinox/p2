@@ -71,6 +71,13 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
+	 * creates the director app arguments with optional parameter
+	 */
+	private String[] getSingleRepoArgs(String message, File metadataRepo, File artifactRepo, File destinationRepo, String installIU, String parameter) {
+		return new String[] {"-metadataRepository", URIUtil.toUnencodedString(metadataRepo.toURI()), "-artifactRepository", URIUtil.toUnencodedString(artifactRepo.toURI()), "-installIU", installIU, "-destination", URIUtil.toUnencodedString(destinationRepo.toURI()), "-profile", "PlatformSDKProfile", "-profileProperties", "org.eclipse.update.install.features=true", "-bundlepool", destinationRepo.getAbsolutePath(), "-roaming", parameter};
+	}
+
+	/**
 	 * creates the director app arguments based on the arguments submitted with bug 248045 but with multiple repositories for both  metadata and artifacts
 	 */
 	private String[] getMultipleRepoArgs(String message, File metadataRepo1, File metadataRepo2, File artifactRepo1, File artifactRepo2, File destinationRepo, String installIU) {
@@ -648,6 +655,40 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		artifactManager.removeRepository(artifactRepo1.toURI());
 		metadataManager.removeRepository(metadataRepo1.toURI());
 		delete(destinationRepo);
+	}
+
+	public void testDownloadOnlyFlag() {
+		//Setup: get repositories
+		File artifactRepo = getTestData("testDownloadOnly", "/testData/testRepos/sitewithnestedfeatures");
+		File metadataRepo = getTestData("testDownloadOnly", "/testData/testRepos/sitewithnestedfeatures");
+		File destinationRepo = new File(getTempFolder(), "DirectorApp Destination");
+		String installIU = "fff.feature.group";
+
+		//Setup: ensure folders do not exist
+		delete(destinationRepo);
+
+		//Setup: create the args
+		String[] args = getSingleRepoArgs("testDownloadOnly", metadataRepo, artifactRepo, destinationRepo, installIU, "-downloadOnly");
+
+		try {
+			StringBuffer buffer = runDirectorApp("testDownloadOnly", args);
+			assertTrue(buffer.toString().contains("Installing fff.feature.group 1.0.0."));
+		} catch (Exception e) {
+			fail("fail", e);
+		}
+
+		assertTrue(destinationRepo.exists());
+
+		File features = new File(destinationRepo, "features");
+		assertTrue(features.exists());
+		File feature = new File(features, "fff_1.0.0");
+		assertTrue(feature.exists());
+		File plugins = new File(destinationRepo, "plugins");
+		assertTrue(plugins.exists());
+		File plugin1 = new File(plugins, "aaa_1.0.0.jar");
+		assertTrue(plugin1.exists());
+		File plugin2 = new File(plugins, "ccc_1.0.0");
+		assertTrue(plugin2.exists());
 	}
 
 	/**

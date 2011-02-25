@@ -133,6 +133,7 @@ public class DirectorApplication implements IApplication {
 	private static final CommandLineOption OPTION_FOLLOW_REFERENCES = new CommandLineOption(new String[] {"-followReferences"}, null, Messages.Help_Follow_references); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_TAG = new CommandLineOption(new String[] {"-tag"}, Messages.Help_lt_name_gt, Messages.Help_Defines_a_tag_for_provisioning_session); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_LIST_TAGS = new CommandLineOption(new String[] {"-listTags"}, null, Messages.Help_List_Tags); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_DOWNLOAD_ONLY = new CommandLineOption(new String[] {"-downloadOnly"}, null, Messages.Help_Download_Only); //$NON-NLS-1$
 
 	private static final Integer EXIT_ERROR = new Integer(13);
 	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
@@ -240,6 +241,7 @@ public class DirectorApplication implements IApplication {
 	private boolean purgeRegistry = false;
 	private boolean stackTrace = false;
 	private boolean followReferences = false;
+	private boolean downloadOnly = false;
 	private String profileId;
 	private String profileProperties; // a comma-separated list of property pairs "tag=value"
 	private String ws;
@@ -589,7 +591,10 @@ public class DirectorApplication implements IApplication {
 	private void executePlan(ProvisioningContext context, IProvisioningPlan result) throws CoreException {
 		IStatus operationStatus;
 		if (!verifyOnly) {
-			operationStatus = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
+			if (!downloadOnly)
+				operationStatus = PlanExecutionHelper.executePlan(result, engine, context, new NullProgressMonitor());
+			else
+				operationStatus = PlanExecutionHelper.executePlan(result, engine, PhaseSetFactory.createPhaseSetIncluding(new String[] {PhaseSetFactory.PHASE_COLLECT, PhaseSetFactory.PHASE_CHECK_TRUST}), context, new NullProgressMonitor());
 			if (!operationStatus.isOK()) {
 				if (noArtifactRepositorySpecified && hasNoRepositoryFound(operationStatus))
 					throw new ProvisionException(Messages.Application_NoRepositories);
@@ -660,6 +665,11 @@ public class DirectorApplication implements IApplication {
 
 			if (OPTION_LIST_TAGS.isOption(opt)) {
 				printTags = true;
+				continue;
+			}
+
+			if (OPTION_DOWNLOAD_ONLY.isOption(opt)) {
+				downloadOnly = true;
 				continue;
 			}
 

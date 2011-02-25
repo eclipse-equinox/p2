@@ -56,6 +56,7 @@ public class Messages extends NLS {
 	public static String Help_Follow_references;
 	public static String Help_Defines_a_tag_for_provisioning_session;
 	public static String Help_List_Tags;
+	public static String Help_Download_Only;
 
 	public static String Ignored_repo;
 	public static String Installing;
