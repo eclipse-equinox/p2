@@ -222,7 +222,6 @@ public class SiteModel {
 	/**
 	 * Returns the URI from which the list of mirrors of this site can be retrieved.
 	 * 
-	 * @since org.eclipse.equinox.p2.metadata.generator 1.0
 	 */
 	public String getMirrorsURI() {
 		return mirrorsURIString;

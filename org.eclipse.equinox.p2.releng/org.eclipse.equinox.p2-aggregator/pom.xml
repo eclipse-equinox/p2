@@ -38,7 +38,6 @@
 		<module>../org.eclipse.equinox.p2.installer</module>
 		<module>../org.eclipse.equinox.p2.jarprocessor</module>
 		<module>../org.eclipse.equinox.p2.metadata</module>
-		<module>../org.eclipse.equinox.p2.metadata.generator</module>
 		<module>../org.eclipse.equinox.p2.metadata.repository</module>
 		<module>../org.eclipse.equinox.p2.operations</module>
 		<module>../org.eclipse.equinox.p2.publisher</module>

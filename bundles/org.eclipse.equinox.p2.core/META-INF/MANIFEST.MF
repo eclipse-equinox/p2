@@ -7,7 +7,7 @@ Bundle-ClassPath: .
 Bundle-Activator: org.eclipse.equinox.internal.p2.core.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.publisher,org.eclipse.equinox.p2.repository",
+Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equinox.p2.publisher,org.eclipse.equinox.p2.repository",
  org.eclipse.equinox.internal.p2.core.helpers;
   x-friends:="org.eclipse.equinox.frameworkadmin.test,
    org.eclipse.equinox.p2.artifact.optimizers,
@@ -23,7 +23,6 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.garbagecollector,
    org.eclipse.equinox.p2.installer,
    org.eclipse.equinox.p2.metadata,
-   org.eclipse.equinox.p2.metadata.generator,
    org.eclipse.equinox.p2.metadata.repository,
    org.eclipse.equinox.p2.operations,
    org.eclipse.equinox.p2.publisher,
@@ -48,7 +47,6 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.engine,
    org.eclipse.equinox.p2.garbagecollector,
    org.eclipse.equinox.p2.metadata,
-   org.eclipse.equinox.p2.metadata.generator,
    org.eclipse.equinox.p2.metadata.repository,
    org.eclipse.equinox.p2.operations,
    org.eclipse.equinox.p2.publisher,
