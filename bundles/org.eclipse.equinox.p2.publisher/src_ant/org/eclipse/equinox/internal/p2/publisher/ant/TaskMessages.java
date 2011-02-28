@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.publisher.ant;
 import org.eclipse.osgi.util.NLS;
 
 public class TaskMessages extends NLS {
-	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.metadata.generator.ant.messages";//$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.publisher.ant.messages";//$NON-NLS-1$
 
 	public static String exception_errorOccurredCallingGenerator;
 	public static String exception_errorArtifactRepo;
