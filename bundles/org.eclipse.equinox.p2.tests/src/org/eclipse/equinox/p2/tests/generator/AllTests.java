@@ -19,9 +19,6 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(EclipseSDK33Test.class);
-		suite.addTestSuite(FeatureToIU.class);
-		suite.addTestSuite(SiteParserTest.class);
 		suite.addTestSuite(GeneratorTests.class);
 		return suite;
 	}
