@@ -117,8 +117,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	@Override
 	public void addReferences(Collection<? extends IRepositoryReference> references) {
 		assertModifiable();
-		repositories.addAll(references);
-		save();
+		// only write out the repository if we made changes
+		if (repositories.addAll(references))
+			save();
 	}
 
 	/* (non-Javadoc)
