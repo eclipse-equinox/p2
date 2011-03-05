@@ -173,27 +173,27 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		return new IArtifactDescriptor[] {new ArtifactDescriptor(key)};
 	}
 
-	public void addDescriptor(IArtifactDescriptor descriptor) {
+	public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		((ArtifactDescriptor) descriptor).setRepository(this);
 		artifactDescriptors.add(descriptor);
 		keysToLocations.put(descriptor.getArtifactKey(), null);
 	}
 
-	public void removeDescriptor(IArtifactDescriptor descriptor) {
-		removeDescriptor(descriptor.getArtifactKey());
+	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+		removeDescriptor(descriptor.getArtifactKey(), monitor);
 	}
 
-	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
+	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		for (IArtifactDescriptor descriptor : descriptors)
-			removeDescriptor(descriptor);
+			removeDescriptor(descriptor, monitor);
 	}
 
-	public void removeDescriptors(IArtifactKey[] keys) {
+	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
 		for (IArtifactKey key : keys)
-			removeDescriptor(key);
+			removeDescriptor(key, monitor);
 	}
 
-	public void removeDescriptor(IArtifactKey key) {
+	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		for (IArtifactDescriptor nextDescriptor : artifactDescriptors) {
 			if (key.equals(nextDescriptor.getArtifactKey()))
 				artifactDescriptors.remove(nextDescriptor);
@@ -205,7 +205,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		}
 	}
 
-	public void removeAll() {
+	public void removeAll(IProgressMonitor monitor) {
 		artifactDescriptors.clear();
 		keysToLocations.clear();
 		locationsToContents.clear();
@@ -215,7 +215,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		return true;
 	}
 
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor ) {
 		throw new UnsupportedOperationException("Method is not implemented by this repository");
 	}
 

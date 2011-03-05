@@ -1073,8 +1073,8 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 				return new Status(IStatus.ERROR, "Test", "Test - Download interrupted");
 			}
 
-			public void addDescriptor(IArtifactDescriptor descriptor) {
-				super.addDescriptor(descriptor);
+			public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+				super.addDescriptor(descriptor, monitor);
 				super.addArtifact(descriptor.getArtifactKey(), contents);
 			}
 

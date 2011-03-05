@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.repository;
 import java.net.URI;
 import java.util.Map;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.query.IQueryable;
 
@@ -204,4 +205,18 @@ public interface IRepository<T> extends IAdaptable, IQueryable<T> {
 	 * @return The old property value, or <code>null</code> if there was no old value
 	 */
 	public String setProperty(String key, String value);
+
+	/**
+	 * Sets the value of the property with the given key. Returns the old property
+	 * associated with that key, if any.  Setting a value of <code>null</code> will
+	 * remove the corresponding key from the properties of this repository.
+	 * 
+	 * @param key The property key
+	 * @param value The new property value, or <code>null</code> to remove the key
+	 * @param monitor A progress monitor use to track progress and cancel the operation.  This may
+	 * be a long running operation if another process holds the lock on this location
+	 * @return The old property value, or <code>null</code> if there was no old value
+	 * @since 2.1
+	 */
+	public String setProperty(String key, String value, IProgressMonitor monitor);
 }

@@ -62,14 +62,37 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	 * content is in this repository and the given descriptor accurately describes 
 	 * that content.
 	 * @param descriptor the descriptor to add.
+	 * @deprecated See {{@link #addDescriptor(IArtifactDescriptor, IProgressMonitor)}
 	 */
 	public void addDescriptor(IArtifactDescriptor descriptor);
 
 	/**
+	 * Add the given descriptor to the set of descriptors in this repository.  This is 
+	 * a relatively low-level operation that should be used only when the actual related 
+	 * content is in this repository and the given descriptor accurately describes 
+	 * that content.
+	 * @param descriptor the descriptor to add.
+	 * @param monitor A progress monitor use to track progress and cancel the operation.  This may
+	 * be a long running operation if another process holds the lock on this location
+	 * @since 2.1
+	 */
+	public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor);
+
+	/**
 	 * Add the given artifact descriptors to this repository
 	 * @param descriptors the artifact descriptors to add
+	 * @deprecated See {{@link #addDescriptors(IArtifactDescriptor[], IProgressMonitor)}
 	 */
 	public void addDescriptors(IArtifactDescriptor[] descriptors);
+
+	/**
+	 * Add the given artifact descriptors to this repository
+	 * @param descriptors the artifact descriptors to add
+	 * @param monitor A progress monitor use to track progress and cancel the operation.  This may
+	 * be a long running operation if another process holds the lock on this location
+	 * @since 2.1
+	 */
+	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor);
 
 	/** 
 	 * Returns true if this repository contains the given descriptor.
@@ -151,36 +174,87 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 
 	/**
 	 * Remove the all keys, descriptors, and contents from this repository.
+	 * @deprecated See {@link #removeAll(IProgressMonitor)}
 	 */
 	public void removeAll();
 
 	/**
+	 * Remove the all keys, descriptors, and contents from this repository.
+	 * @param monitor A progress monitor use to track progress and cancel the operation.  This may
+	 * be a long running operation if another process holds the lock on this location
+	 * @since 2.1
+	 */
+	public void removeAll(IProgressMonitor monitor);
+
+	/**
 	 * Remove the given descriptor and its corresponding content in this repository.  
 	 * @param descriptor the descriptor to remove.
+	 * @deprecated See {@link #removeDescriptor(IArtifactDescriptor, IProgressMonitor)}
 	 */
 	public void removeDescriptor(IArtifactDescriptor descriptor);
 
 	/**
+	 * Remove the given descriptor and its corresponding content in this repository.  
+	 * @param descriptor the descriptor to remove.
+	 * @param monitor A progress monitor use to track progress and cancel the operation.  This may
+	 * be a long running operation if another process holds the lock on this location
+	 * @since 2.1
+	 */
+	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor);
+
+	/**
 	 * Remove the given key and all related content and descriptors from this repository.  
 	 * @param key the key to remove.
+	 * @deprecated See {@link #removeDescriptor(IArtifactKey, IProgressMonitor)}
 	 */
 	public void removeDescriptor(IArtifactKey key);
+
+	/**
+	 * Remove the given key and all related content and descriptors from this repository.  
+	 * @param key the key to remove.
+	 * @param monitor A progress monitor use to track progress and cancel the operation.  This may
+	 * be a long running operation if another process holds the lock on this location
+	 * @since 2.1
+	 */
+	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor);
 
 	/**
 	 * Remove the given list of artifact descriptors and their corresponding content
 	 * in this repository.
 	 * @param descriptors the list of descriptors to remove
 	 * @since 2.1
+	 * @deprecated See {@link #removeDescriptors(IArtifactDescriptor[], IProgressMonitor)}
 	 */
 	public void removeDescriptors(IArtifactDescriptor[] descriptors);
+
+	/**
+	 * Remove the given list of artifact descriptors and their corresponding content
+	 * in this repository.
+	 * @param descriptors the list of descriptors to remove
+	 * @param monitor A progress monitor use to track progress and cancel the operation.  This may
+	 * be a long running operation if another process holds the lock on this location
+	 * @since 2.1
+	 */
+	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor);
 
 	/**
 	 * Remove the given list of keys and all related content and descriptors from this
 	 * repository.
 	 * @param keys
 	 * @since 2.1
+	 * @deprecated See {@link #removeDescriptors(IArtifactKey[], IProgressMonitor)}
 	 */
 	public void removeDescriptors(IArtifactKey[] keys);
+
+	/**
+	 * Remove the given list of keys and all related content and descriptors from this
+	 * repository.
+	 * @param keys
+	 * @param monitor A progress monitor use to track progress and cancel the operation.  This may
+	 * be a long running operation if another process holds the lock on this location
+	 * @since 2.1
+	 */
+	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor);
 
 	/**
 	 * Executes a runnable against this repository. It is up to the repository

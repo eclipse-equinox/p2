@@ -31,10 +31,20 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 		delegate = repo;
 	}
 
+	public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+		delegate.addDescriptor(descriptor, monitor);
+	}
+
+	@Deprecated
 	public void addDescriptor(IArtifactDescriptor descriptor) {
 		delegate.addDescriptor(descriptor);
 	}
 
+	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+		delegate.addDescriptors(descriptors, monitor);
+	}
+
+	@Deprecated
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
 		delegate.addDescriptors(descriptors);
 	}
@@ -67,22 +77,47 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 		return delegate.getRawArtifact(descriptor, destination, monitor);
 	}
 
+	public void removeAll(IProgressMonitor monitor) {
+		delegate.removeAll(monitor);
+	}
+
+	@Deprecated
 	public void removeAll() {
 		delegate.removeAll();
 	}
 
+	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+		delegate.removeDescriptor(descriptor, monitor);
+	}
+
+	@Deprecated
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
 		delegate.removeDescriptor(descriptor);
 	}
 
+	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
+		delegate.removeDescriptor(key, monitor);
+	}
+
+	@Deprecated
 	public void removeDescriptor(IArtifactKey key) {
 		delegate.removeDescriptor(key);
 	}
 
+	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+		delegate.removeDescriptors(descriptors, monitor);
+	}
+
+	@Deprecated
 	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
 		delegate.removeDescriptors(descriptors);
 	}
 
+	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
+		delegate.removeDescriptors(keys, monitor);
+	}
+
+	@Deprecated
 	public void removeDescriptors(IArtifactKey[] keys) {
 		delegate.removeDescriptors(keys);
 	}
@@ -125,6 +160,10 @@ public class AbstractWrappedArtifactRepository implements IArtifactRepository {
 
 	public boolean isModifiable() {
 		return delegate.isModifiable();
+	}
+
+	public String setProperty(String key, String value, IProgressMonitor monitor) {
+		return delegate.setProperty(key, value, monitor);
 	}
 
 	public String setProperty(String key, String value) {

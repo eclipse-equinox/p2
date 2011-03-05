@@ -11,14 +11,13 @@
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
 import java.io.*;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
@@ -28,6 +27,7 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.IProcessingStepDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
@@ -44,6 +44,7 @@ import org.xml.sax.*;
 public class SimpleArtifactRepositoryIO {
 
 	private final IProvisioningAgent agent;
+	private Location lockLocation = null;
 
 	public SimpleArtifactRepositoryIO(IProvisioningAgent agent) {
 		this.agent = agent;
@@ -77,15 +78,32 @@ public class SimpleArtifactRepositoryIO {
 	 * 
 	 * This method performs buffering, and closes the stream when finished.
 	 */
-	public IArtifactRepository read(URL location, InputStream input, IProgressMonitor monitor) throws ProvisionException {
+	public IArtifactRepository read(URI location, InputStream input, IProgressMonitor monitor, boolean acquireLock) throws ProvisionException {
 		BufferedInputStream bufferedInput = null;
 		try {
 			try {
 				bufferedInput = new BufferedInputStream(input);
 				Parser repositoryParser = new Parser(Activator.getContext(), Activator.ID);
-				repositoryParser.setErrorContext(location.toExternalForm());
-				repositoryParser.parse(input);
-				IStatus result = repositoryParser.getStatus();
+				repositoryParser.setErrorContext(location.toURL().toExternalForm());
+				IStatus result = null;
+				boolean lock = false;
+				try {
+					if (URIUtil.isFileURI(location) && acquireLock)
+						lock = lock(location, true, monitor);
+					else
+						lock = true; // No need to lock
+					if (lock) {
+						repositoryParser.parse(input);
+						result = repositoryParser.getStatus();
+					} else
+						result = Status.CANCEL_STATUS;
+				} finally {
+					if (lock)
+						unlock(location);
+					else
+						result = Status.CANCEL_STATUS;
+				}
+
 				switch (result.getSeverity()) {
 					case IStatus.CANCEL :
 						throw new OperationCanceledException();
@@ -107,6 +125,50 @@ public class SimpleArtifactRepositoryIO {
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, ioe));
 		}
+	}
+
+	private synchronized boolean lock(URI repositoryLocation, boolean wait, IProgressMonitor monitor) throws IOException {
+		lockLocation = getLockLocation(repositoryLocation);
+		boolean locked = lockLocation.lock();
+		if (locked || !wait)
+			return locked;
+
+		//Someone else must have the directory locked
+		while (true) {
+			if (monitor.isCanceled())
+				return false;
+			try {
+				Thread.sleep(200); // 5x per second
+			} catch (InterruptedException e) {/*ignore*/
+			}
+			locked = lockLocation.lock();
+			if (locked)
+				return true;
+		}
+	}
+
+	private void unlock(URI repositoryLocation) {
+		if (lockLocation != null) {
+			lockLocation.release();
+		}
+	}
+
+	/**
+	 * Returns the location of the lock file.
+	 */
+	private Location getLockLocation(URI repositoryLocation) throws IOException {
+		Location anyLoc = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName());
+		Location location = anyLoc.createLocation(null, getLockFile(repositoryLocation).toURL(), false);
+		location.set(getLockFile(repositoryLocation).toURL(), false);
+		return location;
+	}
+
+	private File getLockFile(URI repositoryLocation) throws IOException {
+		if (!URIUtil.isFileURI(repositoryLocation)) {
+			throw new IOException("Cannot lock a non file based repository"); //$NON-NLS-1$
+		}
+		URI result = URIUtil.append(repositoryLocation, ".artifactlock"); //$NON-NLS-1$
+		return URIUtil.toFile(result);
 	}
 
 	private interface XMLConstants extends org.eclipse.equinox.internal.p2.persistence.XMLConstants {

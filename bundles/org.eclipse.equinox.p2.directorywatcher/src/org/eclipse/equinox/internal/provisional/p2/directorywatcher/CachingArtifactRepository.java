@@ -93,18 +93,43 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 			artifactMap.remove(key);
 	}
 
-	public synchronized void addDescriptors(IArtifactDescriptor[] descriptors) {
-		for (int i = 0; i < descriptors.length; i++) {
-			((ArtifactDescriptor) descriptors[i]).setRepository(this);
-			descriptorsToAdd.add(descriptors[i]);
-			mapDescriptor(descriptors[i]);
+	public synchronized void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+		try {
+			SubMonitor subMonitor = SubMonitor.convert(monitor, descriptors.length);
+			for (int i = 0; i < descriptors.length; i++) {
+				((ArtifactDescriptor) descriptors[i]).setRepository(this);
+				descriptorsToAdd.add(descriptors[i]);
+				mapDescriptor(descriptors[i]);
+				subMonitor.worked(1);
+			}
+		} finally {
+			if (monitor != null)
+				monitor.done();
 		}
 	}
 
-	public synchronized void addDescriptor(IArtifactDescriptor toAdd) {
-		((ArtifactDescriptor) toAdd).setRepository(this);
-		descriptorsToAdd.add(toAdd);
-		mapDescriptor(toAdd);
+	@Deprecated
+	public final synchronized void addDescriptors(IArtifactDescriptor[] descriptors) {
+		addDescriptors(descriptors, new NullProgressMonitor());
+	}
+
+	public synchronized void addDescriptor(IArtifactDescriptor toAdd, IProgressMonitor monitor) {
+		try {
+			SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
+
+			((ArtifactDescriptor) toAdd).setRepository(this);
+			descriptorsToAdd.add(toAdd);
+			mapDescriptor(toAdd);
+			subMonitor.worked(1);
+		} finally {
+			if (monitor != null)
+				monitor.done();
+		}
+	}
+
+	@Deprecated
+	public final synchronized void addDescriptor(IArtifactDescriptor toAdd) {
+		addDescriptor(toAdd, new NullProgressMonitor());
 	}
 
 	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
@@ -140,30 +165,93 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return null;
 	}
 
+	public synchronized final void removeAll(IProgressMonitor monitor) {
+		try {
+			SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
+			IArtifactDescriptor[] toRemove = descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]);
+			for (int i = 0; i < toRemove.length; i++)
+				doRemoveArtifact(toRemove[i]);
+			subMonitor.worked(1);
+		} finally {
+			if (monitor != null)
+				monitor.done();
+		}
+	}
+
+	@Deprecated
 	public synchronized void removeAll() {
-		IArtifactDescriptor[] toRemove = descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]);
-		for (int i = 0; i < toRemove.length; i++)
-			doRemoveArtifact(toRemove[i]);
+		this.removeAll(new NullProgressMonitor());
 	}
 
-	public synchronized void removeDescriptor(IArtifactDescriptor descriptor) {
-		doRemoveArtifact(descriptor);
-	}
-
-	public synchronized void removeDescriptor(IArtifactKey key) {
-		IArtifactDescriptor[] toRemove = getArtifactDescriptors(key);
-		for (int i = 0; i < toRemove.length; i++)
-			doRemoveArtifact(toRemove[i]);
-	}
-
-	public synchronized void removeDescriptors(IArtifactDescriptor[] descriptors) {
-		for (IArtifactDescriptor descriptor : descriptors)
+	public synchronized void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+		try {
+			SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
 			doRemoveArtifact(descriptor);
+			subMonitor.worked(1);
+		} finally {
+			if (monitor != null)
+				monitor.done();
+		}
 	}
 
-	public synchronized void removeDescriptors(IArtifactKey[] keys) {
-		for (IArtifactKey key : keys)
-			removeDescriptor(key);
+	@Deprecated
+	public final synchronized void removeDescriptor(IArtifactDescriptor descriptor) {
+		removeDescriptor(descriptor, new NullProgressMonitor());
+	}
+
+	public synchronized void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
+		try {
+			IArtifactDescriptor[] toRemove = getArtifactDescriptors(key);
+			SubMonitor subMonitor = SubMonitor.convert(monitor, toRemove.length);
+			for (int i = 0; i < toRemove.length; i++) {
+				doRemoveArtifact(toRemove[i]);
+				subMonitor.worked(1);
+			}
+		} finally {
+			if (monitor != null)
+				monitor.done();
+		}
+	}
+
+	@Deprecated
+	public final synchronized void removeDescriptor(IArtifactKey key) {
+		this.removeDescriptor(key, new NullProgressMonitor());
+	}
+
+	public synchronized void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+		try {
+			SubMonitor subMonitor = SubMonitor.convert(monitor, descriptors.length);
+			for (IArtifactDescriptor descriptor : descriptors) {
+				doRemoveArtifact(descriptor);
+				subMonitor.worked(1);
+			}
+		} finally {
+			if (monitor != null)
+				monitor.done();
+		}
+	}
+
+	@Deprecated
+	public final synchronized void removeDescriptors(IArtifactDescriptor[] descriptors) {
+		removeDescriptors(descriptors, new NullProgressMonitor());
+	}
+
+	public synchronized void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
+		try {
+			SubMonitor subMonitor = SubMonitor.convert(monitor, keys.length);
+			for (IArtifactKey key : keys) {
+				removeDescriptor(key);
+				subMonitor.worked(1);
+			}
+		} finally {
+			if (monitor != null)
+				monitor.done();
+		}
+	}
+
+	@Deprecated
+	public final synchronized void removeDescriptors(IArtifactKey[] keys) {
+		removeDescriptors(keys, new NullProgressMonitor());
 	}
 
 	/**
@@ -221,10 +309,19 @@ public class CachingArtifactRepository implements IArtifactRepository, IFileArti
 		return innerRepo.isModifiable();
 	}
 
-	public String setProperty(String key, String value) {
-		String result = getProperties().get(key);
-		propertyChanges.put(key, value == null ? NULL : value);
-		return result;
+	public String setProperty(String key, String value, IProgressMonitor monitor) {
+		try {
+			String result = getProperties().get(key);
+			propertyChanges.put(key, value == null ? NULL : value);
+			return result;
+		} finally {
+			if (monitor != null)
+				monitor.done();
+		}
+	}
+
+	public final String setProperty(String key, String value) {
+		return setProperty(key, value, new NullProgressMonitor());
 	}
 
 	@SuppressWarnings("rawtypes")

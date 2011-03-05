@@ -314,19 +314,24 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	 * @see org.eclipse.equinox.p2.repository.spi.AbstractRepository#setProperty(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public String setProperty(String key, String newValue) {
-		String oldValue = null;
-		synchronized (this) {
-			oldValue = super.setProperty(key, newValue);
-			if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
-				return oldValue;
-			save();
+	public String setProperty(String key, String newValue, IProgressMonitor monitor) {
+		try {
+			String oldValue = null;
+			synchronized (this) {
+				oldValue = super.setProperty(key, newValue, monitor);
+				if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
+					return oldValue;
+				save();
+			}
+			//force repository manager to reload this repository because it caches properties
+			MetadataRepositoryManager manager = (MetadataRepositoryManager) getProvisioningAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
+			if (manager.removeRepository(getLocation()))
+				manager.addRepository(this);
+			return oldValue;
+		} finally {
+			if (monitor != null)
+				monitor.done();
 		}
-		//force repository manager to reload this repository because it caches properties
-		MetadataRepositoryManager manager = (MetadataRepositoryManager) getProvisioningAgent().getService(IMetadataRepositoryManager.SERVICE_NAME);
-		if (manager.removeRepository(getLocation()))
-			manager.addRepository(this);
-		return oldValue;
 	}
 
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {

@@ -13,8 +13,7 @@ package org.eclipse.equinox.internal.p2.updatesite.artifact;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -36,10 +35,20 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 		this.delegate = repository;
 	}
 
+	public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
+	@Deprecated
 	public void addDescriptor(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
+	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
+	@Deprecated
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
@@ -63,7 +72,7 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		return delegate.getArtifacts(requests, monitor);
 	}
-
+	
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
 		// TODO Auto-generated method stub
 		return null;
@@ -73,22 +82,47 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 		return delegate.getRawArtifact(descriptor, destination, monitor);
 	}
 
+	public void removeAll(IProgressMonitor monitor) {
+		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
+	@Deprecated
 	public void removeAll() {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
+	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
+	@Deprecated
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
+	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
+	@Deprecated
 	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
+	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
+	@Deprecated
 	public void removeDescriptor(IArtifactKey key) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
+	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
+	@Deprecated
 	public void removeDescriptors(IArtifactKey[] keys) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
@@ -138,6 +172,10 @@ public class UpdateSiteArtifactRepository implements IArtifactRepository {
 	}
 
 	public void setName(String name) {
+		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
+	public String setProperty(String key, String value, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 

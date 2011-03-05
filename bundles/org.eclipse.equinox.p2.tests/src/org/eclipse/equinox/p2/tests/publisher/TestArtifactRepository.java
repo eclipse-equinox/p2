@@ -126,18 +126,28 @@ public class TestArtifactRepository implements IArtifactRepository {
 		}
 		return new ArtifactOutputStream(new ByteArrayOutputStream(500), descriptor);
 	}
-
-	public void addDescriptor(IArtifactDescriptor descriptor) {
+	
+	public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		addDescriptor(descriptor, new byte[0]);
+	}
+
+	@Deprecated
+	public final void addDescriptor(IArtifactDescriptor descriptor) {
+		this.addDescriptor(descriptor, new NullProgressMonitor());
 	}
 
 	public void addDescriptor(IArtifactDescriptor descriptor, byte[] bytes) {
 		repo.put(descriptor, bytes);
 	}
 
-	public void addDescriptors(IArtifactDescriptor[] descriptors) {
+	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		for (int i = 0; i < descriptors.length; i++)
 			addDescriptor(descriptors[i]);
+	}
+
+	@Deprecated
+	public final void addDescriptors(IArtifactDescriptor[] descriptors) {
+		this.addDescriptors(descriptors, new NullProgressMonitor());
 	}
 
 	public boolean contains(IArtifactDescriptor descriptor) {
@@ -193,11 +203,16 @@ public class TestArtifactRepository implements IArtifactRepository {
 		return artifactRequest.getResult();
 	}
 
-	public void removeDescriptor(IArtifactDescriptor descriptor) {
+	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		repo.remove(descriptor);
 	}
 
-	public void removeDescriptor(IArtifactKey key) {
+	@Deprecated
+	public final void removeDescriptor(IArtifactDescriptor descriptor) {
+		this.removeDescriptor(descriptor, new NullProgressMonitor());
+	}
+
+	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		ArrayList/*<IArtifactDescriptor>*/removeList = new ArrayList/*<IArtifactDescriptor>*/();
 		for (Iterator/*<IArtifactDescriptor>*/iterator = repo.keySet().iterator(); iterator.hasNext();) {
 			IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
@@ -209,14 +224,29 @@ public class TestArtifactRepository implements IArtifactRepository {
 		}
 	}
 
-	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
+	@Deprecated
+	public final void removeDescriptor(IArtifactKey key) {
+		removeDescriptor(key, new NullProgressMonitor());
+	}
+
+	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		for (IArtifactDescriptor descriptor : descriptors)
 			removeDescriptor(descriptor);
 	}
 
-	public void removeDescriptors(IArtifactKey[] keys) {
+	@Deprecated
+	public final void removeDescriptors(IArtifactDescriptor[] descriptors) {
+		this.removeDescriptors(descriptors, new NullProgressMonitor());
+	}
+
+	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
 		for (IArtifactKey key : keys)
 			removeDescriptor(key);
+	}
+
+	@Deprecated
+	public final void removeDescriptors(IArtifactKey[] keys) {
+		this.removeDescriptors(keys, new NullProgressMonitor());
 	}
 
 	public String getDescription() {
@@ -267,16 +297,25 @@ public class TestArtifactRepository implements IArtifactRepository {
 		this.name = value;
 	}
 
-	public String setProperty(String key, String value) {
+	public String setProperty(String key, String value, IProgressMonitor monitor) {
 		return (value == null ? properties.remove(key) : properties.put(key, value));
+	}
+
+	public final String setProperty(String key, String value) {
+		return this.setProperty(key, value, new NullProgressMonitor());
 	}
 
 	public void setProvider(String value) {
 		provider = value;
 	}
 
-	public void removeAll() {
+	public void removeAll(IProgressMonitor monitor) {
 		repo.clear();
+	}
+
+	@Deprecated
+	public final void removeAll() {
+		removeAll(new NullProgressMonitor());
 	}
 
 	public Object getAdapter(Class adapter) {

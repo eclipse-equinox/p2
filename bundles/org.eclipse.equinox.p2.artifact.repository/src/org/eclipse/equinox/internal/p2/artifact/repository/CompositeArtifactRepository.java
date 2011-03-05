@@ -229,49 +229,49 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
-	public synchronized void addDescriptor(IArtifactDescriptor descriptor) {
+	public synchronized void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedAddToComposite);
 	}
 
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
-	public void addDescriptors(IArtifactDescriptor[] descriptors) {
+	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedAddToComposite);
 	}
 
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
-	public void removeDescriptor(IArtifactKey key) {
+	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
 
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
-	public void removeDescriptors(IArtifactKey[] keys) {
+	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
 
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
-	public void removeDescriptor(IArtifactDescriptor descriptor) {
+	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
 
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
-	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
+	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
 
 	/**
 	 * Composite repositories should be unable to directly modify their child repositories
 	 */
-	public synchronized void removeAll() {
+	public synchronized void removeAll(IProgressMonitor monitor) {
 		throw new UnsupportedOperationException(Messages.exception_unsupportedRemoveFromComposite);
 	}
 

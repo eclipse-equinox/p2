@@ -28,8 +28,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.IRepositoryManager;
+import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.spi.ProcessingStepDescriptor;
@@ -359,6 +358,42 @@ public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 
 		assertTrue(repo.contains(new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "aaPlugin", Version.create("1.0.0")))));
 
+	}
+
+	public void _testAddDescriptorPerformance() throws Exception {
+		File folder = getTestFolder("ArtifactRepository_testAddDescriptorPerformance");
+		repositoryURI = folder.toURI();
+
+		IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+
+		long start = System.currentTimeMillis();
+		for (int i = 0; i < 10000; i++) {
+			ArtifactDescriptor d = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a" + i, Version.create("1.0.0")));
+			repo.addDescriptor(d);
+		}
+		long end = System.currentTimeMillis();
+		System.out.println("Total time: " + (end - start));
+	}
+
+	public void _testAddDescriptorPerformanceExecuteBatch() throws Exception {
+		File folder = getTestFolder("ArtifactRepository_testAddDescriptorPerformanceExectuteBatch");
+		repositoryURI = folder.toURI();
+
+		final IArtifactRepository repo = getArtifactRepositoryManager().createRepository(repositoryURI, "test", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, new HashMap());
+
+		long start = System.currentTimeMillis();
+		repo.executeBatch(new IRunnableWithProgress() {
+
+			public void run(IProgressMonitor monitor) throws OperationCanceledException {
+				for (int i = 0; i < 10000; i++) {
+					ArtifactDescriptor d = new ArtifactDescriptor(new ArtifactKey("osgi.bundle", "a" + i, Version.create("1.0.0")));
+					repo.addDescriptor(d);
+				}
+			}
+		}, new NullProgressMonitor());
+
+		long end = System.currentTimeMillis();
+		System.out.println("Total time: " + (end - start));
 	}
 
 	public void testQuery() throws Exception {

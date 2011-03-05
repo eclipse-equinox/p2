@@ -166,6 +166,13 @@ public class UpdateSiteMetadataRepository implements IMetadataRepository {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.repository.IRepository#setProperty(java.lang.String, java.lang.String)
 	 */
+	public String setProperty(String key, String value, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.repository.IRepository#setProperty(java.lang.String, java.lang.String)
+	 */
 	public String setProperty(String key, String value) {
 		throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}

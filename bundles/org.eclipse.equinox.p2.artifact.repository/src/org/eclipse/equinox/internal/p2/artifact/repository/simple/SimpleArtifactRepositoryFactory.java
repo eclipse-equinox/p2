@@ -40,7 +40,7 @@ public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 	 * Returns a file in the local file system that contains the contents of the
 	 * metadata repository at the given location.
 	 */
-	private File getLocalFile(URI location, IProgressMonitor monitor) throws IOException, ProvisionException {
+	File getLocalFile(URI location, IProgressMonitor monitor) throws IOException, ProvisionException {
 		File localFile = null;
 		URI jarLocation = SimpleArtifactRepository.getActualLocation(location, true);
 		URI xmlLocation = SimpleArtifactRepository.getActualLocation(location, false);
@@ -72,6 +72,10 @@ public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 	}
 
 	public IArtifactRepository load(URI location, int flags, IProgressMonitor monitor) throws ProvisionException {
+		return load(location, flags, monitor, true);
+	}
+
+	IArtifactRepository load(URI location, int flags, IProgressMonitor monitor, boolean acquireLock) throws ProvisionException {
 		long time = 0;
 		final String debugMsg = "Restoring artifact repository "; //$NON-NLS-1$
 		if (Tracing.DEBUG_METADATA_PARSING) {
@@ -100,7 +104,7 @@ public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
 				sub.setWorkRemaining(100);
 				InputStream descriptorStream = jarStream != null ? jarStream : inStream;
 				SimpleArtifactRepositoryIO io = new SimpleArtifactRepositoryIO(getAgent());
-				SimpleArtifactRepository result = (SimpleArtifactRepository) io.read(localFile.toURL(), descriptorStream, sub.newChild(100));
+				SimpleArtifactRepository result = (SimpleArtifactRepository) io.read(location, descriptorStream, sub.newChild(100), acquireLock);
 				result.initializeAfterLoad(location);
 				if (result != null && (flags & IRepositoryManager.REPOSITORY_HINT_MODIFIABLE) > 0 && !result.isModifiable())
 					return null;

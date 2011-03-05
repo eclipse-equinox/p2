@@ -10,6 +10,7 @@
  * 	Genuitec, LLC - support for multi-threaded downloads
  *  Cloudsmith Inc. - query indexes
  *  Sonatype Inc - ongoing development
+ *  EclipseSource - file locking and ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
@@ -26,6 +27,7 @@ import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
 import org.eclipse.equinox.internal.p2.metadata.index.IndexProvider;
@@ -38,11 +40,11 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.index.IIndex;
 import org.eclipse.equinox.p2.metadata.index.IIndexProvider;
 import org.eclipse.equinox.p2.query.*;
-import org.eclipse.equinox.p2.repository.IRepository;
-import org.eclipse.equinox.p2.repository.IRunnableWithProgress;
+import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.artifact.*;
 import org.eclipse.equinox.p2.repository.artifact.spi.AbstractArtifactRepository;
 import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactDescriptor;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleArtifactRepository extends AbstractArtifactRepository implements IFileArtifactRepository, IIndexProvider<IArtifactKey> {
@@ -66,6 +68,18 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * Allows override of whether threading should be used.
 	 */
 	public static final String PROP_FORCE_THREADING = "eclipse.p2.force.threading"; //$NON-NLS-1$
+
+	/**
+	 * Location of the repository lock
+	 */
+	private Location lockLocation = null;
+	
+	/**
+	 * Does this instance of the repository currently hold a lock
+	 */
+	private boolean holdsLock = false;
+	
+	private long cacheTimestamp = 0l;
 
 	public class ArtifactOutputStream extends OutputStream implements IStateful {
 		private boolean closed;
@@ -304,31 +318,56 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public SimpleArtifactRepository(IProvisioningAgent agent, String repositoryName, URI location, Map<String, String> properties) {
 		super(agent, repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties);
-		initializeAfterLoad(location);
-		if (properties != null) {
-			if (properties.containsKey(PUBLISH_PACK_FILES_AS_SIBLINGS)) {
-				synchronized (this) {
-					String newValue = properties.get(PUBLISH_PACK_FILES_AS_SIBLINGS);
-					if (Boolean.TRUE.toString().equals(newValue)) {
-						mappingRules = PACKED_MAPPING_RULES;
-					} else {
-						mappingRules = DEFAULT_MAPPING_RULES;
+
+		boolean lockAcquired = false;
+		try {
+			if (!holdsLock() && URIUtil.isFileURI(location)) {
+				lockAcquired = lockAndLoad(true, new NullProgressMonitor());
+				if (!lockAcquired)
+					throw new IllegalStateException("Cannot acquire the lock for " + location); //$NON-NLS-1$
+			}
+
+			initializeAfterLoad(location, false); // Don't update the timestamp, it will be done during save
+			if (properties != null) {
+				if (properties.containsKey(PUBLISH_PACK_FILES_AS_SIBLINGS)) {
+					synchronized (this) {
+						String newValue = properties.get(PUBLISH_PACK_FILES_AS_SIBLINGS);
+						if (Boolean.TRUE.toString().equals(newValue)) {
+							mappingRules = PACKED_MAPPING_RULES;
+						} else {
+							mappingRules = DEFAULT_MAPPING_RULES;
+						}
+						initializeMapper();
 					}
-					initializeMapper();
 				}
 			}
+			save();
+		} finally {
+			if (lockAcquired)
+				unlock();
 		}
-		save();
 	}
 
-	public synchronized void addDescriptor(IArtifactDescriptor toAdd) {
-		if (artifactDescriptors.contains(toAdd))
-			return;
+	public synchronized void addDescriptor(IArtifactDescriptor toAdd, IProgressMonitor monitor) {
+		boolean lockAcquired = false;
+		try {
+			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+				lockAcquired = lockAndLoad(false, monitor);
+				if (!lockAcquired)
+					return;
+			}
 
-		SimpleArtifactDescriptor internalDescriptor = createInternalDescriptor(toAdd);
-		artifactDescriptors.add(internalDescriptor);
-		mapDescriptor(internalDescriptor);
-		save();
+			if (artifactDescriptors.contains(toAdd))
+				return;
+
+			SimpleArtifactDescriptor internalDescriptor = createInternalDescriptor(toAdd);
+			artifactDescriptors.add(internalDescriptor);
+			mapDescriptor(internalDescriptor);
+			save();
+		} finally {
+			if (lockAcquired)
+				unlock();
+		}
 	}
 
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {
@@ -356,15 +395,27 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return internal;
 	}
 
-	public synchronized void addDescriptors(IArtifactDescriptor[] descriptors) {
-		for (int i = 0; i < descriptors.length; i++) {
-			if (artifactDescriptors.contains(descriptors[i]))
-				continue;
-			SimpleArtifactDescriptor internalDescriptor = createInternalDescriptor(descriptors[i]);
-			artifactDescriptors.add(internalDescriptor);
-			mapDescriptor(internalDescriptor);
+	public synchronized void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+		boolean lockAcquired = false;
+		try {
+			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+				lockAcquired = lockAndLoad(false, monitor);
+				if (!lockAcquired)
+					return;
+			}
+
+			for (int i = 0; i < descriptors.length; i++) {
+				if (artifactDescriptors.contains(descriptors[i]))
+					continue;
+				SimpleArtifactDescriptor internalDescriptor = createInternalDescriptor(descriptors[i]);
+				artifactDescriptors.add(internalDescriptor);
+				mapDescriptor(internalDescriptor);
+			}
+			save();
+		} finally {
+			if (lockAcquired)
+				unlock();
 		}
-		save();
 	}
 
 	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
@@ -416,11 +467,17 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized boolean contains(IArtifactDescriptor descriptor) {
+		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			load(new NullProgressMonitor());
+		}
 		SimpleArtifactDescriptor simpleDescriptor = createInternalDescriptor(descriptor);
 		return artifactDescriptors.contains(simpleDescriptor);
 	}
 
 	public synchronized boolean contains(IArtifactKey key) {
+		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			load(new NullProgressMonitor());
+		}
 		return artifactMap.containsKey(key);
 	}
 
@@ -566,6 +623,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			load(new NullProgressMonitor());
+		}
+		if (monitor.isCanceled())
+			return Status.CANCEL_STATUS;
 		ProcessingStepHandler handler = new ProcessingStepHandler();
 		destination = processDestination(handler, descriptor, destination, monitor);
 		IStatus status = ProcessingStepHandler.checkStatus(destination);
@@ -576,10 +638,19 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public IStatus getRawArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			load(new NullProgressMonitor());
+		}
+		if (monitor.isCanceled())
+			return Status.CANCEL_STATUS;
 		return downloadArtifact(descriptor, destination, monitor);
 	}
 
 	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
+		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			load(new NullProgressMonitor());
+		}
+
 		List<IArtifactDescriptor> result = artifactMap.get(key);
 		if (result == null)
 			return new IArtifactDescriptor[0];
@@ -602,6 +673,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
+		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			load(new NullProgressMonitor());
+		}
+		if (monitor.isCanceled())
+			return Status.CANCEL_STATUS;
+
 		final MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK, null, null);
 		LinkedList<IArtifactRequest> requestsPending = new LinkedList<IArtifactRequest>(Arrays.asList(requests));
 
@@ -643,6 +720,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized IArtifactDescriptor getCompleteArtifactDescriptor(IArtifactKey key) {
+		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			load(new NullProgressMonitor());
+		}
 		List<IArtifactDescriptor> descriptors = artifactMap.get(key);
 		if (descriptors == null)
 			return null;
@@ -656,6 +736,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized Set<SimpleArtifactDescriptor> getDescriptors() {
+		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			load(new NullProgressMonitor());
+		}
 		return artifactDescriptors;
 	}
 
@@ -743,6 +826,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
+		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			load(new NullProgressMonitor());
+		}
+
 		assertModifiable();
 
 		// Create a copy of the original descriptor that we can manipulate and add to our repo.
@@ -815,6 +902,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized String[][] getRules() {
+		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			load(new NullProgressMonitor());
+		}
 		return mappingRules;
 	}
 
@@ -824,11 +914,17 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
 	public synchronized void initializeAfterLoad(URI repoLocation) {
+		this.initializeAfterLoad(repoLocation, true);
+	}
+
+	private synchronized void initializeAfterLoad(URI repoLocation, boolean updateTimestamp) {
 		setLocation(repoLocation);
 		blobStore = new BlobStore(getBlobStoreLocation(repoLocation), 128);
 		initializeMapper();
 		for (SimpleArtifactDescriptor desc : artifactDescriptors)
 			desc.setRepository(this);
+		if (updateTimestamp)
+			updateTimestamp();
 	}
 
 	private synchronized void initializeMapper() {
@@ -870,46 +966,106 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return destination;
 	}
 
-	public synchronized void removeAll() {
-		IArtifactDescriptor[] toRemove = artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
-		boolean changed = false;
-		for (int i = 0; i < toRemove.length; i++)
-			changed |= doRemoveArtifact(toRemove[i]);
-		if (changed)
-			save();
+	public synchronized void removeAll(IProgressMonitor monitor) {
+		boolean lockAcquired = false;
+		try {
+			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+				lockAcquired = lockAndLoad(false, monitor);
+				if (!lockAcquired)
+					return;
+			}
+
+			IArtifactDescriptor[] toRemove = artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
+			boolean changed = false;
+			for (int i = 0; i < toRemove.length; i++)
+				changed |= doRemoveArtifact(toRemove[i]);
+			if (changed)
+				save();
+		} finally {
+			if (lockAcquired)
+				unlock();
+		}
 	}
 
-	public synchronized void removeDescriptor(IArtifactDescriptor descriptor) {
-		if (doRemoveArtifact(descriptor))
-			save();
+	public synchronized void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+		boolean lockAcquired = false;
+		try {
+			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+				lockAcquired = lockAndLoad(false, monitor);
+				if (!lockAcquired)
+					return;
+			}
+
+			if (doRemoveArtifact(descriptor))
+				save();
+		} finally {
+			if (lockAcquired)
+				unlock();
+		}
 	}
 
-	public synchronized void removeDescriptors(IArtifactDescriptor[] descriptors) {
-		boolean changed = false;
-		for (IArtifactDescriptor descriptor : descriptors)
-			changed |= doRemoveArtifact(descriptor);
-		if (changed)
-			save();
-	}
+	public synchronized void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+		boolean lockAcquired = false;
+		try {
+			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+				lockAcquired = lockAndLoad(false, monitor);
+				if (!lockAcquired)
+					return;
+			}
 
-	public synchronized void removeDescriptors(IArtifactKey[] keys) {
-		boolean changed = false;
-		for (IArtifactKey key : keys) {
-			IArtifactDescriptor[] descriptors = getArtifactDescriptors(key);
+			boolean changed = false;
 			for (IArtifactDescriptor descriptor : descriptors)
 				changed |= doRemoveArtifact(descriptor);
+			if (changed)
+				save();
+		} finally {
+			if (lockAcquired)
+				unlock();
 		}
-		if (changed)
-			save();
 	}
 
-	public synchronized void removeDescriptor(IArtifactKey key) {
-		IArtifactDescriptor[] toRemove = getArtifactDescriptors(key);
-		boolean changed = false;
-		for (int i = 0; i < toRemove.length; i++)
-			changed |= doRemoveArtifact(toRemove[i]);
-		if (changed)
-			save();
+	public synchronized void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
+		boolean lockAcquired = false;
+		try {
+			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+				lockAcquired = lockAndLoad(false, monitor);
+				if (!lockAcquired)
+					return;
+			}
+
+			boolean changed = false;
+			for (IArtifactKey key : keys) {
+				IArtifactDescriptor[] descriptors = getArtifactDescriptors(key);
+				for (IArtifactDescriptor descriptor : descriptors)
+					changed |= doRemoveArtifact(descriptor);
+			}
+			if (changed)
+				save();
+		} finally {
+			if (lockAcquired)
+				unlock();
+		}
+	}
+
+	public synchronized void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
+		boolean lockAcquired = false;
+		try {
+			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+				lockAcquired = lockAndLoad(false, monitor);
+				if (!lockAcquired)
+					return;
+			}
+
+			IArtifactDescriptor[] toRemove = getArtifactDescriptors(key);
+			boolean changed = false;
+			for (int i = 0; i < toRemove.length; i++)
+				changed |= doRemoveArtifact(toRemove[i]);
+			if (changed)
+				save();
+		} finally {
+			if (lockAcquired)
+				unlock();
+		}
 	}
 
 	private IStatus reportStatus(IArtifactDescriptor descriptor, OutputStream destination, IStatus status) {
@@ -989,7 +1145,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 					jOs.putNextEntry(new JarEntry(new Path(artifactsFile.getAbsolutePath()).lastSegment()));
 					os = jOs;
 				}
-				super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
+				super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()), new NullProgressMonitor());
 				new SimpleArtifactRepositoryIO(getProvisioningAgent()).write(this, os);
 			} catch (IOException e) {
 				// TODO proper exception handling
@@ -997,14 +1153,15 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			} finally {
 				if (os != null)
 					os.close();
+				updateTimestamp();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public String setProperty(String key, String newValue) {
-		String oldValue = super.setProperty(key, newValue);
+	private String doSetProperty(String key, String newValue, IProgressMonitor monitor, boolean save) {
+		String oldValue = super.setProperty(key, newValue, new NullProgressMonitor());
 		if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
 			return oldValue;
 		if (PUBLISH_PACK_FILES_AS_SIBLINGS.equals(key)) {
@@ -1017,12 +1174,24 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				initializeMapper();
 			}
 		}
-		save();
-		//force repository manager to reload this repository because it caches properties
-		ArtifactRepositoryManager manager = (ArtifactRepositoryManager) getProvisioningAgent().getService(IArtifactRepositoryManager.SERVICE_NAME);
-		if (manager.removeRepository(getLocation()))
-			manager.addRepository(this);
+		if (save)
+			save();
 		return oldValue;
+	}
+
+	public String setProperty(String key, String newValue, IProgressMonitor monitor) {
+		boolean lockAcquired = false;
+		try {
+			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+				lockAcquired = lockAndLoad(false, monitor);
+				if (!lockAcquired)
+					return super.getProperty(key);
+			}
+			return doSetProperty(key, newValue, monitor, true);
+		} finally {
+			if (lockAcquired)
+				unlock();
+		}
 	}
 
 	public synchronized void setRules(String[][] rules) {
@@ -1050,14 +1219,25 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized Iterator<IArtifactKey> everything() {
+		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			load(new NullProgressMonitor());
+		}
 		snapshotNeeded = true;
 		return artifactMap.keySet().iterator();
 	}
 
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor) {
 		IStatus result = null;
+
+		boolean lockAcquired = false;
 		synchronized (this) {
 			try {
+				if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+					lockAcquired = lockAndLoad(false, monitor);
+					if (!lockAcquired)
+						return new Status(IStatus.ERROR, Activator.ID, "Could not lock artifact repository for writing", null); //$NON-NLS-1$
+				}
+
 				disableSave = true;
 				runnable.run(monitor);
 			} catch (OperationCanceledException oce) {
@@ -1073,6 +1253,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 						result = new MultiStatus(Activator.ID, IStatus.ERROR, new IStatus[] {result}, e.getMessage(), e);
 					else
 						result = new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e);
+				} finally {
+					if (lockAcquired)
+						unlock();
 				}
 			}
 		}
@@ -1082,6 +1265,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized IIndex<IArtifactKey> getIndex(String memberName) {
+		if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			load(new NullProgressMonitor());
+		}
 		if (ArtifactKey.MEMBER_ID.equals(memberName)) {
 			snapshotNeeded = true;
 			if (keyIndex == null)
@@ -1093,5 +1279,201 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public Object getManagedProperty(Object client, String memberName, Object key) {
 		return null;
+	}
+
+	/**
+	 * Locks the location and optionally loads the repository.
+	 * 
+	 * @param ignoreLoad If ignoreLoad is set to true, then the location is locked
+	 *                   but the repository is not loaded.  It is expected
+	 *                   that the caller will load the repository manually
+	 * @return Tue if the lock was acquired, false otherwise
+	 */
+	private synchronized boolean lockAndLoad(boolean ignoreLoad, IProgressMonitor monitor) {
+		if (holdsLock) {
+			throw new IllegalStateException("Locking is not reentrant"); //$NON-NLS-1$
+		}
+		holdsLock = false;
+		boolean success = true;
+
+		try {
+			try {
+				holdsLock = lock(true, monitor);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+
+			if (holdsLock) {
+				if (!ignoreLoad) {
+					success = false;
+					doLoad(new NullProgressMonitor());
+					success = true;
+				}
+				return true;
+			}
+			return false;
+		} finally {
+			// If we did not successfully load the repository, make sure we free the lock.
+			// This will only happen if doLoad() throws an exception, otherwise
+			// we will set success to true, and return above
+			if (!success)
+				unlock();
+		}
+	}
+
+	/**
+	 * Actually lock the location.  This method should only be called
+	 * from LockAndLoad. If you only want to lock the repository and not
+	 * load it, see {@link SimpleArtifactRepository#lockAndLoad(boolean)}.
+	 */
+	private synchronized boolean lock(boolean wait, IProgressMonitor monitor) throws IOException {
+		if (holdsLock()) {
+			throw new IllegalStateException("Locking is not reentrant"); //$NON-NLS-1$
+		}
+
+		lockLocation = getLockLocation();
+		boolean locked = lockLocation.lock();
+		if (locked || !wait)
+			return locked;
+
+		//Someone else must have the directory locked
+		while (true) {
+			if (monitor.isCanceled())
+				return false;
+			try {
+				Thread.sleep(200); // 5x per second
+			} catch (InterruptedException e) {/*ignore*/
+			}
+			locked = lockLocation.lock();
+			if (locked)
+				return true;
+		}
+	}
+
+	/**
+	 * Returns true if this instance of SimpleArtifactRepository holds the lock,
+	 * false otherwise.
+	 */
+	private boolean holdsLock() {
+		return holdsLock;
+	}
+
+	/**URIUtil.toURI(location.toURI()
+	 * Returns the location of the lock file.
+	 */
+	private Location getLockLocation() throws IOException {
+		if (this.lockLocation != null)
+			return this.lockLocation;
+
+		// TODO: Throw an IO Exception if we cannot lock this location
+		Location anyLoc = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName());
+		Location location = anyLoc.createLocation(null, getLockFile().toURL(), false);
+		location.set(getLockFile().toURL(), false);
+		return location;
+	}
+
+	private File getLockFile() throws IOException {
+		URI repositoryLocation = getLocation();
+		if (!URIUtil.isFileURI(repositoryLocation)) {
+			throw new IOException("Cannot lock a non file based repository"); //$NON-NLS-1$
+		}
+		URI result = URIUtil.append(repositoryLocation, ".artifactlock"); //$NON-NLS-1$
+		return URIUtil.toFile(result);
+	}
+
+	/**
+	 * Loads the repository from disk. This method will do nothing
+	 * if this instance of SimpleArtifactRepository holds the lock
+	 * because it will have loaded the repo when it acquired the lock.
+	 * 
+	 * @param monitor
+	 */
+	private void load(IProgressMonitor monitor) {
+		if (!holdsLock())
+			doLoad(monitor);
+		else
+			monitor.done();
+	}
+
+	private void updateTimestamp() {
+		if (!isModifiable())
+			return;
+		try {
+			SimpleArtifactRepositoryFactory repositoryFactory = new SimpleArtifactRepositoryFactory();
+			File localFile = repositoryFactory.getLocalFile(getLocation(), new NullProgressMonitor());
+			long lastModified = localFile.lastModified();
+			if (lastModified > 0)
+				cacheTimestamp = lastModified;
+		} catch (Exception e) {
+			// Do nothing
+		}
+	}
+
+	/**
+	 * Loads the repository from disk. If the last modified timestamp on the file <=
+	 * to our cache, then this method does nothing.  Otherwise the artifact repository
+	 * on disk is loaded, and reconciled with this instance of the artifact repository.
+	 * 
+	 * @param monitor
+	 */
+	private void doLoad(IProgressMonitor monitor) {
+
+		SimpleArtifactRepositoryFactory repositoryFactory = new SimpleArtifactRepositoryFactory();
+		IArtifactRepository repositoryOnDisk = null;
+		try {
+			SubMonitor subMonitor = SubMonitor.convert(monitor, 4);
+			try {
+				File localFile = repositoryFactory.getLocalFile(getLocation(), subMonitor.newChild(1));
+				long lastModified = localFile.lastModified();
+				if (lastModified <= cacheTimestamp)
+					return;
+				cacheTimestamp = lastModified;
+			} catch (Exception e) {
+				// Dont'r worry if we can't load
+				return;
+			}
+			try {
+				repositoryOnDisk = repositoryFactory.load(getLocation(), IRepositoryManager.REPOSITORY_HINT_MODIFIABLE, subMonitor.newChild(3), false);
+			} catch (Exception e) {
+				// Don't worry if we can't load
+				return;
+			}
+
+			if (repositoryOnDisk != null && repositoryOnDisk instanceof SimpleArtifactRepository) {
+				setName(repositoryOnDisk.getName());
+				setType(repositoryOnDisk.getType());
+				setVersion(repositoryOnDisk.getVersion());
+				setLocation(repositoryOnDisk.getLocation()); // Will this ever change, should it?
+				setDescription(repositoryOnDisk.getDescription());
+				setProvider(repositoryOnDisk.getProvider());
+				this.mappingRules = ((SimpleArtifactRepository) repositoryOnDisk).mappingRules;
+
+				// Clear the existing properties
+				//				this.setProperties(new OrderedProperties());
+				//
+				Map<String, String> prop = repositoryOnDisk.getProperties();
+				Set<Entry<String, String>> entrySet = prop.entrySet();
+				for (Entry<String, String> entry : entrySet) {
+					doSetProperty(entry.getKey(), entry.getValue(), new NullProgressMonitor(), false);
+				}
+
+				//
+				this.artifactDescriptors = ((SimpleArtifactRepository) repositoryOnDisk).artifactDescriptors;
+				this.artifactMap = ((SimpleArtifactRepository) repositoryOnDisk).artifactMap;
+			}
+		} finally {
+			monitor.done();
+		}
+		return;
+	}
+
+	private void unlock() {
+		if (lockLocation != null) {
+			// If we don't have the lock location, then we don't have the lock
+			holdsLock = false;
+			lockLocation.release();
+		}
+		lockLocation = null;
 	}
 }
