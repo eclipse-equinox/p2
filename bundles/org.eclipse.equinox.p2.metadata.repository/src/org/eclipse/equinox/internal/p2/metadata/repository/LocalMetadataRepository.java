@@ -303,7 +303,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 				jOutput.putNextEntry(jarEntry);
 				output = jOutput;
 			}
-			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
+			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()), new NullProgressMonitor());
 			new MetadataRepositoryIO(getProvisioningAgent()).write(this, output);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, "Error saving metadata repository: " + getLocation(), e)); //$NON-NLS-1$
