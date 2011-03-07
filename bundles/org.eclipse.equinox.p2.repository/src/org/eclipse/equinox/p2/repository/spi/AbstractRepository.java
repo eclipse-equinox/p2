@@ -186,7 +186,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 	/**
 	 * {@inheritDoc}
 	 */
-	public final synchronized String setProperty(String key, String value) {
+	public synchronized String setProperty(String key, String value) {
 		return this.setProperty(key, value, new NullProgressMonitor());
 	}
 
