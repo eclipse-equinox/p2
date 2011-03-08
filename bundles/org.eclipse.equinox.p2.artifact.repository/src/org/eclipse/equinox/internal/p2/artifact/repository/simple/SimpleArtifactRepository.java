@@ -73,12 +73,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * Location of the repository lock
 	 */
 	private Location lockLocation = null;
-	
+
 	/**
 	 * Does this instance of the repository currently hold a lock
 	 */
 	private boolean holdsLock = false;
-	
+
 	private long cacheTimestamp = 0l;
 
 	public class ArtifactOutputStream extends OutputStream implements IStateful {
@@ -321,7 +321,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		boolean lockAcquired = false;
 		try {
-			if (!holdsLock() && URIUtil.isFileURI(location)) {
+			if (canLock()) {
 				lockAcquired = lockAndLoad(true, new NullProgressMonitor());
 				if (!lockAcquired)
 					throw new IllegalStateException("Cannot acquire the lock for " + location); //$NON-NLS-1$
@@ -351,7 +351,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public synchronized void addDescriptor(IArtifactDescriptor toAdd, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
-			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			if (canLock()) {
 				lockAcquired = lockAndLoad(false, monitor);
 				if (!lockAcquired)
 					return;
@@ -398,7 +398,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public synchronized void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
-			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			if (canLock()) {
 				lockAcquired = lockAndLoad(false, monitor);
 				if (!lockAcquired)
 					return;
@@ -969,7 +969,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public synchronized void removeAll(IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
-			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			if (canLock()) {
 				lockAcquired = lockAndLoad(false, monitor);
 				if (!lockAcquired)
 					return;
@@ -990,7 +990,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public synchronized void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
-			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			if (canLock()) {
 				lockAcquired = lockAndLoad(false, monitor);
 				if (!lockAcquired)
 					return;
@@ -1007,7 +1007,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public synchronized void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
-			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			if (canLock()) {
 				lockAcquired = lockAndLoad(false, monitor);
 				if (!lockAcquired)
 					return;
@@ -1027,7 +1027,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public synchronized void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
-			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			if (canLock()) {
 				lockAcquired = lockAndLoad(false, monitor);
 				if (!lockAcquired)
 					return;
@@ -1050,7 +1050,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public synchronized void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
-			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			if (canLock()) {
 				lockAcquired = lockAndLoad(false, monitor);
 				if (!lockAcquired)
 					return;
@@ -1182,7 +1182,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public String setProperty(String key, String newValue, IProgressMonitor monitor) {
 		boolean lockAcquired = false;
 		try {
-			if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+			if (canLock()) {
 				lockAcquired = lockAndLoad(false, monitor);
 				if (!lockAcquired)
 					return super.getProperty(key);
@@ -1232,7 +1232,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		boolean lockAcquired = false;
 		synchronized (this) {
 			try {
-				if (!holdsLock() && URIUtil.isFileURI(getLocation())) {
+				if (canLock()) {
 					lockAcquired = lockAndLoad(false, monitor);
 					if (!lockAcquired)
 						return new Status(IStatus.ERROR, Activator.ID, "Could not lock artifact repository for writing", null); //$NON-NLS-1$
@@ -1322,6 +1322,20 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
+	private synchronized boolean canLock() {
+		if (holdsLock())
+			return false;
+		if (!URIUtil.isFileURI(getLocation()))
+			return false;
+
+		try {
+			lockLocation = getLockLocation();
+		} catch (IOException e) {
+			return false;
+		}
+		return !lockLocation.isReadOnly();
+	}
+
 	/**
 	 * Actually lock the location.  This method should only be called
 	 * from LockAndLoad. If you only want to lock the repository and not
@@ -1366,9 +1380,15 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (this.lockLocation != null)
 			return this.lockLocation;
 
+		URI repositoryLocation = getLocation();
+		if (!URIUtil.isFileURI(repositoryLocation)) {
+			throw new IOException("Cannot lock a non file based repository"); //$NON-NLS-1$
+		}
+
 		// TODO: Throw an IO Exception if we cannot lock this location
 		Location anyLoc = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName());
-		Location location = anyLoc.createLocation(null, getLockFile().toURL(), false);
+		File repositoryFile = URIUtil.toFile(repositoryLocation);
+		Location location = anyLoc.createLocation(null, getLockFile().toURL(), !repositoryFile.canWrite());
 		location.set(getLockFile().toURL(), false);
 		return location;
 	}

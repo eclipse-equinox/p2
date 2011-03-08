@@ -88,20 +88,21 @@ public class SimpleArtifactRepositoryIO {
 				IStatus result = null;
 				boolean lock = false;
 				try {
-					if (URIUtil.isFileURI(location) && acquireLock)
+					if (canLock(location) && acquireLock) {
 						lock = lock(location, true, monitor);
-					else
-						lock = true; // No need to lock
-					if (lock) {
+						if (lock) {
+							repositoryParser.parse(input);
+							result = repositoryParser.getStatus();
+						} else {
+							result = Status.CANCEL_STATUS;
+						}
+					} else {
 						repositoryParser.parse(input);
 						result = repositoryParser.getStatus();
-					} else
-						result = Status.CANCEL_STATUS;
+					}
 				} finally {
 					if (lock)
 						unlock(location);
-					else
-						result = Status.CANCEL_STATUS;
 				}
 
 				switch (result.getSeverity()) {
@@ -125,6 +126,18 @@ public class SimpleArtifactRepositoryIO {
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, ioe));
 		}
+	}
+
+	private synchronized boolean canLock(URI repositoryLocation) {
+		if (!URIUtil.isFileURI(repositoryLocation))
+			return false;
+
+		try {
+			lockLocation = getLockLocation(repositoryLocation);
+		} catch (IOException e) {
+			return false;
+		}
+		return !lockLocation.isReadOnly();
 	}
 
 	private synchronized boolean lock(URI repositoryLocation, boolean wait, IProgressMonitor monitor) throws IOException {
@@ -157,8 +170,12 @@ public class SimpleArtifactRepositoryIO {
 	 * Returns the location of the lock file.
 	 */
 	private Location getLockLocation(URI repositoryLocation) throws IOException {
+		if (!URIUtil.isFileURI(repositoryLocation)) {
+			throw new IOException("Cannot lock a non file based repository"); //$NON-NLS-1$
+		}
+		File repositoryFile = URIUtil.toFile(repositoryLocation);
 		Location anyLoc = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName());
-		Location location = anyLoc.createLocation(null, getLockFile(repositoryLocation).toURL(), false);
+		Location location = anyLoc.createLocation(null, getLockFile(repositoryLocation).toURL(), !repositoryFile.canWrite());
 		location.set(getLockFile(repositoryLocation).toURL(), false);
 		return location;
 	}
