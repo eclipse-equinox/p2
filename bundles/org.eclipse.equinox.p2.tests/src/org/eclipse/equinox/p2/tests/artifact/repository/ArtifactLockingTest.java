@@ -31,7 +31,7 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 
 	boolean canContinue = false;
 
-	public void testCancelLoad() throws InterruptedException, ProvisionException {
+	public void _testCancelLoad() throws InterruptedException, ProvisionException {
 		this.canContinue = false;
 		final IProgressMonitor progressMonitor = new NullProgressMonitor();
 		new Thread(new Runnable() {
@@ -68,7 +68,7 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 
 	}
 
-	public void testWaitForLoad() throws InterruptedException, ProvisionException {
+	public void _testWaitForLoad() throws InterruptedException, ProvisionException {
 		this.canContinue = false;
 		new Thread(new Runnable() {
 			public void run() {
@@ -107,7 +107,7 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 	 * that the block terminates.
 	 * @throws InterruptedException
 	 */
-	public void testCancel() throws InterruptedException {
+	public void _testCancel() throws InterruptedException {
 		final IProgressMonitor progressMonitor = new NullProgressMonitor();
 		this.keepRunning = true;
 
@@ -223,7 +223,7 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 	 * parallel, but rather, the second one waits for the first to complete.
 	 * @throws InterruptedException
 	 */
-	public void testMultipleExecuteBatch() throws InterruptedException {
+	public void _testMultipleExecuteBatch() throws InterruptedException {
 		this.lockAcquired = false;
 		Thread t1 = new Thread(new Runnable() {
 			public void run() {
