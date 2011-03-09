@@ -671,7 +671,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		productName = attributes.getValue(ATTRIBUTE_NAME);
 		application = attributes.getValue(ATTRIBUTE_APPLICATION);
 		if (attributes.getIndex(ATTRIBUTE_INCLUDE_LAUNCHERS) >= 0)
-			includeLaunchers = Boolean.parseBoolean(attributes.getValue(ATTRIBUTE_INCLUDE_LAUNCHERS));
+			includeLaunchers = Boolean.valueOf(attributes.getValue(ATTRIBUTE_INCLUDE_LAUNCHERS));
 		String use = attributes.getValue("useFeatures"); //$NON-NLS-1$
 		if (use != null)
 			useFeatures = Boolean.valueOf(use).booleanValue();
