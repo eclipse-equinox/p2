@@ -44,11 +44,11 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.touchpoint.eclipse"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.touchpoint.natives,org.eclipse.equinox.p2.touchpoint.natives"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.transport.ecf,org.eclipse.equinox.p2.transport.ecf"/>
-<project reference="1.0,:pserver:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/org.eclipse.equinox.p2.releng/buildtime-features/org.eclipse.equinox.p2.user.ui,org.eclipse.equinox.p2.user.ui"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.ui,org.eclipse.equinox.p2.ui"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.ui.discovery,org.eclipse.equinox.p2.ui.discovery"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.ui.admin,org.eclipse.equinox.p2.ui.admin"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.ui.admin.rcp,org.eclipse.equinox.p2.ui.admin.rcp"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.ui.rcp,org.eclipse.equinox.p2.ui.rcp"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.ui.sdk,org.eclipse.equinox.p2.ui.sdk"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.ui.sdk.scheduler,org.eclipse.equinox.p2.ui.sdk.scheduler"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.updatechecker,org.eclipse.equinox.p2.updatechecker"/>
@@ -59,7 +59,9 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/features/org.eclipse.equinox.p2.core.feature,org.eclipse.equinox.p2.core.feature"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/features/org.eclipse.equinox.p2.discovery.feature,org.eclipse.equinox.p2.discovery.feature"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/features/org.eclipse.equinox.p2.extras.feature,org.eclipse.equinox.p2.extras.feature"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/features/org.eclipse.equinox.p2.rcp.ui,org.eclipse.equinox.p2.rcp.ui"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/features/org.eclipse.equinox.p2.sdk,org.eclipse.equinox.p2.sdk"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/features/org.eclipse.equinox.p2.user.ui,org.eclipse.equinox.p2.user.ui"/>
 
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.core.tests.harness,org.eclipse.core.tests.harness"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.test.performance,org.eclipse.test.performance"/>
