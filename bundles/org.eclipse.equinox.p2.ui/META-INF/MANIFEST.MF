@@ -6,7 +6,11 @@ Bundle-Version: 2.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.ui.ProvUIActivator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Export-Package: org.eclipse.equinox.internal.p2.ui;x-friends:="org.eclipse.equinox.p2.ui.admin,org.eclipse.pde.ui,org.eclipse.equinox.p2.ui.sdk",
+Export-Package: org.eclipse.equinox.internal.p2.ui;
+  x-friends:="org.eclipse.equinox.p2.ui.admin,
+   org.eclipse.pde.ui,
+   org.eclipse.equinox.p2.ui.sdk,
+   org.eclipse.equinox.p2.ui.rcp",
  org.eclipse.equinox.internal.p2.ui.actions;x-friends:="org.eclipse.equinox.p2.ui.admin,org.eclipse.equinox.p2.ui.sdk.scheduler",
  org.eclipse.equinox.internal.p2.ui.dialogs;x-friends:="org.eclipse.equinox.p2.ui.admin,org.eclipse.equinox.p2.ui.sdk.scheduler,org.eclipse.pde.ui",
  org.eclipse.equinox.internal.p2.ui.model;
