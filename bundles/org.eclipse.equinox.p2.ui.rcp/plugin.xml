@@ -113,6 +113,11 @@
             class="org.eclipse.equinox.p2.ui.InstalledSoftwarePage"
             id="10.org.eclipse.equinox.internal.p2.ui.sdk.InstalledSoftwarePage">
           </page>
+          <page
+            name="%installHistoryPage"
+            class="org.eclipse.equinox.p2.ui.RevertProfilePage"
+            id="11.org.eclipse.equinox.internal.p2.ui.sdk.RevertProfilePage">
+          </page>
           
       </extension>
 
