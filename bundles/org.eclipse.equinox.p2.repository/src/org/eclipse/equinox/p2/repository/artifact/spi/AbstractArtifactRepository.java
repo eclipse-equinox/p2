@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -50,7 +50,10 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 	public abstract IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor);
 
 	public abstract OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException;
-	
+
+	/**
+	 * @since 2.1
+	 */
 	public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		assertModifiable();
 	}
@@ -64,7 +67,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 
 	/**
 	 * {@inheritDoc}
-	 * @since 2.2
+	 * @since 2.1
 	 */
 	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		assertModifiable();
@@ -79,7 +82,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 
 	/**
 	 * {@inheritDoc}
-	 * @since 2.2
+	 * @since 2.1
 	 */
 	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		assertModifiable();
