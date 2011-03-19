@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.*;
@@ -67,6 +66,52 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 	Text detailsArea;
 	InstalledIUGroup installedIUGroup;
 	ProvisioningUI ui;
+
+	private static class TagEditingSuport extends EditingSupport {
+
+		private ProvisioningUI ui;
+
+		public TagEditingSuport(TableViewer viewer, ProvisioningUI ui) {
+			super(viewer);
+			this.ui = ui;
+		}
+
+		protected CellEditor getCellEditor(Object element) {
+			return new TextCellEditor(((TableViewer) getViewer()).getTable());
+		}
+
+		protected boolean canEdit(Object element) {
+			return element instanceof RollbackProfileElement;
+		}
+
+		protected Object getValue(Object element) {
+			if (element instanceof RollbackProfileElement) {
+				return ((RollbackProfileElement) element).getProfileTag() != null ? ((RollbackProfileElement) element).getProfileTag() : ""; //$NON-NLS-1$
+			}
+			return null;
+		}
+
+		protected void setValue(Object element, Object value) {
+			if (element instanceof RollbackProfileElement && value instanceof String) {
+				RollbackProfileElement ele = ((RollbackProfileElement) element);
+				ele.setProfileTag((String) value);
+				// save
+				IProfileRegistry registry = ProvUI.getProfileRegistry(ui.getSession());
+				if (registry != null) {
+					IStatus status;
+					if (((String) value).length() > 0) {
+						status = registry.setProfileStateProperty(ele.getProfileId(), ele.getTimestamp(), IProfile.STATE_PROP_TAG, (String) value);
+					} else {
+						status = registry.removeProfileStateProperties(ele.getProfileId(), ele.getTimestamp(), Collections.singleton(IProfile.STATE_PROP_TAG));
+					}
+					if (!status.isOK()) {
+						StatusManager.getManager().handle(status);
+					}
+				}
+				getViewer().update(element, null);
+			}
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -128,7 +173,7 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.RevertDialog_ConfigsLabel);
-		configsViewer = new TableViewer(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		configsViewer = new TableViewer(composite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION);
 		ProvElementContentProvider provider = new ProvElementContentProvider() {
 			protected void finishedFetchingElements(Object o) {
 				Object element = configsViewer.getElementAt(0);
@@ -136,7 +181,8 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 					configsViewer.setSelection(new StructuredSelection(element));
 			}
 		};
-		setTableColumns(configsViewer.getTable());
+		setConfigsColumns(configsViewer);
+
 		// Use deferred fetch because getting snapshots is expensive.
 		provider.setFetchInBackground(true);
 		configsViewer.setContentProvider(provider);
@@ -170,17 +216,21 @@ public class RevertProfilePage extends InstallationPage implements ICopyable {
 		configsViewer.getControl().setLayoutData(gd);
 	}
 
-	private void setTableColumns(Table table) {
-		table.setHeaderVisible(true);
-		TableColumn tc = new TableColumn(table, SWT.NONE, 0);
+	private void setConfigsColumns(TableViewer tableViewer) {
+		tableViewer.getTable().setHeaderVisible(true);
+		TableViewerColumn column = new TableViewerColumn(tableViewer, SWT.NONE);
+		TableColumn tc = column.getColumn();
 		tc.setResizable(true);
 		tc.setText(ProvUIMessages.RevertProfilePage_ProfileTimestampColumn);
 		tc.setWidth(175);
 
-		tc = new TableColumn(table, SWT.NONE, 1);
+		column = new TableViewerColumn(tableViewer, SWT.NONE);
+		tc = column.getColumn();
 		tc.setResizable(true);
 		tc.setText(ProvUIMessages.RevertProfilePage_ProfileTagColumn);
 		tc.setWidth(200);
+
+		column.setEditingSupport(new TagEditingSuport(tableViewer, ui));
 	}
 
 	private void createContentsSection(Composite parent) {

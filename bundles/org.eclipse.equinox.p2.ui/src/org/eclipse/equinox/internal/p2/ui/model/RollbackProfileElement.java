@@ -84,8 +84,16 @@ public class RollbackProfileElement extends RemoteQueriedElement {
 		return isCurrent;
 	}
 
+	public String getProfileId() {
+		return profileId;
+	}
+
 	public String getProfileTag() {
 		return profileTag;
+	}
+
+	public void setProfileTag(String profileTag) {
+		this.profileTag = profileTag;
 	}
 
 	/* (non-Javadoc)
