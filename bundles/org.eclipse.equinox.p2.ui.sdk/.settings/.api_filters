@@ -8,6 +8,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/equinox/internal/p2/ui/sdk/RevertProfilePageExtensionFactory.java" type="org.eclipse.equinox.internal.p2.ui.sdk.RevertProfilePageExtensionFactory">
+        <filter id="572522506">
+            <message_arguments>
+                <message_argument value="RevertProfilePage"/>
+                <message_argument value="RevertProfilePageExtensionFactory"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/equinox/internal/p2/ui/sdk/RevertProfilePageWithCompare.java" type="org.eclipse.equinox.internal.p2.ui.sdk.RevertProfilePageWithCompare">
         <filter id="571473929">
             <message_arguments>
