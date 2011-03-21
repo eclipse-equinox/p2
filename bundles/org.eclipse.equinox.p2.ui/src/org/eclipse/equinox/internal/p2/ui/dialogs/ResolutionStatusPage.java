@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,13 +13,14 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.*;
-import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -59,6 +60,8 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 	protected abstract IUDetailsGroup getDetailsGroup();
 
 	protected abstract IInstallableUnit getSelectedIU();
+
+	protected abstract Object[] getSelectedElements();
 
 	/**
 	 * Update the status area of the wizard to report the results of the operation.
@@ -110,6 +113,17 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		return description;
 	}
 
+	protected String getIUDescription(AvailableIUElement element) {
+		IInstallableUnit iu = element.getIU();
+
+		String description = getIUDescription(iu);
+
+		if (isLocked(element)) {
+			description = NLS.bind(ProvUIMessages.ResolutionStatusPage_ErrorIULocked, description);
+		}
+		return description;
+	}
+
 	String getMessageText(IStatus currentStatus) {
 		if (currentStatus == null || currentStatus.isOK())
 			return getDescription();
@@ -122,7 +136,8 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 
 	void setDetailText(ProfileChangeOperation resolvedOperation) {
 		String detail = null;
-		IInstallableUnit selectedIU = getSelectedIU();
+		AvailableIUElement selectedElement = (AvailableIUElement) getSelectedElement();
+		IInstallableUnit selectedIU = ElementUtils.elementToIU(selectedElement);
 		IUDetailsGroup detailsGroup = getDetailsGroup();
 
 		// We either haven't resolved, or we failed to resolve and reported some error
@@ -134,7 +149,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 				detail = currentStatus.getMessage();
 				detailsGroup.enablePropertyLink(false);
 			} else if (selectedIU != null) {
-				detail = getIUDescription(selectedIU);
+				detail = getIUDescription(selectedElement);
 				detailsGroup.enablePropertyLink(true);
 			} else {
 				detail = ""; //$NON-NLS-1$
@@ -165,7 +180,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 			// The overall status is not an error, or else there was no explanatory text for an error.
 			// We may as well just show info about this iu.
 			detailsGroup.enablePropertyLink(true);
-			detailsGroup.setDetailText(getIUDescription(selectedIU));
+			detailsGroup.setDetailText(getIUDescription(selectedElement));
 			return;
 		}
 
@@ -175,6 +190,13 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		if (detail == null)
 			detail = ""; //$NON-NLS-1$
 		detailsGroup.setDetailText(detail);
+	}
+
+	private Object getSelectedElement() {
+		Object[] elements = getSelectedElements();
+		if (elements.length == 0)
+			return null;
+		return elements[0];
 	}
 
 	protected abstract String getDialogSettingsName();
@@ -268,5 +290,11 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		idColumn = new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH);
 		getColumnWidthsFromSettings();
 		return new IUColumnConfig[] {nameColumn, versionColumn, idColumn};
+	}
+
+	private boolean isLocked(AvailableIUElement elementToBeUpdated) {
+		if (elementToBeUpdated instanceof AvailableUpdateElement)
+			return ((AvailableUpdateElement) elementToBeUpdated).isLocked();
+		return false;
 	}
 }

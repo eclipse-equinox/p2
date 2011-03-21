@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,8 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
@@ -31,6 +33,7 @@ public class UpdateWizard extends WizardWithLicenses {
 	IInstallableUnit[] iusToReplace;
 	boolean skipSelectionsPage = false;
 	IUElementListRoot firstPageRoot;
+	Update[] initialSelections;
 
 	public static Collection<IInstallableUnit> getIUsToReplace(Object[] elements) {
 		Set<IInstallableUnit> iusToReplace = new HashSet<IInstallableUnit>();
@@ -73,9 +76,29 @@ public class UpdateWizard extends WizardWithLicenses {
 	 */
 	public UpdateWizard(ProvisioningUI ui, UpdateOperation operation, Object[] initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
+		this.initialSelections = (Update[]) initialSelections;
 		Assert.isLegal(operation.hasResolved(), "Cannot create an update wizard on an unresolved operation"); //$NON-NLS-1$
 		setWindowTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UPDATE));
+	}
+
+	private boolean isLocked(IProfile profile, IInstallableUnit iuToBeUpdated) {
+		return Boolean.valueOf(profile.getInstallableUnitProperty(iuToBeUpdated, IProfile.PROP_PROFILE_LOCKED_IU)).booleanValue();
+	}
+
+	public void deselectLockedIUs() {
+		IProfileRegistry profileRegistry = (IProfileRegistry) ui.getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
+		IProfile profile = profileRegistry.getProfile(ui.getProfileId());
+
+		ArrayList<Update> newSelection = new ArrayList<Update>(initialSelections.length);
+		for (int i = 0; i < initialSelections.length; i++) {
+			if (!isLocked(profile, initialSelections[i].toUpdate)) {
+				newSelection.add(initialSelections[i]);
+			}
+		}
+
+		((UpdateOperation) operation).setSelectedUpdates(newSelection.toArray(new Update[newSelection.size()]));
+		recomputePlan(getContainer());
 	}
 
 	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {

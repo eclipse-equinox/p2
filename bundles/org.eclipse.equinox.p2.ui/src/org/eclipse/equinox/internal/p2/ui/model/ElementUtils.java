@@ -113,6 +113,10 @@ public class ElementUtils {
 		return theIUs;
 	}
 
+	public static IInstallableUnit elementToIU(Object selectedElement) {
+		return ProvUI.getAdapter(selectedElement, IInstallableUnit.class);
+	}
+
 	static boolean containsURI(URI[] locations, URI url) {
 		for (int i = 0; i < locations.length; i++)
 			if (locations[i].equals(url))

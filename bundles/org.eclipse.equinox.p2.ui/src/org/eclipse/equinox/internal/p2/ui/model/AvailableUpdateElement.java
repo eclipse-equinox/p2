@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
-import org.eclipse.equinox.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.internal.p2.ui.ProvUIImages;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.Update;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -30,11 +30,24 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 public class AvailableUpdateElement extends AvailableIUElement {
 
 	IInstallableUnit iuToBeUpdated;
+	boolean isLocked = false;
 
 	public AvailableUpdateElement(Object parent, IInstallableUnit iu, IInstallableUnit iuToBeUpdated, String profileID, boolean shouldShowChildren) {
 		super(parent, iu, profileID, shouldShowChildren);
 		setIsInstalled(false);
 		this.iuToBeUpdated = iuToBeUpdated;
+		init();
+
+	}
+
+	private void init() {
+		IProfileRegistry profileRegistry = (IProfileRegistry) getProvisioningUI().getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
+		IProfile profile = profileRegistry.getProfile(profileID);
+		isLocked = profile.getInstallableUnitProperty(iuToBeUpdated, IProfile.PROP_PROFILE_LOCKED_IU) != null;
+	}
+
+	public boolean isLocked() {
+		return isLocked;
 	}
 
 	public IInstallableUnit getIUToBeUpdated() {
@@ -75,5 +88,12 @@ public class AvailableUpdateElement extends AvailableIUElement {
 
 	public Update getUpdate() {
 		return new Update(iuToBeUpdated, getIU());
+	}
+
+	protected String getImageId(Object obj) {
+		String imageId = super.getImageId(obj);
+		if (ProvUIImages.IMG_IU.equals(imageId) && isLocked())
+			return ProvUIImages.IMG_DISABLED_IU;
+		return imageId;
 	}
 }

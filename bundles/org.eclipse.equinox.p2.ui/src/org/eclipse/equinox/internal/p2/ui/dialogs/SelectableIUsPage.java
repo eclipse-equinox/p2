@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.ElementUtils;
-import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
+import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileChangeOperation;
@@ -109,6 +109,24 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 
 		tableViewer.addCheckStateListener(new ICheckStateListener() {
 			public void checkStateChanged(CheckStateChangedEvent event) {
+				// If the checkEvent is on a locked update element, uncheck it and select it.
+				if (event.getElement() instanceof AvailableUpdateElement) {
+					AvailableUpdateElement checkedElement = (AvailableUpdateElement) event.getElement();
+					if (checkedElement.isLocked()) {
+						event.getCheckable().setChecked(checkedElement, false);
+						// Select the element so that the locked description is displayed
+						CheckboxTableViewer viewer = ((CheckboxTableViewer) event.getSource());
+						int itemCount = viewer.getTable().getItemCount();
+						for (int i = 0; i < itemCount; i++) {
+							if (viewer.getElementAt(i).equals(checkedElement)) {
+								viewer.getTable().deselectAll();
+								viewer.getTable().select(i);
+								setDetailText(resolvedOperation);
+								break;
+							}
+						}
+					}
+				}
 				updateSelection();
 			}
 		});
@@ -210,8 +228,22 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	}
 
 	protected void setInitialCheckState() {
-		if (initialSelections != null)
-			tableViewer.setCheckedElements(initialSelections);
+		if (initialSelections == null) {
+			return;
+		}
+
+		ArrayList<Object> selections = new ArrayList<Object>(initialSelections.length);
+
+		for (int i = 0; i < initialSelections.length; i++) {
+			if (initialSelections[i] instanceof AvailableUpdateElement) {
+				AvailableUpdateElement element = (AvailableUpdateElement) initialSelections[i];
+				if (element.isLocked()) {
+					continue;
+				}
+			}
+			selections.add(initialSelections[i]);
+		}
+		tableViewer.setCheckedElements(selections.toArray(new Object[selections.size()]));
 	}
 
 	/*
