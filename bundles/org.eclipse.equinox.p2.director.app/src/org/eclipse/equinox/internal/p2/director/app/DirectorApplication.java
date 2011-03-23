@@ -123,6 +123,7 @@ public class DirectorApplication implements IApplication {
 	private static final CommandLineOption OPTION_FLAVOR = new CommandLineOption(new String[] {"-flavor", "-f"}, Messages.Help_lt_name_gt, Messages.Help_Defines_flavor_to_use_for_created_profile); //$NON-NLS-1$ //$NON-NLS-2$
 	private static final CommandLineOption OPTION_SHARED = new CommandLineOption(new String[] {"-shared", "-s"}, Messages.Help_lb_lt_path_gt_rb, Messages.Help_Use_a_shared_location_for_the_install); //$NON-NLS-1$ //$NON-NLS-2$
 	private static final CommandLineOption OPTION_BUNDLEPOOL = new CommandLineOption(new String[] {"-bundlepool", "-b"}, Messages.Help_lt_path_gt, Messages.Help_The_location_where_the_plugins_and_features_will_be_stored); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final CommandLineOption OPTION_IU_PROFILE_PROPS = new CommandLineOption(new String[] {"-iuProfileproperties"}, Messages.Help_lt_path_gt, Messages.Help_path_to_IU_profile_properties_file); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_PROFILE_PROPS = new CommandLineOption(new String[] {"-profileproperties"}, Messages.Help_lt_comma_separated_list_gt, Messages.Help_A_list_of_properties_in_the_form_key_value_pairs); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_ROAMING = new CommandLineOption(new String[] {"-roaming"}, null, Messages.Help_Indicates_that_the_product_can_be_moved); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_P2_OS = new CommandLineOption(new String[] {"-p2.os"}, null, Messages.Help_The_OS_when_profile_is_created); //$NON-NLS-1$
@@ -244,6 +245,7 @@ public class DirectorApplication implements IApplication {
 	private boolean downloadOnly = false;
 	private String profileId;
 	private String profileProperties; // a comma-separated list of property pairs "tag=value"
+	private String iuProfileProperties; // path to Properties file with IU profile properties
 	private String ws;
 	private String os;
 	private String arch;
@@ -266,7 +268,109 @@ public class DirectorApplication implements IApplication {
 		markRoots(request, uninstalls);
 		request.addAll(installs);
 		request.removeAll(uninstalls);
+		buildIUProfileProperties(request);
 		return request;
+	}
+
+	// read the given file into a Properties object
+	private Properties loadProperties(File file) {
+		if (!file.exists()) {
+			// log a warning and return
+			logStatus(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.File_does_not_exist, file.getAbsolutePath())));
+			return null;
+		}
+		Properties properties = new Properties();
+		InputStream input = null;
+		try {
+			input = new BufferedInputStream(new FileInputStream(file));
+			properties.load(input);
+		} catch (IOException e) {
+			logFailure(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Problem_loading_file, file.getAbsolutePath()), e));
+			return null;
+		} finally {
+			if (input != null)
+				try {
+					input.close();
+				} catch (IOException e) {
+					// ignore
+				}
+		}
+		return properties;
+	}
+
+	private void buildIUProfileProperties(IProfileChangeRequest request) {
+		final String KEYWORD_KEY = "key"; //$NON-NLS-1$
+		final String KEYWORD_VALUE = "value"; //$NON-NLS-1$
+		final String KEYWORD_VERSION = "version"; //$NON-NLS-1$
+
+		if (iuProfileProperties == null)
+			return;
+
+		// read the file into a Properties object for easier processing
+		Properties properties = loadProperties(new File(iuProfileProperties));
+		if (properties == null)
+			return;
+
+		// format for a line in the properties input file is <id>.<keyword>.<uniqueNumber>=value
+		// id is the IU id
+		// keyword is either "key" or "value"
+		// uniqueNumber is used to group keys and values together
+		Set<String> alreadyProcessed = new HashSet<String>();
+		for (Iterator<Object> iter = properties.keySet().iterator(); iter.hasNext();) {
+			String line = (String) iter.next();
+			int index = line.lastIndexOf('.');
+			if (index == -1)
+				continue;
+			int num = -1;
+			String id = null;
+			try {
+				num = Integer.parseInt(line.substring(index + 1));
+				line = line.substring(0, index);
+				index = line.lastIndexOf('.');
+				if (index == -1)
+					continue;
+				// skip over the keyword
+				id = line.substring(0, index);
+			} catch (NumberFormatException e) {
+				logStatus(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Bad_format, line, iuProfileProperties), e));
+				continue;
+			} catch (IndexOutOfBoundsException e) {
+				logStatus(new Status(IStatus.WARNING, Activator.ID, NLS.bind(Messages.Bad_format, line, iuProfileProperties), e));
+				continue;
+			}
+
+			String versionLine = id + '.' + KEYWORD_VERSION + '.' + num;
+			String keyLine = id + '.' + KEYWORD_KEY + '.' + num;
+			String valueLine = id + '.' + KEYWORD_VALUE + '.' + num;
+
+			if (alreadyProcessed.contains(versionLine) || alreadyProcessed.contains(keyLine) || alreadyProcessed.contains(valueLine))
+				continue;
+
+			// skip over this key/value pair next time we see it
+			alreadyProcessed.add(versionLine);
+			alreadyProcessed.add(keyLine);
+			alreadyProcessed.add(valueLine);
+
+			Version version = Version.create((String) properties.get(versionLine)); // it is ok to have a null version
+			String key = (String) properties.get(keyLine);
+			String value = (String) properties.get(valueLine);
+
+			if (key == null || value == null) {
+				String message = NLS.bind(Messages.Unmatched_iu_profile_property_key_value, key + '/' + value);
+				logStatus(new Status(IStatus.WARNING, Activator.ID, message));
+				continue;
+			}
+			// lookup the IU
+			IQueryResult<IInstallableUnit> qr = getInstallableUnits(null, QueryUtil.createIUQuery(id, version), null);
+			if (qr.isEmpty()) {
+				String msg = NLS.bind(Messages.Cannot_set_iu_profile_property_iu_does_not_exist, id + '/' + version);
+				logStatus(new Status(IStatus.WARNING, Activator.ID, msg));
+				continue;
+			}
+			IInstallableUnit iu = qr.iterator().next();
+			request.setInstallableUnitProfileProperty(iu, key, value);
+		}
+
 	}
 
 	private void cleanupRepositories() {
@@ -755,6 +859,11 @@ public class DirectorApplication implements IApplication {
 				continue;
 			}
 
+			if (OPTION_IU_PROFILE_PROPS.isOption(opt)) {
+				iuProfileProperties = getRequiredArgument(args, ++i);
+				continue;
+			}
+
 			if (OPTION_ROAMING.isOption(opt)) {
 				roamingProfile = true;
 				continue;
@@ -1013,7 +1122,7 @@ public class DirectorApplication implements IApplication {
 	}
 
 	private void performHelpInfo() {
-		CommandLineOption[] allOptions = new CommandLineOption[] {OPTION_HELP, OPTION_LIST, OPTION_LIST_INSTALLED, OPTION_INSTALL_IU, OPTION_UNINSTALL_IU, OPTION_REVERT, OPTION_DESTINATION, OPTION_METADATAREPOS, OPTION_ARTIFACTREPOS, OPTION_REPOSITORIES, OPTION_VERIFY_ONLY, OPTION_PROFILE, OPTION_FLAVOR, OPTION_SHARED, OPTION_BUNDLEPOOL, OPTION_PROFILE_PROPS, OPTION_ROAMING, OPTION_P2_OS, OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL, OPTION_PURGEHISTORY, OPTION_FOLLOW_REFERENCES};
+		CommandLineOption[] allOptions = new CommandLineOption[] {OPTION_HELP, OPTION_LIST, OPTION_LIST_INSTALLED, OPTION_INSTALL_IU, OPTION_UNINSTALL_IU, OPTION_REVERT, OPTION_DESTINATION, OPTION_METADATAREPOS, OPTION_ARTIFACTREPOS, OPTION_REPOSITORIES, OPTION_VERIFY_ONLY, OPTION_PROFILE, OPTION_FLAVOR, OPTION_SHARED, OPTION_BUNDLEPOOL, OPTION_PROFILE_PROPS, OPTION_IU_PROFILE_PROPS, OPTION_ROAMING, OPTION_P2_OS, OPTION_P2_WS, OPTION_P2_ARCH, OPTION_P2_NL, OPTION_PURGEHISTORY, OPTION_FOLLOW_REFERENCES};
 		for (int i = 0; i < allOptions.length; ++i) {
 			allOptions[i].appendHelp(System.out);
 		}

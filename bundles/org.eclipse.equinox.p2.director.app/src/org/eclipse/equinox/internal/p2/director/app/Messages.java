@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -22,8 +22,12 @@ public class Messages extends NLS {
 	public static String Application_NoManager;
 
 	public static String Application_NoRepositories;
+	public static String Bad_format;
 	public static String Cant_change_roaming;
 	public static String destination_commandline;
+
+	public static String Cannot_set_iu_profile_property_iu_does_not_exist;
+	public static String File_does_not_exist;
 
 	public static String Help_A_list_of_properties_in_the_form_key_value_pairs;
 	public static String Help_A_list_of_URLs_denoting_artifact_repositories;
@@ -42,6 +46,7 @@ public class Messages extends NLS {
 	public static String Help_lt_path_gt;
 	public static String Help_Missing_argument;
 	public static String Help_Only_verify_dont_install;
+	public static String Help_path_to_IU_profile_properties_file;
 	public static String Help_Prints_this_command_line_help;
 	public static String Help_The_ARCH_when_profile_is_created;
 	public static String Help_The_folder_in_which_the_targetd_product_is_located;
@@ -76,8 +81,10 @@ public class Messages extends NLS {
 	public static String unknown_option_0;
 
 	public static String problem_CallingDirector;
+	public static String Problem_loading_file;
 	public static String problem_repoMustBeURI;
 	public static String unableToWriteLogFile;
+	public static String Unmatched_iu_profile_property_key_value;
 
 	static {
 		// initialize resource bundle
