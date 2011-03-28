@@ -63,7 +63,7 @@ public class Credentials {
 	 * @param prompt - use <code>true</code> to prompt the user instead of
 	 * looking at the secure preference store for login, use <code>false</code>
 	 * to only try the secure preference store
-	 * @throws UserCancelledException when the user cancels the login prompt
+	 * @throws LoginCanceledException when the user cancels the login prompt
 	 * @throws CoreException if the password cannot be read or saved
 	 * @return The authentication info.
 	 */
@@ -86,7 +86,7 @@ public class Credentials {
 	 * @param prompt - if true, user will be prompted for information
 	 * @param lastUsed - optional information used in an previous attempt to login
 	 * @return AuthenticationInfo, or null if there was no information available
-	 * @throws UserCancelledException - user canceled the prompt for name/password
+	 * @throws LoginCanceledException - user canceled the prompt for name/password
 	 * @throws CoreException if there is an error
 	 */
 	public static UIServices.AuthenticationInfo forLocation(URI location, boolean prompt, UIServices.AuthenticationInfo lastUsed) throws LoginCanceledException, CoreException {

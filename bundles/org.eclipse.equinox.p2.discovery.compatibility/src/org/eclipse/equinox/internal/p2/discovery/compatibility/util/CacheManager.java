@@ -143,7 +143,6 @@ public class CacheManager {
 	/**
 	 * Determines the local file paths of the locations potential cache file.
 	 * @param location The location to compute the cache for
-	 * @param PREFIX The prefix to use for this location
 	 * @return A {@link File} array with the cache files for JAR and XML extensions.
 	 */
 	private File getCache(URI location) {
