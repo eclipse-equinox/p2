@@ -626,7 +626,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		if (destination == null)
 			destination = output;
 		String message = "Running the verifier bundle at: " + destination;
-		return runEclipse(message, new String[] {"-application", "org.eclipse.equinox.p2.tests.verifier.application"});
+		return runEclipse(message, new String[] {"-application", "org.eclipse.equinox.p2.tests.verifier.application", "-consoleLog"});
 	}
 
 	public int installAndRunVerifierBundle(File destination) {
