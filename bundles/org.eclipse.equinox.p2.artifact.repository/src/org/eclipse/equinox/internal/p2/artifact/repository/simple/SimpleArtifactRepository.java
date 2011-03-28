@@ -1339,7 +1339,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	/**
 	 * Actually lock the location.  This method should only be called
 	 * from LockAndLoad. If you only want to lock the repository and not
-	 * load it, see {@link SimpleArtifactRepository#lockAndLoad(boolean)}.
+	 * load it, see {@link SimpleArtifactRepository#lockAndLoad(boolean, IProgressMonitor)}.
 	 */
 	private synchronized boolean lock(boolean wait, IProgressMonitor monitor) throws IOException {
 		if (holdsLock()) {
