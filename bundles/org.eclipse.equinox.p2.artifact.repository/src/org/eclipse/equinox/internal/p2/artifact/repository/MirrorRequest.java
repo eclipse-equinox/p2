@@ -35,6 +35,12 @@ import org.eclipse.osgi.util.NLS;
  * A request to mirror (copy) an artifact into a given destination artifact repository.
  */
 public class MirrorRequest extends ArtifactRequest {
+
+	/**
+	 * Maximum number of times a request for a single artifact should be tried
+	 */
+	private static final int MAX_RETRY_REQUEST = 10;
+
 	/**
 	 * The name of a repository property on an artifact repository, indicating the base URI
 	 * to be used for reporting download statistics.
@@ -175,10 +181,15 @@ public class MirrorRequest extends ArtifactRequest {
 	protected IStatus transfer(IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
 		IStatus status = Status.OK_STATUS;
 		// go until we get one (OK), there are no more mirrors to consider or the operation is cancelled.
+		// Put a hard limit of MAX_RETRY_REQUEST so we don't end up in an infinite loop.  
+		// Really, if you've tried MAX_RETRY_REQUEST times without success, it's time to give up
+		// TODO Should we log that we gave up because of the retry count?
 		// TODO this needs to be redone with a much better mirror management scheme.
+
+		int counter = 0;
 		do {
 			status = transferSingle(destinationDescriptor, sourceDescriptor, monitor);
-		} while (status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY);
+		} while (status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY && counter++ < MAX_RETRY_REQUEST);
 		if (status.isOK())
 			collectStats(sourceDescriptor, monitor);
 		return status;
