@@ -17,7 +17,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
@@ -173,19 +174,7 @@ public class SimpleArtifactRepositoryIO {
 		if (!URIUtil.isFileURI(repositoryLocation)) {
 			throw new IOException("Cannot lock a non file based repository"); //$NON-NLS-1$
 		}
-		File repositoryFile = URIUtil.toFile(repositoryLocation);
-		Location anyLoc = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName());
-		Location location = anyLoc.createLocation(null, getLockFile(repositoryLocation).toURL(), !repositoryFile.canWrite());
-		location.set(getLockFile(repositoryLocation).toURL(), false);
-		return location;
-	}
-
-	private File getLockFile(URI repositoryLocation) throws IOException {
-		if (!URIUtil.isFileURI(repositoryLocation)) {
-			throw new IOException("Cannot lock a non file based repository"); //$NON-NLS-1$
-		}
-		URI result = URIUtil.append(repositoryLocation, ".artifactlock"); //$NON-NLS-1$
-		return URIUtil.toFile(result);
+		return Activator.getInstance().getLockLocation(repositoryLocation);
 	}
 
 	private interface XMLConstants extends org.eclipse.equinox.internal.p2.persistence.XMLConstants {

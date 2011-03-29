@@ -27,7 +27,6 @@ import org.eclipse.equinox.internal.p2.artifact.processors.md5.MD5Verifier;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.expression.CompoundIterator;
 import org.eclipse.equinox.internal.p2.metadata.index.IndexProvider;
@@ -1385,21 +1384,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			throw new IOException("Cannot lock a non file based repository"); //$NON-NLS-1$
 		}
 
-		// TODO: Throw an IO Exception if we cannot lock this location
-		Location anyLoc = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName());
-		File repositoryFile = URIUtil.toFile(repositoryLocation);
-		Location location = anyLoc.createLocation(null, getLockFile().toURL(), !repositoryFile.canWrite());
-		location.set(getLockFile().toURL(), false);
-		return location;
-	}
-
-	private File getLockFile() throws IOException {
-		URI repositoryLocation = getLocation();
-		if (!URIUtil.isFileURI(repositoryLocation)) {
-			throw new IOException("Cannot lock a non file based repository"); //$NON-NLS-1$
-		}
-		URI result = URIUtil.append(repositoryLocation, ".artifactlock"); //$NON-NLS-1$
-		return URIUtil.toFile(result);
+		return Activator.getInstance().getLockLocation(repositoryLocation);
 	}
 
 	/**
@@ -1496,4 +1481,5 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 		lockLocation = null;
 	}
+
 }
