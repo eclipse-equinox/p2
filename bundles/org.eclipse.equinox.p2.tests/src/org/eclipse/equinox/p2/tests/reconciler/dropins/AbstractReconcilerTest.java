@@ -72,6 +72,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		output = getUniqueFolder();
 		toRemove.add(output);
 		// for now we will exec to un-tar archives to keep the executable bits
+		System.out.println("Extracting: " + file.getAbsolutePath() + " to: " + output);
 		if (file.getName().toLowerCase().endsWith(".zip")) {
 			try {
 				FileUtils.unzipFile(file, output);
@@ -633,6 +634,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		if (destination == null)
 			destination = output;
 		try {
+			System.out.println("Copying :" + VERIFIER_BUNDLE_ID + " to: " + destination.getAbsolutePath());
 			copyBundle(VERIFIER_BUNDLE_ID, null, destination);
 		} catch (IOException e) {
 			fail("Could not find the verifier bundle");
