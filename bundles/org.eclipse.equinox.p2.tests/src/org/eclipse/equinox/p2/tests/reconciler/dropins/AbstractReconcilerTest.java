@@ -426,6 +426,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 */
 	public void cleanup() throws Exception {
 		// rm -rf eclipse sub-dir
+		boolean leaveDirty = Boolean.valueOf(TestActivator.getContext().getProperty("p2.tests.doNotClean")).booleanValue();
+		if (leaveDirty)
+			return;
 		for (Iterator iter = toRemove.iterator(); iter.hasNext();) {
 			File next = (File) iter.next();
 			delete(next);
