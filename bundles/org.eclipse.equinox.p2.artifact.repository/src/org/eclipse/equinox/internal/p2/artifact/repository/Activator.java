@@ -63,10 +63,25 @@ public class Activator implements BundleActivator {
 		}
 		Location anyLoc = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName());
 		File repositoryFile = URIUtil.toFile(repositoryLocation);
-		Location location = anyLoc.createLocation(null, getLockFile(repositoryLocation).toURL(), !repositoryFile.canWrite());
+		Location location = anyLoc.createLocation(null, getLockFile(repositoryLocation).toURL(), isReadOnly(repositoryFile)); 
 		location.set(getLockFile(repositoryLocation).toURL(), false);
 		locationCache.put(repositoryLocation, location);
 		return location;
+	}
+
+	/**
+	 * Determines if a location is read only by checking the file, and looking
+	 * at the parent chain if necessary.
+	 */
+	private boolean isReadOnly(File file) {
+		if (file == null)
+			return true;   // If we've reached the root, then return true
+		else if (file.canWrite())
+			return false;  // If we can write to this area, then it's not read-only
+		else if (file.exists())
+			return true;  // if we can't write && file exists, then this is a read only area
+		else
+			return isReadOnly(file.getParentFile());
 	}
 
 	private File getLockFile(URI repositoryLocation) throws IOException {
