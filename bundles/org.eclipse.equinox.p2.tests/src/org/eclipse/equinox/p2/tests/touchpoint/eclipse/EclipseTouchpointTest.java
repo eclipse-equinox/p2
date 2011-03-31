@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.touchpoint.eclipse;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.io.File;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.*;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
+import org.eclipse.equinox.internal.p2.updatesite.RemoteFeaturesAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -144,7 +144,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		mockManifest.put("Bundle-Version", key.getVersion().toString()); //$NON-NLS-1$
 
 		BundleDescription partialIUBundleDescription = BundlesAction.createBundleDescription(mockManifest, null);
-		IInstallableUnit[] bundleIUs = PublisherHelper.createEclipseIU(partialIUBundleDescription, false, key, extraProperties);
+		IInstallableUnit[] bundleIUs = RemoteFeaturesAction.createEclipseIU(partialIUBundleDescription, false, key, extraProperties);
 		assertTrue(bundleIUs != null && bundleIUs.length != 0);
 		IInstallableUnit iu = bundleIUs[0];
 		assertTrue(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());
@@ -182,7 +182,7 @@ public class EclipseTouchpointTest extends AbstractProvisioningTest {
 		mockManifest.put("Bundle-Version", key.getVersion().toString()); //$NON-NLS-1$
 
 		BundleDescription partialIUBundleDescription = BundlesAction.createBundleDescription(mockManifest, null);
-		IInstallableUnit[] bundleIUs = PublisherHelper.createEclipseIU(partialIUBundleDescription, false, key, extraProperties);
+		IInstallableUnit[] bundleIUs = RemoteFeaturesAction.createEclipseIU(partialIUBundleDescription, false, key, extraProperties);
 		assertTrue(bundleIUs != null && bundleIUs.length != 0);
 		IInstallableUnit iu = bundleIUs[0];
 		assertTrue(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue());

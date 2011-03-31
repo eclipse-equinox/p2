@@ -13,7 +13,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
-	public static BundleContext context = null;
+	private static BundleContext context = null;
 	public static String ID = "org.eclipse.equinox.p2.publisher"; //$NON-NLS-1$
 
 	public static BundleContext getContext() {

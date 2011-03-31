@@ -12,14 +12,22 @@ package org.eclipse.equinox.p2.tests.publisher.actions;
 
 import static org.easymock.EasyMock.*;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.EquinoxExecutableAction;
+import org.eclipse.equinox.p2.publisher.eclipse.IBrandingAdvice;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.publisher.TestArtifactRepository;
@@ -30,7 +38,8 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private static final File MAC_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/macosx/"); //$NON-NLS-1$
 	private static final File LINUX_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/linux/"); //$NON-NLS-1$
 	private static final File WIN_EXEC = new File(TestActivator.getTestDataFolder(), "EquinoxExecutableActionTest/win/"); //$NON-NLS-1$
-	private final String EXECUTABLE_NAME = "eclipse"; //$NON-NLS-1$
+	private final String EXECUTABLE_NAME = "LauncherName"; //$NON-NLS-1$
+	private Collection<IBrandingAdvice> brandingAdvice = new LinkedList<IBrandingAdvice>();
 	private String macConfig = "carbon.macosx.ppc"; //$NON-NLS-1$
 	private String macConfigCocoa = "cocoa.macosx.x86"; //$NON-NLS-1$
 	private String winConfig = "win32.win32.x86"; //$NON-NLS-1$
@@ -38,6 +47,8 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private ExecutablesDescriptor executablesDescriptor;
 	private IArtifactRepository artifactRepository;
 	private Version version = Version.create("1.2.3"); //$NON-NLS-1$
+	private String id;
+	private String[] expectedExecutablesContents;
 
 	public void setUp() throws Exception {
 		setupPublisherInfo();
@@ -49,23 +60,42 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	}
 
 	public void testMacCarbon() throws Exception {
-		testExecutableAction("mac", "macosx", macConfig, MAC_EXEC); //$NON-NLS-1$//$NON-NLS-2$
+		File icon = File.createTempFile(EXECUTABLE_NAME, ".icns");
+		FileUtils.copyStream(new FileInputStream(new File(MAC_EXEC, "eclipse.app/Contents/Resources/eclipse.icns")), true, new FileOutputStream(icon), true);
+
+		expectedExecutablesContents = new String[] {EXECUTABLE_NAME + ".app", EXECUTABLE_NAME + ".app/Contents/Info.plist", EXECUTABLE_NAME + ".app/Contents/MacOS/" + EXECUTABLE_NAME, EXECUTABLE_NAME + ".app/Contents/MacOS/" + EXECUTABLE_NAME + ".ini", EXECUTABLE_NAME + ".app/Contents/Resources/" + icon.getName()};
+		testExecutableAction("mac", "macosx", macConfig, MAC_EXEC, icon); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	public void testMacCocoa() throws Exception {
-		testExecutableAction("macCocoa", "macosx", macConfigCocoa, MAC_EXEC); //$NON-NLS-1$//$NON-NLS-2$
+		File icon = File.createTempFile(EXECUTABLE_NAME, ".icns");
+		FileUtils.copyStream(new FileInputStream(new File(MAC_EXEC, "eclipse.app/Contents/Resources/eclipse.icns")), true, new FileOutputStream(icon), true);
+
+		expectedExecutablesContents = new String[] {EXECUTABLE_NAME + ".app", EXECUTABLE_NAME + ".app/Contents/Info.plist", EXECUTABLE_NAME + ".app/Contents/MacOS/" + EXECUTABLE_NAME, EXECUTABLE_NAME + ".app/Contents/MacOS/" + EXECUTABLE_NAME + ".ini", EXECUTABLE_NAME + ".app/Contents/Resources/" + icon.getName()};
+		testExecutableAction("macCocoa", "macosx", macConfigCocoa, MAC_EXEC, icon); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	public void testWin() throws Exception {
-		testExecutableAction("win", "win32", winConfig, WIN_EXEC); //$NON-NLS-1$//$NON-NLS-2$
+		File icon = File.createTempFile(EXECUTABLE_NAME, ".ico");
+		FileUtils.copyStream(new FileInputStream(new File(WIN_EXEC, "eclipse.ico")), true, new FileOutputStream(icon), true);
+
+		// FIXME: is there any way to test that the .ico has been replaced?
+		expectedExecutablesContents = new String[] {EXECUTABLE_NAME + ".exe"};
+		testExecutableAction("win", "win32", winConfig, WIN_EXEC, icon); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	public void testLinux() throws Exception {
-		testExecutableAction("linux", "linux", linuxConfig, LINUX_EXEC); //$NON-NLS-1$//$NON-NLS-2$
+		File icon = File.createTempFile(EXECUTABLE_NAME, ".xpm");
+		FileUtils.copyStream(new FileInputStream(new File(LINUX_EXEC, "eclipse.xpm")), true, new FileOutputStream(icon), true);
+
+		expectedExecutablesContents = new String[] {EXECUTABLE_NAME, "icon.xpm"};
+		testExecutableAction("linux", "linux", linuxConfig, LINUX_EXEC, icon); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
-	private void testExecutableAction(String idBase, String osArg, String config, File exec) {
-		executablesDescriptor = ExecutablesDescriptor.createDescriptor(osArg, EXECUTABLE_NAME, exec);
+	private void testExecutableAction(String idBase, final String osArg, String config, File exec, File icon) {
+		id = idBase;
+		setupBrandingAdvice(osArg, configSpec, exec, icon);
+		executablesDescriptor = ExecutablesDescriptor.createDescriptor(osArg, "eclipse", exec);
 		testAction = new EquinoxExecutableAction(executablesDescriptor, config, idBase, version, flavorArg);
 		testAction.perform(publisherInfo, publisherResult, new NullProgressMonitor());
 		verifyResults(idBase, config);
@@ -109,10 +139,10 @@ public class EquinoxExecutableActionTest extends ActionTest {
 	private void verifyEclipseIU(ArrayList iuList, String idBase, String configSpec) {
 		for (int i = 0; i < iuList.size(); i++) {
 			IInstallableUnit possibleEclipse = (IInstallableUnit) iuList.get(i);
-			if (possibleEclipse.getId().equals((idBase + ".executable." + configSpec + ".eclipse"))) { //$NON-NLS-1$//$NON-NLS-2$
+			if (possibleEclipse.getId().equals((idBase + ".executable." + configSpec + "." + EXECUTABLE_NAME))) { //$NON-NLS-1$//$NON-NLS-2$
 				assertTrue(possibleEclipse.getVersion().equals(version));
 				Collection<IProvidedCapability> providedCapability = possibleEclipse.getProvidedCapabilities();
-				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec + ".eclipse", version); //$NON-NLS-1$ //$NON-NLS-2$ 
+				verifyProvidedCapability(providedCapability, IInstallableUnit.NAMESPACE_IU_ID, idBase + ".executable." + configSpec + "." + EXECUTABLE_NAME, version); //$NON-NLS-1$ //$NON-NLS-2$ 
 				assertTrue(providedCapability.size() == 1);
 				Collection<IRequirement> req = possibleEclipse.getRequirements();
 				assertTrue(req.size() == 0);
@@ -145,16 +175,119 @@ public class EquinoxExecutableActionTest extends ActionTest {
 				Collection<IRequirement> requiredCapability = possibleExec.getRequirements();
 				verifyRequiredCapability(requiredCapability, IInstallableUnit.NAMESPACE_IU_ID, "org.eclipse.equinox.launcher." + (idBase.equals("mac") || idBase.equals("macCocoa") ? configSpec.substring(0, configSpec.lastIndexOf(".")) : configSpec), VersionRange.emptyRange); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 				assertTrue(requiredCapability.size() == 1);
+
+				try {
+					checkExecutableContents(eKey);
+				} catch (IOException e) {
+					fail();
+				}
 				return;//pass
 			}
 		}
 		fail();
 	}
 
+	private void checkExecutableContents(IArtifactKey key) throws IOException {
+		File file = File.createTempFile("exec", ".zip");
+		FileOutputStream fos = new FileOutputStream(file);
+		try {
+			IArtifactDescriptor ad = artifactRepository.createArtifactDescriptor(key);
+			IStatus result = artifactRepository.getArtifact(ad, fos, new NullProgressMonitor());
+			assertTrue("executable not published?", result.isOK());
+		} finally {
+			fos.close();
+		}
+
+		ZipFile zip = new ZipFile(file);
+		try {
+			for (String path : expectedExecutablesContents) {
+				assertNotNull("executable zip missing " + path, zip.getEntry(path));
+			}
+
+			checkInfoPlist(zip);
+		} finally {
+			zip.close();
+		}
+	}
+
+	/** 
+	 * If present, check that the Info.plist had its various values
+	 * properly rewritten. 
+	 * @param zip file to check for the Info.plist
+	 */
+	private void checkInfoPlist(ZipFile zip) {
+		ZipEntry candidate = null;
+		boolean found = false;
+		for (Enumeration<? extends ZipEntry> iter = zip.entries(); !found && iter.hasMoreElements();) {
+			candidate = iter.nextElement();
+			found = candidate.getName().endsWith(".app/Contents/Info.plist");
+		}
+		if (!found) {
+			return;
+		}
+		try {
+			String contents = readContentsAndClose(zip.getInputStream(candidate));
+			assertEquals(id, getPlistStringValue(contents, "CFBundleIdentifier"));
+			assertEquals(EXECUTABLE_NAME, getPlistStringValue(contents, "CFBundleExecutable"));
+			assertEquals(EXECUTABLE_NAME, getPlistStringValue(contents, "CFBundleName"));
+			assertEquals(version.toString(), getPlistStringValue(contents, "CFBundleVersion"));
+		} catch (IOException e) {
+			fail();
+		}
+	}
+
+	private String getPlistStringValue(String contents, String key) {
+		Pattern p = Pattern.compile("<key>" + key + "</key>\\s*<string>([^<]*)</string>");
+		Matcher m = p.matcher(contents);
+		if (m.find()) {
+			return m.group(1);
+		}
+		return null;
+	}
+
+	private String readContentsAndClose(InputStream inputStream) throws IOException {
+		try {
+			StringBuilder sb = new StringBuilder();
+			Reader is = new InputStreamReader(inputStream);
+			char[] buf = new char[1024];
+			int rc;
+			while ((rc = is.read(buf)) >= 0) {
+				sb.append(buf, 0, rc - 1);
+			}
+			return sb.toString();
+		} finally {
+			try {
+				inputStream.close();
+			} catch (IOException e) {
+				/* ignored */
+			}
+		}
+	}
+
 	protected void insertPublisherInfoBehavior() {
 		setupArtifactRepository();
 		expect(publisherInfo.getArtifactRepository()).andReturn(artifactRepository).anyTimes();
 		expect(publisherInfo.getArtifactOptions()).andReturn(IPublisherInfo.A_PUBLISH).anyTimes();
-		expect(publisherInfo.getAdvice((String) anyObject(), anyBoolean(), (String) anyObject(), (Version) anyObject(), (Class) anyObject())).andReturn(Collections.emptyList());
+		expect(publisherInfo.getAdvice((String) anyObject(), anyBoolean(), (String) anyObject(), (Version) anyObject(), (Class) anyObject())).andReturn(brandingAdvice);
+	}
+
+	private void setupBrandingAdvice(final String osArg, final String config, final File exec, final File icon) {
+		brandingAdvice.add(new IBrandingAdvice() {
+			public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
+				return true;
+			}
+
+			public String getOS() {
+				return osArg;
+			}
+
+			public String[] getIcons() {
+				return icon == null ? null : new String[] {icon.getAbsolutePath()};
+			}
+
+			public String getExecutableName() {
+				return EXECUTABLE_NAME;
+			}
+		});
 	}
 }

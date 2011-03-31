@@ -166,11 +166,11 @@ public class TestArtifactRepository implements IArtifactRepository {
 		try {
 			byte[] repoContents = repo.get(descriptor);
 			if (repoContents == null)
-				return null;
+				return new Status(IStatus.ERROR, "test", "no such artifact");
 			destination.write(repoContents);
 		} catch (IOException e) {
 			e.printStackTrace();
-			return null;
+			return new Status(IStatus.ERROR, "test", "exception occurred", e);
 		}
 		return Status.OK_STATUS;
 	}
