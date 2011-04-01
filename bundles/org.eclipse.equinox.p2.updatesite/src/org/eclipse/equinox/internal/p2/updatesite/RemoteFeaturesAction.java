@@ -10,15 +10,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.*;
-import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.NLS;
 
@@ -64,7 +62,7 @@ public class RemoteFeaturesAction extends FeaturesAction {
 					mockManifest.put("Bundle-Version", entry.getVersion()); //$NON-NLS-1$
 					BundleDescription bundleDescription = BundlesAction.createBundleDescription(mockManifest, null);
 					IArtifactKey key = BundlesAction.createBundleArtifactKey(entry.getId(), entry.getVersion());
-					IInstallableUnit[] bundleIUs = PublisherHelper.createEclipseIU(bundleDescription, entry.isUnpack(), key, extraProperties);
+					IInstallableUnit[] bundleIUs = EclipsePublisherHelper.createEclipseIU(bundleDescription, entry.isUnpack(), key, extraProperties);
 					for (int n = 0; n < bundleIUs.length; n++)
 						result.addIU(bundleIUs[n], IPublisherResult.ROOT);
 				}
