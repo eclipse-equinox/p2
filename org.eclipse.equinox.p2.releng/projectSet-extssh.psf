@@ -54,7 +54,7 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.updatesite,org.eclipse.equinox.p2.updatesite"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.simpleconfigurator.manipulator,org.eclipse.equinox.simpleconfigurator.manipulator"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.simpleconfigurator,org.eclipse.equinox.simpleconfigurator"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.pde.publishing,org.eclipse.pde.publishing"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.publisher.eclipse,org.eclipse.equinox.p2.publisher.eclipse"/>
 
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/features/org.eclipse.equinox.p2.core.feature,org.eclipse.equinox.p2.core.feature"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/rt,org.eclipse.equinox/p2/features/org.eclipse.equinox.p2.discovery.feature,org.eclipse.equinox.p2.discovery.feature"/>

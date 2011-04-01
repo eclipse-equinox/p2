@@ -67,7 +67,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.pde.publishing"
+         id="org.eclipse.equinox.p2.publisher.eclipse"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

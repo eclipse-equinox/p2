@@ -52,7 +52,7 @@ Require-Bundle: org.eclipse.equinox.frameworkadmin,
  org.eclipse.ant.core;bundle-version="3.2.200",
  org.apache.ant;bundle-version="1.7.1",
  org.eclipse.equinox.p2.transport.ecf;bundle-version="1.0.0",
- org.eclipse.pde.publishing;bundle-version="1.0.0"
+ org.eclipse.equinox.p2.publisher.eclipse;bundle-version="1.0.0"
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.5,
  J2SE-1.4

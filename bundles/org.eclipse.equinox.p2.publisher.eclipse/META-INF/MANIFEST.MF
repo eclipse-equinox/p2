@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %bundleName
-Bundle-SymbolicName: org.eclipse.pde.publishing;singleton:=true
+Bundle-SymbolicName: org.eclipse.equinox.p2.publisher.eclipse;singleton:=true
 Bundle-ClassPath: pdepublishing.jar
 Eclipse-BundleShape: dir
 Bundle-Version: 1.0.0.qualifier

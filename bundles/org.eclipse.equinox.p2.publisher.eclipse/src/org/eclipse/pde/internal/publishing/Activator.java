@@ -15,7 +15,7 @@ import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 	private static BundleContext context;
-	public static String ID = "org.eclipse.pde.publishing"; //$NON-NLS-1$
+	public static String ID = "org.eclipse.equinox.p2.publisher.eclipse"; //$NON-NLS-1$
 
 	public static BundleContext getContext() {
 		return context;
