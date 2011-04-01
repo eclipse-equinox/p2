@@ -11,7 +11,7 @@ Export-Package: org.eclipse.equinox.internal.p2.publisher;
    org.eclipse.equinox.p2.touchpoint.eclipse,
    org.eclipse.equinox.p2.ui.sdk,
    org.eclipse.equinox.p2.updatesite,
-   org.eclipse.pde.publishing",
+   org.eclipse.equinox.p2.publisher.eclipse",
  org.eclipse.equinox.p2.publisher;x-friends:="org.eclipse.equinox.p2.directorywatcher,org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.updatesite,org.eclipse.pde.publishing",
  org.eclipse.equinox.p2.publisher.actions;x-friends:="org.eclipse.equinox.p2.updatesite,org.eclipse.equinox.p2.directorywatcher,org.eclipse.pde.publishing",
  org.eclipse.equinox.spi.p2.publisher;x-friends:="org.eclipse.equinox.p2.updatesite"
