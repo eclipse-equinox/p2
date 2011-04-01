@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -16,6 +16,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
@@ -35,7 +36,13 @@ import org.eclipse.osgi.framework.console.CommandProvider;
  */
 public class ProvCommandProvider implements CommandProvider {
 	private static final String WILDCARD_ANY = "*"; //$NON-NLS-1$
-	public static final String NEW_LINE = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+	public static final String NEW_LINE = "\r\n"; //$NON-NLS-1$
+	public static final String TAB = "\t"; //$NON-NLS-1$
+
+	// holds the mapping between command name and command description
+	private Map<String, String> commandsHelp = null;
+	// hold the mappings between command groups and the command names of the commands in the group
+	private Map<String, String[]> commandGroups = null;
 
 	private final IProvisioningAgent agent;
 
@@ -618,6 +625,22 @@ public class ProvCommandProvider implements CommandProvider {
 		}
 	}
 
+	/**
+	 * Handles the help command
+	 * 
+	 * @param intp
+	 * @return description for a particular command or false if there is no command with the specified name
+	 */
+	public Object _help(CommandInterpreter intp) {
+		String commandName = intp.nextArgument();
+		if (commandName == null) {
+			return false;
+		}
+		String help = getHelp(commandName);
+
+		return help.length() > 0 ? help : false;
+	}
+
 	private void printErrorStatus(CommandInterpreter interpreter, IStatus status) {
 		interpreter.print("--Error status ");
 		interpreter.print("message=" + status.getMessage());
@@ -654,71 +677,98 @@ public class ProvCommandProvider implements CommandProvider {
 	}
 
 	public String getHelp() {
+		return getHelp(null);
+	}
+
+	/*
+	 * Returns either the help message for a particular command, 
+	 * or returns the help messages for all commands (if command is not specified)
+	 */
+	private String getHelp(String commandName) {
 		StringBuffer help = new StringBuffer();
-		help.append(NEW_LINE);
-		help.append("---");
-		help.append("P2 Provisioning Commands");
-		help.append("---");
-		help.append(NEW_LINE);
 
-		help.append("---");
-		help.append("Repository Commands");
-		help.append("---");
-		help.append(NEW_LINE);
-		help.append("\tprovaddrepo <repository URI> - Adds a both a metadata and artifact repository at URI");
-		help.append(NEW_LINE);
-		help.append("\tprovdelrepo <repository URI> - Deletes a metadata and artifact repository at URI");
-		help.append(NEW_LINE);
-		help.append("\tprovaddmetadatarepo <repository URI> - Adds a metadata repository at URI");
-		help.append(NEW_LINE);
-		help.append("\tprovdelmetadatarepo <repository URI> - Deletes a metadata repository at URI");
-		help.append(NEW_LINE);
-		help.append("\tprovaddartifactrepo <repository URI> - Adds an artifact repository at URI");
-		help.append(NEW_LINE);
-		help.append("\tprovdelartifactrepo <repository URI> - Deletes an artifact repository URI");
-		help.append(NEW_LINE);
-		help.append("\tprovlg [<repository URI> <iu id | *> <version range | *>] - Lists all IUs with group capabilities in the given repo or in all repos if URI is omitted");
-		help.append(NEW_LINE);
-		help.append("\tprovlr [<repository URI> <iu id | *> <version range | *>]   - Lists all metadata repositories, or the contents of a given metadata repository");
-		help.append(NEW_LINE);
-		help.append("\tprovlar [<repository URI>] - Lists all artifact repositories, or the contents of a given artifact repository");
-		help.append(NEW_LINE);
-		help.append("\tprovliu [<repository URI | *> <iu id | *> <version range | *>] - Lists the IUs that match the pattern in the given repo.  * matches all");
-		help.append(NEW_LINE);
-		help.append("\tprovlquery <repository URI | *> <expression> [ true | false ] - Lists the IUs that match the query expression in the given repo.  * matches all. The expression is expected to be a boolean match expression unless the third argument is true, in which case the expression is a full query");
-		help.append(NEW_LINE);
+		if (commandsHelp == null) {
+			initializeCommandsHelp();
+		}
 
-		help.append("---");
-		help.append("Profile Registry Commands");
-		help.append("---");
-		help.append(NEW_LINE);
+		if (commandGroups == null) {
+			initializeCommandGroups();
+		}
 
-		help.append("\tprovaddprofile <profileid> <location> <flavor> - Adds a profile with the given profileid, location and flavor");
-		help.append(NEW_LINE);
-		help.append("\tprovdelprofile <profileid> - Deletes a profile with the given profileid");
-		help.append(NEW_LINE);
-		help.append("\tprovlp [<profileid | *>] - Lists all profiles, or the contents of the profile at the given profile");
-		help.append(NEW_LINE);
-		help.append("\tprovlgp [<profileid>] - Lists all IUs with group capabilities in the given profile, or current profile if profileid is omitted");
-		help.append(NEW_LINE);
-		help.append("\tprovlpts [<profileid>] - Lists timestamps for given profile, or if no profileid given then the default profile timestamps are reported");
-		help.append(NEW_LINE);
-		help.append("\tprovlpquery <profileid | this> <expression> [ true | false ] - Lists the IUs that match the query expression in the given profile. The expression is expected to be a boolean match expression unless the third argument is true, in which case the expression is a full query");
-		help.append(NEW_LINE);
+		if (commandName != null) {
+			if (commandsHelp.containsKey(commandName)) {
+				addCommand(commandName, commandsHelp.get(commandName), help);
+			}
+			return help.toString();
+		}
 
-		help.append("---");
-		help.append("Install Commands");
-		help.append("---");
-		help.append(NEW_LINE);
-
-		help.append("\tprovinstall <InstallableUnit> <version> <profileid> - installs an IU to the profileid.  If no profileid is given, installs into default profile.");
-		help.append(NEW_LINE);
-		help.append("\tprovremove <InstallableUnit> <version> <profileid> - Removes an IU from the profileid.  If no profileid is given, installs into default profile.");
-		help.append(NEW_LINE);
-		help.append("\tprovrevert <profileTimestamp> <profileid>] - Reverts to a given profileTimestamp for an optional profileId");
-		help.append(NEW_LINE);
+		addHeader(Messages.Console_help_header, help);
+		for (Entry<String, String[]> groupEntry : commandGroups.entrySet()) {
+			addHeader(groupEntry.getKey(), help);
+			for (String command : groupEntry.getValue()) {
+				addCommand(command, commandsHelp.get(command), help);
+			}
+		}
 
 		return help.toString();
+	}
+
+	private void addHeader(String header, StringBuffer help) {
+		help.append("---"); //$NON-NLS-1$
+		help.append(header);
+		help.append("---"); //$NON-NLS-1$
+		help.append(NEW_LINE);
+	}
+
+	private void addCommand(String command, String description, StringBuffer help) {
+		help.append(TAB);
+		help.append(command);
+		help.append(" "); //$NON-NLS-1$
+		help.append(description);
+		help.append(NEW_LINE);
+	}
+
+	private void initializeCommandsHelp() {
+		commandsHelp = new HashMap<String, String>();
+
+		// add commands for repository
+		commandsHelp.put("provaddrepo", Messages.Console_help_provaddrepo_description); //$NON-NLS-1$
+		commandsHelp.put("provdelrepo", Messages.Console_help_provdelrepo_description); //$NON-NLS-1$
+		commandsHelp.put("provaddmetadatarepo", Messages.Console_help_provaddmetadatarepo_description); //$NON-NLS-1$
+		commandsHelp.put("provdelmetadatarepo", Messages.Console_help_provdelmetadatarepo_description); //$NON-NLS-1$
+		commandsHelp.put("provaddartifactrepo", Messages.Console_help_provaddartifactrepo_description); //$NON-NLS-1$
+		commandsHelp.put("provdelartifactrepo", Messages.Console_help_provdelartifactrepo_description); //$NON-NLS-1$
+		commandsHelp.put("provlg", Messages.Console_help_provlg_description); //$NON-NLS-1$
+		commandsHelp.put("provlr", Messages.Console_help_provlr_description); //$NON-NLS-1$
+		commandsHelp.put("provlar", Messages.Console_help_provlar_description); //$NON-NLS-1$
+		commandsHelp.put("provliu", Messages.Console_help_provliu_description); //$NON-NLS-1$
+		commandsHelp.put("provlquery", Messages.Console_help_provlquery_description); //$NON-NLS-1$
+
+		// add commands for profiles
+		commandsHelp.put("provaddprofile", Messages.Console_help_provaddprofile_description); //$NON-NLS-1$
+		commandsHelp.put("provdelprofile", Messages.Console_help_provdelprofile_description); //$NON-NLS-1$
+		commandsHelp.put("provlp", Messages.Console_help_provlp_description); //$NON-NLS-1$
+		commandsHelp.put("provlgp", Messages.Console_help_provlgp_description); //$NON-NLS-1$
+		commandsHelp.put("provlpts", Messages.Console_help_provlpts_description); //$NON-NLS-1$
+		commandsHelp.put("provlpquery", Messages.Console_help_provlpquery_description); //$NON-NLS-1$
+
+		// add commands for install/uninstall
+		commandsHelp.put("provinstall", Messages.Console_help_provinstall_description); //$NON-NLS-1$
+		commandsHelp.put("provremove", Messages.Console_help_provremove_description); //$NON-NLS-1$
+		commandsHelp.put("provrevert", Messages.Console_help_provrevert_description); //$NON-NLS-1$
+	}
+
+	private void initializeCommandGroups() {
+		commandGroups = new LinkedHashMap<String, String[]>();
+		commandGroups.put(Messages.Console_help_repository_header, new String[] {"provaddrepo", "provdelrepo", "provaddmetadatarepo", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				"provdelmetadatarepo", "provaddartifactrepo", "provdelartifactrepo", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				"provlg", "provlr", "provlar", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				"provliu", "provlquery"}); //$NON-NLS-1$ //$NON-NLS-2$
+
+		commandGroups.put(Messages.Console_help_profile_registry_header, new String[] {"provaddprofile", "provdelprofile", //$NON-NLS-1$ //$NON-NLS-2$
+				"provlp", "provlgp", "provlpts", "provlpquery"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+		commandGroups.put(Messages.Console_help_install_header, new String[] {"provinstall", "provremove", "provrevert"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	/**
