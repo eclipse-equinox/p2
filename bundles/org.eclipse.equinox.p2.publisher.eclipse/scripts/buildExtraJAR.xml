@@ -2,7 +2,7 @@
 <project name="org.eclipse.equinox.p2.metadata.generator" default="default" basedir="..">
 
 	<target name="init" depends="properties">
-		<property name="plugin" value="org.eclipse.pde.publishing"/>
+		<property name="plugin" value="org.eclipse.equinox.p2.publisher.eclipse"/>
 		<property name="temp.folder" value="${basedir}/temp.folder"/>
 		<property name="plugin.destination" value="${basedir}"/>
 		<property name="build.result.folder" value="${basedir}/ant_tasks"/>
