@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,10 +8,11 @@
  * Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.pde.internal.build.publisher;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.publisher.FileSetDescriptor;
 import org.eclipse.equinox.p2.metadata.Version;
@@ -23,7 +24,7 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 	private static final int IDX_DESCRIPTOR = 1;
 
 	// String config -> Object[] { GatheringComputer, Map: permission -> Set, String }
-	private final Map advice = new HashMap();
+	private final Map<String, Object[]> advice = new HashMap<String, Object[]>();
 	private String featureId;
 	private Version featureVersion;
 
@@ -45,7 +46,7 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 	 * @return String[]
 	 */
 	public String[] getConfigs() {
-		return (String[]) advice.keySet().toArray(new String[advice.size()]);
+		return advice.keySet().toArray(new String[advice.size()]);
 	}
 
 	/**
@@ -56,7 +57,7 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 	 */
 	public IPathComputer getRootFileComputer(String config) {
 		if (advice.containsKey(config))
-			return (GatheringComputer) ((Object[]) advice.get(config))[IDX_COMPUTER];
+			return (GatheringComputer) advice.get(config)[IDX_COMPUTER];
 		return null;
 	}
 
@@ -86,7 +87,7 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 	}
 
 	private Object[] getConfigAdvice(String config) {
-		Object[] configAdvice = (Object[]) advice.get(config);
+		Object[] configAdvice = advice.get(config);
 		if (configAdvice == null) {
 			configAdvice = new Object[3];
 			advice.put(config, configAdvice);
@@ -119,8 +120,8 @@ public class FeatureRootAdvice extends AbstractAdvice implements IFeatureRootAdv
 	}
 
 	public String[] getConfigurations() {
-		Set keys = advice.keySet();
-		return (String[]) keys.toArray(new String[keys.size()]);
+		Set<String> keys = advice.keySet();
+		return keys.toArray(new String[keys.size()]);
 	}
 
 }

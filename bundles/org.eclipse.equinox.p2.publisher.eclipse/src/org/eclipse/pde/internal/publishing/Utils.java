@@ -11,7 +11,14 @@
  *******************************************************************************/
 package org.eclipse.pde.internal.publishing;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -49,9 +56,9 @@ public final class Utils {
 		if (bundle == null)
 			return true;
 
-		Dictionary properties = (Dictionary) bundle.getUserObject();
+		Dictionary<String, String> properties = (Dictionary<String, String>) bundle.getUserObject();
 		String shape = null;
-		if (properties != null && (shape = (String) properties.get(Constants.ECLIPSE_BUNDLE_SHAPE)) != null) {
+		if (properties != null && (shape = properties.get(Constants.ECLIPSE_BUNDLE_SHAPE)) != null) {
 			return shape.equals("dir"); //$NON-NLS-1$
 		}
 
@@ -73,7 +80,7 @@ public final class Utils {
 		return true;
 	}
 
-	public static String[] getBundleClasspath(Dictionary manifest) {
+	public static String[] getBundleClasspath(Dictionary<String, String> manifest) {
 		String fullClasspath = getBundleManifestHeader(manifest, Constants.BUNDLE_CLASSPATH);
 		String[] result = new String[0];
 		try {
@@ -91,16 +98,16 @@ public final class Utils {
 		return result;
 	}
 
-	public static String getBundleManifestHeader(Dictionary manifest, String header) {
-		String value = (String) manifest.get(header);
+	public static String getBundleManifestHeader(Dictionary<String, String> manifest, String header) {
+		String value = manifest.get(header);
 		if (value != null)
 			return value;
 
-		Enumeration keys = manifest.keys();
+		Enumeration<String> keys = manifest.keys();
 		while (keys.hasMoreElements()) {
-			String key = (String) keys.nextElement();
+			String key = keys.nextElement();
 			if (key.equalsIgnoreCase(header))
-				return (String) manifest.get(key);
+				return manifest.get(key);
 		}
 		return null;
 	}

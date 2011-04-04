@@ -1,12 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2008, 2011 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-
 package org.eclipse.pde.internal.build.publisher;
 
 import java.io.File;
@@ -18,10 +17,10 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 
 public class GatheringComputer implements IPathComputer {
 	private static final String PROVIDED_PATH = ":PROVIDED:"; //$NON-NLS-1$
-	private final LinkedHashMap filesMap = new LinkedHashMap();
+	private final LinkedHashMap<File, String> filesMap = new LinkedHashMap<File, String>();
 
 	public IPath computePath(File source) {
-		String prefix = (String) filesMap.get(source);
+		String prefix = filesMap.get(source);
 
 		IPath result = null;
 		if (prefix.startsWith(PROVIDED_PATH)) {
@@ -60,8 +59,8 @@ public class GatheringComputer implements IPathComputer {
 	}
 
 	public File[] getFiles() {
-		Set keys = filesMap.keySet();
-		return (File[]) keys.toArray(new File[keys.size()]);
+		Set<File> keys = filesMap.keySet();
+		return keys.toArray(new File[keys.size()]);
 	}
 
 	public int size() {

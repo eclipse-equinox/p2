@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,6 @@
  * Contributors:
  *      IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.pde.internal.build.publisher;
 
 import java.io.File;
@@ -17,7 +16,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
-import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.equinox.p2.publisher.eclipse.BundleShapeAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.p2.publisher.eclipse.IBundleShapeAdvice;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -51,7 +52,7 @@ public class GatherBundleAction extends BundlesAction {
 
 	@Override
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations, IProgressMonitor monitor) {
-		Dictionary manifest = basicLoadManifest(manifestRoot);
+		Dictionary<String, String> manifest = basicLoadManifest(manifestRoot);
 		if (manifest == null)
 			return null;
 
@@ -61,8 +62,8 @@ public class GatherBundleAction extends BundlesAction {
 	}
 
 	protected void createShapeAdvice(BundleDescription bundle) {
-		Dictionary manifest = (Dictionary) bundle.getUserObject();
-		String shape = (String) manifest.get(BUNDLE_SHAPE);
+		Dictionary<String, String> manifest = (Dictionary<String, String>) bundle.getUserObject();
+		String shape = manifest.get(BUNDLE_SHAPE);
 		if (shape == null) {
 			if (unpack != null) {
 				shape = Boolean.valueOf(unpack).booleanValue() ? IBundleShapeAdvice.DIR : IBundleShapeAdvice.JAR;
