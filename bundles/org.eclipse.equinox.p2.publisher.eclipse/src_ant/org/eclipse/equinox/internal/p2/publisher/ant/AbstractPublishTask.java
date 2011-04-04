@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2009, 2011 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -120,7 +120,7 @@ public abstract class AbstractPublishTask extends Task {
 					if (repoLocation.equals(new File(source)))
 						throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput, URIUtil.toUnencodedString(artifactLocation)));
 				}
-				repo.removeAll();
+				repo.removeAll(new NullProgressMonitor());
 			}
 			info.setArtifactRepository(repo);
 		} else if ((info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0)
