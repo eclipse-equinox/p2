@@ -2,6 +2,7 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.File;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactDescriptor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -18,15 +19,25 @@ public class ArtifactLockingTest extends AbstractProvisioningTest {
 	private File targetLocation;
 	private SimpleArtifactRepository repo1 = null;
 	private SimpleArtifactRepository repo2 = null;
+	private boolean lockingValue = false;
 
 	public void setUp() throws Exception {
 		super.setUp();
+		lockingValue = Activator.getInstance().enableArtifactLocking();
+		System.setProperty(Activator.ENABLE_ARTIFACT_LOCKING, "true");
+
 		targetLocation = File.createTempFile("bundlepool", ".repo");
 		targetLocation.delete();
 		targetLocation.mkdirs();
 		repo1 = new SimpleArtifactRepository(getAgent(), "TargetRepo", targetLocation.toURI(), null);
 		Thread.sleep(1000);
 		repo2 = new SimpleArtifactRepository(getAgent(), "TargetRepo", targetLocation.toURI(), null);
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		System.setProperty(Activator.ENABLE_ARTIFACT_LOCKING, "" + lockingValue);
+		super.tearDown();
 	}
 
 	boolean canContinue = false;

@@ -22,7 +22,9 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
+
 	public static final String ID = "org.eclipse.equinox.p2.artifact.repository"; //$NON-NLS-1$
+	public static final String ENABLE_ARTIFACT_LOCKING = "eclipse.p2.internal.simple.artifact.repository.locking"; //$NON-NLS-1$
 	public static final String REPO_PROVIDER_XPT = ID + '.' + "artifactRepositories"; //$NON-NLS-1$
 
 	private Map<URI, Location> locationCache = null;
@@ -50,6 +52,16 @@ public class Activator implements BundleActivator {
 		return Activator.instance;
 	}
 
+	public boolean enableArtifactLocking() {
+		String property = getContext().getProperty(ENABLE_ARTIFACT_LOCKING);
+		if (property == null || property.length() == 0)
+			return true; // return true by default;
+		Boolean valueOf = Boolean.valueOf(property);
+		if (valueOf != null)
+			return valueOf.booleanValue();
+		return true;
+	}
+
 	/**
 	 * Returns the lock location for a given artifact repository
 	 * @param repositoryLocation A URI pointing to an artifact repository.  Currently only
@@ -63,7 +75,7 @@ public class Activator implements BundleActivator {
 		}
 		Location anyLoc = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName());
 		File repositoryFile = URIUtil.toFile(repositoryLocation);
-		Location location = anyLoc.createLocation(null, getLockFile(repositoryLocation).toURL(), isReadOnly(repositoryFile)); 
+		Location location = anyLoc.createLocation(null, getLockFile(repositoryLocation).toURL(), isReadOnly(repositoryFile));
 		location.set(getLockFile(repositoryLocation).toURL(), false);
 		locationCache.put(repositoryLocation, location);
 		return location;
@@ -75,11 +87,11 @@ public class Activator implements BundleActivator {
 	 */
 	private boolean isReadOnly(File file) {
 		if (file == null)
-			return true;   // If we've reached the root, then return true
+			return true; // If we've reached the root, then return true
 		else if (file.canWrite())
-			return false;  // If we can write to this area, then it's not read-only
+			return false; // If we can write to this area, then it's not read-only
 		else if (file.exists())
-			return true;  // if we can't write && file exists, then this is a read only area
+			return true; // if we can't write && file exists, then this is a read only area
 		else
 			return isReadOnly(file.getParentFile());
 	}

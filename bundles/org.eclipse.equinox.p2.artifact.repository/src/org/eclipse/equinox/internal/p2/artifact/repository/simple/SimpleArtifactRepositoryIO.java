@@ -142,6 +142,9 @@ public class SimpleArtifactRepositoryIO {
 	}
 
 	private synchronized boolean lock(URI repositoryLocation, boolean wait, IProgressMonitor monitor) throws IOException {
+		if (!Activator.getInstance().enableArtifactLocking())
+			return true; // Don't use locking
+
 		lockLocation = getLockLocation(repositoryLocation);
 		boolean locked = lockLocation.lock();
 		if (locked || !wait)
@@ -162,6 +165,9 @@ public class SimpleArtifactRepositoryIO {
 	}
 
 	private void unlock(URI repositoryLocation) {
+		if (!Activator.getInstance().enableArtifactLocking())
+			return;
+
 		if (lockLocation != null) {
 			lockLocation.release();
 		}

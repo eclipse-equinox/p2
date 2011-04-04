@@ -1341,6 +1341,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * load it, see {@link SimpleArtifactRepository#lockAndLoad(boolean, IProgressMonitor)}.
 	 */
 	private synchronized boolean lock(boolean wait, IProgressMonitor monitor) throws IOException {
+		if (!Activator.getInstance().enableArtifactLocking())
+			return true;
+
 		if (holdsLock()) {
 			throw new IllegalStateException("Locking is not reentrant"); //$NON-NLS-1$
 		}
@@ -1474,6 +1477,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private void unlock() {
+		if (!Activator.getInstance().enableArtifactLocking()) {
+			holdsLock = false;
+			return;
+		}
 		if (lockLocation != null) {
 			// If we don't have the lock location, then we don't have the lock
 			holdsLock = false;
