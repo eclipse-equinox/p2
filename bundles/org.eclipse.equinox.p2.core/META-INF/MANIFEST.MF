@@ -26,6 +26,7 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.metadata.repository,
    org.eclipse.equinox.p2.operations,
    org.eclipse.equinox.p2.publisher,
+   org.eclipse.equinox.p2.publisher.eclipse,
    org.eclipse.equinox.p2.ql,
    org.eclipse.equinox.p2.reconciler.dropins,
    org.eclipse.equinox.p2.repository,
