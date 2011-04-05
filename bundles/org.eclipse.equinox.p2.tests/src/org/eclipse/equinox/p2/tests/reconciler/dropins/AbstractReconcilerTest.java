@@ -600,7 +600,57 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true"});
 		// command-line if you want to run and allow a remote debugger to connect
 		//Collections.addAll(command, new String[] {"-Xdebug", "-Xnoagent", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"});
-		return run(message, command.toArray(new String[command.size()]));
+		int result = run(message, command.toArray(new String[command.size()]));
+		// 13 means that we wrote something out in the log file.
+		// so try and parse it and fail via that message if we can.
+		if (result == 13)
+			parseExitdata(message);
+
+		return result;
+	}
+
+	private void parseExitdata(String message) {
+		// if the exit data contains a message telling us the location of the log file, then get it
+		String data = TestActivator.getContext().getProperty("eclipse.exitdata");
+		String log = null;
+		// big hack but for now assume the log file path is the last segment of the error message
+		for (StringTokenizer tokenizer = new StringTokenizer(data); tokenizer.hasMoreTokens();)
+			log = tokenizer.nextToken();
+		if (log == null)
+			return;
+		// remove trailing "."
+		log = log.substring(0, log.length() - 1);
+		String errors = read(log);
+		if (errors == null)
+			return;
+		// fail using the text from the log file
+		assertOK(message, new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, errors));
+	}
+
+	// Fully read the file pointed to by the given path
+	private String read(String path) {
+		File file = new File(path);
+		if (!file.exists())
+			return null;
+		StringBuffer buffer = new StringBuffer();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(file));
+			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+				buffer.append(line);
+				buffer.append('\n');
+			}
+		} catch (IOException e) {
+			// TODO
+		} finally {
+			if (reader != null)
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// ignore
+				}
+		}
+		return buffer.toString();
 	}
 
 	public int runInitialize(String message) {
