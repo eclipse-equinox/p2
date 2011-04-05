@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
-Bundle-SymbolicName: org.eclipse.equinox.p2.importexport;singleton:=true
-Bundle-Version: 1.3.0.qualifier
+Bundle-SymbolicName: org.eclipse.equinox.p2.ui.importexport;singleton:=true
+Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
