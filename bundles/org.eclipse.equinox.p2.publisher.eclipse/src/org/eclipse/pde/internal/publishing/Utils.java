@@ -11,14 +11,7 @@
  *******************************************************************************/
 package org.eclipse.pde.internal.publishing;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -56,6 +49,7 @@ public final class Utils {
 		if (bundle == null)
 			return true;
 
+		@SuppressWarnings("unchecked")
 		Dictionary<String, String> properties = (Dictionary<String, String>) bundle.getUserObject();
 		String shape = null;
 		if (properties != null && (shape = properties.get(Constants.ECLIPSE_BUNDLE_SHAPE)) != null) {
