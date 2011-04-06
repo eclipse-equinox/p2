@@ -44,6 +44,6 @@ public class From36to37 extends AbstractReconcilerTest {
 
 		// revert to 3.6
 		assertEquals(0, runDirectorToRevert("Reverting from 3.7 to 3.6", "http://download.eclipse.org/eclipse/updates/3.6", initialTimestamp));
-		assertEquals(0, installAndRunVerifierBundle35(null));
+		assertEquals(0, installAndRunVerifierBundle(null));
 	}
 }
