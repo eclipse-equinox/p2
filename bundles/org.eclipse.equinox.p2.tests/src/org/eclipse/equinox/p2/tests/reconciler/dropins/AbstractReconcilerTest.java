@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -72,7 +72,6 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		output = getUniqueFolder();
 		toRemove.add(output);
 		// for now we will exec to un-tar archives to keep the executable bits
-		System.out.println("Extracting: " + file.getAbsolutePath() + " to: " + output);
 		if (file.getName().toLowerCase().endsWith(".zip")) {
 			try {
 				FileUtils.unzipFile(file, output);
@@ -538,6 +537,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		if (destination.exists())
 			return;
 		FileUtils.copy(source, destination, new File(""), false);
+		// if the target of the copy doesn't exist, then signal an error
+		assertTrue("Unable to copy " + source + " to " + destination, destination.exists());
 	}
 
 	/*
@@ -587,6 +588,11 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return (IInstallableUnit) queryResult.iterator().next();
 	}
 
+	/*
+	 * Note: code modified so we no longer return int 13 if at all possible. Instead we try and
+	 * read the error log and fail with the log contents as the fail message. Users of this method should
+	 * not expect 13 to be returned.
+	 */
 	protected int runEclipse(String message, String[] args) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
@@ -605,13 +611,14 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		// so try and parse it and fail via that message if we can.
 		if (result == 13)
 			parseExitdata(message);
-
 		return result;
 	}
 
 	private void parseExitdata(String message) {
 		// if the exit data contains a message telling us the location of the log file, then get it
 		String data = TestActivator.getContext().getProperty("eclipse.exitdata");
+		if (data == null)
+			return;
 		String log = null;
 		// big hack but for now assume the log file path is the last segment of the error message
 		for (StringTokenizer tokenizer = new StringTokenizer(data); tokenizer.hasMoreTokens();)
@@ -619,7 +626,8 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		if (log == null)
 			return;
 		// remove trailing "."
-		log = log.substring(0, log.length() - 1);
+		if (log.endsWith("."))
+			log = log.substring(0, log.length() - 1);
 		String errors = read(log);
 		if (errors == null)
 			return;
@@ -687,7 +695,6 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		if (destination == null)
 			destination = output;
 		try {
-			System.out.println("Copying :" + VERIFIER_BUNDLE_ID + " to: " + destination.getAbsolutePath());
 			copyBundle(VERIFIER_BUNDLE_ID, null, destination);
 		} catch (IOException e) {
 			fail("Could not find the verifier bundle");
