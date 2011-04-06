@@ -25,9 +25,7 @@ public class AllTests extends TestCase {
 		suite.addTest(BasicTests.suite());
 		suite.addTest(ConfigurationTests.suite());
 		suite.addTest(FeaturePatchTest.suite());
-		// disabled for now... seeing a lot of chmod errors in the console on the test machines
-		// and trying to lower down the cause.
-		//suite.addTest(SharedInstallTests.suite());
+		suite.addTest(SharedInstallTests.suite());
 		return suite;
 	}
 }
