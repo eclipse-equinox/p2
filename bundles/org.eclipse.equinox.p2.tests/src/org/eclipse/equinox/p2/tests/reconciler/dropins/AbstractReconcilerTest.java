@@ -588,12 +588,16 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return (IInstallableUnit) queryResult.iterator().next();
 	}
 
+	protected int runEclipse(String message, String[] args) {
+		return runEclipse(message, null, args);
+	}
+
 	/*
 	 * Note: code modified so we no longer return int 13 if at all possible. Instead we try and
 	 * read the error log and fail with the log contents as the fail message. Users of this method should
 	 * not expect 13 to be returned.
 	 */
-	protected int runEclipse(String message, String[] args) {
+	protected int runEclipse(String message, File location, String[] args) {
 		File root = new File(Activator.getBundleContext().getProperty("java.home"));
 		root = new File(root, "bin");
 		File exe = new File(root, "javaw.exe");
@@ -601,7 +605,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			exe = new File(root, "java");
 		assertTrue("Java executable not found in: " + exe.getAbsolutePath(), exe.exists());
 		List<String> command = new ArrayList<String>();
-		Collections.addAll(command, new String[] {(new File(output, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
+		Collections.addAll(command, new String[] {(new File(location == null ? output : location, "eclipse/eclipse")).getAbsolutePath(), "--launcher.suppressErrors", "-nosplash", "-vm", exe.getAbsolutePath()});
 		Collections.addAll(command, args);
 		Collections.addAll(command, new String[] {"-vmArgs", "-Dosgi.checkConfiguration=true"});
 		// command-line if you want to run and allow a remote debugger to connect
@@ -688,7 +692,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		if (destination == null)
 			destination = output;
 		String message = "Running the verifier bundle at: " + destination;
-		return runEclipse(message, new String[] {"-application", "org.eclipse.equinox.p2.tests.verifier.application", "-consoleLog"});
+		return runEclipse(message, destination, new String[] {"-application", "org.eclipse.equinox.p2.tests.verifier.application", "-consoleLog"});
 	}
 
 	public int installAndRunVerifierBundle(File destination) {

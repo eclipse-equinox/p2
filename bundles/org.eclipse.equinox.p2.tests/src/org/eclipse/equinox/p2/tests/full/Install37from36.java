@@ -32,7 +32,6 @@ public class Install37from36 extends AbstractReconcilerTest {
 		assertInitialized();
 		//Create a new installation of 3.7 using 3.6
 		File installFolder = getTestFolder("install37From36");
-		System.out.println(installFolder);
 		int result = runDirectorToInstall("Installing 3.7 from 3.6", new File(installFolder, "eclipse"), "http://download.eclipse.org/eclipse/updates/3.7-I-builds", "org.eclipse.platform.ide");
 		if (result != 0) {
 			File logFile = new File(installFolder, "log.log");
