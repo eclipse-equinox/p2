@@ -10,19 +10,8 @@
  *******************************************************************************/
 package org.eclipse.pde.internal.swt.tools;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
 
 /**
  * Customize the icon of a Windows exe
@@ -1209,6 +1198,7 @@ public class IconExe {
 		/*
 		 * the set of ImageLoader event listeners, created on demand
 		 */
+		@SuppressWarnings("rawtypes")
 		Vector imageLoaderListeners;
 
 		/**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2005, 2008 IBM Corporation and others.
+ *  Copyright (c) 2005, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -353,7 +353,7 @@ public class BrandingIron {
 				System.arraycopy(icons, 0, args, 1, icons.length);
 				IconExe.main(args);
 			} else {
-				System.out.println("Could not find executable to brand");
+				System.out.println("Could not find executable to brand"); //$NON-NLS-1$
 			}
 		}
 		File targetLauncher = new File(root, name + ".exe"); //$NON-NLS-1$

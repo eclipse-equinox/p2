@@ -16,9 +16,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.publisher.IPublisherInfo;
 import org.eclipse.equinox.p2.publisher.IPublisherResult;
-import org.eclipse.equinox.p2.publisher.eclipse.BundleShapeAdvice;
-import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
-import org.eclipse.equinox.p2.publisher.eclipse.IBundleShapeAdvice;
+import org.eclipse.equinox.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.resolver.BundleDescription;
@@ -62,6 +60,7 @@ public class GatherBundleAction extends BundlesAction {
 	}
 
 	protected void createShapeAdvice(BundleDescription bundle) {
+		@SuppressWarnings("unchecked")
 		Dictionary<String, String> manifest = (Dictionary<String, String>) bundle.getUserObject();
 		String shape = manifest.get(BUNDLE_SHAPE);
 		if (shape == null) {
