@@ -51,7 +51,7 @@ public class BrandingIron {
 	}
 
 	public void setIcons(String[] value) {
-		icons = value;
+		icons = (value == null || value.length == 0) ? null : value;
 	}
 
 	public void setIcons(String value) {
