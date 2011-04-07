@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -62,7 +62,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 				run("setReadOnly " + readOnly + " failed on" + target.getAbsolutePath(), command);
 			}
 		} else {
-			String[] command = new String[] {"chmod", "-R", readOnly ? "-w" : "+w", target.getAbsolutePath()};
+			String[] command = new String[] {"chmod", "-R", readOnly ? "a-w" : "+w", target.getAbsolutePath()};
 			run("setReadOnly " + readOnly + " failed on" + target.getAbsolutePath(), command);
 		}
 	}
