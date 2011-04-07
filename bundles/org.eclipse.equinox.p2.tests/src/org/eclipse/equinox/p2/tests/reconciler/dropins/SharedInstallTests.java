@@ -62,7 +62,7 @@ public class SharedInstallTests extends AbstractReconcilerTest {
 				run("setReadOnly " + readOnly + " failed on" + target.getAbsolutePath(), command);
 			}
 		} else {
-			String[] command = new String[] {"chmod", "-R", readOnly ? "a-w" : "+w", target.getAbsolutePath()};
+			String[] command = new String[] {"chmod", "-R", readOnly ? "a-w" : "a+w", target.getAbsolutePath()};
 			run("setReadOnly " + readOnly + " failed on" + target.getAbsolutePath(), command);
 		}
 	}
