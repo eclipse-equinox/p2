@@ -6,7 +6,11 @@ Bundle-Version: 2.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.repository.Activator
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Export-Package: org.eclipse.equinox.internal.p2.persistence;x-friends:="org.eclipse.equinox.p2.artifact.repository,org.eclipse.equinox.p2.engine,org.eclipse.equinox.p2.metadata.repository",
+Export-Package: org.eclipse.equinox.internal.p2.persistence;
+  x-friends:="org.eclipse.equinox.p2.artifact.repository,
+   org.eclipse.equinox.p2.engine,
+   org.eclipse.equinox.p2.metadata.repository,
+   org.eclipse.equinox.p2.ui.importexport",
  org.eclipse.equinox.internal.p2.repository;x-friends:="org.eclipse.equinox.p2.artifact.repository,org.eclipse.equinox.p2.metadata.repository,org.eclipse.equinox.p2.updatesite",
  org.eclipse.equinox.internal.p2.repository.helpers;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
