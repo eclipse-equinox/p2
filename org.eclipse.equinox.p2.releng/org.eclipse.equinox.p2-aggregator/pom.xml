@@ -55,6 +55,7 @@
 		<module>../org.eclipse.equinox.p2.touchpoint.natives</module>
 		<module>../org.eclipse.equinox.p2.transport.ecf</module>
 		<module>../org.eclipse.equinox.p2.ui</module>
+		<module>../org.eclipse.equinox.p2.ui.importexport</module>
 		<module>../org.eclipse.equinox.p2.ui.admin</module>
 		<module>../org.eclipse.equinox.p2.ui.admin.rcp</module>
 		<module>../org.eclipse.equinox.p2.ui.discovery</module>
