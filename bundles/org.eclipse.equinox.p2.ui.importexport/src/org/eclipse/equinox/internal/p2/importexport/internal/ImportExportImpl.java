@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.query.IQueryResult;
 import org.eclipse.equinox.p2.query.QueryUtil;
+import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
@@ -36,12 +37,12 @@ public class ImportExportImpl implements P2ImportExport {
 
 	private IProvisioningAgent agent = null;
 
-	public void bind(IProvisioningAgent agent) {
-		this.agent = agent;
+	public void bind(IProvisioningAgent agt) {
+		this.agent = agt;
 	}
 
-	public void unbind(IProvisioningAgent agent) {
-		if (this.agent == agent) {
+	public void unbind(IProvisioningAgent agt) {
+		if (this.agent == agt) {
 			this.agent = null;
 		}
 	}
@@ -49,7 +50,7 @@ public class ImportExportImpl implements P2ImportExport {
 	public List<IUDetail> importP2F(InputStream input) throws IOException {
 		P2FParser parser = new P2FParser(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), Constants.Bundle_ID);
 		parser.parse(input);
-		return parser.getFeatures();
+		return parser.getIUs();
 	}
 
 	public IStatus exportP2F(OutputStream output, IInstallableUnit[] ius, IProgressMonitor monitor) {
@@ -57,7 +58,7 @@ public class ImportExportImpl implements P2ImportExport {
 			monitor = new NullProgressMonitor();
 		SubMonitor subMonitor = SubMonitor.convert(monitor, Messages.Replicator_ExportJobName, 1000);
 		IMetadataRepositoryManager repoManager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
-		URI[] uris = repoManager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+		URI[] uris = repoManager.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		Arrays.sort(uris, new Comparator<URI>() {
 			public int compare(URI o1, URI o2) {
 				String scheme1 = o1.getScheme();
