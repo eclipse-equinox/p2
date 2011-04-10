@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
 import java.io.File;
-
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.importexport.P2ImportExport;
 import org.eclipse.equinox.internal.p2.importexport.internal.Constants;
@@ -19,47 +18,22 @@ import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
-import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
-import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
-import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
+import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.viewers.CheckboxTableViewer;
-import org.eclipse.jface.viewers.IBaseLabelProvider;
-import org.eclipse.jface.viewers.ICheckStateProvider;
-import org.eclipse.jface.viewers.IContentProvider;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.Widget;
+import org.eclipse.swt.widgets.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -98,7 +72,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 							e1p = tableProvider.getColumnText(e1, lastSortColumn);
 							e2p = tableProvider.getColumnText(e2, lastSortColumn);
 							result = getComparator().compare(e1p, e2p);
-							return lastAscending ? result : (-1) * result;						
+							return lastAscending ? result : (-1) * result;
 						}
 						return isAscending() ? result : (-1) * result;
 					}
@@ -158,15 +132,14 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		super(pageName);
 	}
 
-	public AbstractPage(String pageName, String title,
-			ImageDescriptor titleImage) {
+	public AbstractPage(String pageName, String title, ImageDescriptor titleImage) {
 		super(pageName, title, titleImage);
 	}
 
 	protected IProfile getSelfProfile() {
-		if (profileRegistry != null) { 
+		if (profileRegistry != null) {
 			String selfID = System.getProperty("eclipse.p2.profile"); //$NON-NLS-1$
-			if(selfID == null)
+			if (selfID == null)
 				selfID = IProfileRegistry.SELF;
 			return profileRegistry.getProfile(selfID);
 		}
@@ -174,7 +147,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	}
 
 	private void createColumns(TableViewer viewer) {
-		String[] titles = { Messages.Column_Name, Messages.Column_Version, Messages.Column_Id};
+		String[] titles = {Messages.Column_Name, Messages.Column_Version, Messages.Column_Id};
 		for (int i = 0; i < titles.length; i++) {
 			TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
 			column.getColumn().setText(titles[i]);
@@ -199,10 +172,8 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 			comparator.setAscending(!comparator.isAscending());
 		}
 		comparator.setSortColumn(columnIndex);
-		viewer.getTable().setSortColumn(
-				viewer.getTable().getColumn(columnIndex));
-		viewer.getTable().setSortDirection(
-				comparator.isAscending() ? SWT.UP : SWT.DOWN);
+		viewer.getTable().setSortColumn(viewer.getTable().getColumn(columnIndex));
+		viewer.getTable().setSortDirection(comparator.isAscending() ? SWT.UP : SWT.DOWN);
 		viewer.refresh(false);
 	}
 
@@ -216,8 +187,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 5;
 		composite.setLayout(layout);
-		composite.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_FILL
-				| GridData.HORIZONTAL_ALIGN_FILL));
+		composite.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_FILL));
 
 		createContents(composite);
 
@@ -237,15 +207,13 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 3;
 		composite.setLayout(layout);
-		composite.setLayoutData(new GridData(
-				GridData.FILL, GridData.FILL, true, false));
+		composite.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(getDestinationLabel());
 
 		destinationNameField = new Combo(composite, SWT.SINGLE | SWT.BORDER);
-		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL
-				| GridData.GRAB_HORIZONTAL);
+		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
 		destinationNameField.setLayoutData(data);
 		destinationNameField.addListener(SWT.Modify | SWT.Selection, this);
 		destinationBrowseButton = new Button(composite, SWT.PUSH);
@@ -255,14 +223,12 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	}
 
 	protected IUColumnConfig[] getColumnConfig() {
-		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH), 
-				new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH), 
-				new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH)};
+		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, ILayoutConstants.DEFAULT_PRIMARY_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, ILayoutConstants.DEFAULT_SMALL_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_IdColumnTitle, IUColumnConfig.COLUMN_ID, ILayoutConstants.DEFAULT_COLUMN_WIDTH)};
 	}
 
 	protected void createInstallationTable(final Composite parent) {
 		viewer = CheckboxTableViewer.newCheckList(parent, SWT.MULTI | SWT.BORDER);
-		final Table table = viewer.getTable();		
+		final Table table = viewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(false);
 		viewer.setComparator(new TableViewerComparator());
@@ -270,13 +236,14 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		viewer.setContentProvider(getContentProvider());
 		viewer.setLabelProvider(getLabelProvider());
 		parent.addControlListener(new ControlAdapter() {
-			private final int[] columnRate = new int[]{6, 2, 2};
+			private final int[] columnRate = new int[] {6, 2, 2};
+
 			@Override
 			public void controlResized(ControlEvent e) {
 				Rectangle area = parent.getClientArea();
 				Point size = table.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 				ScrollBar vBar = table.getVerticalBar();
-				int width = area.width - table.computeTrim(0,0,0,0).width - vBar.getSize().x;
+				int width = area.width - table.computeTrim(0, 0, 0, 0).width - vBar.getSize().x;
 				if (size.y > area.height + table.getHeaderHeight()) {
 					// Subtract the scrollbar width from the total column width
 					// if a vertical scrollbar will be required
@@ -290,8 +257,8 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 					// table is getting smaller so make the columns 
 					// smaller first and then resize the table to
 					// match the client area width
-					for(; i < columns.length - 1; i++) {
-						columns[i].setWidth(width*columnRate[i]/10);
+					for (; i < columns.length - 1; i++) {
+						columns[i].setWidth(width * columnRate[i] / 10);
 						hasUsed += columns[i].getWidth();
 					}
 					columns[columns.length - 1].setWidth(width - hasUsed);
@@ -301,14 +268,14 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 					// bigger first and then make the columns wider
 					// to match the client area width
 					table.setSize(area.width, area.height);
-					for(; i < columns.length - 1; i++) {
-						columns[i].setWidth(width*columnRate[i]/10);
+					for (; i < columns.length - 1; i++) {
+						columns[i].setWidth(width * columnRate[i] / 10);
 						hasUsed += columns[i].getWidth();
 					}
 					columns[columns.length - 1].setWidth(width - hasUsed);
 				}
 			}
-		});				
+		});
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				updatePageCompletion();
@@ -383,6 +350,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	protected String getNoOptionsMessage() {
 		return Messages.PAGE_NOINSTALLTION_ERROR;
 	}
+
 	protected abstract void giveFocusToDestination();
 
 	/**
@@ -390,17 +358,16 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	 * source to import from
 	 */
 	protected void handleDestinationBrowseButtonPressed() {
-		FileDialog dialog = new FileDialog(getContainer().getShell(),
-				getBrowseDialogStyle() | SWT.SHEET);
+		FileDialog dialog = new FileDialog(getContainer().getShell(), getBrowseDialogStyle() | SWT.SHEET);
 		dialog.setText(getDialogTitle());
 		dialog.setFilterPath(getDestinationValue());
-		dialog.setFilterExtensions(new String[] {Messages.EXTENSION_P2F, Messages.EXTENSION_ALL});
-		dialog.setFilterNames(new String[] {Messages.EXTENSION_P2F_NAME, Messages.EXTENSION_ALL_NAME});
+		dialog.setFilterExtensions(new String[] {Messages.EXTENSION_p2F, Messages.EXTENSION_ALL});
+		dialog.setFilterNames(new String[] {Messages.EXTENSION_p2F_NAME, Messages.EXTENSION_ALL_NAME});
 		String selectedFileName = dialog.open();
 
 		if (selectedFileName != null) {
-			if(!selectedFileName.endsWith(Messages.EXTENSION_P2F.substring(1)))
-				selectedFileName += Messages.EXTENSION_P2F.substring(1);
+			if (!selectedFileName.endsWith(Messages.EXTENSION_p2F.substring(1)))
+				selectedFileName += Messages.EXTENSION_p2F.substring(1);
 			setDestinationValue(selectedFileName);
 		}
 	}
@@ -414,8 +381,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	}
 
 	protected void initializeService() {
-		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<P2ImportExport, P2ImportExport>(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), 
-				P2ImportExport.class.getName(), null);
+		ServiceTracker<P2ImportExport, P2ImportExport> tracker = new ServiceTracker<P2ImportExport, P2ImportExport>(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), P2ImportExport.class.getName(), null);
 		tracker.open();
 		importexportService = tracker.getService();
 		tracker.close();
@@ -451,7 +417,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	}
 
 	protected boolean validateOptionsGroup() {
-		if(viewer == null || viewer.getCheckedElements().length > 0)
+		if (viewer == null || viewer.getCheckedElements().length > 0)
 			return true;
 
 		currentMessage = getNoOptionsMessage();

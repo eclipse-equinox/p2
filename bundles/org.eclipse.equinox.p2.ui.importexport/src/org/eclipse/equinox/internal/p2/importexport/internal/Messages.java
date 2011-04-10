@@ -26,8 +26,8 @@ public class Messages extends NLS {
 	public static String ExportPage_FILEDIALOG_TITLE;
 	public static String EXTENSION_ALL;
 	public static String EXTENSION_ALL_NAME;
-	public static String EXTENSION_P2F_NAME;
-	public static String EXTENSION_P2F;
+	public static String EXTENSION_p2F_NAME;
+	public static String EXTENSION_p2F;
 	public static String ExportPage_LABEL_EXPORTFILE;
 	public static String ExportPage_SuccessWithProblems;
 	public static String ExportWizard_WizardTitle;
@@ -59,7 +59,6 @@ public class Messages extends NLS {
 	public static String Replicator_SaveJobName;
 
 	static {
-		NLS.initializeMessages(
-				"org.eclipse.equinox.internal.p2.importexport.internal.messages", Messages.class); //$NON-NLS-1$
+		NLS.initializeMessages("org.eclipse.equinox.internal.p2.importexport.internal.messages", Messages.class); //$NON-NLS-1$
 	}
 }
