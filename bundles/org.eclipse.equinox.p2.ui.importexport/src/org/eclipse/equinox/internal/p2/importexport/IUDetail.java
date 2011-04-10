@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.importexport;
 
 import java.net.URI;
 import java.util.List;
-
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 

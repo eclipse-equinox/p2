@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
 import java.util.Collection;
-
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.importexport.internal.Constants;
 import org.eclipse.equinox.internal.p2.importexport.internal.Messages;

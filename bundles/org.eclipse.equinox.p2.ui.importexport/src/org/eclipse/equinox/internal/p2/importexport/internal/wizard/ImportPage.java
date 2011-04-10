@@ -10,22 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.importexport.IUDetail;
 import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
@@ -43,21 +32,13 @@ import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.IColorProvider;
-import org.eclipse.jface.viewers.IContentProvider;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.*;
 
 public class ImportPage extends AbstractImportPage implements ISelectableIUsPage {
 
@@ -67,7 +48,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		}
 
 		public Object[] getElements(Object inputElement) {
-			return (Object[])inputElement;
+			return (Object[]) inputElement;
 		}
 
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
@@ -75,7 +56,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 	}
 
-	private class InstallationLabelProvider extends LabelProvider implements ITableLabelProvider, IColorProvider{
+	private class InstallationLabelProvider extends LabelProvider implements ITableLabelProvider, IColorProvider {
 
 		public Image getColumnImage(Object element, int columnIndex) {
 			return null;
@@ -84,14 +65,14 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		public String getColumnText(Object element, int columnIndex) {
 			IInstallableUnit iu = ((IUDetail) element).getIU();
 			switch (columnIndex) {
-			case 0:				
-				return getIUNameWithDetail(iu);
-			case 1:
-				return iu.getVersion().toString();
-			case 2:
-				return iu.getId();
-			default:
-				throw new RuntimeException("Should not happen"); //$NON-NLS-1$
+				case 0 :
+					return getIUNameWithDetail(iu);
+				case 1 :
+					return iu.getVersion().toString();
+				case 2 :
+					return iu.getId();
+				default :
+					throw new RuntimeException("Should not happen"); //$NON-NLS-1$
 			}
 
 		}
@@ -131,8 +112,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
 		composite.setLayout(layout);
-		composite.setLayoutData(new GridData(
-				GridData.FILL, GridData.FILL, true, false));
+		composite.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
 
 		contactAll = new Button(composite, SWT.CHECK);
 		contactAll.setText(ProvUIMessages.AvailableIUsPage_ResolveAllCheckbox);
@@ -199,21 +179,21 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	protected void setDestinationValue(String selectedFileName) {
 		String oldValue = getDestinationValue();
 		super.setDestinationValue(selectedFileName);
-		if(validateDestinationGroup()) {
+		if (validateDestinationGroup()) {
 			// p2f file is changed, update the cached data
 			if (!selectedFileName.equals(oldValue)) {
 				loadRepos.clear();
 				newProposedFeature.clear();
 			}
 			InputStream input = null;
-			try{
+			try {
 				input = new BufferedInputStream(new FileInputStream(getDestinationValue()));
-				features = importexportService.importP2F(input);	
+				features = importexportService.importP2F(input);
 				viewer.setInput(features.toArray(new IUDetail[features.size()]));
 				input.close();
 			} catch (FileNotFoundException e) {
 				MessageDialog.openError(getShell(), Messages.ImportPage_TITLE, Messages.ImportPage_FILENOTFOUND);
-			} catch(IOException e) {
+			} catch (IOException e) {
 				//TODO
 				e.printStackTrace();
 			}
@@ -231,7 +211,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		List<IUDetail> features = new ArrayList<IUDetail>(checked.length);
 		for (int i = 0; i < checked.length; i++) {
 			IUDetail feature = (IUDetail) checked[i];
-			IUDetail[] existingFeatures = newProposedFeature.get(feature); 
+			IUDetail[] existingFeatures = newProposedFeature.get(feature);
 			if (existingFeatures == null)
 				features.add(feature);
 			else {
@@ -241,12 +221,11 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 						matchPolicy = f;
 					// here use exact match
 					else if (matchPolicy.getIU().getVersion().compareTo(f.getIU().getVersion()) < 0) {
-						if (installLatest.getSelection()) 
+						if (installLatest.getSelection())
 							matchPolicy = f;
 						else
 							continue;
-					}
-					else
+					} else
 						matchPolicy = f;
 				}
 				if (matchPolicy != null)
@@ -297,6 +276,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 	class GetCheckedElement implements Runnable {
 		Object[] checkedElements = null;
+
 		public void run() {
 			checkedElements = viewer.getCheckedElements();
 		}
@@ -347,8 +327,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 					}
 					if (sub2.isCanceled())
 						throw new InterruptedException();
-					Set<IInstallableUnit> result = new CompoundQueryable<IInstallableUnit>(repos.toArray(new IRepository[repos.size()])).query(
-							QueryUtil.createIUQuery(feature.getIU().getId(), new VersionRange(feature.getIU().getVersion(), true, null, false)), sub2.newChild(100)).toSet();
+					Set<IInstallableUnit> result = new CompoundQueryable<IInstallableUnit>(repos.toArray(new IRepository[repos.size()])).query(QueryUtil.createIUQuery(feature.getIU().getId(), new VersionRange(feature.getIU().getVersion(), true, null, false)), sub2.newChild(100)).toSet();
 					List<IUDetail> existingFeatures = new ArrayList<IUDetail>(result.size());
 					for (IInstallableUnit iu : result) {
 						existingFeatures.add(new IUDetail(iu, feature.getReferencedRepositories()));
