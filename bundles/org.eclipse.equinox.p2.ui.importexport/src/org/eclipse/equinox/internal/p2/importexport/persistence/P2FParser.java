@@ -24,9 +24,9 @@ import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
 
 public class P2FParser extends XMLParser implements P2FConstants {
-
 	static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, Version.createOSGi(2, 0, 0), false);
-	private List<IUDetail> features;
+
+	List<IUDetail> iusListed;
 
 	protected class RepositoryHandler extends AbstractHandler {
 
@@ -79,15 +79,15 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		}
 	}
 
-	protected class FeatureHandler extends AbstractHandler {
+	protected class IUHandler extends AbstractHandler {
 		private final String[] required = new String[] {ID_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_ATTRIBUTE};
 		private final String[] optional = new String[] {};
 
 		IInstallableUnit iu = null;
 		private RepositoriesHandler repositoriesHandler;
-		private List<IUDetail> features;
+		private List<IUDetail> ius;
 
-		public FeatureHandler(AbstractHandler parentHandler, Attributes attributes, List<IUDetail> features) {
+		public IUHandler(AbstractHandler parentHandler, Attributes attributes, List<IUDetail> ius) {
 			super(parentHandler, IU_ELEMENT);
 			String[] values = parseAttributes(attributes, required, optional);
 			//skip entire record if the id is missing
@@ -98,7 +98,7 @@ public class P2FParser extends XMLParser implements P2FConstants {
 			desc.setProperty(IInstallableUnit.PROP_NAME, values[1]);
 			desc.setVersion(Version.create(values[2]));
 			iu = MetadataFactory.createInstallableUnit(desc);
-			this.features = features;
+			this.ius = ius;
 		}
 
 		@Override
@@ -111,33 +111,32 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		@Override
 		protected void finished() {
 			if (isValidXML()) {
-				IUDetail feature = new IUDetail(iu, repositoriesHandler.getRepositories());
-				features.add(feature);
+				ius.add(new IUDetail(iu, repositoriesHandler.getRepositories()));
 			}
 		}
 	}
 
-	protected class FeaturesHanlder extends AbstractHandler {
+	protected class IUsHandler extends AbstractHandler {
 
-		private final List<IUDetail> features;
+		private final List<IUDetail> ius;
 
-		public FeaturesHanlder(ContentHandler parentHandler, Attributes attributes) {
+		public IUsHandler(ContentHandler parentHandler, Attributes attributes) {
 			super(parentHandler, IUS_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			features = (size != null ? new ArrayList<IUDetail>(new Integer(size).intValue()) : new ArrayList<IUDetail>());
+			ius = (size != null ? new ArrayList<IUDetail>(new Integer(size).intValue()) : new ArrayList<IUDetail>());
 		}
 
 		@Override
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(IU_ELEMENT)) {
-				new FeatureHandler(this, attributes, features);
+				new IUHandler(this, attributes, ius);
 			} else {
 				invalidElement(name, attributes);
 			}
 		}
 
-		public List<IUDetail> getFeatureDetails() {
-			return features;
+		public List<IUDetail> getIUs() {
+			return ius;
 		}
 	}
 
@@ -156,12 +155,12 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		}
 	}
 
-	private final class P2FHandler extends RootHandler {
+	final class P2FHandler extends RootHandler {
 		private final String[] required = new String[] {VERSION_ATTRIBUTE};
 		private final String[] optional = new String[] {};
 		private String[] attrValues = new String[required.length + optional.length];
 
-		private FeaturesHanlder featuresHanlder;
+		private IUsHandler iusHandler;
 
 		@Override
 		protected void handleRootAttributes(Attributes attributes) {
@@ -172,8 +171,8 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		@Override
 		public void startElement(String name, Attributes attributes) throws SAXException {
 			if (IUS_ELEMENT.equals(name)) {
-				if (featuresHanlder == null) {
-					featuresHanlder = new FeaturesHanlder(this, attributes);
+				if (iusHandler == null) {
+					iusHandler = new IUsHandler(this, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
@@ -185,7 +184,7 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		@Override
 		protected void finished() {
 			if (isValidXML()) {
-				features = featuresHanlder.getFeatureDetails();
+				iusListed = iusHandler.getIUs();
 			}
 		}
 	}
@@ -219,8 +218,8 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		}
 	}
 
-	public List<IUDetail> getFeatures() {
-		return features;
+	public List<IUDetail> getIUs() {
+		return iusListed;
 	}
 
 	@Override
