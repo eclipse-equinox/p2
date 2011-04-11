@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Cloudsmith Inc. - initial API and implementation
+ *     SAP AG - Ongoing development
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.touchpoint.natives;
@@ -225,26 +226,41 @@ public class BackupStore implements IBackupStore {
 		if (file.isDirectory())
 			return backupDirectory(file);
 		file = makeParentCanonical(file);
-		File buRoot = backupRoot;
-		// File buRoot = findBackupRoot(file);
-		File buDir = new File(buRoot, backupName);
-		// move the file
-		// create the relative path from root and use that in buDir
-		File buFile = new File(buDir, makeRelativeFromRoot(file).getPath());
+		File buFile = getBackupFile(file);
 		// already backed up, but was a directory = wrong usage
 		if (buFile.isDirectory())
 			throw new IllegalArgumentException(NLS.bind(Messages.BackupStore_directory_file_mismatch, buFile.getAbsolutePath()));
 		// has already been backed up - can only be done once with one BackupStore
-		if (buFile.exists())
+		if (buFile.exists()) {
+			// although backed up, the file can be still on the file system when, for example,
+			// two IUs are unzipping their contents to the same location and share a few common file,
+			// which have to be removed twice
+			if (file.exists() && !file.delete())
+				throw new IOException(NLS.bind(Messages.BackupStore_can_not_remove, file.getAbsolutePath()));
 			return false;
+		}
 
+		moveToBackup(file, buFile);
+
+		return true;
+	}
+
+	/**
+	 * Move/rename file to a backup file. Callers of the method must have ensured that the source file exists and the
+	 * backup file has not been created yet.
+	 * 
+	 * @param file source file to move; should already exist and must not be directory
+	 * @param buFile destination backup file to move to; should not exist and must be a directory
+	 * @throws IOException if the backup operation fails
+	 */
+	private void moveToBackup(File file, File buFile) throws IOException {
 		// make sure all of the directories exist / gets created
 		buFile.getParentFile().mkdirs();
 		if (buFile.getParentFile().exists() && !buFile.getParentFile().isDirectory())
 			throw new IllegalArgumentException(NLS.bind(Messages.BackupStore_file_directory_mismatch, buFile.getParentFile().getAbsolutePath()));
 		if (file.renameTo(buFile)) {
 			backupCounter++;
-			return true;
+			return;
 		}
 		// could not move - this can happen because source and target are on different volumes, or
 		// that source is locked "in use" on a windows machine. The copy will work across volumes,
@@ -256,8 +272,14 @@ public class BackupStore implements IBackupStore {
 		// need to remove the backed up file
 		if (!file.delete())
 			throw new IOException(NLS.bind(Messages.BackupStore_can_not_delete_after_copy_0, file));
+	}
 
-		return true;
+	private File getBackupFile(File file) {
+		File buRoot = backupRoot;
+		File buDir = new File(buRoot, backupName);
+		// create the relative path from root and use that in buDir
+		File buFile = new File(buDir, makeRelativeFromRoot(file).getPath());
+		return buFile;
 	}
 
 	/**
@@ -366,7 +388,7 @@ public class BackupStore implements IBackupStore {
 	 * A call to backup a directory is really only needed for empty directories as a restore
 	 * of a file will also restore all of its parent directories.
 	 * @param file - the (empty) directory to back up
-	 * @return true if the directory was moved to backup. false if the directory was already backed up and remains.
+	 * @return true if the directory was moved to backup. false if the directory was already backed up
 	 * @throws IllegalArgumentException if file is not a directory, or is not empty.
 	 * @throws IOException if directory can not be moved to the backup store, or if the directory is not writeable
 	 */
@@ -376,15 +398,25 @@ public class BackupStore implements IBackupStore {
 		file = makeParentCanonical(file);
 		if (file.list().length != 0)
 			throw new IllegalArgumentException(NLS.bind(Messages.BackupStore_directory_not_empty, file.getAbsolutePath()));
-		// the easiest is to create a dummy file and back that up (the dummy is simply ignored when restoring).
+		// the easiest way is to create a dummy file and back that up (the dummy is simply ignored when restoring).
 		File dummy = new File(file, dummyName);
-		if (!dummy.createNewFile())
-			throw new IOException(NLS.bind(Messages.BackupStore_can_not_create_dummy, dummy.getAbsolutePath()));
-		boolean result = backup(dummy);
-		// if already backed up - do not delete the directory
-		if (result && !file.delete())
+		dummy = makeParentCanonical(dummy);
+		File buFile = getBackupFile(dummy);
+		boolean backedUp = buFile.exists();
+		// backup only if the folder has not been already backed up;
+		// this can happen if, for example, two IUs unzip to the same folder and then want to delete it
+		if (!backedUp) {
+			if (closed)
+				throw new ClosedBackupStoreException("Can not perform backup()"); //$NON-NLS-1$
+			if (!dummy.createNewFile())
+				throw new IOException(NLS.bind(Messages.BackupStore_can_not_create_dummy, dummy.getAbsolutePath()));
+			moveToBackup(dummy, buFile);
+		}
+		// previous checks have verified that the directory exists
+		if (!file.delete())
 			throw new IOException(NLS.bind(Messages.BackupStore_can_not_remove, dummy.getAbsolutePath()));
-		return result;
+		// will return true if the directory was already backed up at the beginning of the operation and false otherwise
+		return !backedUp;
 	}
 
 	/**
