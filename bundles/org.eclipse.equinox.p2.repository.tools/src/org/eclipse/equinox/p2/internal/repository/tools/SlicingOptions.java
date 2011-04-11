@@ -20,6 +20,8 @@ public class SlicingOptions {
 	private boolean considerStrictDependencyOnly = false;
 	private boolean followOnlyFilteredRequirements = false;
 	private boolean latestVersion = false;
+	private boolean resolve = false;
+
 	private Map<String, String> filter = null;
 
 	public boolean includeOptionalDependencies() {
@@ -78,5 +80,13 @@ public class SlicingOptions {
 
 	public void latestVersionOnly(boolean latest) {
 		this.latestVersion = latest;
+	}
+
+	public void installTimeLikeResolution(boolean resolve) {
+		this.resolve = resolve;
+	}
+
+	public boolean getInstallTimeLikeResolution() {
+		return resolve;
 	}
 }

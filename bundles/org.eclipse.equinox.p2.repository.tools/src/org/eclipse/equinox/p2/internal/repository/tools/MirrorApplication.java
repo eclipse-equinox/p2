@@ -22,8 +22,11 @@ import org.eclipse.equinox.internal.p2.director.PermissiveSlicer;
 import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.internal.repository.mirroring.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.planner.IPlanner;
+import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactDescriptor;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
@@ -320,9 +323,30 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		return new FileMirrorLog(absolutePath, 0, root);
 	}
 
+	private IQueryable<IInstallableUnit> performResolution(IProgressMonitor monitor) throws ProvisionException {
+		IProfileRegistry registry = Activator.getProfileRegistry();
+		String profileId = "MirrorApplication-" + System.currentTimeMillis();
+		IProfile profile = registry.addProfile(profileId, slicingOptions.getFilter());
+		IPlanner planner = (IPlanner) Activator.getAgent().getService(IPlanner.SERVICE_NAME);
+		if (planner == null)
+			throw new IllegalStateException();
+		IProfileChangeRequest pcr = planner.createChangeRequest(profile);
+		pcr.addAll(sourceIUs);
+		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, monitor);
+		registry.removeProfile(profileId);
+		IQueryable<IInstallableUnit>[] arr = new IQueryable[plan.getInstallerPlan() == null ? 1 : 2];
+		arr[0] = plan.getAdditions();
+		if (plan.getInstallerPlan() != null)
+			arr[1] = plan.getInstallerPlan().getAdditions();
+		return new CompoundQueryable<IInstallableUnit>(arr);
+	}
+
 	private IQueryable<IInstallableUnit> slice(IProgressMonitor monitor) throws ProvisionException {
 		if (slicingOptions == null)
 			slicingOptions = new SlicingOptions();
+		if (slicingOptions.getInstallTimeLikeResolution())
+			return performResolution(monitor);
+
 		PermissiveSlicer slicer = new PermissiveSlicer(getCompositeMetadataRepository(), slicingOptions.getFilter(), slicingOptions.includeOptionalDependencies(), slicingOptions.isEverythingGreedy(), slicingOptions.forceFilterTo(), slicingOptions.considerStrictDependencyOnly(), slicingOptions.followOnlyFilteredRequirements());
 		IQueryable<IInstallableUnit> slice = slicer.slice(sourceIUs.toArray(new IInstallableUnit[sourceIUs.size()]), monitor);
 
