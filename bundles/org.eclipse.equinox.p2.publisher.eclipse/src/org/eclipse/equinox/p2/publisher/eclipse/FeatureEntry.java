@@ -12,12 +12,13 @@
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 /**
  */
 public class FeatureEntry implements IPlatformEntry {
 	private final String id;
-	private String version;
+	private String versionOrRange;
 	private String url;
 	private String os;
 	private String ws;
@@ -39,6 +40,19 @@ public class FeatureEntry implements IPlatformEntry {
 		FeatureEntry result = new FeatureEntry(id, version, isPlugin);
 		result.match = match;
 		result.isRequires = true;
+		// for requires we don't care what the form is so leave it as false (JAR'd)
+		result.unpack = false;
+		if (filter != null)
+			result.setFilter(filter);
+		return result;
+	}
+
+	public static FeatureEntry createRequires(String id, VersionRange versionRange, String match, String filter, boolean isPlugin) {
+		FeatureEntry result = new FeatureEntry(id, versionRange, isPlugin);
+		result.match = match;
+		result.isRequires = true;
+		// for requires we don't care what the form is so leave it as false (JAR'd)
+		result.unpack = false;
 		if (filter != null)
 			result.setFilter(filter);
 		return result;
@@ -46,7 +60,13 @@ public class FeatureEntry implements IPlatformEntry {
 
 	public FeatureEntry(String id, String version, boolean isPlugin) {
 		this.id = id;
-		this.version = Version.parseVersion(version).toString();
+		this.versionOrRange = Version.parseVersion(version).toString();
+		this.isPlugin = isPlugin;
+	}
+
+	public FeatureEntry(String id, VersionRange versionRange, boolean isPlugin) {
+		this.id = id;
+		this.versionOrRange = versionRange.toString();
 		this.isPlugin = isPlugin;
 	}
 
@@ -64,10 +84,10 @@ public class FeatureEntry implements IPlatformEntry {
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (version == null) {
-			if (other.version != null)
+		if (versionOrRange == null) {
+			if (other.versionOrRange != null)
 				return false;
-		} else if (!version.equals(other.version))
+		} else if (!versionOrRange.equals(other.versionOrRange))
 			return false;
 
 		if (isPlugin() != other.isPlugin())
@@ -109,7 +129,7 @@ public class FeatureEntry implements IPlatformEntry {
 	}
 
 	public String getVersion() {
-		return version;
+		return versionOrRange;
 	}
 
 	public String getWS() {
@@ -121,7 +141,7 @@ public class FeatureEntry implements IPlatformEntry {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((version == null) ? 0 : version.hashCode());
+		result = prime * result + ((versionOrRange == null) ? 0 : versionOrRange.hashCode());
 		return result;
 	}
 
@@ -177,7 +197,7 @@ public class FeatureEntry implements IPlatformEntry {
 	}
 
 	public void setVersion(String value) {
-		version = Version.parseVersion(value).toString();
+		versionOrRange = Version.parseVersion(value).toString();
 	}
 
 	@Override
@@ -186,7 +206,7 @@ public class FeatureEntry implements IPlatformEntry {
 		result.append(isRequires ? "Requires: " : ""); //$NON-NLS-1$ //$NON-NLS-2$
 		result.append(isPlugin ? "Plugin: " : "Feature: "); //$NON-NLS-1$ //$NON-NLS-2$
 		result.append(id != null ? id.toString() : ""); //$NON-NLS-1$
-		result.append(version != null ? " " + version.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
+		result.append(versionOrRange != null ? " " + versionOrRange.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
 		return result.toString();
 	}
 

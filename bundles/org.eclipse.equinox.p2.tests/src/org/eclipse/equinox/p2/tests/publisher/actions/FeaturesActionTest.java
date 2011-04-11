@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
 import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
@@ -64,8 +65,64 @@ public class FeaturesActionTest extends ActionTest {
 		debug("Completed FeaturesAction."); //$NON-NLS-1$
 	}
 
-	public void testFeaturePatch() {
-		//TODO add a test for generating a feature patch
+	public void testFeaturePatch() throws Exception {
+		File testFolder = getTestFolder("FeaturesAction.testFilters");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("<feature id=\"test.feature\" version=\"1.0.0\" >                                       \n");
+		buffer.append("   <requires>                                                                          \n");
+		buffer.append("      <import feature=\"org.foo\" version=\"[1.0.0,2.0.0)\" match=\"versionRange\" patch=\"true\"/>  \n");
+		buffer.append("   </requires>                                                                         \n");
+		buffer.append("</feature>                                                                             \n");
+		File featureXML = new File(testFolder, "feature.xml");
+		writeBuffer(featureXML, buffer);
+
+		publisherInfo = new PublisherInfo();
+		FeaturesAction action = new FeaturesAction(new File[] {testFolder});
+		action.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+
+		IInstallableUnitPatch iu = (IInstallableUnitPatch) publisherResult.getIU("test.feature.feature.group", Version.parseVersion("1.0.0"), null);
+		IRequirement[][] applicabilityScope = iu.getApplicabilityScope();
+		assertEquals(1, applicabilityScope.length);
+		IRequiredCapability require = (IRequiredCapability) applicabilityScope[0][0];
+		assertEquals("org.foo.feature.group", require.getName());
+		IMatchExpression<IInstallableUnit> matches = require.getMatches();
+		assertEquals("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version >= $2 && x.version < $3)", matches.toString());
+		assertEquals(Version.parseVersion("1.0.0"), matches.getParameters()[2]);
+		assertEquals(Version.parseVersion("2.0.0"), matches.getParameters()[3]);
+	}
+
+	public void testMatchRange() throws Exception {
+		File testFolder = getTestFolder("FeaturesAction.testFilters");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("<feature id=\"test.feature\" version=\"1.0.0\" >                                       \n");
+		buffer.append("   <requires>                                                                          \n");
+		buffer.append("      <import plugin=\"org.plug\" version=\"[1.0.0,2.0.0)\" match=\"versionRange\" />  \n");
+		buffer.append("      <import feature=\"org.foo\" version=\"[1.0.0,2.0.0)\" match=\"versionRange\" />  \n");
+		buffer.append("   </requires>                                                                         \n");
+		buffer.append("</feature>                                                                             \n");
+		File featureXML = new File(testFolder, "feature.xml");
+		writeBuffer(featureXML, buffer);
+
+		publisherInfo = new PublisherInfo();
+		FeaturesAction action = new FeaturesAction(new File[] {testFolder});
+		action.perform(publisherInfo, publisherResult, new NullProgressMonitor());
+
+		IInstallableUnit iu = publisherResult.getIU("test.feature.feature.group", Version.parseVersion("1.0.0"), null);
+		Collection<IRequirement> requires = iu.getRequirements();
+		assertEquals(3, requires.size());
+		for (IRequirement require : requires) {
+			if (((IRequiredCapability) require).getName().equals("org.foo.feature.group")) {
+				IMatchExpression<IInstallableUnit> matches = require.getMatches();
+				assertEquals("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version >= $2 && x.version < $3)", matches.toString());
+				assertEquals(Version.parseVersion("1.0.0"), matches.getParameters()[2]);
+				assertEquals(Version.parseVersion("2.0.0"), matches.getParameters()[3]);
+			} else if (((IRequiredCapability) require).getName().equals("org.plug")) {
+				IMatchExpression<IInstallableUnit> matches = require.getMatches();
+				assertEquals("providedCapabilities.exists(x | x.name == $0 && x.namespace == $1 && x.version >= $2 && x.version < $3)", matches.toString());
+				assertEquals(Version.parseVersion("1.0.0"), matches.getParameters()[2]);
+				assertEquals(Version.parseVersion("2.0.0"), matches.getParameters()[3]);
+			}
+		}
 	}
 
 	public void testFilters() throws Exception {

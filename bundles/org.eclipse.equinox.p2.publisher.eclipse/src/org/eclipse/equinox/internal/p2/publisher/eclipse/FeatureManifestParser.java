@@ -17,21 +17,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.Status;
+import javax.xml.parsers.*;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.equinox.p2.publisher.eclipse.Feature;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.pde.internal.publishing.Activator;
-import org.eclipse.pde.internal.publishing.Constants;
-import org.eclipse.pde.internal.publishing.Messages;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.eclipse.pde.internal.publishing.*;
+import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -45,7 +38,7 @@ public class FeatureManifestParser extends DefaultHandler {
 	private URL url;
 	private StringBuffer characters = null;
 	private MultiStatus status = null;
-	private boolean hasImports = false;
+	private final boolean hasImports = false;
 
 	private final List<String> messageKeys = new ArrayList<String>();
 
@@ -185,19 +178,24 @@ public class FeatureManifestParser extends DefaultHandler {
 
 	private void processImport(Attributes attributes) {
 		String id = attributes.getValue("feature"); //$NON-NLS-1$
-		FeatureEntry entry = null;
-		if (id != null) {
-			if ("true".equalsIgnoreCase(attributes.getValue("patch"))) { //$NON-NLS-1$ //$NON-NLS-2$
-				entry = FeatureEntry.createRequires(id, attributes.getValue("version"), "perfect", attributes.getValue("filter"), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				entry.setPatch(true);
-			} else {
-				entry = FeatureEntry.createRequires(id, attributes.getValue("version"), attributes.getValue("match"), attributes.getValue("filter"), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			}
-		} else {
+		boolean isPlugin = false;
+		if (id == null) {
 			id = attributes.getValue("plugin"); //$NON-NLS-1$
-			entry = FeatureEntry.createRequires(id, attributes.getValue("version"), attributes.getValue("match"), attributes.getValue("filter"), true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if (id == null)
+				throw new IllegalStateException();
+			isPlugin = true;
 		}
-		hasImports = true;
+		String versionStr = attributes.getValue("version"); //$NON-NLS-1$
+		FeatureEntry entry = null;
+		if ("versionRange".equals(attributes.getValue("match"))) { //$NON-NLS-1$//$NON-NLS-2$
+			VersionRange versionRange = new VersionRange(versionStr);
+			entry = FeatureEntry.createRequires(id, versionRange, attributes.getValue("match"), attributes.getValue("filter"), isPlugin); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			entry = FeatureEntry.createRequires(id, versionStr, attributes.getValue("match"), attributes.getValue("filter"), isPlugin); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (!isPlugin && "true".equalsIgnoreCase(attributes.getValue("patch"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			entry.setPatch(true);
+		}
 		result.addEntry(entry);
 	}
 
