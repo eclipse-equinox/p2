@@ -147,23 +147,66 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 		return plugins.isDirectory() || features.isDirectory();
 	}
 
+	public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Deprecated
 	public void addDescriptor(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException();
 	}
 
+	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Deprecated
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
 		throw new UnsupportedOperationException();
 	}
 
+	public void removeAll(IProgressMonitor monitor) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Deprecated
 	public void removeAll() {
 		throw new UnsupportedOperationException();
 	}
 
+	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Deprecated
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
 		throw new UnsupportedOperationException();
 	}
 
+	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Deprecated
 	public void removeDescriptor(IArtifactKey key) {
+		throw new UnsupportedOperationException();
+	}
+
+	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Deprecated
+	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
+		throw new UnsupportedOperationException();
+	}
+
+	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Deprecated
+	public void removeDescriptors(IArtifactKey[] keys) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -217,18 +260,23 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository<IArt
 		return artifactRepository.getProperties();
 	}
 
-	public String setProperty(String key, String value) {
-		ensureInitialized();
-		String oldValue = artifactRepository.setProperty(key, value);
-		// if the value didn't really change then just return
-		if (oldValue == value || (oldValue != null && oldValue.equals(value)))
+	public String setProperty(String key, String value, IProgressMonitor monitor) {
+		try {
+			ensureInitialized();
+			String oldValue = artifactRepository.setProperty(key, value);
+			// if the value didn't really change then just return
+			if (oldValue == value || (oldValue != null && oldValue.equals(value)))
+				return oldValue;
+			// we want to re-initialize if we are changing the site policy or plug-in list
+			if (!SiteListener.SITE_LIST.equals(key) && !SiteListener.SITE_POLICY.equals(key))
+				return oldValue;
+			state = SiteListener.UNINITIALIZED;
+			ensureInitialized();
 			return oldValue;
-		// we want to re-initialize if we are changing the site policy or plug-in list
-		if (!SiteListener.SITE_LIST.equals(key) && !SiteListener.SITE_POLICY.equals(key))
-			return oldValue;
-		state = SiteListener.UNINITIALIZED;
-		ensureInitialized();
-		return oldValue;
+		} finally {
+			if (monitor != null)
+				monitor.done();
+		}
 	}
 
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key) {

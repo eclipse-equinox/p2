@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -150,11 +150,7 @@ public class JarComparator implements IArtifactComparator {
 						firstStream = new BufferedInputStream(firstFile.getInputStream(entry));
 						secondStream = new BufferedInputStream(secondFile.getInputStream(entry2));
 						if (lowerCase.endsWith(CLASS_EXTENSION)) {
-							try {
-								result = compareClasses(entryName, firstStream, entry.getSize(), secondStream, entry2.getSize());
-							} catch (ClassFormatException e) {
-								result = newErrorStatus(NLS.bind(Messages.differentEntry, new String[] {entryName, descriptorString, sourceLocation}), e);
-							}
+							result = compareClasses(entryName, firstStream, entry.getSize(), secondStream, entry2.getSize());
 						} else if (lowerCase.endsWith(JAR_EXTENSION)) {
 							result = compareNestedJars(firstStream, entry.getSize(), secondStream, entry2.getSize(), entryName);
 						} else if (lowerCase.endsWith(PROPERTIES_EXTENSION) || lowerCase.endsWith(MAPPINGS_EXTENSION)) {
@@ -216,15 +212,42 @@ public class JarComparator implements IArtifactComparator {
 		return Status.OK_STATUS;
 	}
 
-	private IStatus compareClasses(String entryName, InputStream stream1, long size1, InputStream stream2, long size2) throws ClassFormatException, IOException {
+	private IStatus compareClasses(String entryName, InputStream stream1, long size1, InputStream stream2, long size2) throws IOException {
 		Disassembler disassembler = new Disassembler();
 		byte[] firstEntryClassFileBytes = Utility.getInputStreamAsByteArray(stream1, (int) size1);
 		byte[] secondEntryClassFileBytes = Utility.getInputStreamAsByteArray(stream2, (int) size2);
 
-		String contentsFile1 = disassembler.disassemble(firstEntryClassFileBytes, LINE_SEPARATOR, Disassembler.DETAILED | Disassembler.COMPACT);
-		String contentsFile2 = disassembler.disassemble(secondEntryClassFileBytes, LINE_SEPARATOR, Disassembler.DETAILED | Disassembler.COMPACT);
-		if (!contentsFile1.equals(contentsFile2))
+		String contentsFile1 = null;
+		try {
+			contentsFile1 = disassembler.disassemble(firstEntryClassFileBytes, LINE_SEPARATOR, Disassembler.DETAILED | Disassembler.COMPACT);
+		} catch (ClassFormatException e) {
+			// ignore
+		}
+		String contentsFile2 = null;
+		try {
+			contentsFile2 = disassembler.disassemble(secondEntryClassFileBytes, LINE_SEPARATOR, Disassembler.DETAILED | Disassembler.COMPACT);
+		} catch (ClassFormatException e) {
+			// ignore
+		}
+		if (contentsFile1 == null || contentsFile2 == null) {
+			// one of the two .class file (or both) is corrupted
+			if (contentsFile1 == null) {
+				if (contentsFile2 != null) {
+					// first .class file is corrupted and not the second one
+					return newErrorStatus(NLS.bind(Messages.classesDifferent, entryName));
+				}
+				// both .class files are corrupted and we need to do a byte comparison in case the .class file is corrupted on purpose
+				if (!Arrays.equals(firstEntryClassFileBytes, secondEntryClassFileBytes)) {
+					return newErrorStatus(NLS.bind(Messages.binaryFilesDifferent, entryName));
+				}
+				return Status.OK_STATUS;
+			}
+			// first .class file is not corrupted but the second one is
 			return newErrorStatus(NLS.bind(Messages.classesDifferent, entryName));
+		}
+		if (!contentsFile1.equals(contentsFile2)) {
+			return newErrorStatus(NLS.bind(Messages.classesDifferent, entryName));
+		}
 		return Status.OK_STATUS;
 	}
 
@@ -256,13 +279,42 @@ public class JarComparator implements IArtifactComparator {
 			String prop1 = props1.getProperty(key);
 			String prop2 = props2.getProperty(key);
 			if (!prop1.equals(prop2)) {
-				if (prop1.length() < 10 && prop2.length() < 10)
+				if (prop1.length() < 15 && prop2.length() < 15)
 					return newErrorStatus(NLS.bind(Messages.differentPropertyValueFull, new String[] {entryName, key, prop1, prop2}));
-				return newErrorStatus(NLS.bind(Messages.differentPropertyValueFull, entryName, key));
+				// strings are too long, report the first bit that is different
+				String[] diff = extractDifference(prop1, prop2);
+				return newErrorStatus(NLS.bind(Messages.differentPropertyValueFull, new String[] {entryName, key, diff[0], diff[1]}));
 			}
 
 		}
 		return Status.OK_STATUS;
+	}
+
+	/*
+	 * Given two different strings return the first segments of those
+	 * strings that illustrate the differences.
+	 */
+	private String[] extractDifference(String s1, String s2) {
+		for (int i = 0; i < s1.length() && i < s2.length(); i++) {
+			if (s1.charAt(i) != s2.charAt(i)) {
+				String result1, result2;
+				boolean truncated;
+				if (i > 3) {
+					truncated = (i + 7) < s1.length();
+					result1 = "..." + s1.substring(i - 3, truncated ? i + 7 : s1.length()) + (truncated ? "..." : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					truncated = (i + 7) < s2.length();
+					result2 = "..." + s2.substring(i - 3, truncated ? i + 7 : s2.length()) + (truncated ? "..." : ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				} else {
+					truncated = (i + 10) < s1.length();
+					result1 = s1.substring(0, truncated ? i + 10 : s1.length()) + (truncated ? "..." : ""); //$NON-NLS-1$ //$NON-NLS-2$
+					truncated = (i + 10) < s2.length();
+					result2 = s2.substring(0, truncated ? i + 10 : s2.length()) + (truncated ? "..." : ""); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+				return new String[] {result1, result2};
+			}
+		}
+		//no differences?
+		return new String[] {s1, s2};
 	}
 
 	private IStatus compareBytes(String entryName, InputStream firstStream, long size1, InputStream secondStream, long size2) throws IOException {

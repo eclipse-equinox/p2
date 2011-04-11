@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,18 +8,19 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Wind River - fix for bug 299227
+ *     Sonatype, Inc. - transport split
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.repository.helpers;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.*;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.p2.repository.*;
+import org.eclipse.equinox.internal.p2.repository.Activator;
+import org.eclipse.equinox.internal.p2.repository.Transport;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
@@ -301,13 +302,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	 */
 	protected Object createExecutableExtension(IExtension extension, String element) {
 		IConfigurationElement[] elements = extension.getConfigurationElements();
-		CoreException failure = null;
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i].getName().equals(element)) {
 				try {
 					return elements[i].createExecutableExtension("class"); //$NON-NLS-1$
 				} catch (CoreException e) {
-					log("Error loading repository extension: " + extension.getUniqueIdentifier(), failure); //$NON-NLS-1$
+					log("Error loading repository extension: " + extension.getUniqueIdentifier(), e); //$NON-NLS-1$
 					return null;
 				}
 			}
@@ -623,13 +623,12 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 
 	protected IRepository<T> loadRepository(URI location, IProgressMonitor monitor, String type, int flags) throws ProvisionException {
 		checkValidLocation(location);
-		if (monitor == null)
-			monitor = new NullProgressMonitor();
+		SubMonitor sub = SubMonitor.convert(monitor, 100);
 		boolean added = false;
 		IRepository<T> result = null;
 
 		try {
-			enterLoad(location, monitor);
+			enterLoad(location, sub.newChild(5));
 			result = basicGetRepository(location);
 			if (result != null)
 				return result;
@@ -638,20 +637,11 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 			//add the repository first so that it will be enabled, but don't send add event until after the load
 			added = addRepository(location, true, false);
 
-			// get the search order from the server, if it's available
-			ByteArrayOutputStream index = new ByteArrayOutputStream();
-			LocationProperties locationProperties = null;
-			try {
-				getTransport().download(getIndexFile(location), index, monitor);
-			} catch (Throwable e) {
-				// If any exceptions are thrown, just ignore the index file
-			}
-
-			locationProperties = LocationProperties.create(new ByteArrayInputStream(index.toByteArray()));
-			String[] preferredOrder = getPreferredRepositorySearchOrder(locationProperties);
+			LocationProperties indexFile = loadIndexFile(location, sub.newChild(15));
+			String[] preferredOrder = getPreferredRepositorySearchOrder(indexFile);
 			String[] suffixes = sortSuffixes(getAllSuffixes(), location, preferredOrder);
 
-			SubMonitor sub = SubMonitor.convert(monitor, NLS.bind(Messages.repoMan_adding, location), suffixes.length * 100);
+			sub = SubMonitor.convert(sub, NLS.bind(Messages.repoMan_adding, location), suffixes.length * 100);
 			ProvisionException failure = null;
 			try {
 				for (int i = 0; i < suffixes.length; i++) {
@@ -678,7 +668,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 				//eagerly cleanup missing system repositories
 				if (Boolean.valueOf(getRepositoryProperty(location, IRepository.PROP_SYSTEM)).booleanValue())
 					removeRepository(location);
-				else if (failure == null || failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_AUTHENTICATION)
+				else if (failure == null || (failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_AUTHENTICATION && failure.getStatus().getCode() != ProvisionException.REPOSITORY_FAILED_READ))
 					rememberNotFound(location);
 				if (failure != null)
 					throw failure;
@@ -691,6 +681,49 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		if (added)
 			broadcastChangeEvent(location, getRepositoryType(), RepositoryEvent.ADDED, true);
 		return result;
+	}
+
+	/**
+	 * Fetches the p2.index file from the server. If the file could not be fetched
+	 * a NullSafe version is returned.
+	 */
+	private LocationProperties loadIndexFile(URI location, IProgressMonitor monitor) {
+		LocationProperties locationProperties = LocationProperties.createEmptyIndexFile();
+		//Handle the case of local repos
+		if ("file".equals(location.getScheme())) { //$NON-NLS-1$ 
+			InputStream localStream = null;
+			try {
+				try {
+					File indexFile = URIUtil.toFile(getIndexFileURI(location));
+					if (indexFile != null && indexFile.exists() && indexFile.canRead()) {
+						localStream = new FileInputStream(indexFile);
+						locationProperties = LocationProperties.create(localStream);
+					}
+				} catch (URISyntaxException e) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+				} finally {
+					if (localStream != null)
+						localStream.close();
+				}
+			} catch (IOException e) {
+				//do nothing.
+			}
+			return locationProperties;
+		}
+
+		//Handle non local repos (i.e. not file:)
+		ByteArrayOutputStream index = new ByteArrayOutputStream();
+		IStatus indexFileStatus = null;
+		try {
+			indexFileStatus = getTransport().download(getIndexFileURI(location), index, monitor);
+		} catch (URISyntaxException uriSyntaxException) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, uriSyntaxException.getMessage(), uriSyntaxException));
+			indexFileStatus = null;
+		}
+		if (indexFileStatus != null && indexFileStatus.isOK())
+			locationProperties = LocationProperties.create(new ByteArrayInputStream(index.toByteArray()));
+
+		return locationProperties;
 	}
 
 	/**
@@ -1121,7 +1154,7 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		}
 	}
 
-	private static URI getIndexFile(URI base) throws URISyntaxException {
+	private static URI getIndexFileURI(URI base) throws URISyntaxException {
 		final String name = INDEX_FILE;
 		String spec = base.toString();
 		if (spec.endsWith(name))
@@ -1133,7 +1166,17 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 		return new URI(spec);
 	}
 
-	private Transport getTransport() {
-		return RepositoryTransport.getInstance();
+	protected Transport getTransport() {
+		return (Transport) agent.getService(Transport.SERVICE_NAME);
+	}
+
+	public void flushCache() {
+		synchronized (repositories) {
+			Collection<RepositoryInfo<T>> repos = repositories.values();
+			for (Iterator<RepositoryInfo<T>> iterator = repos.iterator(); iterator.hasNext();) {
+				RepositoryInfo<T> repositoryInfo = iterator.next();
+				repositoryInfo.repository = null;
+			}
+		}
 	}
 }

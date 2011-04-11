@@ -23,13 +23,13 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 /**
  * Represents a p2 agent instance.
  */
-public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCustomizer {
+public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCustomizer<IAgentServiceFactory, Object> {
 
 	private final Map<String, Object> agentServices = Collections.synchronizedMap(new HashMap<String, Object>());
 	private BundleContext context;
-	private boolean stopped = false;
-	private ServiceRegistration reg;
-	private final Map<ServiceReference, ServiceTracker> trackers = Collections.synchronizedMap(new HashMap<ServiceReference, ServiceTracker>());
+	private volatile boolean stopped = false;
+	private ServiceRegistration<IProvisioningAgent> reg;
+	private final Map<ServiceReference<IAgentServiceFactory>, ServiceTracker<IAgentServiceFactory, Object>> trackers = Collections.synchronizedMap(new HashMap<ServiceReference<IAgentServiceFactory>, ServiceTracker<IAgentServiceFactory, Object>>());
 
 	/**
 	 * Instantiates a provisioning agent.
@@ -44,39 +44,43 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 	 * @see org.eclipse.equinox.p2.core.IProvisioningAgent#getService(java.lang.String)
 	 */
 	public Object getService(String serviceName) {
-		checkRunning();
-		Object service = agentServices.get(serviceName);
-		if (service != null)
+		//synchronize so concurrent gets always obtain the same service
+		synchronized (agentServices) {
+			checkRunning();
+			Object service = agentServices.get(serviceName);
+			if (service != null)
+				return service;
+			//attempt to get factory service from service registry
+			Collection<ServiceReference<IAgentServiceFactory>> refs;
+			try {
+				refs = context.getServiceReferences(IAgentServiceFactory.class, "(" + IAgentServiceFactory.PROP_CREATED_SERVICE_NAME + '=' + serviceName + ')'); //$NON-NLS-1$
+			} catch (InvalidSyntaxException e) {
+				e.printStackTrace();
+				return null;
+			}
+			if (refs == null || refs.isEmpty())
+				return null;
+			ServiceReference<IAgentServiceFactory> firstRef = refs.iterator().next();
+			//track the factory so that we can automatically remove the service when the factory goes away
+			ServiceTracker<IAgentServiceFactory, Object> tracker = new ServiceTracker<IAgentServiceFactory, Object>(context, firstRef, this);
+			tracker.open();
+			IAgentServiceFactory factory = (IAgentServiceFactory) tracker.getService();
+			if (factory == null) {
+				tracker.close();
+				return null;
+			}
+			service = factory.createService(this);
+			if (service == null) {
+				tracker.close();
+				return null;
+			}
+			registerService(serviceName, service);
+			trackers.put(firstRef, tracker);
 			return service;
-		//attempt to get factory service from service registry
-		ServiceReference[] refs;
-		try {
-			refs = context.getServiceReferences(IAgentServiceFactory.SERVICE_NAME, "(" + IAgentServiceFactory.PROP_CREATED_SERVICE_NAME + '=' + serviceName + ')'); //$NON-NLS-1$
-		} catch (InvalidSyntaxException e) {
-			e.printStackTrace();
-			return null;
 		}
-		if (refs == null || refs.length == 0)
-			return null;
-		//track the factory so that we can automatically remove the service when the factory goes away
-		ServiceTracker tracker = new ServiceTracker(context, refs[0], this);
-		tracker.open();
-		IAgentServiceFactory factory = (IAgentServiceFactory) tracker.getService();
-		if (factory == null) {
-			tracker.close();
-			return null;
-		}
-		service = factory.createService(this);
-		if (service == null) {
-			tracker.close();
-			return null;
-		}
-		registerService(serviceName, service);
-		trackers.put(refs[0], tracker);
-		return service;
 	}
 
-	private synchronized void checkRunning() {
+	private void checkRunning() {
 		if (stopped)
 			throw new IllegalStateException("Attempt to access stopped agent: " + this); //$NON-NLS-1$
 	}
@@ -96,9 +100,9 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		//treat a null location as using the currently running platform
 		IAgentLocation agentLocation = null;
 		if (location == null) {
-			ServiceReference ref = context.getServiceReference(IAgentLocation.SERVICE_NAME);
+			ServiceReference<IAgentLocation> ref = context.getServiceReference(IAgentLocation.class);
 			if (ref != null) {
-				agentLocation = (IAgentLocation) context.getService(ref);
+				agentLocation = context.getService(ref);
 				context.ungetService(ref);
 			}
 		} else {
@@ -108,11 +112,9 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 	}
 
 	public void unregisterService(String serviceName, Object service) {
-		synchronized (this) {
+		synchronized (agentServices) {
 			if (stopped)
 				return;
-		}
-		synchronized (agentServices) {
 			if (agentServices.get(serviceName) == service)
 				agentServices.remove(serviceName);
 		}
@@ -121,18 +123,20 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 	}
 
 	public void stop() {
+		List<Object> toStop;
+		synchronized (agentServices) {
+			toStop = new ArrayList<Object>(agentServices.values());
+		}
 		//give services a chance to do their own shutdown
-		for (Object service : agentServices.values()) {
+		for (Object service : toStop) {
 			if (service instanceof IAgentService)
 				if (service != this)
 					((IAgentService) service).stop();
 		}
-		synchronized (this) {
-			stopped = true;
-		}
+		stopped = true;
 		//close all service trackers
 		synchronized (trackers) {
-			for (ServiceTracker t : trackers.values())
+			for (ServiceTracker<IAgentServiceFactory, Object> t : trackers.values())
 				t.close();
 			trackers.clear();
 		}
@@ -142,14 +146,14 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		}
 	}
 
-	public void setServiceRegistration(ServiceRegistration reg) {
+	public void setServiceRegistration(ServiceRegistration<IProvisioningAgent> reg) {
 		this.reg = reg;
 	}
 
 	/*(non-Javadoc)
 	 * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
 	 */
-	public Object addingService(ServiceReference reference) {
+	public Object addingService(ServiceReference<IAgentServiceFactory> reference) {
 		if (stopped)
 			return null;
 		return context.getService(reference);
@@ -158,14 +162,14 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 	/*(non-Javadoc)
 	 * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference, java.lang.Object)
 	 */
-	public void modifiedService(ServiceReference reference, Object service) {
+	public void modifiedService(ServiceReference<IAgentServiceFactory> reference, Object service) {
 		//nothing to do
 	}
 
 	/*(non-Javadoc)
 	 * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(org.osgi.framework.ServiceReference, java.lang.Object)
 	 */
-	public void removedService(ServiceReference reference, Object factoryService) {
+	public void removedService(ServiceReference<IAgentServiceFactory> reference, Object factoryService) {
 		if (stopped)
 			return;
 		String serviceName = (String) reference.getProperty(IAgentServiceFactory.PROP_CREATED_SERVICE_NAME);
@@ -177,7 +181,7 @@ public class ProvisioningAgent implements IProvisioningAgent, ServiceTrackerCust
 		if (FrameworkUtil.getBundle(registered.getClass()) == FrameworkUtil.getBundle(factoryService.getClass())) {
 			//the service we are holding is going away
 			unregisterService(serviceName, registered);
-			ServiceTracker toRemove = trackers.remove(reference);
+			ServiceTracker<IAgentServiceFactory, Object> toRemove = trackers.remove(reference);
 			if (toRemove != null)
 				toRemove.close();
 		}

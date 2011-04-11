@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, IBM Corporation and others.
+ * Copyright (c) 2009,2010 IBM Corporation and others.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the copyright holder
  * listed above, as the Initial Contributor under such license. The text of
@@ -7,6 +7,7 @@
  * Contributors:
  * 	IBM Corporation - Initial API and implementation
  *  Cloudsmith Inc - Implementation
+ *  Sonatype Inc - Ongoing development
  ******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.repository;
@@ -17,11 +18,9 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.ecf.filetransfer.UserCancelledException;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.helpers.DebugHelper;
-import org.eclipse.equinox.p2.core.IProvisioningAgent;
-import org.eclipse.equinox.p2.core.UIServices;
+import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.security.storage.*;
 
@@ -64,7 +63,7 @@ public class Credentials {
 	 * @param prompt - use <code>true</code> to prompt the user instead of
 	 * looking at the secure preference store for login, use <code>false</code>
 	 * to only try the secure preference store
-	 * @throws UserCancelledException when the user cancels the login prompt
+	 * @throws LoginCanceledException when the user cancels the login prompt
 	 * @throws CoreException if the password cannot be read or saved
 	 * @return The authentication info.
 	 */
@@ -87,7 +86,7 @@ public class Credentials {
 	 * @param prompt - if true, user will be prompted for information
 	 * @param lastUsed - optional information used in an previous attempt to login
 	 * @return AuthenticationInfo, or null if there was no information available
-	 * @throws UserCancelledException - user canceled the prompt for name/password
+	 * @throws LoginCanceledException - user canceled the prompt for name/password
 	 * @throws CoreException if there is an error
 	 */
 	public static UIServices.AuthenticationInfo forLocation(URI location, boolean prompt, UIServices.AuthenticationInfo lastUsed) throws LoginCanceledException, CoreException {
@@ -105,7 +104,7 @@ public class Credentials {
 					throw new UnsupportedEncodingException("No UTF-8 encoding and missing system property: file.encoding"); //$NON-NLS-1$
 				nodeKey = URLEncoder.encode(host, enc);
 			} catch (UnsupportedEncodingException e) {
-				throw RepositoryStatusHelper.internalError(e);
+				throw internalError(e);
 			}
 		}
 		if (DebugHelper.DEBUG_REPOSITORY_CREDENTIALS) {
@@ -147,10 +146,10 @@ public class Credentials {
 						prefNode = securePreferences.node(nodeName);
 				} catch (IllegalArgumentException e) {
 					// if the node name is illegal/malformed (should not happen).
-					throw RepositoryStatusHelper.internalError(e);
+					throw internalError(e);
 				} catch (IllegalStateException e) {
 					// thrown if preference store has been tampered with
-					throw RepositoryStatusHelper.internalError(e);
+					throw internalError(e);
 				}
 				if (!prompt) {
 					try {
@@ -174,7 +173,7 @@ public class Credentials {
 						}
 						return restoreFromMemory(nodeName);
 					} catch (StorageException e) {
-						throw RepositoryStatusHelper.internalError(e);
+						throw internalError(e);
 					}
 				}
 				// need to prompt user for user name and password
@@ -195,8 +194,8 @@ public class Credentials {
 				}
 
 				UIServices.AuthenticationInfo latest = restoreFromMemory(nodeName);
-				if (latest != null && lastUsed != null)
-					if (!(latest.getUserName().equals(lastUsed.getUserName()) && latest.getPassword().equals(lastUsed.getPassword())))
+				if (latest != null)
+					if (lastUsed == null || !(latest.getUserName().equals(lastUsed.getUserName()) && latest.getPassword().equals(lastUsed.getPassword())))
 						return latest;
 
 				// check if number of prompts have been exceeded for the host - if so
@@ -257,9 +256,9 @@ public class Credentials {
 									prefNode.put(IRepository.PROP_PASSWORD, loginDetails.getPassword(), true);
 									prefNode.flush();
 								} catch (StorageException e1) {
-									throw RepositoryStatusHelper.internalError(e1);
+									throw internalError(e1);
 								} catch (IOException e) {
-									throw RepositoryStatusHelper.internalError(e);
+									throw internalError(e);
 								}
 							} else {
 								// if persisted earlier - the preference should be removed
@@ -274,7 +273,7 @@ public class Credentials {
 									try {
 										prefNode.flush();
 									} catch (IOException e) {
-										throw RepositoryStatusHelper.internalError(e);
+										throw internalError(e);
 									}
 								}
 							}
@@ -479,5 +478,15 @@ public class Credentials {
 			count = 0;
 			timestamp = System.currentTimeMillis();
 		}
+	}
+
+	/**
+	 * Get default "InternalError" ProvisionException.
+	 * @param t
+	 * @return a default "InternalError"
+	 */
+	public static ProvisionException internalError(Throwable t) {
+		return new ProvisionException(new Status(IStatus.ERROR, Activator.ID, //
+				ProvisionException.INTERNAL_ERROR, Messages.repoMan_internalError, t));
 	}
 }

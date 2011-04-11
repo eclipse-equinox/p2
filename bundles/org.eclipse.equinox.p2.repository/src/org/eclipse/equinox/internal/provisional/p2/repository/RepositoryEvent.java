@@ -149,4 +149,40 @@ public class RepositoryEvent extends EventObject {
 		return isEnabled;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see java.util.EventObject#toString()
+	 */
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("RepositoryEvent["); //$NON-NLS-1$
+		switch (kind) {
+			case ADDED :
+				buffer.append("ADDED "); //$NON-NLS-1$
+				break;
+			case CHANGED :
+				buffer.append("CHANGED "); //$NON-NLS-1$
+				break;
+			case DISCOVERED :
+				buffer.append("DISCOVERED "); //$NON-NLS-1$
+				break;
+			case ENABLEMENT :
+				buffer.append("ENABLED "); //$NON-NLS-1$
+				break;
+			case REMOVED :
+				buffer.append("REMOVED "); //$NON-NLS-1$
+				break;
+		}
+		if (type == IRepository.TYPE_ARTIFACT)
+			buffer.append("Artifact "); //$NON-NLS-1$
+		else
+			buffer.append("Metadata "); //$NON-NLS-1$
+		// uri
+		buffer.append(getSource().toString());
+		if (nickname != null)
+			buffer.append("Nickname: " + nickname); //$NON-NLS-1$
+		buffer.append(" Enabled: " + Boolean.toString(isEnabled)); //$NON-NLS-1$
+		buffer.append("] "); //$NON-NLS-1$
+		return buffer.toString();
+	}
 }

@@ -39,7 +39,7 @@ public class DefaultAgentProvider implements IProvisioningAgentProvider {
 			properties.put(Constants.SERVICE_RANKING, new Integer(100));
 			properties.put(IProvisioningAgent.SERVICE_CURRENT, Boolean.TRUE.toString());
 		}
-		ServiceRegistration reg = context.registerService(IProvisioningAgent.SERVICE_NAME, result, properties);
+		ServiceRegistration<IProvisioningAgent> reg = context.registerService(IProvisioningAgent.class, result, properties);
 		result.setServiceRegistration(reg);
 		return result;
 	}

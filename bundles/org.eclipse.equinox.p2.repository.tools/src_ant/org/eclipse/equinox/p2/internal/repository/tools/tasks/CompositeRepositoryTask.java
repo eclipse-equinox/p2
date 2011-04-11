@@ -45,6 +45,21 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 	 * Add the listed repositories to the composite repository
 	 */
 	public void addConfiguredAdd(RepositoryList list) {
+		if (list.getRepoLocation() != null) {
+			RepositoryDescriptor descriptor = new RepositoryDescriptor();
+			//don't use RepositoryList#getRepoLocationURI() because we want relative URIs if they were specified
+			try {
+				descriptor.setLocation(URIUtil.fromString(list.getRepoLocation()));
+				descriptor.setOptional(list.isOptional());
+				if (!list.isBoth()) {
+					descriptor.setKind(list.isArtifact() ? RepositoryDescriptor.KIND_ARTIFACT : RepositoryDescriptor.KIND_METADATA);
+				}
+				((CompositeRepositoryApplication) application).addChild(descriptor);
+			} catch (URISyntaxException e) {
+				//no good
+			}
+		}
+
 		for (DestinationRepository repo : list.getRepositoryList()) {
 			((CompositeRepositoryApplication) application).addChild(repo.getDescriptor());
 		}
@@ -54,6 +69,20 @@ public class CompositeRepositoryTask extends AbstractRepositoryTask {
 	 * Remove the listed repositories from the composite repository
 	 */
 	public void addConfiguredRemove(RepositoryList list) {
+		if (list.getRepoLocation() != null) {
+			RepositoryDescriptor descriptor = new RepositoryDescriptor();
+			try {
+				//don't use RepositoryList#getRepoLocationURI() because we want relative URIs if they were specified
+				descriptor.setLocation(URIUtil.fromString(list.getRepoLocation()));
+				descriptor.setOptional(list.isOptional());
+				if (!list.isBoth()) {
+					descriptor.setKind(list.isArtifact() ? RepositoryDescriptor.KIND_ARTIFACT : RepositoryDescriptor.KIND_METADATA);
+				}
+				((CompositeRepositoryApplication) application).removeChild(descriptor);
+			} catch (URISyntaxException e) {
+				// no good, don't remove
+			}
+		}
 		for (DestinationRepository repo : list.getRepositoryList()) {
 			((CompositeRepositoryApplication) application).removeChild(repo.getDescriptor());
 		}

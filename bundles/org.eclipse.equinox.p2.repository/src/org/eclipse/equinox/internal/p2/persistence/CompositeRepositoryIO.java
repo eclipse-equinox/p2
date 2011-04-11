@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-
 import java.io.*;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -61,6 +60,7 @@ public class CompositeRepositoryIO {
 			try {
 				bufferedInput = new BufferedInputStream(input);
 				CompositeParser repositoryParser = new CompositeParser(Activator.getContext(), Activator.ID, type);
+				repositoryParser.setErrorContext(location.toExternalForm());
 				repositoryParser.parse(input);
 				IStatus result = repositoryParser.getStatus();
 				switch (result.getSeverity()) {

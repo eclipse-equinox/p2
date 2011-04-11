@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.repository.metadata;
 import java.util.Collection;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.core.IPool;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.repository.*;
 import org.eclipse.equinox.p2.repository.metadata.spi.AbstractMetadataRepository;
@@ -81,4 +82,17 @@ public interface IMetadataRepository extends IRepository<IInstallableUnit> {
 	 * the execution will be returned in the status.
 	 */
 	public IStatus executeBatch(IRunnableWithProgress runnable, IProgressMonitor monitor);
+
+	/**
+	 * Cause semantically equivalent IInstallableUnits in the receiver to be
+	 * replaced with a shared object from the provided {@link IPool}.  New objects are
+	 * added to the {@link IPool} as required.
+	 * <p>
+	 * While the {@link IPool} should be retained to increase the scope of sharing when
+	 * calling {@link #compress(IPool)} on subsequent repositories, the {@link IPool} can 
+	 * be discarded without adversely effecting the receiver.
+	 * </p>
+	 * @since 2.1
+	 */
+	public void compress(IPool<IInstallableUnit> iuPool);
 }

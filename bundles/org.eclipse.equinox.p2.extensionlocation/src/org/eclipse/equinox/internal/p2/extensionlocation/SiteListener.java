@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2009 IBM Corporation and others.
+ *  Copyright (c) 2008, 2010 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -52,9 +52,18 @@ public class SiteListener extends DirectoryChangeListener {
 	private static boolean contains(String[] plugins, File file) {
 		String filename = file.getAbsolutePath();
 		for (int i = 0; i < plugins.length; i++)
-			if (filename.endsWith(new File(plugins[i]).toString()))
+			if (filename.endsWith(plugins[i]))
 				return true;
 		return false;
+	}
+
+	/**
+	 * Converts a list of file names to a normalized form suitable for comparison.
+	 */
+	private String[] normalize(String[] filenames) {
+		for (int i = 0; i < filenames.length; i++)
+			filenames[i] = new File(filenames[i]).toString();
+		return filenames;
 	}
 
 	/**
@@ -116,7 +125,7 @@ public class SiteListener extends DirectoryChangeListener {
 		if (listString != null)
 			for (StringTokenizer tokenizer = new StringTokenizer(listString, ","); tokenizer.hasMoreTokens();) //$NON-NLS-1$
 				listCollection.add(tokenizer.nextToken());
-		this.list = listCollection.toArray(new String[listCollection.size()]);
+		this.list = normalize(listCollection.toArray(new String[listCollection.size()]));
 	}
 
 	/* (non-Javadoc)
@@ -275,7 +284,7 @@ public class SiteListener extends DirectoryChangeListener {
 					result.add(pluginLocation.toString());
 			}
 		}
-		managedFiles = result.toArray(new String[result.size()]);
+		managedFiles = normalize(result.toArray(new String[result.size()]));
 		return managedFiles;
 	}
 

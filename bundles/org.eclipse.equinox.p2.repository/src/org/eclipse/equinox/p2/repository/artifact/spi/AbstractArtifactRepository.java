@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -51,24 +51,111 @@ public abstract class AbstractArtifactRepository extends AbstractRepository<IArt
 
 	public abstract OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException;
 
+	/**
+	 * @since 2.1
+	 */
+	public void addDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
+		assertModifiable();
+	}
+
+	/**
+	 * @deprecated 
+	 */
 	public void addDescriptor(IArtifactDescriptor descriptor) {
+		this.addDescriptor(descriptor, new NullProgressMonitor());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @since 2.1
+	 */
+	public void addDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		assertModifiable();
 	}
 
+	/**
+	 * @deprecated 
+	 */
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
+		this.addDescriptors(descriptors, new NullProgressMonitor());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @since 2.1
+	 */
+	public void removeDescriptor(IArtifactDescriptor descriptor, IProgressMonitor monitor) {
 		assertModifiable();
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
+		this.removeDescriptor(descriptor, new NullProgressMonitor());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @since 2.1
+	 */
+	public void removeDescriptors(IArtifactDescriptor[] descriptors, IProgressMonitor monitor) {
 		assertModifiable();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @since 2.1
+	 * @deprecated ?? Strange that we added an API and then deprecated it
+	 */
+	public void removeDescriptors(IArtifactDescriptor[] descriptors) {
+		this.removeDescriptors(descriptors, new NullProgressMonitor());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @since 2.1
+	 */
+	public void removeDescriptor(IArtifactKey key, IProgressMonitor monitor) {
+		assertModifiable();
+	}
+
+	/**
+	 * @deprecated
+	 */
 	public void removeDescriptor(IArtifactKey key) {
+		this.removeDescriptor(key, new NullProgressMonitor());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @since 2.1
+	 */
+	public void removeDescriptors(IArtifactKey[] keys, IProgressMonitor monitor) {
 		assertModifiable();
 	}
 
-	public void removeAll() {
+	/**
+	 * {@inheritDoc}
+	 * @since 2.1
+	 * @deprecated ?? Strange that we added an API and then deprecated it
+	 */
+	public void removeDescriptors(IArtifactKey[] keys) {
+		this.removeDescriptors(keys, new NullProgressMonitor());
+	}
+
+	/**
+	 * @since 2.1
+	 */
+	public void removeAll(IProgressMonitor monitor) {
 		assertModifiable();
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public void removeAll() {
+		this.removeAll(new NullProgressMonitor());
 	}
 
 	public boolean equals(Object o) {

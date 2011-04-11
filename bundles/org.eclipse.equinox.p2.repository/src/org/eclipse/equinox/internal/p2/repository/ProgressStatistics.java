@@ -98,9 +98,11 @@ public class ProgressStatistics {
 		long amount = 0L;
 		SortedMap<Long, Long> relevantData = m_recentSpeedMap.headMap(new Long(m_recentSpeedMapKey));
 
-		for (Long rl : relevantData.values()) {
-			dur += SPEED_RESOLUTION;
-			amount += rl.longValue();
+		if (!relevantData.isEmpty()) {
+			for (Long rl : relevantData.values()) {
+				dur += SPEED_RESOLUTION;
+				amount += rl.longValue();
+			}
 		}
 
 		if (dur >= 1000)
@@ -123,7 +125,10 @@ public class ProgressStatistics {
 	}
 
 	public synchronized String report() {
-		return m_total != -1 ? NLS.bind(Messages.fetching_0_from_1_2_of_3_at_4, new String[] {m_fileName, m_uri.toString(), convert(m_current), convert(m_total), convert(getRecentSpeed())}) : NLS.bind(Messages.fetching_0_from_1_2_at_3, new String[] {m_fileName, m_uri.toString(), convert(m_current), convert(getRecentSpeed())});
+		String uriString = m_uri.toString();
+		if (uriString.endsWith(m_fileName))
+			uriString = uriString.substring(0, uriString.lastIndexOf(m_fileName));
+		return m_total != -1 ? NLS.bind(Messages.fetching_0_from_1_2_of_3_at_4, new String[] {m_fileName, uriString, convert(m_current), convert(m_total), convert(getRecentSpeed())}) : NLS.bind(Messages.fetching_0_from_1_2_at_3, new String[] {m_fileName, uriString, convert(m_current), convert(getRecentSpeed())});
 	}
 
 	public void setReportInterval(int reportInterval) {

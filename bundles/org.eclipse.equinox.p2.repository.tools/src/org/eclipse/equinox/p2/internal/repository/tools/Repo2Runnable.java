@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -125,6 +126,8 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			if (engine == null)
 				throw new ProvisionException(Messages.exception_noEngineService);
 			ProvisioningContext context = new ProvisioningContext(agent);
+			context.setMetadataRepositories(getRepositories(true));
+			context.setArtifactRepositories(getRepositories(false));
 			IProvisioningPlan plan = engine.createPlan(profile, context);
 			for (Iterator<IInstallableUnit> iterator = processedIUs.iterator(); iterator.hasNext();) {
 				plan.addInstallableUnit(iterator.next());
@@ -144,6 +147,15 @@ public class Repo2Runnable extends AbstractApplication implements IApplication {
 			removeProfile(profile);
 			finalizeRepositories();
 		}
+	}
+
+	protected URI[] getRepositories(boolean metadata) {
+		List<URI> repos = new ArrayList<URI>();
+		for (RepositoryDescriptor repo : sourceRepositories) {
+			if (metadata ? repo.isMetadata() : repo.isArtifact())
+				repos.add(repo.getRepoLocation());
+		}
+		return repos.toArray(new URI[repos.size()]);
 	}
 
 	protected PhaseSet getPhaseSet() {

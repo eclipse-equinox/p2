@@ -17,7 +17,7 @@ import org.eclipse.osgi.framework.eventmgr.EventDispatcher;
  * The bus for events related to provisioning. This service can be used to register
  * a listener to receive provisioning events, or to broadcast events.
  */
-public interface IProvisioningEventBus extends EventDispatcher {
+public interface IProvisioningEventBus extends EventDispatcher<ProvisioningListener, ProvisioningListener, EventObject> {
 	/**
 	 * The name used for obtaining a reference to the event bus service.
 	 */

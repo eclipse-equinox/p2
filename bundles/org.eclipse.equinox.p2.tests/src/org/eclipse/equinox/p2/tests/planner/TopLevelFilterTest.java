@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.IProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -30,8 +29,7 @@ public class TopLevelFilterTest extends AbstractProvisioningTest {
 		createTestMetdataRepository(new IInstallableUnit[] {iu});
 		ProfileChangeRequest req = new ProfileChangeRequest(p);
 		req.addInstallableUnits(new IInstallableUnit[] {iu});
-		IProvisioningPlan plan = createPlanner().getProvisioningPlan(req, null, null);
-		assertNotOK(plan.getStatus());
-		assertTrue(plan.getStatus().getChildren()[0].getMessage().contains("filter"));
+
+		assertNotOK(createPlanner().getProvisioningPlan(req, null, null).getStatus());
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2009 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -10,18 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
-import org.eclipse.equinox.p2.metadata.Version;
-import org.eclipse.equinox.p2.metadata.VersionRange;
-
 import java.net.*;
 import java.util.List;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
-import org.eclipse.equinox.internal.p2.core.StringPool;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -41,14 +39,14 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	protected String bundleId; // parser class bundle id
 
 	protected XMLReader xmlReader; // the XML reader for the parser
+	protected String errorContext; // some context of what we are parsing in case there is an error
 
 	protected MultiStatus status = null; // accumulation of non-fatal errors
 	protected Locator locator = null; // document locator, if supported by the parser
 
-	protected StringPool stringPool = new StringPool();//used to eliminate string duplication
 	private IProgressMonitor monitor;
 
-	private static ServiceTracker xmlTracker = null;
+	private static ServiceTracker<SAXParserFactory, SAXParserFactory> xmlTracker = null;
 
 	public XMLParser(BundleContext context, String pluginId) {
 		super();
@@ -63,24 +61,16 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		return (status != null ? status : Status.OK_STATUS);
 	}
 
-	/**
-	 * Returns the canonical form of a string. Used to eliminate duplicate equal 
-	 * strings.
-	 */
-	protected String canonicalize(String string) {
-		return stringPool == null ? string : stringPool.add(string);
-	}
-
 	public boolean isValidXML() {
 		return (status == null || !status.matches(IStatus.ERROR | IStatus.CANCEL));
 	}
 
 	private synchronized static SAXParserFactory acquireXMLParsing(BundleContext context) {
 		if (xmlTracker == null) {
-			xmlTracker = new ServiceTracker(context, SAXParserFactory.class.getName(), null);
+			xmlTracker = new ServiceTracker<SAXParserFactory, SAXParserFactory>(context, SAXParserFactory.class, null);
 			xmlTracker.open();
 		}
-		return (SAXParserFactory) xmlTracker.getService();
+		return xmlTracker.getService();
 	}
 
 	protected synchronized static void releaseXMLParsing() {
@@ -321,7 +311,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			String[] result = new String[required.length + optional.length];
 			for (int i = 0; i < attributes.getLength(); i += 1) {
 				String name = attributes.getLocalName(i);
-				String value = canonicalize(attributes.getValue(i).trim());
+				String value = attributes.getValue(i).trim().intern();
 				int j;
 				if ((j = indexOf(required, name)) >= 0) {
 					result[j] = value;
@@ -469,7 +459,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		}
 
 		protected void processCharacters(String data) {
-			this.text = canonicalize(data);
+			this.text = data == null ? null : data.intern();
 		}
 
 	}
@@ -538,6 +528,8 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 				: " (" + getRootObject() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (this.locator != null) {
 			String name = this.locator.getSystemId();
+			if (errorContext != null && (name == null || name.trim().length() == 0))
+				name = errorContext;
 			line = this.locator.getLineNumber();
 			column = this.locator.getColumnNumber();
 			if (line > 0) {
@@ -733,6 +725,10 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			}
 		}
 		return -1;
+	}
+
+	public void setErrorContext(String errorContext) {
+		this.errorContext = errorContext;
 	}
 
 	//	public class BadStateError extends AssertionError {

@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.repository.spi;
 
 import java.net.URI;
 import java.util.Map;
-import org.eclipse.core.runtime.PlatformObject;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.repository.IRepository;
@@ -171,8 +171,9 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 
 	/**
 	 * {@inheritDoc}
+	 * @since 2.1
 	 */
-	public synchronized String setProperty(String key, String value) {
+	public synchronized String setProperty(String key, String value, IProgressMonitor monitor) {
 		assertModifiable();
 		if (key.equals(IRepository.PROP_NAME)) {
 			String oldName = getName();
@@ -180,6 +181,13 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 			return oldName;
 		}
 		return (value == null ? properties.remove(key) : properties.put(key, value));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public synchronized String setProperty(String key, String value) {
+		return this.setProperty(key, value, new NullProgressMonitor());
 	}
 
 	/**

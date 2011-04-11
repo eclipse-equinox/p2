@@ -112,7 +112,7 @@ public interface IRepositoryManager<T> extends IQueryable<T> {
 	public IProvisioningAgent getAgent();
 
 	/**
-	 * Returns the artifact repository locations known to the repository manager.
+	 * Returns the repository locations known to the repository manager.
 	 * <p>
 	 * Note that the repository manager does not guarantee that a valid repository
 	 * exists at any of the returned locations at any particular moment in time.

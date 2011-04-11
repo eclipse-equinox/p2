@@ -69,10 +69,10 @@ public class Activator implements BundleActivator {
 	}
 
 	public static IProvisioningAgent getCurrentAgent() {
-		ServiceReference reference = bundleContext.getServiceReference(IProvisioningAgent.SERVICE_NAME);
+		ServiceReference<IProvisioningAgent> reference = bundleContext.getServiceReference(IProvisioningAgent.class);
 		if (reference == null)
 			return null;
-		return (IProvisioningAgent) bundleContext.getService(reference);
+		return bundleContext.getService(reference);
 	}
 
 	public static IFileArtifactRepository getBundlePoolRepository() {
