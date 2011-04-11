@@ -681,4 +681,20 @@ public class CompositeMetadataRepositoryTest extends AbstractProvisioningTest {
 		}
 	}
 
+	//	public void testFailingChildFailsCompleteRepository() {
+	//		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
+	//		File repoFile = getTestData("Strict composite with missing child", "/testData/metadataRepo/compositeBadChildren");
+	//		IMetadataRepository repo = null;
+	//		boolean exception = false;
+	//
+	//		try {
+	//			repo = manager.loadRepository(repoFile.toURI(), null);
+	//		} catch (ProvisionException e) {
+	//			exception = true;
+	//		}
+	//		assertTrue("an exception should have been reported", exception);
+	//		assertNull(repo);
+	//
+	//	}
+
 }
