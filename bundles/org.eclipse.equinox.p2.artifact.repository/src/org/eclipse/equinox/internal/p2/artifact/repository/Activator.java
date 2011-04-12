@@ -55,11 +55,11 @@ public class Activator implements BundleActivator {
 	public boolean enableArtifactLocking() {
 		String property = getContext().getProperty(ENABLE_ARTIFACT_LOCKING);
 		if (property == null || property.length() == 0)
-			return true; // return true by default;
+			return false; // return false by default;
 		Boolean valueOf = Boolean.valueOf(property);
 		if (valueOf != null)
 			return valueOf.booleanValue();
-		return true;
+		return false;
 	}
 
 	/**
