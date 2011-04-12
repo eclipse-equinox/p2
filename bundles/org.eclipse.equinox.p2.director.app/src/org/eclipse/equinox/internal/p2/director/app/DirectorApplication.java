@@ -360,8 +360,13 @@ public class DirectorApplication implements IApplication {
 				logStatus(new Status(IStatus.WARNING, Activator.ID, message));
 				continue;
 			}
-			// lookup the IU
-			IQueryResult<IInstallableUnit> qr = getInstallableUnits(null, QueryUtil.createIUQuery(id, version), null);
+
+			// lookup the IU - a null version matches all versions
+			IQuery<IInstallableUnit> query = QueryUtil.createIUQuery(id, version);
+			// if we don't have a version the choose the latest. 
+			if (version == null)
+				query = QueryUtil.createLatestQuery(query);
+			IQueryResult<IInstallableUnit> qr = getInstallableUnits(null, query, null);
 			if (qr.isEmpty()) {
 				String msg = NLS.bind(Messages.Cannot_set_iu_profile_property_iu_does_not_exist, id + '/' + version);
 				logStatus(new Status(IStatus.WARNING, Activator.ID, msg));
