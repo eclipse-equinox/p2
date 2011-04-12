@@ -38,7 +38,7 @@ public class FeatureManifestParser extends DefaultHandler {
 	private URL url;
 	private StringBuffer characters = null;
 	private MultiStatus status = null;
-	private final boolean hasImports = false;
+	private boolean hasImports = false;
 
 	private final List<String> messageKeys = new ArrayList<String>();
 
@@ -196,6 +196,7 @@ public class FeatureManifestParser extends DefaultHandler {
 		if (!isPlugin && "true".equalsIgnoreCase(attributes.getValue("patch"))) { //$NON-NLS-1$ //$NON-NLS-2$
 			entry.setPatch(true);
 		}
+		hasImports = true;
 		result.addEntry(entry);
 	}
 
