@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ import java.util.*;
  * @since 2.0
  */
 public final class Memento {
-	private static final long serialVersionUID = 3257399736837461585L;
 	private static final Collection<Class<?>> simples = Arrays.<Class<?>> asList(String.class, Integer.class, Long.class, Float.class, Double.class, Byte.class, Short.class, Character.class, Boolean.class);
 	private static final Collection<Class<?>> simpleArrays = Arrays.<Class<?>> asList(String[].class, Integer[].class, Long[].class, Float[].class, Double[].class, Byte[].class, Short[].class, Character[].class, Boolean[].class);
 	private static final Collection<Class<?>> primitiveArrays = Arrays.<Class<?>> asList(long[].class, int[].class, short[].class, char[].class, byte[].class, double[].class, float[].class, boolean[].class);
