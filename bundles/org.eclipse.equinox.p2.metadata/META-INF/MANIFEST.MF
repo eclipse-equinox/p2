@@ -41,7 +41,8 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata;
    org.eclipse.equinox.p2.ui,
    org.eclipse.equinox.p2.operations,
    org.eclipse.equinox.p2.tests,
-   org.eclipse.equinox.p2.touchpoint.eclipse",
+   org.eclipse.equinox.p2.touchpoint.eclipse,
+   org.eclipse.equinox.p2.ui.importexport",
  org.eclipse.equinox.internal.p2.metadata.query;
   x-friends:="org.eclipse.equinox.p2.artifact.optimizers,
    org.eclipse.equinox.p2.artifact.processors,

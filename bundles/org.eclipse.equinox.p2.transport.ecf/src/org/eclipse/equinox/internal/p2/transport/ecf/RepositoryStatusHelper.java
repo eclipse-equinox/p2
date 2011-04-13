@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Cloudsmith Inc, and other.
+ * Copyright (c) 2009, 2011 Cloudsmith Inc, and other.
  * The code, documentation and other materials contained herein have been
  * licensed under the Eclipse Public License - v 1.0 by the individual
  * copyright holders listed above, as Initial Contributors under such license.
@@ -7,6 +7,7 @@
  * Contributors:
  * 	Cloudsmith Inc. - Initial API and implementation
  *  IBM Corporation - Original Implementation of checkPermissionDenied
+ *  IBM Corportaion - Ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.transport.ecf;
 
@@ -32,7 +33,6 @@ import org.eclipse.osgi.util.NLS;
  */
 public abstract class RepositoryStatusHelper {
 
-	private static final long serialVersionUID = 1L;
 	protected static final String SERVER_REDIRECT = "Server redirected too many times"; //$NON-NLS-1$
 
 	public static IStatus createStatus(String nlsMessage, Object arg) {

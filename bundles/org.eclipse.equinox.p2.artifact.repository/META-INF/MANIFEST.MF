@@ -21,7 +21,8 @@ Export-Package: org.eclipse.equinox.internal.p2.artifact.processing;x-friends:="
    org.eclipse.equinox.p2.directorywatcher,
    org.eclipse.equinox.p2.updatesite,
    org.eclipse.equinox.p2.publisher,
-   org.eclipse.equinox.p2.extensionlocation",
+   org.eclipse.equinox.p2.extensionlocation,
+   org.eclipse.equinox.p2.repository.tools",
  org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing;
   x-friends:="org.eclipse.equinox.p2.artifact.processors,
    org.eclipse.equinox.p2.artifact.optimizers,
