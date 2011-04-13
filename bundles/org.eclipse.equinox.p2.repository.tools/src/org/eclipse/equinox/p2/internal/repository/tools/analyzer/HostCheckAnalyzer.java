@@ -1,11 +1,12 @@
 /******************************************************************************* 
-* Copyright (c) 2009 EclipseSource and others. All rights reserved. This
+* Copyright (c) 2009, 2011 EclipseSource and others. All rights reserved. This
 * program and the accompanying materials are made available under the terms of
 * the Eclipse Public License v1.0 which accompanies this distribution, and is
 * available at http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
 *   EclipseSource - initial API and implementation
+*   IBM Corporation - Ongoing development
 ******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.analyzer;
 
@@ -34,7 +35,7 @@ public class HostCheckAnalyzer extends IUAnalyzer {
 			for (IRequirement req : hosts) {
 				IMatchExpression<IInstallableUnit> hostMatch = req.getMatches();
 				String namespace = RequiredCapability.extractNamespace(hostMatch);
-				if ("osgi.bundle".equals(namespace)) {
+				if ("osgi.bundle".equals(namespace)) { //$NON-NLS-1$
 					String name = RequiredCapability.extractName(hostMatch);
 					VersionRange range = RequiredCapability.extractRange(hostMatch);
 					IQueryResult<IInstallableUnit> results = repository.query(QueryUtil.createIUQuery(name, range), new NullProgressMonitor());

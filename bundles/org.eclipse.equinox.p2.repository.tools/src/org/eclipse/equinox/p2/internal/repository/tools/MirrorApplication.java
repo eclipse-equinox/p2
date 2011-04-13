@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -325,7 +325,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 
 	private IQueryable<IInstallableUnit> performResolution(IProgressMonitor monitor) throws ProvisionException {
 		IProfileRegistry registry = Activator.getProfileRegistry();
-		String profileId = "MirrorApplication-" + System.currentTimeMillis();
+		String profileId = "MirrorApplication-" + System.currentTimeMillis(); //$NON-NLS-1$
 		IProfile profile = registry.addProfile(profileId, slicingOptions.getFilter());
 		IPlanner planner = (IPlanner) Activator.getAgent().getService(IPlanner.SERVICE_NAME);
 		if (planner == null)
@@ -334,6 +334,7 @@ public class MirrorApplication extends AbstractApplication implements IApplicati
 		pcr.addAll(sourceIUs);
 		IProvisioningPlan plan = planner.getProvisioningPlan(pcr, null, monitor);
 		registry.removeProfile(profileId);
+		@SuppressWarnings("unchecked")
 		IQueryable<IInstallableUnit>[] arr = new IQueryable[plan.getInstallerPlan() == null ? 1 : 2];
 		arr[0] = plan.getAdditions();
 		if (plan.getInstallerPlan() != null)
