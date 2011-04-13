@@ -1181,8 +1181,14 @@ public class DirectorApplication implements IApplication {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		if (!destination.equals(new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER))))
 			request.setProfileProperty(IProfile.PROP_INSTALL_FOLDER, destination.getAbsolutePath());
-		if (!destination.equals(new File(profile.getProperty(IProfile.PROP_CACHE))))
-			request.setProfileProperty(IProfile.PROP_CACHE, destination.getAbsolutePath());
+
+		File cacheLocation = null;
+		if (bundlePool == null)
+			cacheLocation = sharedLocation == null ? destination.getAbsoluteFile() : sharedLocation.getAbsoluteFile();
+		else
+			cacheLocation = bundlePool.getAbsoluteFile();
+		if (!cacheLocation.equals(new File(profile.getProperty(IProfile.PROP_CACHE))))
+			request.setProfileProperty(IProfile.PROP_CACHE, cacheLocation.getAbsolutePath());
 		if (request.getProfileProperties().size() == 0)
 			return;
 
