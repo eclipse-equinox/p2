@@ -10,6 +10,7 @@
  *     Jacek Pospychala - bug 187762
  *     Mohamed Tarief - tarief@eg.ibm.com - IBM - Bug 174481
  *     Tasktop Technologies - generalized filter code for structured viewers
+ *     Benjamin Muskalla, Tasktop Technologies - bug 342164 
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.discovery.util;
 
