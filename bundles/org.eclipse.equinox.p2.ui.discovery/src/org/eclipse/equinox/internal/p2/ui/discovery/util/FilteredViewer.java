@@ -204,6 +204,13 @@ public abstract class FilteredViewer {
 		return filterText == null ? null : filterText.getTextControl().getText();
 	}
 
+	protected void setFilterText(String newFilter) {
+		if (filterText == null) {
+			throw new IllegalStateException("Needs be invoked after controls are created"); //$NON-NLS-1$
+		}
+		filterText.getTextControl().setText(newFilter);
+	}
+
 	public Control getControl() {
 		return container;
 	}
