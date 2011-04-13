@@ -135,6 +135,7 @@ public class DirectorApplication implements IApplication {
 	private static final CommandLineOption OPTION_TAG = new CommandLineOption(new String[] {"-tag"}, Messages.Help_lt_name_gt, Messages.Help_Defines_a_tag_for_provisioning_session); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_LIST_TAGS = new CommandLineOption(new String[] {"-listTags"}, null, Messages.Help_List_Tags); //$NON-NLS-1$
 	private static final CommandLineOption OPTION_DOWNLOAD_ONLY = new CommandLineOption(new String[] {"-downloadOnly"}, null, Messages.Help_Download_Only); //$NON-NLS-1$
+	private static final CommandLineOption OPTION_IGNORED = new CommandLineOption(new String[] {"-showLocation", "-eclipse.password", "-eclipse.keyring"}, null, ""); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
 
 	private static final Integer EXIT_ERROR = new Integer(13);
 	static private final String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
@@ -914,6 +915,13 @@ public class DirectorApplication implements IApplication {
 				continue;
 			}
 
+			if (OPTION_IGNORED.isOption(opt)) {
+				String optionalArgument = getOptionalArgument(args, i);
+				if (optionalArgument != null) {
+					i++;
+				}
+				continue;
+			}
 			throw new ProvisionException(NLS.bind(Messages.unknown_option_0, opt));
 		}
 
