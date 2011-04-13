@@ -10,8 +10,13 @@ Export-Package: org.eclipse.equinox.internal.p2.persistence;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.engine,
    org.eclipse.equinox.p2.metadata.repository,
-   org.eclipse.equinox.p2.ui.importexport",
- org.eclipse.equinox.internal.p2.repository;x-friends:="org.eclipse.equinox.p2.artifact.repository,org.eclipse.equinox.p2.metadata.repository,org.eclipse.equinox.p2.updatesite",
+   org.eclipse.equinox.p2.ui.importexport,
+   org.eclipse.equinox.p2.repository.tools",
+ org.eclipse.equinox.internal.p2.repository;
+  x-friends:="org.eclipse.equinox.p2.artifact.repository,
+   org.eclipse.equinox.p2.metadata.repository,
+   org.eclipse.equinox.p2.updatesite,
+   org.eclipse.equinox.p2.repository.tools",
  org.eclipse.equinox.internal.p2.repository.helpers;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.exemplarysetup,
