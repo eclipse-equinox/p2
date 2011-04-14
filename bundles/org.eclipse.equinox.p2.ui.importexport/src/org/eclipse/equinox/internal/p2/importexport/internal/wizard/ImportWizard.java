@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
+ *     IBM Corporation - Ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
@@ -51,8 +52,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 	}
 
 	@Override
-	protected ISelectableIUsPage createMainPage(IUElementListRoot input,
-			Object[] selections) {
+	protected ISelectableIUsPage createMainPage(IUElementListRoot input, Object[] selections) {
 		return new ImportPage(ui, this);
 	}
 
@@ -72,7 +72,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 		if (((ImportPage) mainPage).hasUnloadedRepo()) {
 			try {
 				runnableContext.run(true, true, new IRunnableWithProgress() {
-					public void run(IProgressMonitor monitor) throws InterruptedException {						
+					public void run(IProgressMonitor monitor) throws InterruptedException {
 						SubMonitor sub = SubMonitor.convert(monitor, 1000);
 						((ImportPage) mainPage).recompute(sub.newChild(800));
 						if (sub.isCanceled())
@@ -84,7 +84,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 								initializeResolutionModelElements(getOperationSelections());
 								if (planSelections.length == 0) {
 									operation = null;
-									couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
+									unableToResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
 								} else {
 									operation = getProfileChangeOperation(planSelections);
 									operation.setProvisioningContext(context);
@@ -99,20 +99,20 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 							public void run() {
 								planChanged();
 							}
-						});						
+						});
 					}
-				});				
+				});
 			} catch (InterruptedException e) {
 				// Nothing to report if thread was interrupted
 			} catch (InvocationTargetException e) {
 				ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
-				couldNotResolve(null);
+				unableToResolve(null);
 			}
 		} else
 			super.recomputePlan(runnableContext);
 	}
 
-	void couldNotResolve(String message) {
+	void unableToResolve(String message) {
 		IStatus couldNotResolveStatus;
 		if (message != null) {
 			couldNotResolveStatus = new Status(IStatus.ERROR, Constants.Bundle_ID, message, null);

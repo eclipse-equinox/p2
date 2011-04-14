@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     WindRiver Corporation - initial API and implementation
+ *     IBM Corporation - Ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
@@ -45,6 +46,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	private class InstallationContentProvider implements IStructuredContentProvider {
 
 		public void dispose() {
+			//
 		}
 
 		public Object[] getElements(Object inputElement) {
@@ -52,6 +54,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		}
 
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+			//
 		}
 
 	}
@@ -285,11 +288,9 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	public Object[] getChecked() {
 		if (Display.findDisplay(Thread.currentThread()) != null)
 			return viewer.getCheckedElements();
-		else {
-			GetCheckedElement get = new GetCheckedElement();
-			Display.getDefault().syncExec(get);
-			return get.checkedElements;
-		}
+		GetCheckedElement get = new GetCheckedElement();
+		Display.getDefault().syncExec(get);
+		return get.checkedElements;
 	}
 
 	public void recompute(IProgressMonitor monitor) throws InterruptedException {
@@ -327,6 +328,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 					}
 					if (sub2.isCanceled())
 						throw new InterruptedException();
+					@SuppressWarnings("unchecked")
 					Set<IInstallableUnit> result = new CompoundQueryable<IInstallableUnit>(repos.toArray(new IRepository[repos.size()])).query(QueryUtil.createIUQuery(feature.getIU().getId(), new VersionRange(feature.getIU().getVersion(), true, null, false)), sub2.newChild(100)).toSet();
 					List<IUDetail> existingFeatures = new ArrayList<IUDetail>(result.size());
 					for (IInstallableUnit iu : result) {
