@@ -74,6 +74,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private Location lockLocation = null;
 
 	/**
+	 * Allows an artifact repository to set the name of its blobstore.
+	 */
+	public static final String PROP_BLOBSTORE_NAME = "p2.blobstore.name"; //$NON-NLS-1$
+
+	/**
 	 * Does this instance of the repository currently hold a lock
 	 */
 	private boolean holdsLock = false;
@@ -261,8 +266,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return URIUtil.append(base, CONTENT_FILENAME + extension);
 	}
 
-	public static URI getBlobStoreLocation(URI base) {
-		return URIUtil.append(base, BLOBSTORE);
+	public static URI getBlobStoreLocation(URI base, String suffix) {
+		return URIUtil.append(base, suffix);
 	}
 
 	/*
@@ -918,12 +923,21 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	private synchronized void initializeAfterLoad(URI repoLocation, boolean updateTimestamp) {
 		setLocation(repoLocation);
-		blobStore = new BlobStore(getBlobStoreLocation(repoLocation), 128);
+		String suffix = getBlobStoreName(BLOBSTORE);
+		blobStore = new BlobStore(getBlobStoreLocation(repoLocation, suffix), 128);
 		initializeMapper();
 		for (SimpleArtifactDescriptor desc : artifactDescriptors)
 			desc.setRepository(this);
 		if (updateTimestamp)
 			updateTimestamp();
+	}
+
+	private String getBlobStoreName(String defaultValue) {
+		String value = getProperty(PROP_BLOBSTORE_NAME);
+		if (value == null || value.length() == 0) {
+			return defaultValue;
+		}
+		return value;
 	}
 
 	private synchronized void initializeMapper() {
