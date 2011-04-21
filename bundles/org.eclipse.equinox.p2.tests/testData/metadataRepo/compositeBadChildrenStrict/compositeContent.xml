@@ -4,9 +4,11 @@
   <properties size='2'>
     <property name='p2.compressed' value='false'/>
     <property name='p2.timestamp' value='1234'/>
+    <property name='p2.atomic.composite.loading' value='true'/>
   </properties>
-  <children size='2'>
+  <children size='3'>
     <child location='one'/>
     <child location='two'/>
+    <child location='three'/>
   </children>
 </repository>

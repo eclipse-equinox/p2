@@ -1352,4 +1352,55 @@ public class CompositeArtifactRepositoryTest extends AbstractProvisioningTest {
 			return null;
 		}
 	}
+
+	public void testFailingChildFailsCompleteRepository() throws ProvisionException, OperationCanceledException {
+		boolean exception = false;
+		IArtifactRepository repo = null;
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
+
+		File repoFile = getTestData("Strict composite with missing child", "/testData/artifactRepo/compositeBadChildrenStrict");
+		URI correctChildURI = URIUtil.append(repoFile.toURI(), "one");
+		URI repoURI = repoFile.getAbsoluteFile().toURI();
+
+		File alreadyLoadedChildFile = getTestData("Strict composite with missing child", "/testData/artifactRepo/compositeBadChildrenStrict/three");
+		IArtifactRepository alreadyLoadedChild = manager.loadRepository(alreadyLoadedChildFile.toURI(), null);
+		assertNotNull(alreadyLoadedChild);
+		URI previouslyAddedChildURI = URIUtil.append(repoFile.toURI(), "three");
+
+		assertFalse("Child one should not be available in repo manager", manager.contains(correctChildURI));
+		try {
+			repo = manager.loadRepository(repoFile.toURI(), null);
+		} catch (ProvisionException e) {
+
+			assertFalse("Exception message should not contain the location of failing child", e.getMessage().contains(URIUtil.append(repoURI, "two").toString()));
+			assertTrue("Exception message should contain the composite repository location " + repoURI + ": " + e.getMessage(), e.getMessage().contains(repoURI.toString()));
+			exception = true;
+		}
+		assertNull(repo);
+		assertTrue("an exception should have been reported", exception);
+		assertFalse("Successfully loaded child should be removed when composite loading mode is set to strict", manager.contains(correctChildURI));
+		assertTrue("Periously loaded child should remain in repo manager", manager.contains(previouslyAddedChildURI));
+
+	}
+
+	public void testFailingChildLoadsCompleteRepository() {
+		boolean exception = false;
+		IArtifactRepository repo = null;
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
+
+		File repoFile = getTestData("Composite with missing child", "/testData/artifactRepo/compositeBadChildren");
+		URI correctChildURI = URIUtil.append(repoFile.toURI(), "one");
+
+		assertFalse("Child should not be available in repo manager", manager.contains(correctChildURI));
+		try {
+			repo = manager.loadRepository(repoFile.toURI(), null);
+		} catch (ProvisionException e) {
+			exception = true;
+		}
+
+		assertNotNull(repo);
+		assertFalse("an exception should have been reported", exception);
+		assertTrue("Successfully loaded child should be available in repo manager", manager.contains(URIUtil.append(repo.getLocation(), "one")));
+
+	}
 }

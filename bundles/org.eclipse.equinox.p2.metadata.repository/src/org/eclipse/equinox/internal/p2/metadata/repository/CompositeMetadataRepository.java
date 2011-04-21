@@ -35,7 +35,10 @@ import org.eclipse.osgi.util.NLS;
 public class CompositeMetadataRepository extends AbstractMetadataRepository implements ICompositeRepository<IInstallableUnit>, IIndexProvider<IInstallableUnit> {
 
 	static final public String REPOSITORY_TYPE = CompositeMetadataRepository.class.getName();
-	public static final String PI_REPOSITORY_TYPE = "compositeMetadataRepository"; //$NON-NLS-1$
+	static final public String PI_REPOSITORY_TYPE = "compositeMetadataRepository"; //$NON-NLS-1$
+	static final public String PROP_ATOMIC_LOADING = "p2.atomic.composite.loading"; //$NON-NLS-1$
+	static final public boolean ATOMIC_LOADING_DEFAULT = false;
+
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	static final public String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	static final private String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
@@ -89,22 +92,25 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		return isLocal();
 	}
 
+	/*
+	 * This is only called by the parser when loading a repository.
+	 */
+	CompositeMetadataRepository(IMetadataRepositoryManager manager, CompositeRepositoryState state, IProgressMonitor monitor) throws ProvisionException {
+		super(manager.getAgent(), state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
+		this.manager = manager;
+		SubMonitor sub = SubMonitor.convert(monitor, 100 * state.getChildren().length);
+		List<URI> repositoriesToBeRemovedOnFailure = new ArrayList<URI>();
+		boolean failOnChildFailure = shouldFailOnChildFailure(state);
+		for (URI child : state.getChildren())
+			addChild(child, false, sub.newChild(100), failOnChildFailure, repositoriesToBeRemovedOnFailure);
+
+	}
+
 	CompositeMetadataRepository(IMetadataRepositoryManager manager, URI location, String name, Map<String, String> properties) {
 		super(manager.getAgent(), name == null ? (location != null ? location.toString() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
 		this.manager = manager;
 		//when creating a repository, we must ensure it exists on disk so a subsequent load will succeed
 		save();
-	}
-
-	/*
-	 * This is only called by the parser when loading a repository.
-	 */
-	CompositeMetadataRepository(IMetadataRepositoryManager manager, CompositeRepositoryState state, IProgressMonitor monitor) {
-		super(manager.getAgent(), state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
-		this.manager = manager;
-		SubMonitor sub = SubMonitor.convert(monitor, 100 * state.getChildren().length);
-		for (URI child : state.getChildren())
-			addChild(child, false, sub.newChild(100));
 	}
 
 	/*
@@ -141,7 +147,8 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		}
 	}
 
-	private void addChild(URI childURI, boolean save, IProgressMonitor monitor) {
+	//successfully loaded repo will be added to the list repositoriesToBeRemovedOnFailure if the list is not null and the repo wasn't previously loaded
+	private void addChild(URI childURI, boolean save, IProgressMonitor monitor, boolean propagateException, List<URI> repositoriesToBeRemovedOnFailure) throws ProvisionException {
 		SubMonitor sub = SubMonitor.convert(monitor);
 		URI absolute = URIUtil.makeAbsolute(childURI, getLocation());
 		if (childrenURIs.contains(childURI) || childrenURIs.contains(absolute)) {
@@ -161,13 +168,21 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 				getManager().setEnabled(absolute, false);
 				//set repository to system to hide from users
 				getManager().setRepositoryProperty(absolute, IRepository.PROP_SYSTEM, String.valueOf(true));
+				if (propagateException)
+					repositoriesToBeRemovedOnFailure.add(absolute);
 			}
 			currentRepo.compress(iuPool); // Share IUs across this CompositeMetadataRepository
 			// we successfully loaded the repo so remember it
 			loadedRepos.add(currentRepo);
+
 		} catch (ProvisionException e) {
 			//repository failed to load. fall through
 			LogHelper.log(e);
+			if (propagateException) {
+				removeFromRepoManager(repositoriesToBeRemovedOnFailure);
+				String msg = NLS.bind(Messages.io_failedRead, getLocation());
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
+			}
 		}
 	}
 
@@ -175,7 +190,11 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 	 * @see org.eclipse.equinox.p2.repository.ICompositeRepository#addChild(java.net.URI)
 	 */
 	public void addChild(URI childURI) {
-		addChild(childURI, true, null);
+		try {
+			addChild(childURI, true, null, false, null);
+		} catch (ProvisionException e) {
+			//already logged
+		}
 	}
 
 	/* (non-Javadoc)
@@ -375,6 +394,26 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 			return ((IIndexProvider<IInstallableUnit>) queryable).getManagedProperty(client, memberName, key);
 		}
 		return null;
+	}
+
+	private void removeFromRepoManager(List<URI> currentLoadedRepositories) {
+		if (currentLoadedRepositories == null)
+			return;
+		for (URI loadedChild : currentLoadedRepositories) {
+			manager.removeRepository(loadedChild);
+		}
+	}
+
+	private boolean shouldFailOnChildFailure(CompositeRepositoryState state) {
+		Map<String, String> repoProperties = state.getProperties();
+		boolean failOnChildFailure = ATOMIC_LOADING_DEFAULT;
+		if (repoProperties != null) {
+			String value = repoProperties.get(PROP_ATOMIC_LOADING);
+			if (value != null) {
+				failOnChildFailure = Boolean.parseBoolean(value);
+			}
+		}
+		return failOnChildFailure;
 	}
 
 }

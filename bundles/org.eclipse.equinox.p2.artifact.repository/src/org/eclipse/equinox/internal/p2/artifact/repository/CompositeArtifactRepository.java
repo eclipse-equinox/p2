@@ -38,6 +38,8 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	static final public String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	static final public String CONTENT_FILENAME = "compositeArtifacts"; //$NON-NLS-1$
 	public static final String PI_REPOSITORY_TYPE = "compositeArtifactRepository"; //$NON-NLS-1$
+	static final public String PROP_ATOMIC_LOADING = "p2.atomic.composite.loading"; //$NON-NLS-1$
+	static final public boolean ATOMIC_LOADING_DEFAULT = false;
 
 	// keep a list of the child URIs. they can be absolute or relative. they may or may not point
 	// to a valid reachable repo
@@ -83,12 +85,14 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	/**
 	 * This is only called by the parser when loading a repository.
 	 */
-	CompositeArtifactRepository(IArtifactRepositoryManager manager, CompositeRepositoryState state, IProgressMonitor monitor) {
+	CompositeArtifactRepository(IArtifactRepositoryManager manager, CompositeRepositoryState state, IProgressMonitor monitor) throws ProvisionException {
 		super(manager.getAgent(), state.getName(), state.getType(), state.getVersion(), state.getLocation(), state.getDescription(), state.getProvider(), state.getProperties());
 		this.manager = manager;
 		SubMonitor sub = SubMonitor.convert(monitor, 100 * state.getChildren().length);
+		List<URI> repositoriesToBeRemovedOnFailure = new ArrayList<URI>();
+		boolean failOnChildFailure = shouldFailOnChildFailure(state);
 		for (URI child : state.getChildren())
-			addChild(child, false, sub.newChild(100));
+			addChild(child, false, sub.newChild(100), failOnChildFailure, repositoriesToBeRemovedOnFailure);
 	}
 
 	/**
@@ -144,10 +148,15 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 	}
 
 	public void addChild(URI childURI) {
-		addChild(childURI, true, null);
+		try {
+			addChild(childURI, true, null, false, null);
+		} catch (ProvisionException e) {
+			//already logged
+		}
 	}
 
-	private void addChild(URI childURI, boolean save, IProgressMonitor monitor) {
+	//successfully loaded repo will be added to the list repositoriesToBeRemovedOnFailure if the list is not null and the repo wasn't previously loaded
+	private void addChild(URI childURI, boolean save, IProgressMonitor monitor, boolean propagateException, List<URI> repositoriesToBeRemovedOnFailure) throws ProvisionException {
 		SubMonitor sub = SubMonitor.convert(monitor);
 		URI absolute = URIUtil.makeAbsolute(childURI, getLocation());
 		if (childrenURIs.contains(childURI) || childrenURIs.contains(absolute)) {
@@ -158,10 +167,19 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		if (save)
 			save();
 		try {
+			boolean currentLoaded = getManager().contains(absolute);
 			IArtifactRepository repo = load(childURI, sub);
+			if (!currentLoaded && propagateException)
+				repositoriesToBeRemovedOnFailure.add(absolute);
 			loadedRepos.add(new ChildInfo(repo));
 		} catch (ProvisionException e) {
+			//repository failed to load. fall through
 			LogHelper.log(e);
+			if (propagateException) {
+				removeFromRepoManager(repositoriesToBeRemovedOnFailure);
+				String msg = NLS.bind(Messages.io_failedRead, getLocation());
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
+			}
 		}
 	}
 
@@ -594,5 +612,25 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 		if (result == null)
 			result = Status.OK_STATUS;
 		return result;
+	}
+
+	private void removeFromRepoManager(List<URI> currentLoadedRepositories) {
+		if (currentLoadedRepositories == null)
+			return;
+		for (URI loadedChild : currentLoadedRepositories) {
+			manager.removeRepository(loadedChild);
+		}
+	}
+
+	private boolean shouldFailOnChildFailure(CompositeRepositoryState state) {
+		Map<String, String> repoProperties = state.getProperties();
+		boolean failOnChildFailure = ATOMIC_LOADING_DEFAULT;
+		if (repoProperties != null) {
+			String value = repoProperties.get(PROP_ATOMIC_LOADING);
+			if (value != null) {
+				failOnChildFailure = Boolean.parseBoolean(value);
+			}
+		}
+		return failOnChildFailure;
 	}
 }
