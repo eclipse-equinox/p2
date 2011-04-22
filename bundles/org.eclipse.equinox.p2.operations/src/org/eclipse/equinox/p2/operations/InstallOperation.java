@@ -46,7 +46,10 @@ import org.eclipse.equinox.p2.query.QueryUtil;
  */
 public class InstallOperation extends ProfileChangeOperation {
 
-	private Collection<IInstallableUnit> toInstall;
+	/**
+	 * @since 2.1
+	 */
+	protected Collection<IInstallableUnit> toInstall;
 
 	/**
 	 * Create an install operation on the specified provisioning session that installs
