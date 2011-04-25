@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
+ *     IBM Corporation - Ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
@@ -64,8 +65,10 @@ public class OperationFactory {
 			Iterator<IInstallableUnit> iuIt = matches.iterator();
 			unitsToInstall.add(iuIt.next());
 
-			if (iuIt.hasNext())
+			if (iuIt.hasNext()) {
+				// TODO
 				System.out.println("Log the fact that we have a problem");
+			}
 		}
 		return unitsToInstall;
 	}

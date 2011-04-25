@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     Sonatype, Inc. - initial API and implementation
+ *     IBM Corporation - Ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.operations;
 
@@ -23,13 +24,13 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 /**
  * A {@link SynchronizeOperation} describes an operation that will modify the installation to 
  * exclusively include the InstallableUnit mentioned. Note that all the Installable Units necessary
- *  to satisfy the dependencies of the Installable Units installed will also be installed.  
+ * to satisfy the dependencies of the Installable Units installed will also be installed.  
  * 
- * The following snippet shows how one might use an AbsoluteInstallOperation to perform a synchronous resolution and
+ * The following snippet shows how one might use an SynchronizeOperation to perform a synchronous resolution and
  * then kick off an install in the background:
  * 
  * <pre>
- * AbsoluteInstallOperation op = new AbsoluteInstallOperation(session, new IInstallableUnit [] { myIU });
+ * SynchronizeOperation op = new SynchronizeOperation(session, new IInstallableUnit [] { myIU });
  * IStatus result = op.resolveModal(monitor);
  * if (result.isOK()) {
  *   op.getProvisioningJob(monitor).schedule();
