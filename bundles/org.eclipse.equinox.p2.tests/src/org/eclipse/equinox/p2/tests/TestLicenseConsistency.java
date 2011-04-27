@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation and others.
+ * Copyright (c) 2010, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,13 +22,13 @@ import org.eclipse.equinox.p2.query.QueryUtil;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepository;
 
 /**
- * Tests that licenses in the helios repository are consistent with the platform feature license.
+ * Tests that licenses in the indigo repository are consistent with the platform feature license.
  * Note this test isn't intended to be included in automated tests. It produces a report
  * on stdout that can be used to identify features with inconsistent feature licenses.
  */
 public class TestLicenseConsistency extends AbstractProvisioningTest {
 	public void testLicenses() throws URISyntaxException, ProvisionException, OperationCanceledException {
-		URI repoLocation = new URI("http://download.eclipse.org/releases/helios/201005070900");
+		URI repoLocation = new URI("http://download.eclipse.org/releases/indigo/201103180900");
 		IMetadataRepository repo = getMetadataRepositoryManager().loadRepository(repoLocation, null);
 		IQueryResult<IInstallableUnit> allFeatures = repo.query(QueryUtil.createIUGroupQuery(), null);
 		IQueryResult<IInstallableUnit> platform = allFeatures.query(QueryUtil.createIUQuery("org.eclipse.platform.feature.group"), null);
@@ -97,9 +97,9 @@ public class TestLicenseConsistency extends AbstractProvisioningTest {
 			ILicense featureLicense = licenses.iterator().next();
 			if (!platformLicense.getUUID().equals(featureLicense.getUUID())) {
 				badLicense.add(feature);
-//				if (featureLicense.getBody().length() < 100) {
-//					System.out.println(feature.getId() + " license: " + featureLicense.getBody());
-//				}
+				//				if (featureLicense.getBody().length() < 100) {
+				//					System.out.println(feature.getId() + " license: " + featureLicense.getBody());
+				//				}
 				continue;
 			}
 			goodLicense.add(feature);
