@@ -43,6 +43,11 @@ public class IUColumnConfig {
 	 */
 	public final static int COLUMN_SIZE = 3;
 
+	/**
+	 * Constant indicating that the column represents an IInstallableUnit's provider
+	 */
+	public final static int COLUMN_PROVIDER = 4;
+
 	private String columnTitle;
 	private int columnType;
 	private int columnWidth;

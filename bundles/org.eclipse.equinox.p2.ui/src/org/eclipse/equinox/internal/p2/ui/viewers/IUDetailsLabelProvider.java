@@ -109,7 +109,8 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 				}
 				// It's a raw IU, return the version
 				return iu.getVersion().toString();
-
+			case IUColumnConfig.COLUMN_PROVIDER :
+				return iu.getProperty(IInstallableUnit.PROP_PROVIDER, null);
 			case IUColumnConfig.COLUMN_SIZE :
 				if (element instanceof IIUElement && ((IIUElement) element).shouldShowSize())
 					return getIUSize((IIUElement) element);

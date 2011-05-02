@@ -210,6 +210,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUI_InstallDialogError;
 	public static String ProvUI_NameColumnTitle;
 	public static String ProvUI_IdColumnTitle;
+	public static String ProvUI_ProviderColumnTitle;
 	public static String ProvUI_VersionColumnTitle;
 	public static String ProvUI_WarningTitle;
 	public static String ProvUIMessages_NotAccepted_EnterFor_0;
