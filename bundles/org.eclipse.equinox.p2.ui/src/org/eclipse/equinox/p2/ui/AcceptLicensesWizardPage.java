@@ -485,4 +485,15 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		}
 		return new int[] {55, 45};
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.dialogs.IDialogPage#setVisible(boolean)
+	 */
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		if (visible && hasLicensesToAccept()) {
+			iuViewer.setSelection(new StructuredSelection(iuViewer.getTree().getItem(0).getData()), true);
+		}
+	}
 }
