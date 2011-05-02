@@ -284,23 +284,19 @@ public class Projector {
 
 		BigInteger maxWeight = POWER;
 		for (Entry<String, Map<Version, IInstallableUnit>> entry : s) {
-			Map<Version, IInstallableUnit> conflictingEntries = entry.getValue();
-
-			List<IInstallableUnit> toSort = new ArrayList<IInstallableUnit>(conflictingEntries.values());
+			List<IInstallableUnit> conflictingEntries = new ArrayList<IInstallableUnit>(entry.getValue().values());
 			if (conflictingEntries.size() == 1) {
-				IInstallableUnit iu = toSort.get(0);
+				IInstallableUnit iu = conflictingEntries.get(0);
 				if (iu != metaIu) {
 					weightedObjects.add(WeightedObject.newWO(iu, POWER));
 				}
 				continue;
 			}
-			Collections.sort(toSort, Collections.reverseOrder());
+			Collections.sort(conflictingEntries, Collections.reverseOrder());
 			BigInteger weight = POWER;
-			int count = toSort.size();
 			boolean installedIuMet = false;
 			boolean rootedMet = false;
-			for (int i = 0; i < count; i++) {
-				IInstallableUnit iu = toSort.get(i);
+			for (IInstallableUnit iu : conflictingEntries) {
 				if (!rootedMet && isInstalled(iu) && !transitiveClosure.contains(iu)) {
 					installedIuMet = true;
 					weightedObjects.add(WeightedObject.newWO(iu, BigInteger.ONE));
