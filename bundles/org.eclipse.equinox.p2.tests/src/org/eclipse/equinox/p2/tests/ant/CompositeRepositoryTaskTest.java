@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 IBM Corporation and others.
+ *  Copyright (c) 2009, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -11,7 +11,8 @@
 package org.eclipse.equinox.p2.tests.ant;
 
 import java.io.File;
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
@@ -389,15 +390,11 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 			runAntTaskWithExceptions();
 		} catch (CoreException e) {
 			exception = e;
-			if (!(rootCause(e) instanceof MalformedURLException))
-				fail("Expected MalformedURLException.", e);
-			else {
-				try {
-					getArtifactRepositoryManager().loadRepository(location, null);
-					fail("Repository with invalid location loaded.");
-				} catch (ProvisionException e2) {
-					// This is a success
-				}
+			try {
+				getArtifactRepositoryManager().loadRepository(location, null);
+				fail("Repository with invalid location loaded.");
+			} catch (ProvisionException e2) {
+				// This is a success
 			}
 		}
 		if (exception == null)

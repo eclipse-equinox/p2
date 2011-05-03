@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2009, 2010 IBM Corporation and others.
+ *  Copyright (c) 2009, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -307,7 +307,8 @@ public class MirrorTaskTest extends AbstractAntProvisioningTest {
 
 		while (exception.getCause() != null && !(exception instanceof ProvisionException))
 			exception = exception.getCause();
-		assertEquals("Unexpected error", NLS.bind(org.eclipse.equinox.p2.internal.repository.tools.Messages.exception_invalidSource, location), exception.getMessage());
+		assertTrue("Expecting a CoreException", exception instanceof CoreException);
+		assertEquals("Unexpected error code.", ProvisionException.REPOSITORY_FAILED_READ, ((CoreException) exception).getStatus().getCode());
 	}
 
 	/*
