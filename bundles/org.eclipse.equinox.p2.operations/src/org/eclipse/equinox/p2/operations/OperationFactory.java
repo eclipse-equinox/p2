@@ -13,9 +13,9 @@ package org.eclipse.equinox.p2.operations;
 
 import java.net.URI;
 import java.util.*;
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.operations.Activator;
+import org.eclipse.equinox.internal.p2.operations.Messages;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
@@ -23,6 +23,7 @@ import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.query.*;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
@@ -42,35 +43,32 @@ public class OperationFactory {
 			//ignore can't happen since we write the filter ourselves
 		}
 		if (ref == null || ref.size() == 0)
-			throw new IllegalStateException("p2 is not configured properly. No provisioning agent could be found.");
+			throw new IllegalStateException(Messages.OperationFactory_noAgent);
 		IProvisioningAgent agent = Activator.getContext().getService(ref.iterator().next());
 		Activator.getContext().ungetService(ref.iterator().next());
 		return agent;
 	}
 
-	private Collection<IInstallableUnit> gatherIUs(ProvisioningContext context, Collection<IVersionedId> ius, IProgressMonitor monitor) {
-		Collection<IInstallableUnit> unitsToInstall = new ArrayList<IInstallableUnit>(ius.size());
+	//Return a list of IUs from the list of versionedIDs originally provided
+	private Collection<IInstallableUnit> gatherIUs(IQueryable<IInstallableUnit> searchContext, Collection<IVersionedId> ius, boolean checkIUs, IProgressMonitor monitor) throws ProvisionException {
+		Collection<IInstallableUnit> gatheredIUs = new ArrayList<IInstallableUnit>(ius.size());
 
 		for (IVersionedId versionedId : ius) {
-			if (ius instanceof IInstallableUnit) {
-				unitsToInstall.add((IInstallableUnit) versionedId);
+			if (!checkIUs && versionedId instanceof IInstallableUnit) {
+				gatheredIUs.add((IInstallableUnit) versionedId);
 				continue;
 			}
 
 			IQuery<IInstallableUnit> installableUnits = QueryUtil.createIUQuery(versionedId.getId(), versionedId.getVersion());
-			IQueryResult<IInstallableUnit> matches = context.getMetadata(monitor).query(installableUnits, monitor);
-			//			if (ius.isEmpty())
-			//				Do something smart. like throw an exception
+			IQueryResult<IInstallableUnit> matches = searchContext.query(installableUnits, monitor);
+			if (matches.isEmpty())
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.OperationFactory_noIUFound, versionedId)));
+
 			//Add the first IU
 			Iterator<IInstallableUnit> iuIt = matches.iterator();
-			unitsToInstall.add(iuIt.next());
-
-			if (iuIt.hasNext()) {
-				// TODO
-				System.out.println("Log the fact that we have a problem");
-			}
+			gatheredIUs.add(iuIt.next());
 		}
-		return unitsToInstall;
+		return gatheredIUs;
 	}
 
 	private ProvisioningContext createProvisioningContext(Collection<URI> repos, IProvisioningAgent agent) {
@@ -92,11 +90,12 @@ public class OperationFactory {
 	public InstallOperation createInstallOperation(Collection<IVersionedId> toInstall, Collection<URI> repos, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(toInstall);
 		IProvisioningAgent agent = getAgent();
+
 		//add the repos
 		ProvisioningContext ctx = createProvisioningContext(repos, agent);
 
 		//find the ius to install and create the operation
-		InstallOperation resultingOperation = new InstallOperation(new ProvisioningSession(agent), gatherIUs(ctx, toInstall, monitor));
+		InstallOperation resultingOperation = new InstallOperation(new ProvisioningSession(agent), gatherIUs(ctx.getMetadata(monitor), toInstall, false, monitor));
 		resultingOperation.setProvisioningContext(ctx);
 		resultingOperation.setProfileId(IProfileRegistry.SELF);
 
@@ -116,7 +115,7 @@ public class OperationFactory {
 		ProvisioningContext ctx = createProvisioningContext(repos, agent);
 
 		//find the ius to uninstall and create the operation
-		UninstallOperation resultingOperation = new UninstallOperation(new ProvisioningSession(agent), gatherIUs(ctx, toUninstall, monitor));
+		UninstallOperation resultingOperation = new UninstallOperation(new ProvisioningSession(agent), gatherIUs(listInstalledElements(false, monitor), toUninstall, true, monitor));
 		resultingOperation.setProvisioningContext(ctx);
 		resultingOperation.setProfileId(IProfileRegistry.SELF);
 
@@ -149,7 +148,7 @@ public class OperationFactory {
 		ProvisioningContext ctx = createProvisioningContext(repos, agent);
 
 		//find the ius to update and create the operation
-		UpdateOperation resultingOperation = new UpdateOperation(new ProvisioningSession(agent), toUpdate == null ? null : gatherIUs(ctx, toUpdate, monitor));
+		UpdateOperation resultingOperation = new UpdateOperation(new ProvisioningSession(agent), toUpdate == null ? null : gatherIUs(listInstalledElements(false, monitor), toUpdate, false, monitor));
 		resultingOperation.setProvisioningContext(ctx);
 		resultingOperation.setProfileId(IProfileRegistry.SELF);
 
@@ -161,7 +160,7 @@ public class OperationFactory {
 	 * @param toInstall the elements to install. This can not be null.
 	 * @param repos the repositories to install the elements from. 
 	 * @param monitor the progress monitor
-	 * @return an instance of {@link InstallOperation}.
+	 * @return an instance of {@link SynchronizeOperation}.
 	 */
 	public SynchronizeOperation createSynchronizeOperation(Collection<IVersionedId> toInstall, Collection<URI> repos, IProgressMonitor monitor) throws ProvisionException {
 		IProvisioningAgent agent = getAgent();
@@ -171,7 +170,7 @@ public class OperationFactory {
 		if (toInstall == null)
 			iusToInstall = ctx.getMetadata(monitor).query(QueryUtil.createIUGroupQuery(), monitor).toUnmodifiableSet();
 		else
-			iusToInstall = gatherIUs(ctx, toInstall, monitor);
+			iusToInstall = gatherIUs(ctx.getMetadata(monitor), toInstall, false, monitor);
 
 		SynchronizeOperation resultingOperation = new SynchronizeOperation(new ProvisioningSession(agent), iusToInstall);
 		resultingOperation.setProvisioningContext(ctx);
