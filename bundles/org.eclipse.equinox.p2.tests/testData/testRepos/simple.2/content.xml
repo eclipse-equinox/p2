@@ -12,7 +12,7 @@
         <property name='org.eclipse.equinox.p2.name' value='ABundle Plug-in'/>
       </properties>
       <provides size='3'>
-        <provided namespace='org.eclipse.equinox.p2.iu' name='aBundle' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='aBundle' version='1.0.1'/>
         <provided namespace='osgi.bundle' name='aBundle' version='1.0.0'/>
         <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
       </provides>
