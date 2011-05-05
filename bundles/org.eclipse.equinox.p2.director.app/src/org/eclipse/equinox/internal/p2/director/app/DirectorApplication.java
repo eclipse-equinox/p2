@@ -1049,7 +1049,9 @@ public class DirectorApplication implements IApplication {
 			for (Entry<String, String> entry : entries) {
 				if (entry.getValue().equals(revertToPreviousState))
 					try {
-						timestampToRevertTo = Long.valueOf(entry.getKey()).longValue();
+						long tmp = Long.valueOf(entry.getKey()).longValue();
+						if (tmp > timestampToRevertTo)
+							timestampToRevertTo = tmp;
 					} catch (NumberFormatException e2) {
 						//Not expected since the value is supposed to be a timestamp as per API
 					}
