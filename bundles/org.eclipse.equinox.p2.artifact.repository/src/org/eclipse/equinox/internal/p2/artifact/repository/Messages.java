@@ -59,6 +59,8 @@ public class Messages extends NLS {
 
 	public static String retryRequest;
 
+	public static String error_copying_local_file;
+
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

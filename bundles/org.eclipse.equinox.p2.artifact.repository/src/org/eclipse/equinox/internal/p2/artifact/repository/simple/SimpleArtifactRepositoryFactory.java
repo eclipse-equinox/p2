@@ -29,7 +29,7 @@ import org.eclipse.equinox.p2.repository.artifact.spi.ArtifactRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleArtifactRepositoryFactory extends ArtifactRepositoryFactory {
-	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
+	public static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 

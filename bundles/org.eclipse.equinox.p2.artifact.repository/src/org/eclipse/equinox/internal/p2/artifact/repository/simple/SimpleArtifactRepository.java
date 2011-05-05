@@ -582,8 +582,47 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return status.getCode() == CODE_RETRY ? status : result;
 	}
 
+	/**
+	 * Copy a file to an output stream.
+	 * Optionally close the streams when done.
+	 * Notify the monitor about progress we make
+	 * 
+	 * @return the number of bytes written.
+	 */
+	private IStatus copyFileToStream(File in, OutputStream out, IProgressMonitor monitor) {
+		// Buffer filled with contents from the stream at a time
+		int bufferSize = 16 * 1024;
+		byte[] buffer = new byte[bufferSize];
+		// Number of passes in the below loop, convert to integer which is needed in monitor conversion below
+		int expected_loops = new Double(in.length() / bufferSize).intValue() + 1; // +1: also count the initial run
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.downloading + in.getName(), expected_loops);
+		// Be optimistic about the outcome of this...
+		IStatus status = Status.OK_STATUS;
+		try {
+			FileInputStream stream = new FileInputStream(in);
+			try {
+				int len;
+				while ((len = stream.read(buffer)) != -1) {
+					out.write(buffer, 0, len);
+					sub.worked(1);
+				}
+			} finally {
+				stream.close();
+			}
+		} catch (IOException ioe) {
+			status = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_copying_local_file, in.getAbsolutePath()), ioe);
+		}
+		sub.done();
+		return status;
+	}
+
 	private IStatus downloadArtifact(IArtifactDescriptor descriptor, URI mirrorLocation, OutputStream destination, IProgressMonitor monitor) {
-		IStatus result = getTransport().download(mirrorLocation, destination, monitor);
+		//Bug 340352: transport has performance overhead of 100ms and more, bypass it for local copies
+		IStatus result = Status.OK_STATUS;
+		if (mirrorLocation.getScheme().equals(SimpleArtifactRepositoryFactory.PROTOCOL_FILE))
+			result = copyFileToStream(new File(mirrorLocation), destination, monitor);
+		else
+			result = getTransport().download(mirrorLocation, destination, monitor);
 		if (mirrors != null)
 			mirrors.reportResult(mirrorLocation.toString(), result);
 		if (result.isOK() || result.getSeverity() == IStatus.CANCEL)
