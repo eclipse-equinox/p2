@@ -31,7 +31,7 @@
             id="org.eclipse.equinox.p2.replication.import"
             name="%import.name">
             <description>
-            	%importfrominstance.description
+            	%import.description
             </description>            
       </wizard>
       <wizard
@@ -41,7 +41,7 @@
             id="org.eclipse.equinox.p2.replication.importfrominstallation"
             name="%importfrominstallation.name">
          <description>
-            %import.description
+            %importfrominstance.description
          </description>
       </wizard>
    </extension>
