@@ -11,17 +11,16 @@
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.PlatformUI;
 
 public class ExportPage extends AbstractPage {
 
@@ -35,9 +34,9 @@ public class ExportPage extends AbstractPage {
 	protected void createContents(Composite composite) {
 		Label label = new Label(composite, SWT.NONE);
 		label.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
-		if(getSelfProfile() == null){			
+		if (getSelfProfile() == null) {
 			label.setText(Messages.ExportPage_ERROR_CONFIG);
-		}else {
+		} else {
 			label.setText(Messages.ExportPage_Label);
 
 			createInstallationTable(composite);
@@ -48,67 +47,68 @@ public class ExportPage extends AbstractPage {
 	@Override
 	public void doFinish() throws Exception {
 		finishException = null;
-		if(viewer == null)
+		if (viewer == null)
 			return;
 		final Object[] checked = viewer.getCheckedElements();
 		OutputStream stream = null;
 		try {
 			File target = new File(ExportPage.this.destinationNameField.getText());
-			if(!target.exists())
+			if (!target.exists())
 				target.createNewFile();
 			stream = new BufferedOutputStream(new FileOutputStream(target));
 			final OutputStream out = stream;
 			getContainer().run(true, true, new IRunnableWithProgress() {
 
-				public void run(IProgressMonitor monitor) throws InvocationTargetException,
-				InterruptedException {
+				public void run(IProgressMonitor monitor) throws InterruptedException {
 					try {
 						IInstallableUnit[] units = new IInstallableUnit[checked.length];
-						for(int i = 0; i < units.length; i++)
+						for (int i = 0; i < units.length; i++)
 							units[i] = ProvUI.getAdapter(checked[i], IInstallableUnit.class);
 						IStatus status = importexportService.exportP2F(out, units, monitor);
 						if (status.isMultiStatus()) {
 							final StringBuilder sb = new StringBuilder();
-							boolean info = true;
 							for (IStatus child : status.getChildren()) {
 								if (child.isMultiStatus()) {
 									for (IStatus grandchild : child.getChildren())
-										sb.append(grandchild.getMessage()).append("\n"); //$NON-NLS-1$
+										sb.append("<li>").append(grandchild.getMessage()).append("</li>"); //$NON-NLS-1$ //$NON-NLS-2$
 								} else if (child.isOK())
 									sb.insert(0, Messages.ExportPage_SuccessWithProblems);
-											else {
-												info = false;
-												sb.insert(0, Messages.ExportPage_Fail);
-												sb.append(status.getMessage());
-											}
+								else {
+									sb.insert(0, Messages.ExportPage_Fail);
+									sb.append(status.getMessage());
+								}
 							}
-							final boolean isInfo = info;
-							Display.getDefault().asyncExec(new Runnable() {
+							sb.append(Messages.ExportPage_FixSuggestion);
+							sb.append(Messages.ExportPage_TryAgainQuestion);
+							Runnable runnable = new Runnable() {
+
 								public void run() {
 									String title = Messages.ExportPage_Title;
-									if (isInfo == true)
-										MessageDialog.openInformation(getShell(), title, sb.toString());
-									else
-										MessageDialog.openWarning(getShell(), title, sb.toString());
+									tryAgain = StyledErrorDialog.openQuestion(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), title, sb.toString());
 								}
-							});
+							};
+							Display.getDefault().syncExec(runnable);
+							if (tryAgain)
+								throw new OperationCanceledException("User chosed try again."); //$NON-NLS-1$
 						}
 					} catch (OperationCanceledException e) {
 						throw new InterruptedException(e.getMessage());
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-				} 
+				}
+
+				boolean tryAgain = false;
 			});
-		} catch (InterruptedException e) {
-			// do nothing for cancelled by users
 		} finally {
-			if(stream != null) {
+			if (stream != null) {
 				try {
 					stream.close();
 				} catch (IOException e) {
 					// do nothing
 				}
 			}
-			if(finishException != null)
+			if (finishException != null)
 				throw finishException;
 		}
 	}
@@ -120,11 +120,9 @@ public class ExportPage extends AbstractPage {
 
 	@Override
 	protected Object getInput() {
-		//		return importexportService.getRootIUs();
 		ProfileElement element = new ProfileElement(null, getSelfProfile().getProfileId());
 		return element;
 	}
-
 
 	@Override
 	protected String getInvalidDestinationMessage() {
@@ -133,7 +131,7 @@ public class ExportPage extends AbstractPage {
 
 	@Override
 	protected void giveFocusToDestination() {
-		if(viewer != null)
+		if (viewer != null)
 			viewer.getControl().setFocus();
 	}
 

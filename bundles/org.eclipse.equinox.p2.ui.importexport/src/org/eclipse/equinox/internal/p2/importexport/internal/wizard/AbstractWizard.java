@@ -28,9 +28,11 @@ public abstract class AbstractWizard extends Wizard {
 	public boolean performFinish() {
 		try {
 			mainPage.doFinish();
+		} catch (InterruptedException e) {
+			// cancelled by user
+			return false;
 		} catch (Exception e) {
-			Platform.getLog(Platform.getBundle(Constants.Bundle_ID)).log(
-					new Status(IStatus.ERROR, Constants.Bundle_ID, e.getMessage(), e));
+			Platform.getLog(Platform.getBundle(Constants.Bundle_ID)).log(new Status(IStatus.ERROR, Constants.Bundle_ID, e.getMessage(), e));
 			MessageBox messageBox = new MessageBox(this.getShell(), SWT.ICON_ERROR);
 			messageBox.setMessage(e.getMessage() == null ? "Unknown error" : e.getMessage()); //$NON-NLS-1$
 			messageBox.open();

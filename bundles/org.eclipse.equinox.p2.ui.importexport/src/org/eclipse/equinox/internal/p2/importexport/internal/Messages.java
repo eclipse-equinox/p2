@@ -17,6 +17,7 @@ public class Messages extends NLS {
 	public static String Column_Name;
 	public static String Column_Version;
 	public static String ExportPage_Title;
+	public static String ExportPage_TryAgainQuestion;
 	public static String ExportPage_Description;
 	public static String ExportPage_Label;
 	public static String ExportPage_DEST_ERRORMESSAGE;
@@ -24,6 +25,7 @@ public class Messages extends NLS {
 	public static String ExportPage_EXPORT_WARNING;
 	public static String ExportPage_Fail;
 	public static String ExportPage_FILEDIALOG_TITLE;
+	public static String ExportPage_FixSuggestion;
 	public static String EXTENSION_ALL;
 	public static String EXTENSION_ALL_NAME;
 	public static String EXTENSION_p2F_NAME;
