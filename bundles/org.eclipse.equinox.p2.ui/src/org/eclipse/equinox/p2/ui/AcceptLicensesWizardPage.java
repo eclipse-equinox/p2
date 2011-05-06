@@ -492,7 +492,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	 */
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
-		if (visible && hasLicensesToAccept()) {
+		if (visible && hasLicensesToAccept() && iuViewer != null) {
 			iuViewer.setSelection(new StructuredSelection(iuViewer.getTree().getItem(0).getData()), true);
 		}
 	}
