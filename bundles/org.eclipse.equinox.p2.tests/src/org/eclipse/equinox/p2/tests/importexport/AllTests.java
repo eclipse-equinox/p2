@@ -10,7 +10,7 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(ImportExportTests.class);
-		suite.addTestSuite(ImportExportRemoteTests.class);
+		//		suite.addTestSuite(ImportExportRemoteTests.class);
 		return suite;
 	}
 
