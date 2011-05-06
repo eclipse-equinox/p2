@@ -97,7 +97,7 @@ public class AvailableUpdateElement extends AvailableIUElement {
 
 	protected String getImageId(Object obj) {
 		String imageId = super.getImageId(obj);
-		if (imageId.equals(ProvUIImages.IMG_IU) && isLockedForUpdate())
+		if (ProvUIImages.IMG_IU.equals(imageId) && isLockedForUpdate())
 			return ProvUIImages.IMG_DISABLED_IU;
 		return imageId;
 	}
