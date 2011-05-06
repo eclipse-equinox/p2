@@ -294,7 +294,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 
 	private boolean isLocked(AvailableIUElement elementToBeUpdated) {
 		if (elementToBeUpdated instanceof AvailableUpdateElement)
-			return ((AvailableUpdateElement) elementToBeUpdated).isLocked();
+			return ((AvailableUpdateElement) elementToBeUpdated).isLockedForUpdate();
 		return false;
 	}
 }

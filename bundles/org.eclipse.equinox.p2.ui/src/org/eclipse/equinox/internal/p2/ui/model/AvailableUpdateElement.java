@@ -30,7 +30,7 @@ import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 public class AvailableUpdateElement extends AvailableIUElement {
 
 	IInstallableUnit iuToBeUpdated;
-	boolean isLocked = false;
+	boolean isLockedForUpdate = false;
 
 	public AvailableUpdateElement(Object parent, IInstallableUnit iu, IInstallableUnit iuToBeUpdated, String profileID, boolean shouldShowChildren) {
 		super(parent, iu, profileID, shouldShowChildren);
@@ -43,11 +43,16 @@ public class AvailableUpdateElement extends AvailableIUElement {
 	private void init() {
 		IProfileRegistry profileRegistry = (IProfileRegistry) getProvisioningUI().getSession().getProvisioningAgent().getService(IProfileRegistry.SERVICE_NAME);
 		IProfile profile = profileRegistry.getProfile(profileID);
-		isLocked = profile.getInstallableUnitProperty(iuToBeUpdated, IProfile.PROP_PROFILE_LOCKED_IU) != null;
+		String property = profile.getInstallableUnitProperty(iuToBeUpdated, IProfile.PROP_PROFILE_LOCKED_IU);
+		try {
+			isLockedForUpdate = property == null ? false : (Integer.parseInt(property) & IProfile.LOCK_UPDATE) > 0;
+		} catch (NumberFormatException e) {
+			isLockedForUpdate = false;
+		}
 	}
 
-	public boolean isLocked() {
-		return isLocked;
+	public boolean isLockedForUpdate() {
+		return isLockedForUpdate;
 	}
 
 	public IInstallableUnit getIUToBeUpdated() {
@@ -92,7 +97,7 @@ public class AvailableUpdateElement extends AvailableIUElement {
 
 	protected String getImageId(Object obj) {
 		String imageId = super.getImageId(obj);
-		if (ProvUIImages.IMG_IU.equals(imageId) && isLocked())
+		if (imageId.equals(ProvUIImages.IMG_IU) && isLockedForUpdate())
 			return ProvUIImages.IMG_DISABLED_IU;
 		return imageId;
 	}

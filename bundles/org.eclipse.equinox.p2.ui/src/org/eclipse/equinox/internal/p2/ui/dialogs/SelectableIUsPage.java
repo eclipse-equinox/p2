@@ -112,7 +112,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 				// If the checkEvent is on a locked update element, uncheck it and select it.
 				if (event.getElement() instanceof AvailableUpdateElement) {
 					AvailableUpdateElement checkedElement = (AvailableUpdateElement) event.getElement();
-					if (checkedElement.isLocked()) {
+					if (checkedElement.isLockedForUpdate()) {
 						event.getCheckable().setChecked(checkedElement, false);
 						// Select the element so that the locked description is displayed
 						CheckboxTableViewer viewer = ((CheckboxTableViewer) event.getSource());
@@ -237,7 +237,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		for (int i = 0; i < initialSelections.length; i++) {
 			if (initialSelections[i] instanceof AvailableUpdateElement) {
 				AvailableUpdateElement element = (AvailableUpdateElement) initialSelections[i];
-				if (element.isLocked()) {
+				if (element.isLockedForUpdate()) {
 					continue;
 				}
 			}
