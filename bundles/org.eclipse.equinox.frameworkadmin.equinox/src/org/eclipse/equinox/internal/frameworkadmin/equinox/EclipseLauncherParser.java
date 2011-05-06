@@ -27,8 +27,13 @@ public class EclipseLauncherParser {
 	private static final String CONFIGURATION_FOLDER = "configuration"; //$NON-NLS-1$
 
 	//this figures out the location of the data area on partial data read from the <eclipse>.ini
-	private URI getOSGiInstallArea(List lines, URI base) {
+	private URI getOSGiInstallArea(List lines, URI base, LauncherData launcherData) {
+		//does the eclipse.ini say anything for osgi.install.area?
 		File osgiInstallArea = ParserUtils.getOSGiInstallArea(lines, null, base);
+		if (osgiInstallArea == null) {
+			//otherwise use the launcherData to figure it out
+			osgiInstallArea = ParserUtils.getOSGiInstallArea(lines, null, launcherData);
+		}
 		if (osgiInstallArea != null)
 			return URIUtil.makeAbsolute(osgiInstallArea.toURI(), base);
 		return null;
@@ -58,7 +63,7 @@ public class EclipseLauncherParser {
 		URI launcherFolder = launcherData.getLauncher().getParentFile().toURI();
 		getStartup(lines, launcherFolder);
 		getFrameworkJar(lines, launcherFolder, launcherData);
-		URI osgiInstallArea = getOSGiInstallArea(lines, launcherFolder);
+		URI osgiInstallArea = getOSGiInstallArea(lines, launcherFolder, launcherData);
 		if (osgiInstallArea == null) {
 			osgiInstallArea = launcherData.getFwJar() != null ? ParserUtils.fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath()).toURI() : launcherFolder;
 		}
