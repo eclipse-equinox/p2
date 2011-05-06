@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.importexport.IUDetail;
+import org.eclipse.equinox.internal.p2.importexport.VersionInCompatibleException;
 import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -194,11 +195,12 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 				features = importexportService.importP2F(input);
 				viewer.setInput(features.toArray(new IUDetail[features.size()]));
 				input.close();
+			} catch (VersionInCompatibleException e) {
+				MessageDialog.openWarning(getShell(), Messages.ImportPage_TITLE, e.getMessage());
 			} catch (FileNotFoundException e) {
 				MessageDialog.openError(getShell(), Messages.ImportPage_TITLE, Messages.ImportPage_FILENOTFOUND);
 			} catch (IOException e) {
-				//TODO
-				e.printStackTrace();
+				MessageDialog.openError(getShell(), Messages.ImportPage_TITLE, e.getLocalizedMessage());
 			}
 		}
 	}

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.importexport.IUDetail;
+import org.eclipse.equinox.internal.p2.importexport.VersionInCompatibleException;
 import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.p2.metadata.*;
@@ -24,7 +25,7 @@ import org.osgi.framework.BundleContext;
 import org.xml.sax.*;
 
 public class P2FParser extends XMLParser implements P2FConstants {
-	static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, Version.createOSGi(2, 0, 0), false);
+	static final VersionRange XML_TOLERANCE = new VersionRange(Version.createOSGi(1, 0, 0), true, Version.createOSGi(2, 0, 0), false);
 
 	List<IUDetail> iusListed;
 
@@ -46,7 +47,7 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		}
 
 		@Override
-		public void startElement(String name, Attributes attributes) throws SAXException {
+		public void startElement(String name, Attributes attributes) {
 			checkCancel();
 		}
 
@@ -68,7 +69,7 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		}
 
 		@Override
-		public void startElement(String name, Attributes attributes) throws SAXException {
+		public void startElement(String name, Attributes attributes) {
 			if (name.equals(REPOSITORY_ELEMENT)) {
 				new RepositoryHandler(this, attributes, uris);
 			}
@@ -147,29 +148,28 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		}
 
 		@Override
-		public void processingInstruction(String target, String data) throws SAXException {
-			Version repositoryVersion = extractPIVersion(target, data);
-			if (!XML_TOLERANCE.isIncluded(repositoryVersion)) {
-				throw new SAXException(NLS.bind(Messages.io_IncompatibleVersion, repositoryVersion, XML_TOLERANCE));
+		public void processingInstruction(String target, String data) {
+			if (P2F_ELEMENT.equals(target)) {
+				Version repositoryVersion = extractPIVersion(target, data);
+				if (!XML_TOLERANCE.isIncluded(repositoryVersion)) {
+					throw new VersionInCompatibleException(NLS.bind(Messages.io_IncompatibleVersion, repositoryVersion, XML_TOLERANCE));
+				}
 			}
 		}
 	}
 
 	final class P2FHandler extends RootHandler {
-		private final String[] required = new String[] {VERSION_ATTRIBUTE};
+		private final String[] required = new String[] {};
 		private final String[] optional = new String[] {};
-		private String[] attrValues = new String[required.length + optional.length];
-
 		private IUsHandler iusHandler;
 
 		@Override
 		protected void handleRootAttributes(Attributes attributes) {
-			attrValues = parseAttributes(attributes, required, optional);
-			attrValues[0] = checkVersion(P2F_ELEMENT, VERSION_ATTRIBUTE, attrValues[0]).toString();
+			parseAttributes(attributes, required, optional);
 		}
 
 		@Override
-		public void startElement(String name, Attributes attributes) throws SAXException {
+		public void startElement(String name, Attributes attributes) {
 			if (IUS_ELEMENT.equals(name)) {
 				if (iusHandler == null) {
 					iusHandler = new IUsHandler(this, attributes);
@@ -184,7 +184,8 @@ public class P2FParser extends XMLParser implements P2FConstants {
 		@Override
 		protected void finished() {
 			if (isValidXML()) {
-				iusListed = iusHandler.getIUs();
+				if (iusHandler != null)
+					iusListed = iusHandler.getIUs();
 			}
 		}
 	}
@@ -219,6 +220,9 @@ public class P2FParser extends XMLParser implements P2FConstants {
 	}
 
 	public List<IUDetail> getIUs() {
+		if (iusListed == null) {
+			iusListed = new ArrayList<IUDetail>();
+		}
 		return iusListed;
 	}
 

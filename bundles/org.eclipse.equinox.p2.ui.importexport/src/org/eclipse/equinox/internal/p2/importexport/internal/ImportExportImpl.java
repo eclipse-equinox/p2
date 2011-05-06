@@ -16,8 +16,8 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.importexport.IUDetail;
 import org.eclipse.equinox.internal.p2.importexport.P2ImportExport;
-import org.eclipse.equinox.internal.p2.importexport.persistence.P2FParser;
-import org.eclipse.equinox.internal.p2.importexport.persistence.P2FWriter;
+import org.eclipse.equinox.internal.p2.importexport.persistence.*;
+import org.eclipse.equinox.internal.p2.persistence.XMLWriter.ProcessingInstruction;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -127,7 +127,7 @@ public class ImportExportImpl implements P2ImportExport {
 		if (sub.isCanceled())
 			throw new OperationCanceledException();
 		try {
-			P2FWriter writer = new P2FWriter(output, null);
+			P2FWriter writer = new P2FWriter(output, new ProcessingInstruction[] {ProcessingInstruction.makeTargetVersionInstruction(P2FConstants.P2F_ELEMENT, P2FConstants.CURRENT_VERSION)});
 			writer.write(features);
 			return Status.OK_STATUS;
 		} catch (UnsupportedEncodingException e) {

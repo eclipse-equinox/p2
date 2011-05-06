@@ -66,6 +66,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
 		try {
 			httpService.registerResources("/public", "/webfiles", null); //$NON-NLS-1$ //$NON-NLS-2$
+			httpService.registerResources("/importexport", "/webfiles/importexport", null); //$NON-NLS-1$ //$NON-NLS-2$
 			httpService.registerResources("/private", "/webfiles", secureHttpContext); //$NON-NLS-1$ //$NON-NLS-2$
 			httpService.registerResources("/never", "/webfiles", alwaysFail); //$NON-NLS-1$ //$NON-NLS-2$
 			httpService.registerResources("/flipflop", "/webfiles", flipFlop); //$NON-NLS-1$ //$NON-NLS-2$

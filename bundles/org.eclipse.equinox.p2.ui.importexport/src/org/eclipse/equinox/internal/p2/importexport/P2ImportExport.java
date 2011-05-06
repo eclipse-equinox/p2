@@ -17,6 +17,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public interface P2ImportExport {
+	/**
+	 * 
+	 * @param input
+	 * @return iu listed in the file
+	 * @throws IOException
+	 * @throws VersionInCompatibleException if the given file version is not supported
+	 */
 	List<IUDetail> importP2F(InputStream input) throws IOException;
 
 	IStatus exportP2F(OutputStream output, IInstallableUnit[] ius, IProgressMonitor monitor);
