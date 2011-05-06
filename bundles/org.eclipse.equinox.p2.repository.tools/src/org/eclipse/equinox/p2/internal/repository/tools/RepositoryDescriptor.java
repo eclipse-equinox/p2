@@ -29,6 +29,7 @@ public class RepositoryDescriptor {
 	private int kind = TYPE_BOTH;
 	private URI originalLocation = null;
 	private boolean optional = false;
+	private String atomic = null;
 
 	public void setCompressed(boolean compress) {
 		compressed = compress;
@@ -101,6 +102,14 @@ public class RepositoryDescriptor {
 
 	public void setKind(String repoKind) {
 		kind = determineKind(repoKind);
+	}
+
+	public void setAtomic(String booleanForAtomic) {
+		atomic = booleanForAtomic;
+	}
+
+	public String getAtomic() {
+		return atomic;
 	}
 
 	/*

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     SAP AG - repository atomic loading
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.ant;
 
@@ -29,6 +30,7 @@ public class CreateCompositeMetadataRepositoryTask extends AbstractMDRTask {
 
 	URI location; // desired location of the composite repository
 	String name = "Composite Metadata Repository";
+	boolean atomic = false;
 	boolean compressed = true; // compress by default
 	boolean failOnExists = false; // should we fail if one already exists?
 	Map<String, String> properties = new HashMap<String, String>();
@@ -65,6 +67,8 @@ public class CreateCompositeMetadataRepositoryTask extends AbstractMDRTask {
 		// create the properties
 		if (compressed)
 			properties.put(IRepository.PROP_COMPRESSED, Boolean.toString(true));
+		if (atomic)
+			properties.put(CompositeMetadataRepository.PROP_ATOMIC_LOADING, Boolean.toString(true));
 
 		// create the repository
 		try {
@@ -93,6 +97,13 @@ public class CreateCompositeMetadataRepositoryTask extends AbstractMDRTask {
 	 */
 	public void setCompressed(boolean value) {
 		compressed = value;
+	}
+
+	/*
+	 * Set a value indicating whether or not the repository should be atomic.
+	 */
+	public void setAtomic(boolean value) {
+		atomic = value;
 	}
 
 	/*

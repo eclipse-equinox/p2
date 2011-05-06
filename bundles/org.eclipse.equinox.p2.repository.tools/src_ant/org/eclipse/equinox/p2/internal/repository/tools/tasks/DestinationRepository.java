@@ -52,6 +52,10 @@ public class DestinationRepository extends DataType {
 		descriptor.setKind(repoKind);
 	}
 
+	public void setAtomic(String atomicAsBoolean) {
+		descriptor.setAtomic(atomicAsBoolean);
+	}
+
 	RepositoryDescriptor getDescriptor() {
 		return descriptor;
 	}

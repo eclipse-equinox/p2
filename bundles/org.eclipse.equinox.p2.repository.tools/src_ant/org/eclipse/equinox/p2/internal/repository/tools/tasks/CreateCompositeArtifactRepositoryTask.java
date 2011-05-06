@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     SAP AG - repository atomic loading
  *******************************************************************************/
 package org.eclipse.equinox.p2.internal.repository.tools.tasks;
 
@@ -30,6 +31,7 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 
 	URI location; // desired location of the composite repository
 	String name = "Composite Artifact Repository";
+	boolean atomic = false;
 	boolean compressed = true;
 	boolean failOnExists = false; // should we fail if a repo already exists?
 	Map<String, String> properties = new HashMap<String, String>();
@@ -67,6 +69,8 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 		// set the properties
 		if (compressed)
 			properties.put(IRepository.PROP_COMPRESSED, Boolean.toString(true));
+		if (atomic)
+			properties.put(CompositeArtifactRepository.PROP_ATOMIC_LOADING, Boolean.toString(true));
 
 		// create the repository
 		try {
@@ -105,6 +109,13 @@ public class CreateCompositeArtifactRepositoryTask extends Task {
 	 */
 	public void setCompressed(boolean value) {
 		compressed = value;
+	}
+
+	/*
+	 * Set a value indicating whether or not the repository should be atomic.
+	 */
+	public void setAtomic(boolean value) {
+		atomic = value;
 	}
 
 	/*

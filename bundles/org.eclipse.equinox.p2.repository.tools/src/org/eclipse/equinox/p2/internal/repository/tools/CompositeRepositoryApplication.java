@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository;
+import org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository;
 import org.eclipse.equinox.internal.p2.repository.helpers.RepositoryHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -121,6 +122,8 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			//No existing repository; create a new repository at destinationLocation but with source's attributes.
 			IArtifactRepository repo = mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : Messages.CompositeRepository_default_artifactRepo_name), IArtifactRepositoryManager.TYPE_COMPOSITE_REPOSITORY, source != null ? source.getProperties() : null);
 			initRepository(repo, toInit);
+			if (toInit.getAtomic() != null)
+				repo.setProperty(CompositeMetadataRepository.PROP_ATOMIC_LOADING, Boolean.toString(Boolean.valueOf(toInit.getAtomic())));
 			return repo;
 		} catch (IllegalStateException e) {
 			mgr.removeRepository(toInit.getRepoLocation());
@@ -159,6 +162,8 @@ public class CompositeRepositoryApplication extends AbstractApplication {
 			//No existing repository; create a new repository at destinationLocation but with source's attributes.
 			IMetadataRepository repo = mgr.createRepository(toInit.getRepoLocation(), toInit.getName() != null ? toInit.getName() : (source != null ? source.getName() : Messages.CompositeRepository_default_metadataRepo_name), IMetadataRepositoryManager.TYPE_COMPOSITE_REPOSITORY, source != null ? source.getProperties() : null);
 			initRepository(repo, toInit);
+			if (toInit.getAtomic() != null)
+				repo.setProperty(CompositeMetadataRepository.PROP_ATOMIC_LOADING, Boolean.toString(Boolean.valueOf(toInit.getAtomic())));
 			return repo;
 		} catch (IllegalStateException e) {
 			mgr.removeRepository(toInit.getRepoLocation());

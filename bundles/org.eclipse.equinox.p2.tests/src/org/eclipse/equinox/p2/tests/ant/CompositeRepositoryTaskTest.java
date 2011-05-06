@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     SAP AG - repository atomic loading
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ant;
 
@@ -302,6 +303,40 @@ public class CompositeRepositoryTaskTest extends AbstractAntProvisioningTest {
 		ICompositeRepository repo = getCompositeRepository(TYPE_ARTIFACT);
 		assertTrue(repo instanceof CompositeArtifactRepository);
 		assertFalse("The repository is compressed", Boolean.valueOf((String) repo.getProperties().get(IRepository.PROP_COMPRESSED)));
+	}
+
+	/*
+	 * Test that atomic attribute of an artifact repo is honoured
+	 */
+	public void testAtomicArtifactRepository() throws Exception {
+		// Create Composite Artifact Repository Task
+		AntTaskElement createCompositeArtifactRepositoryTask = new AntTaskElement("p2.composite.artifact.repository.create");
+		// Set the atomic attribute to true
+		createCompositeArtifactRepositoryTask.addAttributes(new String[] {"atomic", String.valueOf(true)});
+		createCompositeArtifactRepositoryTask.addAttributes(new String[] {"location", URIUtil.toUnencodedString(compositeSite)});
+		addTask(createCompositeArtifactRepositoryTask);
+		runAntTask();
+
+		ICompositeRepository repo = getCompositeRepository(TYPE_ARTIFACT);
+		assertTrue(repo instanceof CompositeArtifactRepository);
+		assertTrue("The repository is not atomic", Boolean.valueOf((String) repo.getProperties().get(CompositeArtifactRepository.PROP_ATOMIC_LOADING)));
+	}
+
+	/*
+	 * Test that atomic attribute of a metadata repo is honoured
+	 */
+	public void testAtomicMetadataRepository() throws Exception {
+		// Create Composite Metadata Repository Task
+		AntTaskElement createCompositeMetadataRepositoryTask = new AntTaskElement("p2.composite.metadata.repository.create");
+		// Set the atomic attribute to true
+		createCompositeMetadataRepositoryTask.addAttributes(new String[] {"atomic", String.valueOf(true)});
+		createCompositeMetadataRepositoryTask.addAttributes(new String[] {"location", URIUtil.toUnencodedString(compositeSite)});
+		addTask(createCompositeMetadataRepositoryTask);
+		runAntTask();
+
+		ICompositeRepository repo = getCompositeRepository(TYPE_METADATA);
+		assertTrue(repo instanceof CompositeMetadataRepository);
+		assertTrue("The repository is not atomic", Boolean.valueOf((String) repo.getProperties().get(CompositeArtifactRepository.PROP_ATOMIC_LOADING)));
 	}
 
 	/*
