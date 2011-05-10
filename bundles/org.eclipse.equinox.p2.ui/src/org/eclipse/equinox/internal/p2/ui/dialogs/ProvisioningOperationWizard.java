@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -60,6 +60,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		this.repoPreloadJob = job;
 		setForcePreviousAndNextButtons(true);
 		setNeedsProgressMonitor(true);
+		if (operation != null) {
+			provisioningContext = operation.getProvisioningContext();
+		}
 	}
 
 	/*
@@ -182,6 +185,9 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	protected abstract void initializeResolutionModelElements(Object[] selectedElements);
 
 	protected ProvisioningContext getProvisioningContext() {
+		if (operation != null) {
+			return operation.getProvisioningContext();
+		}
 		return new ProvisioningContext(ui.getSession().getProvisioningAgent());
 	}
 

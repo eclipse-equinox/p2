@@ -10,18 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import org.eclipse.equinox.internal.p2.metadata.License;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.IIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.operations.InstallOperation;
-import org.eclipse.equinox.p2.operations.ProfileModificationJob;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.operations.*;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -96,6 +95,41 @@ public class InstallWizardTest extends WizardTest {
 			dialog.getShell().close();
 			if (longOp != null)
 				longOp.cancel();
+		}
+	}
+
+	public void testInstallWizard() throws Exception {
+		ArrayList<IInstallableUnit> iusInvolved = new ArrayList<IInstallableUnit>();
+		iusInvolved.add(toInstall);
+		InstallOperation op = new MyNewInstallOperation(getSession(), iusInvolved);
+		op.setProfileId(TESTPROFILE);
+		PreselectedIUInstallWizard wizard = new PreselectedIUInstallWizard(getProvisioningUI(), op, iusInvolved, null);
+		ProvisioningWizardDialog dialog = new ProvisioningWizardDialog(ProvUI.getDefaultParentShell(), wizard);
+		dialog.setBlockOnOpen(false);
+		dialog.open();
+		ProfileModificationJob longOp = null;
+
+		try {
+			SelectableIUsPage page1 = (SelectableIUsPage) wizard.getPage(SELECTION_PAGE);
+			// should already have a plan
+			assertTrue("1.0", page1.isPageComplete());
+			// simulate the next button by getting next page and showing
+			InstallWizardPage page = (InstallWizardPage) page1.getNextPage();
+
+			// get the operation
+			Field opField = ResolutionResultsWizardPage.class.getDeclaredField("resolvedOperation");
+			opField.setAccessible(true);
+			assertTrue("Expected instance of MyNewInstallOperation", opField.get(page) instanceof MyNewInstallOperation);
+		} finally {
+			dialog.getShell().close();
+			if (longOp != null)
+				longOp.cancel();
+		}
+	}
+
+	private static class MyNewInstallOperation extends InstallOperation {
+		public MyNewInstallOperation(ProvisioningSession session, Collection<IInstallableUnit> toInstall) {
+			super(session, toInstall);
 		}
 	}
 

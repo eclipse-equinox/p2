@@ -160,8 +160,6 @@ public class UpdateWizard extends WizardWithLicenses {
 			operation = new UpdateOperation(ui.getSession(), getIUsToReplace(elements));
 			operation.setProfileId(getProfileId());
 			//			operation.setRootMarkerKey(getRootMarkerKey());
-			operation.setProvisioningContext(getProvisioningContext());
-
 		} else {
 			((UpdateOperation) operation).setSelectedUpdates(makeUpdatesFromElements(elements));
 		}
