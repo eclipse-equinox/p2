@@ -22,7 +22,6 @@ public class Messages extends NLS {
 	public static String ExportPage_Label;
 	public static String ExportPage_DEST_ERRORMESSAGE;
 	public static String ExportPage_ERROR_CONFIG;
-	public static String ExportPage_EXPORT_WARNING;
 	public static String ExportPage_Fail;
 	public static String ExportPage_FILEDIALOG_TITLE;
 	public static String ExportPage_FixSuggestion;
@@ -41,7 +40,6 @@ public class Messages extends NLS {
 	public static String ImportPage_FILEDIALOG_TITLE;
 	public static String ImportPage_FILENOTFOUND;
 	public static String AbstractImportPage_HigherVersionInstalled;
-	public static String ImportPage_IMPORT_NOTIFICATION;
 	public static String ImportPage_InstallLatestVersion;
 	public static String ImportPage_QueryFeaturesJob;
 	public static String AbstractImportPage_SameVersionInstalled;
