@@ -15,12 +15,16 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
+import org.eclipse.equinox.p2.metadata.expression.IMemberProvider;
 
-public class ResolvedInstallableUnit implements IInstallableUnit {
+public class ResolvedInstallableUnit implements IInstallableUnit, IMemberProvider {
 	private static IInstallableUnitFragment[] NO_IU = new IInstallableUnitFragment[0];
 
 	private final IInstallableUnitFragment[] fragments;
 	protected final IInstallableUnit original;
+
+	public static final String MEMBER_ORIGINAL = "original"; //$NON-NLS-1$
+	public static final String MEMBER_FRAGMENTS = "fragments"; //$NON-NLS-1$
 
 	public ResolvedInstallableUnit(IInstallableUnit resolved) {
 		this(resolved, null);
@@ -186,6 +190,43 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 
 	public boolean satisfies(IRequirement candidate) {
 		return candidate.isMatch(this);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.metadata.expression.IMemberProvider#getMember(java.lang.String)
+	 */
+	public Object getMember(String memberName) {
+		if (MEMBER_FRAGMENTS == memberName)
+			return fragments;
+		if (MEMBER_ORIGINAL == memberName)
+			return original;
+		if (InstallableUnit.MEMBER_PROVIDED_CAPABILITIES == memberName)
+			return getProvidedCapabilities();
+		if (InstallableUnit.MEMBER_ID == memberName)
+			return getId();
+		if (InstallableUnit.MEMBER_VERSION == memberName)
+			return getVersion();
+		if (InstallableUnit.MEMBER_PROPERTIES == memberName)
+			return getProperties();
+		if (InstallableUnit.MEMBER_FILTER == memberName)
+			return getFilter();
+		if (InstallableUnit.MEMBER_ARTIFACTS == memberName)
+			return getArtifacts();
+		if (InstallableUnit.MEMBER_REQUIREMENTS == memberName)
+			return getRequirements();
+		if (InstallableUnit.MEMBER_LICENSES == memberName)
+			return getLicenses();
+		if (InstallableUnit.MEMBER_COPYRIGHT == memberName)
+			return getCopyright();
+		if (InstallableUnit.MEMBER_TOUCHPOINT_DATA == memberName)
+			return getTouchpointData();
+		if (InstallableUnit.MEMBER_TOUCHPOINT_TYPE == memberName)
+			return getTouchpointType();
+		if (InstallableUnit.MEMBER_UPDATE_DESCRIPTOR == memberName)
+			return getUpdateDescriptor();
+		if (InstallableUnit.MEMBER_SINGLETON == memberName)
+			return Boolean.valueOf(isSingleton());
+		throw new IllegalArgumentException("No such member: " + memberName); //$NON-NLS-1$
 	}
 
 }
