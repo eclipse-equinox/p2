@@ -424,6 +424,10 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				return pathname.getName().endsWith(PROFILE_EXT) && pathname.isDirectory();
 			}
 		});
+		// protect against NPE
+		if (profileDirectories == null) {
+			parser.getProfileMap();
+		}
 		for (int i = 0; i < profileDirectories.length; i++) {
 			String directoryName = profileDirectories[i].getName();
 			String profileId = unescape(directoryName.substring(0, directoryName.lastIndexOf(PROFILE_EXT)));
@@ -464,6 +468,9 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 				return (pathname.getName().endsWith(PROFILE_GZ_EXT) || pathname.getName().endsWith(PROFILE_EXT)) && !pathname.isDirectory();
 			}
 		});
+		// protect against NPE
+		if (profileFiles == null)
+			return null;
 		for (int i = 0; i < profileFiles.length; i++) {
 			File profileFile = profileFiles[i];
 			String fileName = profileFile.getName();
