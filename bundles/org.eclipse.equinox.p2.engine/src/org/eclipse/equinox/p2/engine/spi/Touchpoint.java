@@ -113,10 +113,10 @@ public abstract class Touchpoint {
 	}
 
 	/**
-	 * This method is called at the beginning of an engine operation before any
-	 * phases have been executed. This is an opportunity to perform precondition
-	 * checks against the profile, or initialize any data structures common to an
-	 * entire execution of the engine.
+	 * This method is called at the end of an engine operation after all phases have 
+	 * been executed but prior to the operation being formally committed/persisted. This is an opportunity to perform any final checks
+	 * against the profile, or log any information that might be needed to recover if the operation fails to complete in a regular
+	 * manner.
 	 * <p>
 	 * The result of this method can be used to abort execution of the entire engine
 	 * operation, by using a severity of {@link IStatus#ERROR} or {@link IStatus#CANCEL}.
@@ -133,9 +133,9 @@ public abstract class Touchpoint {
 
 	/**
 	 * This method is called at the end of an engine operation after all phases have 
-	 * been executed. When this method is invoked, it signals that the engine
-	 * operation was a complete success, and the touchpoint should commit
-	 * or persistent any changes it has made to some persistent storage (for
+	 * been executed and after the touchpoint has had prepare called. When this method is invoked,
+	 * it signals that the engine operation was a complete success, and the touchpoint should commit
+	 * or persist any changes it has made to some persistent storage (for
 	 * example the file system).
 	 * <p>
 	 * The result of this method can be used to report on the success or failure
