@@ -217,7 +217,14 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		destinationNameField = new Combo(composite, SWT.SINGLE | SWT.BORDER);
 		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
 		destinationNameField.setLayoutData(data);
-		destinationNameField.addListener(SWT.Modify | SWT.Selection, this);
+		destinationNameField.addListener(SWT.Modify, this);
+		destinationNameField.addListener(SWT.Selection, this);
+		destinationNameField.addListener(SWT.FocusIn, new Listener() {
+
+			public void handleEvent(Event event) {
+				destinationNameField.clearSelection();
+			}
+		});
 		destinationBrowseButton = new Button(composite, SWT.PUSH);
 		destinationBrowseButton.setText(Messages.Page_BUTTON_BROWSER);
 		destinationBrowseButton.addListener(SWT.Selection, this);
@@ -283,14 +290,15 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 				}
 			}
 		});
-		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				updatePageCompletion();
-			}
-		});
 		ICheckStateProvider provider = getViewerDefaultState();
 		if (provider != null)
 			viewer.setCheckStateProvider(provider);
+		else
+			viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+				public void selectionChanged(SelectionChangedEvent event) {
+					updatePageCompletion();
+				}
+			});
 		viewer.getControl().setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		viewer.getControl().setSize(300, 200);
 		viewer.setInput(getInput());
@@ -340,6 +348,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	}
 
 	protected boolean determinePageCompletion() {
+		currentMessage = null;
 		// validate groups in order of priority so error message is the most important one
 		boolean complete = validateDestinationGroup() && validateOptionsGroup();
 
@@ -415,7 +424,13 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 
 		if (source == destinationBrowseButton) {
 			handleDestinationBrowseButtonPressed();
-		}
+		} else
+			handleDestinationChanged(getDestinationValue());
+		updatePageCompletion();
+	}
+
+	protected void handleDestinationChanged(String newDestination) {
+		// do nothing
 	}
 
 	protected void initializeService() {

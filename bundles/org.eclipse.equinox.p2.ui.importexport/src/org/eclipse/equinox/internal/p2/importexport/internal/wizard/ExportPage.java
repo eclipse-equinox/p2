@@ -144,11 +144,4 @@ public class ExportPage extends AbstractPage {
 	protected int getBrowseDialogStyle() {
 		return SWT.SAVE;
 	}
-
-	@Override
-	public void handleEvent(Event event) {
-		super.handleEvent(event);
-
-		updatePageCompletion();
-	}
 }

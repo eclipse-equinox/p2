@@ -97,6 +97,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	private final Map<IUDetail, IUDetail[]> newProposedFeature = new HashMap<IUDetail, IUDetail[]>();
 	private Button contactAll;
 	private Button installLatest;
+	private String oldDestination;
 
 	public ImportPage(ProvisioningUI ui, ProvisioningOperationWizard wizard) {
 		super("importpage", ui, wizard); //$NON-NLS-1$
@@ -167,12 +168,6 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		super.handleEvent(event);
-		updatePageCompletion();
-	}
-
-	@Override
 	protected void updatePageCompletion() {
 		super.updatePageCompletion();
 		if (isPageComplete())
@@ -180,12 +175,10 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	}
 
 	@Override
-	protected void setDestinationValue(String selectedFileName) {
-		String oldValue = getDestinationValue();
-		super.setDestinationValue(selectedFileName);
+	protected void handleDestinationChanged(String newDestination) {
 		if (validateDestinationGroup()) {
 			// p2f file is changed, update the cached data
-			if (!selectedFileName.equals(oldValue)) {
+			if (!newDestination.equals(oldDestination)) {
 				loadRepos.clear();
 				newProposedFeature.clear();
 			}
@@ -202,7 +195,14 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 			} catch (IOException e) {
 				MessageDialog.openError(getShell(), Messages.ImportPage_TITLE, e.getLocalizedMessage());
 			}
-		}
+		} else
+			viewer.setInput(null);
+	}
+
+	@Override
+	protected void setDestinationValue(String selectedFileName) {
+		oldDestination = getDestinationValue();
+		super.setDestinationValue(selectedFileName);
 	}
 
 	@Override

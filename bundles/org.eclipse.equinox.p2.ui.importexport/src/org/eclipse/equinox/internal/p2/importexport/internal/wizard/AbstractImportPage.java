@@ -52,32 +52,31 @@ public abstract class AbstractImportPage extends AbstractPage {
 		viewer.getTable().addListener(SWT.Selection, new Listener() {
 
 			public void handleEvent(Event event) {
-				if( event.detail == SWT.CHECK ) {
+				if (event.detail == SWT.CHECK) {
 					if (hasInstalled(ProvUI.getAdapter(event.item.getData(), IInstallableUnit.class))) {
 						viewer.getTable().setRedraw(false);
-						((TableItem)event.item).setChecked(false);
+						((TableItem) event.item).setChecked(false);
 						viewer.getTable().setRedraw(true);
 					}
-				}				
+				}
+				updatePageCompletion();
 			}
 		});
 	}
 
 	public boolean hasInstalled(IInstallableUnit iu) {
-		IQueryResult<IInstallableUnit> results = profile.query(QueryUtil.createIUQuery(iu.getId(), 
-				new VersionRange(iu.getVersion(), true, null, false)), null);
+		IQueryResult<IInstallableUnit> results = profile.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, false)), null);
 		return !results.isEmpty();
 	}
 
 	public String getIUNameWithDetail(IInstallableUnit iu) {
-		IQueryResult<IInstallableUnit> results = profile.query(QueryUtil.createIUQuery(iu.getId(), 
-				new VersionRange(iu.getVersion(), true, null, false)), null);
+		IQueryResult<IInstallableUnit> results = profile.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, false)), null);
 		final String text = iu.getProperty(IProfile.PROP_NAME, null);
 		if (!results.isEmpty()) {
 			boolean hasHigherVersion = false;
 			boolean hasEqualVersion = false;
 			for (IInstallableUnit installedIU : results.toSet()) {
-				int compareValue = installedIU.getVersion().compareTo(iu.getVersion()); 
+				int compareValue = installedIU.getVersion().compareTo(iu.getVersion());
 				if (compareValue > 0) {
 					hasHigherVersion = true;
 					break;
@@ -104,7 +103,7 @@ public abstract class AbstractImportPage extends AbstractPage {
 				if (profile != null) {
 					IInstallableUnit iu = ProvUI.getAdapter(element, IInstallableUnit.class);
 					IQueryResult<IInstallableUnit> collector = profile.query(QueryUtil.createIUQuery(iu.getId(), new VersionRange(iu.getVersion(), true, null, false)), new NullProgressMonitor());
-					if(collector.isEmpty()) {
+					if (collector.isEmpty()) {
 						return true;
 					}
 				}
@@ -117,7 +116,6 @@ public abstract class AbstractImportPage extends AbstractPage {
 	protected void doFinish() throws Exception {
 		// do nothing
 	}
-
 
 	@Override
 	public boolean canFlipToNextPage() {

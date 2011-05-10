@@ -88,22 +88,13 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		super.handleEvent(event);
-		if(event.widget == viewer.getControl())
-			updatePageCompletion();
-	}
-
-	@Override
 	protected boolean validateDestinationGroup() {
 		return validateDestinationGroup(new NullProgressMonitor());
 	}
 
 	private IProvisioningAgentProvider getAgentProvider() {
 		if (agentProvider == null) {
-			ServiceTracker<IProvisioningAgentProvider, IProvisioningAgentProvider> tracker = 
-					new ServiceTracker<IProvisioningAgentProvider, IProvisioningAgentProvider>(
-							Platform.getBundle(Constants.Bundle_ID).getBundleContext(), IProvisioningAgentProvider.class, null);
+			ServiceTracker<IProvisioningAgentProvider, IProvisioningAgentProvider> tracker = new ServiceTracker<IProvisioningAgentProvider, IProvisioningAgentProvider>(Platform.getBundle(Constants.Bundle_ID).getBundleContext(), IProvisioningAgentProvider.class, null);
 			tracker.open();
 			agentProvider = tracker.getService();
 			tracker.close();
@@ -111,27 +102,28 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 		return agentProvider;
 	}
 
-	private boolean validateDestinationGroup(IProgressMonitor monitor) {
+	boolean validateDestinationGroup(IProgressMonitor monitor) {
 		SubMonitor progress = SubMonitor.convert(monitor, 100);
 
 		boolean rt;
 		if (Display.findDisplay(Thread.currentThread()) == null) {
 			Callable<Boolean> getSuperValidateDest = new Callable<Boolean>() {
 				Boolean validated;
+
 				public Boolean call() throws Exception {
 					Display.getDefault().syncExec(new Runnable() {
 						public void run() {
 							validated = ImportFromInstallationPage.super.validateDestinationGroup();
 						}
-					});				
+					});
 					return validated;
 				}
 			};
 			ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-			Future<Boolean> getSuperDestTask = executor.submit(getSuperValidateDest);			
+			Future<Boolean> getSuperDestTask = executor.submit(getSuperValidateDest);
 
 			try {
-				rt = getSuperDestTask.get().booleanValue();				
+				rt = getSuperDestTask.get().booleanValue();
 			} catch (Exception e) {
 				return false;
 			} finally {
@@ -146,6 +138,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 				if (Display.findDisplay(Thread.currentThread()) == null) {
 					Callable<String> getDestinationValue = new Callable<String>() {
 						String destination;
+
 						public String call() throws Exception {
 							if (Display.findDisplay(Thread.currentThread()) == null) {
 								Display.getDefault().syncExec(new Runnable() {
@@ -199,30 +192,29 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 					if (otherInstanceAgent != null) {
 						IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 						IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-						IProfile profile = ((IProfileRegistry)otherInstanceAgent.getService(IProfileRegistry.SERVICE_NAME)).getProfiles()[0];
+						IProfile profile = ((IProfileRegistry) otherInstanceAgent.getService(IProfileRegistry.SERVICE_NAME)).getProfiles()[0];
 						IAgentLocation location = (IAgentLocation) otherInstanceAgent.getService(IAgentLocation.SERVICE_NAME);
 						URI engineDataArea = location.getDataArea("org.eclipse.equinox.p2.engine"); //$NON-NLS-1$
 						progress.setWorkRemaining(50);
-						IMetadataRepository metaRepo = manager.loadRepository(engineDataArea.resolve("profileRegistry/" + profile.getProfileId() + ".profile"), progress.newChild(25));  //$NON-NLS-1$//$NON-NLS-2$
+						IMetadataRepository metaRepo = manager.loadRepository(engineDataArea.resolve("profileRegistry/" + profile.getProfileId() + ".profile"), progress.newChild(25)); //$NON-NLS-1$//$NON-NLS-2$
 						metaURIs = new URI[] {metaRepo.getLocation()};
 						IArtifactRepository artiRepo = artifactManager.loadRepository(new File(destinate).toURI(), progress.newChild(25));
 						artiURIs = new URI[] {artiRepo.getLocation()};
-					} else 
+					} else
 						throw new Exception();
 				}
 			} catch (Exception e) {
-				currentMessage = getInvalidDestinationMessage();
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						setErrorMessage(getInvalidDestinationMessage());
+					}
+				});
 				rt = false;
 				if (otherInstanceAgent != null)
 					otherInstanceAgent.stop();
 				otherInstanceAgent = null;
 				cleanLocalRepository();
 			} finally {
-				Display.getDefault().asyncExec(new Runnable() {
-					public void run() {
-						setErrorMessage(currentMessage);
-					}
-				});				
 				monitor.done();
 			}
 		}
@@ -243,34 +235,44 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 
 		if (selectedFileName != null) {
 			setDestinationValue(selectedFileName);
-			try {
-				getContainer().run(true, false, new IRunnableWithProgress() {
+		}
+	}
 
-					public void run(IProgressMonitor monitor) throws InvocationTargetException,
-					InterruptedException {
-						if (validateDestinationGroup(monitor)) {
-							IProfileRegistry registry = (IProfileRegistry) otherInstanceAgent.getService(IProfileRegistry.SERVICE_NAME);
-							final IProfile profile = registry.getProfiles()[0];
-							final ProfileElement element = new ProfileElement(null, profile.getProfileId()) {
-								@Override
-								public org.eclipse.equinox.p2.query.IQueryable<?> getQueryable() {
-									return profile;
-								};
-							};
-							element.setQueryable(profile);
-							Display.getDefault().asyncExec(new Runnable() {								
-								public void run() {
-									viewer.setInput(element);
-								}
-							});
-						}
+	@Override
+	protected void handleDestinationChanged(String newDestination) {
+		try {
+			getContainer().run(true, false, new IRunnableWithProgress() {
+
+				public void run(IProgressMonitor monitor) {
+					Object input = null;
+					if (validateDestinationGroup(monitor)) {
+						IProfileRegistry registry = (IProfileRegistry) otherInstanceAgent.getService(IProfileRegistry.SERVICE_NAME);
+						final IProfile currentProfile = registry.getProfiles()[0];
+						final ProfileElement element = new ProfileElement(null, currentProfile.getProfileId()) {
+							@Override
+							public org.eclipse.equinox.p2.query.IQueryable<?> getQueryable() {
+								return currentProfile;
+							}
+						};
+						element.setQueryable(currentProfile);
+						input = element;
+
 					}
-				});
-			} catch (InvocationTargetException e) {
-				setErrorMessage(e.getLocalizedMessage());
-			} catch (InterruptedException e) {
+					final Object viewerInput = input;
+					Display.getDefault().asyncExec(new Runnable() {
 
-			}
+						public void run() {
+							viewer.setInput(viewerInput);
+							updatePageCompletion();
+						}
+					});
+				}
+			});
+		} catch (InvocationTargetException e) {
+			setErrorMessage(e.getLocalizedMessage());
+			setPageComplete(false);
+		} catch (InterruptedException e) {
+			// won't happen
 		}
 	}
 
@@ -325,9 +327,9 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 			for (URI uri : metaURIs)
 				manager.removeRepository(uri);
-					IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-					for (URI uri : artiURIs)
-						artifactManager.removeRepository(uri);
+			IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+			for (URI uri : artiURIs)
+				artifactManager.removeRepository(uri);
 		}
 	}
 
