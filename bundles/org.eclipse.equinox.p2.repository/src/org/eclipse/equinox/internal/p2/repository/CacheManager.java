@@ -162,7 +162,7 @@ public class CacheManager {
 				// There is a jar, and it should be used - cache is stale if it is xml based or
 				// if older (irrespective of jar or xml).
 				// Bug 269588 - also stale if remote reports 0
-				stale = lastModifiedRemote > lastModified || (name != null && name.endsWith(XML_EXTENSION) || lastModifiedRemote <= 0);
+				stale = lastModifiedRemote != lastModified || (name != null && name.endsWith(XML_EXTENSION) || lastModifiedRemote <= 0);
 			} else {
 				// Also need to check remote XML file, and handle cancel, and errors
 				// (Status is reported based on finding the XML file as giving up on certain errors
@@ -192,7 +192,7 @@ public class CacheManager {
 				// There is an xml, and it should be used - cache is stale if it is jar based or
 				// if older (irrespective of jar or xml).
 				// bug 269588 - server may return 0 when file exists - assume it is stale
-				stale = lastModifiedRemote > lastModified || (name != null && name.endsWith(JAR_EXTENSION) || lastModifiedRemote <= 0);
+				stale = lastModifiedRemote != lastModified || (name != null && name.endsWith(JAR_EXTENSION) || lastModifiedRemote <= 0);
 				useExtension = XML_EXTENSION;
 				remoteFile = xmlLocation;
 			}
@@ -344,8 +344,13 @@ public class CacheManager {
 		if (result.isOK()) {
 			if (cacheFile.exists())
 				safeDelete(cacheFile);
-			if (tempFile.renameTo(cacheFile))
+			if (tempFile.renameTo(cacheFile)) {
+				if (lastModifiedRemote != -1 && lastModifiedRemote != 0) {
+					//local cache file should have the same lastModified as the server's file. bug 324200
+					cacheFile.setLastModified(lastModifiedRemote);
+				}
 				return;
+			}
 			result = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.CacheManage_ErrorRenamingCache, new Object[] {remoteFile.toString(), tempFile.getAbsolutePath(), cacheFile.getAbsolutePath()}));
 		}
 
