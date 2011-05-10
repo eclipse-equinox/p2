@@ -86,7 +86,7 @@ public class ImportExportTests extends AbstractProvisioningTest {
 		try {
 			importexportService.importP2F(input);
 			assertTrue("Didn't complain the given file is not supported by current version.", false);
-		} catch (VersionInCompatibleException e) {
+		} catch (VersionIncompatibleException e) {
 			// expected
 		} finally {
 			input.close();

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.importexport.IUDetail;
-import org.eclipse.equinox.internal.p2.importexport.VersionInCompatibleException;
+import org.eclipse.equinox.internal.p2.importexport.VersionIncompatibleException;
 import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.p2.metadata.*;
@@ -152,7 +152,7 @@ public class P2FParser extends XMLParser implements P2FConstants {
 			if (P2F_ELEMENT.equals(target)) {
 				Version repositoryVersion = extractPIVersion(target, data);
 				if (!XML_TOLERANCE.isIncluded(repositoryVersion)) {
-					throw new VersionInCompatibleException(NLS.bind(Messages.io_IncompatibleVersion, repositoryVersion, XML_TOLERANCE));
+					throw new VersionIncompatibleException(NLS.bind(Messages.io_IncompatibleVersion, repositoryVersion, XML_TOLERANCE));
 				}
 			}
 		}

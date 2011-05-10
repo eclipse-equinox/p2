@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport;
 
-public class VersionInCompatibleException extends RuntimeException {
+public class VersionIncompatibleException extends RuntimeException {
 
-	public VersionInCompatibleException(String message) {
+	public VersionIncompatibleException(String message) {
 		super(message);
 	}
 
