@@ -43,6 +43,8 @@ public class Messages extends NLS {
 	public static String ImportPage_InstallLatestVersion;
 	public static String ImportPage_QueryFeaturesJob;
 	public static String AbstractImportPage_SameVersionInstalled;
+	public static String AbstractPage_ButtonDeselectAll;
+	public static String AbstractPage_ButtonSelectAll;
 	public static String ImportPage_TITLE;
 	public static String ImportWizard_WINDOWTITLE;
 	public static String Page_BUTTON_BROWSER;

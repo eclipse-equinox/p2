@@ -32,8 +32,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -230,7 +229,12 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	}
 
 	protected void createInstallationTable(final Composite parent) {
-		viewer = CheckboxTableViewer.newCheckList(parent, SWT.MULTI | SWT.BORDER);
+		Group group = new Group(parent, SWT.NONE);
+		GridData griddata = new GridData(GridData.FILL, GridData.FILL, true, true);
+		griddata.verticalSpan = griddata.horizontalSpan = 0;
+		group.setLayoutData(griddata);
+		group.setLayout(new GridLayout(1, false));
+		viewer = CheckboxTableViewer.newCheckList(group, SWT.MULTI | SWT.BORDER);
 		final Table table = viewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(false);
@@ -290,6 +294,37 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		viewer.getControl().setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		viewer.getControl().setSize(300, 200);
 		viewer.setInput(getInput());
+		Composite buttons = new Composite(group, SWT.NONE);
+		buttons.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+		buttons.setLayout(new RowLayout(SWT.HORIZONTAL));
+		Button selectAll = new Button(buttons, SWT.PUSH);
+		selectAll.setText(Messages.AbstractPage_ButtonSelectAll);
+		selectAll.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				for (TableItem item : viewer.getTable().getItems()) {
+					if (!item.getChecked()) {
+						item.setChecked(true);
+						Event event = new Event();
+						event.widget = item.getParent();
+						event.detail = SWT.CHECK;
+						event.item = item;
+						event.type = SWT.Selection;
+						viewer.getTable().notifyListeners(SWT.Selection, event);
+					}
+				}
+				updatePageCompletion();
+			}
+		});
+		Button deselectAll = new Button(buttons, SWT.PUSH);
+		deselectAll.setText(Messages.AbstractPage_ButtonDeselectAll);
+		deselectAll.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				viewer.setAllChecked(false);
+				updatePageCompletion();
+			}
+		});
 	}
 
 	protected ICheckStateProvider getViewerDefaultState() {
