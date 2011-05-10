@@ -32,6 +32,8 @@ public class Messages extends NLS {
 	public static String EXTENSION_p2F;
 	public static String ExportPage_LABEL_EXPORTFILE;
 	public static String ExportPage_SuccessWithProblems;
+	public static String ExportWizard_ConfirmDialogTitle;
+	public static String ExportWizard_OverwriteConfirm;
 	public static String ExportWizard_WizardTitle;
 	public static String ImportPage_DESCRIPTION;
 	public static String ImportPage_DEST_ERROR;
