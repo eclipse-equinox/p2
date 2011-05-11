@@ -62,6 +62,8 @@ public class SynchronizeOperation extends InstallOperation {
 			// If the user is installing a patch, we mark it optional.  This allows the patched IU to be updated later by removing the patch.
 			if (QueryUtil.isPatch(entryToInstall))
 				request.setInstallableUnitInclusionRules(entryToInstall, ProfileInclusionRules.createOptionalInclusionRule(entryToInstall));
+			else
+				request.setInstallableUnitProfileProperty(entryToInstall, IProfile.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 
 			sub.worked(1);
 		}
