@@ -410,7 +410,7 @@ public class CompositeMetadataRepository extends AbstractMetadataRepository impl
 		if (repoProperties != null) {
 			String value = repoProperties.get(PROP_ATOMIC_LOADING);
 			if (value != null) {
-				failOnChildFailure = Boolean.parseBoolean(value);
+				failOnChildFailure = Boolean.valueOf(value).booleanValue();
 			}
 		}
 		return failOnChildFailure;
