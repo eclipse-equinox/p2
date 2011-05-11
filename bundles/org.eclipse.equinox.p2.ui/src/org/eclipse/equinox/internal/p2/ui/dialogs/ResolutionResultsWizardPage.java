@@ -13,7 +13,8 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.Collection;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -23,6 +24,7 @@ import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -52,16 +54,11 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 	protected ResolutionResultsWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot input, ProfileChangeOperation operation) {
 		super("ResolutionPage", ui, wizard); //$NON-NLS-1$
-		// We can exist as an empty page, but if there is an operation, we need to know that it's resolved.
-		if (operation != null && !operation.hasResolved()) {
-			operation.resolveModal(null);
-		}
 		this.resolvedOperation = operation;
 		if (input == null)
 			this.input = new IUElementListRoot();
 		else
 			this.input = input;
-		updateStatus(input, resolvedOperation);
 	}
 
 	/*
@@ -99,12 +96,6 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 			tc.setWidth(columns[i].getWidthInPixels(tree));
 		}
 
-		treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				setDetailText(resolvedOperation);
-			}
-		});
-
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
 		IUComparator comparator = new IUComparator(IUComparator.IU_NAME);
 		comparator.useColumnConfig(getColumnConfig());
@@ -116,19 +107,43 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		labelProvider = new IUDetailsLabelProvider(null, getColumnConfig(), getShell());
 		treeViewer.setLabelProvider(labelProvider);
 
-		setDrilldownElements(input, resolvedOperation);
-		treeViewer.setInput(input);
-
 		// Optional area to show the size
 		createSizingInfo(composite);
 
 		// The text area shows a description of the selected IU, or error detail if applicable.
 		iuDetailsGroup = new IUDetailsGroup(sashForm, treeViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH), true);
 
-		updateStatus(input, resolvedOperation);
 		setControl(sashForm);
 		sashForm.setWeights(getSashWeights());
 		Dialog.applyDialogFont(sashForm);
+
+		final Runnable runnable = new Runnable() {
+			public void run() {
+				treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+					public void selectionChanged(SelectionChangedEvent event) {
+						setDetailText(resolvedOperation);
+					}
+				});
+				updateStatus(input, resolvedOperation);
+				setDrilldownElements(input, resolvedOperation);
+				treeViewer.setInput(input);
+			}
+		};
+
+		if (resolvedOperation != null && !resolvedOperation.hasResolved()) {
+			try {
+				getContainer().run(true, false, new IRunnableWithProgress() {
+					public void run(IProgressMonitor monitor) {
+						resolvedOperation.resolveModal(monitor);
+						display.asyncExec(runnable);
+					}
+				});
+			} catch (Exception e) {
+				StatusManager.getManager().handle(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e));
+			}
+		} else {
+			runnable.run();
+		}
 	}
 
 	protected void createSizingInfo(Composite parent) {
