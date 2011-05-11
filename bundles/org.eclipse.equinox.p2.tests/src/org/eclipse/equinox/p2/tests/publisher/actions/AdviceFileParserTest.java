@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.publisher.eclipse.AdviceFileParser;
+import org.eclipse.equinox.p2.publisher.AdviceFileParser;
 import org.eclipse.equinox.p2.query.QueryUtil;
 
 public class AdviceFileParserTest extends TestCase {

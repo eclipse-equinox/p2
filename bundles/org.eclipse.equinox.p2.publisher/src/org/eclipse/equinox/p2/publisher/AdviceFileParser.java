@@ -6,7 +6,7 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.p2.publisher.eclipse;
+package org.eclipse.equinox.p2.publisher;
 
 import java.net.URI;
 import java.net.URISyntaxException;
