@@ -28,6 +28,50 @@ import org.eclipse.osgi.util.NLS;
 
 public class JarComparator implements IArtifactComparator {
 
+	private static class FeatureEntryWrapper {
+		private FeatureEntry entry;
+
+		public FeatureEntryWrapper(FeatureEntry entry) {
+			this.entry = entry;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			FeatureEntry otherEntry = (o instanceof FeatureEntryWrapper) ? ((FeatureEntryWrapper) o).getEntry() : null;
+
+			if (otherEntry == null || !entry.equals(otherEntry))
+				return false;
+
+			String arch = otherEntry.getArch();
+			if (arch == null ? entry.getArch() != null : !arch.equals(entry.getArch()))
+				return false;
+			String os = otherEntry.getOS();
+			if (os == null ? entry.getOS() != null : !os.equals(entry.getOS()))
+				return false;
+			String ws = otherEntry.getWS();
+			if (ws == null ? entry.getWS() != null : !ws.equals(entry.getWS()))
+				return false;
+
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int hash = entry.hashCode();
+			if (entry.getArch() != null)
+				hash += entry.getArch().hashCode();
+			if (entry.getOS() != null)
+				hash += entry.getOS().hashCode();
+			if (entry.getWS() != null)
+				hash += entry.getWS().hashCode();
+			return hash;
+		}
+
+		public FeatureEntry getEntry() {
+			return entry;
+		}
+	}
+
 	private static final String LINE_SEPARATOR = "\n"; //$NON-NLS-1$
 	private static final String CLASS_EXTENSION = ".class"; //$NON-NLS-1$
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
@@ -91,28 +135,29 @@ public class JarComparator implements IArtifactComparator {
 		if (!feature1.getVersion().equals(feature2.getVersion()))
 			parent.add(newErrorStatus(NLS.bind(Messages.featureVersionsDontMatch, feature1.getVersion(), feature2.getVersion())));
 
-		Map<FeatureEntry, FeatureEntry> entryMap = new HashMap<FeatureEntry, FeatureEntry>();
-		FeatureEntry[] entries = feature1.getEntries();
-		for (int i = 0; i < entries.length; i++)
-			entryMap.put(entries[i], entries[i]);
+		Map<FeatureEntryWrapper, FeatureEntry> entryMap = new HashMap<FeatureEntryWrapper, FeatureEntry>();
+		FeatureEntry[] entries1 = feature1.getEntries();
+		FeatureEntry[] entries2 = feature2.getEntries();
 
-		entries = feature2.getEntries();
-		if (entries.length != entryMap.size())
+		if (entries1.length != entries2.length)
 			parent.add(newErrorStatus(Messages.featureSize));
 
-		for (int i = 0; i < entries.length; i++) {
-			FeatureEntry firstEntry = entryMap.get(entries[i]);
+		for (int i = 0; i < entries1.length; i++)
+			entryMap.put(new FeatureEntryWrapper(entries1[i]), entries1[i]);
+
+		for (int i = 0; i < entries2.length; i++) {
+			FeatureEntry firstEntry = entryMap.get(new FeatureEntryWrapper(entries2[i]));
 			if (firstEntry == null)
-				parent.add(newErrorStatus(NLS.bind(Messages.featureEntry, entries[i])));
+				parent.add(newErrorStatus(NLS.bind(Messages.featureEntry, entries2[i])));
 			else {
-				if (firstEntry.isOptional() != entries[i].isOptional())
-					parent.add(newErrorStatus(NLS.bind(Messages.featureEntryOptional, entries[i])));
-				if (firstEntry.isUnpack() != entries[i].isUnpack())
-					parent.add(newErrorStatus(NLS.bind(Messages.featureEntryUnpack, entries[i])));
-				if (firstEntry.isRequires() && firstEntry.getMatch() != null && !firstEntry.getMatch().equals(entries[i].getMatch()))
-					parent.add(newErrorStatus(NLS.bind(Messages.featureEntryMatch, entries[i])));
-				if (firstEntry.getFilter() != null && !firstEntry.getFilter().equals(entries[i].getFilter()))
-					parent.add(newErrorStatus(NLS.bind(Messages.featureEntryFilter, entries[i])));
+				if (firstEntry.isOptional() != entries2[i].isOptional())
+					parent.add(newErrorStatus(NLS.bind(Messages.featureEntryOptional, entries2[i])));
+				if (firstEntry.isUnpack() != entries2[i].isUnpack())
+					parent.add(newErrorStatus(NLS.bind(Messages.featureEntryUnpack, entries2[i])));
+				if (firstEntry.isRequires() && firstEntry.getMatch() != null && !firstEntry.getMatch().equals(entries2[i].getMatch()))
+					parent.add(newErrorStatus(NLS.bind(Messages.featureEntryMatch, entries2[i])));
+				if (firstEntry.getFilter() != null && !firstEntry.getFilter().equals(entries2[i].getFilter()))
+					parent.add(newErrorStatus(NLS.bind(Messages.featureEntryFilter, entries2[i])));
 			}
 		}
 
