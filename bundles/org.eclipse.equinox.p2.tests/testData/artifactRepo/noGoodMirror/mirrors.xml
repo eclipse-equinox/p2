@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<mirrors>
+	<mirror url="mirror-one" label="MirrorOne" />
+	<mirror url="mirror-two" label="MirrorTwo" />
+	<mirror url="mirror-three" label="MirrorThree" />
+	<mirror url="mirror-four" label="MirrorFour" />
+	<mirror url="mirror-five" label="MirrorFive" />
+	<mirror url="mirror-six" label="MirrorSix" />
+</mirrors>
