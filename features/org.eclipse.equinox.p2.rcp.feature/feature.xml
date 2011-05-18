@@ -8,7 +8,7 @@
       license-feature="org.eclipse.license"
       license-feature-version="1.0.0.qualifier">
 
-   <description url="%descriptionURL">
+   <description>
       %description
    </description>
 
