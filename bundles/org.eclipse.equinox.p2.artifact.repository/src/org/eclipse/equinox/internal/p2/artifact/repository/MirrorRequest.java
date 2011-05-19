@@ -39,7 +39,7 @@ public class MirrorRequest extends ArtifactRequest {
 	/**
 	 * Maximum number of times a request for a single artifact should be tried
 	 */
-	private static final int MAX_RETRY_REQUEST = 10;
+	private static final int MAX_RETRY_REQUEST = 200;
 
 	/**
 	 * The name of a repository property on an artifact repository, indicating the base URI
