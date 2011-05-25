@@ -126,7 +126,7 @@ public class ProgressStatistics {
 
 	public synchronized String report() {
 		String uriString = m_uri.toString();
-		if (uriString.endsWith(m_fileName))
+		if (m_fileName != null && uriString.endsWith(m_fileName))
 			uriString = uriString.substring(0, uriString.lastIndexOf(m_fileName));
 		return m_total != -1 ? NLS.bind(Messages.fetching_0_from_1_2_of_3_at_4, new String[] {m_fileName, uriString, convert(m_current), convert(m_total), convert(getRecentSpeed())}) : NLS.bind(Messages.fetching_0_from_1_2_at_3, new String[] {m_fileName, uriString, convert(m_current), convert(getRecentSpeed())});
 	}
