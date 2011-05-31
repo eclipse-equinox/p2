@@ -357,6 +357,8 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		if (getControl() != null) {
 			Composite parent = getControl().getParent();
 			getControl().dispose();
+			iuViewer = null;
+			sashForm = null;
 			createControl(parent);
 			parent.layout(true);
 		}
