@@ -690,6 +690,9 @@ public abstract class AbstractRepositoryManager<T> implements IRepositoryManager
 	private LocationProperties loadIndexFile(URI location, IProgressMonitor monitor) {
 		LocationProperties locationProperties = LocationProperties.createEmptyIndexFile();
 		//Handle the case of local repos
+		if ("memory".equals(location.getScheme())) //$NON-NLS-1$
+			return locationProperties;
+
 		if ("file".equals(location.getScheme())) { //$NON-NLS-1$ 
 			InputStream localStream = null;
 			try {
