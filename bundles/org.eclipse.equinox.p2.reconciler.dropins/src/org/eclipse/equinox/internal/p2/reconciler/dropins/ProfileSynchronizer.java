@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
@@ -375,16 +374,29 @@ public class ProfileSynchronizer {
 		StringBuffer buffer = new StringBuffer();
 
 		List<String> repositories = new ArrayList<String>(repositoryMap.keySet());
-		final String OSGiInstallArea = Activator.getOSGiInstallArea().toExternalForm() + Constants.EXTENSION_LOCATION;
-		Collections.sort(repositories, new Comparator<String>() {
-			public int compare(String left, String right) {
-				if (OSGiInstallArea.equals(left))
-					return -1;
-				if (OSGiInstallArea.equals(right))
-					return 1;
-				return left.compareTo(right);
-			}
-		});
+		URL installArea = Activator.getOSGiInstallArea();
+		final String OSGiInstallArea;
+		try {
+			// The OSGi install area is an unencoded URL and repository locations are encoded URIs
+			// so make them the same so we can compare them. 
+			// See https://bugs.eclipse.org/346565.
+			OSGiInstallArea = URIUtil.toURI(installArea).toString() + Constants.EXTENSION_LOCATION;
+			// Sort the repositories so the extension location at the OSGi install folder is first.
+			// See https://bugs.eclipse.org/246310.
+			Collections.sort(repositories, new Comparator<String>() {
+				public int compare(String left, String right) {
+					if (OSGiInstallArea.equals(left))
+						return -1;
+					if (OSGiInstallArea.equals(right))
+						return 1;
+					return left.compareTo(right);
+				}
+			});
+		} catch (URISyntaxException e) {
+			// This shouldn't happen but if it does we will log the error and continue
+			// with the repositories in the default order.
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to convert OSGi install area: " + installArea + " into URI.", e)); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		for (Iterator<String> it = repositories.iterator(); it.hasNext();) {
 			String repositoryId = it.next();
 			try {
