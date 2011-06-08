@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2008, 2010 IBM Corporation and others.
+ *  Copyright (c) 2008, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -169,9 +169,10 @@ abstract class RepositoryAction extends ProvisioningAction {
 		IRepositoryManager<?> manager = getRepositoryManager(agent, event.getRepositoryType());
 		Preferences node = getRepositoryPreferenceNode(agentLocation, null, event.getRepositoryLocation(), event.getRepositoryType());
 		int count = getRepositoryCount(node);
+		// modify the repository count before (potentially) removing the preference node
+		setRepositoryCount(node, count);
 		if (--count < 1 && manager != null)
 			manager.removeRepository(event.getRepositoryLocation());
-		setRepositoryCount(node, count);
 	}
 
 	/**
