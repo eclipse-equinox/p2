@@ -10,11 +10,31 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.dialogs.ResolutionResultsWizardPage;
 import org.eclipse.equinox.p2.tests.ui.AbstractProvisioningUITest;
+import org.eclipse.swt.widgets.*;
 
 /**
  * Generic wizard test methods
  */
 public abstract class WizardTest extends AbstractProvisioningUITest {
 
+	protected Tree findTree(ResolutionResultsWizardPage page) {
+		return findTree(page.getControl());
+	}
+
+	protected Tree findTree(Control control) {
+		if (control instanceof Tree)
+			return (Tree) control;
+		if (control instanceof Composite) {
+			Control[] children = ((Composite) control).getChildren();
+			for (int i = 0; i < children.length; i++) {
+				Tree tree = findTree(children[i]);
+				if (tree != null)
+					return tree;
+			}
+
+		}
+		return null;
+	}
 }

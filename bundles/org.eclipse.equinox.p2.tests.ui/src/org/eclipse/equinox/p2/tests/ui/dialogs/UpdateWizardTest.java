@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.operations.UpdateOperation;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -198,24 +198,4 @@ public class UpdateWizardTest extends WizardTest {
 			dialog.getShell().close();
 		}
 	}
-
-	protected Tree findTree(ResolutionResultsWizardPage page) {
-		return findTree(page.getControl());
-	}
-
-	protected Tree findTree(Control control) {
-		if (control instanceof Tree)
-			return (Tree) control;
-		if (control instanceof Composite) {
-			Control[] children = ((Composite) control).getChildren();
-			for (int i = 0; i < children.length; i++) {
-				Tree tree = findTree(children[i]);
-				if (tree != null)
-					return tree;
-			}
-
-		}
-		return null;
-	}
-
 }

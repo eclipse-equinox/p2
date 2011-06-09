@@ -124,6 +124,17 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 		return description;
 	}
 
+	protected String getIUDescription(Object element) {
+		if (element instanceof AvailableIUElement) {
+			return getIUDescription((AvailableIUElement) element);
+		}
+		IInstallableUnit selectedIU = ElementUtils.elementToIU(element);
+		if (selectedIU != null) {
+			return getIUDescription(selectedIU);
+		}
+		return ""; //$NON-NLS-1$
+	}
+
 	String getMessageText(IStatus currentStatus) {
 		if (currentStatus == null || currentStatus.isOK())
 			return getDescription();
@@ -136,7 +147,7 @@ public abstract class ResolutionStatusPage extends ProvisioningWizardPage {
 
 	void setDetailText(ProfileChangeOperation resolvedOperation) {
 		String detail = null;
-		AvailableIUElement selectedElement = (AvailableIUElement) getSelectedElement();
+		Object selectedElement = getSelectedElement();
 		IInstallableUnit selectedIU = ElementUtils.elementToIU(selectedElement);
 		IUDetailsGroup detailsGroup = getDetailsGroup();
 
