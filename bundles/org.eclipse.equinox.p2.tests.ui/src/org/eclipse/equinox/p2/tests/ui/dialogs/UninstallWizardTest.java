@@ -7,6 +7,7 @@
  * 
  *  Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Sonatype, Inc. - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.ui.dialogs;
 
@@ -17,6 +18,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.ProfileModificationJob;
 import org.eclipse.equinox.p2.operations.UninstallOperation;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -51,6 +53,8 @@ public class UninstallWizardTest extends WizardTest {
 			dialog.showPage(page2);
 			assertTrue(page2.isPageComplete());
 
+			Tree tree = findTree(page2);
+			tree.setSelection(tree.getTopItem());
 			// if another operation is scheduled for this profile, we should not be allowed to proceed
 			longOp = getLongTestOperation();
 			getProvisioningUI().schedule(longOp, StatusManager.LOG);
