@@ -50,7 +50,7 @@ public class OperationFactory {
 	}
 
 	//Return a list of IUs from the list of versionedIDs originally provided
-	private Collection<IInstallableUnit> gatherIUs(IQueryable<IInstallableUnit> searchContext, Collection<IVersionedId> ius, boolean checkIUs, IProgressMonitor monitor) throws ProvisionException {
+	private Collection<IInstallableUnit> gatherIUs(IQueryable<IInstallableUnit> searchContext, Collection<? extends IVersionedId> ius, boolean checkIUs, IProgressMonitor monitor) throws ProvisionException {
 		Collection<IInstallableUnit> gatheredIUs = new ArrayList<IInstallableUnit>(ius.size());
 
 		for (IVersionedId versionedId : ius) {
@@ -83,11 +83,11 @@ public class OperationFactory {
 	/**
 	 * This factory method creates an {@link InstallOperation} to install all the elements listed from the specified repositories. 
 	 * @param toInstall the elements to install. This can not be null.
-	 * @param repos the repositories to install the elements from. 
+	 * @param repos the repositories to install the elements from. If null is passed, it will use all previously registered repositories.
 	 * @param monitor the progress monitor
 	 * @return an operation to install
 	 */
-	public InstallOperation createInstallOperation(Collection<IVersionedId> toInstall, Collection<URI> repos, IProgressMonitor monitor) throws ProvisionException {
+	public InstallOperation createInstallOperation(Collection<? extends IVersionedId> toInstall, Collection<URI> repos, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(toInstall);
 		IProvisioningAgent agent = getAgent();
 
@@ -105,11 +105,11 @@ public class OperationFactory {
 	/**
 	 * Create an {@link UninstallOperation} that will uninstall the listed elements from the running instance. 
 	 * @param toUninstall the elements to uninstall. This can not be null.
-	 * @param repos the repositories to install the elements from. Passing null will 
+	 * @param repos the repositories to install the elements from. If null is passed, it will use all previously registered repositories. 
 	 * @param monitor the progress monitor
 	 * @return an operation to uninstall
 	 */
-	public UninstallOperation createUninstallOperation(Collection<IVersionedId> toUninstall, Collection<URI> repos, IProgressMonitor monitor) throws ProvisionException {
+	public UninstallOperation createUninstallOperation(Collection<? extends IVersionedId> toUninstall, Collection<URI> repos, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(toUninstall);
 		IProvisioningAgent agent = getAgent();
 		ProvisioningContext ctx = createProvisioningContext(repos, agent);
@@ -138,12 +138,13 @@ public class OperationFactory {
 
 	/**
 	 * Create an {@link UpdateOperation} that will update the elements specified.
-	 * @param toUpdate
-	 * @param repos
-	 * @param monitor
+	 * @param toUpdate The elements to update.Passing null will result in looking for an update to all the installed. Note that you can pass the results of {@link OperationFactory.listInstalledElements} to this 
+	 * method if you wish to update all elements installed in the running instance of eclipse.
+	 * @param repos the repositories to update the elements from. If null is passed, it will use all previously registered repositories.
+	 * @param monitor the progress monitor
 	 * @return an instance of {@link UpdateOperation}
 	 */
-	public UpdateOperation createUpdateOperation(Collection<IVersionedId> toUpdate, Collection<URI> repos, IProgressMonitor monitor) throws ProvisionException {
+	public UpdateOperation createUpdateOperation(Collection<? extends IVersionedId> toUpdate, Collection<URI> repos, IProgressMonitor monitor) throws ProvisionException {
 		IProvisioningAgent agent = getAgent();
 		ProvisioningContext ctx = createProvisioningContext(repos, agent);
 
@@ -158,11 +159,11 @@ public class OperationFactory {
 	/**
 	 * This factory method creates an {@link SynchronizeOperation} that will cause the current installation to exclusively contain the elements listed once executed.
 	 * @param toInstall the elements to install. This can not be null.
-	 * @param repos the repositories to install the elements from. 
+	 * @param repos the repositories to install the elements from. If null is passed, it will use all previously registered repositories.
 	 * @param monitor the progress monitor
 	 * @return an instance of {@link SynchronizeOperation}.
 	 */
-	public SynchronizeOperation createSynchronizeOperation(Collection<IVersionedId> toInstall, Collection<URI> repos, IProgressMonitor monitor) throws ProvisionException {
+	public SynchronizeOperation createSynchronizeOperation(Collection<? extends IVersionedId> toInstall, Collection<URI> repos, IProgressMonitor monitor) throws ProvisionException {
 		IProvisioningAgent agent = getAgent();
 		ProvisioningContext ctx = createProvisioningContext(repos, agent);
 
