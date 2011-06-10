@@ -32,7 +32,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.metadataRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = new Integer(1);
-	public static final List<String> STANDARD_P2_REPOSITORY_FILE_NAMES = Arrays.asList("artifacts.xml", "content.xml", "compositeArtifacts.xml", "compositeContent.xml"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	public static final List<String> STANDARD_P2_REPOSITORY_FILE_NAMES = Arrays.asList("artifacts.jar", "content.jar", "artifacts.xml", "content.xml", "compositeArtifacts.xml", "compositeContent.xml", "compositeArtifacts.jar", "compositeContent.jar"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 
 	IMetadataRepository metadataRepository;
 	private File base;
