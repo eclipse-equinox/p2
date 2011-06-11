@@ -31,6 +31,8 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.ServiceReference;
 
 public class SynchronizeOperationTest extends AbstractProvisioningTest {
+
+	//Directly test the operation
 	public void testSyncOperation() throws ProvisionException {
 		ServiceReference providerRef = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class.getName());
 		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) TestActivator.context.getService(providerRef);
@@ -50,8 +52,8 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 		assertOK(plan.getStatus());
 	}
 
+	//Test a copy of the helper code
 	public void testCopyOfHelper() throws ProvisionException {
-		//	payload.feature.feature.group
 		ServiceReference providerRef = TestActivator.context.getServiceReference(IProvisioningAgentProvider.class.getName());
 		IProvisioningAgentProvider provider = (IProvisioningAgentProvider) TestActivator.context.getService(providerRef);
 
@@ -69,6 +71,7 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 		assertOK(operation.getProvisioningPlan().getStatus());
 	}
 
+	//This is a copy of the OperationHelper code
 	private SynchronizeOperation createSynchronizeOperation(Collection<IVersionedId> toInstall, Collection<URI> repos, IProgressMonitor monitor, IProvisioningAgent agent) throws ProvisionException {
 		//		IProvisioningAgent agent = getAgent();
 		ProvisioningContext ctx = createProvisioningContext(repos, agent);
@@ -86,6 +89,7 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 		return resultingOperation;
 	}
 
+	//This is a copy of the OperationHelper code
 	private ProvisioningContext createProvisioningContext(Collection<URI> repos, IProvisioningAgent agent) {
 		ProvisioningContext ctx = new ProvisioningContext(agent);
 		if (repos != null) {
@@ -95,6 +99,7 @@ public class SynchronizeOperationTest extends AbstractProvisioningTest {
 		return ctx;
 	}
 
+	//This is a copy of the OperationHelper code
 	private Collection<IInstallableUnit> gatherIUs(IQueryable<IInstallableUnit> searchContext, Collection<IVersionedId> ius, boolean checkIUs, IProgressMonitor monitor) throws ProvisionException {
 		Collection<IInstallableUnit> gatheredIUs = new ArrayList<IInstallableUnit>(ius.size());
 
