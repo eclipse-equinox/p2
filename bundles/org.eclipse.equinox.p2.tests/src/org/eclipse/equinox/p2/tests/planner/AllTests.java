@@ -150,6 +150,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SingletonOptionallyInstalled.class);
 		suite.addTestSuite(SingletonOptionallyInstalled2.class);
 		suite.addTestSuite(SWTFragment.class);
+		suite.addTestSuite(SynchronizeOperationTest.class);
 		suite.addTestSuite(TopLevelFilterTest.class);
 		suite.addTestSuite(TwoVersionsOfWSDL.class);
 		suite.addTestSuite(UninstallEverything.class);

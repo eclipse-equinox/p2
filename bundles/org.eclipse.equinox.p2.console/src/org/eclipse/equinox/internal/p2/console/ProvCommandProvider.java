@@ -205,9 +205,8 @@ public class ProvCommandProvider implements CommandProvider {
 	public void _provaddprofile(CommandInterpreter interpreter) {
 		String profileId = interpreter.nextArgument();
 		String location = interpreter.nextArgument();
-		String flavor = interpreter.nextArgument();
-		if (profileId == null || location == null || flavor == null) {
-			interpreter.println("Id, location, and flavor must be provided");
+		if (profileId == null || location == null) {
+			interpreter.println("Id and location must be provided");
 			return;
 		}
 		String environments = interpreter.nextArgument();
