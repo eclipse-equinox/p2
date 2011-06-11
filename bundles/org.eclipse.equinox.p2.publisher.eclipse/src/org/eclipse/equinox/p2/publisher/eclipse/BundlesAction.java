@@ -166,12 +166,11 @@ public class BundlesAction extends AbstractPublisherAction {
 		for (int i = 0; i < osgiImports.length; i++) {
 			// TODO we need to sort out how we want to handle wild-carded dynamic imports - for now we ignore them
 			ImportPackageSpecification importSpec = osgiImports[i];
-			String importPackageName = importSpec.getName();
-			if (importPackageName.indexOf('*') != -1)
+			if (isDynamicImport(importSpec))
 				continue;
 			VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(importSpec.getVersionRange());
 			//TODO this needs to be refined to take into account all the attribute handled by imports
-			reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
+			reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, isOptional(importSpec), false));
 		}
 		iu.setRequirements(reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
 
@@ -368,10 +367,12 @@ public class BundlesAction extends AbstractPublisherAction {
 		return unconfigScript;
 	}
 
+	private static boolean isDynamicImport(ImportPackageSpecification importedPackage) {
+		return importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_DYNAMIC);
+	}
+
 	private static boolean isOptional(ImportPackageSpecification importedPackage) {
-		if (importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_DYNAMIC) || importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_OPTIONAL))
-			return true;
-		return false;
+		return importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_OPTIONAL);
 	}
 
 	private static String toManifestString(Map<String, String> p) {
