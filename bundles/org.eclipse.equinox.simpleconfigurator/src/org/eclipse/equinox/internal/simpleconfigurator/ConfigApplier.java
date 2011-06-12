@@ -195,6 +195,11 @@ class ConfigApplier {
 			if (current == null) {
 				try {
 					current = manipulatingContext.installBundle(bundleLocation);
+					if (!version.equals(current.getVersion()) || !symbolicName.equals(current.getSymbolicName()))
+						// can happen if, for example, the new version of the bundle is installed
+						// to the same bundle location as the old version
+						current.update();
+
 					if (Activator.DEBUG)
 						System.out.println("installed bundle:" + finalList[i]); //$NON-NLS-1$
 					toRefresh.add(current);
