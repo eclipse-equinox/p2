@@ -82,13 +82,13 @@ public class ProfilesView extends ProvView {
 
 	protected void addListeners() {
 		super.addListeners();
-		listener = new StructuredViewerProvisioningListener(getClass().getName(), viewer, ProvUIProvisioningListener.PROV_EVENT_IU | ProvUIProvisioningListener.PROV_EVENT_PROFILE, ui.getOperationRunner());
-		ProvUI.getProvisioningEventBus(ui.getSession()).addListener(listener);
+		listener = new StructuredViewerProvisioningListener(getClass().getName(), viewer, ProvUIProvisioningListener.PROV_EVENT_IU | ProvUIProvisioningListener.PROV_EVENT_PROFILE, getProvisioningUI().getOperationRunner());
+		ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).addListener(listener);
 	}
 
 	protected void removeListeners() {
 		super.removeListeners();
-		ProvUI.getProvisioningEventBus(ui.getSession()).removeListener(listener);
+		ProvUI.getProvisioningEventBus(getProvisioningUI().getSession()).removeListener(listener);
 	}
 
 	protected void configureViewer(TreeViewer treeViewer) {
