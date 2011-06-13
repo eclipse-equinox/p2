@@ -214,7 +214,7 @@ public class SimpleProfileRegistry implements IProfileRegistry, IAgentService {
 
 		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
 			public boolean accept(File pathname) {
-				return (pathname.getName().endsWith(PROFILE_EXT) || pathname.getName().endsWith(PROFILE_GZ_EXT)) && pathname.isFile();
+				return (pathname.getName().endsWith(PROFILE_EXT) || pathname.getName().endsWith(PROFILE_GZ_EXT)) && pathname.isFile() && !pathname.getName().startsWith("._"); //$NON-NLS-1$
 			}
 		});
 
