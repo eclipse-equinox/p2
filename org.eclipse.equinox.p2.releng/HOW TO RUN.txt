@@ -1,1 +1,0 @@
-See http://wiki.eclipse.org/Equinox_Provisioning_Getting_Started
