@@ -130,6 +130,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(PatchTestUpdate3.class);
 		suite.addTestSuite(PatchTestUpdate4.class);
 		suite.addTestSuite(PatchTestUpdate5.class);
+		suite.addTestSuite(PatchTestUsingNegativeRequirement.class);
 		suite.addTestSuite(PermissiveSlicerTest.class);
 		suite.addTestSuite(PP2ShouldFailToInstall.class);
 		//		suite.addTestSuite(ProvisioningPlanQueryTest.class); disabled, see bug 313812 
