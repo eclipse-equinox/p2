@@ -11,7 +11,6 @@ package org.eclipse.equinox.internal.simpleconfigurator.utils;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 public class SimpleConfiguratorUtils {
@@ -20,7 +19,6 @@ public class SimpleConfiguratorUtils {
 	private static final String VERSION_PREFIX = "#version=";
 	public static final String ENCODING_UTF8 = "#encoding=UTF-8";
 	public static final Version COMPATIBLE_VERSION = new Version(1, 0, 0);
-	public static final VersionRange VERSION_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
 
 	private static final String FILE_SCHEME = "file";
 	private static final String REFERENCE_PREFIX = "reference:";
@@ -122,7 +120,7 @@ public class SimpleConfiguratorUtils {
 		// version
 		if (line.startsWith(VERSION_PREFIX)) {
 			String version = line.substring(VERSION_PREFIX.length()).trim();
-			if (!VERSION_TOLERANCE.isIncluded(new Version(version)))
+			if (!COMPATIBLE_VERSION.equals(new Version(version)))
 				throw new IllegalArgumentException("Invalid version: " + version);
 		}
 	}
