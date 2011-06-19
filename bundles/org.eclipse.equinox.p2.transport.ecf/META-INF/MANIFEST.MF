@@ -11,7 +11,6 @@ Require-Bundle: org.eclipse.ecf;bundle-version="3.1.0",
  org.eclipse.equinox.p2.core;bundle-version="2.0.100",
  org.eclipse.equinox.p2.repository;bundle-version="2.1.0",
  org.eclipse.equinox.common;bundle-version="3.6.0",
- org.eclipse.osgi;bundle-version="3.7.0",
  org.eclipse.core.jobs;bundle-version="3.5.100"
 Service-Component: OSGI-INF/ecfTransport.xml
 Bundle-Activator: org.eclipse.equinox.internal.p2.transport.ecf.Activator
@@ -19,3 +18,7 @@ Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.equinox.internal.p2.transport.ecf
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
+Import-Package: org.eclipse.osgi.util;version="1.1.0",
+ org.osgi.framework;version="1.6.0",
+ org.osgi.service.packageadmin;version="1.2.0",
+ org.osgi.util.tracker;version="1.5.0"
