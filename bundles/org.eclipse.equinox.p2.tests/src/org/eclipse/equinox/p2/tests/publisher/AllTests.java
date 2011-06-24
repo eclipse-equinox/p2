@@ -7,6 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
+ *   SAP - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher;
 
@@ -20,6 +21,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(AbstractPublisherActionTest.class);
 		suite.addTestSuite(AccumulateConfigDataActionTest.class);
 		suite.addTestSuite(AdviceFileParserTest.class);
+		suite.addTestSuite(ANYConfigCUsActionTest.class);
 		suite.addTestSuite(BundlesActionTest.class);
 		suite.addTestSuite(CategoryPublisherTest.class);
 		suite.addTestSuite(ConfigCUsActionTest.class);

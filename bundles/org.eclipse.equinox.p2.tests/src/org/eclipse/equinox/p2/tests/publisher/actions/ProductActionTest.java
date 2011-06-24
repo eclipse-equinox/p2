@@ -359,4 +359,42 @@ public class ProductActionTest extends ActionTest {
 		assertEquals("3.0", 0, vmArgs.length);
 
 	}
+
+	public void testConfigSpecANYProductPublishing() throws Exception {
+		ProductFile productFile2 = new ProductFile(TestData.getFile("ProductActionTest", "unboundedVersionConfigurations.product").toString());
+		PublisherInfo info = new PublisherInfo();
+		String configSpecANY = AbstractPublisherAction.createConfigSpec("ANY", "ANY", "ANY"); // configuration spec to create CUs without filters
+		info.setConfigurations(getArrayFromString(configSpecANY, COMMA_SEPARATOR));
+		PublisherResult results = new PublisherResult();
+
+		InstallableUnitDescription iuDescription1 = new InstallableUnitDescription();
+		iuDescription1.setId("org.eclipse.core.runtime");
+		iuDescription1.setVersion(Version.create("4.0.0")); // Set a specific version number, the one in the .product file uses 0.0.0.  Let's see if it binds properly
+		IInstallableUnit iu1 = MetadataFactory.createInstallableUnit(iuDescription1);
+		results.addIU(iu1, IPublisherResult.NON_ROOT);
+
+		InstallableUnitDescription iuDescription2 = new InstallableUnitDescription();
+		iuDescription2.setId("org.eclipse.core.commands");
+		iuDescription2.setVersion(Version.create("4.0.0")); // Set a specific version number, the one in the .product file uses 0.0.0.  Let's see if it binds properly
+		iuDescription2.setFilter(winFitler); // any valid filter can be set here
+		IInstallableUnit iu2 = MetadataFactory.createInstallableUnit(iuDescription2);
+		results.addIU(iu2, IPublisherResult.NON_ROOT);
+
+		ProductAction action = new ProductAction(null, productFile2, flavorArg, executablesFeatureLocation);
+
+		action.perform(info, results, new NullProgressMonitor());
+
+		// there is a CU for the first IU because it has no filters
+		IQueryResult queryResult = results.query(QueryUtil.createIUQuery(flavorArg + configSpecANY + "org.eclipse.core.runtime"), new NullProgressMonitor());
+		assertEquals("1.0", 1, queryResultSize(queryResult));
+		IInstallableUnitFragment fragment = (IInstallableUnitFragment) queryResult.iterator().next();
+		assertEquals("1.1", "org.eclipse.core.runtime", RequiredCapability.extractName(fragment.getHost().iterator().next().getMatches()));
+		assertEquals("1.2", Version.create("4.0.0"), RequiredCapability.extractRange(fragment.getHost().iterator().next().getMatches()).getMinimum());
+		assertEquals("1.3", Version.create("1.0.0"), fragment.getVersion());
+		assertNull("1.3", fragment.getFilter());
+
+		// there is no CU for the second IU because it has a filter
+		queryResult = results.query(QueryUtil.createIUQuery(flavorArg + configSpecANY + "org.eclipse.core.commands"), new NullProgressMonitor());
+		assertEquals("2.0", 0, queryResultSize(queryResult));
+	}
 }

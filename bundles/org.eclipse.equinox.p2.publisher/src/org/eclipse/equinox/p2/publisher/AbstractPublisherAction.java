@@ -7,6 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
+ *   SAP - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
@@ -103,9 +104,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	protected IMatchExpression<IInstallableUnit> createFilterSpec(String configSpec) {
 		String[] config = parseConfigSpec(configSpec);
 		if (config[0] != null || config[1] != null || config[2] != null) {
-			String filterWs = config[0] != null && config[0] != CONFIG_ANY ? "(osgi.ws=" + config[0] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterOs = config[1] != null && config[1] != CONFIG_ANY ? "(osgi.os=" + config[1] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterArch = config[2] != null && config[2] != CONFIG_ANY ? "(osgi.arch=" + config[2] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterWs = config[0] != null && !CONFIG_ANY.equalsIgnoreCase(config[0]) ? "(osgi.ws=" + config[0] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterOs = config[1] != null && !CONFIG_ANY.equalsIgnoreCase(config[1]) ? "(osgi.os=" + config[1] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterArch = config[2] != null && !CONFIG_ANY.equalsIgnoreCase(config[2]) ? "(osgi.arch=" + config[2] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (filterWs.length() == 0 && filterOs.length() == 0 && filterArch.length() == 0)
 				return null;
 			return InstallableUnit.parseFilter("(& " + filterWs + filterOs + filterArch + ")"); //$NON-NLS-1$ //$NON-NLS-2$
