@@ -7,6 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
+ *   SAP AG - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
@@ -30,6 +31,7 @@ public class ProductAction extends AbstractPublisherAction {
 	protected File executablesFeatureLocation;
 	protected IProductDescriptor product;
 	protected IPublisherResult publisherResults;
+	protected MultiStatus finalStatus;
 
 	public ProductAction(String source, IProductDescriptor product, String flavor, File executablesFeatureLocation) {
 		super();
@@ -82,8 +84,8 @@ public class ProductAction extends AbstractPublisherAction {
 		monitor = SubMonitor.convert(monitor);
 		this.info = publisherInfo;
 		publisherResults = results;
+		finalStatus = new MultiStatus(EclipseInstallAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
 		IPublisherAction[] actions = createActions(results);
-		MultiStatus finalStatus = new MultiStatus(EclipseInstallAction.class.getName(), 0, "publishing result", null); //$NON-NLS-1$
 		for (int i = 0; i < actions.length; i++) {
 			if (monitor.isCanceled())
 				return Status.CANCEL_STATUS;
