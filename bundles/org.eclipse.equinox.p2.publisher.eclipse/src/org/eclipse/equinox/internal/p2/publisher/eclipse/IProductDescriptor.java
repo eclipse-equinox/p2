@@ -31,19 +31,22 @@ public interface IProductDescriptor {
 	public String getLauncherName();
 
 	/**
-	 * Returns the list of all bundles in this product.
+	 * Returns the bundles listed in this product. Note: These bundles are only part of 
+	 * the product if {@link #useFeatures()} returns <code>false</code>.
 	 * @param includeFragments whether or not to include the fragments in the return value
-	 * @return the list of bundles in this product
+	 * @return the list of bundles in this product.
 	 */
 	public List<IVersionedId> getBundles(boolean includeFragments);
 
 	/**
-	 * Returns a list<VersionedName> of fragments that constitute this product.
+	 * Returns the fragments listed in the product.
+	 * @see #useFeatures()
 	 */
 	public List<IVersionedId> getFragments();
 
 	/**
-	 * Returns a List<VersionedName> of features that constitute this product.
+	 * Returns the features listed in the product. Note: These features are only part of 
+	 * the product if {@link #useFeatures()} returns <code>true</code>.
 	 */
 	public List<IVersionedId> getFeatures();
 

@@ -9,7 +9,7 @@
  *    IBM - Initial API and implementation
  *    SAP AG - consolidation of publishers for PDE formats
  *******************************************************************************/
-package org.eclipse.pde.internal.publishing;
+package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -24,6 +24,9 @@ public class Messages extends NLS {
 	// feature parsing
 	public static String feature_parse_invalidIdOrVersion;
 	public static String feature_parse_emptyRequires;
+
+	public static String featuresInProductFileIgnored;
+	public static String bundlesInProductFileIgnored;
 
 	static {
 		// load message values from bundle file

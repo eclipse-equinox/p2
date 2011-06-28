@@ -15,9 +15,11 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.Messages;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
+import org.eclipse.pde.internal.publishing.Activator;
 
 public class ProductAction extends AbstractPublisherAction {
 	protected String source;
@@ -80,6 +82,7 @@ public class ProductAction extends AbstractPublisherAction {
 		return new JREAction((String) null);
 	}
 
+	@Override
 	public IStatus perform(IPublisherInfo publisherInfo, IPublisherResult results, IProgressMonitor monitor) {
 		monitor = SubMonitor.convert(monitor);
 		this.info = publisherInfo;
@@ -120,12 +123,21 @@ public class ProductAction extends AbstractPublisherAction {
 
 	private void createRootAdvice() {
 		Collection<IVersionedId> list;
-		if (product.useFeatures())
+		if (product.useFeatures()) {
 			// TODO: We need a real namespace here
-			list = versionElements(listElements(product.getFeatures(), ".feature.group"), IInstallableUnit.NAMESPACE_IU_ID); //$NON-NLS-1$ 
-		else
+			list = versionElements(listElements(product.getFeatures(), ".feature.group"), IInstallableUnit.NAMESPACE_IU_ID); //$NON-NLS-1$
+
+			if (!product.getBundles(true).isEmpty()) {
+				finalStatus.add(new Status(IStatus.INFO, Activator.ID, Messages.bundlesInProductFileIgnored));
+			}
+		} else {
 			//TODO: We need a real namespace here
 			list = versionElements(listElements(product.getBundles(true), null), IInstallableUnit.NAMESPACE_IU_ID);
+
+			if (!product.getFeatures().isEmpty()) {
+				finalStatus.add(new Status(IStatus.INFO, Activator.ID, Messages.featuresInProductFileIgnored));
+			}
+		}
 		info.addAdvice(new RootIUAdvice(list));
 	}
 

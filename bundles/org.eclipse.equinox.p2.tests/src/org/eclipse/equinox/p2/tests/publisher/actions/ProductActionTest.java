@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -7,6 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
+ *   SAP AG - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
@@ -18,7 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
@@ -396,5 +397,22 @@ public class ProductActionTest extends ActionTest {
 		// there is no CU for the second IU because it has a filter
 		queryResult = results.query(QueryUtil.createIUQuery(flavorArg + configSpecANY + "org.eclipse.core.commands"), new NullProgressMonitor());
 		assertEquals("2.0", 0, queryResultSize(queryResult));
+	}
+
+	public void testMessageForProductWithIgnoredContent() throws Exception {
+		ProductFile productFile = new ProductFile(TestData.getFile("ProductActionTest", "mixedContentIgnored.product").toString());
+		testAction = new ProductAction(source, productFile, flavorArg, executablesFeatureLocation);
+		IStatus status = testAction.perform(publisherInfo, publisherResult, null);
+
+		assertTrue(status instanceof MultiStatus);
+		IStatus[] children = ((MultiStatus) status).getChildren();
+		boolean messageFound = false;
+		for (IStatus child : children) {
+			// TODO the message should have a code identifying it
+			if (child.getMessage().contains("are ignored"))
+				messageFound = true;
+		}
+		// requested in bug 325611 
+		assertTrue("Expected a warning about redundant ignored content in product file", messageFound);
 	}
 }

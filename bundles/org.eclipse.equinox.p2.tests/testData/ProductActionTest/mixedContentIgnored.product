@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product uid="mixedContentIgnored" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <plugins>
+      <plugin id="org.eclipse.osgi"/>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.equinox.p2.core.feature" version="1.0.0.qualifier"/>
+   </features>
+
+
+</product>
