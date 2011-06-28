@@ -9,8 +9,7 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.Iterator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -129,9 +128,11 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 			String installArea = EngineActivator.getContext().getProperty(OSGI_INSTALL_AREA);
 			try {
 				URL registryURL = new URL(installArea + P2_ENGINE_DIR + SimpleProfileRegistry.DEFAULT_STORAGE_DIR);
-				File sharedRegistryDirectory = new File(registryURL.getPath());
+				File sharedRegistryDirectory = URIUtil.toFile(URIUtil.toURI(registryURL));
 				profileRegistry = new SimpleProfileRegistry(sharedRegistryDirectory, null, false);
 			} catch (MalformedURLException e) {
+				//this is not possible because we know the above URL is valid
+			} catch (URISyntaxException e) {
 				//this is not possible because we know the above URL is valid
 			}
 		}
