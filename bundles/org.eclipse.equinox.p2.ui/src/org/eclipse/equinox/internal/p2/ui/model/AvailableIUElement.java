@@ -159,7 +159,16 @@ public class AvailableIUElement extends QueriedElement implements IIUElement {
 			return false;
 		if (iu == null)
 			return false;
-		return iu.equals(((AvailableIUElement) obj).getIU());
+		if (!iu.equals(((AvailableIUElement) obj).getIU()))
+			return false;
+
+		Object parent = getParent(this);
+		Object objParent = ((AvailableIUElement) obj).getParent(obj);
+		if (parent != null && objParent != null)
+			return parent.equals(objParent);
+		else if (parent == null && objParent == null)
+			return true;
+		return false;
 	}
 
 	public int hashCode() {

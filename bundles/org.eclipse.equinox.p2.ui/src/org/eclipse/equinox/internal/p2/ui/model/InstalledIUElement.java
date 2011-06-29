@@ -111,7 +111,16 @@ public class InstalledIUElement extends QueriedElement implements IIUElement {
 			return false;
 		if (iu == null)
 			return false;
-		return iu.equals(((InstalledIUElement) obj).getIU());
+		if (!iu.equals(((InstalledIUElement) obj).getIU()))
+			return false;
+
+		Object parent = getParent(this);
+		Object objParent = ((InstalledIUElement) obj).getParent(obj);
+		if (parent != null && objParent != null)
+			return parent.equals(objParent);
+		else if (parent == null && objParent == null)
+			return true;
+		return false;
 	}
 
 	public int hashCode() {
