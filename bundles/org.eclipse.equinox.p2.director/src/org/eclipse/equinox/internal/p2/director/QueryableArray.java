@@ -16,8 +16,7 @@ import java.util.List;
 import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.TranslationSupport;
-import org.eclipse.equinox.internal.p2.metadata.index.CapabilityIndex;
-import org.eclipse.equinox.internal.p2.metadata.index.IndexProvider;
+import org.eclipse.equinox.internal.p2.metadata.index.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.KeyWithLocale;
 import org.eclipse.equinox.p2.metadata.index.IIndex;
@@ -25,6 +24,7 @@ import org.eclipse.equinox.p2.metadata.index.IIndex;
 public class QueryableArray extends IndexProvider<IInstallableUnit> {
 	private final List<IInstallableUnit> dataSet;
 	private IIndex<IInstallableUnit> capabilityIndex;
+	private IIndex<IInstallableUnit> idIndex;
 	private TranslationSupport translationSupport;
 
 	public QueryableArray(IInstallableUnit[] ius) {
@@ -40,6 +40,11 @@ public class QueryableArray extends IndexProvider<IInstallableUnit> {
 			if (capabilityIndex == null)
 				capabilityIndex = new CapabilityIndex(dataSet.iterator());
 			return capabilityIndex;
+		}
+		if (InstallableUnit.MEMBER_ID.equals(memberName)) {
+			if (idIndex == null)
+				idIndex = new IdIndex(dataSet.iterator());
+			return idIndex;
 		}
 		return null;
 	}
