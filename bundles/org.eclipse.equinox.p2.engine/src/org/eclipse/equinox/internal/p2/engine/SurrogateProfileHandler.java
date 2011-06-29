@@ -24,6 +24,8 @@ import org.eclipse.equinox.p2.engine.query.IUProfilePropertyQuery;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.expression.ExpressionUtil;
+import org.eclipse.equinox.p2.metadata.expression.IMatchExpression;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
@@ -82,8 +84,8 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		IQueryResult<IInstallableUnit> allIUs = sharedProfile.query(QueryUtil.createIUAnyQuery(), null);
 		for (Iterator<IInstallableUnit> iterator = allIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
-			IRequirement iuRequirement = MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, false, false, true);
-			iuRequirements.add(iuRequirement);
+			IMatchExpression<IInstallableUnit> iuMatcher = ExpressionUtil.getFactory().<IInstallableUnit> matchExpression(ExpressionUtil.parse("id == $0 && version == $1"), iu.getId(), iu.getVersion()); //$NON-NLS-1$
+			iuRequirements.add(MetadataFactory.createRequirement(iuMatcher, null, 0, 1, true));
 		}
 		iuDescription.addRequirements(iuRequirements);
 		iuDescription.setProperty(IInstallableUnit.PROP_NAME, NLS.bind(Messages.Shared_Profile, null));
