@@ -37,3 +37,4 @@ Import-Package: org.eclipse.equinox.internal.p2.metadata.repository.io,
 Service-Component: OSGI-INF/importexport.xml
 Export-Package: org.eclipse.equinox.internal.p2.importexport;version="1.3.0";x-friends:="org.eclipse.equinox.p2.tests",
  org.eclipse.equinox.internal.p2.importexport.internal;x-friends:="org.eclipse.equinox.p2.tests"
+Bundle-Activator: org.eclipse.equinox.internal.p2.importexport.internal.ImportExportActivator

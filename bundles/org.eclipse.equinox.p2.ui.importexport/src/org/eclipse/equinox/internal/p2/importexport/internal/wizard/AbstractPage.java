@@ -12,6 +12,8 @@
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
 import java.io.File;
+import java.util.*;
+import java.util.List;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.importexport.P2ImportExport;
 import org.eclipse.equinox.internal.p2.importexport.internal.Constants;
@@ -25,6 +27,7 @@ import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
@@ -48,6 +51,11 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	protected static IProfileRegistry profileRegistry = null;
 	protected static IProvisioningAgent agent = null;
 
+	// dialog store id constants
+	private static final String STORE_DESTINATION_NAMES_ID = "P2ImportExportPage.STORE_DESTINATION_NAMES_ID";//$NON-NLS-1$
+
+	protected static final int COMBO_HISTORY_LENGTH = 5;
+
 	class TableViewerComparator extends ViewerComparator {
 		private int sortColumn = 0;
 		private int lastSortColumn = 0;
@@ -55,12 +63,12 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		private boolean lastAscending = false;
 
 		@Override
-		public int compare(Viewer viewer, Object e1, Object e2) {
+		public int compare(Viewer viewer1, Object e1, Object e2) {
 			IInstallableUnit iu1 = ProvUI.getAdapter(e1, IInstallableUnit.class);
 			IInstallableUnit iu2 = ProvUI.getAdapter(e2, IInstallableUnit.class);
 			if (iu1 != null && iu2 != null) {
-				if (viewer instanceof TableViewer) {
-					TableViewer tableViewer = (TableViewer) viewer;
+				if (viewer1 instanceof TableViewer) {
+					TableViewer tableViewer = (TableViewer) viewer1;
 					IBaseLabelProvider baseLabel = tableViewer.getLabelProvider();
 					if (baseLabel instanceof ITableLabelProvider) {
 						ITableLabelProvider tableProvider = (ITableLabelProvider) baseLabel;
@@ -82,7 +90,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 				// we couldn't determine a secondary sort, call it equal
 				return 0;
 			}
-			return super.compare(viewer, e1, e2);
+			return super.compare(viewer1, e1, e2);
 		}
 
 		/**
@@ -148,10 +156,10 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		return null;
 	}
 
-	private void createColumns(TableViewer viewer) {
+	private void createColumns(TableViewer tableViewer) {
 		String[] titles = {Messages.Column_Name, Messages.Column_Version, Messages.Column_Id};
 		for (int i = 0; i < titles.length; i++) {
-			TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
+			TableViewerColumn column = new TableViewerColumn(tableViewer, SWT.NONE);
 			column.getColumn().setText(titles[i]);
 			column.getColumn().setResizable(true);
 			column.getColumn().setMoveable(true);
@@ -215,6 +223,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		label.setText(getDestinationLabel());
 
 		destinationNameField = new Combo(composite, SWT.SINGLE | SWT.BORDER);
+		restoreWidgetValues();
 		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
 		destinationNameField.setLayoutData(data);
 		destinationNameField.addListener(SWT.Modify, this);
@@ -451,6 +460,8 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		boolean pageComplete = determinePageCompletion();
 		setPageComplete(pageComplete);
 		if (pageComplete) {
+			if (this instanceof AbstractImportPage)
+				saveWidgetValues();
 			setMessage(null);
 		}
 	}
@@ -482,5 +493,69 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 			return true;
 		File file = new File(getDestinationValue());
 		return !(file.getPath().length() <= 0 || file.isDirectory());
+	}
+
+	protected void saveWidgetValues() {
+		IDialogSettings settings = getDialogSettings();
+		if (settings != null) {
+			String[] directoryNames = settings.getArray(STORE_DESTINATION_NAMES_ID);
+			if (directoryNames == null) {
+				directoryNames = new String[0];
+			}
+
+			directoryNames = addToHistory(directoryNames, getDestinationValue());
+			settings.put(STORE_DESTINATION_NAMES_ID, directoryNames);
+		}
+	}
+
+	protected String[] addToHistory(String[] history, String newEntry) {
+		List<String> l = new ArrayList<String>(Arrays.asList(history));
+		addToHistory(l, newEntry);
+		String[] r = new String[l.size()];
+		l.toArray(r);
+		return r;
+	}
+
+	protected void addToHistory(List<String> history, String newEntry) {
+		history.remove(newEntry);
+		history.add(0, newEntry);
+
+		// since only one new item was added, we can be over the limit
+		// by at most one item
+		if (history.size() > COMBO_HISTORY_LENGTH) {
+			history.remove(COMBO_HISTORY_LENGTH);
+		}
+	}
+
+	/**
+	 * Hook method for restoring widget values to the values that they held last
+	 * time this wizard was used to completion.
+	 */
+	protected void restoreWidgetValues() {
+
+		IDialogSettings settings = getDialogSettings();
+
+		if (settings != null) {
+			String[] directoryNames = settings.getArray(STORE_DESTINATION_NAMES_ID);
+			if (directoryNames != null) {
+				// destination
+				setDestinationValue(directoryNames[0]);
+				for (int i = 0; i < directoryNames.length; i++) {
+					addDestinationItem(directoryNames[i]);
+				}
+
+				setDestinationValue(""); //$NON-NLS-1$
+			}
+		}
+	}
+
+	/**
+	 * Add the passed value to self's destination widget's history
+	 * 
+	 * @param value
+	 *            java.lang.String
+	 */
+	protected void addDestinationItem(String value) {
+		destinationNameField.add(value);
 	}
 }

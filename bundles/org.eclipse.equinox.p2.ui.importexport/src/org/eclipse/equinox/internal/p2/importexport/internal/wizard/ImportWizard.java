@@ -14,8 +14,7 @@ package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.importexport.internal.Constants;
-import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
+import org.eclipse.equinox.internal.p2.importexport.internal.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage;
@@ -26,6 +25,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.InstallOperation;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -43,6 +43,13 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 
 	public ImportWizard(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
+		IDialogSettings workbenchSettings = ImportExportActivator.getDefault().getDialogSettings();
+		String sectionName = "ImportWizard"; //$NON-NLS-1$
+		IDialogSettings section = workbenchSettings.getSection(sectionName);
+		if (section == null) {
+			section = workbenchSettings.addNewSection(sectionName);
+		}
+		setDialogSettings(section);
 	}
 
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
