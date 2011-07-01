@@ -49,8 +49,6 @@ public class ExportPage extends AbstractPage {
 		finishException = null;
 		if (viewer == null)
 			return;
-		// about to invoke the operation so save our state
-		saveWidgetValues();
 		final Object[] checked = viewer.getCheckedElements();
 		OutputStream stream = null;
 		try {

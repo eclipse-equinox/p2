@@ -12,10 +12,10 @@
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.importexport.internal.*;
+import org.eclipse.equinox.internal.p2.importexport.internal.Constants;
+import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage;
@@ -24,10 +24,8 @@ import org.eclipse.equinox.internal.p2.ui.model.IUElementListRoot;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.operations.InstallOperation;
-import org.eclipse.equinox.p2.operations.ProvisioningSession;
 import org.eclipse.equinox.p2.ui.LoadMetadataRepositoryJob;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
-import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -45,13 +43,6 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 
 	public ImportWizard(ProvisioningUI ui, InstallOperation operation, Collection<IInstallableUnit> initialSelections, LoadMetadataRepositoryJob preloadJob) {
 		super(ui, operation, initialSelections, preloadJob);
-		IDialogSettings workbenchSettings = ImportExportActivator.getDefault().getDialogSettings();
-		String sectionName = "ImportWizard"; //$NON-NLS-1$
-		IDialogSettings section = workbenchSettings.getSection(sectionName);
-		if (section == null) {
-			section = workbenchSettings.addNewSection(sectionName);
-		}
-		setDialogSettings(section);
 	}
 
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
@@ -82,7 +73,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 			try {
 				runnableContext.run(true, true, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) throws InterruptedException {
-						final SubMonitor sub = SubMonitor.convert(monitor, 1000);
+						SubMonitor sub = SubMonitor.convert(monitor, 1000);
 						((ImportPage) mainPage).recompute(sub.newChild(800));
 						if (sub.isCanceled())
 							throw new InterruptedException();
@@ -92,17 +83,8 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 								ProvisioningContext context = getProvisioningContext();
 								initializeResolutionModelElements(getOperationSelections());
 								if (planSelections.length == 0) {
-									operation = new InstallOperation(new ProvisioningSession(((ImportPage) mainPage).agent), new ArrayList<IInstallableUnit>()) {
-										protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
-											monitor.done();
-										};
-
-										public IStatus getResolutionResult() {
-											if (sub.isCanceled())
-												return Status.CANCEL_STATUS;
-											return new Status(IStatus.ERROR, Constants.Bundle_ID, Messages.ImportWizard_CannotQuerySelection);
-										}
-									};
+									operation = null;
+									unableToResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
 								} else {
 									operation = getProfileChangeOperation(planSelections);
 									operation.setProvisioningContext(context);
@@ -111,8 +93,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 						});
 						if (sub.isCanceled())
 							throw new InterruptedException();
-						if (operation.resolveModal(sub.newChild(200)).getSeverity() == IStatus.CANCEL)
-							throw new InterruptedException();
+						operation.resolveModal(sub.newChild(200));
 						Display.getDefault().asyncExec(new Runnable() {
 
 							public void run() {
@@ -122,11 +103,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 					}
 				});
 			} catch (InterruptedException e) {
-				operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent), new ArrayList<IInstallableUnit>()) {
-					public IStatus getResolutionResult() {
-						return Status.CANCEL_STATUS;
-					}
-				};
+				// Nothing to report if thread was interrupted
 			} catch (InvocationTargetException e) {
 				ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
 				unableToResolve(null);

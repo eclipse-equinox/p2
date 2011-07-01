@@ -12,8 +12,8 @@ package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
 import java.io.File;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.equinox.internal.p2.importexport.internal.*;
-import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.equinox.internal.p2.importexport.internal.Constants;
+import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -24,13 +24,6 @@ import org.eclipse.ui.IWorkbench;
 public class ExportWizard extends AbstractWizard implements IExportWizard {
 
 	public ExportWizard() {
-		IDialogSettings workbenchSettings = ImportExportActivator.getDefault().getDialogSettings();
-		String sectionName = "ExportWizard"; //$NON-NLS-1$
-		IDialogSettings section = workbenchSettings.getSection(sectionName);
-		if (section == null) {
-			section = workbenchSettings.addNewSection(sectionName);
-		}
-		setDialogSettings(section);
 	}
 
 	@Override

@@ -9,6 +9,6 @@
   </parent>
   <groupId>org.eclipse</groupId>
   <artifactId>org.eclipse.equinox.p2.ui.importexport</artifactId>
-  <version>1.0.1.qualifier</version>
+  <version>1.0.0.qualifier</version>
   <packaging>eclipse-plugin</packaging>
 </project>
