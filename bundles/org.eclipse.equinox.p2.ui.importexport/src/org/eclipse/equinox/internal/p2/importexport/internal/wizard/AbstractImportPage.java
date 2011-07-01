@@ -49,14 +49,14 @@ public abstract class AbstractImportPage extends AbstractPage {
 	@Override
 	protected void createInstallationTable(Composite parent) {
 		super.createInstallationTable(parent);
-		viewer.getTable().addListener(SWT.Selection, new Listener() {
+		viewer.getTree().addListener(SWT.Selection, new Listener() {
 
 			public void handleEvent(Event event) {
 				if (event.detail == SWT.CHECK) {
 					if (hasInstalled(ProvUI.getAdapter(event.item.getData(), IInstallableUnit.class))) {
-						viewer.getTable().setRedraw(false);
-						((TableItem) event.item).setChecked(false);
-						viewer.getTable().setRedraw(true);
+						viewer.getTree().setRedraw(false);
+						((TreeItem) event.item).setChecked(false);
+						viewer.getTree().setRedraw(true);
 					}
 				}
 				updatePageCompletion();
