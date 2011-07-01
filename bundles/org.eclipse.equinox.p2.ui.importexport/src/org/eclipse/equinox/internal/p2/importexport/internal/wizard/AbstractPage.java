@@ -12,19 +12,25 @@
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
 import java.io.File;
+import java.util.*;
+import java.util.List;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.equinox.internal.p2.importexport.P2ImportExport;
 import org.eclipse.equinox.internal.p2.importexport.internal.Constants;
 import org.eclipse.equinox.internal.p2.importexport.internal.Messages;
 import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.dialogs.ILayoutConstants;
+import org.eclipse.equinox.internal.p2.ui.dialogs.*;
+import org.eclipse.equinox.internal.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
@@ -34,6 +40,10 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.dialogs.FilteredTree;
+import org.eclipse.ui.dialogs.PatternFilter;
+import org.eclipse.ui.progress.DeferredTreeContentManager;
+import org.eclipse.ui.progress.WorkbenchJob;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -43,25 +53,99 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	protected Button destinationBrowseButton;
 	protected Combo destinationNameField;
 	protected P2ImportExport importexportService = null;
-	protected CheckboxTableViewer viewer = null;
+	protected CheckboxTreeViewer viewer = null;
 	protected Exception finishException;
 	protected static IProfileRegistry profileRegistry = null;
-	protected static IProvisioningAgent agent = null;
+	static IProvisioningAgent agent = null;
 
-	class TableViewerComparator extends ViewerComparator {
+	// dialog store id constants
+	private static final String STORE_DESTINATION_NAMES_ID = "P2ImportExportPage.STORE_DESTINATION_NAMES_ID";//$NON-NLS-1$
+
+	protected static final int COMBO_HISTORY_LENGTH = 5;
+
+	/**
+	 * {@link DelayedFilterCheckboxTree} has a timing bug to prevent restoring the check state,
+	 * the methods {@link DeferredTreeContentManager}'s runClearPlaceholderJob and 
+	 * DelayedFilterCheckboxTree.doCreateRefreshJob().new JobChangeAdapter() {...}.done(IJobChangeEvent) has timing issue,
+	 * I can't find a way to guarantee the first job is executed firstly
+	 *
+	 */
+	final class ImportExportFilteredTree extends FilteredTree {
+		ArrayList<Object> checkState = new ArrayList<Object>();
+
+		ImportExportFilteredTree(Composite parent, int treeStyle, PatternFilter filter, boolean useNewLook) {
+			super(parent, treeStyle, filter, useNewLook);
+		}
+
+		@Override
+		protected TreeViewer doCreateTreeViewer(Composite composite, int style) {
+			return new CheckboxTreeViewer(composite, style);
+		}
+
+		@Override
+		protected WorkbenchJob doCreateRefreshJob() {
+			WorkbenchJob job = super.doCreateRefreshJob();
+			job.addJobChangeListener(new JobChangeAdapter() {
+				@Override
+				public void aboutToRun(IJobChangeEvent event) {
+					Display.getDefault().syncExec(new Runnable() {
+
+						public void run() {
+							Object[] checked = viewer.getCheckedElements();
+							if (checkState == null)
+								checkState = new ArrayList<Object>(checked.length);
+							for (int i = 0; i < checked.length; i++)
+								if (!viewer.getGrayed(checked[i]))
+									if (!checkState.contains(checked[i]))
+										checkState.add(checked[i]);
+						}
+					});
+				}
+
+				@Override
+				public void done(IJobChangeEvent event) {
+					if (event.getResult().isOK()) {
+						Display.getDefault().asyncExec(new Runnable() {
+
+							public void run() {
+								if (viewer == null || viewer.getTree().isDisposed())
+									return;
+								if (checkState == null)
+									return;
+
+								viewer.setCheckedElements(new Object[0]);
+								viewer.setGrayedElements(new Object[0]);
+								// Now we are only going to set the check state of the leaf nodes
+								// and rely on our container checked code to update the parents properly.
+								Iterator<Object> iter = checkState.iterator();
+								while (iter.hasNext()) {
+									viewer.setChecked(iter.next(), true);
+								}
+
+								updatePageCompletion();
+							}
+						});
+					}
+				}
+			});
+			return job;
+		}
+	}
+
+	class TreeViewerComparator extends ViewerComparator {
 		private int sortColumn = 0;
 		private int lastSortColumn = 0;
 		private boolean ascending = false;
 		private boolean lastAscending = false;
 
 		@Override
-		public int compare(Viewer viewer, Object e1, Object e2) {
+		public int compare(Viewer viewer1, Object e1, Object e2) {
 			IInstallableUnit iu1 = ProvUI.getAdapter(e1, IInstallableUnit.class);
 			IInstallableUnit iu2 = ProvUI.getAdapter(e2, IInstallableUnit.class);
 			if (iu1 != null && iu2 != null) {
-				if (viewer instanceof TableViewer) {
-					TableViewer tableViewer = (TableViewer) viewer;
-					IBaseLabelProvider baseLabel = tableViewer.getLabelProvider();
+				if (viewer1 instanceof TreeViewer) {
+					TreeViewer treeViewer = (TreeViewer) viewer1;
+					IBaseLabelProvider baseLabel = treeViewer.getLabelProvider();
 					if (baseLabel instanceof ITableLabelProvider) {
 						ITableLabelProvider tableProvider = (ITableLabelProvider) baseLabel;
 						String e1p = tableProvider.getColumnText(e1, getSortColumn());
@@ -82,7 +166,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 				// we couldn't determine a secondary sort, call it equal
 				return 0;
 			}
-			return super.compare(viewer, e1, e2);
+			return super.compare(viewer1, e1, e2);
 		}
 
 		/**
@@ -148,10 +232,10 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		return null;
 	}
 
-	private void createColumns(TableViewer viewer) {
+	private void createColumns(TreeViewer treeViewer) {
 		String[] titles = {Messages.Column_Name, Messages.Column_Version, Messages.Column_Id};
 		for (int i = 0; i < titles.length; i++) {
-			TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
+			TreeViewerColumn column = new TreeViewerColumn(treeViewer, SWT.NONE);
 			column.getColumn().setText(titles[i]);
 			column.getColumn().setResizable(true);
 			column.getColumn().setMoveable(true);
@@ -168,14 +252,14 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 	}
 
 	protected void updateTableSorting(int columnIndex) {
-		TableViewerComparator comparator = (TableViewerComparator) viewer.getComparator();
+		TreeViewerComparator comparator = (TreeViewerComparator) viewer.getComparator();
 		// toggle direction if it's the same column
 		if (columnIndex == comparator.getSortColumn()) {
 			comparator.setAscending(!comparator.isAscending());
 		}
 		comparator.setSortColumn(columnIndex);
-		viewer.getTable().setSortColumn(viewer.getTable().getColumn(columnIndex));
-		viewer.getTable().setSortDirection(comparator.isAscending() ? SWT.UP : SWT.DOWN);
+		viewer.getTree().setSortColumn(viewer.getTree().getColumn(columnIndex));
+		viewer.getTree().setSortDirection(comparator.isAscending() ? SWT.UP : SWT.DOWN);
 		viewer.refresh(false);
 	}
 
@@ -215,6 +299,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		label.setText(getDestinationLabel());
 
 		destinationNameField = new Combo(composite, SWT.SINGLE | SWT.BORDER);
+		restoreWidgetValues();
 		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL);
 		destinationNameField.setLayoutData(data);
 		destinationNameField.addListener(SWT.Modify, this);
@@ -241,31 +326,72 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		griddata.verticalSpan = griddata.horizontalSpan = 0;
 		group.setLayoutData(griddata);
 		group.setLayout(new GridLayout(1, false));
-		viewer = CheckboxTableViewer.newCheckList(group, SWT.MULTI | SWT.BORDER);
-		final Table table = viewer.getTable();
-		table.setHeaderVisible(true);
-		table.setLinesVisible(false);
-		viewer.setComparator(new TableViewerComparator());
+		PatternFilter filter = getPatternFilter();
+		filter.setIncludeLeadingWildcard(true);
+		final ImportExportFilteredTree filteredTree = new ImportExportFilteredTree(group, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, true);
+		viewer = (CheckboxTreeViewer) filteredTree.getViewer();
+		final Tree tree = viewer.getTree();
+		tree.setHeaderVisible(true);
+		tree.setLinesVisible(false);
+		viewer.setComparator(new TreeViewerComparator());
+		viewer.setComparer(new ProvElementComparer());
 		createColumns(viewer);
-		viewer.setContentProvider(getContentProvider());
+		final ITreeContentProvider contentProvider = getContentProvider();
+		viewer.setContentProvider(contentProvider);
 		viewer.setLabelProvider(getLabelProvider());
+		viewer.addCheckStateListener(new ICheckStateListener() {
+
+			public void checkStateChanged(CheckStateChangedEvent event) {
+				if (!event.getChecked() && filteredTree.checkState != null) {
+					ArrayList<Object> toRemove = new ArrayList<Object>(1);
+					// See bug 258117.  Ideally we would get check state changes 
+					// for children when the parent state changed, but we aren't, so
+					// we need to remove all children from the additive check state
+					// cache.
+					if (contentProvider.hasChildren(event.getElement())) {
+						Set<Object> unchecked = new HashSet<Object>();
+						Object[] children = contentProvider.getChildren(event.getElement());
+						for (int i = 0; i < children.length; i++) {
+							unchecked.add(children[i]);
+						}
+						Iterator<Object> iter = filteredTree.checkState.iterator();
+						while (iter.hasNext()) {
+							Object current = iter.next();
+							if (current != null && unchecked.contains(current)) {
+								toRemove.add(current);
+							}
+						}
+					} else {
+						for (Object element : filteredTree.checkState) {
+							if (viewer.getComparer().equals(element, event.getElement())) {
+								toRemove.add(element);
+								// Do not break out of the loop.  We may have duplicate equal
+								// elements in the cache.  Since the cache is additive, we want
+								// to be sure we've gotten everything.
+							}
+						}
+					}
+					filteredTree.checkState.removeAll(toRemove);
+				}
+			}
+		});
 		parent.addControlListener(new ControlAdapter() {
 			private final int[] columnRate = new int[] {6, 2, 2};
 
 			@Override
 			public void controlResized(ControlEvent e) {
 				Rectangle area = parent.getClientArea();
-				Point size = table.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-				ScrollBar vBar = table.getVerticalBar();
-				int width = area.width - table.computeTrim(0, 0, 0, 0).width - vBar.getSize().x;
-				if (size.y > area.height + table.getHeaderHeight()) {
+				Point size = tree.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+				ScrollBar vBar = tree.getVerticalBar();
+				int width = area.width - tree.computeTrim(0, 0, 0, 0).width - vBar.getSize().x;
+				if (size.y > area.height + tree.getHeaderHeight()) {
 					// Subtract the scrollbar width from the total column width
 					// if a vertical scrollbar will be required
 					Point vBarSize = vBar.getSize();
 					width -= vBarSize.x;
 				}
-				Point oldSize = table.getSize();
-				TableColumn[] columns = table.getColumns();
+				Point oldSize = tree.getSize();
+				TreeColumn[] columns = tree.getColumns();
 				int hasUsed = 0, i = 0;
 				if (oldSize.x > area.width) {
 					// table is getting smaller so make the columns 
@@ -276,12 +402,12 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 						hasUsed += columns[i].getWidth();
 					}
 					columns[columns.length - 1].setWidth(width - hasUsed);
-					table.setSize(area.width, area.height);
+					tree.setSize(area.width, area.height);
 				} else {
 					// table is getting bigger so make the table 
 					// bigger first and then make the columns wider
 					// to match the client area width
-					table.setSize(area.width, area.height);
+					tree.setSize(area.width, area.height);
 					for (; i < columns.length - 1; i++) {
 						columns[i].setWidth(width * columnRate[i] / 10);
 						hasUsed += columns[i].getWidth();
@@ -310,7 +436,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		selectAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				for (TableItem item : viewer.getTable().getItems()) {
+				for (TreeItem item : viewer.getTree().getItems()) {
 					if (!item.getChecked()) {
 						item.setChecked(true);
 						Event event = new Event();
@@ -318,7 +444,7 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 						event.detail = SWT.CHECK;
 						event.item = item;
 						event.type = SWT.Selection;
-						viewer.getTable().notifyListeners(SWT.Selection, event);
+						viewer.getTree().notifyListeners(SWT.Selection, event);
 					}
 				}
 				updatePageCompletion();
@@ -329,10 +455,16 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		deselectAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				viewer.setAllChecked(false);
+				for (TreeItem item : viewer.getTree().getItems()) {
+					viewer.setSubtreeChecked(item.getData(), false);
+				}
 				updatePageCompletion();
 			}
 		});
+	}
+
+	protected PatternFilter getPatternFilter() {
+		return new AvailableIUPatternFilter(getColumnConfig());
 	}
 
 	protected ICheckStateProvider getViewerDefaultState() {
@@ -343,8 +475,23 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		return new IUDetailsLabelProvider(null, getColumnConfig(), null);
 	}
 
-	protected IContentProvider getContentProvider() {
-		return new DeferredQueryContentProvider();
+	protected ITreeContentProvider getContentProvider() {
+		ProvElementContentProvider provider = new ProvElementContentProvider() {
+			@Override
+			public boolean hasChildren(Object element) {
+				if (element instanceof InstalledIUElement)
+					return false;
+				return super.hasChildren(element);
+			}
+
+			@Override
+			public Object[] getChildren(Object parent) {
+				if (parent instanceof InstalledIUElement)
+					return new Object[0];
+				return super.getChildren(parent);
+			}
+		};
+		return provider;
 	}
 
 	protected boolean determinePageCompletion() {
@@ -451,6 +598,8 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 		boolean pageComplete = determinePageCompletion();
 		setPageComplete(pageComplete);
 		if (pageComplete) {
+			if (this instanceof AbstractImportPage)
+				saveWidgetValues();
 			setMessage(null);
 		}
 	}
@@ -482,5 +631,69 @@ public abstract class AbstractPage extends WizardPage implements Listener {
 			return true;
 		File file = new File(getDestinationValue());
 		return !(file.getPath().length() <= 0 || file.isDirectory());
+	}
+
+	protected void saveWidgetValues() {
+		IDialogSettings settings = getDialogSettings();
+		if (settings != null) {
+			String[] directoryNames = settings.getArray(STORE_DESTINATION_NAMES_ID);
+			if (directoryNames == null) {
+				directoryNames = new String[0];
+			}
+
+			directoryNames = addToHistory(directoryNames, getDestinationValue());
+			settings.put(STORE_DESTINATION_NAMES_ID, directoryNames);
+		}
+	}
+
+	protected String[] addToHistory(String[] history, String newEntry) {
+		List<String> l = new ArrayList<String>(Arrays.asList(history));
+		addToHistory(l, newEntry);
+		String[] r = new String[l.size()];
+		l.toArray(r);
+		return r;
+	}
+
+	protected void addToHistory(List<String> history, String newEntry) {
+		history.remove(newEntry);
+		history.add(0, newEntry);
+
+		// since only one new item was added, we can be over the limit
+		// by at most one item
+		if (history.size() > COMBO_HISTORY_LENGTH) {
+			history.remove(COMBO_HISTORY_LENGTH);
+		}
+	}
+
+	/**
+	 * Hook method for restoring widget values to the values that they held last
+	 * time this wizard was used to completion.
+	 */
+	protected void restoreWidgetValues() {
+
+		IDialogSettings settings = getDialogSettings();
+
+		if (settings != null) {
+			String[] directoryNames = settings.getArray(STORE_DESTINATION_NAMES_ID);
+			if (directoryNames != null) {
+				// destination
+				setDestinationValue(directoryNames[0]);
+				for (int i = 0; i < directoryNames.length; i++) {
+					addDestinationItem(directoryNames[i]);
+				}
+
+				setDestinationValue(""); //$NON-NLS-1$
+			}
+		}
+	}
+
+	/**
+	 * Add the passed value to self's destination widget's history
+	 * 
+	 * @param value
+	 *            java.lang.String
+	 */
+	protected void addDestinationItem(String value) {
+		destinationNameField.add(value);
 	}
 }
