@@ -63,7 +63,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 				assertTrue(iu instanceof InstallableUnitFragment);
 				//verify required capability
 				verifyRequiredCapability(((InstallableUnitFragment) iu).getHost(), PublisherHelper.OSGI_BUNDLE_CLASSIFIER, EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER, VersionRange.emptyRange);
-				verifyRequiredCapability(((InstallableUnitFragment) iu).getHost(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
+				verifyRequiredCapability(((InstallableUnitFragment) iu).getHost(), PublisherHelper.NAMESPACE_ECLIPSE_TYPE, "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false), 1, 1, false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 				assertEquals(2, (((InstallableUnitFragment) iu).getHost().size()));
 
 				Collection<IProvidedCapability> cap = iu.getProvidedCapabilities();

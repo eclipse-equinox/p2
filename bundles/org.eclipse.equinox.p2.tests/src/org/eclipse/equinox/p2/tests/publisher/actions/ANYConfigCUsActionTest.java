@@ -133,7 +133,7 @@ public class ANYConfigCUsActionTest extends ActionTest {
 
 		final Collection<IRequirement> hostRequirements = fragment.getHost();
 		verifyRequiredCapability(hostRequirements, "osgi.bundle", ORG_ECLIPSE_CORE_COMMANDS, new VersionRange(BUNDLE_VERSION)); //$NON-NLS-1$
-		verifyRequiredCapability(hostRequirements, "org.eclipse.equinox.p2.eclipse.type", "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		verifyRequiredCapability(hostRequirements, "org.eclipse.equinox.p2.eclipse.type", "bundle", new VersionRange(Version.create("1.0.0"), true, Version.create("2.0.0"), false), 1, 1, false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertTrue(hostRequirements.size() == 2);
 
 		final Collection<ITouchpointData> touchpointData = fragment.getTouchpointData();

@@ -65,10 +65,19 @@ public abstract class ActionTest extends AbstractProvisioningTest {
 	}
 
 	protected void verifyRequiredCapability(Collection<IRequirement> requirement, String namespace, String name, VersionRange range) {
+		verifyRequiredCapability(requirement, namespace, name, range, 1, 1, true);
+	}
+
+	protected void verifyRequiredCapability(Collection<IRequirement> requirement, String namespace, String name, VersionRange range, int min, int max, boolean greedy) {
 		for (Iterator iterator = requirement.iterator(); iterator.hasNext();) {
 			IRequiredCapability required = (IRequiredCapability) iterator.next();
-			if (required.getName().equalsIgnoreCase(name) && required.getNamespace().equalsIgnoreCase(namespace) && required.getRange().equals(range))
+			if (required.getName().equalsIgnoreCase(name) && required.getNamespace().equalsIgnoreCase(namespace) && required.getRange().equals(range)) {
+				String requirementDescr = "RequiredCapability " + name + " " + range.toString();
+				Assert.assertEquals("Min of " + requirementDescr, min, required.getMin());
+				Assert.assertEquals("Max of " + requirementDescr, max, required.getMax());
+				Assert.assertEquals("Greedy of " + requirementDescr, greedy, required.isGreedy());
 				return;
+			}
 		}
 		Assert.fail("Missing RequiredCapability: " + name + " " + range.toString()); //$NON-NLS-1$
 	}

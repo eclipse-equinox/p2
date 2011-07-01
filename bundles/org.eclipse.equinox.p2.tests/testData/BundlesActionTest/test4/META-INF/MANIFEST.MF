@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: test4
+Bundle-SymbolicName: test4;singleton:=true
+Bundle-Version: 2.0.1
+Import-Package: iue;resolution:=optional
+Require-Bundle: iug;resolution:=optional
