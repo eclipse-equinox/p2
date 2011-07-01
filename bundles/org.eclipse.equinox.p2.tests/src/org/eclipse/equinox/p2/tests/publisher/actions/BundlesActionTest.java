@@ -7,6 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   IBM - ongoing development
+ *   SAP AG - allow setting greedy through directive (bug 247099)
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.publisher.actions;
 
