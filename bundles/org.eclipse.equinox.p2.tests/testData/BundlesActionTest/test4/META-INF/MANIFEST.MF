@@ -3,5 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: test4
 Bundle-SymbolicName: test4;singleton:=true
 Bundle-Version: 2.0.1
-Import-Package: iue;resolution:=optional
-Require-Bundle: iug;resolution:=optional
+Import-Package: iue;resolution:=optional,
+ iuf;resolution:=optional;x-installation:=greedy
+Require-Bundle: iug;resolution:=optional,
+ iuh;resolution:=optional;x-installation:=greedy

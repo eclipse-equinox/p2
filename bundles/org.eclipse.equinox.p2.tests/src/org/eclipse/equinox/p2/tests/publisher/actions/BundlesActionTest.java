@@ -51,7 +51,9 @@ public class BundlesActionTest extends ActionTest {
 	private static final String TEST3_PROVBUNDLE_NAME = "test3";//$NON-NLS-1$
 	private static final String TEST4_PROVBUNDLE_NAME = "test4";//$NON-NLS-1$
 	private static final String TEST4_REQ_PACKAGE_OPTIONAL_NAME = "iue";//$NON-NLS-1$
+	private static final String TEST4_REQ_PACKAGE_OPTGREEDY_NAME = "iuf";//$NON-NLS-1$
 	private static final String TEST4_REQ_BUNDLE_OPTIONAL_NAME = "iug";//$NON-NLS-1$
+	private static final String TEST4_REQ_BUNDLE_OPTGREEDY_NAME = "iuh";//$NON-NLS-1$
 
 	private static final File TEST_BASE = new File(TestActivator.getTestDataFolder(), "BundlesActionTest");//$NON-NLS-1$
 	private static final File TEST_FILE1 = new File(TEST_BASE, TEST1_PROVBUNDLE_NAME);
@@ -303,8 +305,10 @@ public class BundlesActionTest extends ActionTest {
 		// check required capabilities
 		Collection<IRequirement> requiredCapability = bundle4IU.getRequirements();
 		verifyRequiredCapability(requiredCapability, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, 0, 1, false);
+		verifyRequiredCapability(requiredCapability, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, 0, 1, true);
 		verifyRequiredCapability(requiredCapability, OSGI, TEST4_REQ_BUNDLE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, 0, 1, false);
-		assertEquals("2.0", 2, requiredCapability.size());
+		verifyRequiredCapability(requiredCapability, OSGI, TEST4_REQ_BUNDLE_OPTGREEDY_NAME, DEFAULT_VERSION_RANGE, 0, 1, true);
+		assertEquals("2.0", 4, requiredCapability.size());
 	}
 
 	public void cleanup() {

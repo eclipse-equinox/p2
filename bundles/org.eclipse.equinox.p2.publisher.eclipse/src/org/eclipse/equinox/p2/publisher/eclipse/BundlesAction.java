@@ -94,7 +94,23 @@ public class BundlesAction extends AbstractPublisherAction {
 	private static final String FEATURE_FILENAME_DESCRIPTOR = "feature.xml"; //$NON-NLS-1$
 	private static final String PLUGIN_FILENAME_DESCRIPTOR = "plugin.xml"; //$NON-NLS-1$
 	private static final String FRAGMENT_FILENAME_DESCRIPTOR = "fragment.xml"; //$NON-NLS-1$
-	public static String BUNDLE_SHAPE = "Eclipse-BundleShape"; //$NON-NLS-1$
+	public static final String BUNDLE_SHAPE = "Eclipse-BundleShape"; //$NON-NLS-1$
+
+	/**
+	 * Manifest header directive for specifying how optional runtime 
+	 * requirements shall be handled during installation.
+	 * 
+	 * @see #INSTALLATION_GREEDY
+	 */
+	public static final String INSTALLATION_DIRECTIVE = "x-installation"; //$NON-NLS-1$
+
+	/** 
+	 * Value for {@link #INSTALLATION_DIRECTIVE} indicating that an optional 
+	 * requirement shall be installed unless this is prevented by other 
+	 * mandatory requirements. Optional requirements without this directive 
+	 * value are ignored during installation.
+	 */
+	public static final String INSTALLATION_GREEDY = "greedy"; //$NON-NLS-1$
 
 	private File[] locations;
 	private BundleDescription[] bundles;
@@ -151,20 +167,27 @@ public class BundlesAction extends AbstractPublisherAction {
 		boolean isFragment = bd.getHost() != null;
 		//		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
 
-		//Process the required bundles
+		// Process the required bundles
 		BundleSpecification requiredBundles[] = bd.getRequiredBundles();
 		ArrayList<IRequirement> reqsDeps = new ArrayList<IRequirement>();
 		//		if (requiresAFragment)
 		//			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
 		if (isFragment)
 			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
+
+		ManifestElement[] rawRequireBundleHeader = parseManifestHeader(Constants.REQUIRE_BUNDLE, manifest, bd.getLocation());
 		for (BundleSpecification requiredBundle : requiredBundles) {
-			boolean optional = requiredBundle.isOptional();
-			boolean greedy = !optional;
+			final boolean optional = requiredBundle.isOptional();
+			final boolean greedy;
+			if (optional)
+				greedy = INSTALLATION_GREEDY.equals(getInstallationDirective(requiredBundle.getName(), rawRequireBundleHeader));
+			else
+				greedy = true;
 			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, requiredBundle.getName(), PublisherHelper.fromOSGiVersionRange(requiredBundle.getVersionRange()), null, optional ? 0 : 1, 1, greedy));
 		}
 
 		// Process the import packages
+		ManifestElement[] rawImportPackageHeader = parseManifestHeader(Constants.IMPORT_PACKAGE, manifest, bd.getLocation());
 		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
 		for (int i = 0; i < osgiImports.length; i++) {
 			// TODO we need to sort out how we want to handle wild-carded dynamic imports - for now we ignore them
@@ -172,8 +195,12 @@ public class BundlesAction extends AbstractPublisherAction {
 			if (isDynamicImport(importSpec))
 				continue;
 			VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(importSpec.getVersionRange());
-			boolean optional = isOptional(importSpec);
-			boolean greedy = !optional;
+			final boolean optional = isOptional(importSpec);
+			final boolean greedy;
+			if (optional)
+				greedy = INSTALLATION_GREEDY.equals(getInstallationDirective(importSpec.getName(), rawImportPackageHeader));
+			else
+				greedy = true;
 			//TODO this needs to be refined to take into account all the attribute handled by imports
 			reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, optional ? 0 : 1, 1, greedy));
 		}
@@ -584,6 +611,29 @@ public class BundlesAction extends AbstractPublisherAction {
 			manifest = convertPluginManifest(bundleLocation, true);
 		return manifest;
 
+	}
+
+	private static ManifestElement[] parseManifestHeader(String header, Map<String, String> manifest, String bundleLocation) {
+		try {
+			return ManifestElement.parseHeader(header, manifest.get(header));
+		} catch (BundleException e) {
+			String message = NLS.bind(Messages.exception_errorReadingManifest, bundleLocation, e.getMessage());
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, e));
+			return null;
+		}
+	}
+
+	private static String getInstallationDirective(String requirementId, ManifestElement[] correspondingBundleHeader) {
+		for (ManifestElement manifestElement : correspondingBundleHeader) {
+			String[] packages = manifestElement.getValueComponents();
+			for (String pckg : packages) {
+				if (requirementId.equals(pckg)) {
+					return manifestElement.getDirective(INSTALLATION_DIRECTIVE);
+				}
+			}
+		}
+		// TODO this case indicates an internal error -> return assertion error status
+		return null;
 	}
 
 	public BundlesAction(File[] locations) {
