@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ISelectableIUsPage;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ProvisioningOperationWizard;
+import org.eclipse.equinox.internal.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -41,10 +42,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.dialogs.PatternFilter;
 
 public class ImportPage extends AbstractImportPage implements ISelectableIUsPage {
 
-	private class InstallationContentProvider implements IStructuredContentProvider {
+	class InstallationContentProvider implements ITreeContentProvider {
 
 		public void dispose() {
 			//
@@ -54,13 +56,25 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 			return (Object[]) inputElement;
 		}
 
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(Viewer viewer1, Object oldInput, Object newInput) {
 			//
+		}
+
+		public Object[] getChildren(Object parentElement) {
+			return new Object[0];
+		}
+
+		public Object getParent(Object element) {
+			return null;
+		}
+
+		public boolean hasChildren(Object element) {
+			return false;
 		}
 
 	}
 
-	private class InstallationLabelProvider extends LabelProvider implements ITableLabelProvider, IColorProvider {
+	class InstallationLabelProvider extends LabelProvider implements ITableLabelProvider, IColorProvider {
 
 		public Image getColumnImage(Object element, int columnIndex) {
 			return null;
@@ -90,6 +104,89 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 		public Color getBackground(Object element) {
 			return null;
 		}
+	}
+
+	class P2ImportIUPatternFilter extends PatternFilter {
+
+		boolean checkName, checkVersion, checkId = false;
+		String patternString;
+
+		/**
+		 * Create a new instance of a AvailableIUPatternFilter 
+		 */
+		public P2ImportIUPatternFilter(IUColumnConfig[] columnConfig) {
+			super();
+			for (int i = 0; i < columnConfig.length; i++) {
+				int field = columnConfig[i].getColumnType();
+				if (field == IUColumnConfig.COLUMN_ID)
+					checkId = true;
+				else if (field == IUColumnConfig.COLUMN_NAME)
+					checkName = true;
+				else if (field == IUColumnConfig.COLUMN_VERSION)
+					checkVersion = true;
+			}
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.eclipse.ui.internal.dialogs.PatternFilter#isElementSelectable(java.lang.Object)
+		 */
+		public boolean isElementSelectable(Object element) {
+			return element instanceof IUDetail;
+		}
+
+		/*
+		 * Overridden to remember the pattern string for an optimization
+		 * in isParentMatch
+		 * (non-Javadoc)
+		 * @see org.eclipse.ui.dialogs.PatternFilter#setPattern(java.lang.String)
+		 */
+		public void setPattern(String patternString) {
+			super.setPattern(patternString);
+			this.patternString = patternString;
+		}
+
+		/*
+		 * Overridden to avoid getting children unless there is actually
+		 * a filter.
+		 * (non-Javadoc)
+		 * @see org.eclipse.ui.dialogs.PatternFilter#isParentMatch(org.eclipse.jface.viewers.Viewer, java.lang.Object)
+		 */
+		protected boolean isParentMatch(Viewer viewer1, Object element) {
+			if (patternString == null || patternString.length() == 0)
+				return true;
+			return super.isParentMatch(viewer1, element);
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.ui.dialogs.PatternFilter#isElementMatch(org.eclipse.jface.viewers.Viewer, java.lang.Object)
+		 */
+		protected boolean isLeafMatch(Viewer viewer1, Object element) {
+			String text = null;
+			if (element instanceof IUDetail) {
+				IInstallableUnit iu = ((IUDetail) element).getIU();
+				if (checkName) {
+					// Get the iu name in the default locale
+					text = iu.getProperty(IInstallableUnit.PROP_NAME, null);
+					if (text != null && wordMatches(text))
+						return true;
+				}
+				if (checkId || (checkName && text == null)) {
+					text = iu.getId();
+					if (wordMatches(text)) {
+						return true;
+					}
+				}
+				if (checkVersion) {
+					text = iu.getVersion().toString();
+					if (wordMatches(text))
+						return true;
+				}
+			}
+			return false;
+		}
+
 	}
 
 	private List<IUDetail> features;
@@ -128,7 +225,7 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 	}
 
 	@Override
-	protected IContentProvider getContentProvider() {
+	protected ITreeContentProvider getContentProvider() {
 		return new InstallationContentProvider();
 	}
 
@@ -213,12 +310,12 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 
 	public Object[] getCheckedIUElements() {
 		Object[] checked = viewer.getCheckedElements();
-		List<IUDetail> features = new ArrayList<IUDetail>(checked.length);
+		List<IUDetail> checkedFeatures = new ArrayList<IUDetail>(checked.length);
 		for (int i = 0; i < checked.length; i++) {
 			IUDetail feature = (IUDetail) checked[i];
 			IUDetail[] existingFeatures = newProposedFeature.get(feature);
 			if (existingFeatures == null)
-				features.add(feature);
+				checkedFeatures.add(feature);
 			else {
 				IUDetail matchPolicy = null;
 				for (IUDetail f : existingFeatures) {
@@ -234,10 +331,10 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 						matchPolicy = f;
 				}
 				if (matchPolicy != null)
-					features.add(matchPolicy);
+					checkedFeatures.add(matchPolicy);
 			}
 		}
-		return features.toArray(new IUDetail[features.size()]);
+		return checkedFeatures.toArray(new IUDetail[checkedFeatures.size()]);
 	}
 
 	public Object[] getSelectedIUElements() {
@@ -344,5 +441,9 @@ public class ImportPage extends AbstractImportPage implements ISelectableIUsPage
 				}
 			}
 		}
+	}
+
+	protected PatternFilter getPatternFilter() {
+		return new P2ImportIUPatternFilter(getColumnConfig());
 	}
 }
