@@ -302,8 +302,8 @@ public class BundlesActionTest extends ActionTest {
 
 		// check required capabilities
 		Collection<IRequirement> requiredCapability = bundle4IU.getRequirements();
-		verifyRequiredCapability(requiredCapability, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, 0, 1, true);
-		verifyRequiredCapability(requiredCapability, OSGI, TEST4_REQ_BUNDLE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, 0, 1, true);
+		verifyRequiredCapability(requiredCapability, JAVA_PACKAGE, TEST4_REQ_PACKAGE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, 0, 1, false);
+		verifyRequiredCapability(requiredCapability, OSGI, TEST4_REQ_BUNDLE_OPTIONAL_NAME, DEFAULT_VERSION_RANGE, 0, 1, false);
 		assertEquals("2.0", 2, requiredCapability.size());
 	}
 

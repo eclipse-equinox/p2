@@ -158,8 +158,11 @@ public class BundlesAction extends AbstractPublisherAction {
 		//			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
 		if (isFragment)
 			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), PublisherHelper.fromOSGiVersionRange(bd.getHost().getVersionRange()), null, false, false));
-		for (int j = 0; j < requiredBundles.length; j++)
-			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), PublisherHelper.fromOSGiVersionRange(requiredBundles[j].getVersionRange()), null, requiredBundles[j].isOptional(), false));
+		for (BundleSpecification requiredBundle : requiredBundles) {
+			boolean optional = requiredBundle.isOptional();
+			boolean greedy = !optional;
+			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, requiredBundle.getName(), PublisherHelper.fromOSGiVersionRange(requiredBundle.getVersionRange()), null, optional ? 0 : 1, 1, greedy));
+		}
 
 		// Process the import packages
 		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
@@ -169,8 +172,10 @@ public class BundlesAction extends AbstractPublisherAction {
 			if (isDynamicImport(importSpec))
 				continue;
 			VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(importSpec.getVersionRange());
+			boolean optional = isOptional(importSpec);
+			boolean greedy = !optional;
 			//TODO this needs to be refined to take into account all the attribute handled by imports
-			reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, isOptional(importSpec), false));
+			reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, optional ? 0 : 1, 1, greedy));
 		}
 		iu.setRequirements(reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
 
