@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,8 +8,14 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Cloudsmith Inc - bug fixes
+ *     martin.kirst@s1998.tu-chemnitz.de - fixed and improved sort algorithm
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
+
+import static java.lang.Math.abs;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.lang.Math.sqrt;
 
 import java.io.FileNotFoundException;
 import java.net.URI;
@@ -33,6 +39,9 @@ import org.xml.sax.InputSource;
  * The contents of the file at this URL is expected to be an XML document 
  * containing a list of <mirror> elements. The mirrors are assumed to be already 
  * sorted geographically with closer mirrors first.
+ * <br><br>
+ * Always use {@link MirrorSelector.MirrorInfoComparator} for comparison.
+ *
  */
 public class MirrorSelector {
 	private static final double LOG2 = Math.log(2);
@@ -40,7 +49,7 @@ public class MirrorSelector {
 	/**
 	 * Encapsulates information about a single mirror
 	 */
-	public static class MirrorInfo implements Comparable<MirrorInfo> {
+	public static class MirrorInfo {
 		private static final long PRIMARY_FAILURE_LINGER_TIME = 30000; // Retry again after 30 seconds
 		private static final long SECONDARY_FAILURE_LINGER_TIME = 300000; // Wait 5 minutes
 		private static final int ACCEPTABLE_FILE_NOT_FOUND_COUNT = 5; // Given an established connection, those are generally quick
@@ -50,7 +59,7 @@ public class MirrorSelector {
 		int failureCount;
 		int fileNotFoundCount;
 		int totalFailureCount;
-		private final int initialRank;
+		final int initialRank;
 		String locationString;
 
 		public MirrorInfo(String location, int initialRank) {
@@ -63,44 +72,7 @@ public class MirrorSelector {
 			bytesPerSecond = DownloadStatus.UNKNOWN_RATE;
 		}
 
-		/**
-		 * Comparison used to sort mirrors.
-		 */
-		public synchronized int compareTo(MirrorInfo that) {
-			synchronized (that) {
-				double rank = 0.0;
-				if (bytesPerSecond != that.bytesPerSecond) {
-					if (bytesPerSecond != DownloadStatus.UNKNOWN_RATE && that.bytesPerSecond != DownloadStatus.UNKNOWN_RATE) {
-						if (bytesPerSecond > that.bytesPerSecond)
-							rank -= (double) bytesPerSecond / (double) that.bytesPerSecond;
-						else
-							rank += (double) that.bytesPerSecond / (double) bytesPerSecond;
-					}
-				}
-
-				//less failures is better
-				if (failureCount != that.failureCount) {
-					if (failureCount > that.failureCount)
-						rank += ((double) (failureCount + 1) / (double) (that.failureCount + 1)) * 2.0;
-					else
-						rank -= ((double) (that.failureCount + 1) / (double) (failureCount + 1)) * 2.0;
-				}
-
-				if (rank == 0.0)
-					//trust that initial rank indicates geographical proximity
-					rank = initialRank - that.initialRank;
-
-				if (rank == 0.0)
-					return 0;
-
-				int intRank;
-				intRank = (int) rank;
-				if (intRank == 0)
-					intRank = rank > 0 ? 1 : -1;
-				return intRank;
-			}
-		}
-
+		@Override
 		public synchronized String toString() {
 			return "Mirror(" + locationString + ',' + failureCount + ',' + bytesPerSecond + ')'; //$NON-NLS-1$
 		}
@@ -132,6 +104,10 @@ public class MirrorSelector {
 				// Back in commission
 				failureCount = 0;
 			bytesPerSecond = newValue;
+		}
+
+		public synchronized long getBytesPerSecond() {
+			return bytesPerSecond;
 		}
 
 		public synchronized void incrementFileNotFoundCount() {
@@ -175,6 +151,97 @@ public class MirrorSelector {
 		} catch (URISyntaxException e) {
 			log("Error initializing mirrors for: " + repository.getLocation(), e); //$NON-NLS-1$
 		}
+	}
+
+	/**
+	 * This {@link Comparator} uses a vector space classification algorithm
+	 * and implements some kind of Rocchio Classification.
+	 * In theory, when sorting multiple mirrors, we want to know which one
+	 * is the best in terms of its attributes 'bytesPerSecons', 'failureCount'
+	 * and 'initialRank'.
+	 * This {@link Comparator} needs three initial query attributes, which mean
+	 * to search for the fastest mirror, with lowest failure and nearest to the
+	 * initial rank.
+	 * By calculating the vector space distance from query to Object 1 and
+	 * query to Object 2, we implicitly know, which mirror is better.
+	 * <br><br>
+	 * There are two weight factors, which directly influences sorting results.
+	 * They are computed by using a one real live mirror list of eclipse.org
+	 * and tweak as long as the results look good as a list ;-)
+	 * See test case fore more details.
+	 * <br><br>
+	 * <h4>Mathematical basics used in
+	 *  {@link MirrorInfoComparator#compare(MirrorInfo, MirrorInfo)}:</h4>
+	 * Given two vectors Q and T, where Q is query and t is Target
+	 * and Q_a (or T_a) are attributes of each vector, this is
+	 * the formula, which is computed to each MirrorInfo object.
+	 * <pre>
+	 *                       ->   ->
+	 *                       q  * t                             (dot product)
+	 *  sim(q,t) = --------------------------- 
+	 *               / || -> ||   || -> || \
+	 *              |  || q  || * || t  ||  |             (euclidean lengths)
+	 *               \                     /
+	 *  
+	 *                              N
+	 *                             ---
+	 *                             \
+	 *                              >   Q   * T           
+	 *                             /     ai    ai
+	 *                             ---
+	 *                            i = 1
+	 *  sim(q,t) = -----------------------------------------
+	 *               /     ___________       ___________ \
+	 *              |     |   N             |   N         |
+	 *              |     |  ---            |  ---        |
+	 *              |  _  |  \     2     _  |  \     2    |
+	 *              |   \ |   >   Q    *  \ |   >   T     |
+	 *              |    \|  /     ai      \|  /     ai   |
+	 *              |     |  ---            |  ---        |
+	 *               \    | i = 1           | i = 1      / 
+	 * </pre>
+	 */
+	public static final class MirrorInfoComparator implements Comparator<MirrorInfo> {
+
+		/**
+		 * This weight is used to treat speed attribute in 25kByte steps.
+		 */
+		static final double WEIGHT_BYTESPERSECOND = 1d / 25000d;
+		/**
+		 * This weight influences the failureCount classification
+		 * Value was calculated by empirical tests. 
+		 */
+		static final double WEIGHT_FAILURECOUNT = 1.75d;
+
+		final double qBytesPerSeconds;
+		final double qFailureCount;
+		final double qRank;
+		final double qel; // euclidean length
+
+		public MirrorInfoComparator(long qBytesPerSeconds, int qFailureCount, int qRank) {
+			// Query: bytesPerSecondond=max + 10%, failureCountr=0, rank=1
+			this.qBytesPerSeconds = (qBytesPerSeconds + qBytesPerSeconds / 10) * WEIGHT_BYTESPERSECOND;
+			this.qFailureCount = qFailureCount;
+			this.qRank = qRank;
+			this.qel = sqrt(qBytesPerSeconds * qBytesPerSeconds + (qFailureCount * 1d) * (qFailureCount * 1d) + qRank * qRank);
+		}
+
+		public int compare(MirrorInfo o1, MirrorInfo o2) {
+			if (o1 == o2) {
+				return 0; // shortest way
+			}
+			// euclidean lengths
+			double o1_el = sqrt(abs(o1.bytesPerSecond * WEIGHT_BYTESPERSECOND) * abs(o1.bytesPerSecond * WEIGHT_BYTESPERSECOND) + (o1.failureCount * WEIGHT_FAILURECOUNT) * (o1.failureCount * WEIGHT_FAILURECOUNT) + o1.initialRank * o1.initialRank);
+			double o2_el = sqrt(abs(o2.bytesPerSecond * WEIGHT_BYTESPERSECOND) * abs(o2.bytesPerSecond * WEIGHT_BYTESPERSECOND) + (o2.failureCount * WEIGHT_FAILURECOUNT) * (o2.failureCount * WEIGHT_FAILURECOUNT) + o2.initialRank * o2.initialRank);
+			// vector dot products
+			double dp_1 = (qBytesPerSeconds * abs(o1.bytesPerSecond * WEIGHT_BYTESPERSECOND) + qFailureCount * (o1.failureCount * WEIGHT_FAILURECOUNT) + qRank * o1.initialRank);
+			double dp_2 = (qBytesPerSeconds * abs(o2.bytesPerSecond * WEIGHT_BYTESPERSECOND) + qFailureCount * (o2.failureCount * WEIGHT_FAILURECOUNT) + qRank * o2.initialRank);
+			// similarities from o1 to Q and o2 to Q (where q=query)
+			double sim1 = dp_1 / (qel * o1_el);
+			double sim2 = dp_2 / (qel * o2_el);
+			return new Double(sim2).compareTo(new Double(sim1));
+		}
+
 	}
 
 	/**
@@ -270,6 +337,17 @@ public class MirrorSelector {
 		return mirrors;
 	}
 
+	private MirrorInfoComparator getComparator() {
+		long maxBytesPerSecond = 0;
+		if (mirrors != null) {
+			for (MirrorInfo mi : mirrors) {
+				maxBytesPerSecond = max(maxBytesPerSecond, mi.bytesPerSecond);
+			}
+		}
+		// Use the fastest mirror, with 0 failures and initial rank 1 as base query
+		return new MirrorInfoComparator(maxBytesPerSecond, 0, 1);
+	}
+
 	private void log(String message, Throwable exception) {
 		LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, exception));
 	}
@@ -316,7 +394,7 @@ public class MirrorSelector {
 		// return true if there is a mirror and it doesn't have multiple failures.
 		if (mirrors == null || mirrors.length == 0)
 			return false;
-		Arrays.sort(mirrors);
+		Arrays.sort(mirrors, getComparator());
 		return mirrors[0].failureCount < 2;
 	}
 
@@ -326,7 +404,7 @@ public class MirrorSelector {
 	 */
 	private MirrorInfo selectMirror(IProgressMonitor monitor) {
 		initMirrors(monitor);
-		int mirrorCount;
+		final int mirrorCount;
 		if (mirrors == null || (mirrorCount = mirrors.length) == 0)
 			return null;
 
@@ -334,7 +412,7 @@ public class MirrorSelector {
 		if (mirrorCount == 1)
 			selected = mirrors[0];
 		else {
-			Arrays.sort(mirrors);
+			Arrays.sort(mirrors, getComparator());
 			for (;;) {
 				//this is a function that randomly selects a mirror based on a logarithmic
 				//distribution. Mirror 0 has a 1/2 chance of being selected, mirror 1 has a 1/4 chance, 
@@ -342,7 +420,7 @@ public class MirrorSelector {
 				//selection, while still heavily favoring better mirrors
 				//the algorithm computes the most significant digit in a binary number by computing the base 2 logarithm
 				//if the first digit is most significant, mirror 0 is selected, if the second is most significant, mirror 1 is selected, etc
-				int highestMirror = Math.min(15, mirrorCount);
+				int highestMirror = min(15, mirrorCount);
 				int result = (int) (Math.log(random.nextInt(1 << highestMirror) + 1) / LOG2);
 				if (result >= highestMirror || result < 0)
 					result = highestMirror - 1;
@@ -350,9 +428,8 @@ public class MirrorSelector {
 				int mirrorIndex = highestMirror - 1 - result;
 				selected = mirrors[mirrorIndex];
 
-				// If the ranking of the selected mirror is significantly worse then the top ranked
-				// mirror, then we consider this a bad choice and reiterate.
-				if (mirrorIndex == 0 || mirrors[0].compareTo(selected) < 4)
+				// Only choose a mirror from the best 50% of the top 15 of all mirrors
+				if (mirrorIndex <= (mirrorCount * 0.5d))
 					// This is good enough
 					break;
 			}
