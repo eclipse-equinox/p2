@@ -92,7 +92,7 @@ public class ImportWizard extends InstallWizard implements IImportWizard {
 								ProvisioningContext context = getProvisioningContext();
 								initializeResolutionModelElements(getOperationSelections());
 								if (planSelections.length == 0) {
-									operation = new InstallOperation(new ProvisioningSession(((ImportPage) mainPage).agent), new ArrayList<IInstallableUnit>()) {
+									operation = new InstallOperation(new ProvisioningSession(AbstractPage.agent), new ArrayList<IInstallableUnit>()) {
 										protected void computeProfileChangeRequest(MultiStatus status, IProgressMonitor monitor) {
 											monitor.done();
 										};
