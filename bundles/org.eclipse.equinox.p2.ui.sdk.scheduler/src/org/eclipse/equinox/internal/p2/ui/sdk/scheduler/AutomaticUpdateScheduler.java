@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.ULocale;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.IProfile;
@@ -77,7 +78,33 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	public void earlyStartup() {
+		garbageCollect();
 		scheduleUpdate();
+	}
+
+	/**
+	 * Invokes the garbage collector to discard unused plugins, if specified by a 
+	 * corresponding preference.
+	 */
+	private void garbageCollect() {
+		// Nothing to do if we don't know what profile we are checking
+		if (profileId == null)
+			return;
+		//check if gc is enabled
+		IPreferenceStore pref = AutomaticUpdatePlugin.getDefault().getPreferenceStore();
+		if (!pref.getBoolean(PreferenceConstants.PREF_GC_ON_STARTUP))
+			return;
+		IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(AutomaticUpdatePlugin.getContext(), IProvisioningAgent.SERVICE_NAME);
+		GarbageCollector collector = (GarbageCollector) agent.getService(GarbageCollector.SERVICE_NAME);
+		if (collector == null)
+			return;
+		IProfileRegistry registry = (IProfileRegistry) agent.getService(IProfileRegistry.SERVICE_NAME);
+		if (registry == null)
+			return;
+		IProfile profile = registry.getProfile(profileId);
+		if (profile == null)
+			return;
+		collector.runGC(profile);
 	}
 
 	public void shutdown() {
