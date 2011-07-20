@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,10 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 /**
- * Activator class for the automatic updates plugin
+ * Activator class for the automatic updates plugin. The automatic updates plugin
+ * is responsible for scheduling background update checks, based on update settings
+ * specified by end user settings. The implementation of update checking is provided
+ * by another plugin that provides an IUpdateChecker implementation.
  */
 public class AutomaticUpdatePlugin extends AbstractUIPlugin {
 
