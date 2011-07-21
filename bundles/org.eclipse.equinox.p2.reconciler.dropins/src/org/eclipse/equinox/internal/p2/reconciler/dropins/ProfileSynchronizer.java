@@ -594,11 +594,15 @@ public class ProfileSynchronizer {
 		// remove from the request everything that is in the plan
 		for (Iterator<IInstallableUnit> iterator = plan.getRemovals().query(QueryUtil.createIUAnyQuery(), null).iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
-			toRemove.remove(iu);
+			if (!toRemove.remove(iu)) {
+				Tracing.debug(PREFIX + iu + " will be removed"); //$NON-NLS-1$
+			}
 		}
 		for (Iterator<IInstallableUnit> iterator = plan.getAdditions().query(QueryUtil.createIUAnyQuery(), null).iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
-			toAdd.remove(iu);
+			if (!toAdd.remove(iu)) {
+				Tracing.debug(PREFIX + iu + " will be added"); //$NON-NLS-1$
+			}
 		}
 		// Move operations are treated as doing a remove/add. The removes have already happened
 		// and at this point we are adding the moved IUs back at their new location. Remove the moved
