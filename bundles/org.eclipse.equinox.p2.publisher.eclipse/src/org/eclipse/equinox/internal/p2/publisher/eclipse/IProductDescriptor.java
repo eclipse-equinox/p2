@@ -7,6 +7,7 @@
  * Contributors: 
  *   Code 9 - initial API and implementation
  *   EclipseSource - ongoing development
+ *   SAP AG - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
@@ -81,9 +82,14 @@ public interface IProductDescriptor {
 	public String getProductName();
 
 	/**
-	 * Specifies whether this product was built using features or not.
+	 * Specifies whether this product was built using features only or not.
 	 */
 	public boolean useFeatures();
+
+	/**
+	 * Specifies what kind of installable units (e.g. bundles, features or everything) are included in the product.
+	 */
+	public ProductContentType getProductContentType();
 
 	/**
 	 * Returns the version of the product.

@@ -1,0 +1,13 @@
+<product name="InvalidContentType" id="InvalidContentType.product" version="1" type="you can put anything you want here except a valid content type" includeLaunchers="false">
+
+   <configIni use="default">
+   </configIni>
+
+   <plugins>
+     <plugin id="TestBundle"/>
+   </plugins>
+
+   <features>
+      <feature id="TestFeature"/>
+   </features>
+</product>

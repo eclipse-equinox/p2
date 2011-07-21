@@ -10,43 +10,25 @@
  *     Code 9 - Additional function and fixes
  *     EclipseSource - ongoing development
  *     Felix Riegger (SAP AG) - consolidation of publishers for PDE formats (bug 331974)
+ *     SAP AG - ongoing development
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import javax.xml.parsers.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.p2.core.helpers.CollectionUtils;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.p2.metadata.IVersionedId;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.pde.internal.publishing.Activator;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
@@ -68,6 +50,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	protected static final String ATTRIBUTE_VERSION = "version"; //$NON-NLS-1$
 	protected static final String ATTRIBUTE_ID = "id"; //$NON-NLS-1$
 	private static final String ATTRIBUTE_UID = "uid"; //$NON-NLS-1$
+	private static final String ATTRIBUTE_CONTENT_TYPE = "type"; //$NON-NLS-1$
 
 	private static final String PROPERTY_ECLIPSE_APPLICATION = "eclipse.application"; //$NON-NLS-1$
 	private static final String PROPERTY_ECLIPSE_PRODUCT = "eclipse.product"; //$NON-NLS-1$
@@ -157,7 +140,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private String platformConfigPath = null;
 	private String id = null;
 	private String uid = null;
-	private boolean useFeatures = false;
+	private ProductContentType productContentType = null;
 	protected List<FeatureEntry> plugins = new ArrayList<FeatureEntry>();
 	protected List<FeatureEntry> fragments = new ArrayList<FeatureEntry>();
 	private final List<FeatureEntry> features = new ArrayList<FeatureEntry>();
@@ -407,7 +390,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	 * false otherwise.
 	 */
 	public boolean useFeatures() {
-		return useFeatures;
+		return productContentType == ProductContentType.FEATURES;
 	}
 
 	/**
@@ -788,9 +771,18 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		application = attributes.getValue(ATTRIBUTE_APPLICATION);
 		if (attributes.getIndex(ATTRIBUTE_INCLUDE_LAUNCHERS) >= 0)
 			includeLaunchers = Boolean.valueOf(attributes.getValue(ATTRIBUTE_INCLUDE_LAUNCHERS));
-		String use = attributes.getValue("useFeatures"); //$NON-NLS-1$
-		if (use != null)
-			useFeatures = Boolean.valueOf(use).booleanValue();
+		String contentTypeString = attributes.getValue(ATTRIBUTE_CONTENT_TYPE);
+		if (contentTypeString != null)
+			productContentType = ProductContentType.toProductContentType(contentTypeString);
+		if (productContentType == null) { // useFeatures attribute is taken into account only if the contentType attribute is missing
+			String use = attributes.getValue("useFeatures"); //$NON-NLS-1$
+			// for backward compatibility with the old behavior 
+			if (use != null && Boolean.valueOf(use).booleanValue())
+				productContentType = ProductContentType.FEATURES;
+			else
+				productContentType = ProductContentType.BUNDLES;
+		}
+
 		version = attributes.getValue(ATTRIBUTE_VERSION);
 	}
 
@@ -881,4 +873,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		addIcon(OS_MACOSX, attributes.getValue(ATTRIBUTE_ICON));
 	}
 
+	public ProductContentType getProductContentType() {
+		return productContentType;
+	}
 }

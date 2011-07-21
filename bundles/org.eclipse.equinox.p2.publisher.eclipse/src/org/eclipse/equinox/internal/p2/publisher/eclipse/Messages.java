@@ -8,6 +8,7 @@
  * Contributors:
  *    IBM - Initial API and implementation
  *    SAP AG - consolidation of publishers for PDE formats
+ *    SAP AG - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
@@ -20,6 +21,7 @@ public class Messages extends NLS {
 	public static String exception_missingElement;
 	public static String exception_featureParse;
 	public static String exception_productParse;
+	public static String exception_invalidProductContentType;
 
 	// feature parsing
 	public static String feature_parse_invalidIdOrVersion;

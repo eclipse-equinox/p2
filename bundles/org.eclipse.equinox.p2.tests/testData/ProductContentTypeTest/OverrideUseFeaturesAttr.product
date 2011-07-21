@@ -1,0 +1,13 @@
+<product name="OverrideUseFeaturesAttr" id="OverrideUseFeaturesAttr.product" version="1" useFeatures="true" type="bundles" includeLaunchers="false">
+
+   <configIni use="default">
+   </configIni>
+
+   <plugins>
+     <plugin id="TestBundle"/>
+   </plugins>
+
+   <features>
+      <feature id="TestFeature"/>
+   </features>
+</product>

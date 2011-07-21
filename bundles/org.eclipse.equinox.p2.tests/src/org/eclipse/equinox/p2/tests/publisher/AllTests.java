@@ -37,6 +37,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ProductActionTest.class);
 		suite.addTestSuite(ProductActionTestMac.class);
 		suite.addTestSuite(ProductActionWithAdviceFileTest.class);
+		suite.addTestSuite(ProductContentTypeTest.class);
 		suite.addTestSuite(ProductFileAdviceTest.class);
 		suite.addTestSuite(ProductFileTest.class);
 		suite.addTestSuite(RootFilesActionTest.class);

@@ -1,0 +1,13 @@
+<product name="MixedContentProduct" id="MixedContentProduct.product" version="1" includeLaunchers="false">
+
+   <configIni use="default">
+   </configIni>
+
+   <plugins>
+     <plugin id="TestBundle"/>
+   </plugins>
+
+   <features>
+      <feature id="TestFeature"/>
+   </features>
+</product>

@@ -1,0 +1,13 @@
+<product name="ProductWithFeature" id="ProductWithFeature.product" version="1" type="features" includeLaunchers="false">
+
+   <configIni use="default">
+   </configIni>
+
+   <plugins>
+   	 <plugin id="TestBundle"/>
+   </plugins>
+
+   <features>
+      <feature id="TestFeature"/>
+   </features>
+</product>

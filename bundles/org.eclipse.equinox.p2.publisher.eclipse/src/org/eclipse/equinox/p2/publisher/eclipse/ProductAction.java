@@ -14,11 +14,11 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.publisher.eclipse.IProductDescriptor;
-import org.eclipse.equinox.internal.p2.publisher.eclipse.Messages;
+import org.eclipse.equinox.internal.p2.publisher.eclipse.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.pde.internal.publishing.Activator;
 
 public class ProductAction extends AbstractPublisherAction {
@@ -123,21 +123,29 @@ public class ProductAction extends AbstractPublisherAction {
 
 	private void createRootAdvice() {
 		Collection<IVersionedId> list;
-		if (product.useFeatures()) {
-			// TODO: We need a real namespace here
-			list = versionElements(listElements(product.getFeatures(), ".feature.group"), IInstallableUnit.NAMESPACE_IU_ID); //$NON-NLS-1$
+		switch (product.getProductContentType()) { // add new case for each new content type included in product
+			case MIXED : // include all content types
+				list = versionElements(listElements(product.getFeatures(), ".feature.group"), IInstallableUnit.NAMESPACE_IU_ID); //$NON-NLS-1$
+				list.addAll(versionElements(listElements(product.getBundles(true), null), IInstallableUnit.NAMESPACE_IU_ID));
+				break;
+			case FEATURES : // include features only
+				list = versionElements(listElements(product.getFeatures(), ".feature.group"), IInstallableUnit.NAMESPACE_IU_ID); //$NON-NLS-1$
 
-			if (!product.getBundles(true).isEmpty()) {
-				finalStatus.add(new Status(IStatus.INFO, Activator.ID, Messages.bundlesInProductFileIgnored));
-			}
-		} else {
-			//TODO: We need a real namespace here
-			list = versionElements(listElements(product.getBundles(true), null), IInstallableUnit.NAMESPACE_IU_ID);
+				if (!product.getBundles(true).isEmpty()) {
+					finalStatus.add(new Status(IStatus.INFO, Activator.ID, Messages.bundlesInProductFileIgnored));
+				}
+				break;
+			case BUNDLES : // include bundles only
+				list = versionElements(listElements(product.getBundles(true), null), IInstallableUnit.NAMESPACE_IU_ID);
 
-			if (!product.getFeatures().isEmpty()) {
-				finalStatus.add(new Status(IStatus.INFO, Activator.ID, Messages.featuresInProductFileIgnored));
-			}
+				if (!product.getFeatures().isEmpty()) {
+					finalStatus.add(new Status(IStatus.INFO, Activator.ID, Messages.featuresInProductFileIgnored));
+				}
+				break;
+			default :
+				throw new IllegalStateException(NLS.bind(Messages.exception_invalidProductContentType, product.getProductContentType().toString(), ProductContentType.getAllowedSetOfValues().toString()));
 		}
+
 		info.addAdvice(new RootIUAdvice(list));
 	}
 
