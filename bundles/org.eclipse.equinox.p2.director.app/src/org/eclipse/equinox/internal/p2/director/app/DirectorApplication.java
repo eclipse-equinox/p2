@@ -24,8 +24,11 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.PlanExecutionHelper;
+import org.eclipse.equinox.internal.provisional.p2.repository.RepositoryEvent;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.query.UserVisibleRootQuery;
@@ -34,6 +37,7 @@ import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.planner.IProfileChangeRequest;
 import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.repository.IRepository;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
 import org.eclipse.osgi.framework.log.FrameworkLog;
@@ -42,7 +46,7 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
-public class DirectorApplication implements IApplication {
+public class DirectorApplication implements IApplication, ProvisioningListener {
 	class AvoidTrustPromptService extends UIServices {
 		@Override
 		public AuthenticationInfo getUsernamePassword(String location) {
@@ -607,6 +611,50 @@ public class DirectorApplication implements IApplication {
 			throw new ProvisionException(Messages.Missing_Engine);
 
 		targetAgent.registerService(UIServices.SERVICE_NAME, new AvoidTrustPromptService());
+
+		// TODO do we only want to do this if we are provisioning to ourself?
+		IProvisioningEventBus eventBus = (IProvisioningEventBus) targetAgent.getService(IProvisioningEventBus.SERVICE_NAME);
+		if (eventBus == null)
+			return;
+		eventBus.addListener(this);
+
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener#notify(java.util.EventObject)
+	 * 
+	 * See bug: https://bugs.eclipse.org/340971
+	 * Using the event bus to detect whether or not a repository was added in a touchpoint action. 
+	 * If it was, then (if it exists) remove it from our list of repos to remove after we complete our install.
+	 */
+	public void notify(EventObject o) {
+		if (!(o instanceof RepositoryEvent))
+			return;
+		RepositoryEvent event = (RepositoryEvent) o;
+		if (RepositoryEvent.ADDED != event.getKind())
+			return;
+		int type = event.getRepositoryType();
+		URI location = event.getRepositoryLocation();
+		if (IRepository.TYPE_ARTIFACT == type) {
+			for (int i = 0; i < artifactReposForRemoval.length; i++) {
+				if (artifactReposForRemoval[i] != null && URIUtil.sameURI(artifactReposForRemoval[i], (location))) {
+					artifactReposForRemoval[i] = null;
+					break;
+				}
+			}
+			// either found or not found. either way, we're done here
+			return;
+		}
+		if (IRepository.TYPE_METADATA == type) {
+			for (int i = 0; i < metadataReposForRemoval.length; i++) {
+				if (metadataReposForRemoval[i] != null && URIUtil.sameURI(metadataReposForRemoval[i], (location))) {
+					metadataReposForRemoval[i] = null;
+					break;
+				}
+			}
+			// either found or not found. either way, we're done here
+			return;
+		}
 	}
 
 	private void logStatus(IStatus status) {
@@ -1217,6 +1265,9 @@ public class DirectorApplication implements IApplication {
 	}
 
 	public void stop() {
+		IProvisioningEventBus eventBus = (IProvisioningEventBus) targetAgent.getService(IProvisioningEventBus.SERVICE_NAME);
+		if (eventBus != null)
+			eventBus.removeListener(this);
 		if (log != null)
 			log.close();
 	}
