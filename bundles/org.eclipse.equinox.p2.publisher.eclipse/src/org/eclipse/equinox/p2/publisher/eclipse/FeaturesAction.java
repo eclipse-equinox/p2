@@ -566,12 +566,17 @@ public class FeaturesAction extends AbstractPublisherAction {
 			return VersionRange.emptyRange;
 		if (!entry.isRequires())
 			return new VersionRange(version, true, version, true);
-		if (match == null)
+		if (match == null) {
+			if (entry.isPatch()) {
+				org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(version);
+				Version upper = Version.createOSGi(osgiVersion.getMajor() + 1, 0, 0);
+				return new VersionRange(version, true, upper, false);
+			}
 			// TODO should really be returning VersionRange.emptyRange here...
 			return null;
+		}
 		if (match.equals("perfect")) //$NON-NLS-1$
 			return new VersionRange(version, true, version, true);
-
 		org.osgi.framework.Version osgiVersion = PublisherHelper.toOSGiVersion(version);
 		if (match.equals("equivalent")) { //$NON-NLS-1$
 			Version upper = Version.createOSGi(osgiVersion.getMajor(), osgiVersion.getMinor() + 1, 0);
