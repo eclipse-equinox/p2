@@ -3,12 +3,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<artifactId>org.eclipse.equinox.p2-parent</artifactId>
 		<groupId>org.eclipse</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../../org.eclipse.equinox.p2.releng/org.eclipse.equinox.p2-parent</relativePath>
 	</parent>
+
 	<groupId>org.eclipse</groupId>
 	<artifactId>org.eclipse.equinox.p2.tests.ui</artifactId>
 	<version>1.0.100-SNAPSHOT</version>
@@ -17,8 +19,8 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
-				<artifactId>maven-osgi-test-plugin</artifactId>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
 					<testSuite>org.eclipse.equinox.p2.tests.ui</testSuite>
