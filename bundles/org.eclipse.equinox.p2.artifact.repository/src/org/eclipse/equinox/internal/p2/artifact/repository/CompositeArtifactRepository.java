@@ -378,7 +378,7 @@ public class CompositeArtifactRepository extends AbstractArtifactRepository impl
 				current.setBad(true);
 				// If more children are available, set retry
 				if (childIterator.hasNext())
-					return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {status}, NLS.bind(Messages.retryRequest, current.repo.getLocation(), descriptor.getArtifactKey()), null);
+					return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {status}, NLS.bind(Messages.retryRequest, descriptor.getArtifactKey(), current.repo.getLocation()), null);
 				// Nothing that can be done, pass child's failure on
 				resetChildFailures();
 				return status;
