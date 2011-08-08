@@ -179,7 +179,8 @@ public class MirrorRequest extends ArtifactRequest {
 	 * @return the status of the transfer operation
 	 */
 	protected IStatus transfer(IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
-		IStatus status = Status.OK_STATUS;
+		MultiStatus allResults = new MultiStatus(Activator.ID, 0, NLS.bind(Messages.MirrorRequest_transferFailed, sourceDescriptor), null);
+		IStatus lastResult = Status.OK_STATUS;
 		// go until we get one (OK), there are no more mirrors to consider or the operation is cancelled.
 		// Put a hard limit of MAX_RETRY_REQUEST so we don't end up in an infinite loop.  
 		// Really, if you've tried MAX_RETRY_REQUEST times without success, it's time to give up
@@ -188,11 +189,16 @@ public class MirrorRequest extends ArtifactRequest {
 
 		int counter = 0;
 		do {
-			status = transferSingle(destinationDescriptor, sourceDescriptor, monitor);
-		} while (status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY && counter++ < MAX_RETRY_REQUEST);
-		if (status.isOK())
+			lastResult = transferSingle(destinationDescriptor, sourceDescriptor, monitor);
+			allResults.add(lastResult);
+		} while (lastResult.getSeverity() == IStatus.ERROR && lastResult.getCode() == IArtifactRepository.CODE_RETRY && counter++ < MAX_RETRY_REQUEST);
+		if (lastResult.isOK()) {
 			collectStats(sourceDescriptor, monitor);
-		return status;
+			return lastResult;
+		} else if (allResults.getChildren().length <= 1) {
+			return lastResult;
+		}
+		return allResults;
 	}
 
 	/**
@@ -246,11 +252,6 @@ public class MirrorRequest extends ArtifactRequest {
 				if (status != null && status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY)
 					return new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status}, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
 				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
-			}
-			if (status != null && status.getSeverity() == IStatus.ERROR) {
-				IStatus root = extractRootCause(status);
-				if (root != null && FileNotFoundException.class == root.getException().getClass())
-					return new Status(IStatus.ERROR, Activator.ID, status.getCode(), NLS.bind(Messages.artifact_not_found, getArtifactKey()), root.getException());
 			}
 		}
 		return status;

@@ -229,7 +229,7 @@ public class Publisher {
 			IStatus finalStatus = null;
 			if (info.getArtifactRepository() != null) {
 				finalStatus = info.getArtifactRepository().executeBatch(artifactProcess, sub);
-				if (finalStatus.isOK())
+				if (!finalStatus.matches(IStatus.ERROR | IStatus.CANCEL))
 					// If the batch process didn't report any errors, then 
 					// Use the status from our actions
 					finalStatus = artifactProcess.getStatus();
@@ -240,17 +240,24 @@ public class Publisher {
 
 			if (Tracing.DEBUG_PUBLISHING)
 				Tracing.debug("Publishing complete. Result=" + finalStatus); //$NON-NLS-1$
+
+			// if there were no errors, publish all the ius.
+			if (finalStatus.isOK() || finalStatus.matches(IStatus.INFO | IStatus.WARNING))
+				savePublishedIUs();
+
 			if (!finalStatus.isOK())
 				return finalStatus;
+			return Status.OK_STATUS;
 		} finally {
 			sub.done();
 		}
-		// if there were no errors, publish all the ius.
+	}
+
+	protected void savePublishedIUs() {
 		IMetadataRepository metadataRepository = info.getMetadataRepository();
 		if (metadataRepository != null) {
 			Collection<IInstallableUnit> ius = results.getIUs(null, null);
 			metadataRepository.addInstallableUnits(ius);
 		}
-		return Status.OK_STATUS;
 	}
 }

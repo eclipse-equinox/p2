@@ -283,18 +283,20 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			IStatus result = publisher.publish(actions, new NullProgressMonitor());
 			long after = System.currentTimeMillis();
 
-			if (result.isOK()) {
+			if (!result.isOK()) {
+				// TODO: improve the string representation of the result
+				System.out.println(result);
+				Throwable th = result.getException();
+				if (th != null) {
+					System.out.println();
+					System.out.println(NLS.bind(Messages.message_resultException, null));
+					th.printStackTrace(System.out);
+					System.out.println();
+				}
+			}
+			if (!result.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				System.out.println(NLS.bind(Messages.message_generationCompleted, String.valueOf((after - before) / 1000)));
 				return IApplication.EXIT_OK;
-			}
-			// TODO: improve the string representation of the result
-			System.out.println(result);
-			Throwable th = result.getException();
-			if (th != null) {
-				System.out.println();
-				System.out.println(NLS.bind(Messages.message_resultException, null));
-				th.printStackTrace(System.out);
-				System.out.println();
 			}
 		} catch (ProvisionException e) {
 			status = e.getStatus();

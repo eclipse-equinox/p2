@@ -5,10 +5,11 @@
   <parent>
     <artifactId>org.eclipse.equinox.p2-parent</artifactId>
     <groupId>org.eclipse</groupId>
-    <version>0.0.1-SNAPSHOT</version><relativePath>../org.eclipse.equinox.p2-parent</relativePath>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../../org.eclipse.equinox.p2.releng/org.eclipse.equinox.p2-parent</relativePath>
   </parent>
   <groupId>org.eclipse</groupId>
   <artifactId>org.eclipse.equinox.p2.ui.rcp</artifactId>
-  <version>1.0.0.qualifier</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 </project>
