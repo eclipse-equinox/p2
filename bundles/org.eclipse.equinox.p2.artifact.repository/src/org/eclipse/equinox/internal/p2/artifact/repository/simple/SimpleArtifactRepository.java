@@ -54,6 +54,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public static final boolean MD5_CHECK_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.MD5Check")); //$NON-NLS-1$//$NON-NLS-2$
 
+	public static final boolean MD5_ARTIFACT_CHECK_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.MD5ArtifactCheck")); //$NON-NLS-1$//$NON-NLS-2$
+
 	public static final String CONTENT_FILENAME = "artifacts"; //$NON-NLS-1$
 
 	/** 
@@ -425,6 +427,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ArrayList<ProcessingStep> steps = new ArrayList<ProcessingStep>();
 		steps.add(new SignatureVerifier());
+		if (MD5_ARTIFACT_CHECK_ENABLED && descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5) != null)
+			steps.add(new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5)));
 		if (steps.isEmpty())
 			return destination;
 		ProcessingStep[] stepArray = steps.toArray(new ProcessingStep[steps.size()]);
