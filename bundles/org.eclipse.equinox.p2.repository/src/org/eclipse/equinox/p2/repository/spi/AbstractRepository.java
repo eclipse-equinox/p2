@@ -81,9 +81,7 @@ public abstract class AbstractRepository<T> extends PlatformObject implements IR
 
 	/**
 	 * Returns the location of this repository.
-	 * TODO: Should we use URL or URI? URL requires a protocol handler
-	 * to be installed in Java.  Can the URL have any protocol?
-	 * @return the URL of the repository.
+	 * @return the URI of the repository.
 	 */
 	public synchronized URI getLocation() {
 		return location;
