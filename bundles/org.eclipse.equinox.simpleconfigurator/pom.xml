@@ -10,6 +10,6 @@
   </parent>
   <groupId>org.eclipse</groupId>
   <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
-  <version>1.0.200-SNAPSHOT</version>
+  <version>1.0.300-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 </project>
