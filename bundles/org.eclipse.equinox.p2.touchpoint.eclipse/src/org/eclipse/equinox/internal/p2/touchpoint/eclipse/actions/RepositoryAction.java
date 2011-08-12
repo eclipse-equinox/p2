@@ -171,7 +171,13 @@ abstract class RepositoryAction extends ProvisioningAction {
 		int count = getRepositoryCount(node);
 		if (--count < 1 && manager != null)
 			manager.removeRepository(event.getRepositoryLocation());
-		setRepositoryCount(node, count);
+		// check existence in case the repository removal deleted it
+		try {
+			if (node.nodeExists("")) //$NON-NLS-1$
+				setRepositoryCount(node, count);
+		} catch (BackingStoreException e) {
+			// ignore
+		}
 	}
 
 	/**
