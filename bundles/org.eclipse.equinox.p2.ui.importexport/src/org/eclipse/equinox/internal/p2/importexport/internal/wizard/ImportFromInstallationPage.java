@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.importexport.internal.wizard;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.util.Properties;
 import java.util.concurrent.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationArtifactRepositoryFactory;
@@ -45,6 +45,7 @@ import org.osgi.util.tracker.ServiceTracker;
 public class ImportFromInstallationPage extends AbstractImportPage implements ISelectableIUsPage {
 
 	protected IProvisioningAgent otherInstanceAgent = null;
+	IProfile toBeImportedProfile = null;
 	private File instancePath = null;
 	private URI[] metaURIs = null;
 	private URI[] artiURIs = null;
@@ -134,71 +135,116 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 
 		if (rt) {
 			try {
-				String destinate;
+				String destination;
 				if (Display.findDisplay(Thread.currentThread()) == null) {
 					Callable<String> getDestinationValue = new Callable<String>() {
-						String destination;
+						String des;
 
 						public String call() throws Exception {
 							if (Display.findDisplay(Thread.currentThread()) == null) {
 								Display.getDefault().syncExec(new Runnable() {
 									public void run() {
-										destination = getDestinationValue();
+										des = getDestinationValue();
 									}
 								});
 							} else
-								destination = getDestinationValue();
-							return destination;
+								des = getDestinationValue();
+							return des;
 						}
 					};
 					ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 					Future<String> getDestTask = executor.submit(getDestinationValue);
 					try {
-						destinate = getDestTask.get();
+						destination = getDestTask.get();
 					} finally {
 						executor.shutdown();
 					}
 				} else
-					destinate = getDestinationValue();
+					destination = getDestinationValue();
+
+				String toBeImportedProfileId = null;
 				try {
-					File p2 = new File(destinate, "p2"); //$NON-NLS-1$
-					if (p2.exists()) {
+					File config = new File(destination, "configuration/config.ini"); //$NON-NLS-1$
+					URI configArea = config.getParentFile().toURI();
+					InputStream is = null;
+					// default area
+					File p2DataArea = new File(destination, "p2"); //$NON-NLS-1$
+					try {
+						Properties props = new Properties();
+						is = new FileInputStream(config);
+						props.load(is);
+						toBeImportedProfileId = props.getProperty("eclipse.p2.profile"); //$NON-NLS-1$
+						String url = props.getProperty("eclipse.p2.data.area"); //$NON-NLS-1$
+						if (url != null) {
+							final String CONFIG_DIR = "@config.dir/"; //$NON-NLS-1$
+							final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
+							if (url.startsWith(CONFIG_DIR))
+								url = FILE_PROTOCOL + url.substring(CONFIG_DIR.length());
+							p2DataArea = new File(URIUtil.makeAbsolute(URIUtil.fromString(new File(url.substring(FILE_PROTOCOL.length())).isAbsolute() ? url : url.substring(FILE_PROTOCOL.length())), configArea));
+						}
+					} catch (IOException ioe) {
+						//ignore
+					} finally {
+						try {
+							is.close();
+						} catch (IOException ioe) {
+							//ignore
+						}
+						is = null;
+					}
+					if (p2DataArea.exists()) {
 						boolean createAgent = true;
 						if (otherInstanceAgent != null) {
 							// don't create agent again if the selection is not changed
-							if (!p2.equals(instancePath)) {
+							if (!p2DataArea.equals(instancePath)) {
 								otherInstanceAgent.stop();
 								otherInstanceAgent = null;
 								// update cached specified path by users
-								instancePath = p2;
+								instancePath = p2DataArea;
 								cleanLocalRepository();
 							} else
 								createAgent = false;
 						}
 						if (createAgent)
-							otherInstanceAgent = getAgentProvider().createAgent(p2.toURI());
+							otherInstanceAgent = getAgentProvider().createAgent(p2DataArea.toURI());
 						ArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
 						factory.setAgent(agent);
-						IArtifactRepository artiRepo = factory.load(new File(destinate).toURI(), 0, progress.newChild(50));
+						IArtifactRepository artiRepo = factory.load(new File(destination).toURI(), 0, progress.newChild(50));
 						artiURIs = new URI[] {artiRepo.getLocation()};
 						MetadataRepositoryFactory metaFatory = new ExtensionLocationMetadataRepositoryFactory();
 						metaFatory.setAgent(agent);
-						IMetadataRepository metaRepo = metaFatory.load(new File(destinate).toURI(), 0, progress.newChild(50));
+						IMetadataRepository metaRepo = metaFatory.load(new File(destination).toURI(), 0, progress.newChild(50));
 						metaURIs = new URI[] {metaRepo.getLocation()};
 
 					} else
 						throw new FileNotFoundException();
 				} catch (ProvisionException e) {
 					if (otherInstanceAgent != null) {
+						toBeImportedProfile = null;
 						IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 						IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
-						IProfile profile = ((IProfileRegistry) otherInstanceAgent.getService(IProfileRegistry.SERVICE_NAME)).getProfiles()[0];
+						IProfileRegistry registry = (IProfileRegistry) otherInstanceAgent.getService(IProfileRegistry.SERVICE_NAME);
+						if (toBeImportedProfileId != null)
+							toBeImportedProfile = registry.getProfile(toBeImportedProfileId);
+						if (toBeImportedProfile == null) {
+							IProfile[] existingProfiles = registry.getProfiles();
+							if (existingProfiles.length == 1) {
+								toBeImportedProfile = existingProfiles[0];
+							} else {
+								for (IProfile existingProfile : existingProfiles) {
+									if (toBeImportedProfile == null)
+										toBeImportedProfile = existingProfile;
+									else if ((toBeImportedProfile.getTimestamp() < existingProfile.getTimestamp())) // assuming last modified one is we are looking for
+										toBeImportedProfile = existingProfile;
+								}
+							}
+						}
 						IAgentLocation location = (IAgentLocation) otherInstanceAgent.getService(IAgentLocation.SERVICE_NAME);
 						URI engineDataArea = location.getDataArea("org.eclipse.equinox.p2.engine"); //$NON-NLS-1$
 						progress.setWorkRemaining(50);
-						IMetadataRepository metaRepo = manager.loadRepository(engineDataArea.resolve("profileRegistry/" + profile.getProfileId() + ".profile"), progress.newChild(25)); //$NON-NLS-1$//$NON-NLS-2$
+						IMetadataRepository metaRepo = manager.loadRepository(engineDataArea.resolve("profileRegistry/" + toBeImportedProfile.getProfileId() + ".profile"), progress.newChild(25)); //$NON-NLS-1$//$NON-NLS-2$
 						metaURIs = new URI[] {metaRepo.getLocation()};
-						IArtifactRepository artiRepo = artifactManager.loadRepository(new File(destinate).toURI(), progress.newChild(25));
+						IArtifactRepository artiRepo = artifactManager.loadRepository(new File(destination).toURI(), progress.newChild(25));
 						artiURIs = new URI[] {artiRepo.getLocation()};
 					} else
 						throw new Exception();
@@ -213,6 +259,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 				if (otherInstanceAgent != null)
 					otherInstanceAgent.stop();
 				otherInstanceAgent = null;
+				toBeImportedProfile = null;
 				cleanLocalRepository();
 			} finally {
 				monitor.done();
@@ -246,8 +293,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 				public void run(IProgressMonitor monitor) {
 					Object input = null;
 					if (validateDestinationGroup(monitor)) {
-						IProfileRegistry registry = (IProfileRegistry) otherInstanceAgent.getService(IProfileRegistry.SERVICE_NAME);
-						final IProfile currentProfile = registry.getProfiles()[0];
+						final IProfile currentProfile = toBeImportedProfile;
 						final ProfileElement element = new ProfileElement(null, currentProfile.getProfileId()) {
 							@Override
 							public org.eclipse.equinox.p2.query.IQueryable<?> getQueryable() {
@@ -316,6 +362,7 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 		if (otherInstanceAgent != null) {
 			otherInstanceAgent.stop();
 			otherInstanceAgent = null;
+			toBeImportedProfile = null;
 		}
 		if (getWizard().performCancel())
 			cleanLocalRepository();
@@ -323,11 +370,11 @@ public class ImportFromInstallationPage extends AbstractImportPage implements IS
 
 	public void cleanLocalRepository() {
 		if (metaURIs != null && metaURIs.length > 0) {
-			IProvisioningAgent agent = getProvisioningUI().getSession().getProvisioningAgent();
-			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) agent.getService(IMetadataRepositoryManager.SERVICE_NAME);
+			IProvisioningAgent runningAgent = getProvisioningUI().getSession().getProvisioningAgent();
+			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) runningAgent.getService(IMetadataRepositoryManager.SERVICE_NAME);
 			for (URI uri : metaURIs)
 				manager.removeRepository(uri);
-			IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) agent.getService(IArtifactRepositoryManager.SERVICE_NAME);
+			IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) runningAgent.getService(IArtifactRepositoryManager.SERVICE_NAME);
 			for (URI uri : artiURIs)
 				artifactManager.removeRepository(uri);
 		}
