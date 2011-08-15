@@ -169,15 +169,10 @@ abstract class RepositoryAction extends ProvisioningAction {
 		IRepositoryManager<?> manager = getRepositoryManager(agent, event.getRepositoryType());
 		Preferences node = getRepositoryPreferenceNode(agentLocation, null, event.getRepositoryLocation(), event.getRepositoryType());
 		int count = getRepositoryCount(node);
-		if (--count < 1 && manager != null)
+		// modify the repository count before (potentially) removing the preference node
+		setRepositoryCount(node, --count);
+		if (count < 1 && manager != null)
 			manager.removeRepository(event.getRepositoryLocation());
-		// check existence in case the repository removal deleted it
-		try {
-			if (node.nodeExists("")) //$NON-NLS-1$
-				setRepositoryCount(node, count);
-		} catch (BackingStoreException e) {
-			// ignore
-		}
 	}
 
 	/**
