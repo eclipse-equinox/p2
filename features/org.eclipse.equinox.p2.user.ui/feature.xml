@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.equinox.p2.user.ui"
       label="%featureName"
-      version="2.1.1.qualifier"
+      version="2.1.100.qualifier"
       provider-name="%providerName"
       image="eclipse_update_120.jpg"
       license-feature="org.eclipse.license"
@@ -22,16 +22,16 @@
 
    <includes
          id="org.eclipse.equinox.p2.core.feature"
-         version="0.0.0"/>     
- 
+         version="0.0.0"/>
+
    <includes
          id="org.eclipse.equinox.p2.extras.feature"
          version="0.0.0"/>
-         
-    <includes
+
+   <includes
          id="org.eclipse.equinox.p2.rcp.feature"
          version="0.0.0"/>
-  
+
    <plugin
          id="org.eclipse.equinox.p2.updatesite"
          download-size="0"
