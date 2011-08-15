@@ -55,8 +55,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	public ProvisioningOperationWizard(ProvisioningUI ui, ProfileChangeOperation operation, Object[] initialSelections, LoadMetadataRepositoryJob job) {
 		super();
 		this.ui = ui;
-		initializeResolutionModelElements(initialSelections);
 		this.operation = operation;
+		initializeResolutionModelElements(initialSelections);
 		this.repoPreloadJob = job;
 		setForcePreviousAndNextButtons(true);
 		setNeedsProgressMonitor(true);
