@@ -170,8 +170,8 @@ abstract class RepositoryAction extends ProvisioningAction {
 		Preferences node = getRepositoryPreferenceNode(agentLocation, null, event.getRepositoryLocation(), event.getRepositoryType());
 		int count = getRepositoryCount(node);
 		// modify the repository count before (potentially) removing the preference node
-		setRepositoryCount(node, count);
-		if (--count < 1 && manager != null)
+		setRepositoryCount(node, --count);
+		if (count < 1 && manager != null)
 			manager.removeRepository(event.getRepositoryLocation());
 	}
 
