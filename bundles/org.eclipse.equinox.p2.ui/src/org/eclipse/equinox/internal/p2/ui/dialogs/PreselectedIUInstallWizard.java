@@ -63,6 +63,9 @@ public class PreselectedIUInstallWizard extends WizardWithLicenses {
 		}
 		root.setChildren(list.toArray());
 		planSelections = selected.toArray();
+		if (licensePage != null) {
+			licensePage.update(ElementUtils.elementsToIUs(planSelections).toArray(new IInstallableUnit[0]), operation);
+		}
 	}
 
 	/* (non-Javadoc)
