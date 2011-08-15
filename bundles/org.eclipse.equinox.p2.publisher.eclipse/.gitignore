@@ -1,1 +1,4 @@
-ant_tasks/
+ant_tasks
+bin
+target
+temp.folder

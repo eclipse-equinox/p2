@@ -1,1 +1,3 @@
-ant_tasks/
+bin
+ant_tasks
+target
