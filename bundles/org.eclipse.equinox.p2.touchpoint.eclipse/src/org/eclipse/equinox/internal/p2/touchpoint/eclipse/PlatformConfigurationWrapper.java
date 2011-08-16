@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,11 @@ public class PlatformConfigurationWrapper {
 
 	private static String FEATURES = "features/"; //$NON-NLS-1$
 
+	/*
+	 * Use the given manipulator to calculate the OSGi install location. We can't
+	 * just use the Location service here because we may not be installing into
+	 * ourselves. (see https://bugs.eclipse.org/354552)
+	 */
 	private static URL getOSGiInstallArea(Manipulator manipulator) {
 		final String OSGI = "org.eclipse.osgi"; //$NON-NLS-1$
 		BundleInfo[] bis = manipulator.getConfigData().getBundles();
