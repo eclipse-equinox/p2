@@ -283,7 +283,6 @@ public class ProfileSynchronizer {
 			String timestamp = null;
 			if (props != null)
 				timestamp = props.get(IRepository.PROP_TIMESTAMP);
-
 			if (timestamp == null)
 				timestamp = NO_TIMESTAMP;
 
