@@ -454,7 +454,6 @@ public class ProfileSynchronizer {
 			String repositoryId = it.next();
 			try {
 				IArtifactRepository repository = Activator.loadArtifactRepository(new URI(repositoryId), null);
-
 				if (repository instanceof IFileArtifactRepository) {
 					currentExtensions.add(escapePipe(repositoryId));
 					buffer.append(repositoryId);
