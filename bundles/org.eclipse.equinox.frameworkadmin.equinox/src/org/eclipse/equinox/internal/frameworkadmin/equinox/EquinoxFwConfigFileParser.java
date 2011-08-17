@@ -377,24 +377,6 @@ public class EquinoxFwConfigFileParser {
 		}
 	}
 
-	//	private void readLauncherPath(Properties props, URI root) throws URISyntaxException {
-	//		if (props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH) != null) {
-	//			URI absoluteURI = URIUtil.makeAbsolute(URIUtil.fromString(props.getProperty(EquinoxConstants.PROP_LAUNCHER_PATH)), root);
-	//			props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, URIUtil.toUnencodedString(absoluteURI));
-	//		}
-	//	}
-	//
-	//	private void writeLauncherPath(ConfigData configData, Properties props, URI root) throws URISyntaxException {
-	//		String value = getFwProperty(configData, EquinoxConstants.PROP_LAUNCHER_PATH);
-	//		if (value != null) {
-	//			URI launcherPathURI = FileUtils.fromPath(value);
-	//			String launcherPath = URIUtil.toUnencodedString(URIUtil.makeRelative(launcherPathURI, root));
-	//			if ("/".equals(launcherPath) || "".equals(launcherPath)) //$NON-NLS-1$ //$NON-NLS-2$
-	//				launcherPath = "."; //$NON-NLS-1$
-	//			props.setProperty(EquinoxConstants.PROP_LAUNCHER_PATH, launcherPath);
-	//		}
-	//	}
-
 	private void readSimpleConfiguratorURL(Properties props, URI configArea) throws URISyntaxException {
 		if (props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL) != null)
 			props.setProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, URIUtil.makeAbsolute(FileUtils.fromFileURL(props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL)), configArea).toString());

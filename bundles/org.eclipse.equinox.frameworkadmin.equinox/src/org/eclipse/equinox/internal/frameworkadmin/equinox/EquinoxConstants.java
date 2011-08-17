@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,6 @@ public class EquinoxConstants {
 	public static final String PROP_FW_EXTENSIONS = "osgi.framework.extensions"; //$NON-NLS-1$
 	public static final String PROP_OSGI_FW = "osgi.framework"; //$NON-NLS-1$
 	public static final String PROP_OSGI_SYSPATH = "osgi.syspath"; //$NON-NLS-1$
-	public static final String PROP_LAUNCHER_PATH = "osgi.launcherPath"; //$NON-NLS-1$
 	public static final String PROP_LAUNCHER_NAME = "osgi.launcherIni"; //$NON-NLS-1$
 	public static final String PROP_SHARED_CONFIGURATION_AREA = "osgi.sharedConfiguration.area"; //$NON-NLS-1$	
 
