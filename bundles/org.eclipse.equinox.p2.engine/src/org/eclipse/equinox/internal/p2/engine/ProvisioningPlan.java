@@ -63,9 +63,6 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		return profile;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProvisioningPlan#getOperands()
-	 */
 	public Operand[] getOperands() {
 		return operands.toArray(new Operand[operands.size()]);
 	}
