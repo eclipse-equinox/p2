@@ -27,6 +27,8 @@ public class DebugHelper {
 	public static final boolean DEBUG_PROFILE_REGISTRY;
 	public static final boolean DEBUG_ENGINE;
 	public static final boolean DEBUG_ENGINE_SESSION;
+	public static final boolean DEBUG_CERTIFICATE_CHECKER_UNSIGNED;
+	public static final boolean DEBUG_CERTIFICATE_CHECKER_UNTRUSTED;
 
 	static {
 		DebugOptions options = (DebugOptions) ServiceHelper.getService(EngineActivator.getContext(), DebugOptions.class.getName());
@@ -34,10 +36,14 @@ public class DebugHelper {
 			DEBUG_PROFILE_REGISTRY = options.getBooleanOption(EngineActivator.ID + "/profileregistry/debug", false); //$NON-NLS-1$
 			DEBUG_ENGINE = options.getBooleanOption(EngineActivator.ID + "/engine/debug", false); //$NON-NLS-1$
 			DEBUG_ENGINE_SESSION = options.getBooleanOption(EngineActivator.ID + "/enginesession/debug", false); //$NON-NLS-1$
+			DEBUG_CERTIFICATE_CHECKER_UNSIGNED = options.getBooleanOption(EngineActivator.ID + "/certificatechecker/unsigned", false); //$NON-NLS-1$
+			DEBUG_CERTIFICATE_CHECKER_UNTRUSTED = options.getBooleanOption(EngineActivator.ID + "/certificatechecker/untrusted", false); //$NON-NLS-1$
 		} else {
 			DEBUG_PROFILE_REGISTRY = false;
 			DEBUG_ENGINE = false;
 			DEBUG_ENGINE_SESSION = false;
+			DEBUG_CERTIFICATE_CHECKER_UNSIGNED = false;
+			DEBUG_CERTIFICATE_CHECKER_UNTRUSTED = false;
 		}
 	}
 

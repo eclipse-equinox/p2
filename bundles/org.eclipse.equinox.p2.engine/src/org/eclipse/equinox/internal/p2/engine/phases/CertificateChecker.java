@@ -14,11 +14,10 @@ import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.cert.Certificate;
-import java.util.ArrayList;
+import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.internal.p2.engine.Messages;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.core.UIServices.TrustInfo;
 import org.eclipse.osgi.service.security.TrustEngine;
@@ -29,6 +28,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class CertificateChecker {
+	private static final String CC = "certificate checker";
+
 	private ArrayList<File> artifacts;
 	private final IProvisioningAgent agent;
 
@@ -59,6 +60,7 @@ public class CertificateChecker {
 		ArrayList<Certificate> untrusted = new ArrayList<Certificate>();
 		ArrayList<File> unsigned = new ArrayList<File>();
 		ArrayList<Certificate[]> untrustedChain = new ArrayList<Certificate[]>();
+		Map<Certificate, Collection<File>> untrustedArtifacts = new HashMap<Certificate, Collection<File>>();
 		IStatus status = Status.OK_STATUS;
 		if (artifacts.size() == 0 || serviceUI == null)
 			return status;
@@ -82,6 +84,35 @@ public class CertificateChecker {
 						untrusted.add(certificateChain[0]);
 						untrustedChain.add(certificateChain);
 					}
+					if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNTRUSTED) {
+						if (untrustedArtifacts.containsKey(certificateChain[0])) {
+							untrustedArtifacts.get(certificateChain[0]).add(artifact);
+						} else {
+							untrustedArtifacts.put(certificateChain[0], new ArrayList<File>(Arrays.asList(artifact)));
+						}
+					}
+				}
+
+				// log the unsigned artifacts if requested
+				if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNSIGNED && !unsigned.isEmpty()) {
+					StringBuilder message = new StringBuilder("The following artifacts are unsigned:\n"); //$NON-NLS-1$
+					for (File file : unsigned) {
+						message.append(NLS.bind("  {0}\n", file.getPath())); //$NON-NLS-1$
+					}
+					DebugHelper.debug(CC, message.toString());
+				}
+
+				// log the untrusted certificates if requested
+				if (DebugHelper.DEBUG_CERTIFICATE_CHECKER_UNTRUSTED && !untrusted.isEmpty()) {
+					StringBuilder message = new StringBuilder("The following certificates are untrusted:\n"); //$NON-NLS-1$
+					for (Certificate cert : untrustedArtifacts.keySet()) {
+						message.append(cert.toString() + "\n"); //$NON-NLS-1$
+						message.append("  used by the following artifacts:\n"); //$NON-NLS-1$
+						for (File file : untrustedArtifacts.get(cert)) {
+							message.append(NLS.bind("    {0}\n", file.getPath())); //$NON-NLS-1$
+						}
+					}
+					DebugHelper.debug(CC, message.toString());
 				}
 			}
 		}

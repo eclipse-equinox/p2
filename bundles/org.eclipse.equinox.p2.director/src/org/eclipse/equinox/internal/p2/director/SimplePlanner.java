@@ -21,7 +21,8 @@ import org.eclipse.equinox.internal.p2.director.Explanation.MissingIU;
 import org.eclipse.equinox.internal.p2.metadata.IRequiredCapability;
 import org.eclipse.equinox.internal.p2.metadata.query.UpdateQuery;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerStatus;
+import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
 import org.eclipse.equinox.p2.core.IAgentLocation;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.engine.*;
@@ -93,7 +94,9 @@ public class SimplePlanner implements IPlanner {
 
 	private Map<IInstallableUnit, RequestStatus>[] computeActualChangeRequest(Collection<IInstallableUnit> toState, ProfileChangeRequest changeRequest) {
 		Collection<IInstallableUnit> requestedAdditions = changeRequest.getAdditions();
-		Collection<IInstallableUnit> requestedRemovals = changeRequest.getRemovals();
+		Collection<IInstallableUnit> requestedRemovals = new ArrayList<IInstallableUnit>(changeRequest.getRemovals());
+		requestedRemovals.removeAll(requestedAdditions);
+
 		Map<IInstallableUnit, RequestStatus> requestStatus = new HashMap<IInstallableUnit, RequestStatus>(requestedAdditions.size() + requestedRemovals.size());
 		for (IInstallableUnit added : requestedAdditions) {
 			if (toState.contains(added))

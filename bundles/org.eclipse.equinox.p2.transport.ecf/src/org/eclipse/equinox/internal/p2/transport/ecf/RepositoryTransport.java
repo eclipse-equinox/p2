@@ -16,8 +16,12 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -44,6 +48,7 @@ import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.UIServices.AuthenticationInfo;
 import org.eclipse.equinox.p2.core.spi.IAgentServiceFactory;
+import org.eclipse.equinox.p2.repository.artifact.IArtifactRepository;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -54,6 +59,8 @@ import org.eclipse.osgi.util.NLS;
 public class RepositoryTransport extends Transport implements IAgentServiceFactory {
 	private static RepositoryTransport instance;
 
+	public static final String TIMEOUT_RETRY = "org.eclipse.equinox.p2.transport.ecf.retry"; //$NON-NLS-1$
+	private static Map<URI, Integer> socketExceptionRetry = null;
 	/**
 	 * Returns an shared instance of Generic Transport
 	 */
@@ -226,12 +233,51 @@ public class RepositoryTransport extends Transport implements IAgentServiceFacto
 		throw new AuthenticationFailedException();
 	}
 
+	private static boolean isForgiveableException(Throwable t) {
+		if (t instanceof SocketTimeoutException)
+			return true;
+		else if (t instanceof SocketException)
+			return true;
+		return false;
+	}
+
 	public static DownloadStatus forStatus(IStatus original, URI toDownload) {
 		Throwable t = original.getException();
+		if (isForgiveableException(t) && original.getCode() == IArtifactRepository.CODE_RETRY)
+			return new DownloadStatus(original.getSeverity(), Activator.ID, original.getCode(), original.getMessage(), t);
 		return forException(t, toDownload);
 	}
 
 	public static DownloadStatus forException(Throwable t, URI toDownload) {
+		if (isForgiveableException(t)) {
+			String value = System.getProperty(TIMEOUT_RETRY);
+			if (value != null) {
+				try {
+					int retry = Integer.valueOf(value).intValue();
+					if (retry > 0) {
+						Integer retryCount = null;
+						if (socketExceptionRetry == null) {
+							socketExceptionRetry = new HashMap<URI, Integer>();
+							retryCount = new Integer(1);
+						} else {
+							Integer alreadyRetryCount = socketExceptionRetry.get(toDownload);
+							if (alreadyRetryCount == null)
+								retryCount = new Integer(1);
+							else if (alreadyRetryCount.intValue() < retry) {
+								retryCount = new Integer(alreadyRetryCount.intValue() + 1);
+							}
+						}
+						if (retryCount != null) {
+							socketExceptionRetry.put(toDownload, retryCount);
+							return new DownloadStatus(IStatus.ERROR, Activator.ID, IArtifactRepository.CODE_RETRY, 
+									NLS.bind(Messages.connection_to_0_failed_on_1_retry_attempt_2, new String[] {toDownload.toString(), t.getMessage(), retryCount.toString()}), t); 
+						}
+					}
+				} catch (NumberFormatException e) {
+					// ignore
+				}
+			}
+		}
 		if (t instanceof FileNotFoundException || (t instanceof IncomingFileTransferException && ((IncomingFileTransferException) t).getErrorCode() == 404))
 			return new DownloadStatus(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_NOT_FOUND, NLS.bind(Messages.artifact_not_found, toDownload), t);
 		if (t instanceof ConnectException)
