@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.equinox.p2.sdk"
       label="%featureName"
-      version="3.7.0.qualifier"
+      version="3.7.1.qualifier"
       provider-name="%providerName"
       license-feature="org.eclipse.license"
       license-feature-version="1.0.0.qualifier">
@@ -358,21 +358,21 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="org.eclipse.equinox.p2.ui.importexport"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
-    <plugin
+
+   <plugin
          id="org.eclipse.equinox.p2.ui.importexport.source"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="org.eclipse.equinox.p2.ui"
          download-size="0"
@@ -669,12 +669,12 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="org.eclipse.equinox.p2.publisher.eclipse.source"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
 </feature>
