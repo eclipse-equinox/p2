@@ -15,10 +15,14 @@ import java.io.File;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.security.*;
+import java.security.cert.*;
+import java.security.cert.Certificate;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.app.DirectorApplication;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.URIUtil;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.*;
+import org.eclipse.equinox.p2.core.UIServices.TrustInfo;
 import org.eclipse.equinox.p2.repository.IRepositoryManager;
 import org.eclipse.equinox.p2.repository.artifact.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.repository.metadata.IMetadataRepositoryManager;
@@ -716,4 +720,68 @@ public class DirectorApplicationTest extends AbstractProvisioningTest {
 		metadataManager.removeRepository(srcRepo.toURI());
 		delete(destinationRepo);
 	}
+
+	@SuppressWarnings("unused")
+	private final class DummyCertificate extends Certificate {
+		DummyCertificate(String type) {
+			super(type);
+		}
+
+		@Override
+		public void verify(PublicKey key, String sigProvider) throws CertificateException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
+			//
+		}
+
+		@Override
+		public void verify(PublicKey key) throws CertificateException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException, SignatureException {
+			//
+		}
+
+		@Override
+		public String toString() {
+			return null;
+		}
+
+		@Override
+		public PublicKey getPublicKey() {
+			return null;
+		}
+
+		@Override
+		public byte[] getEncoded() throws CertificateEncodingException {
+			return null;
+		}
+	}
+
+	public void testAvoidTrustPromptServiceNoUntrustedCertificates() {
+		final TrustInfo trustInfo = getTrustInfoFor(null);
+		assertNotNull(trustInfo);
+		assertNull(trustInfo.getTrustedCertificates());
+	}
+
+	public void testAvoidTrustPromptServiceTrustsOneCertificate() {
+		final Certificate certificate = new DummyCertificate(""); //$NON-NLS-1$
+		final TrustInfo trustInfo = getTrustInfoFor(new Certificate[][] {{certificate}});
+		assertNotNull(trustInfo);
+		final Certificate[] trustedCertificates = trustInfo.getTrustedCertificates();
+		assertEquals(1, trustedCertificates.length);
+		assertSame(certificate, trustedCertificates[0]);
+	}
+
+	public void testAvoidTrustPromptServiceTrustsManyCertificates() {
+		final Certificate certificate1 = new DummyCertificate(""); //$NON-NLS-1$
+		final Certificate certificate2 = new DummyCertificate(""); //$NON-NLS-1$
+		final TrustInfo trustInfo = getTrustInfoFor(new Certificate[][] { {certificate1}, {certificate2}});
+		assertNotNull(trustInfo);
+		final Certificate[] trustedCertificates = trustInfo.getTrustedCertificates();
+		assertEquals(2, trustedCertificates.length);
+		assertSame(certificate1, trustedCertificates[0]);
+		assertSame(certificate2, trustedCertificates[1]);
+	}
+
+	private TrustInfo getTrustInfoFor(final Certificate[][] untrustedChain) {
+		UIServices avoidTrustPromptService = new DirectorApplication.AvoidTrustPromptService();
+		return avoidTrustPromptService.getTrustInfo(untrustedChain, null);
+	}
+
 }

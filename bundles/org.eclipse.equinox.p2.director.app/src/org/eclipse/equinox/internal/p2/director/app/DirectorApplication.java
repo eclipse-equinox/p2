@@ -47,7 +47,7 @@ import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 public class DirectorApplication implements IApplication, ProvisioningListener {
-	class AvoidTrustPromptService extends UIServices {
+	public static class AvoidTrustPromptService extends UIServices {
 		@Override
 		public AuthenticationInfo getUsernamePassword(String location) {
 			return null;
@@ -59,8 +59,17 @@ public class DirectorApplication implements IApplication, ProvisioningListener {
 		}
 
 		@Override
-		public TrustInfo getTrustInfo(Certificate[][] untrustedChain, String[] unsignedDetail) {
-			return new TrustInfo(null, false, true);
+		public TrustInfo getTrustInfo(Certificate[][] untrustedChains, String[] unsignedDetail) {
+			final Certificate[] trusted;
+			if (untrustedChains == null) {
+				trusted = null;
+			} else {
+				trusted = new Certificate[untrustedChains.length];
+				for (int i = 0; i < untrustedChains.length; i++) {
+					trusted[i] = untrustedChains[i][0];
+				}
+			}
+			return new TrustInfo(trusted, false, true);
 		}
 	}
 
