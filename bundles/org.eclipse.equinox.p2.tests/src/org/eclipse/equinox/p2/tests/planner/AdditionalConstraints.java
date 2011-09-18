@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.util.Arrays;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -57,6 +56,16 @@ public class AdditionalConstraints extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
 		assertInstallOperand(plan, b2);
+		assertNoOperand(plan, x1);
+	}
+
+	public void testExtraRequirement() {
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		ProvisioningContext ctx = new ProvisioningContext(getAgent());
+		req.addExtraRequirements(Arrays.<IRequirement> asList(createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 4.0.0]"))[0]));
+		IProvisioningPlan plan = planner.getProvisioningPlan(req, ctx, null);
+		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
+		assertInstallOperand(plan, b3);
 		assertNoOperand(plan, x1);
 	}
 }
