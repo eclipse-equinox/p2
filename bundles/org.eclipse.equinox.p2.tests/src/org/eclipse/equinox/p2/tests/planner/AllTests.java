@@ -72,6 +72,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ExplanationForPartialInstallation.class);
 		suite.addTestSuite(ExplanationLargeConflict.class);
 		suite.addTestSuite(ExplanationSeveralConflictingRoots.class);
+		suite.addTestSuite(FindRootsAfterUpdate.class);
 		suite.addTestSuite(GreedyRequirement.class);
 		suite.addTestSuite(InclusionRuleTest.class);
 		suite.addTestSuite(InclusionRuleTest2.class);

@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.director.Explanation;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.p2.engine.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.PlannerStatus;
+import org.eclipse.equinox.internal.provisional.p2.director.RequestStatus;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.planner.IPlanner;
@@ -53,6 +53,7 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 		req.addInstallableUnits(new IInstallableUnit[] {y});
 		ProvisioningPlan provisioningPlan = (ProvisioningPlan) planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.ERROR, provisioningPlan.getStatus().getSeverity());
+		assertNull(provisioningPlan.getFutureState());
 		assertNotNull(((PlannerStatus) provisioningPlan.getStatus()).getPlannedState());
 	}
 

@@ -24,6 +24,7 @@ public class ProvisioningPlan implements IProvisioningPlan {
 	final IProfile profile;
 	final List<Operand> operands = new ArrayList<Operand>();
 	final ProvisioningContext context;
+	IQueryable<IInstallableUnit> futureState;
 	IStatus status;
 	private IProvisioningPlan installerPlan;
 
@@ -143,5 +144,13 @@ public class ProvisioningPlan implements IProvisioningPlan {
 		if (value == null && currentValue == null)
 			return;
 		operands.add(new InstallableUnitPropertyOperand(iu, name, currentValue, value));
+	}
+
+	public IQueryable<IInstallableUnit> getFutureState() {
+		return futureState;
+	}
+
+	public void setFuturePlan(IQueryable<IInstallableUnit> futureState) {
+		this.futureState = futureState;
 	}
 }

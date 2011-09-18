@@ -58,6 +58,15 @@ public interface IProvisioningPlan {
 	public IProfile getProfile();
 
 	/**
+	 * Returns the set of IUs that will constitute the profile if the plan is executed successfully.
+	 * 
+	 * @return The set of the IUs that will constitute the profile after the plan is executed successfully, or @null if the 
+	 * plan is in error or the value has not been set.
+	 * @since 2.2
+	 */
+	public IQueryable<IInstallableUnit> getFutureState();
+
+	/**
 	 * Returns the proposed set of installable units to be removed from this profile.
 	 * 
 	 * @return The proposed profile removals.
@@ -173,4 +182,13 @@ public interface IProvisioningPlan {
 	 * @param to the installable unit to add
 	 */
 	public void updateInstallableUnit(IInstallableUnit from, IInstallableUnit to);
+
+	/**
+	 * Sets the value that is returned by the method getFutureState.
+	 * Note that this method is a simple setter and will not cause any update to the other fields of this object.
+	 * This field can be set to @null.   
+	 * @param futureState A set of IU representing the future plan if the plan is executed successfully.
+	 * @since 2.2 
+	 */
+	public void setFuturePlan(IQueryable<IInstallableUnit> futureState);
 }

@@ -51,6 +51,7 @@ public class SimplePlanner implements IPlanner {
 
 	private IProvisioningPlan generateProvisioningPlan(Collection<IInstallableUnit> fromState, Collection<IInstallableUnit> toState, ProfileChangeRequest changeRequest, IProvisioningPlan installerPlan, ProvisioningContext context) {
 		IProvisioningPlan plan = engine.createPlan(changeRequest.getProfile(), context);
+		plan.setFuturePlan(new CollectionResult<IInstallableUnit>(toState));
 		planIUOperations(plan, fromState, toState);
 		planPropertyOperations(plan, changeRequest, toState);
 
