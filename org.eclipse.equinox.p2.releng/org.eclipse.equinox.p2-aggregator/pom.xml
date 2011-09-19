@@ -46,10 +46,10 @@
 		<module>../../bundles/org.eclipse.equinox.p2.repository</module>
 		<module>../../bundles/org.eclipse.equinox.p2.repository.tools</module>
 		<module>../../bundles/org.eclipse.equinox.p2.sar</module>
-<!--		<module>../../bundles/org.eclipse.equinox.p2.tests</module>-->
+		<module>../../bundles/org.eclipse.equinox.p2.tests</module>
 <!--		<module>../../bundles/org.eclipse.equinox.p2.tests.discovery</module>-->
 <!--		<module>../../bundles/org.eclipse.equinox.p2.tests.ui</module>-->
-<!--		<module>../../bundles/org.eclipse.equinox.p2.tests.verifier</module>-->
+		<module>../../bundles/org.eclipse.equinox.p2.tests.verifier</module>
 		<module>../../bundles/org.eclipse.equinox.p2.testserver</module>
 		<module>../../bundles/org.eclipse.equinox.p2.touchpoint.eclipse</module>
 		<module>../../bundles/org.eclipse.equinox.p2.touchpoint.natives</module>

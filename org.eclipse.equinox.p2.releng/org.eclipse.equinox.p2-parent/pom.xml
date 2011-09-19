@@ -11,9 +11,14 @@
 	</properties>
 	<repositories>
 		<repository>
-			<id>helios</id>
+			<id>indigo</id>
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/releases/indigo</url>
+		</repository>
+		<repository>
+			<id>indigo updates</id>
+			<layout>p2</layout>
+			<url>http://download.eclipse.org/eclipse/updates/3.7</url>
 		</repository>
 <!--		<repository>-->
 <!--			<id>galileoTest</id>-->
