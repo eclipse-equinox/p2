@@ -137,7 +137,7 @@ public class AvailableIUsPage extends ProvisioningWizardPage implements ISelecta
 		createSelectButtons(aboveSash);
 
 		// Details area
-		iuDetailsGroup = new IUDetailsGroup(sashForm, availableIUGroup.getStructuredViewer(), SWT.DEFAULT, true);
+		iuDetailsGroup = new IUDetailsGroup(sashForm, availableIUGroup.getStructuredViewer(), SWT.DEFAULT, true, (ProvisioningOperationWizard) getWizard());
 
 		sashForm.setWeights(getSashWeights());
 

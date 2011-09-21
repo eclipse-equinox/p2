@@ -148,7 +148,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		createSelectButtons(composite);
 
 		// The text area shows a description of the selected IU, or error detail if applicable.
-		iuDetailsGroup = new IUDetailsGroup(sashForm, tableViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH), true);
+		iuDetailsGroup = new IUDetailsGroup(sashForm, tableViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH), true, (ProvisioningOperationWizard) getWizard());
 
 		updateStatus(root, resolvedOperation);
 		setControl(sashForm);

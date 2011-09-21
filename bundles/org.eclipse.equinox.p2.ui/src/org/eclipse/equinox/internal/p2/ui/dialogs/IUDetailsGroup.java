@@ -19,6 +19,8 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
@@ -40,14 +42,18 @@ public class IUDetailsGroup {
 	private int widthHint;
 	private boolean scrollable;
 	private String lastText;
+	private Button retryButton = null;
+
+	private final ProvisioningOperationWizard wizard;
 
 	/**
 	 * 
 	 */
-	public IUDetailsGroup(Composite parent, ISelectionProvider selectionProvider, int widthHint, boolean scrollable) {
+	public IUDetailsGroup(Composite parent, ISelectionProvider selectionProvider, int widthHint, boolean scrollable, ProvisioningOperationWizard wizard) {
 		this.selectionProvider = selectionProvider;
 		this.widthHint = widthHint;
 		this.scrollable = scrollable;
+		this.wizard = wizard;
 		createGroupComposite(parent);
 	}
 
@@ -88,6 +94,17 @@ public class IUDetailsGroup {
 
 		// set the initial state based on selection
 		propLink.setVisible(!selectionProvider.getSelection().isEmpty());
+		retryButton = new Button(detailsComposite, SWT.PUSH);
+		retryButton.setText("I'm feeling lucky...");
+		retryButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				System.out.println("Let's retry the operation");
+				// TODO, Let's do something different here.
+				wizard.recomputePlan(wizard.getContainer());
+				System.out.println("Completed... the operation");
+			}
+		});
 
 	}
 
