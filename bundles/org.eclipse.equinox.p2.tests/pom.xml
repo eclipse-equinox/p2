@@ -13,7 +13,7 @@
 
 	<groupId>org.eclipse</groupId>
 	<artifactId>org.eclipse.equinox.p2.tests</artifactId>
-	<version>1.3.0-SNAPSHOT</version>
+	<version>1.4.0-SNAPSHOT</version>
 	<packaging>eclipse-test-plugin</packaging>
 
 	<build>
@@ -21,10 +21,11 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho-version}</version>
 				<configuration>
 					<testSuite>org.eclipse.equinox.p2.tests</testSuite>
 					<testClass>org.eclipse.equinox.p2.tests.AutomatedTests</testClass>
-					<argLine>-Xmx512m</argLine>
+					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=/home/anthony/TÃ©lÃ©chargements/eclipse-SDK-3.7-linux-gtk-x86_64.tar.gz -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=/home/anthony/TÃ©lÃ©chargements/eclipse-SDK-3.7-linux-gtk-x86_64.tar.gz -Dorg.eclipse.equinox.p2.reconciler.tests.lastrelease.platform.archive=/home/anthony/TÃ©lÃ©chargements/eclipse-SDK-3.7-linux-gtk-x86_64.tar.gz -Dorg.eclipse.equinox.p2.repository</argLine>
 					<appArgLine>-consoleLog</appArgLine>
 					<bundleStartLevel>
 						<bundle>
