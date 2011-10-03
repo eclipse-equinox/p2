@@ -47,7 +47,7 @@ public class Policy {
 	 * A constant indicating that restart should be forced (without
 	 * confirmation) immediately after completion of a provisioning operation.
 	 * 
-	*/
+ 	 */
 	public static final int RESTART_POLICY_FORCE = 1;
 
 	/**
