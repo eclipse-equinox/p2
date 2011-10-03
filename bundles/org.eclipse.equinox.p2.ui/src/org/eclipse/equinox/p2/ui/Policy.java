@@ -40,7 +40,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * 
  * @since 2.0
  */
-
 public class Policy {
 
 	/**
