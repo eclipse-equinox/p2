@@ -15,9 +15,37 @@
 	<artifactId>org.eclipse.equinox.p2.tests</artifactId>
 	<version>1.4.0-SNAPSHOT</version>
 	<packaging>eclipse-test-plugin</packaging>
+	
+	<properties>
+		<platform.archive.name>eclipse-indigo-platform.tar.gz</platform.archive.name>
+	</properties>
 
 	<build>
 		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>compile</id>
+						<phase>compile</phase>
+						<configuration>
+						<target>
+			                <ant antfile="${basedir}/download.eclipse.platform.for.p2.migration.tests.xml">
+			                  <target name="download.eclipse.platform"/>
+			                </ant>
+			              </target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
@@ -25,7 +53,7 @@
 				<configuration>
 					<testSuite>org.eclipse.equinox.p2.tests</testSuite>
 					<testClass>org.eclipse.equinox.p2.tests.AutomatedTests</testClass>
-					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=/home/anthony/TÃ©lÃ©chargements/eclipse-SDK-3.7-linux-gtk-x86_64.tar.gz -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=/home/anthony/TÃ©lÃ©chargements/eclipse-SDK-3.7-linux-gtk-x86_64.tar.gz -Dorg.eclipse.equinox.p2.reconciler.tests.lastrelease.platform.archive=/home/anthony/TÃ©lÃ©chargements/eclipse-SDK-3.7-linux-gtk-x86_64.tar.gz -Dorg.eclipse.equinox.p2.repository</argLine>
+					<argLine>-Xmx512m -Dorg.eclipse.equinox.p2.reconciler.tests.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.reconciler.tests.35.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.reconciler.tests.lastrelease.platform.archive=${platform.archive.name} -Dorg.eclipse.equinox.p2.repository</argLine>
 					<appArgLine>-consoleLog</appArgLine>
 					<bundleStartLevel>
 						<bundle>

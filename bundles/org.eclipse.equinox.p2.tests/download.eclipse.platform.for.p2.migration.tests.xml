@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<project name="download.eclipse.platform.for.p2.migration.tests" default="download.eclipse.platform" basedir=".">
+
+	<condition property="isWindows">
+		<os family="windows" />
+	</condition>
+
+	<!--condition property="isLinux">
+		<os family="unix" />
+	</condition>
+
+	<condition property="isMac">
+		<os family="mac" />
+	</condition-->
+
+	<target name="check-eclipse-platform-windows">
+		<available file="eclipse-indigo-platform.zip" property="eclipse.platform.windows.present" />
+	</target>
+
+	<target name="check-eclipse-platform-unix">
+		<available file="eclipse-indigo-platform.tar.gz" property="eclipse.platform.unix.present" />
+	</target>
+
+	<!-- download eclipse platform 3.7 unless it already exists-->
+	<target name="download.eclipse.platform.windows" depends="check-eclipse-platform-windows" unless="eclipse.platform.windows.present">
+		<antcall target="download.for.windows" />
+	</target>
+
+	<!-- download eclipse platform 3.7 unless it already exists-->
+	<target name="download.eclipse.platform.unix" depends="check-eclipse-platform-unix" unless="eclipse.platform.unix.present">
+		<antcall target="download.for.unix" />
+	</target>
+
+	<target name="download.eclipse.platform" depends="download.eclipse.platform.windows,download.eclipse.platform.unix">
+	</target>
+
+	<target name="download.for.unix" unless="isWindows">
+		<get src="http://mirror.csclub.uwaterloo.ca/eclipse/eclipse/downloads/drops/R-3.7.1-201109091335/eclipse-platform-3.7.1-linux-gtk.tar.gz" dest="eclipse-indigo-platform.tar.gz" />
+	</target>
+	<target name="download.for.windows" if="isWindows">
+		<get src="http://mirror.csclub.uwaterloo.ca/eclipse/eclipse/downloads/drops/R-3.7.1-201109091335/eclipse-platform-3.7.1-win32.zip" dest="eclipse-indigo-platform.zip" />
+	</target>
+</project>
