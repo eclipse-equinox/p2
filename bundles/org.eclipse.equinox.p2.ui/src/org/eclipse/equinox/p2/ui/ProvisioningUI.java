@@ -132,6 +132,13 @@ public class ProvisioningUI {
 		return profileId;
 	}
 
+	public RelaxedUpdateInstallOperation getLuckyOperation(ProvisioningContext context) {
+		RelaxedUpdateInstallOperation luckyOperation = new RelaxedUpdateInstallOperation(getSession());
+		luckyOperation.setProfileId(getProfileId());
+		luckyOperation.setProvisioningContext(context);
+		return luckyOperation;
+	}
+
 	/**
 	 * Return an install operation that describes installing the specified IInstallableUnits from the
 	 * provided list of repositories.

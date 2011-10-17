@@ -15,6 +15,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.internal.p2.ui.viewers.*;
 import org.eclipse.equinox.p2.engine.IProvisioningPlan;
@@ -24,10 +25,13 @@ import org.eclipse.equinox.p2.operations.ProvisioningJob;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.ui.ProvisioningUI;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -51,6 +55,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 	protected Display display;
 	private IUDetailsGroup iuDetailsGroup;
 	SashForm sashForm;
+	Button relaxConstraints;
 
 	protected ResolutionResultsWizardPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot input, ProfileChangeOperation operation) {
 		super("ResolutionPage", ui, wizard); //$NON-NLS-1$
@@ -117,6 +122,20 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		sashForm.setWeights(getSashWeights());
 		Dialog.applyDialogFont(sashForm);
 
+		// Controls for filtering/presentation/site selection
+		Composite controlsComposite = new Composite(composite, SWT.NONE);
+		gridLayout = new GridLayout();
+		gridLayout.marginWidth = 0;
+		gridLayout.marginHeight = 0;
+		gridLayout.numColumns = 2;
+		gridLayout.makeColumnsEqualWidth = true;
+		gridLayout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+		controlsComposite.setLayout(layout);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		controlsComposite.setLayoutData(gd);
+
+		createViewControlsArea(controlsComposite);
+
 		final Runnable runnable = new Runnable() {
 			public void run() {
 				treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -124,7 +143,6 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 						setDetailText(resolvedOperation);
 					}
 				});
-				updateStatus(input, resolvedOperation);
 				setDrilldownElements(input, resolvedOperation);
 				treeViewer.setInput(input);
 			}
@@ -144,6 +162,18 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		} else {
 			runnable.run();
 		}
+	}
+
+	private void createViewControlsArea(Composite controlsComposite) {
+		relaxConstraints = new Button(controlsComposite, SWT.CHECK);
+		relaxConstraints.setText(ProvUIMessages.ResolutionWizardPage_RelaxedConstraints);
+		relaxConstraints.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				((ProvisioningOperationWizard) getWizard()).setRelaxedResolution(relaxConstraints.getSelection());
+				setPageComplete(true);
+			}
+		});
 	}
 
 	protected void createSizingInfo(Composite parent) {

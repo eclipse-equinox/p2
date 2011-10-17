@@ -27,6 +27,8 @@ import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
@@ -53,6 +55,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	protected Display display;
 	protected Policy policy;
 	SashForm sashForm;
+	Button relaxConstraints;
 
 	public SelectableIUsPage(ProvisioningUI ui, ProvisioningOperationWizard wizard, IUElementListRoot root, Object[] initialSelections) {
 		super("IUSelectionPage", ui, wizard); //$NON-NLS-1$
@@ -147,6 +150,20 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		// Select and Deselect All buttons
 		createSelectButtons(composite);
 
+		// Controls for filtering/presentation/site selection
+		Composite controlsComposite = new Composite(composite, SWT.NONE);
+		gridLayout = new GridLayout();
+		gridLayout.marginWidth = 0;
+		gridLayout.marginHeight = 0;
+		gridLayout.numColumns = 2;
+		gridLayout.makeColumnsEqualWidth = true;
+		gridLayout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+		controlsComposite.setLayout(layout);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		controlsComposite.setLayoutData(gd);
+
+		createViewControlsArea(controlsComposite);
+
 		// The text area shows a description of the selected IU, or error detail if applicable.
 		iuDetailsGroup = new IUDetailsGroup(sashForm, tableViewer, convertWidthInCharsToPixels(ILayoutConstants.DEFAULT_TABLE_WIDTH), true);
 
@@ -154,6 +171,18 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 		setControl(sashForm);
 		sashForm.setWeights(getSashWeights());
 		Dialog.applyDialogFont(sashForm);
+	}
+
+	private void createViewControlsArea(Composite controlsComposite) {
+		relaxConstraints = new Button(controlsComposite, SWT.CHECK);
+		relaxConstraints.setText(ProvUIMessages.ResolutionWizardPage_RelaxedConstraints);
+		relaxConstraints.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				((ProvisioningOperationWizard) getWizard()).setRelaxedResolution(relaxConstraints.getSelection());
+				setPageComplete(true);
+			}
+		});
 	}
 
 	private void createSelectButtons(Composite parent) {
