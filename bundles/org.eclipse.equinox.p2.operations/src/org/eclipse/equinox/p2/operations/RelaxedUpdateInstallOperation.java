@@ -17,6 +17,7 @@ import org.eclipse.equinox.p2.query.*;
  * 
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noreference
+ * @since 2.2
  */
 public class RelaxedUpdateInstallOperation extends ProfileChangeOperation {
 

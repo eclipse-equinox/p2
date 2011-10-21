@@ -132,6 +132,9 @@ public class ProvisioningUI {
 		return profileId;
 	}
 
+	/**
+	 * @since 2.2
+	 */
 	public RelaxedUpdateInstallOperation getLuckyOperation(ProvisioningContext context) {
 		RelaxedUpdateInstallOperation luckyOperation = new RelaxedUpdateInstallOperation(getSession());
 		luckyOperation.setProfileId(getProfileId());
