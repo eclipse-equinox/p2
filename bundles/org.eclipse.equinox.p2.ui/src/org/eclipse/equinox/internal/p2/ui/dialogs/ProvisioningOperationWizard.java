@@ -192,7 +192,6 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 		return new ProvisioningContext(ui.getSession().getProvisioningAgent());
 	}
 
-
 	public void recomputePlanWithRelaxedConstraints(IRunnableContext runnableContext) {
 		couldNotResolveStatus = Status.OK_STATUS;
 		provisioningContext = getProvisioningContext();
@@ -201,7 +200,7 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 			operation = null;
 			couldNotResolve(ProvUIMessages.ResolutionWizardPage_NoSelections);
 		} else {
-			operation = ui.getLuckyOperation(provisioningContext);
+			operation = ui.getRelaxedUpdateOperation(provisioningContext);
 			operation.setProvisioningContext(provisioningContext);
 			try {
 				runnableContext.run(true, true, new IRunnableWithProgress() {

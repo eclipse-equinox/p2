@@ -135,7 +135,7 @@ public class ProvisioningUI {
 	/**
 	 * @since 2.2
 	 */
-	public RelaxedUpdateInstallOperation getLuckyOperation(ProvisioningContext context) {
+	public RelaxedUpdateInstallOperation getRelaxedUpdateOperation(ProvisioningContext context) {
 		RelaxedUpdateInstallOperation luckyOperation = new RelaxedUpdateInstallOperation(getSession());
 		luckyOperation.setProfileId(getProfileId());
 		luckyOperation.setProvisioningContext(context);
