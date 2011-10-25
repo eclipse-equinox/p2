@@ -159,6 +159,7 @@ public class ProvUIMessages extends NLS {
 	public static String ResolutionWizardPage_NoSelections;
 	public static String ResolutionWizardPage_WarningInfoStatus;
 	public static String ResolutionWizardPage_RelaxedConstraints;
+	public static String ResolutionWizardPage_RelaxedConstraintsTip;
 	public static String ResolutionStatusPage_ErrorIULocked;
 
 	// Dialogs

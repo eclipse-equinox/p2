@@ -176,6 +176,7 @@ public class SelectableIUsPage extends ResolutionStatusPage implements IResoluti
 	private void createViewControlsArea(Composite controlsComposite) {
 		relaxConstraints = new Button(controlsComposite, SWT.CHECK);
 		relaxConstraints.setText(ProvUIMessages.ResolutionWizardPage_RelaxedConstraints);
+		relaxConstraints.setToolTipText(ProvUIMessages.ResolutionWizardPage_RelaxedConstraintsTip);
 		relaxConstraints.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
