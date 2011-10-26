@@ -96,7 +96,7 @@ public class RelaxedUpdateInstallOperation extends ProfileChangeOperation {
 				}
 			}
 		}
-		//return planner.getProvisioningPlan(finalChangeRequest, context, null);
+		request = (ProfileChangeRequest) finalChangeRequest;
 	}
 
 	@Override

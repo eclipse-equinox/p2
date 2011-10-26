@@ -386,4 +386,8 @@ public abstract class ProvisioningOperationWizard extends Wizard {
 	public void setRelaxedResolution(boolean value) {
 		this.resolveWithRelaxedConstraints = value;
 	}
+
+	public boolean getRelaxedResoltion() {
+		return this.resolveWithRelaxedConstraints;
+	}
 }

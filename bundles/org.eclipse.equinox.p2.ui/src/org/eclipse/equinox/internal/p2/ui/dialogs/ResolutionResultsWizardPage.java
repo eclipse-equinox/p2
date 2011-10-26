@@ -164,10 +164,19 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 		}
 	}
 
+	@Override
+	public void updateStatus(IUElementListRoot newRoot, ProfileChangeOperation op) {
+		super.updateStatus(newRoot, op);
+		IStatus currentStatus = getProvisioningWizard().getCurrentStatus();
+		if (relaxConstraints != null)
+			relaxConstraints.setEnabled(currentStatus != null && !currentStatus.isOK());
+	}
+
 	private void createViewControlsArea(Composite controlsComposite) {
 		relaxConstraints = new Button(controlsComposite, SWT.CHECK);
 		relaxConstraints.setText(ProvUIMessages.ResolutionWizardPage_RelaxedConstraints);
 		relaxConstraints.setToolTipText(ProvUIMessages.ResolutionWizardPage_RelaxedConstraintsTip);
+		relaxConstraints.setSelection(((ProvisioningOperationWizard) getWizard()).getRelaxedResoltion());
 		relaxConstraints.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -175,6 +184,13 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 				setPageComplete(true);
 			}
 		});
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		if (visible)
+			relaxConstraints.setSelection(((ProvisioningOperationWizard) getWizard()).getRelaxedResoltion());
 	}
 
 	protected void createSizingInfo(Composite parent) {
