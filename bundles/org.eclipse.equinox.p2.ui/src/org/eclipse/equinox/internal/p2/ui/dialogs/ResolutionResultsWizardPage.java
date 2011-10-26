@@ -174,6 +174,7 @@ public abstract class ResolutionResultsWizardPage extends ResolutionStatusPage {
 
 	private void createViewControlsArea(Composite controlsComposite) {
 		relaxConstraints = new Button(controlsComposite, SWT.CHECK);
+		relaxConstraints.setVisible(false);
 		relaxConstraints.setText(ProvUIMessages.ResolutionWizardPage_RelaxedConstraints);
 		relaxConstraints.setToolTipText(ProvUIMessages.ResolutionWizardPage_RelaxedConstraintsTip);
 		relaxConstraints.setSelection(((ProvisioningOperationWizard) getWizard()).getRelaxedResoltion());
