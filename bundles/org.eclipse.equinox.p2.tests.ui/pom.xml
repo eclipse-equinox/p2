@@ -13,7 +13,7 @@
 
 	<groupId>org.eclipse</groupId>
 	<artifactId>org.eclipse.equinox.p2.tests.ui</artifactId>
-	<version>1.0.100-SNAPSHOT</version>
+	<version>1.0.200-SNAPSHOT</version>
 	<packaging>eclipse-test-plugin</packaging>
 
 	<build>
