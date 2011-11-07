@@ -54,14 +54,19 @@ public class Bug362692 extends AbstractPlannerTest {
 		Set<IInstallableUnit> toAdd = new HashSet<IInstallableUnit>();
 		IQueryResult allIUs = repo.query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor());
 		// we don't want to re-install units which are already installed in the profile so remove them. (this is what the reconciler does)
+		boolean already = false;
 		for (Iterator<IInstallableUnit> iter = allIUs.iterator(); iter.hasNext();) {
 			IInstallableUnit iu = iter.next();
 			queryResult = getProfile().query(QueryUtil.createIUQuery(iu.getId(), iu.getVersion()), new NullProgressMonitor());
 			if (queryResult.isEmpty())
 				toAdd.add(iu);
-			else
+			else {
 				System.out.println("Already installed: " + iu.getId() + " " + iu.getVersion());
+				already = true;
+			}
 		}
+		if (!already)
+			System.out.println("Already installed: None!");
 		validate(expected, toAdd);
 
 		// set the metadata repositories on the provisioning context. one for the dropins and one for the shared area
@@ -73,6 +78,8 @@ public class Bug362692 extends AbstractPlannerTest {
 		IProfileChangeRequest actualChangeRequest = createProfileChangeRequest(toAdd, null, null);
 		IProvisioningPlan plan = planner.getProvisioningPlan(actualChangeRequest, context, new NullProgressMonitor());
 		Collection compressedPlan = compress(plan);
+		if (compressedPlan.isEmpty())
+			System.out.println("Plan: ...is empty!");
 		for (Iterator iter = compressedPlan.iterator(); iter.hasNext();) {
 			System.out.println("Plan: " + iter.next());
 		}

@@ -294,14 +294,16 @@ public class Projector {
 			}
 			Collections.sort(conflictingEntries, Collections.reverseOrder());
 			BigInteger weight = POWER;
-			boolean installedIuMet = false;
-			boolean rootedMet = false;
+			// have we already found a version that is already installed?
+			boolean foundInstalled = false;
+			// have we already found a version that is in the new roots?
+			boolean foundRoot = false;
 			for (IInstallableUnit iu : conflictingEntries) {
-				if (!rootedMet && isInstalled(iu) && !transitiveClosure.contains(iu)) {
-					installedIuMet = true;
+				if (!foundRoot && isInstalled(iu) && !transitiveClosure.contains(iu)) {
+					foundInstalled = true;
 					weightedObjects.add(WeightedObject.newWO(iu, BigInteger.ONE));
-				} else if (!installedIuMet && !rootedMet && isRoot(iu, newRoots)) {
-					rootedMet = true;
+				} else if (!foundInstalled && !foundRoot && isRoot(iu, newRoots)) {
+					foundRoot = true;
 					weightedObjects.add(WeightedObject.newWO(iu, BigInteger.ONE));
 				} else {
 					weightedObjects.add(WeightedObject.newWO(iu, weight));
