@@ -300,7 +300,8 @@ public class SimplePlanner implements IPlanner {
 		return satisfyMetaRequirements(p.getProperties());
 	}
 
-	//Return the set of IUs representing the complete future state of the profile to satisfy the request or return a ProvisioningPlan when the request can not be satisfied
+	// Return the set of IUs representing the complete future state of the profile to satisfy the request or return a 
+	// ProvisioningPlan when the request can not be satisfied
 	private Object getSolutionFor(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
@@ -378,6 +379,7 @@ public class SimplePlanner implements IPlanner {
 		try {
 			//Get the solution for the initial request
 			Object resolutionResult = getSolutionFor(pcr, context, sub.newChild(ExpandWork / 2));
+			// a return value of a plan indicates failure when resolving so return.
 			if (resolutionResult instanceof IProvisioningPlan)
 				return (IProvisioningPlan) resolutionResult;
 
