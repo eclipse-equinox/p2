@@ -57,10 +57,11 @@ public class Bug362692 extends AbstractPlannerTest {
 		boolean already = false;
 		for (Iterator<IInstallableUnit> iter = allIUs.iterator(); iter.hasNext();) {
 			IInstallableUnit iu = iter.next();
+			//toAdd.add(iu);
 			queryResult = getProfile().query(QueryUtil.createIUQuery(iu.getId(), iu.getVersion()), new NullProgressMonitor());
-			if (queryResult.isEmpty())
+			if (queryResult.isEmpty()) {
 				toAdd.add(iu);
-			else {
+			} else {
 				System.out.println("Already installed: " + iu.getId() + " " + iu.getVersion());
 				already = true;
 			}
