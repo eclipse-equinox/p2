@@ -201,14 +201,9 @@ public class Projector {
 			} else {
 				dependencyHelper = new DependencyHelper<Object, Explanation>(solver);
 			}
-			Iterator<IInstallableUnit> iusToEncode = queryResult.iterator();
-			List<IInstallableUnit> iusToOrder = new ArrayList<IInstallableUnit>();
-			while (iusToEncode.hasNext()) {
-				iusToOrder.add(iusToEncode.next());
-			}
+			List<IInstallableUnit> iusToOrder = new ArrayList<IInstallableUnit>(queryResult.toSet());
 			Collections.sort(iusToOrder);
-			iusToEncode = iusToOrder.iterator();
-			while (iusToEncode.hasNext()) {
+			for (Iterator<IInstallableUnit> iusToEncode = iusToOrder.iterator(); iusToEncode.hasNext();) {
 				if (monitor.isCanceled()) {
 					result.merge(Status.CANCEL_STATUS);
 					throw new OperationCanceledException();
@@ -292,6 +287,7 @@ public class Projector {
 				}
 				continue;
 			}
+			// IUs are sorted from highest version to lowest.
 			Collections.sort(conflictingEntries, Collections.reverseOrder());
 			BigInteger weight = POWER;
 			// have we already found a version that is already installed?
