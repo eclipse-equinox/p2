@@ -34,6 +34,10 @@ public class Bug362692 extends AbstractPlannerTest {
 		return "bootProfile";
 	}
 
+	/*
+	 * Test data registry profiles 1320939990376 
+	 * Already installed - A1.1.1 B1.1.1 C1.1.2 D1.1.4 E1.1.4 
+	 */
 	public void testInstall() {
 		IPlanner planner = createPlanner();
 
@@ -69,6 +73,9 @@ public class Bug362692 extends AbstractPlannerTest {
 		if (!already)
 			System.out.println("Already installed: None!");
 		validate(expected, toAdd);
+
+		// mimic a product "-clean" and re-install everything which is already in the profile.
+		//		toAdd.addAll(getProfile().query(QueryUtil.createIUAnyQuery(), new NullProgressMonitor()).toSet());
 
 		// set the metadata repositories on the provisioning context. one for the dropins and one for the shared area
 		Collection<URI> repoURLs = new ArrayList<URI>();

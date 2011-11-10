@@ -1,0 +1,264 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='C:\Program Files (x86)\IBM\SDP\dropins\eclipse' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1.0.0'>
+  <properties size='1'>
+    <property name='p2.timestamp' value='1320939936961'/>
+  </properties>
+  <mappings size='3'>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='25'>
+    <artifact classifier='osgi.bundle' id='PluginD' version='1.0.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='3349'/>
+        <property name='download.size' value='3349'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginD_1.0.0.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginD_1.0.0.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginC' version='1.0.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='3350'/>
+        <property name='download.size' value='3350'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginC_1.0.0.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginC_1.0.0.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginB' version='1.0.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='3349'/>
+        <property name='download.size' value='3349'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginB_1.0.0.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginB_1.0.0.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginA' version='1.0.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='3350'/>
+        <property name='download.size' value='3350'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginA_1.0.0.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginA_1.0.0.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginE' version='1.0.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='3346'/>
+        <property name='download.size' value='3346'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.0.0.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginE_1.0.0.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginC' version='1.1.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='3375'/>
+        <property name='download.size' value='3375'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginC_1.1.0.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginC_1.1.0.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginB' version='1.1.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='3375'/>
+        <property name='download.size' value='3375'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginB_1.1.0.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginB_1.1.0.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginA' version='1.1.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='3367'/>
+        <property name='download.size' value='3367'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginA_1.1.0.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginA_1.1.0.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginD' version='1.1.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='3349'/>
+        <property name='download.size' value='3349'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginD_1.1.0.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginD_1.1.0.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginE' version='1.1.0'>
+      <properties size='2'>
+        <property name='artifact.size' value='3346'/>
+        <property name='download.size' value='3346'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.1.0.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginE_1.1.0.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginC' version='1.1.1'>
+      <properties size='2'>
+        <property name='artifact.size' value='3377'/>
+        <property name='download.size' value='3377'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginC_1.1.1.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginC_1.1.1.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginB' version='1.1.1'>
+      <properties size='2'>
+        <property name='artifact.size' value='3378'/>
+        <property name='download.size' value='3378'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginB_1.1.1.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginB_1.1.1.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginA' version='1.1.1'>
+      <properties size='2'>
+        <property name='artifact.size' value='3368'/>
+        <property name='download.size' value='3368'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginA_1.1.1.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginA_1.1.1.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginD' version='1.1.1'>
+      <properties size='2'>
+        <property name='artifact.size' value='3351'/>
+        <property name='download.size' value='3351'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginD_1.1.1.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginD_1.1.1.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginE' version='1.1.1'>
+      <properties size='2'>
+        <property name='artifact.size' value='3348'/>
+        <property name='download.size' value='3348'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.1.1.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginE_1.1.1.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginC' version='1.1.2'>
+      <properties size='2'>
+        <property name='artifact.size' value='3378'/>
+        <property name='download.size' value='3378'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginC_1.1.2.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginC_1.1.2.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginB' version='1.1.2'>
+      <properties size='2'>
+        <property name='artifact.size' value='3378'/>
+        <property name='download.size' value='3378'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginB_1.1.2.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginB_1.1.2.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginD' version='1.1.2'>
+      <properties size='2'>
+        <property name='artifact.size' value='3350'/>
+        <property name='download.size' value='3350'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginD_1.1.2.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginD_1.1.2.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginE' version='1.1.2'>
+      <properties size='2'>
+        <property name='artifact.size' value='3348'/>
+        <property name='download.size' value='3348'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.1.2.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginE_1.1.2.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginC' version='1.1.3'>
+      <properties size='2'>
+        <property name='artifact.size' value='3379'/>
+        <property name='download.size' value='3379'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginC_1.1.3.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginC_1.1.3.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginD' version='1.1.3'>
+      <properties size='2'>
+        <property name='artifact.size' value='3351'/>
+        <property name='download.size' value='3351'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginD_1.1.3.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginD_1.1.3.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginE' version='1.1.3'>
+      <properties size='2'>
+        <property name='artifact.size' value='3348'/>
+        <property name='download.size' value='3348'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.1.3.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginE_1.1.3.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginD' version='1.1.4'>
+      <properties size='2'>
+        <property name='artifact.size' value='3351'/>
+        <property name='download.size' value='3351'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginD_1.1.4.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginD_1.1.4.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginE' version='1.1.4'>
+      <properties size='2'>
+        <property name='artifact.size' value='3348'/>
+        <property name='download.size' value='3348'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.1.4.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginE_1.1.4.jar'/>
+      </repositoryProperties>
+    </artifact>
+    <artifact classifier='osgi.bundle' id='PluginE' version='1.1.5'>
+      <properties size='2'>
+        <property name='artifact.size' value='3348'/>
+        <property name='download.size' value='3348'/>
+      </properties>
+      <repositoryProperties size='2'>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.1.5.jar'/>
+        <property name='artifact.reference' value='file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/plugins/PluginE_1.1.5.jar'/>
+      </repositoryProperties>
+    </artifact>
+  </artifacts>
+</repository>
