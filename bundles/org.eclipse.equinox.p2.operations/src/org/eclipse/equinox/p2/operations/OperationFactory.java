@@ -138,7 +138,7 @@ public class OperationFactory {
 
 	/**
 	 * Create an {@link UpdateOperation} that will update the elements specified.
-	 * @param toUpdate The elements to update.Passing null will result in looking for an update to all the installed. Note that you can pass the results of {@link OperationFactory.listInstalledElements} to this 
+	 * @param toUpdate The elements to update.Passing null will result in looking for an update to all the installed. Note that you can pass the results of {@link OperationFactory#listInstalledElements} to this 
 	 * method if you wish to update all elements installed in the running instance of eclipse.
 	 * @param repos the repositories to update the elements from. If null is passed, it will use all previously registered repositories.
 	 * @param monitor the progress monitor
