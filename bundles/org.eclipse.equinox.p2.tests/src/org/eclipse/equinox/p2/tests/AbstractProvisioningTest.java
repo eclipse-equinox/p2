@@ -1020,6 +1020,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			req.setInstallableUnitInclusionRules(ius[i], strict ? ProfileInclusionRules.createStrictInclusionRule(ius[i]) : ProfileInclusionRules.createOptionalInclusionRule(ius[i]));
 		}
 
+		return install(req, planner, engine);
+	}
+
+	protected IStatus install(ProfileChangeRequest req, IPlanner planner, IEngine engine) {
 		IProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
