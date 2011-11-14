@@ -54,4 +54,9 @@ public class CollectionResult<T> implements IQueryResult<T> {
 	public Set<T> toUnmodifiableSet() {
 		return collection instanceof Set<?> ? Collections.<T> unmodifiableSet((Set<T>) collection) : toSet();
 	}
+
+	@Override
+	public String toString() {
+		return collection.toString();
+	}
 }
