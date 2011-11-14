@@ -49,10 +49,8 @@ public class LuckyTest2 extends AbstractProvisioningTest {
 
 	public void testInstallSDK2() {
 		assertNotOK(install(profile, new IInstallableUnit[] {platform2}, true, planner, engine));
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		request.add(platform2);
 
-		ProfileChangeRequest res = new LuckyHelper().computeProfileChangeRequest(profile, planner, request, new ProvisioningContext(getAgent()), getMonitor());
+		ProfileChangeRequest res = new LuckyHelper().computeProfileChangeRequest(profile, planner, null, new ProvisioningContext(getAgent()), getMonitor());
 		assertEquals(1, res.getAdditions().size());
 		assertTrue(res.getAdditions().contains(sdk2));
 		assertEquals(1, res.getRemovals().size());

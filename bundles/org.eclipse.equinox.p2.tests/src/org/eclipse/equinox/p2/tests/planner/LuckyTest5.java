@@ -15,15 +15,12 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.planner.IPlanner;
 import org.eclipse.equinox.p2.tests.*;
 
-public class LuckyTest extends AbstractProvisioningTest {
+public class LuckyTest5 extends AbstractProvisioningTest {
 	@IUDescription(content = "package: sdk \n" + "singleton: true\n" + "version: 1 \n" + "depends: platform = 1")
 	public IInstallableUnit sdk1;
 
 	@IUDescription(content = "package: platform \n" + "singleton: true\n" + "version: 1 \n")
 	public IInstallableUnit platform1;
-
-	@IUDescription(content = "package: sdk \n" + "singleton: true\n" + "version: 2 \n" + "depends: platform = 2")
-	public IInstallableUnit sdk2;
 
 	@IUDescription(content = "package: platform \n" + "singleton: true\n" + "version: 2 \n")
 	public IInstallableUnit platform2;
@@ -38,18 +35,17 @@ public class LuckyTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		IULoader.loadIUs(this);
-		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1, sdk2, platform2});
+		createTestMetdataRepository(new IInstallableUnit[] {sdk1, platform1, platform2});
 		planner = createPlanner();
 		engine = createEngine();
 		assertOK(install(profile, new IInstallableUnit[] {sdk1}, true, planner, engine));
 	}
 
+	//Verify that no plan is provided when the update is not possible
 	public void testInstallSDK2() {
 		assertNotOK(install(profile, new IInstallableUnit[] {platform2}, true, planner, engine));
-
 		ProfileChangeRequest res = new LuckyHelper().computeProfileChangeRequest(profile, planner, null, new ProvisioningContext(getAgent()), getMonitor());
-		assertTrue(res.getAdditions().contains(sdk2));
-		assertTrue(res.getRemovals().contains(sdk1));
+		assertNull(res);
 	}
 
 }

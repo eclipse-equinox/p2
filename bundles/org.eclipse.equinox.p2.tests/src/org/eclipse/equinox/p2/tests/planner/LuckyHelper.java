@@ -33,29 +33,30 @@ public class LuckyHelper {
 		IQueryResult<IInstallableUnit> optionalRoots = prof.query(new IUProfilePropertyQuery(INCLUSION_RULES, INCLUSION_OPTIONAL), null);
 		Set<IInstallableUnit> tmpRoots = new HashSet<IInstallableUnit>(strictRoots.toUnmodifiableSet());
 		tmpRoots.addAll(optionalRoots.toUnmodifiableSet());
-		CollectionResult<IInstallableUnit> allRoots = new CollectionResult<IInstallableUnit>(tmpRoots);
+		CollectionResult<IInstallableUnit> allInitialRoots = new CollectionResult<IInstallableUnit>(tmpRoots);
 
-		request = (ProfileChangeRequest) plan.createChangeRequest(prof);
+		ProfileChangeRequest updateFinderRequest = (ProfileChangeRequest) plan.createChangeRequest(prof);
 		Collection<IRequirement> limitingRequirements = new ArrayList<IRequirement>();
 
-		for (Iterator<IInstallableUnit> iterator = allRoots.query(QueryUtil.ALL_UNITS, null).iterator(); iterator.hasNext();) {
+		//Create a profile change request that attempts at installing updates for all the existing roots.
+		for (Iterator<IInstallableUnit> iterator = allInitialRoots.query(QueryUtil.ALL_UNITS, null).iterator(); iterator.hasNext();) {
 			IInstallableUnit currentlyInstalled = iterator.next();
 
 			//find all the potential updates for the currentlyInstalled iu
 			IQueryResult<IInstallableUnit> updatesAvailable = plan.updatesFor(currentlyInstalled, context, null);
 			for (Iterator<IInstallableUnit> iterator2 = updatesAvailable.iterator(); iterator2.hasNext();) {
 				IInstallableUnit update = iterator2.next();
-				request.add(update);
-				request.setInstallableUnitInclusionRules(update, ProfileInclusionRules.createOptionalInclusionRule(update));
+				updateFinderRequest.add(update);
+				updateFinderRequest.setInstallableUnitInclusionRules(update, ProfileInclusionRules.createOptionalInclusionRule(update));
 			}
-			if (!updatesAvailable.isEmpty()) {
-				//force the original IU to optional, but make sure that the solution at least includes it
-				request.setInstallableUnitInclusionRules(currentlyInstalled, ProfileInclusionRules.createOptionalInclusionRule(currentlyInstalled));
-				limitingRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, currentlyInstalled.getId(), new VersionRange(currentlyInstalled.getVersion(), true, Version.MAX_VERSION, true), null, false, false));
-			}
-		}
 
-		IProvisioningPlan updateFinderPlan = plan.getProvisioningPlan(request, context, null);
+			//force the original IU to optional, but make sure that the solution at least includes it
+			updateFinderRequest.setInstallableUnitInclusionRules(currentlyInstalled, ProfileInclusionRules.createOptionalInclusionRule(currentlyInstalled));
+			limitingRequirements.add(MetadataFactory.createRequirement(IInstallableUnit.NAMESPACE_IU_ID, currentlyInstalled.getId(), new VersionRange(currentlyInstalled.getVersion(), true, Version.MAX_VERSION, true), null, false, false));
+		}
+		updateFinderRequest.addExtraRequirements(limitingRequirements);
+
+		IProvisioningPlan updateFinderPlan = plan.getProvisioningPlan(updateFinderRequest, context, null);
 		if (updateFinderPlan.getAdditions().query(QueryUtil.ALL_UNITS, null).isEmpty()) {
 			return null;
 		}
@@ -65,7 +66,7 @@ public class LuckyHelper {
 		IQueryResult<IInstallableUnit> removals = updateFinderPlan.getRemovals().query(QueryUtil.ALL_UNITS, null);
 		for (Iterator<IInstallableUnit> iterator = removals.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = iterator.next();
-			if (!allRoots.query(QueryUtil.createIUQuery(iu), null).isEmpty()) {
+			if (!allInitialRoots.query(QueryUtil.createIUQuery(iu), null).isEmpty()) {
 				finalChangeRequest.remove(iu);
 			}
 		}
