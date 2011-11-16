@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -177,7 +177,22 @@ public class Projector {
 			} else {
 				solver = SolverFactory.newEclipseP2();
 			}
-			solver.setTimeoutOnConflicts(1000);
+			int timeout = 1000;
+			String timeoutString = null;
+			try {
+				// allow the user to specify a longer timeout. 
+				// only set the value if it is a positive integer larger than the default.
+				// see https://bugs.eclipse.org/336967
+				timeoutString = DirectorActivator.context.getProperty("eclipse.p2.projector.timeout"); //$NON-NLS-1$
+				if (timeoutString != null)
+					timeout = Math.max(timeout, Integer.parseInt(timeoutString));
+			} catch (Exception e) {
+				// intentionally catch all errors (npe, number format, etc)
+				// print out to syserr and fall through
+				System.err.println("Ignoring user-specified 'eclipse.p2.projector.timeout' value of: " + timeoutString); //$NON-NLS-1$
+				e.printStackTrace();
+			}
+			solver.setTimeoutOnConflicts(timeout);
 			IQueryResult<IInstallableUnit> queryResult = picker.query(QueryUtil.createIUAnyQuery(), null);
 			if (DEBUG_ENCODING) {
 				dependencyHelper = new DependencyHelper<Object, Explanation>(solver, false);
@@ -268,23 +283,19 @@ public class Projector {
 
 		BigInteger maxWeight = POWER;
 		for (Entry<String, Map<Version, IInstallableUnit>> entry : s) {
-			Map<Version, IInstallableUnit> conflictingEntries = entry.getValue();
-
-			List<IInstallableUnit> toSort = new ArrayList<IInstallableUnit>(conflictingEntries.values());
+			List<IInstallableUnit> conflictingEntries = new ArrayList<IInstallableUnit>(entry.getValue().values());
 			if (conflictingEntries.size() == 1) {
-				IInstallableUnit iu = toSort.get(0);
+				IInstallableUnit iu = conflictingEntries.get(0);
 				if (iu != metaIu) {
 					weightedObjects.add(WeightedObject.newWO(iu, POWER));
 				}
 				continue;
 			}
-			Collections.sort(toSort, Collections.reverseOrder());
+			Collections.sort(conflictingEntries, Collections.reverseOrder());
 			BigInteger weight = POWER;
-			int count = toSort.size();
 			boolean installedIuMet = false;
 			boolean rootedMet = false;
-			for (int i = 0; i < count; i++) {
-				IInstallableUnit iu = toSort.get(i);
+			for (IInstallableUnit iu : conflictingEntries) {
 				if (!rootedMet && isInstalled(iu) && !transitiveClosure.contains(iu)) {
 					installedIuMet = true;
 					weightedObjects.add(WeightedObject.newWO(iu, BigInteger.ONE));
