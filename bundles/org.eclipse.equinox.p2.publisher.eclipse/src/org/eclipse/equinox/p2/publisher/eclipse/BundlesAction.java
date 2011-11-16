@@ -80,8 +80,8 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final String TYPE_ECLIPSE_SOURCE = "source"; //$NON-NLS-1$
 
 	public static final String OSGI_BUNDLE_CLASSIFIER = "osgi.bundle"; //$NON-NLS-1$
-	private static final String CAPABILITY_NS_OSGI_BUNDLE = "osgi.bundle"; //$NON-NLS-1$
-	private static final String CAPABILITY_NS_OSGI_FRAGMENT = "osgi.fragment"; //$NON-NLS-1$
+	public static final String CAPABILITY_NS_OSGI_BUNDLE = "osgi.bundle"; //$NON-NLS-1$
+	public static final String CAPABILITY_NS_OSGI_FRAGMENT = "osgi.fragment"; //$NON-NLS-1$
 
 	public static final IProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, Version.createOSGi(1, 0, 0));
 	public static final IProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(PublisherHelper.NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, Version.createOSGi(1, 0, 0));
@@ -151,6 +151,10 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	public static IInstallableUnit createBundleIU(BundleDescription bd, IArtifactKey key, IPublisherInfo info) {
+		return new BundlesAction(new BundleDescription[] {bd}).doCreateBundleIU(bd, key, info);
+	}
+
+	protected IInstallableUnit doCreateBundleIU(BundleDescription bd, IArtifactKey key, IPublisherInfo info) {
 		@SuppressWarnings("unchecked")
 		Map<String, String> manifest = (Map<String, String>) bd.getUserObject();
 		Map<Locale, Map<String, String>> manifestLocalizations = null;
@@ -178,13 +182,7 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		ManifestElement[] rawRequireBundleHeader = parseManifestHeader(Constants.REQUIRE_BUNDLE, manifest, bd.getLocation());
 		for (BundleSpecification requiredBundle : requiredBundles) {
-			final boolean optional = requiredBundle.isOptional();
-			final boolean greedy;
-			if (optional)
-				greedy = INSTALLATION_GREEDY.equals(getInstallationDirective(requiredBundle.getName(), rawRequireBundleHeader));
-			else
-				greedy = true;
-			reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, requiredBundle.getName(), PublisherHelper.fromOSGiVersionRange(requiredBundle.getVersionRange()), null, optional ? 0 : 1, 1, greedy));
+			addRequireBundleRequirement(reqsDeps, requiredBundle, rawRequireBundleHeader);
 		}
 
 		// Process the import packages
@@ -195,15 +193,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			ImportPackageSpecification importSpec = osgiImports[i];
 			if (isDynamicImport(importSpec))
 				continue;
-			VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(importSpec.getVersionRange());
-			final boolean optional = isOptional(importSpec);
-			final boolean greedy;
-			if (optional)
-				greedy = INSTALLATION_GREEDY.equals(getInstallationDirective(importSpec.getName(), rawImportPackageHeader));
-			else
-				greedy = true;
-			//TODO this needs to be refined to take into account all the attribute handled by imports
-			reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, optional ? 0 : 1, 1, greedy));
+			addImportPackageRequirement(reqsDeps, importSpec, rawImportPackageHeader);
 		}
 		iu.setRequirements(reqsDeps.toArray(new IRequirement[reqsDeps.size()]));
 
@@ -267,6 +257,28 @@ public class BundlesAction extends AbstractPublisherAction {
 
 		processInstallableUnitPropertiesAdvice(iu, info);
 		return MetadataFactory.createInstallableUnit(iu);
+	}
+
+	protected void addImportPackageRequirement(ArrayList<IRequirement> reqsDeps, ImportPackageSpecification importSpec, ManifestElement[] rawImportPackageHeader) {
+		VersionRange versionRange = PublisherHelper.fromOSGiVersionRange(importSpec.getVersionRange());
+		final boolean optional = isOptional(importSpec);
+		final boolean greedy;
+		if (optional)
+			greedy = INSTALLATION_GREEDY.equals(getInstallationDirective(importSpec.getName(), rawImportPackageHeader));
+		else
+			greedy = true;
+		//TODO this needs to be refined to take into account all the attribute handled by imports
+		reqsDeps.add(MetadataFactory.createRequirement(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importSpec.getName(), versionRange, null, optional ? 0 : 1, 1, greedy));
+	}
+
+	protected void addRequireBundleRequirement(ArrayList<IRequirement> reqsDeps, BundleSpecification requiredBundle, ManifestElement[] rawRequireBundleHeader) {
+		final boolean optional = requiredBundle.isOptional();
+		final boolean greedy;
+		if (optional)
+			greedy = INSTALLATION_GREEDY.equals(getInstallationDirective(requiredBundle.getName(), rawRequireBundleHeader));
+		else
+			greedy = true;
+		reqsDeps.add(MetadataFactory.createRequirement(CAPABILITY_NS_OSGI_BUNDLE, requiredBundle.getName(), PublisherHelper.fromOSGiVersionRange(requiredBundle.getVersionRange()), null, optional ? 0 : 1, 1, greedy));
 	}
 
 	static VersionRange computeUpdateRange(org.osgi.framework.Version base) {
@@ -404,7 +416,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		return importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_DYNAMIC);
 	}
 
-	private static boolean isOptional(ImportPackageSpecification importedPackage) {
+	protected static boolean isOptional(ImportPackageSpecification importedPackage) {
 		return importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_OPTIONAL);
 	}
 
@@ -743,7 +755,7 @@ public class BundlesAction extends AbstractPublisherAction {
 				if (bundleIU == null) {
 					createAdviceFileAdvice(bundleDescriptions[i], info);
 					// Create the bundle IU according to any shape advice we have
-					bundleIU = createBundleIU(bd, key, info);
+					bundleIU = doCreateBundleIU(bd, key, info);
 				}
 
 				File location = new File(bd.getLocation());
