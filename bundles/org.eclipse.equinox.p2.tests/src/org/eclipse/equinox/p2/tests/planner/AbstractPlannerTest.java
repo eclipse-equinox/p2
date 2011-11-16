@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation and others.
+ * Copyright (c) 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,8 +12,8 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Iterator;
+import java.net.URI;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.*;
@@ -30,6 +30,40 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 	private IProfile profile;
 	private File previousStoreValue = null;
 	IMetadataRepository repo = null;
+
+	public static class ExpectedOperands {
+		Set added = new HashSet();
+		Set removed = new HashSet();
+		Set updated = new HashSet();
+
+		void added(IInstallableUnit unit) {
+			added.add(unit);
+		}
+
+		void added(Set units) {
+			added.addAll(units);
+		}
+
+		void removed(IInstallableUnit unit) {
+			removed.add(unit);
+		}
+
+		void removed(Set units) {
+			removed.addAll(units);
+		}
+
+		void updated(IInstallableUnit unit) {
+			updated.add(unit);
+		}
+
+		void updated(Set units) {
+			updated.addAll(units);
+		}
+	}
+
+	protected IProfile getProfile() {
+		return profile;
+	}
 
 	/*
 	 * Return the root of the data for this test. e.g. "testData/bug302582"
@@ -113,6 +147,37 @@ public abstract class AbstractPlannerTest extends AbstractProvisioningTest {
 			}
 		}
 
+		return result;
+	}
+
+	/*
+	 * Take the given plan and compress additons/removals so they look like updates. 
+	 * Good for viewing while debugging.
+	 */
+	protected Collection compress(IProvisioningPlan plan) {
+		Map<String, InstallableUnitOperand> result = new HashMap<String, InstallableUnitOperand>();
+		Operand[] operands = ((ProvisioningPlan) plan).getOperands();
+		for (int i = 0; i < operands.length; i++) {
+			if (!(operands[i] instanceof InstallableUnitOperand))
+				continue;
+			InstallableUnitOperand operand = (InstallableUnitOperand) operands[i];
+			String id = operand.first() == null ? operand.second().getId() : operand.first().getId();
+			InstallableUnitOperand existing = result.get(id);
+			if (existing == null) {
+				result.put(id, operand);
+			} else {
+				IInstallableUnit first = existing.first() == null ? operand.first() : existing.first();
+				IInstallableUnit second = existing.second() == null ? operand.second() : existing.second();
+				result.put(id, new InstallableUnitOperand(first, second));
+			}
+		}
+		return result.values();
+	}
+
+	protected ProvisioningContext getContext(Collection<URI> repoLocations) {
+		ProvisioningContext result = new ProvisioningContext(getAgent());
+		result.setMetadataRepositories(repoLocations == null ? new URI[0] : repoLocations.toArray(new URI[repoLocations.size()]));
+		result.setArtifactRepositories(new URI[0]);
 		return result;
 	}
 
