@@ -1,0 +1,726 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository version='1.1.0'?>
+<repository name='dropins metadata repo: file:/C:/Program%20Files%20(x86)/IBM/SDP/dropins/eclipse/' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'>
+  <properties size='2'>
+    <property name='p2.compressed' value='true'/>
+    <property name='p2.timestamp' value='1320247679237'/>
+  </properties>
+  <units size='25'>
+    <unit id='PluginD' version='1.0.0'>
+      <update id='PluginD' range='[0.0.0,1.0.0)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginD'/>
+        <property name='file.lastModified' value='1320162368903'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginD_1.0.0.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginD' version='1.0.0'/>
+        <provided namespace='osgi.bundle' name='PluginD' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginD' version='1.0.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugind.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginD&#xA;Bundle-Version: 1.0.0&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginD; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginD' version='1.1.0'>
+      <update id='PluginD' range='[0.0.0,1.1.0)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginD'/>
+        <property name='file.lastModified' value='1320162368918'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginD_1.1.0.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginD' version='1.1.0'/>
+        <provided namespace='osgi.bundle' name='PluginD' version='1.1.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginD' version='1.1.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugind.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginD&#xA;Bundle-Version: 1.1.0&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginD; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginD' version='1.1.1'>
+      <update id='PluginD' range='[0.0.0,1.1.1)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginD'/>
+        <property name='file.lastModified' value='1320162368934'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginD_1.1.1.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginD' version='1.1.1'/>
+        <provided namespace='osgi.bundle' name='PluginD' version='1.1.1'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginD' version='1.1.1'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugind.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginD&#xA;Bundle-Version: 1.1.1&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginD; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginD' version='1.1.2'>
+      <update id='PluginD' range='[0.0.0,1.1.2)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginD'/>
+        <property name='file.lastModified' value='1320162368934'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginD_1.1.2.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginD' version='1.1.2'/>
+        <provided namespace='osgi.bundle' name='PluginD' version='1.1.2'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginD' version='1.1.2'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugind.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginD&#xA;Bundle-Version: 1.1.2&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginD; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginD' version='1.1.3'>
+      <update id='PluginD' range='[0.0.0,1.1.3)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginD'/>
+        <property name='file.lastModified' value='1320162368949'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginD_1.1.3.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginD' version='1.1.3'/>
+        <provided namespace='osgi.bundle' name='PluginD' version='1.1.3'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginD' version='1.1.3'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugind.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginD&#xA;Bundle-Version: 1.1.3&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginD; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginD' version='1.1.4'>
+      <update id='PluginD' range='[0.0.0,1.1.4)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginD'/>
+        <property name='file.lastModified' value='1320162368949'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginD_1.1.4.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginD' version='1.1.4'/>
+        <provided namespace='osgi.bundle' name='PluginD' version='1.1.4'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginD' version='1.1.4'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugind.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginD&#xA;Bundle-Version: 1.1.4&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginD; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginB' version='1.0.0'>
+      <update id='PluginB' range='[0.0.0,1.0.0)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginB'/>
+        <property name='file.lastModified' value='1320162368840'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginB_1.0.0.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginB' version='1.0.0'/>
+        <provided namespace='osgi.bundle' name='PluginB' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginB' version='1.0.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: pluginb.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginB&#xA;Bundle-Version: 1.0.0&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginB; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginB' version='1.1.0'>
+      <update id='PluginB' range='[0.0.0,1.1.0)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginB'/>
+        <property name='file.lastModified' value='1320162368840'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginB_1.1.0.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginB' version='1.1.0'/>
+        <provided namespace='osgi.bundle' name='PluginB' version='1.1.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='4'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='PluginC' range='1.1.0'/>
+        <required namespace='osgi.bundle' name='PluginD' range='1.1.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginB' version='1.1.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: pluginb.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,PluginC;bundle-version=&quot;1.1.0&quot;,PluginD;bundle-version=&quot;1.1.0&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginB&#xA;Bundle-Version: 1.1.0&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginB; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginB' version='1.1.1'>
+      <update id='PluginB' range='[0.0.0,1.1.1)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginB'/>
+        <property name='file.lastModified' value='1320162368856'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginB_1.1.1.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginB' version='1.1.1'/>
+        <provided namespace='osgi.bundle' name='PluginB' version='1.1.1'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='4'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='PluginC' range='1.1.0'/>
+        <required namespace='osgi.bundle' name='PluginD' range='1.1.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginB' version='1.1.1'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: pluginb.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,PluginC;bundle-version=&quot;1.1.0&quot;,PluginD;bundle-version=&quot;1.1.0&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginB&#xA;Bundle-Version: 1.1.1&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginB; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginB' version='1.1.2'>
+      <update id='PluginB' range='[0.0.0,1.1.2)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginB'/>
+        <property name='file.lastModified' value='1320162368856'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginB_1.1.2.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginB' version='1.1.2'/>
+        <provided namespace='osgi.bundle' name='PluginB' version='1.1.2'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='4'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='PluginC' range='1.1.0'/>
+        <required namespace='osgi.bundle' name='PluginD' range='1.1.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginB' version='1.1.2'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: pluginb.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,PluginC;bundle-version=&quot;1.1.0&quot;,PluginD;bundle-version=&quot;1.1.0&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginB&#xA;Bundle-Version: 1.1.2&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginB; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginE' version='1.0.0'>
+      <update id='PluginE' range='[0.0.0,1.0.0)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginE'/>
+        <property name='file.lastModified' value='1320162368965'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.0.0.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginE' version='1.0.0'/>
+        <provided namespace='osgi.bundle' name='PluginE' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginE' version='1.0.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugine.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginE&#xA;Bundle-Version: 1.0.0&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginE; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginE' version='1.1.0'>
+      <update id='PluginE' range='[0.0.0,1.1.0)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginE'/>
+        <property name='file.lastModified' value='1320162368965'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.1.0.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginE' version='1.1.0'/>
+        <provided namespace='osgi.bundle' name='PluginE' version='1.1.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginE' version='1.1.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugine.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginE&#xA;Bundle-Version: 1.1.0&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginE; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginE' version='1.1.1'>
+      <update id='PluginE' range='[0.0.0,1.1.1)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginE'/>
+        <property name='file.lastModified' value='1320162368981'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.1.1.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginE' version='1.1.1'/>
+        <provided namespace='osgi.bundle' name='PluginE' version='1.1.1'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginE' version='1.1.1'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugine.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginE&#xA;Bundle-Version: 1.1.1&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginE; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginE' version='1.1.2'>
+      <update id='PluginE' range='[0.0.0,1.1.2)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginE'/>
+        <property name='file.lastModified' value='1320162368981'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.1.2.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginE' version='1.1.2'/>
+        <provided namespace='osgi.bundle' name='PluginE' version='1.1.2'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginE' version='1.1.2'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugine.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginE&#xA;Bundle-Version: 1.1.2&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginE; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginE' version='1.1.3'>
+      <update id='PluginE' range='[0.0.0,1.1.3)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginE'/>
+        <property name='file.lastModified' value='1320162368996'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.1.3.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginE' version='1.1.3'/>
+        <provided namespace='osgi.bundle' name='PluginE' version='1.1.3'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginE' version='1.1.3'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugine.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginE&#xA;Bundle-Version: 1.1.3&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginE; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginE' version='1.1.4'>
+      <update id='PluginE' range='[0.0.0,1.1.4)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginE'/>
+        <property name='file.lastModified' value='1320162368996'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.1.4.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginE' version='1.1.4'/>
+        <provided namespace='osgi.bundle' name='PluginE' version='1.1.4'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginE' version='1.1.4'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugine.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginE&#xA;Bundle-Version: 1.1.4&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginE; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginE' version='1.1.5'>
+      <update id='PluginE' range='[0.0.0,1.1.5)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginE'/>
+        <property name='file.lastModified' value='1320162369012'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginE_1.1.5.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginE' version='1.1.5'/>
+        <provided namespace='osgi.bundle' name='PluginE' version='1.1.5'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginE' version='1.1.5'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugine.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginE&#xA;Bundle-Version: 1.1.5&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginE; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginC' version='1.0.0'>
+      <update id='PluginC' range='[0.0.0,1.0.0)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginC'/>
+        <property name='file.lastModified' value='1320162368871'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginC_1.0.0.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginC' version='1.0.0'/>
+        <provided namespace='osgi.bundle' name='PluginC' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginC' version='1.0.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: pluginc.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginC&#xA;Bundle-Version: 1.0.0&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginC; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginC' version='1.1.0'>
+      <update id='PluginC' range='[0.0.0,1.1.0)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginC'/>
+        <property name='file.lastModified' value='1320162368871'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginC_1.1.0.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginC' version='1.1.0'/>
+        <provided namespace='osgi.bundle' name='PluginC' version='1.1.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='4'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='PluginD' range='1.1.0'/>
+        <required namespace='osgi.bundle' name='PluginE' range='1.1.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginC' version='1.1.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: pluginc.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,PluginD;bundle-version=&quot;1.1.0&quot;,PluginE;bundle-version=&quot;1.1.0&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginC&#xA;Bundle-Version: 1.1.0&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginC; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginC' version='1.1.1'>
+      <update id='PluginC' range='[0.0.0,1.1.1)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginC'/>
+        <property name='file.lastModified' value='1320162368887'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginC_1.1.1.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginC' version='1.1.1'/>
+        <provided namespace='osgi.bundle' name='PluginC' version='1.1.1'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='4'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='PluginD' range='1.1.0'/>
+        <required namespace='osgi.bundle' name='PluginE' range='1.1.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginC' version='1.1.1'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: pluginc.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,PluginD;bundle-version=&quot;1.1.0&quot;,PluginE;bundle-version=&quot;1.1.0&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginC&#xA;Bundle-Version: 1.1.1&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginC; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginC' version='1.1.2'>
+      <update id='PluginC' range='[0.0.0,1.1.2)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginC'/>
+        <property name='file.lastModified' value='1320162368887'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginC_1.1.2.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginC' version='1.1.2'/>
+        <provided namespace='osgi.bundle' name='PluginC' version='1.1.2'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='4'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='PluginD' range='1.1.0'/>
+        <required namespace='osgi.bundle' name='PluginE' range='1.1.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginC' version='1.1.2'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: pluginc.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,PluginD;bundle-version=&quot;1.1.0&quot;,PluginE;bundle-version=&quot;1.1.0&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginC&#xA;Bundle-Version: 1.1.2&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginC; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginC' version='1.1.3'>
+      <update id='PluginC' range='[0.0.0,1.1.3)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginC'/>
+        <property name='file.lastModified' value='1320162368903'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginC_1.1.3.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginC' version='1.1.3'/>
+        <provided namespace='osgi.bundle' name='PluginC' version='1.1.3'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='4'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='PluginD' range='1.1.0'/>
+        <required namespace='osgi.bundle' name='PluginE' range='1.1.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginC' version='1.1.3'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: pluginc.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,PluginD;bundle-version=&quot;1.1.0&quot;,PluginE;bundle-version=&quot;1.1.0&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginC&#xA;Bundle-Version: 1.1.3&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginC; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginA' version='1.0.0'>
+      <update id='PluginA' range='[0.0.0,1.0.0)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginA'/>
+        <property name='file.lastModified' value='1320162368793'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginA_1.0.0.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginA' version='1.0.0'/>
+        <provided namespace='osgi.bundle' name='PluginA' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='2'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginA' version='1.0.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugina.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginA&#xA;Bundle-Version: 1.0.0&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginA; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginA' version='1.1.0'>
+      <update id='PluginA' range='[0.0.0,1.1.0)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginA'/>
+        <property name='file.lastModified' value='1320162368809'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginA_1.1.0.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginA' version='1.1.0'/>
+        <provided namespace='osgi.bundle' name='PluginA' version='1.1.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='3'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='PluginB' range='1.1.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginA' version='1.1.0'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugina.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,PluginB;bundle-version=&quot;1.1.0&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginA&#xA;Bundle-Version: 1.1.0&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginA; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='PluginA' version='1.1.1'>
+      <update id='PluginA' range='[0.0.0,1.1.1)' severity='0'/>
+      <properties size='3'>
+        <property name='org.eclipse.equinox.p2.name' value='PluginA'/>
+        <property name='file.lastModified' value='1320162368825'/>
+        <property name='file.name' value='C:\Program Files (x86)\IBM\SDP\dropins\eclipse\plugins\PluginA_1.1.1.jar'/>
+      </properties>
+      <provides size='3'>
+        <provided namespace='org.eclipse.equinox.p2.iu' name='PluginA' version='1.1.1'/>
+        <provided namespace='osgi.bundle' name='PluginA' version='1.1.1'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipse.type' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='3'>
+        <required namespace='osgi.bundle' name='org.eclipse.ui' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='org.eclipse.core.runtime' range='0.0.0'/>
+        <required namespace='osgi.bundle' name='PluginB' range='1.1.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact classifier='osgi.bundle' id='PluginA' version='1.1.1'/>
+      </artifacts>
+      <touchpoint id='org.eclipse.equinox.p2.osgi' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Bundle-Activator: plugina.Activator&#xA;Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,PluginB;bundle-version=&quot;1.1.0&quot;&#xA;Manifest-Version: 1.0&#xA;Bundle-RequiredExecutionEnvironment: JavaSE-1.6&#xA;Bundle-Name: PluginA&#xA;Bundle-Version: 1.1.1&#xA;Bundle-ManifestVersion: 2&#xA;Bundle-ActivationPolicy: lazy&#xA;Bundle-SymbolicName: PluginA; singleton:=true&#xA;
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+  </units>
+</repository>
