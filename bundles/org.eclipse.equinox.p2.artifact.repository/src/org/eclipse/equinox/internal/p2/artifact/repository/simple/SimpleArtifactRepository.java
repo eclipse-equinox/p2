@@ -84,6 +84,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * Does this instance of the repository currently hold a lock
 	 */
 	private boolean holdsLock = false;
+	/**
+	 * Does this instance of the repository can be locked.
+	 * It will be initialized when initializing the location for repository
+	 */
+	private Boolean canLock = null;
 
 	private long cacheTimestamp = 0l;
 
@@ -327,7 +332,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		boolean lockAcquired = false;
 		try {
-			if (canLock()) {
+			canLock = new Boolean(canLock());
+			if (canLock.booleanValue()) {
 				lockAcquired = lockAndLoad(true, new NullProgressMonitor());
 				if (!lockAcquired)
 					throw new IllegalStateException("Cannot acquire the lock for " + location); //$NON-NLS-1$
@@ -973,6 +979,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			desc.setRepository(this);
 		if (updateTimestamp)
 			updateTimestamp();
+		if (canLock == null)
+			canLock = new Boolean(canLock());
 	}
 
 	private String getBlobStoreName(String defaultValue) {
@@ -1425,11 +1433,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	/**
-	 * Returns true if this instance of SimpleArtifactRepository holds the lock,
-	 * false otherwise.
+	 * Returns true if this instance of SimpleArtifactRepository holds the lock or 
+	 * this repository can't be locked at all due to permission, false otherwise.
 	 */
 	private boolean holdsLock() {
-		return holdsLock;
+		return (canLock != null && !canLock.booleanValue()) || holdsLock;
 	}
 
 	/**URIUtil.toURI(location.toURI()
