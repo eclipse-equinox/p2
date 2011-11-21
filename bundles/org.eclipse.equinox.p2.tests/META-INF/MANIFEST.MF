@@ -61,6 +61,7 @@ Eclipse-BundleShape: dir
 Bundle-ActivationPolicy: lazy
 Import-Package: javax.xml.parsers,
  org.eclipse.ant.core,
+ org.eclipse.core.filesystem,
  org.eclipse.ecf.filetransfer,
  org.eclipse.equinox.internal.p2.artifact.processors.md5,
  org.eclipse.equinox.internal.p2.artifact.processors.pack200,
