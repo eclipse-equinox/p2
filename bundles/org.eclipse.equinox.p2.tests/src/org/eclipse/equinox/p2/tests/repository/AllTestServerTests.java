@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Cloudsmith Inc and others.
+ * Copyright (c) 2009, 2011 Cloudsmith Inc and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.repository;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.equinox.p2.tests.artifact.repository.MirrorRequestTest2;
 import org.eclipse.equinox.p2.tests.testserver.helper.AbstractTestServerSuite;
 
 public class AllTestServerTests extends AbstractTestServerSuite {
@@ -33,6 +34,7 @@ public class AllTestServerTests extends AbstractTestServerSuite {
 		suite.addTestSuite(FileInfoReaderTest.class);
 		suite.addTestSuite(FileReaderTest.class);
 		suite.addTestSuite(NTLMTest.class);
+		suite.addTestSuite(MirrorRequestTest2.class);
 
 		suite.addTest(new AbstractTestServerSuite("stopServer"));
 	}

@@ -17,6 +17,7 @@ import org.eclipse.equinox.p2.testserver.servlets.BasicResourceDelivery;
 import org.eclipse.equinox.p2.testserver.servlets.ChopAndDelay;
 import org.eclipse.equinox.p2.testserver.servlets.ContentLengthLier;
 import org.eclipse.equinox.p2.testserver.servlets.FileMolester;
+import org.eclipse.equinox.p2.testserver.servlets.IntermittentTimeout;
 import org.eclipse.equinox.p2.testserver.servlets.LastModifiedLier;
 import org.eclipse.equinox.p2.testserver.servlets.Redirector;
 import org.eclipse.equinox.p2.testserver.servlets.StatusCodeResponse;
@@ -70,9 +71,11 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 			httpService.registerResources("/private", "/webfiles", secureHttpContext); //$NON-NLS-1$ //$NON-NLS-2$
 			httpService.registerResources("/never", "/webfiles", alwaysFail); //$NON-NLS-1$ //$NON-NLS-2$
 			httpService.registerResources("/flipflop", "/webfiles", flipFlop); //$NON-NLS-1$ //$NON-NLS-2$
+			//			httpService.registerResources("/mirrorrequest", "/webfiles/emptyJarRepo", null); //$NON-NLS-1$ //$NON-NLS-2$
 
 			httpService.registerServlet("/status", new StatusCodeResponse(), null, null); //$NON-NLS-1$
 			httpService.registerServlet("/timeout", new TimeOut(), null, null); //$NON-NLS-1$
+			httpService.registerServlet("/mirrorrequest", new IntermittentTimeout("/mirrorrequest", URI.create("http://localhost:" + System.getProperty("org.osgi.service.http.port", "8080") + "/public/emptyJarRepo")), null, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 			httpService.registerServlet("/redirect", new Redirector(), null, null); //$NON-NLS-1$
 
 			httpService.registerServlet("/truncated", new Truncator("/truncated", URI.create("/webfiles"), 50), null, null); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
