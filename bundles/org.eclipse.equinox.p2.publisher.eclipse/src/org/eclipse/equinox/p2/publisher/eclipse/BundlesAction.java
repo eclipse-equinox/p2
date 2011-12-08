@@ -803,7 +803,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	/**
 	 * Adds advice for any p2.inf file found in this bundle.
 	 */
-	private void createAdviceFileAdvice(BundleDescription bundleDescription, IPublisherInfo publisherInfo) {
+	protected void createAdviceFileAdvice(BundleDescription bundleDescription, IPublisherInfo publisherInfo) {
 		String location = bundleDescription.getLocation();
 		if (location == null)
 			return;

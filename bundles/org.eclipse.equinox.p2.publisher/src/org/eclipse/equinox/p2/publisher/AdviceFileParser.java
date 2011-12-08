@@ -259,8 +259,14 @@ public class AdviceFileParser {
 			}
 			next();
 		}
-		IRequirement capability = MetadataFactory.createRequirement(namespace, name, range, filter, optional, multiple, greedy);
-		requires.add(capability);
+		IRequirement capability = createRequirement(namespace, name, range, filter, optional, multiple, greedy);
+		if (capability != null) {
+			requires.add(capability);
+		}
+	}
+
+	protected IRequirement createRequirement(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
+		return MetadataFactory.createRequirement(namespace, name, range, filter, optional, multiple, greedy);
 	}
 
 	private void parseInstructions(String prefix, Map<String, ITouchpointInstruction> instructions) {
