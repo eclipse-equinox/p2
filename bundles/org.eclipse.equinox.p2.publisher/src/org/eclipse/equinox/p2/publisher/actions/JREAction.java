@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 Code 9 and others. All rights reserved. This
+ * Copyright (c) 2008, 2011 Code 9 and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -111,8 +111,12 @@ public class JREAction extends AbstractPublisherAction {
 		if (profileProperties == null)
 			return new IProvidedCapability[0];
 
+		String packages = profileProperties.get(PROFILE_SYSTEM_PACKAGES);
+		if (packages == null || (packages.trim().length() == 0))
+			return new IProvidedCapability[] {PublisherHelper.createSelfCapability(id, version)};
+
 		try {
-			ManifestElement[] jrePackages = ManifestElement.parseHeader(PROFILE_SYSTEM_PACKAGES, profileProperties.get(PROFILE_SYSTEM_PACKAGES));
+			ManifestElement[] jrePackages = ManifestElement.parseHeader(PROFILE_SYSTEM_PACKAGES, packages);
 			IProvidedCapability[] exportedPackageAsCapabilities = new IProvidedCapability[jrePackages.length + 1];
 			exportedPackageAsCapabilities[0] = PublisherHelper.createSelfCapability(id, version);
 			for (int i = 1; i <= jrePackages.length; i++) {
