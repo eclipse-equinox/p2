@@ -43,7 +43,7 @@ public interface IArtifactRepository extends IRepository<IArtifactKey> {
 	/**
 	 * Create an instance of {@link IArtifactDescriptor} based on the given key
 	 * @param key {@link IArtifactKey}
-	 * @return a new instance of of IArtifactDescriptor
+	 * @return a new instance of IArtifactDescriptor
 	 */
 	public IArtifactDescriptor createArtifactDescriptor(IArtifactKey key);
 
