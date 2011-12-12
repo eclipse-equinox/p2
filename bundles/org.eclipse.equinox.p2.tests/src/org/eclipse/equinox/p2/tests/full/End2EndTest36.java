@@ -18,9 +18,9 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 
 /**
- * Test installing 3.7.
+ * Test installing 3.6.
  */
-public class End2EndTest37 extends AbstractEnd2EndTest {
+public class End2EndTest36 extends AbstractEnd2EndTest {
 
 	protected void validateInstallContent(File installFolder) {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
@@ -54,14 +54,15 @@ public class End2EndTest37 extends AbstractEnd2EndTest {
 	}
 
 	protected URI getRepositoryLocation() {
-		return URI.create("http://download.eclipse.org/eclipse/updates/3.7");
+		return URI.create("http://download.eclipse.org/eclipse/updates/3.6");
 	}
 
 	protected VersionedId getPlatform() {
-		return new VersionedId("org.eclipse.platform.ide", "3.7.0.I20110613-1736");
+		return new VersionedId("org.eclipse.platform.ide", "3.6.2.M20110210-1200");
 	}
 
 	protected VersionedId getPlatformSource() {
-		return new VersionedId("org.eclipse.platform.source.feature.group", "3.7.0.v20110530-9gF7UHNFFt4cwE-pkZDJ7oz-mj4OSEIlu9SEv0f");
+		return new VersionedId("org.eclipse.platform.source.feature.group", "3.6.2.r362_v20110210-9gF78Gs1FrIGnHDHWkEcopoN8AmxeZflGDGKQi");
 	}
+
 }

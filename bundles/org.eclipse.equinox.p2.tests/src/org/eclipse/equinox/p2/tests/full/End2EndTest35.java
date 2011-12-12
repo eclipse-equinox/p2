@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright (c) 2011 IBM Corporation and others.
+ *  Copyright (c) 2007, 2011 IBM Corporation and others.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -18,9 +18,9 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.p2.metadata.VersionedId;
 
 /**
- * Test installing 3.7.
+ * Test installing 3.5.
  */
-public class End2EndTest37 extends AbstractEnd2EndTest {
+public class End2EndTest35 extends AbstractEnd2EndTest {
 
 	protected void validateInstallContent(File installFolder) {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
@@ -39,7 +39,7 @@ public class End2EndTest37 extends AbstractEnd2EndTest {
 		}
 
 		assertContains("Can't find VM arg", manipulator.getLauncherData().getJvmArgs(), "-Xms40m");
-		assertContains("Can't find VM arg", manipulator.getLauncherData().getJvmArgs(), "-Xmx384m");
+		assertContains("Can't find VM arg", manipulator.getLauncherData().getJvmArgs(), "-Xmx256m");
 
 		String[] programArgs = manipulator.getLauncherData().getProgramArgs();
 		assertContains("Can't find program arg", programArgs, "-startup");
@@ -54,14 +54,15 @@ public class End2EndTest37 extends AbstractEnd2EndTest {
 	}
 
 	protected URI getRepositoryLocation() {
-		return URI.create("http://download.eclipse.org/eclipse/updates/3.7");
+		return URI.create("http://download.eclipse.org/eclipse/updates/3.5");
 	}
 
 	protected VersionedId getPlatform() {
-		return new VersionedId("org.eclipse.platform.ide", "3.7.0.I20110613-1736");
+		return new VersionedId("org.eclipse.platform.ide", "3.5.0.I20090611-1540");
 	}
 
 	protected VersionedId getPlatformSource() {
-		return new VersionedId("org.eclipse.platform.source.feature.group", "3.7.0.v20110530-9gF7UHNFFt4cwE-pkZDJ7oz-mj4OSEIlu9SEv0f");
+		return new VersionedId("org.eclipse.platform.source.feature.group", "3.5.0.v20090611a-9gEeG1HFtQcmRThO4O3aR_fqSMvJR2sJ");
 	}
+
 }

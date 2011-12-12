@@ -1,25 +1,23 @@
 /*******************************************************************************
- *  Copyright (c) 2007, 2010 IBM Corporation and others.
- *  All rights reserved. This program and the accompanying materials
- *  are made available under the terms of the Eclipse Public License v1.0
- *  which accompanies this distribution, and is available at
- *  http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2011 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  * 
- *  Contributors:
- *      IBM Corporation - initial API and implementation
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
 
-import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
-
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.eclipse.equinox.internal.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.p2.core.*;
 import org.eclipse.equinox.p2.engine.*;
@@ -36,17 +34,15 @@ import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
-public class End2EndTest extends AbstractProvisioningTest {
+/**
+ * Abstract parent class for the End-to-End test suites.
+ */
+public abstract class AbstractEnd2EndTest extends AbstractProvisioningTest {
 
 	private IMetadataRepositoryManager metadataRepoManager;
-
 	private IArtifactRepositoryManager artifactRepoManager;
 	private IDirector director;
-
 	private ServiceTracker fwAdminTracker;
-
-	private static URI repositoryLocation = URI.create("http://download.eclipse.org/eclipse/updates/3.5");
-
 	private IProvisioningAgent end2endAgent = null;
 
 	protected void setUp() throws Exception {
@@ -78,11 +74,12 @@ public class End2EndTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testInstallSDK35() {
-		File installFolder = TestActivator.getContext().getDataFile(End2EndTest.class.getName());
+	public void testInstallSDK() {
+		File installFolder = TestActivator.getContext().getDataFile(AbstractEnd2EndTest.class.getName());
 		IProfile profile2 = createProfile("End2EndProfile", installFolder.getAbsolutePath());
 
 		//Add repository of the release
+		URI repositoryLocation = getRepositoryLocation();
 		try {
 			metadataRepoManager.addRepository(repositoryLocation);
 			metadataRepoManager.setEnabled(repositoryLocation, true);
@@ -93,21 +90,15 @@ public class End2EndTest extends AbstractProvisioningTest {
 			fail("Exception loading the repository.", e);
 		}
 
-		installPlatform35(profile2, installFolder);
-
+		installPlatform(profile2, installFolder);
 		installBogusIU(profile2, installFolder);
-
-		installPlatformSource35(profile2, installFolder);
-
-		attemptToUninstallRCP35(profile2, installFolder);
-
-		rollbackPlatformSource35(profile2, installFolder);
-
+		installPlatformSource(profile2, installFolder);
+		attemptToUninstallRCP(profile2, installFolder);
+		rollbackPlatformSource(profile2, installFolder);
 		//		uninstallPlatform(profile2, installFolder);
-
 	}
 
-	private void attemptToUninstallRCP35(IProfile profile2, File installFolder) {
+	private void attemptToUninstallRCP(IProfile profile2, File installFolder) {
 		IQueryResult collect = profile2.query(QueryUtil.createIUQuery("org.eclipse.rcp.feature.group"), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(collect));
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
@@ -119,7 +110,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	protected void uninstallPlatform(IProfile profile2, File installFolder) {
 		System.out.println("Uninstall the platform");
-		IQueryResult collect = profile2.query(QueryUtil.createIUQuery("org.eclipse.platform.ide"), new NullProgressMonitor());
+		IQueryResult collect = profile2.query(QueryUtil.createIUQuery(getPlatform().getId()), new NullProgressMonitor());
 		assertEquals(1, queryResultSize(collect));
 		//		Collector collect2 = profile2.query(new InstallableUnitQuery("org.eclipse.platform.source.feature.group"), new Collector(), new NullProgressMonitor());
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
@@ -128,7 +119,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertOK("Can not uninstall platform", s);
 	}
 
-	private void rollbackPlatformSource35(IProfile profile2, File installFolder) {
+	private void rollbackPlatformSource(IProfile profile2, File installFolder) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) end2endAgent.getService(IProfileRegistry.SERVICE_NAME);
 		long[] timestamps = profileRegistry.listProfileTimestamps(profile2.getProfileId());
 		assertEquals(3, timestamps.length);
@@ -138,21 +129,19 @@ public class End2EndTest extends AbstractProvisioningTest {
 		IStatus s = director.revert(profile2, revertProfile, new ProvisioningContext(getAgent()), new NullProgressMonitor());
 		assertTrue(s.isOK());
 
-		validateInstallContentFor35(installFolder);
+		validateInstallContent(installFolder);
 		assertFalse(new File(installFolder, "configuration/org.eclipse.equinox.source/source.info").exists());
 	}
 
-	private void installPlatformSource35(IProfile profile2, File installFolder) {
-		final String id = "org.eclipse.platform.source.feature.group";
-		final Version version = Version.create("3.5.0.v20090611a-9gEeG1HFtQcmRThO4O3aR_fqSMvJR2sJ");
-
-		IInstallableUnit toInstall = getIU(id, version);
+	private void installPlatformSource(IProfile profile2, File installFolder) {
+		VersionedId source = getPlatformSource();
+		IInstallableUnit toInstall = getIU(source.getId(), source.getVersion());
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		request.addInstallableUnits(new IInstallableUnit[] {toInstall});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		if (!s.isOK())
-			fail("Installation of the " + id + " " + version + " failed.");
+			fail("Installation of the " + source.getId() + " " + source.getVersion() + " failed.");
 
 		assertProfileContainsAll("Platform source feature", profile2, new IInstallableUnit[] {toInstall});
 		assertTrue(new File(installFolder, "configuration/org.eclipse.equinox.source").exists());
@@ -174,23 +163,21 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertNotOK(s);
 	}
 
-	private void installPlatform35(IProfile profile2, File installFolder) {
-		final String id = "org.eclipse.platform.ide";
-		final Version version = Version.create("3.5.0.I20090611-1540");
-
+	private void installPlatform(IProfile profile2, File installFolder) {
+		VersionedId platform = getPlatform();
 		//First we install the platform
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
-		IInstallableUnit platformIU = getIU(id, version);
+		IInstallableUnit platformIU = getIU(platform.getId(), platform.getVersion());
 
 		request.addInstallableUnits(new IInstallableUnit[] {platformIU});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		if (!s.isOK()) {
 			LogHelper.log(s);
-			fail("Installation of the " + id + " " + version + " failed. " + s.toString());
+			fail("Installation of the " + platform.getId() + " " + platform.getVersion() + " failed. " + s.toString());
 		}
 
-		assertProfileContainsAll("Platform 3.5 profile", profile2, new IInstallableUnit[] {platformIU});
-		validateInstallContentFor35(installFolder);
+		assertProfileContainsAll("Platform profile", profile2, new IInstallableUnit[] {platformIU});
+		validateInstallContent(installFolder);
 		assertFalse(new File(installFolder, "configuration/org.eclipse.equinox.source").exists());
 	}
 
@@ -207,7 +194,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		Exception failure = null;
 		for (int i = 0; i < 3; i++) {
 			try {
-				IMetadataRepository repo = metadataRepoManager.loadRepository(repositoryLocation, null);
+				IMetadataRepository repo = metadataRepoManager.loadRepository(getRepositoryLocation(), null);
 				it = repo.query(query, null).iterator();
 				if (it.hasNext())
 					return (IInstallableUnit) it.next();
@@ -217,42 +204,19 @@ public class End2EndTest extends AbstractProvisioningTest {
 		}
 		if (failure == null)
 			failure = new RuntimeException("IU not found");
-		fail("Failed to obtain " + id + " version: " + v + " from: " + repositoryLocation, failure);
+		fail("Failed to obtain " + id + " version: " + v + " from: " + getRepositoryLocation(), failure);
 		return null;//will never get here
 	}
 
-	private void validateInstallContentFor35(File installFolder) {
-		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
-		Manipulator manipulator = fwkAdmin.getManipulator();
-		LauncherData launcherData = manipulator.getLauncherData();
-		launcherData.setFwConfigLocation(new File(installFolder, "configuration"));
-		launcherData.setLauncher(new File(installFolder, getLauncherName("eclipse", Platform.getOS())));
-		try {
-			manipulator.load();
-		} catch (IllegalStateException e) {
-			fail("Error loading the configuration", e);
-		} catch (FrameworkAdminRuntimeException e) {
-			fail("Error loading the configuration", e);
-		} catch (IOException e) {
-			fail("Error loading the configuration", e);
-		}
+	abstract protected void validateInstallContent(File installFolder);
 
-		assertContains("Can't find VM arg", manipulator.getLauncherData().getJvmArgs(), "-Xms40m");
-		assertContains("Can't find VM arg", manipulator.getLauncherData().getJvmArgs(), "-Xmx256m");
+	abstract protected URI getRepositoryLocation();
 
-		String[] programArgs = manipulator.getLauncherData().getProgramArgs();
-		assertContains("Can't find program arg", programArgs, "-startup");
-		assertContains("Can't find program arg", programArgs, "-showsplash");
-		assertContains("Can't find program arg", programArgs, "org.eclipse.platform");
+	abstract protected VersionedId getPlatform();
 
-		assertTrue(manipulator.getConfigData().getBundles().length > 50);
+	abstract protected VersionedId getPlatformSource();
 
-		assertTrue(new File(installFolder, "plugins").exists());
-		assertTrue(new File(installFolder, "features").exists());
-
-	}
-
-	private void assertContains(String message, String[] source, String searched) {
+	protected void assertContains(String message, String[] source, String searched) {
 		for (int i = 0; i < source.length; i++) {
 			if (source[i].equals(searched))
 				return;
@@ -260,7 +224,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		fail(message + " " + searched);
 	}
 
-	private FrameworkAdmin getEquinoxFrameworkAdmin() {
+	protected FrameworkAdmin getEquinoxFrameworkAdmin() {
 		final String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")";
 		final String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)";
 		final String filterLauncherName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME + "=Eclipse.exe)";
@@ -289,7 +253,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		return (FrameworkAdmin) fwAdminTracker.getService();
 	}
 
-	private static String getLauncherName(String name, String os) {
+	protected static String getLauncherName(String name, String os) {
 		if (os == null) {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class.getName());
 			if (info != null)
