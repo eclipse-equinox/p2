@@ -24,22 +24,20 @@ public class From36to37 extends AbstractReconcilerTest {
 	}
 
 	public static Test suite() {
-		TestSuite suite = new ReconcilerTestSuite("org.eclipse.equinox.p2.reconciler.tests.lastrelease.platform.archive");
+		TestSuite suite = new ReconcilerTestSuite("org.eclipse.equinox.p2.reconciler.tests.36.platform.archive");
 		suite.addTest(new From36to37("from36To37"));
 		return suite;
 	}
 
 	public void from36To37() {
 		assertInitialized();
-		String currentBuildRepo = System.getProperty("org.eclipse.equinox.p2.tests.current.build.repo");
-		if (currentBuildRepo == null)
-			currentBuildRepo = "http://download.eclipse.org/eclipse/updates/3.7-I-builds";
+		String repository = "http://download.eclipse.org/eclipse/updates/3.7";
 		runInitialize("Initializing 3.6 to get the profile paths properly setup.");
 		SimpleProfileRegistry registry = new SimpleProfileRegistry(getAgent(), new File(output, "eclipse/p2/org.eclipse.equinox.p2.engine/profileRegistry/"), null, false);
 		String initialTimestamp = Long.toString(registry.getProfile("PlatformProfile").getTimestamp());
 
 		//Take 3.6 archive, unzip, run it to update to 3.7
-		assertEquals(0, runDirectorToUpdate("Updating from 3.6 to 3.7", currentBuildRepo, "org.eclipse.platform.ide", "org.eclipse.platform.ide"));
+		assertEquals(0, runDirectorToUpdate("Updating from 3.6 to 3.7", repository, "org.eclipse.platform.ide", "org.eclipse.platform.ide"));
 		assertEquals(0, installAndRunVerifierBundle(null));
 
 		// revert to 3.6

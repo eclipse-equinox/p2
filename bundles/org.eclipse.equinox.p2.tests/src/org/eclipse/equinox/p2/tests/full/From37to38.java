@@ -24,7 +24,7 @@ public class From37to38 extends AbstractReconcilerTest {
 	}
 
 	public static Test suite() {
-		TestSuite suite = new ReconcilerTestSuite("org.eclipse.equinox.p2.reconciler.tests.lastrelease.platform.archive");
+		TestSuite suite = new ReconcilerTestSuite("org.eclipse.equinox.p2.reconciler.tests.37.platform.archive");
 		suite.addTest(new From37to38("from37To38"));
 		return suite;
 	}
@@ -32,6 +32,8 @@ public class From37to38 extends AbstractReconcilerTest {
 	public void from37To38() {
 		assertInitialized();
 		String currentBuildRepo = System.getProperty("org.eclipse.equinox.p2.tests.current.build.repo");
+		// TODO this will change once Juno is released:
+		// http://download.eclipse.org/eclipse/updates/3.8
 		if (currentBuildRepo == null)
 			currentBuildRepo = "http://download.eclipse.org/eclipse/updates/3.8-I-builds";
 		runInitialize("Initializing 3.7 to get the profile paths properly setup.");
