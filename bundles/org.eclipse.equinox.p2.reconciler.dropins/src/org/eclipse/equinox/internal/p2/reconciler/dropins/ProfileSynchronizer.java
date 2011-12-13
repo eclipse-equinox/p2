@@ -1,11 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2012 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: 
- * IBM Corporation - initial implementation and ideas
+ * 	IBM Corporation - initial implementation and ideas
  *     Sonatype, Inc. - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
@@ -503,22 +503,8 @@ public class ProfileSynchronizer {
 		for (Iterator<IInstallableUnit> iter = allIUs.iterator(); iter.hasNext();) {
 			final IInstallableUnit iu = iter.next();
 			IInstallableUnit existing = profileIUs.get(iu);
-			// check to see if it is really the same IU
-			if (existing == null) {
-				if (QueryUtil.isGroup(iu))
-					request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
-				// mark all IUs with special property
-				request.setInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS, Boolean.TRUE.toString());
-				request.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
-				request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, Integer.toString(IProfile.LOCK_UNINSTALL));
-				toAdd.add(iu);
-
-				// as soon as we find something locally that needs to be installed, then 
-				// everything from the parent's dropins must be installed locally as well.
-				if (!foundIUsToAdd && availableProfileIUs.get(iu) == null) {
-					foundIUsToAdd = true;
-				}
-			} else {
+			// check to see if this IU has moved locations
+			if (existing != null) {
 				// if the IU is already installed in the profile then check to see if it was moved.
 				String one = iu.getProperty(RepositoryListener.FILE_NAME);
 				String two = existing.getProperty(RepositoryListener.FILE_NAME);
@@ -527,8 +513,24 @@ public class ProfileSynchronizer {
 				// cheat here... since we always set the filename property for bundles in the dropins,
 				// if the existing IU's filename is null then it isn't from the dropins. a better
 				// (and more expensive) way to find this out is to do an IU profile property query.
-				if (one != null && two != null && !one.equals(two))
+				if (one != null && two != null && !one.equals(two)) {
 					toMove.add(iu);
+					continue;
+				}
+			}
+			//even though we are adding all the IUs below, we need to explicitly set the properties for them as well
+			if (QueryUtil.isGroup(iu))
+				request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+			// mark all IUs with special property
+			request.setInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS, Boolean.TRUE.toString());
+			request.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
+			request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, Integer.toString(IProfile.LOCK_UNINSTALL));
+			toAdd.add(iu);
+
+			// as soon as we find something locally that needs to be installed, then 
+			// everything from the parent's dropins must be installed locally as well.
+			if (!foundIUsToAdd && availableProfileIUs.get(iu) == null) {
+				foundIUsToAdd = true;
 			}
 		}
 
