@@ -20,6 +20,7 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 
+		// TODO re-enable all tests after resolution of https://bugs.eclipse.org/366540
 		/*
 		suite.addTestSuite(End2EndTest35.class);
 		suite.addTestSuite(End2EndTest36.class);
@@ -28,11 +29,11 @@ public class AllTests extends TestCase {
 		suite.addTest(From35to36.suite());
 		suite.addTest(From36to37.suite());
 		suite.addTest(From37to38.suite());
-		 */
 
-		//suite.addTest(Install36from35.suite());
-		//suite.addTest(Install37from36.suite());
-		//suite.addTest(Install38from37.suite());
+		suite.addTest(Install36from35.suite());
+		suite.addTest(Install37from36.suite());
+		suite.addTest(Install38from37.suite());
+		 */
 		return suite;
 	}
 
