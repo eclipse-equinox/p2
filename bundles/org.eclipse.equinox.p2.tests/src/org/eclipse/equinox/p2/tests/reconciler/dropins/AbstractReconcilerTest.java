@@ -369,11 +369,20 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		return false;
 	}
 
+	public void reconcile(String message) {
+		reconcile(message, false);
+	}
+
 	/*
 	 * Run the reconciler to discover changes in the drop-ins folder and update the system state.
 	 */
-	public void reconcile(String message) {
-		runEclipse(message, new String[] {"-application", "org.eclipse.equinox.p2.reconciler.application"});
+	public void reconcile(String message, boolean clean) {
+		List<String> args = new ArrayList<String>();
+		args.add("-application");
+		args.add("org.eclipse.equinox.p2.reconciler.application");
+		if (clean)
+			args.add("-clean");
+		runEclipse(message, args.toArray(new String[args.size()]));
 	}
 
 	/*

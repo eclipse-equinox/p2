@@ -26,6 +26,7 @@ public class AllTests extends TestCase {
 		suite.addTest(ConfigurationTests.suite());
 		suite.addTest(FeaturePatchTest.suite());
 		suite.addTest(SharedInstallTests.suite());
+		suite.addTest(Bug362692.suite());
 		return suite;
 	}
 }
