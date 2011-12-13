@@ -23,7 +23,7 @@ public class Install38from37 extends AbstractReconcilerTest {
 	}
 
 	public static Test suite() {
-		TestSuite suite = new ReconcilerTestSuite("org.eclipse.equinox.p2.reconciler.tests.lastrelease.platform.archive");
+		TestSuite suite = new ReconcilerTestSuite("org.eclipse.equinox.p2.reconciler.tests.37.platform.archive");
 		suite.addTest(new Install38from37("install38From37"));
 		return suite;
 	}
@@ -32,6 +32,8 @@ public class Install38from37 extends AbstractReconcilerTest {
 		assertInitialized();
 		//Create a new installation of 3.8 using 3.7
 		File installFolder = getTestFolder("install38From37");
+		// TODO this URL will change once Juno is released.
+		// http://download.eclipse.org/eclipse/updates/3.8
 		int result = runDirectorToInstall("Installing 3.8 from 3.7", new File(installFolder, "eclipse"), "http://download.eclipse.org/eclipse/updates/3.8-I-builds", "org.eclipse.platform.ide");
 		if (result != 0) {
 			File logFile = new File(installFolder, "log.log");

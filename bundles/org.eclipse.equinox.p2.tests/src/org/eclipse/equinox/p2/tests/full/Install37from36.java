@@ -23,7 +23,7 @@ public class Install37from36 extends AbstractReconcilerTest {
 	}
 
 	public static Test suite() {
-		TestSuite suite = new ReconcilerTestSuite("org.eclipse.equinox.p2.reconciler.tests.lastrelease.platform.archive");
+		TestSuite suite = new ReconcilerTestSuite("org.eclipse.equinox.p2.reconciler.tests.36.platform.archive");
 		suite.addTest(new Install37from36("install37From36"));
 		return suite;
 	}
@@ -32,7 +32,7 @@ public class Install37from36 extends AbstractReconcilerTest {
 		assertInitialized();
 		//Create a new installation of 3.7 using 3.6
 		File installFolder = getTestFolder("install37From36");
-		int result = runDirectorToInstall("Installing 3.7 from 3.6", new File(installFolder, "eclipse"), "http://download.eclipse.org/eclipse/updates/3.7-I-builds", "org.eclipse.platform.ide");
+		int result = runDirectorToInstall("Installing 3.7 from 3.6", new File(installFolder, "eclipse"), "http://download.eclipse.org/eclipse/updates/3.7", "org.eclipse.platform.ide");
 		if (result != 0) {
 			File logFile = new File(installFolder, "log.log");
 			if (logFile.exists()) {
