@@ -488,7 +488,6 @@ public class ProfileSynchronizer {
 		if (resolve)
 			request.removeProfileProperty("org.eclipse.equinox.p2.resolve"); //$NON-NLS-1$
 
-		List<IInstallableUnit> toAdd = new ArrayList<IInstallableUnit>();
 		List<IInstallableUnit> toRemove = new ArrayList<IInstallableUnit>();
 		List<IInstallableUnit> toMove = new ArrayList<IInstallableUnit>();
 
@@ -498,7 +497,7 @@ public class ProfileSynchronizer {
 		// we use IProfile.available(...) here so that we also gather any shared IUs
 		Map<IInstallableUnit, IInstallableUnit> availableProfileIUs = getAvailableProfileIUs();
 
-		// get all IUs from all our repos (toAdd)
+		// get all IUs from all our repos
 		IQueryResult<IInstallableUnit> allIUs = getAllIUsFromRepos();
 		for (Iterator<IInstallableUnit> iter = allIUs.iterator(); iter.hasNext();) {
 			final IInstallableUnit iu = iter.next();
@@ -518,14 +517,13 @@ public class ProfileSynchronizer {
 					continue;
 				}
 			}
-			//even though we are adding all the IUs below, we need to explicitly set the properties for them as well
+			//even though we are adding all IUs below, we need to explicitly set the properties for them as well
 			if (QueryUtil.isGroup(iu))
 				request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 			// mark all IUs with special property
 			request.setInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS, Boolean.TRUE.toString());
 			request.setInstallableUnitInclusionRules(iu, ProfileInclusionRules.createOptionalInclusionRule(iu));
 			request.setInstallableUnitProfileProperty(iu, IProfile.PROP_PROFILE_LOCKED_IU, Integer.toString(IProfile.LOCK_UNINSTALL));
-			toAdd.add(iu);
 
 			// as soon as we find something locally that needs to be installed, then 
 			// everything from the parent's dropins must be installed locally as well.
@@ -551,9 +549,7 @@ public class ProfileSynchronizer {
 			}
 			// if the IU from the profile is in the "all available" list, then it is already added
 			// otherwise if it isn't in the repo then we have to remove it from the profile.
-			if (all.contains(iu))
-				toAdd.remove(iu);
-			else
+			if (!all.contains(iu))
 				toRemove.add(iu);
 		}
 
@@ -563,8 +559,8 @@ public class ProfileSynchronizer {
 			return null;
 		}
 
-		context.setExtraInstallableUnits(toAdd);
-		request.addAll(toAdd);
+		// everything from the drop-ins must be considered for addition/removal every time so add all here
+		request.addAll(all);
 		request.removeAll(toRemove);
 		request.moveAll(toMove);
 
