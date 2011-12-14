@@ -22,6 +22,8 @@ public class AllTests extends TestCase {
 
 		// TODO re-enable all tests after resolution of https://bugs.eclipse.org/366540
 		/*
+		suite.addTestSuite(RepoValidator.class);
+		
 		suite.addTestSuite(End2EndTest35.class);
 		suite.addTestSuite(End2EndTest36.class);
 		suite.addTestSuite(End2EndTest37.class);
