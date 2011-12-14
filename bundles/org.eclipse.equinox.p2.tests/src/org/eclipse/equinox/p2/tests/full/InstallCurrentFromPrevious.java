@@ -13,28 +13,30 @@ package org.eclipse.equinox.p2.tests.full;
 import java.io.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.reconciler.dropins.AbstractReconcilerTest;
 import org.eclipse.equinox.p2.tests.reconciler.dropins.ReconcilerTestSuite;
 
-//Install 3.8 using 3.7
-public class Install38from37 extends AbstractReconcilerTest {
-	public Install38from37(String string) {
+/*
+ * Use the last release archive to install the current build.
+ */
+public class InstallCurrentFromPrevious extends AbstractReconcilerTest {
+	public InstallCurrentFromPrevious(String string) {
 		super(string);
 	}
 
 	public static Test suite() {
-		TestSuite suite = new ReconcilerTestSuite("org.eclipse.equinox.p2.reconciler.tests.37.platform.archive");
-		suite.addTest(new Install38from37("install38From37"));
+		TestSuite suite = new ReconcilerTestSuite("org.eclipse.equinox.p2.reconciler.tests.last.release.platform.archive");
+		suite.addTest(new InstallCurrentFromPrevious("installCurrentFromPrevious"));
 		return suite;
 	}
 
-	public void install38From37() throws IOException {
+	public void installCurrentFromPrevious() throws IOException {
 		assertInitialized();
-		//Create a new installation of 3.8 using 3.7
-		File installFolder = getTestFolder("install38From37");
-		// TODO this URL will change once Juno is released.
-		// http://download.eclipse.org/eclipse/updates/3.8
-		int result = runDirectorToInstall("Installing 3.8 from 3.7", new File(installFolder, "eclipse"), "http://download.eclipse.org/eclipse/updates/3.8-I-builds", "org.eclipse.platform.ide");
+		File installFolder = getTestFolder("installCurrentFromPrevious");
+		String repository = TestActivator.getContext().getProperty("org.eclipse.equinox.p2.tests.current.build.repo");
+		assertNotNull("Need set the \'org.eclipse.equinox.p2.tests.current.build.repo\' property.", repository);
+		int result = runDirectorToInstall("Installing current build from last release", new File(installFolder, "eclipse"), repository, "org.eclipse.platform.ide");
 		if (result != 0) {
 			File logFile = new File(installFolder, "log.log");
 			if (logFile.exists()) {

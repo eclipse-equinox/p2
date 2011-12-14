@@ -25,14 +25,10 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(End2EndTest35.class);
 		suite.addTestSuite(End2EndTest36.class);
 		suite.addTestSuite(End2EndTest37.class);
+		suite.addTestSuite(End2EndTestCurrent.class);
 
-		suite.addTest(From35to36.suite());
-		suite.addTest(From36to37.suite());
-		suite.addTest(From37to38.suite());
-
-		suite.addTest(Install36from35.suite());
-		suite.addTest(Install37from36.suite());
-		suite.addTest(Install38from37.suite());
+		suite.addTest(FromPreviousToCurrent.suite());
+		suite.addTest(InstallCurrentFromPrevious.suite());
 		 */
 		return suite;
 	}
